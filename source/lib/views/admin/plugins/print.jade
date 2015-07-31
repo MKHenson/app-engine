@@ -1,0 +1,36 @@
+﻿doctype html
+html(lang="en")
+	include ../../common-html/head
+	body
+		table
+			thead
+				th ID
+				th Name
+				th Folder Name
+				th Description
+				th Short Description
+				th Plan
+				th Path
+				th Header
+				th Body
+				th Deployables
+				th CSS
+				th Image
+				th Author
+				th Version
+			each plugin, name in plugins
+				tr
+					td #{plugin._id}
+					td #{plugin.name}
+					td #{plugin.folderName}
+					td #{plugin.description}
+					td #{plugin.shortDescription}
+					td #{plugin.plan}
+					td #{plugin.path}
+					td #{plugin.header}
+					td #{plugin.body}
+					td !{ (plugin.deployables ? plugin.deployables.join(", ") : "" )}
+					td #{plugin.css}
+					td #{plugin.image}
+					td #{plugin.author}
+					td #{plugin.version}

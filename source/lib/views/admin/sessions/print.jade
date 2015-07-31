@@ -1,0 +1,24 @@
+﻿doctype html
+html(lang="en")
+	include ../../common-html/head
+	body
+		table
+			thead
+				th ID
+				th Domain
+				th Expiration
+				th Lifetime
+				th Data
+				th Path
+				th Persistent
+				th Secure
+			each session, name in sessions
+				tr
+					td #{session.id}
+					td #{session.domain}
+					td !{new Date(session.expiration).toString()}
+					td #{session.lifetime}
+					td !{JSON.stringify(session.data)}
+					td #{session.path}
+					td #{session.persistent}
+					td #{session.secure}

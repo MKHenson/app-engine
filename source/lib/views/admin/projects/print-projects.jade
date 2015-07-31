@@ -1,0 +1,60 @@
+﻿doctype html
+html(lang="en")
+	include ../../common-html/head
+	body
+		table
+			thead
+				th ID
+				th Name
+				th Description
+				th User ID
+				th Plugins
+				th Image
+				th Image Path
+				th Category
+				th SubCategory
+				th Website Category
+				th Website Image
+				th Visibility
+				th Current File
+				th Rating
+				th Suspicious
+				th Deleted
+				th Type
+				th Tags
+				th Build ID
+				th Privileges
+				th Files
+				th Created On
+				th Last Modified
+			each project, name in projects
+				tr
+					td #{project._id}
+					td #{project.name}
+					td #{project.description}
+					td #{project.user}
+					td
+						- if (project.plugins)
+							- for (var x = 0; x < project.plugins.length; x++)
+								!= project.plugins[x] + "<br/>"
+					td #{project.image}
+					td #{project.imagePath}
+					td #{project.category}
+					td #{project.sub_category}
+					td #{project.website_category}
+					td #{project.website_img}
+					td #{project.visibility}
+					td #{project.cur_file}
+					td #{project.rating}
+					td #{project.suspicious}
+					td #{project.deleted}
+					td #{project.type}
+					td #{project.tags}
+					td #{project.buildId}
+					td !{project.privilegesStr}
+					td
+						- if (project.files)
+							- for (var x = 0; x < project.files.length; x++)
+								!= project.files[x] + "<br/>"
+					td !{new Date(project.createdOn).toString()}
+					td !{new Date(project.lastModified).toString()}

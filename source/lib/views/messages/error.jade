@@ -1,0 +1,15 @@
+﻿doctype html
+html(lang="en")
+	include ../common-html/head
+	body
+		.generic-error-form
+			#home
+				.top
+					.logo
+						a(href="https://webinate.net")
+							img(src= host + "/" + version + "/server-mongo/views/media/webinate-logo.png")
+					.sub-logo
+						| Animate your Web
+				div(class="error-message")
+					= message
+	include ../common-html/foot 

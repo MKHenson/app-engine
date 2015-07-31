@@ -1,0 +1,40 @@
+﻿doctype html
+html(lang="en")
+	include ../../common-html/head
+	body
+		table
+			thead
+				th ID
+				th Username
+				th Email
+				th Bio
+				th Image
+				th Image Path
+				th Tag
+				th User Type
+				th Plan
+				th Registration Key
+				th Website
+				th Customer ID
+				th Subscription
+				th Max Projects
+				th Joined
+				th Last Logged In
+			each user, name in users
+				tr
+					td #{user._id}
+					td #{user.username}
+					td #{user.email}
+					td #{user.bio}
+					td #{user.image}
+					td #{user.imagePath}
+					td #{user.tag}
+					td #{user.userType}
+					td #{user.plan}
+					td #{user.registerKey}
+					td #{user.website}
+					td #{user.customerId}
+					td #{user.curSubscription}
+					td #{user.maxProjects}
+					td !{new Date(user.createdOn).toString()}
+					td !{new Date(user.lastModified).toString()}
