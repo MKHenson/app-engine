@@ -5,6 +5,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 var modepress_api_1 = require("modepress-api");
+var PluginController_1 = require("./controllers/PluginController");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
 */
@@ -18,7 +19,9 @@ var AppEngine = (function (_super) {
     */
     function AppEngine(server, config, e) {
         _super.call(this, null);
-        this._controllers = [];
+        this._controllers = [
+            new PluginController_1.PluginController(server, config, e)
+        ];
     }
     /**
     * Called to initialize this controller and its related database objects

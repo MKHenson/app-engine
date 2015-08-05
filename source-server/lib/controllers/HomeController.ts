@@ -79,7 +79,7 @@ export class HomeController extends BaseController
 					controller = BuildController.singleton;
 					break;
 				case utils.urlControllers.PLUGIN:
-					controller = PluginController.singleton;
+					//controller = PluginController.singleton;
 					break;
 				case utils.urlControllers.MISC:
 					controller = MiscController.singleton;

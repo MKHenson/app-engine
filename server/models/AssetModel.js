@@ -27,12 +27,12 @@ var Asset = (function () {
 })();
 exports.Asset = Asset;
 /**
-* A class that is used to describe the project model
+* A class that is used to describe the assets model
 */
 var AssetModel = (function (_super) {
     __extends(AssetModel, _super);
     /**
-    * Creates an instance of a project
+    * Creates an instance of the model
     */
     function AssetModel() {
         _super.call(this, "assets");

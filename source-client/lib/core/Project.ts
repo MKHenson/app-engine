@@ -127,8 +127,8 @@ module Animate
 		public mDescription: string;
 		public mTags: string;
 		//public mRequest: string;
-		public mCurBuild: Build;
-		private _plugins: Array<IPluginDefinition>;
+        public mCurBuild: Build;
+        private _plugins: Array<IPluginDefinition>;
 		public created: number;
 		public lastModified: number;
 		public mCategory: string;

@@ -1,13 +1,21 @@
-/// <reference path="../../common_interface/JQuery.d.ts" />
-/// <reference path="../../common_interface/JSColor.d.ts" />
-/// <reference path="../../common_interface/AceEditor.d.ts" />
-/// <reference path="../../common_interface/FileUploader.d.ts" />
-/// <reference path="../../common_interface/Recaptcha.d.ts" />
-jQuery(document).ready(function () {
-    var app = new Animate.Application("body");
-    app.tooltip = "hello world";
-
-    //Start Splash screen
-    Animate.Splash.getSingleton().show();
+define(["require", "exports"], function (require, exports) {
+    var __plugins = [];
+    function onPluginsLoaded(eventType, event, sender) {
+        sender.removeEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
+        sender.removeEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
+        if (!event.tag) {
+            Animate.MessageBox.show("Could not connect to server", [], null, null);
+            return;
+        }
+        __plugins = event.tag.plugins;
+        //Start Splash screen
+        Animate.Splash.getSingleton().show();
+    }
+    jQuery(document).ready(function () {
+        var app = new Animate.Application("body");
+        var loader = new Animate.AnimateLoader();
+        loader.addEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
+        loader.addEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
+        loader.load("/plugins/get-plugins", {});
+    });
 });
-//# sourceMappingURL=Main.js.map

@@ -3,7 +3,7 @@ module Animate
 	//This class holds the DB information.
 	export class DB
 	{
-		public static HOST : string = "https://animate.webinate.net:7000";
+		public static HOST : string = "http://animate-test.net";
 		public static PLAN_FREE: string = "animate-free";
 		public static PLAN_BRONZE: string = "animate-bronze";
 		public static PLAN_SILVER: string = "animate-silver";

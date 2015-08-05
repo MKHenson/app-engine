@@ -9,7 +9,6 @@ var ErrorController = require("./ErrorController");
 var UserController = require("./UserController");
 var ProjectController = require("./ProjectController");
 var BuildController = require("./BuildController");
-var PluginController = require("./PluginController");
 var ExportController = require("./ExportController");
 var FileController = require("./FileController");
 var MiscController = require("./MiscController");
@@ -64,7 +63,7 @@ var HomeController = (function (_super) {
                     controller = BuildController.singleton;
                     break;
                 case utils.urlControllers.PLUGIN:
-                    controller = PluginController.singleton;
+                    //controller = PluginController.singleton;
                     break;
                 case utils.urlControllers.MISC:
                     controller = MiscController.singleton;

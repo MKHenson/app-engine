@@ -35,12 +35,12 @@ export class Asset
 
 
 /**
-* A class that is used to describe the project model
+* A class that is used to describe the assets model
 */
 export class AssetModel extends Model
 {
 	/**
-	* Creates an instance of a project
+	* Creates an instance of the model
 	*/
     constructor()
     {
