@@ -1,0 +1,14 @@
+﻿/**DEFAULTS
+============================================*/
+/*Sets the defaults */
+.viewport-3d{ width:100%; height:100%; background-color:#555; overflow:hidden; }
+
+.terrain-generate-form .input-box input, .terrain-generate-form select{ width:200px; float:right; }
+.terrain-generate-form .label-val{ margin:0 0 5px 0; }
+
+.terrain-generate-form .content{ padding:5px; }
+.terrain-generate-form .info .textfield{ font-style:italic; text-align:right; color:#888; }
+
+.trike-terrain-error { position: absolute; left: 25%; top: 35%; background: #FFF291; padding: 10px; border: 2px dashed #ff0000; color: black; font-weight: bold; z-index: 9999; }
+
+.ctrl-tip{ position:absolute; left:0px; top:0px; padding:10px; background:#EDDB8C; color:#000; border:2px dashed #D4670F; font-weight:bold; }

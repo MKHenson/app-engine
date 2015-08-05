@@ -1,0 +1,33 @@
+doctype html
+html(lang="en")
+	head
+		meta(charset="utf-8")
+		meta(name="viewport", content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0")
+		meta(name="fragment", content="!")
+		title(App Engine)
+		link(rel="SHORTCUT ICON", href=url + "/media/page-icon.png")
+		link(rel="stylesheet", href=url + "/style.css", type="text/css")
+		link(rel="stylesheet", href=url + "/style-trike.css", type="text/css")
+		script(type="text/javascript", src=url + "/third-party/jquery-1.10.2.js")
+		script(type="text/javascript", src=url + "/third-party/mouse-wheel.js")
+		script(type="text/javascript", src=url + "/third-party/jquery-ui.js")
+		script(type="text/javascript", src=url + "/third-party/jscolor.js")
+		script(type="text/javascript", src=url + "/third-party/date-format.js")
+		script(type="text/javascript", src=url + "/third-party/jquery-shortcut.js")
+		script(type="text/javascript", src=url + "/third-party/jstepper.js")
+		script(type="text/javascript", src=url + "/third-party/jquery.scrollTo-1.4.3.1.js")
+		script(type="text/javascript", src=url + "/third-party/file-uploader.js")
+		script(type="text/javascript", src=url + "/application.js")
+		script(type="text/javascript", src=url + "/third-party/ace-min/ace.js")
+		script(type="text/javascript", src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js")
+		
+		script(type="text/javascript").
+			var _users = "#{usersURL}"
+			var _url = "#{url}"
+			window.prerenderReady = false;
+		
+		base(href="/")
+
+	body
+		div(id="toolbar")
+		div(id="stage")
