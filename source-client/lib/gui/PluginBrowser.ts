@@ -124,7 +124,7 @@ module Animate
 			comp.element.css( { "pointer-events": "none" });
 
 
-			var plugins:Array<IPluginDefinition> = User.getSingleton().project.plugins;			
+            var plugins: Array<Engine.IPlugin> = User.getSingleton().project.plugins;			
 			var user : User = User.getSingleton();
 
 			//Create each of the plugin items that the user has set
@@ -143,9 +143,9 @@ module Animate
 
 		/**
 		* Adds a plugin component
-		* @param {IPluginDefinition} plugin 
+		* @param {IPlugin} plugin 
 		*/
-		addProjectPluginComp( plugin : IPluginDefinition )
+        addProjectPluginComp(plugin: Engine.IPlugin )
 		{
 			var item = this.pluginList.addChild( "<div class='plugin-item'><div class='inner'><img src='" + plugin.image + "'>" + plugin.name + "</div><div class='close-but'>X</div><div class='fix'></div></div>" );
 
@@ -177,7 +177,7 @@ module Animate
 			var selectedFilter : JQuery = this.selectedFilter;
 
 			//Sort based on the filter
-			__plugins.sort( function ( a: IPluginDefinition, b: IPluginDefinition )
+            __plugins.sort(function (a: Engine.IPlugin, b: Engine.IPlugin )
 			{
 				var nameA = a.name.toLowerCase();
 				var nameB = b.name.toLowerCase();
@@ -251,7 +251,7 @@ module Animate
 		*/
 		onOverProject( e : any )
 		{
-			var plugin: IPluginDefinition = jQuery( e.currentTarget ).data( "plugin" );
+            var plugin: Engine.IPlugin = jQuery( e.currentTarget ).data( "plugin" );
 			if ( plugin )
 				this.help.element.html( plugin.description );
 		}
@@ -265,7 +265,7 @@ module Animate
 			var comp = jQuery( e.currentTarget ).parent().data( "component" );
 			var parent = this.pluginList;
 
-			var plugin: IPluginDefinition = comp.element.data( "plugin" );
+            var plugin: Engine.IPlugin = comp.element.data( "plugin" );
 			var userPlugins = User.getSingleton().project.plugins;
 			var i = userPlugins.length;
 			while ( i-- )
@@ -300,7 +300,7 @@ module Animate
 		{
 			var parent : Component = this.newPlugsLower;
 			var comp : Component = jQuery( e.currentTarget ).data( "component" );
-			var plugin: IPluginDefinition = jQuery( e.currentTarget ).data( "plugin" );
+            var plugin: Engine.IPlugin = jQuery( e.currentTarget ).data( "plugin" );
 			if ( plugin )
 			{
 				var addedComp = this.addProjectPluginComp( plugin );

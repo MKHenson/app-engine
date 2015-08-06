@@ -128,7 +128,7 @@ module Animate
 		public mTags: string;
 		//public mRequest: string;
         public mCurBuild: Build;
-        private _plugins: Array<IPluginDefinition>;
+        private _plugins: Array<Engine.IPlugin>;
 		public created: number;
 		public lastModified: number;
 		public mCategory: string;
@@ -1222,6 +1222,6 @@ module Animate
 			super.dispose();
 		}
 
-		get plugins(): Array<IPluginDefinition> { return this._plugins; }
+        get plugins(): Array<Engine.IPlugin> { return this._plugins; }
 	}
 }

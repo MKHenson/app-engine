@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
+    <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />
     <TypeScriptCompile Include="definitions\JQuery.d.ts" />

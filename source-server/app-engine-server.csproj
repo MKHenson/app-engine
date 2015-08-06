@@ -29,7 +29,7 @@
     <TypeScriptCompile Include="definitions\express.d.ts" />
     <TypeScriptCompile Include="definitions\form-data.d.ts" />
     <TypeScriptCompile Include="definitions\method-override.d.ts" />
-    <TypeScriptCompile Include="definitions\modepress-api.d.ts" />
+    <TypeScriptCompile Include="definitions\modepress.d.ts" />
     <TypeScriptCompile Include="definitions\mongodb.d.ts" />
     <TypeScriptCompile Include="definitions\node.d.ts" />
     <TypeScriptCompile Include="definitions\request.d.ts" />
