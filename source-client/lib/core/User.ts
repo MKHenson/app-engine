@@ -36,10 +36,11 @@ module Animate
 		}
 	}
 
+    
 	/**
 	* This class is used to represent the user who is logged into Animate.
 	*/
-	export class User extends EventDispatcher
+    export class User extends EventDispatcher implements ng.IServiceProvider 
 	{
 		private static _singleton = null;
 
@@ -53,21 +54,25 @@ module Animate
 
 		private _project: Project;
 		private _isLoggedIn: boolean;
-		//private mRequest: string;		
 
-		constructor( username : string = "" )
+        private _http: angular.IHttpService;
+        private _url: string;
+        private _q: ng.IQService;
+
+        public static $inject = [ "$http", "$usersUrl", "$q" ];
+        constructor($httpProvider: angular.IHttpService, $usersUrl: string, $q: ng.IQService)
 		{
-			super();
+            super();
 
-			if ( User._singleton != null )
-				throw new Error( "The User class is a singleton. You need to call the User.getSingleton() function." );
-
-			User._singleton = this;
+            this._http = $httpProvider;
+            this._url = $usersUrl;
+            this._q = $q;
+            User._singleton = this;
 
 			// Call super-class constructor
 			EventDispatcher.call( this );
 
-			this.username = username;
+			this.username = "";
 			this.bio = "";
 			this.createdOn = "";
 			//this.mRequest = "";
@@ -77,21 +82,48 @@ module Animate
 			this._project = null;
 			this.planLevel = -1;
 			this.maxNumProjects = 0;
-		}
+        }
+
+
+        public $get(): User
+        {
+            return this;
+        }
+        
 
 		/**
 		* Checks if a user is logged in or not. This checks the animate server using 
 		* cookie and session data from the browser. The call is made synchronously.
 		* @extends {User} 
 		*/
-		updatedLoggedIn()
-		{
+        updatedLoggedIn()
+        {
 			this._isLoggedIn = false;
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/user/logged-in", { } );
-		}
+            loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+            loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
+        }
+
+        /**
+		* Queries the server to see if the user is currently logged in or not
+		* @extends {User} 
+		*/
+        authenticated(): ng.IPromise<boolean>
+        {
+            var that = this;
+            return new this._q(function (resolve, reject)
+            {
+                that._http.get<UsersInterface.IAuthenticationResponse>(this._url).then(function (response)
+                {
+                    if (response.data.error)
+                        return reject(new Error(response.data.message));
+                    else
+                        return resolve(response.data.authenticated);
+                });
+            });
+        }
+
 
 		/**
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
@@ -329,8 +361,8 @@ module Animate
 					this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
 					return;
 				}
-				
-				if ( loader.url == "/user/log-in" )
+
+                if (loader.url == "/user/log-in")
 				{
 					this.bio = data.bio;
 					this.plan = data.plan;
@@ -394,7 +426,7 @@ module Animate
 
 					this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
 				}				
-				else if ( loader.url == "/user/logged-in" )
+                else if (loader.url.match(/authenticated/) )
 				{
 					if ( data.loggedIn )
 					{
@@ -436,9 +468,6 @@ module Animate
 		*/
 		static getSingleton() : User
 		{
-			if ( !User._singleton )
-				new User();
-
 			return User._singleton;
 		}
     }

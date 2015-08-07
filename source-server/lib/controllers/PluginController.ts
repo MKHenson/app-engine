@@ -383,7 +383,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse} from "modepress";
+import {Controller, IServer, IConfig, IResponse} from "modepress-api";
 import {IGetPlugins} from "modepress-engine";
 import {PluginModel} from "../models/PluginModel";
 import {IPlugin} from "engine";

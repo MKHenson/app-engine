@@ -71,16 +71,19 @@ module Animate
 		* @param {any} data The post variables to send off to the server
 		* @param {number} numTries The number of attempts allowed to make this load
 		*/
-		load( url: string, data: any, numTries : number = 3 )
+		load( url: string, data: any, numTries : number = 3, type : string = "POST" )
 		{
 			super.load( url, data, numTries );
 			LoaderBase.showLoader();
 
-			var fullURL: string = this.domain + this.url + this._getQuery;
+            if (url.match(/http/g))
+                var fullURL: string = url;
+            else
+                var fullURL: string = this.domain + this.url + this._getQuery;
 
 			this._curCall = jQuery.ajax( { 
 				url: fullURL,
-				type: 'POST',
+                type: type,
 				dataType: this.dataType,
 				crossDomain: true,
 				cache: true,

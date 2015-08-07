@@ -8,6 +8,7 @@ html(lang="en")
 		link(rel="SHORTCUT ICON", href=url + "/media/page-icon.png")
 		link(rel="stylesheet", href=url + "/style.css", type="text/css")
 		link(rel="stylesheet", href=url + "/style-trike.css", type="text/css")
+		link(rel="stylesheet", href=url + "/loading-bar.css", type="text/css")
 		script(type="text/javascript", src=url + "/third-party/jquery-1.10.2.js")
 		script(type="text/javascript", src=url + "/third-party/mouse-wheel.js")
 		script(type="text/javascript", src=url + "/third-party/jquery-ui.js")
@@ -17,18 +18,23 @@ html(lang="en")
 		script(type="text/javascript", src=url + "/third-party/jstepper.js")
 		script(type="text/javascript", src=url + "/third-party/jquery.scrollTo-1.4.3.1.js")
 		script(type="text/javascript", src=url + "/third-party/file-uploader.js")
-		script(type="text/javascript", src=url + "/third-party/angular-0.10.6.min.js")
-		script(type="text/javascript", src=url + "/application.js")
+		script(type="text/javascript", src=url + "/third-party/angular.min.js")
+		script(type="text/javascript", src=url + "/third-party/angular-ui-router.min.js")
+		script(type="text/javascript", src=url + "/third-party/angular-animate.min.js")
+		script(type="text/javascript", src=url + "/third-party/angular-sanitize.min.js")
+		script(type="text/javascript", src=url + "/third-party/loading-bar.min.js")
+		script(type="text/javascript", src=url + "/third-party/ng-file-upload.min.js")
 		script(type="text/javascript", src=url + "/third-party/ace-min/ace.js")
 		script(type="text/javascript", src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js")
-		
 		script(type="text/javascript").
 			var _users = "#{usersURL}"
 			var _url = "#{url}"
 			window.prerenderReady = false;
-		
+		script(type="text/javascript", src=url + "/application.js")
 		base(href="/")
 
-	body
+	body(ng-app="app-engine")
 		div(id="toolbar")
 		div(id="stage")
+		en-window(en-title="hello little world")
+			div(class="main-view", ui-view="main-view")

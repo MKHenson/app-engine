@@ -1,5 +1,5 @@
 import mongodb = require( "mongodb" );
-import {Model, SchemaFactory, NumberType} from "modepress";
+import {Model, SchemaFactory, NumberType} from "modepress-api";
 
 /**
 * A class that is used to describe the project model

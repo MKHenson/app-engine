@@ -21,17 +21,26 @@
     <Content Include="..\client\resources\style.css">
       <Link>html\style.css</Link>
     </Content>
+    <Content Include="..\client\resources\templates\splash.html">
+      <Link>html\templates\splash.html</Link>
+    </Content>
+    <Content Include="..\client\resources\templates\window.html">
+      <Link>html\templates\window.html</Link>
+    </Content>
     <Content Include="lib\html\index.html" />
     <Content Include="lib\html\style-trike.css" />
     <Content Include="lib\html\style.css" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
+    <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
+    <TypeScriptCompile Include="definitions\angular.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />
-    <TypeScriptCompile Include="definitions\JQuery.d.ts" />
+    <TypeScriptCompile Include="definitions\jquery.d.ts" />
     <TypeScriptCompile Include="definitions\JSColor.d.ts" />
+    <TypeScriptCompile Include="lib\Config.ts" />
     <TypeScriptCompile Include="lib\core\Asset.ts" />
     <TypeScriptCompile Include="lib\core\AssetClass.ts" />
     <TypeScriptCompile Include="lib\core\AssetTemplate.ts" />

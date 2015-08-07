@@ -895,7 +895,10 @@ module Animate
 			if (this.initialized == false)
 			{
 				User.getSingleton().addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
-				User.getSingleton().updatedLoggedIn();
+                User.getSingleton().updatedLoggedIn();
+                User.getSingleton().authenticated().then(function (val)
+                {
+                })
 			}
 			else
 				jQuery( "img", this.userImg.element ).attr("src", User.getSingleton().imgURL );

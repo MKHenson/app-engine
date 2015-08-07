@@ -38,14 +38,17 @@
     }
 }
 
+declare module ModepressEngine
+{
+    export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }
+    export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
+}
+
 declare module "engine" {
     export = Engine;
 }
 
 declare module "modepress-engine"
 {
-    import {IAsset, IPlugin} from "engine";
-
-    export interface IGetAssets extends Modepress.IGetArrayResponse<IAsset> { }
-    export interface IGetPlugins extends Modepress.IGetArrayResponse<IPlugin> { }
+    export = ModepressEngine;
 }

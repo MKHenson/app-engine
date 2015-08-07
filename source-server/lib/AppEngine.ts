@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import {Controller, IServer, IConfig} from "modepress";
+import {Controller, IServer, IConfig} from "modepress-api";
 import {PluginController} from "./controllers/PluginController"
 
 /**

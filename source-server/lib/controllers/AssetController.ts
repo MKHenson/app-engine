@@ -1,7 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse} from "modepress";
+import {Controller, IServer, IConfig, IResponse} from "modepress-api";
 import {IGetAssets} from "modepress-engine";
 
 import {AssetModel} from "../models/AssetModel";

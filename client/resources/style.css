@@ -195,6 +195,10 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{ back
 .splash-final-screen{  }
 .splash-new-project-sub textarea{ height:300px; }
 
+.main-view {
+
+}
+
 .news { font-size: 16px; font-weight: normal; line-height: 25px; }
 .getting-started{ font-size: 20px;  text-align:left; margin: 10px 0; }
 .getting-started img{ margin: 0px 5px 0 0; vertical-align:middle; background:#5e5ca6; padding:5px; }
@@ -828,3 +832,13 @@ SCALE IN
 
 
 
+en-window {
+    position:absolute;
+    width:40%;
+    height:50%;
+    left:20%;
+    height:20%;
+    display:block;
+    background:white;
+    z-index:5000;
+}
