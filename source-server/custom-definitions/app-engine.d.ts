@@ -1,4 +1,4 @@
-﻿declare module "app-engine"
+﻿declare module Engine
 {
     /**
     * A class that is used to describe the assets model
@@ -38,10 +38,14 @@
     }
 }
 
-declare module "modepress-api"
-{
-    import {IAsset, IPlugin} from "app-engine";
+declare module "engine" {
+    export = Engine;
+}
 
-    export interface IGetAssets extends IGetArrayResponse<IAsset> { }
-    export interface IGetPlugins extends IGetArrayResponse<IPlugin> { }
+declare module "modepress-engine"
+{
+    import {IAsset, IPlugin} from "engine";
+
+    export interface IGetAssets extends Modepress.IGetArrayResponse<IAsset> { }
+    export interface IGetPlugins extends Modepress.IGetArrayResponse<IPlugin> { }
 }

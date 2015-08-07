@@ -1,4 +1,17 @@
 define(["require", "exports"], function (require, exports) {
+    //interface IPluginDefinition
+    //{
+    //	name: string;
+    //	description: string;
+    //	shortDescription: string;
+    //	plan: string;
+    //	path: string;
+    //	css: string;
+    //	image: string;
+    //	author: string;
+    //	version: string;
+    //	_id: any;
+    //}
     var __plugins = [];
     function onPluginsLoaded(eventType, event, sender) {
         sender.removeEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
@@ -16,6 +29,6 @@ define(["require", "exports"], function (require, exports) {
         var loader = new Animate.AnimateLoader();
         loader.addEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
         loader.addEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
-        loader.load("/plugins/get-plugins", {});
+        loader.load("/plugin/get-plugins", {});
     });
 });

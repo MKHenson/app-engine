@@ -1,18 +1,4 @@
-interface IPluginDefinition
-{
-	name: string;
-	description: string;
-	shortDescription: string;
-	plan: string;
-	path: string;
-	css: string;
-	image: string;
-	author: string;
-	version: string;
-	_id: any;
-}
-
-var __plugins: Array<IPluginDefinition> = [];
+var __plugins: Array<Engine.IPlugin> = [];
 
 function onPluginsLoaded( eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
 {

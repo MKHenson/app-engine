@@ -1,9 +1,11 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IGetAssets, IResponse} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse} from "modepress";
+import {IGetAssets} from "modepress-engine";
+
 import {AssetModel} from "../models/AssetModel";
-import {IAsset} from "app-engine";
+import {IAsset} from "engine";
 
 /**
 * A controller that deals with asset models

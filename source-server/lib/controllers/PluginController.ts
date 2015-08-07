@@ -383,9 +383,10 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IGetPlugins, IResponse} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse} from "modepress";
+import {IGetPlugins} from "modepress-engine";
 import {PluginModel} from "../models/PluginModel";
-import {IPlugin} from "app-engine";
+import {IPlugin} from "engine";
 
 /**
 * A controller that deals with plugin models
