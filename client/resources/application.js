@@ -38,6 +38,64 @@ var Animate;
     })();
     Animate.Config = Config;
 })(Animate || (Animate = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function windowDirective() {
+        return {
+            templateUrl: "templates/window.html", restrict: "E",
+            transclude: true,
+            controller: WindowController,
+            controllerAs: "ctrl",
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {
+                title: "@enTitle",
+                center: "@enCenter"
+            }
+        };
+    }
+    Engine.windowDirective = windowDirective;
+    /*
+    * Controls the functionality of the window
+    */
+    var WindowController = (function () {
+        function WindowController($scope) {
+            this.scope = $scope;
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        WindowController.prototype.initialize = function (elem) {
+            this.elem = elem;
+            if (this.scope.center)
+                this.center();
+            jQuery(".window", elem).draggable({ handle: ".window-control-box", containment: "parent" });
+        };
+        /**
+        * Centers the window into the middle of the screen. This only works if the elements are added to the DOM first
+        */
+        WindowController.prototype.center = function () {
+            var window = jQuery(".window", this.elem);
+            window.css({
+                left: (jQuery("body").width() / 2 - window.width() / 2),
+                top: (jQuery("body").height() / 2 - window.height() / 2)
+            });
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        WindowController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        WindowController.$inject = ["$scope"];
+        return WindowController;
+    })();
+    Engine.WindowController = WindowController;
+})(Engine || (Engine = {}));
 var Animate;
 (function (Animate) {
     /**
@@ -170,7 +228,7 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -17997,26 +18055,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
     .service("User", Animate.User)
     .filter('bytes', byteFilter)
     .config(Animate.Config)
-    .directive("enWindow", function () {
-    return {
-        templateUrl: "templates/window.html", restrict: "E",
-        transclude: true,
-        controller: function ($scope) {
-            $scope.close = function () {
-                $scope.$destroy();
-                $($scope.elem).remove();
-                $scope.elem = null;
-            };
-            $scope.close;
-        },
-        link: function (scope, element, attrs) {
-            scope.elem = element;
-            jQuery(".window", element).draggable({ handle: ".window-control-box", containment: "parent" });
-        },
-        scope: {
-            title: "@enTitle"
-        } };
-})
+    .directive("enWindow", Engine.windowDirective)
     .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state, users) {
     }]);
 /// <reference path="./definitions/jquery.d.ts" />
@@ -18032,6 +18071,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 /// <reference path="lib/Config.ts" />
+/// <reference path="lib/directives/Window.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />

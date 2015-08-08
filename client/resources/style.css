@@ -826,17 +826,3 @@ SCALE IN
 75% { -o-transform: scale( 1.1, 1.1 ); }
 100% { -o-transform: scale( 1, 1 ); }
 }
-
-
-
-.splash-window .window {
-    width: 800px; 
-    height: 520px;
-}
-
-
-en-window {
-    width:100%;
-    height:100%;
-    display: block;
-}

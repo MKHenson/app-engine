@@ -51,32 +51,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
     .service("User", Animate.User)
     .filter('bytes', byteFilter)
     .config(Animate.Config)
-    .directive("enWindow", function ()
-    {
-        return {
-            templateUrl: "templates/window.html", restrict: "E",
-            transclude: true,
-            controller: function($scope)
-            {
-                $scope.close = function ()
-                {
-                    $scope.$destroy();
-                    $($scope.elem).remove();
-                    $scope.elem = null;
-                }
-
-                $scope.close
-
-            },
-            link: function (scope, element, attrs)
-            {
-                (<any>scope).elem = element;
-
-                jQuery(".window", element).draggable({ handle: ".window-control-box", containment: "parent" });
-            },
-            scope: {
-                title: "@enTitle"
-            } } })
+    .directive("enWindow", Engine.windowDirective)
     .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
     {
     }]);

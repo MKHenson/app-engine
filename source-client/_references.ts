@@ -14,6 +14,8 @@
 
 /// <reference path="lib/Config.ts" />
 
+/// <reference path="lib/directives/Window.ts" />
+
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />

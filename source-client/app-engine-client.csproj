@@ -18,8 +18,14 @@
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\client\resources\style-directives.css">
+      <Link>html\style-directives.css</Link>
+    </Content>
     <Content Include="..\client\resources\style.css">
       <Link>html\style.css</Link>
+    </Content>
+    <Content Include="..\client\resources\templates\list-view.html">
+      <Link>html\templates\list-view.html</Link>
     </Content>
     <Content Include="..\client\resources\templates\splash.html">
       <Link>html\templates\splash.html</Link>
@@ -68,6 +74,7 @@
     <TypeScriptCompile Include="lib\core\Project.ts" />
     <TypeScriptCompile Include="lib\core\TypeConverter.ts" />
     <TypeScriptCompile Include="lib\core\Utils.ts" />
+    <TypeScriptCompile Include="lib\directives\Window.ts" />
     <TypeScriptCompile Include="lib\gui\Application.ts" />
     <TypeScriptCompile Include="lib\core\EventDispatcher.ts" />
     <TypeScriptCompile Include="lib\core\User.ts" />
@@ -161,6 +168,7 @@
       <Link>html\index.jade</Link>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
