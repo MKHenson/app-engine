@@ -170,7 +170,7 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -18011,7 +18011,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
         },
         link: function (scope, element, attrs) {
             scope.elem = element;
-            jQuery(element).draggable({ handle: ".window-control-box", containment: "parent" });
+            jQuery(".window", element).draggable({ handle: ".window-control-box", containment: "parent" });
         },
         scope: {
             title: "@enTitle"

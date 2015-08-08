@@ -72,7 +72,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
             {
                 (<any>scope).elem = element;
 
-                jQuery(element).draggable({ handle: ".window-control-box", containment: "parent" });
+                jQuery(".window", element).draggable({ handle: ".window-control-box", containment: "parent" });
             },
             scope: {
                 title: "@enTitle"
