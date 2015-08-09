@@ -1,4 +1,4 @@
-﻿.splash-window .window {
+﻿.window {
     width: 800px; 
     height: 520px;
 }
@@ -7,4 +7,61 @@ en-window {
     width:100%;
     height:100%;
     display: block;
+}
+
+/** 
+* List View
+*/
+en-list-view-column {
+    width:100px;
+    display: block;
+    float:left;
+}
+en-list-view-column .list-view-header {
+}
+en-list-view-column:last-child {
+    border-right: 1px solid #ccc;
+}
+en-list-view-column .dragger{
+    float:right;
+    height:20px; 
+    width:5px;
+    cursor:e-resize;
+}
+
+
+/** 
+* ANIMATIONS
+*/
+.anim-shadow-focus { 
+    animation: framesShadowFocus 0.3s linear 0s;
+    -moz-animation: framesShadowFocus 0.3s linear 0s;
+    -webkit-animation: framesShadowFocus 0.3s linear 0s; 
+}
+
+@keyframes framesShadowFocus
+{
+    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+}
+
+@-moz-keyframes framesShadowFocus /* Firefox */
+{
+    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+}
+
+@-webkit-keyframes framesShadowFocus /* Safari and Chrome */
+{
+    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
+    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
+    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
 }

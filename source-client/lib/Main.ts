@@ -52,6 +52,8 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
     .filter('bytes', byteFilter)
     .config(Animate.Config)
     .directive("enWindow", Engine.windowDirective)
+    .directive("enListView", Engine.ListViewDirective)
+    .directive("enListViewColumn", Engine.ListViewColumnDirective)
     .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
     {
     }]);

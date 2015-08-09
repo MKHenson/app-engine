@@ -24,8 +24,8 @@
     <Content Include="..\client\resources\style.css">
       <Link>html\style.css</Link>
     </Content>
-    <Content Include="..\client\resources\templates\list-view.html">
-      <Link>html\templates\list-view.html</Link>
+    <Content Include="..\client\resources\templates\list-view-column.html">
+      <Link>html\templates\list-view-column.html</Link>
     </Content>
     <Content Include="..\client\resources\templates\splash.html">
       <Link>html\templates\splash.html</Link>
@@ -74,6 +74,8 @@
     <TypeScriptCompile Include="lib\core\Project.ts" />
     <TypeScriptCompile Include="lib\core\TypeConverter.ts" />
     <TypeScriptCompile Include="lib\core\Utils.ts" />
+    <TypeScriptCompile Include="lib\directives\ListViewColumn.ts" />
+    <TypeScriptCompile Include="lib\directives\ListView.ts" />
     <TypeScriptCompile Include="lib\directives\Window.ts" />
     <TypeScriptCompile Include="lib\gui\Application.ts" />
     <TypeScriptCompile Include="lib\core\EventDispatcher.ts" />

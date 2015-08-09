@@ -31,6 +31,8 @@
         constructor($scope : any)
         {
             this.scope = $scope;
+
+            $scope.items = [["hello", "world"], ["This is ", "oh so wonderful"]]
         }
 
         /*
@@ -55,6 +57,17 @@
                 left: (jQuery("body").width() / 2 - window.width() / 2),
                 top: (jQuery("body").height() / 2 - window.height() / 2)
             });
+        }
+
+        /**
+		* When we click the modal window we flash the window
+		*/
+        onModalClicked()
+        {
+            var win = jQuery(".window", this.elem);
+            win.removeClass("anim-shadow-focus");
+            win.offset(win.offset());
+            win.addClass("anim-shadow-focus");
         }
 
         /*

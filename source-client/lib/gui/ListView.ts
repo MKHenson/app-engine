@@ -70,8 +70,7 @@
 		{
 			// Call super-class constructor
 			super("<div class='list-view'></div>", parent);
-
-		
+            
 			this._mode = ListViewType.DETAILS;
 
 			this._selectedItem = null;

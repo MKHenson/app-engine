@@ -64,6 +64,7 @@ var Engine;
     var WindowController = (function () {
         function WindowController($scope) {
             this.scope = $scope;
+            $scope.items = [["hello", "world"], ["This is ", "oh so wonderful"]];
         }
         /*
         * Called via the link function in the directive description
@@ -84,6 +85,15 @@ var Engine;
                 top: (jQuery("body").height() / 2 - window.height() / 2)
             });
         };
+        /**
+        * When we click the modal window we flash the window
+        */
+        WindowController.prototype.onModalClicked = function () {
+            var win = jQuery(".window", this.elem);
+            win.removeClass("anim-shadow-focus");
+            win.offset(win.offset());
+            win.addClass("anim-shadow-focus");
+        };
         /*
         * Destroys the window and removes it from the DOM
         */
@@ -95,6 +105,95 @@ var Engine;
         return WindowController;
     })();
     Engine.WindowController = WindowController;
+})(Engine || (Engine = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function ListViewDirective() {
+        return {
+            template: "<div class='list-view' ng-transclude></div>",
+            restrict: "E",
+            controller: ListViewController,
+            controllerAs: "ctrl",
+            transclude: true,
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {}
+        };
+    }
+    Engine.ListViewDirective = ListViewDirective;
+    /*
+    * Controls the functionality of the list view directive
+    */
+    var ListViewController = (function () {
+        function ListViewController($scope) {
+            this.scope = $scope;
+            for (var i = 0, l = $scope.items.length; i < l; i++)
+                $scope.items[i];
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        ListViewController.prototype.initialize = function (elem) {
+            this.elem = elem;
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        ListViewController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        ListViewController.$inject = ["$scope"];
+        return ListViewController;
+    })();
+    Engine.ListViewController = ListViewController;
+})(Engine || (Engine = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function ListViewColumnDirective() {
+        return {
+            templateUrl: "templates/list-view-column.html", restrict: "E",
+            require: "^enListView",
+            controller: ListViewColumnController,
+            controllerAs: "ctrl",
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {
+                title: "@"
+            }
+        };
+    }
+    Engine.ListViewColumnDirective = ListViewColumnDirective;
+    /*
+    * Controls the functionality of the list view directive
+    */
+    var ListViewColumnController = (function () {
+        function ListViewColumnController($scope) {
+            this.scope = $scope;
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        ListViewColumnController.prototype.initialize = function (elem) {
+            this.elem = elem;
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        ListViewColumnController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        ListViewColumnController.$inject = ["$scope"];
+        return ListViewColumnController;
+    })();
+    Engine.ListViewColumnController = ListViewColumnController;
 })(Engine || (Engine = {}));
 var Animate;
 (function (Animate) {
@@ -228,7 +327,7 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -18056,6 +18155,8 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
     .filter('bytes', byteFilter)
     .config(Animate.Config)
     .directive("enWindow", Engine.windowDirective)
+    .directive("enListView", Engine.ListViewDirective)
+    .directive("enListViewColumn", Engine.ListViewColumnDirective)
     .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state, users) {
     }]);
 /// <reference path="./definitions/jquery.d.ts" />
@@ -18072,6 +18173,8 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 /// <reference path="lib/Config.ts" />
 /// <reference path="lib/directives/Window.ts" />
+/// <reference path="lib/directives/ListView.ts" />
+/// <reference path="lib/directives/ListViewColumn.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />

@@ -15,6 +15,8 @@
 /// <reference path="lib/Config.ts" />
 
 /// <reference path="lib/directives/Window.ts" />
+/// <reference path="lib/directives/ListView.ts" />
+/// <reference path="lib/directives/ListViewColumn.ts" />
 
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
