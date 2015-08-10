@@ -35,7 +35,11 @@
                     {
                         views: {
                             "main-view": {
-                                templateUrl: "templates/splash.html"
+                                templateUrl: "templates/splash.html",
+                                controller: ["$scope", function (scope)
+                                {
+                                    scope.items = [["hello", "world"], ["lovely", "day"]];
+                                }]
                             }
                         },
                         url: "/",

@@ -4,7 +4,9 @@ module Animate
 	{
 		private static _singleton: Splash;
 
-		private welcomeBackground: Component;
+		//private welcomeBackground: Component;
+        private welcomeBackground: JQuery;
+
 		private newProjectBackground: Component;
 		private loginBackground: Component;
 		private pluginsBackground: Component;
@@ -26,12 +28,12 @@ module Animate
 		private regPassword: InputBox;
 		private regPasswordCheck: InputBox;
 		private loginResend: Label;
-		private project :Component;
-		private news :Component;
-		private userBox :Component;
-		private closeButton :Component;
+		//private project :Component;
+		//private news :Component;
+		//private userBox :Component;
+		//private closeButton :Component;
 		private userImg :Component;
-		private userBoxDetails :Component;
+		//private userBoxDetails :Component;
 		private response: string;
 		private pluginLoader: ProjectLoader;
 		private projectBrowser: ProjectBrowser;
@@ -42,21 +44,28 @@ module Animate
 		private clickProxy: any;
 		private animateProxy: any;
 		private initialized: boolean;
-		private slideTime: number;
+        private slideTime: number;
 
-		constructor()
-		{
-			super(800, 520);
+        private user: User;
 
-			if (Splash._singleton != null)
-				throw new Error("The Splash class is a singleton. You need to call the Splash.get() function.");
+        constructor()
+        {
+            super(800, 520);
 
-			Splash._singleton = this;
+            if (Splash._singleton != null)
+                throw new Error("The Splash class is a singleton. You need to call the Splash.get() function.");
+
+            Splash._singleton = this;
+
+            this.user = User.getSingleton();
 
 			
 			this.element.addClass("splash-window");
 
-			this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
+            //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
+            this.welcomeBackground = Compiler.build(jQuery("#splash-welcome").clone(), this);
+            this.content.element.append(this.welcomeBackground);
+
 			this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
 			this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
 			this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
@@ -78,7 +87,8 @@ module Animate
 		*/
 		reset()
 		{
-			this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
+            //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
+            this.welcomeBackground.css({ "left": "0px", "top": "0px" });
 			this.newProjectBackground.element.css({ "left": "800px" });
 			this.loginBackground.element.css({ "top": "-520px" });
 			this.pluginsBackground.element.css({ "left": "800px" });
@@ -90,7 +100,7 @@ module Animate
 			this.finalError.element.hide();
 			this.loginError.element.hide();
 
-			this.closeButton.element.show();
+			//this.closeButton.element.show();
 
 			this.loginUsername.textfield.element.removeClass("red-border");
 			this.loginPassword.textfield.element.removeClass("red-border");
@@ -103,7 +113,10 @@ module Animate
 			this.projectDesc.textfield.element.removeClass("red-border");
 
 			//Refresh the projects
-			User.getSingleton().downloadProjects();
+            User.getSingleton().downloadProjects();
+
+            Compiler.build(this.welcomeBackground, this);
+
 			return;
 		}
 
@@ -411,43 +424,47 @@ module Animate
 		*/
 		createWelcomePage()
 		{
-			var user : User = User.getSingleton();
+            var user: User = User.getSingleton();
 
-			var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
-			this.project = new Component("<div class='splash-section'></div>", sub);
-			this.news = new Component("<div class='splash-section'></div>", sub);
+            Compiler.build(this.welcomeBackground, this);
 
-			this.userBox = <Component>this.news.addChild("<div class='splash-user-box'></div>");
-			this.closeButton = new Component("<div class='close-but'>X</div>", this.userBox);
-			this.userImg = new Component("<div class='details'><img src='" + user.imgURL + "' /></div>", this.userBox);
+			//var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
+			//this.project = new Component("<div class='splash-section'></div>", sub);
+			//this.news = new Component("<div class='splash-section'></div>", sub);
+
+			//this.userBox = <Component>this.news.addChild("<div class='splash-user-box'></div>");
+			//this.closeButton = new Component("<div class='close-but'>X</div>", this.userBox);
+			//this.userImg = new Component("<div class='details'><img src='" + user.imgURL + "' /></div>", this.userBox);
 
 
-			this.news.addChild("<div class='welcome'>Welcome to Animate</div>");
-			var newsBox : Component = <Component>this.news.addChild("<div class='news'></div>");
+			//this.news.addChild("<div class='welcome'>Welcome to Animate</div>");
+			//var newsBox : Component = <Component>this.news.addChild("<div class='news'></div>");
 
 			//Get ajax news
-			newsBox.element.html("Hello and welcome back to Animate. If you're new around these parts, let's get you up and running in just a few minutes. Click the below button to learn how to create your very first Animate project. <br /><a href=\"javascript:window.open('https://webinate.net/tutorials-popup/','Animate Tutorials','width=1000,height=800')\"><div class='getting-started'><img src='media/play-arrow.png'/>Tutorial Videos</div></div></a>");
+			//newsBox.element.html("Hello and welcome back to Animate. If you're new around these parts, let's get you up and running in just a few minutes. Click the below button to learn how to create your very first Animate project. <br /><a href=\"javascript:window.open('https://webinate.net/tutorials-popup/','Animate Tutorials','width=1000,height=800')\"><div class='getting-started'><img src='media/play-arrow.png'/>Tutorial Videos</div></div></a>");
 
 
 			//login sections	
 			if ( user.isLoggedIn )
 			{
-				this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-				jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+				//this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+				//jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
 				user.downloadProjects();
-				this.closeButton.element.show();
+				//this.closeButton.element.show();
 			}
 			else
 			{
-				this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
-				jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
-				jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
-				this.closeButton.element.hide();
+				//this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
+				//jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
+				//jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
+				//this.closeButton.element.hide();
 			}
 
-			this.projectBrowser = new ProjectBrowser(this.project);
+            //this.projectBrowser = new ProjectBrowser(this.project);
+            this.projectBrowser = new ProjectBrowser(null);
+            jQuery(".splash-section", this.welcomeBackground).first().append(this.projectBrowser.element);
 			this.projectBrowser.addEventListener(ProjectBrowserEvents.COMBO, this.onProjectCombo, this);
-			this.closeButton.element.click(this.clickProxy);
+			//this.closeButton.element.click(this.clickProxy);
 		}
 
 
@@ -464,8 +481,6 @@ module Animate
 			//WELCOME - Next
 			if ( event.command == "Create New")
 			{
-				
-
 				//If a project already exists - warn the user it will have to be closed.
 				if (user.project)
 				{
@@ -475,7 +490,9 @@ module Animate
 					return;
 				}
 
-				this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+				//this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+
 				this.newProjectBackground.element.animate( { left: '-=800' }, this.slideTime, this.animateProxy );
 				this.projectName.focus();
 			}
@@ -534,7 +551,6 @@ module Animate
 				if (this.projectBrowser.selectedItem)
 					MessageBox.show("Are you sure you want to duplicate '" + this.projectBrowser.selectedName + "'?",
 						["Yes", "No"], this.onCopyMessageBox, this);
-
 			}
 		}
 
@@ -555,7 +571,8 @@ module Animate
 			{
 				this.loginError.element.hide();
 				this.loginPassword.text = "";
-				this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
 				this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
 			}
 			//WELCOME - Logout
@@ -564,18 +581,19 @@ module Animate
 				User.getSingleton().logout();
 				Application.getInstance().projectReset();
 			}
-			//WELCOME - Close
-			else if (comp == this.closeButton)
-			{
-				this.hide();
-
-			}
 			//LOGIN - back
 			else if (comp == this.loginBack)
 			{
-				this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+				//this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
 				this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-			}
+            }
+            //WELCOME - Close
+            else if (jQuery(e.currentTarget).is(".close-but"))
+            {
+                this.hide();
+
+            }
 			//LOGIN - reset password
 			else if (comp == this.loginReset)
 			{
@@ -603,7 +621,8 @@ module Animate
 			//PROJECT SCREEN - back
 			else if (comp == this.projectBack)
 			{
-				this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
 				this.newProjectBackground.element.animate( { left: '+=800' }, this.slideTime, this.animateProxy );
 				this.projectName.text = "";
 				this.projectDesc.text = "";
@@ -724,7 +743,8 @@ module Animate
 			}
 			if ( response == UserEvents.PROJECT_OPENED )
 			{
-				this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
 				this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
 				this.pluginBrowser.reset();
 				this.enableButtons(true);
@@ -804,14 +824,14 @@ module Animate
 				this.projectBrowser.clearItems();
 
 				//Remove links and create normal login section
-				jQuery(".logout-link", this.userBoxDetails.element).unbind();
+				//jQuery(".logout-link", this.userBoxDetails.element).unbind();
 
-				this.closeButton.element.hide();
+				//this.closeButton.element.hide();
 
-				this.userBoxDetails.element.remove();
-				this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
-				jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
-				jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
+				//this.userBoxDetails.element.remove();
+				//this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
+				//jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
+				//jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
 
 
 
@@ -822,16 +842,17 @@ module Animate
 			{
 				this.projectBrowser.enabled = true;
 
-				this.closeButton.element.show();
+				//this.closeButton.element.show();
 
 				//Remove links and create normal login section
-				jQuery(".login-link", this.userBoxDetails.element).unbind();
-				jQuery(".register-link", this.userBoxDetails.element).unbind();
+				//jQuery(".login-link", this.userBoxDetails.element).unbind();
+				//jQuery(".register-link", this.userBoxDetails.element).unbind();
 
-				var user = User.getSingleton();
-				this.userBoxDetails.element.remove();
-				this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-				jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+                var user = User.getSingleton();
+                Compiler.build(this.welcomeBackground, this);
+				//this.userBoxDetails.element.remove();
+				//this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+				//jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
 
 				//Fill project list
 				user.downloadProjects();
@@ -896,9 +917,6 @@ module Animate
 			{
 				User.getSingleton().addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
                 User.getSingleton().updatedLoggedIn();
-                User.getSingleton().authenticated().then(function (val)
-                {
-                })
 			}
 			else
 				jQuery( "img", this.userImg.element ).attr("src", User.getSingleton().imgURL );

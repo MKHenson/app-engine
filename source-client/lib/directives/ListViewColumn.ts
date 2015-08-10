@@ -13,7 +13,8 @@
             controllerAs: "ctrl",
             link: function (scope, element, attrs, controller: ListViewColumnController) { controller.initialize(element); },
             scope: {
-                title: "@"
+                title: "@",
+                subItems: "="
             }
         }
     }

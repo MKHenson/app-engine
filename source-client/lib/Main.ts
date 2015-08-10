@@ -32,7 +32,7 @@ function byteFilter()
 }
 
 jQuery(document).ready(function ()
-{
+{    
 	var app = new Animate.Application( "body" );
 
 	var loader = new Animate.AnimateLoader();	
@@ -40,20 +40,28 @@ jQuery(document).ready(function ()
 	loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
     loader.load("/plugins", {}, 3, "GET" );
 
+    //var stage = jQuery("#stage");
+    //var splash = jQuery(jQuery("#en-splash").addBack().html());
+    //stage.append(splash);
+    //Animate.Compiler.build(splash, {
+    //    name: "Mathew", buttonText: "Click Here",
+    //    sayHello: function (e) { alert("Hello!") },
+    //    sayHello2: function (e) { alert("You doubled me!") }
+    //});
     
 });
 
-angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
-    .constant("$usersUrl", _users + "/users")
-    .constant("mediaURL", _users + "/media")
-    .constant("apiURL", "./api")
-    .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
-    .service("User", Animate.User)
-    .filter('bytes', byteFilter)
-    .config(Animate.Config)
-    .directive("enWindow", Engine.windowDirective)
-    .directive("enListView", Engine.ListViewDirective)
-    .directive("enListViewColumn", Engine.ListViewColumnDirective)
-    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
-    {
-    }]);
+//angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
+//    .constant("$usersUrl", _users + "/users")
+//    .constant("mediaURL", _users + "/media")
+//    .constant("apiURL", "./api")
+//    .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
+//    .service("User", Animate.User)
+//    .filter('bytes', byteFilter)
+//    .config(Animate.Config)
+//    .directive("enWindow", Engine.windowDirective)
+//    .directive("enListView", Engine.ListViewDirective)
+//    .directive("enListViewColumn", Engine.ListViewColumnDirective)
+//    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
+//    {
+//    }]);

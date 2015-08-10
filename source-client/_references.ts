@@ -1,6 +1,4 @@
 /// <reference path="./definitions/jquery.d.ts" />
-/// <reference path="./definitions/angular.d.ts" />
-/// <reference path="./definitions/angular-ui-router.d.ts" />
 /// <reference path="./definitions/JSColor.d.ts" />
 /// <reference path="./definitions/AceEditor.d.ts" />
 /// <reference path="./definitions/es6-promise.d.ts" />
@@ -12,11 +10,7 @@
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 
-/// <reference path="lib/Config.ts" />
-
-/// <reference path="lib/directives/Window.ts" />
-/// <reference path="lib/directives/ListView.ts" />
-/// <reference path="lib/directives/ListViewColumn.ts" />
+/// <reference path="lib/core/Compiler.ts" />
 
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />

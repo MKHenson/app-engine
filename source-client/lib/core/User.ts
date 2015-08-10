@@ -54,19 +54,10 @@ module Animate
 
 		private _project: Project;
 		private _isLoggedIn: boolean;
-
-        private _http: angular.IHttpService;
-        private _url: string;
-        private _q: ng.IQService;
-
-        public static $inject = [ "$http", "$usersUrl", "$q" ];
-        constructor($httpProvider: angular.IHttpService, $usersUrl: string, $q: ng.IQService)
+        
+        constructor()
 		{
             super();
-
-            this._http = $httpProvider;
-            this._url = $usersUrl;
-            this._q = $q;
             User._singleton = this;
 
 			// Call super-class constructor
@@ -104,26 +95,6 @@ module Animate
             loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
             loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
         }
-
-        /**
-		* Queries the server to see if the user is currently logged in or not
-		* @extends {User} 
-		*/
-        authenticated(): ng.IPromise<boolean>
-        {
-            var that = this;
-            return new this._q(function (resolve, reject)
-            {
-                that._http.get<UsersInterface.IAuthenticationResponse>(this._url).then(function (response)
-                {
-                    if (response.data.error)
-                        return reject(new Error(response.data.message));
-                    else
-                        return resolve(response.data.authenticated);
-                });
-            });
-        }
-
 
 		/**
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
@@ -467,7 +438,10 @@ module Animate
 		* @returns {User}
 		*/
 		static getSingleton() : User
-		{
+        {
+            if (!User._singleton)
+                new User();
+
 			return User._singleton;
 		}
     }

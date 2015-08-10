@@ -14,6 +14,7 @@
             transclude: true,
             link: function (scope, element, attrs, controller: ListViewController) { controller.initialize(element); },
             scope: {
+                "items": "="
             }
         }
     }
@@ -30,8 +31,6 @@
         constructor($scope : any)
         {
             this.scope = $scope;
-            for (var i = 0, l = $scope.items.length; i < l; i++)
-                $scope. $scope.items[i]
         }
 
         /*

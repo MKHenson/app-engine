@@ -28,7 +28,8 @@ module Animate
 			this._focusObj = null; 
 
 			//Start the tooltip manager
-			TooltipManager.create();
+            TooltipManager.create();
+            User.getSingleton();
 
 			this._resizeProxy = this.onWindowResized.bind( this );
 			this._downProxy = this.onMouseDown.bind( this );

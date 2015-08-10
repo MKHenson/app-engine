@@ -31,8 +31,6 @@
         constructor($scope : any)
         {
             this.scope = $scope;
-
-            $scope.items = [["hello", "world"], ["This is ", "oh so wonderful"]]
         }
 
         /*

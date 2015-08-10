@@ -1,101 +1,70 @@
 var Animate;
 (function (Animate) {
-    'use strict';
-    /**
-    * Configures the Angular application
-    */
-    var Config = (function () {
+    var Compiler = (function () {
+        function Compiler() {
+        }
         /**
-        * Creates an instance of the configurator
+        * Given an HTML Element, this function returns all TextNodes
+        * @return {Array<Node>}
         */
-        function Config(routeProvider, stateProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider) {
-            $locationProvider.html5Mode(true);
-            // Turn off the loading bar spinner
-            cfpLoadingBarProvider.includeSpinner = false;
-            // Allows us to use CORS with angular
-            $httpProvider.defaults.withCredentials = true;
-            // Setup the different states
-            stateProvider
-                .state("main", {
-                views: {
-                    "main-view": {
-                        templateUrl: "templates/splash.html"
+        Compiler.getTextNodesIn = function (node, includeWhitespaceNodes) {
+            var textNodes = [], nonWhitespaceMatcher = /\S/;
+            function getTextNodes(node) {
+                if (node.nodeType == 3) {
+                    if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
+                        textNodes.push(node);
                     }
-                },
-                url: "/",
-                authenticate: true
-            });
-        }
-        // $inject annotation.
-        Config.$inject = [
-            "$urlRouterProvider",
-            "$stateProvider",
-            "$locationProvider",
-            "$httpProvider",
-            "cfpLoadingBarProvider"
-        ];
-        return Config;
-    })();
-    Animate.Config = Config;
-})(Animate || (Animate = {}));
-var Engine;
-(function (Engine) {
-    /**
-    * Returns an interface that describes this directive
-    * @returns {IDirective}
-    */
-    function windowDirective() {
-        return {
-            templateUrl: "templates/window.html", restrict: "E",
-            transclude: true,
-            controller: WindowController,
-            controllerAs: "ctrl",
-            link: function (scope, element, attrs, controller) { controller.initialize(element); },
-            scope: {
-                title: "@enTitle",
-                center: "@enCenter"
+                }
+                else {
+                    for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+                        getTextNodes(node.childNodes[i]);
+                    }
+                }
             }
+            getTextNodes(node);
+            return textNodes;
         };
-    }
-    Engine.windowDirective = windowDirective;
-    /*
-    * Controls the functionality of the window
-    */
-    var WindowController = (function () {
-        function WindowController($scope) {
-            this.scope = $scope;
-        }
-        /*
-        * Called via the link function in the directive description
-        */
-        WindowController.prototype.initialize = function (elem) {
-            this.elem = elem;
-            if (this.scope.center)
-                this.center();
-            jQuery(".window", elem).draggable({ handle: ".window-control-box", containment: "parent" });
+        Compiler.parse = function (e, ctrl) {
+            return eval("'use strict'; " + e);
         };
-        /**
-        * Centers the window into the middle of the screen. This only works if the elements are added to the DOM first
-        */
-        WindowController.prototype.center = function () {
-            var window = jQuery(".window", this.elem);
-            window.css({
-                left: (jQuery("body").width() / 2 - window.width() / 2),
-                top: (jQuery("body").height() / 2 - window.height() / 2)
+        Compiler.build = function (elm, controller) {
+            // Gets each of the text nodes and does a search replace on any double moustace characters
+            var tnodes = Compiler.getTextNodesIn(elm.get(0), false);
+            var matches;
+            var textNode;
+            for (var i = 0, l = tnodes.length; i < l; i++) {
+                textNode = tnodes[i];
+                textNode.nodeValue = textNode.nodeValue.replace(/{{\s*[\w\.]+\s*}}/g, function (sub, val) {
+                    var t = sub.match(/[\w\.]+/);
+                    return Compiler.parse(t, controller);
+                });
+            }
+            // Traverse each element
+            elm.find("*").addBack().each(function (index, elem) {
+                // Go through each element's attributes
+                jQuery.each(this.attributes, function (i, attrib) {
+                    var name = attrib.name;
+                    var value = attrib.value;
+                    switch (name) {
+                        case "en-click":
+                            elem.onclick = function (ev) { controller[value](ev); };
+                            break;
+                        case "en-dclick":
+                            elem.ondblclick = function (ev) { controller[value](ev); };
+                            break;
+                        case "en-src":
+                            elem.src = Compiler.parse(value, controller);
+                        case "en-show":
+                            elem.style.display = (Compiler.parse(value, controller) ? "" : "none");
+                    }
+                });
             });
+            return elm;
         };
-        /*
-        * Destroys the window and removes it from the DOM
-        */
-        WindowController.prototype.close = function () {
-            this.elem.remove();
-            this.scope.$destroy();
-        };
-        WindowController.$inject = ["$scope"];
-        return WindowController;
+        return Compiler;
     })();
-    Engine.WindowController = WindowController;
-})(Engine || (Engine = {}));
+    Animate.Compiler = Compiler;
+})(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
     /**
@@ -3503,11 +3472,8 @@ var Animate;
     */
     var User = (function (_super) {
         __extends(User, _super);
-        function User($httpProvider, $usersUrl, $q) {
+        function User() {
             _super.call(this);
-            this._http = $httpProvider;
-            this._url = $usersUrl;
-            this._q = $q;
             User._singleton = this;
             // Call super-class constructor
             Animate.EventDispatcher.call(this);
@@ -3536,21 +3502,6 @@ var Animate;
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
             loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load(Animate.DB.USERS + "/users/authenticated", {}, 3, "GET");
-        };
-        /**
-        * Queries the server to see if the user is currently logged in or not
-        * @extends {User}
-        */
-        User.prototype.authenticated = function () {
-            var that = this;
-            return new this._q(function (resolve, reject) {
-                that._http.get(this._url).then(function (response) {
-                    if (response.data.error)
-                        return reject(new Error(response.data.message));
-                    else
-                        return resolve(response.data.authenticated);
-                });
-            });
         };
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
@@ -3839,10 +3790,11 @@ var Animate;
         * @returns {User}
         */
         User.getSingleton = function () {
+            if (!User._singleton)
+                new User();
             return User._singleton;
         };
         User._singleton = null;
-        User.$inject = ["$http", "$usersUrl", "$q"];
         return User;
     })(Animate.EventDispatcher);
     Animate.User = User;
@@ -7056,6 +7008,7 @@ var Animate;
             this._focusObj = null;
             //Start the tooltip manager
             Animate.TooltipManager.create();
+            Animate.User.getSingleton();
             this._resizeProxy = this.onWindowResized.bind(this);
             this._downProxy = this.onMouseDown.bind(this);
             var comp = jQuery(document.activeElement).data("component");
@@ -17366,8 +17319,11 @@ var Animate;
             if (Splash._singleton != null)
                 throw new Error("The Splash class is a singleton. You need to call the Splash.get() function.");
             Splash._singleton = this;
+            this.user = Animate.User.getSingleton();
             this.element.addClass("splash-window");
-            this.welcomeBackground = new Animate.Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
+            //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
+            this.welcomeBackground = Animate.Compiler.build(jQuery("#splash-welcome").clone(), this);
+            this.content.element.append(this.welcomeBackground);
             this.newProjectBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
             this.loginBackground = new Animate.Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
             this.pluginsBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
@@ -17385,7 +17341,8 @@ var Animate;
         * @returns {any}
         */
         Splash.prototype.reset = function () {
-            this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
+            //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
+            this.welcomeBackground.css({ "left": "0px", "top": "0px" });
             this.newProjectBackground.element.css({ "left": "800px" });
             this.loginBackground.element.css({ "top": "-520px" });
             this.pluginsBackground.element.css({ "left": "800px" });
@@ -17394,7 +17351,7 @@ var Animate;
             this.projectError.element.hide();
             this.finalError.element.hide();
             this.loginError.element.hide();
-            this.closeButton.element.show();
+            //this.closeButton.element.show();
             this.loginUsername.textfield.element.removeClass("red-border");
             this.loginPassword.textfield.element.removeClass("red-border");
             this.regUsername.textfield.element.removeClass("red-border");
@@ -17405,6 +17362,7 @@ var Animate;
             this.projectDesc.textfield.element.removeClass("red-border");
             //Refresh the projects
             Animate.User.getSingleton().downloadProjects();
+            Animate.Compiler.build(this.welcomeBackground, this);
             return;
         };
         /**
@@ -17652,32 +17610,30 @@ var Animate;
         */
         Splash.prototype.createWelcomePage = function () {
             var user = Animate.User.getSingleton();
-            var sub = new Animate.Component("<div class='splash-container'></div>", this.welcomeBackground);
-            this.project = new Animate.Component("<div class='splash-section'></div>", sub);
-            this.news = new Animate.Component("<div class='splash-section'></div>", sub);
-            this.userBox = this.news.addChild("<div class='splash-user-box'></div>");
-            this.closeButton = new Animate.Component("<div class='close-but'>X</div>", this.userBox);
-            this.userImg = new Animate.Component("<div class='details'><img src='" + user.imgURL + "' /></div>", this.userBox);
-            this.news.addChild("<div class='welcome'>Welcome to Animate</div>");
-            var newsBox = this.news.addChild("<div class='news'></div>");
+            Animate.Compiler.build(this.welcomeBackground, this);
+            //var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
+            //this.project = new Component("<div class='splash-section'></div>", sub);
+            //this.news = new Component("<div class='splash-section'></div>", sub);
+            //this.userBox = <Component>this.news.addChild("<div class='splash-user-box'></div>");
+            //this.closeButton = new Component("<div class='close-but'>X</div>", this.userBox);
+            //this.userImg = new Component("<div class='details'><img src='" + user.imgURL + "' /></div>", this.userBox);
+            //this.news.addChild("<div class='welcome'>Welcome to Animate</div>");
+            //var newsBox : Component = <Component>this.news.addChild("<div class='news'></div>");
             //Get ajax news
-            newsBox.element.html("Hello and welcome back to Animate. If you're new around these parts, let's get you up and running in just a few minutes. Click the below button to learn how to create your very first Animate project. <br /><a href=\"javascript:window.open('https://webinate.net/tutorials-popup/','Animate Tutorials','width=1000,height=800')\"><div class='getting-started'><img src='media/play-arrow.png'/>Tutorial Videos</div></div></a>");
+            //newsBox.element.html("Hello and welcome back to Animate. If you're new around these parts, let's get you up and running in just a few minutes. Click the below button to learn how to create your very first Animate project. <br /><a href=\"javascript:window.open('https://webinate.net/tutorials-popup/','Animate Tutorials','width=1000,height=800')\"><div class='getting-started'><img src='media/play-arrow.png'/>Tutorial Videos</div></div></a>");
             //login sections	
             if (user.isLoggedIn) {
-                this.userBoxDetails = new Animate.Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-                jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+                //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+                //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
                 user.downloadProjects();
-                this.closeButton.element.show();
             }
             else {
-                this.userBoxDetails = new Animate.Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
-                jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
-                jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
-                this.closeButton.element.hide();
             }
-            this.projectBrowser = new Animate.ProjectBrowser(this.project);
+            //this.projectBrowser = new ProjectBrowser(this.project);
+            this.projectBrowser = new Animate.ProjectBrowser(null);
+            jQuery(".splash-section", this.welcomeBackground).first().append(this.projectBrowser.element);
             this.projectBrowser.addEventListener(Animate.ProjectBrowserEvents.COMBO, this.onProjectCombo, this);
-            this.closeButton.element.click(this.clickProxy);
+            //this.closeButton.element.click(this.clickProxy);
         };
         /**
         * Shows the window by adding it to a parent.
@@ -17694,7 +17650,8 @@ var Animate;
                     Animate.MessageBox.show("Are you sure you want to create a new project? Your open project will need to be closed.", ["Yes", "No"], this.onProjectOpenMessageBox, this);
                     return;
                 }
-                this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 this.projectName.focus();
             }
@@ -17746,19 +17703,21 @@ var Animate;
             if (jQuery(e.currentTarget).is(".login-link") || jQuery(e.currentTarget).is(".register-link")) {
                 this.loginError.element.hide();
                 this.loginPassword.text = "";
-                this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
                 this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
             }
             else if (jQuery(e.currentTarget).is(".logout-link")) {
                 Animate.User.getSingleton().logout();
                 Animate.Application.getInstance().projectReset();
             }
-            else if (comp == this.closeButton) {
-                this.hide();
-            }
             else if (comp == this.loginBack) {
-                this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
                 this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+            }
+            else if (jQuery(e.currentTarget).is(".close-but")) {
+                this.hide();
             }
             else if (comp == this.loginReset) {
                 if (this.validateLogins(this.loginReset))
@@ -17777,7 +17736,8 @@ var Animate;
                     Animate.User.getSingleton().register(this.regUsername.text, this.regPassword.text, this.regEmail.text, jQuery("#recaptcha_response_field").val(), jQuery("#recaptcha_challenge_field").val());
             }
             else if (comp == this.projectBack) {
-                this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
                 this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
                 this.projectName.text = "";
                 this.projectDesc.text = "";
@@ -17869,7 +17829,8 @@ var Animate;
                 return;
             }
             if (response == Animate.UserEvents.PROJECT_OPENED) {
-                this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 this.pluginBrowser.reset();
                 this.enableButtons(true);
@@ -17933,24 +17894,25 @@ var Animate;
                 this.projectBrowser.enabled = false;
                 this.projectBrowser.clearItems();
                 //Remove links and create normal login section
-                jQuery(".logout-link", this.userBoxDetails.element).unbind();
-                this.closeButton.element.hide();
-                this.userBoxDetails.element.remove();
-                this.userBoxDetails = new Animate.Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
-                jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
-                jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
+                //jQuery(".logout-link", this.userBoxDetails.element).unbind();
+                //this.closeButton.element.hide();
+                //this.userBoxDetails.element.remove();
+                //this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
+                //jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
+                //jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
                 return;
             }
             else if (response == Animate.UserEvents.LOGGED_IN && event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
                 this.projectBrowser.enabled = true;
-                this.closeButton.element.show();
+                //this.closeButton.element.show();
                 //Remove links and create normal login section
-                jQuery(".login-link", this.userBoxDetails.element).unbind();
-                jQuery(".register-link", this.userBoxDetails.element).unbind();
+                //jQuery(".login-link", this.userBoxDetails.element).unbind();
+                //jQuery(".register-link", this.userBoxDetails.element).unbind();
                 var user = Animate.User.getSingleton();
-                this.userBoxDetails.element.remove();
-                this.userBoxDetails = new Animate.Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-                jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+                Animate.Compiler.build(this.welcomeBackground, this);
+                //this.userBoxDetails.element.remove();
+                //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+                //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
                 //Fill project list
                 user.downloadProjects();
                 //Go back to main window
@@ -17999,8 +17961,6 @@ var Animate;
             if (this.initialized == false) {
                 Animate.User.getSingleton().addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
                 Animate.User.getSingleton().updatedLoggedIn();
-                Animate.User.getSingleton().authenticated().then(function (val) {
-                });
             }
             else
                 jQuery("img", this.userImg.element).attr("src", Animate.User.getSingleton().imgURL);
@@ -18046,21 +18006,30 @@ jQuery(document).ready(function () {
     loader.addEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
     loader.addEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
     loader.load("/plugins", {}, 3, "GET");
+    //var stage = jQuery("#stage");
+    //var splash = jQuery(jQuery("#en-splash").addBack().html());
+    //stage.append(splash);
+    //Animate.Compiler.build(splash, {
+    //    name: "Mathew", buttonText: "Click Here",
+    //    sayHello: function (e) { alert("Hello!") },
+    //    sayHello2: function (e) { alert("You doubled me!") }
+    //});
 });
-angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
-    .constant("$usersUrl", _users + "/users")
-    .constant("mediaURL", _users + "/media")
-    .constant("apiURL", "./api")
-    .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
-    .service("User", Animate.User)
-    .filter('bytes', byteFilter)
-    .config(Animate.Config)
-    .directive("enWindow", Engine.windowDirective)
-    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state, users) {
-    }]);
+//angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
+//    .constant("$usersUrl", _users + "/users")
+//    .constant("mediaURL", _users + "/media")
+//    .constant("apiURL", "./api")
+//    .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
+//    .service("User", Animate.User)
+//    .filter('bytes', byteFilter)
+//    .config(Animate.Config)
+//    .directive("enWindow", Engine.windowDirective)
+//    .directive("enListView", Engine.ListViewDirective)
+//    .directive("enListViewColumn", Engine.ListViewColumnDirective)
+//    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
+//    {
+//    }]); 
 /// <reference path="./definitions/jquery.d.ts" />
-/// <reference path="./definitions/angular.d.ts" />
-/// <reference path="./definitions/angular-ui-router.d.ts" />
 /// <reference path="./definitions/JSColor.d.ts" />
 /// <reference path="./definitions/AceEditor.d.ts" />
 /// <reference path="./definitions/es6-promise.d.ts" />
@@ -18070,8 +18039,7 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
 /// <reference path="../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
-/// <reference path="lib/Config.ts" />
-/// <reference path="lib/directives/Window.ts" />
+/// <reference path="lib/core/Compiler.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />
@@ -18190,3 +18158,203 @@ angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-l
 /// <reference path="lib/gui/forms/Splash.ts" />
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" /> 
+var Animate;
+(function (Animate) {
+    'use strict';
+    /**
+    * Configures the Angular application
+    */
+    var Config = (function () {
+        /**
+        * Creates an instance of the configurator
+        */
+        function Config(routeProvider, stateProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider) {
+            $locationProvider.html5Mode(true);
+            // Turn off the loading bar spinner
+            cfpLoadingBarProvider.includeSpinner = false;
+            // Allows us to use CORS with angular
+            $httpProvider.defaults.withCredentials = true;
+            // Setup the different states
+            stateProvider
+                .state("main", {
+                views: {
+                    "main-view": {
+                        templateUrl: "templates/splash.html",
+                        controller: ["$scope", function (scope) {
+                                scope.items = [["hello", "world"], ["lovely", "day"]];
+                            }]
+                    }
+                },
+                url: "/",
+                authenticate: true
+            });
+        }
+        // $inject annotation.
+        Config.$inject = [
+            "$urlRouterProvider",
+            "$stateProvider",
+            "$locationProvider",
+            "$httpProvider",
+            "cfpLoadingBarProvider"
+        ];
+        return Config;
+    })();
+    Animate.Config = Config;
+})(Animate || (Animate = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function ListViewDirective() {
+        return {
+            template: "<div class='list-view' ng-transclude></div>",
+            restrict: "E",
+            controller: ListViewController,
+            controllerAs: "ctrl",
+            transclude: true,
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {
+                "items": "="
+            }
+        };
+    }
+    Engine.ListViewDirective = ListViewDirective;
+    /*
+    * Controls the functionality of the list view directive
+    */
+    var ListViewController = (function () {
+        function ListViewController($scope) {
+            this.scope = $scope;
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        ListViewController.prototype.initialize = function (elem) {
+            this.elem = elem;
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        ListViewController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        ListViewController.$inject = ["$scope"];
+        return ListViewController;
+    })();
+    Engine.ListViewController = ListViewController;
+})(Engine || (Engine = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function ListViewColumnDirective() {
+        return {
+            templateUrl: "templates/list-view-column.html", restrict: "E",
+            require: "^enListView",
+            controller: ListViewColumnController,
+            controllerAs: "ctrl",
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {
+                title: "@",
+                subItems: "="
+            }
+        };
+    }
+    Engine.ListViewColumnDirective = ListViewColumnDirective;
+    /*
+    * Controls the functionality of the list view directive
+    */
+    var ListViewColumnController = (function () {
+        function ListViewColumnController($scope) {
+            this.scope = $scope;
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        ListViewColumnController.prototype.initialize = function (elem) {
+            this.elem = elem;
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        ListViewColumnController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        ListViewColumnController.$inject = ["$scope"];
+        return ListViewColumnController;
+    })();
+    Engine.ListViewColumnController = ListViewColumnController;
+})(Engine || (Engine = {}));
+var Engine;
+(function (Engine) {
+    /**
+    * Returns an interface that describes this directive
+    * @returns {IDirective}
+    */
+    function windowDirective() {
+        return {
+            templateUrl: "templates/window.html", restrict: "E",
+            transclude: true,
+            controller: WindowController,
+            controllerAs: "ctrl",
+            link: function (scope, element, attrs, controller) { controller.initialize(element); },
+            scope: {
+                title: "@enTitle",
+                center: "@enCenter"
+            }
+        };
+    }
+    Engine.windowDirective = windowDirective;
+    /*
+    * Controls the functionality of the window
+    */
+    var WindowController = (function () {
+        function WindowController($scope) {
+            this.scope = $scope;
+        }
+        /*
+        * Called via the link function in the directive description
+        */
+        WindowController.prototype.initialize = function (elem) {
+            this.elem = elem;
+            if (this.scope.center)
+                this.center();
+            jQuery(".window", elem).draggable({ handle: ".window-control-box", containment: "parent" });
+        };
+        /**
+        * Centers the window into the middle of the screen. This only works if the elements are added to the DOM first
+        */
+        WindowController.prototype.center = function () {
+            var window = jQuery(".window", this.elem);
+            window.css({
+                left: (jQuery("body").width() / 2 - window.width() / 2),
+                top: (jQuery("body").height() / 2 - window.height() / 2)
+            });
+        };
+        /**
+        * When we click the modal window we flash the window
+        */
+        WindowController.prototype.onModalClicked = function () {
+            var win = jQuery(".window", this.elem);
+            win.removeClass("anim-shadow-focus");
+            win.offset(win.offset());
+            win.addClass("anim-shadow-focus");
+        };
+        /*
+        * Destroys the window and removes it from the DOM
+        */
+        WindowController.prototype.close = function () {
+            this.elem.remove();
+            this.scope.$destroy();
+        };
+        WindowController.$inject = ["$scope"];
+        return WindowController;
+    })();
+    Engine.WindowController = WindowController;
+})(Engine || (Engine = {}));

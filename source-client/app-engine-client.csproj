@@ -27,8 +27,8 @@
     <Content Include="..\client\resources\templates\list-view-column.html">
       <Link>html\templates\list-view-column.html</Link>
     </Content>
-    <Content Include="..\client\resources\templates\splash.html">
-      <Link>html\templates\splash.html</Link>
+    <Content Include="..\client\resources\templates\splash-welcome.html">
+      <Link>html\templates\splash-welcome.html</Link>
     </Content>
     <Content Include="..\client\resources\templates\window.html">
       <Link>html\templates\window.html</Link>
@@ -54,6 +54,7 @@
     <TypeScriptCompile Include="lib\core\BehaviourDefinition.ts" />
     <TypeScriptCompile Include="lib\core\BehaviourManager.ts" />
     <TypeScriptCompile Include="lib\core\CanvasToken.ts" />
+    <TypeScriptCompile Include="lib\core\Compiler.ts" />
     <TypeScriptCompile Include="lib\core\DataToken.ts" />
     <TypeScriptCompile Include="lib\core\DB.ts" />
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
