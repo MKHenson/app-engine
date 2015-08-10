@@ -55,12 +55,12 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-			var onSelect: Function = function ( e ) 
+            var onSelect = function (e: JQueryEventObject  ) 
 			{
 				var val = selector.val();
 				that.notify(propertyName, val, objectType );
 			};
-			var onEye: Function = function ( e ) 
+            var onEye = function (e: JQueryEventObject ) 
 			{
 				var val = selector.val();
 				TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "groupID", val ), true );

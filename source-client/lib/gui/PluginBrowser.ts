@@ -70,7 +70,7 @@ module Animate
 			var newPlugsHeader: Component = <Component>newPlugs.addChild( "<div class='new-plugins-header'></div>" );
 			this.newPlugsLower = <Component>newPlugs.addChild( "<div class='new-plugins-lower'></div>" );
 
-			newPlugsHeader.element.disableSelection( true );
+			//newPlugsHeader.element.disableSelection( true );
 			newPlugsHeader.addChild( "<div class='filter-item' style='pointer-events:none;'>Filters</div>" );
 			this.selectedFilter = newPlugsHeader.addChild( "<div class='filter-item filter-item-selected'>Name</div>" ).element;
 			newPlugsHeader.addChild( "<div class='filter-item'>version</div>" );
@@ -152,7 +152,7 @@ module Animate
 			item.element.insertAfter( jQuery( ".heading", this.pluginList.element ) );
 			item.element.on( "mouseover", jQuery.proxy( this.onOverProject, this ) );
 			item.element.data( "plugin", plugin );
-			item.element.disableSelection( true );
+			//item.element.disableSelection( true );
 
 			jQuery( ".close-but", item.element ).click( jQuery.proxy( this.onRemoveProject, this ) );
 			var alreadyHasPlugin: boolean = false;
@@ -241,7 +241,7 @@ module Animate
 				item.element.on( "mouseover", jQuery.proxy( this.onOverProject, this ) );
 				item.element.on( "click", jQuery.proxy( this.onClickProject, this ) );
 				item.element.data( "plugin", __plugins[i] );
-				item.element.disableSelection( true );
+				//item.element.disableSelection( true );
 			}
 		}
 

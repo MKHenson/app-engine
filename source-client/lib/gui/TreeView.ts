@@ -17,7 +17,7 @@ module Animate
 			this._selectedNode = null;
 			this._selectedNodes = [];
 			this.element.on( "click", jQuery.proxy( this.onClick, this ) );
-			this.element.disableSelection( true );
+			(<any>this.element).disableSelection( true );
 			this.fixDiv = jQuery( "<div class='fix'></div>" );
 			this.element.append( this.fixDiv );
 		}

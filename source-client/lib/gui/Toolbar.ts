@@ -96,7 +96,7 @@ module Animate
 
 
 			this.element.on( "click", jQuery.proxy( this.onClick, this ) );
-			this.element.disableSelection( true );
+			//this.element.disableSelection( true );
 
 			this._currentContainer = this._tabHomeContainer;
 			this._currentTab = this._tabHomeContainer.element.data( "tab" ).element.data( "component" );// this.tabHome;
@@ -108,7 +108,7 @@ module Animate
 			jQuery( document ).bind( 'keydown', 'Ctrl+x', this.onKeyDown.bind( this ) );
 			jQuery( document ).bind( 'keydown', 'Ctrl+v', this.onKeyDown.bind( this ) );
 
-			this.element.disableSelection( true );
+			//this.element.disableSelection( true );
 		}
 
 		/**

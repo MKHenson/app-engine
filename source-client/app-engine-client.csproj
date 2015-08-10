@@ -45,6 +45,8 @@
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />
     <TypeScriptCompile Include="definitions\jquery.d.ts" />
+    <TypeScriptCompile Include="definitions\jquery.scrollTo.d.ts" />
+    <TypeScriptCompile Include="definitions\jqueryui.d.ts" />
     <TypeScriptCompile Include="definitions\JSColor.d.ts" />
     <TypeScriptCompile Include="lib\Config.ts" />
     <TypeScriptCompile Include="lib\core\Asset.ts" />

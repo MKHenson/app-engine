@@ -41,6 +41,7 @@
             this.elem = elem;
             if (this.scope.center)
                 this.center();
+
             jQuery(".window", elem).draggable({ handle: ".window-control-box", containment: "parent" });
         }
 

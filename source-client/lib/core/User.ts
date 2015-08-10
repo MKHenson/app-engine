@@ -96,6 +96,37 @@ module Animate
             loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
         }
 
+        /**
+		* Checks if a user is logged in or not. This checks the server using 
+		* cookie and session data from the browser.
+		* @returns {Promise<boolean>}
+		*/
+        authenticated(): Promise<boolean>
+        {
+            this._isLoggedIn = false;
+
+            var that = this;
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                jQuery.getJSON(`${DB.USERS}/users/authenticated`).done(function(data: UsersInterface.IAuthenticationResponse)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
+
+                    if (data.authenticated)
+                        that._isLoggedIn = true;
+                    else
+                        that._isLoggedIn = false;
+
+                    return resolve(data.authenticated);
+
+                }).fail(function (err)
+                {
+                    return reject(err);
+                });
+            });
+        }
+
 		/**
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
 		* it will return null.

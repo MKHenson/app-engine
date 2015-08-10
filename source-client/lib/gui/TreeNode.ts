@@ -34,7 +34,7 @@ module Animate
 
 			// Call super-class constructor
 			super( "<div class='tree-node'><div class='selectable'>" + ( this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "" ) + this.img + "<span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null );
-			this.element.disableSelection( true );
+			(<any>this.element).disableSelection( true );
 
 			jQuery( ".tree-node-button", this.element ).first().css( "visibility", "hidden" );
 

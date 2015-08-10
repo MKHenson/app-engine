@@ -56,7 +56,7 @@ module Animate
 				that.notify( propertyName, { extensions: fileExtensions, path: ( file ? file.path : "" ), id: ( file ? file.id : "" ), selectedExtension: ( file ? file.extension : "" ) }, objectType );
 			};
 			
-			var mouseUp: Function = function ( e : any ) 
+            var mouseUp = function (e: JQueryEventObject  ) 
 			{
 				if ( jQuery( e.target ).is( ".file-button-image" ) )
 				{

@@ -46,7 +46,7 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-			var onSelect: Function = function ( e ) 
+            var onSelect = function (e: JQueryEventObject  ) 
 			{
 				var val = selector.val();
 				that.notify( propertyName, { choices: vars, selected : val }, objectType );

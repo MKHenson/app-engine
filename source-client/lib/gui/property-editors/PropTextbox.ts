@@ -41,7 +41,7 @@ module Animate
 			var that = this;
 
 			//Function to deal with user interactions with JQuery
-			var valueEdited: Function = function() 
+            var valueEdited = function (e: JQueryEventObject ) 
 			{
 				that.notify( propertyName, jQuery( "input", editor ).val(), objectType );
 			};

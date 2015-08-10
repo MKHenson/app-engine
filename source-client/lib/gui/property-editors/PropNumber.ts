@@ -48,7 +48,7 @@ module Animate
 			var that = this;
 
 			//Function to deal with user interactions with JQuery
-			var valueEdited: Function = function() 
+            var valueEdited = function (e: JQueryEventObject ) 
 			{
 				var val: number = parseFloat( jQuery( "input", editor ).val() );
 				if ( isNaN( val ) )
@@ -70,7 +70,7 @@ module Animate
 			
 			//This is for when the users press the up and down buttons on chrome
 			jQuery( "input", editor ).on( "mouseup", valueEdited );
-			jQuery( "input", editor ).jStepper( {
+			(<any>jQuery( "input", editor )).jStepper( {
 				allowDecimals: true,
 				maxValue: max,
 				minValue: min,

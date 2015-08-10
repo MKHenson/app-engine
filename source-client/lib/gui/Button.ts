@@ -18,7 +18,7 @@ module Animate
 			var h = this.element.height();
 			var th = this.textfield.element.height();
 			this.textfield.element.css( "top", h / 2 - th / 2 );
-			this.element.disableSelection( true );
+			//this.element.disableSelection( true );
 			this.element.css( { width: width + "px", height: height + "px", margin: "3px" });
 		}
 

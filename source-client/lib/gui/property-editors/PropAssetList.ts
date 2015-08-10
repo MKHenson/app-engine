@@ -74,7 +74,7 @@ module Animate
 			}
 
 			// When we select an asset
-			var onSelect: Function = function ( e ) 
+            var onSelect = function (e: JQueryEventObject  ) 
 			{
 				assetId = parseInt( selector.val() );
 				asset = User.getSingleton().project.getAssetByShallowId( assetId );
@@ -82,13 +82,13 @@ module Animate
 
 
 			// When we select an asset in the list, select that in the drop down
-			var onItemSelect: Function = function ( e ) 
+            var onItemSelect = function (e: JQueryEventObject ) 
 			{
 				selector.val( items.val() );
 			};
 
-			// When we click on the eye selector
-			var onEye: Function = function ( e ) 
+            // When we click on the eye selector
+            var onEye = function (e: JQueryEventObject ) 
 			{
 				var val = parseInt( selector.val() );
 				asset = User.getSingleton().project.getAssetByShallowId( val );
@@ -100,7 +100,7 @@ module Animate
 			};
 
 			// When we click on add button
-			var onAdd: Function = function( e ) 
+            var onAdd = function (e: JQueryEventObject  ) 
 			{
 				if ( asset && selectedIDs.indexOf( assetId ) == -1 )
 				{
@@ -113,7 +113,7 @@ module Animate
 			}
 
 			// When we click on remove button
-			var onRemove: Function = function ( e ) 
+            var onRemove = function (e: JQueryEventObject ) 
 			{
 				var toRemove: number = parseInt( items.val() );
 				if ( selectedIDs.indexOf( toRemove ) != -1 )

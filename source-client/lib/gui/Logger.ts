@@ -46,7 +46,7 @@ module Animate
 			jQuery( document ).on( "contextmenu", this.mContextProxy );
 			this.context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
-			this.element.disableSelection( true );
+			//this.element.disableSelection( true );
 
 			this.warningFlagger.on( "click", jQuery.proxy( this.onIconClick, this ) );
 		}

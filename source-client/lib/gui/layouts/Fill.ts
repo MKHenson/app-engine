@@ -40,7 +40,7 @@ module Animate
 
 			if (parent != null && parent.length != 0)
 			{
-				var parentOverflow : String = parent.css("overflow");
+				var parentOverflow : string = parent.css("overflow");
 				parent.css("overflow", "hidden");
 
 				var w : number = parent.width();

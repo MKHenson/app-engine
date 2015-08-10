@@ -3504,6 +3504,28 @@ var Animate;
             loader.load(Animate.DB.USERS + "/users/authenticated", {}, 3, "GET");
         };
         /**
+        * Checks if a user is logged in or not. This checks the server using
+        * cookie and session data from the browser.
+        * @returns {Promise<boolean>}
+        */
+        User.prototype.authenticated = function () {
+            this._isLoggedIn = false;
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                jQuery.getJSON(Animate.DB.USERS + "/users/authenticated").done(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    if (data.authenticated)
+                        that._isLoggedIn = true;
+                    else
+                        that._isLoggedIn = false;
+                    return resolve(data.authenticated);
+                }).fail(function (err) {
+                    return reject(err);
+                });
+            });
+        };
+        /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
         */
@@ -4310,7 +4332,7 @@ var Animate;
             this.mContextProxy = this.onContext.bind(this);
             jQuery(document).on("contextmenu", this.mContextProxy);
             this.context.addEventListener(Animate.ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this);
-            this.element.disableSelection(true);
+            //this.element.disableSelection( true );
             this.warningFlagger.on("click", jQuery.proxy(this.onIconClick, this));
         }
         /**
@@ -5933,7 +5955,7 @@ var Animate;
             var h = this.element.height();
             var th = this.textfield.element.height();
             this.textfield.element.css("top", h / 2 - th / 2);
-            this.element.disableSelection(true);
+            //this.element.disableSelection( true );
             this.element.css({ width: width + "px", height: height + "px", margin: "3px" });
         }
         /**
@@ -8319,7 +8341,7 @@ var Animate;
             var newPlugs = rightComp.addChild("<div class='new-plugins'></div>");
             var newPlugsHeader = newPlugs.addChild("<div class='new-plugins-header'></div>");
             this.newPlugsLower = newPlugs.addChild("<div class='new-plugins-lower'></div>");
-            newPlugsHeader.element.disableSelection(true);
+            //newPlugsHeader.element.disableSelection( true );
             newPlugsHeader.addChild("<div class='filter-item' style='pointer-events:none;'>Filters</div>");
             this.selectedFilter = newPlugsHeader.addChild("<div class='filter-item filter-item-selected'>Name</div>").element;
             newPlugsHeader.addChild("<div class='filter-item'>version</div>");
@@ -8380,7 +8402,7 @@ var Animate;
             item.element.insertAfter(jQuery(".heading", this.pluginList.element));
             item.element.on("mouseover", jQuery.proxy(this.onOverProject, this));
             item.element.data("plugin", plugin);
-            item.element.disableSelection(true);
+            //item.element.disableSelection( true );
             jQuery(".close-but", item.element).click(jQuery.proxy(this.onRemoveProject, this));
             var alreadyHasPlugin = false;
             //Remove any duplicates
@@ -8446,7 +8468,6 @@ var Animate;
                 item.element.on("mouseover", jQuery.proxy(this.onOverProject, this));
                 item.element.on("click", jQuery.proxy(this.onClickProject, this));
                 item.element.data("plugin", __plugins[i]);
-                item.element.disableSelection(true);
             }
         };
         /**
@@ -12165,7 +12186,7 @@ var Animate;
             var editor = this.createEditorJQuery(propertyName, "<input type='text' class='PropTextbox' value = '" + propertyValue.toString() + "' ></input>", propertyValue);
             var that = this;
             //Function to deal with user interactions with JQuery
-            var valueEdited = function () {
+            var valueEdited = function (e) {
                 that.notify(propertyName, jQuery("input", editor).val(), objectType);
             };
             //Add listeners
@@ -12227,7 +12248,7 @@ var Animate;
             var editor = this.createEditorJQuery(propertyName, "<input type='text' class='PropTextbox' value = '" + num + "' ></input>", propertyValue);
             var that = this;
             //Function to deal with user interactions with JQuery
-            var valueEdited = function () {
+            var valueEdited = function (e) {
                 var val = parseFloat(jQuery("input", editor).val());
                 if (isNaN(val))
                     val = 0;
@@ -12846,7 +12867,7 @@ var Animate;
             var editor = this.createEditorJQuery(propertyName, "<div style='width:100%; height:20px; background:url(media/map-opacity.png);' ><input style='width:80%; opacity:" + alpha + ";' class='color PropTextbox' id = '" + _id1 + "' value = '" + color + "' ></input><input id='" + _id2 + "' class='PropTextbox' style='width:20%;' value='" + alpha + "'></input></div>", propertyValue);
             var that = this;
             //Functions to deal with user interactions with JQuery
-            var onValueEdited = function (response, event) {
+            var onValueEdited = function (e) {
                 var col = jQuery("#" + _id1).val();
                 var alpha = jQuery("#" + _id2).val();
                 jQuery("#" + _id1).css("opacity", alpha);
@@ -16311,7 +16332,7 @@ var Animate;
             this._files.enabled = false;
             this._copyPasteToken = null;
             this.element.on("click", jQuery.proxy(this.onClick, this));
-            this.element.disableSelection(true);
+            //this.element.disableSelection( true );
             this._currentContainer = this._tabHomeContainer;
             this._currentTab = this._tabHomeContainer.element.data("tab").element.data("component"); // this.tabHome;
             this._topMenu.element.on("click", jQuery.proxy(this.onMajorTab, this));
@@ -16320,7 +16341,7 @@ var Animate;
             jQuery(document).bind('keydown', 'Ctrl+c', this.onKeyDown.bind(this));
             jQuery(document).bind('keydown', 'Ctrl+x', this.onKeyDown.bind(this));
             jQuery(document).bind('keydown', 'Ctrl+v', this.onKeyDown.bind(this));
-            this.element.disableSelection(true);
+            //this.element.disableSelection( true );
         }
         /**
         * This is called when an item on the canvas has been selected
@@ -17961,6 +17982,7 @@ var Animate;
             if (this.initialized == false) {
                 Animate.User.getSingleton().addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
                 Animate.User.getSingleton().updatedLoggedIn();
+                Animate.User.getSingleton().authenticated();
             }
             else
                 jQuery("img", this.userImg.element).attr("src", Animate.User.getSingleton().imgURL);
@@ -18030,6 +18052,8 @@ jQuery(document).ready(function () {
 //    {
 //    }]); 
 /// <reference path="./definitions/jquery.d.ts" />
+/// <reference path="./definitions/jqueryui.d.ts" />
+/// <reference path="./definitions/jquery.scrollTo.d.ts" />
 /// <reference path="./definitions/JSColor.d.ts" />
 /// <reference path="./definitions/AceEditor.d.ts" />
 /// <reference path="./definitions/es6-promise.d.ts" />

@@ -1,4 +1,6 @@
 /// <reference path="./definitions/jquery.d.ts" />
+/// <reference path="./definitions/jqueryui.d.ts" />
+/// <reference path="./definitions/jquery.scrollTo.d.ts" />
 /// <reference path="./definitions/JSColor.d.ts" />
 /// <reference path="./definitions/AceEditor.d.ts" />
 /// <reference path="./definitions/es6-promise.d.ts" />

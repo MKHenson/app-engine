@@ -78,7 +78,7 @@ module Animate
 			};
 			
 			// Called when we click on the button
-			var mouseUp: Function = function ( e : any ) 
+            var mouseUp = function (e: JQueryEventObject  ) 
 			{
 				//Remove any previous references
 				PropOptionsWindow._window.removeEventListener( OkCancelFormEvents.CONFIRM, onOkFormConfirm );

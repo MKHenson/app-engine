@@ -62,7 +62,7 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-			var onValueEdited: ( response: FileViewerFormEvents, event: FileViewerFormEvent ) => void = function ( response: FileViewerFormEvents, event: FileViewerFormEvent ) 
+            var onValueEdited = function (e: JQueryEventObject ) 
 			{
 				var col = jQuery( "#" + _id1 ).val();
 				var alpha = jQuery( "#" + _id2 ).val();
@@ -71,8 +71,8 @@ module Animate
 			};
 			
 			//Add listeners
-			var input : JQuery = jQuery( "#" + _id2, editor );			
-			input.on( "keyup", onValueEdited );
+            var input: JQuery = jQuery("#" + _id2, editor);
+            input.on("keyup", onValueEdited);
 			jQuery( "#" + _id1, editor ).on( "change", onValueEdited );
 			editor.on( "mouseup", onValueEdited );
 
