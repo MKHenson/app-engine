@@ -32,7 +32,7 @@ module Animate
 			var fileExtensions: Array<string> = propertyValue.extensions || [];
 			var path = propertyValue.path || "";
 
-			var project : Project = User.getSingleton().project;
+			var project : Project = User.get.project;
 			var file : File = project.getFile(fileID);
 			
 			//Create HTML	

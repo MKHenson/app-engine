@@ -24,10 +24,18 @@ var Animate;
             getTextNodes(node);
             return textNodes;
         };
-        Compiler.parse = function (e, ctrl) {
-            return eval("'use strict'; " + e);
+        Compiler.parse = function (script, ctrl, e, elm) {
+            return eval("'use strict'; var __ret = " + script + "; __ret;");
         };
-        Compiler.build = function (elm, controller) {
+        Compiler.digestCSS = function (elm, controller, value) {
+            var object = Compiler.parse(value, controller, null, elm);
+            for (var i in object)
+                if (object[i])
+                    elm.classList.add(i);
+                else if (elm.classList.contains(i))
+                    elm.classList.remove(i);
+        };
+        Compiler.digest = function (elm, controller) {
             // Gets each of the text nodes and does a search replace on any double moustace characters
             var tnodes = Compiler.getTextNodesIn(elm.get(0), false);
             var matches;
@@ -36,30 +44,82 @@ var Animate;
                 textNode = tnodes[i];
                 textNode.nodeValue = textNode.nodeValue.replace(/{{\s*[\w\.]+\s*}}/g, function (sub, val) {
                     var t = sub.match(/[\w\.]+/);
-                    return Compiler.parse(t, controller);
+                    return Compiler.parse(t, controller, null, textNode);
                 });
             }
             // Traverse each element
             elm.find("*").addBack().each(function (index, elem) {
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib) {
+                    if (!attrib)
+                        return;
                     var name = attrib.name;
                     var value = attrib.value;
                     switch (name) {
-                        case "en-click":
-                            elem.onclick = function (ev) { controller[value](ev); };
-                            break;
-                        case "en-dclick":
-                            elem.ondblclick = function (ev) { controller[value](ev); };
-                            break;
                         case "en-src":
-                            elem.src = Compiler.parse(value, controller);
+                            elem.src = Compiler.parse(value, controller, null, elem);
                         case "en-show":
-                            elem.style.display = (Compiler.parse(value, controller) ? "" : "none");
+                            elem.style.display = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                        case "en-class":
+                            Compiler.digestCSS(elem, controller, value);
                     }
                 });
             });
             return elm;
+        };
+        Compiler.build = function (elm, controller) {
+            // Traverse each element
+            elm.find("*").addBack().each(function (index, elem) {
+                // Go through each element's attributes
+                jQuery.each(this.attributes, function (i, attrib) {
+                    if (!attrib)
+                        return;
+                    var name = attrib.name;
+                    var value = attrib.value;
+                    switch (name) {
+                        case "en-click":
+                            elem.onclick = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(elm, controller);
+                            };
+                            break;
+                        case "en-dclick":
+                            elem.ondblclick = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(elm, controller);
+                            };
+                            break;
+                        case "en-change":
+                            elem.onchange = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(elm, controller);
+                            };
+                            break;
+                        case "en-validate":
+                            elem.onchange = function (e) {
+                                var expressions = [];
+                                for (var i = 0, values = value.split("|"), l = values.length; i < l; i++)
+                                    if (Compiler.validators[values[i]])
+                                        expressions.push(Compiler.validators[values[i]]);
+                                elem.$error = false;
+                                for (var i = 0, l = expressions.length; i < l; i++)
+                                    if (!elem.value.match(expressions[i])) {
+                                        elem.$error = true;
+                                        break;
+                                    }
+                                Compiler.digest(elm, controller);
+                            };
+                            break;
+                    }
+                });
+            });
+            return Compiler.digest(elm, controller);
+        };
+        Compiler.validators = {
+            "alpha-numeric": /^[a-z0-9]+$/i,
+            "non-empty": /\S/,
+            "alpha-numeric-plus": /^[a-zA-Z0-9 -]+$/,
+            "email": /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
         };
         return Compiler;
     })();
@@ -197,7 +257,7 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -893,7 +953,7 @@ var Animate;
         * @param {ParameterType} propertyType The type of property
         */
         PluginManager.prototype.assetEdited = function (asset, propertyNam, newValue, oldValue, propertyType) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             if (propertyType == Animate.ParameterType.NUMBER)
                 newValue = newValue.selected;
             else if (propertyType == Animate.ParameterType.ASSET)
@@ -922,7 +982,7 @@ var Animate;
         */
         PluginManager.prototype.getAssetById = function (id) {
             var toRet = null;
-            toRet = Animate.User.getSingleton().project.getAssetByID(id);
+            toRet = Animate.User.get.project.getAssetByID(id);
             return toRet;
         };
         /**
@@ -932,7 +992,7 @@ var Animate;
         */
         PluginManager.prototype.getAssetByShallowId = function (id) {
             var toRet = null;
-            toRet = Animate.User.getSingleton().project.getAssetByShallowId(id);
+            toRet = Animate.User.get.project.getAssetByShallowId(id);
             return toRet;
         };
         /**
@@ -985,7 +1045,7 @@ var Animate;
         */
         PluginManager.prototype.callReady = function () {
             this.dispatchEvent(new Animate.Event(Animate.EditorEvents.EDITOR_READY, null));
-            if (Animate.User.getSingleton().plan == Animate.UserPlanType.PLAN_FREE) {
+            if (Animate.User.get.userEntry.meta.plan == Animate.UserPlan.Free) {
                 if (this.behaviourTemplates.indexOf(this.scriptTemplate) != -1) {
                     this.behaviourTemplates.splice(this.behaviourTemplates.indexOf(this.scriptTemplate), 1);
                     Animate.BehaviourPicker.getSingleton().list.removeItem(this.scriptTemplate.behaviourName);
@@ -1101,7 +1161,7 @@ var Animate;
         */
         ImportExport.prototype.exportScene = function () {
             this.runWhenDone = false;
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             var data = {};
             data["category"] = "builds";
             data["command"] = "build";
@@ -1280,7 +1340,7 @@ var Animate;
             if (asset == null)
                 return;
             var assetVars = asset.properties.variables;
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             //Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
             for (var i = 0, l = assetVars.length; i < l; i++) {
                 if (assetVars[i].type == Animate.ParameterType.ASSET) {
@@ -1323,7 +1383,7 @@ var Animate;
         ImportExport.prototype.referenceCheckGroup = function (group, container) {
             if (group == null)
                 return;
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             // Add the group
             if (container.groups.indexOf(group.groupID) == -1)
                 container.groups.push(group.groupID);
@@ -1369,7 +1429,7 @@ var Animate;
                 return "{{url}}uploads/" + urlParts[urlParts.length - 1];
             }
             else if (propType == Animate.ParameterType.HIDDEN_FILE) {
-                var file = Animate.User.getSingleton().project.getFile(value);
+                var file = Animate.User.get.project.getFile(value);
                 if (file) {
                     var urlParts = file.path.split("/");
                     return "{{url}}uploads/" + urlParts[urlParts.length - 1];
@@ -3425,19 +3485,6 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    var UserPlanType = (function (_super) {
-        __extends(UserPlanType, _super);
-        function UserPlanType(v) {
-            _super.call(this, v);
-        }
-        UserPlanType.PLAN_FREE = new UserPlanType("animate-free");
-        UserPlanType.PLAN_BRONZE = new UserPlanType("animate-bronze");
-        UserPlanType.PLAN_SILVER = new UserPlanType("animate-silver");
-        UserPlanType.PLAN_GOLD = new UserPlanType("animate-gold");
-        UserPlanType.PLAN_PLATINUM = new UserPlanType("animate-platinum");
-        return UserPlanType;
-    })(Animate.ENUM);
-    Animate.UserPlanType = UserPlanType;
     var UserEvents = (function (_super) {
         __extends(UserEvents, _super);
         function UserEvents(v) {
@@ -3467,6 +3514,17 @@ var Animate;
         return UserEvent;
     })(Animate.AnimateLoaderEvent);
     Animate.UserEvent = UserEvent;
+    /*
+    * The payment type of the user
+    */
+    (function (UserPlan) {
+        UserPlan[UserPlan["Free"] = 0] = "Free";
+        UserPlan[UserPlan["Bronze"] = 1] = "Bronze";
+        UserPlan[UserPlan["Silver"] = 2] = "Silver";
+        UserPlan[UserPlan["Gold"] = 3] = "Gold";
+        UserPlan[UserPlan["Platinum"] = 4] = "Platinum";
+    })(Animate.UserPlan || (Animate.UserPlan = {}));
+    var UserPlan = Animate.UserPlan;
     /**
     * This class is used to represent the user who is logged into Animate.
     */
@@ -3477,16 +3535,19 @@ var Animate;
             User._singleton = this;
             // Call super-class constructor
             Animate.EventDispatcher.call(this);
-            this.username = "";
-            this.bio = "";
-            this.createdOn = "";
-            //this.mRequest = "";
-            this.plan = UserPlanType.PLAN_FREE;
-            this._isLoggedIn = false;
-            this.imgURL = "media/blank-user.png";
+            // Create the default entry
+            this.userEntry = {
+                username: "",
+                meta: {
+                    bio: "",
+                    createdOn: 0,
+                    plan: UserPlan.Free,
+                    imgURL: "media/blank-user.png",
+                    maxNumProjects: 0
+                }
+            };
             this._project = null;
-            this.planLevel = -1;
-            this.maxNumProjects = 0;
+            this._isLoggedIn = false;
         }
         User.prototype.$get = function () {
             return this;
@@ -3504,22 +3565,29 @@ var Animate;
             loader.load(Animate.DB.USERS + "/users/authenticated", {}, 3, "GET");
         };
         /**
-        * Checks if a user is logged in or not. This checks the animate server using
-        * cookie and session data from the browser. The call is made synchronously.
-        * @extends {User}
+        * Checks if a user is logged in or not. This checks the server using
+        * cookie and session data from the browser.
+        * @returns {JQueryPromise<boolean>}
         */
         User.prototype.authenticated = function () {
-            this._isLoggedIn = false;
-            var loader = new Animate.AnimateLoader();
-            return new Promise(function (resolve, reject) {
-                jQuery.getJSON(Animate.DB.USERS + "/users/authenticated").done(function (data) {
-                    if (data.error)
-                        alert(data.message);
-                    alert(data.message);
-                }).fail(function (err) {
-                    alert(err.toString());
-                });
+            var d = jQuery.Deferred();
+            var that = this;
+            that._isLoggedIn = false;
+            jQuery.getJSON(Animate.DB.USERS + "/users/authenticated").done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                if (data.authenticated) {
+                    that._isLoggedIn = true;
+                    that.userEntry = data.user;
+                    that._isLoggedIn = true;
+                }
+                else
+                    that._isLoggedIn = false;
+                return d.resolve(data.authenticated);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
             });
+            return d.promise();
         };
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
@@ -3663,7 +3731,7 @@ var Animate;
                 this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, "You are already logged in.", Animate.LoaderEvents.COMPLETE, null));
                 return;
             }
-            this.username = user;
+            this.userEntry.username = user;
             var loader = new Animate.AnimateLoader();
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
             loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
@@ -3686,7 +3754,7 @@ var Animate;
                 this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", Animate.LoaderEvents.COMPLETE, null));
                 return;
             }
-            this.username = user;
+            this.userEntry.username = user;
             var loader = new Animate.AnimateLoader();
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
             loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
@@ -3713,23 +3781,23 @@ var Animate;
                     return;
                 }
                 if (loader.url == "/user/log-in") {
-                    this.bio = data.bio;
-                    this.plan = data.plan;
-                    this.maxNumProjects = data.maxProjects;
-                    this.createdOn = data.createdOn;
-                    this.imgURL = data.image;
-                    this.planLevel = 0;
-                    if (data.plan == Animate.DB.PLAN_SILVER || data.plan == Animate.DB.PLAN_BRONZE)
-                        this.planLevel = 1;
-                    else if (data.plan == Animate.DB.PLAN_GOLD)
-                        this.planLevel = 2;
-                    else
-                        this.planLevel = 3;
+                    this.userEntry.meta.bio = data.bio;
+                    this.userEntry.meta.plan = data.plan;
+                    this.userEntry.meta.maxNumProjects = data.maxProjects;
+                    this.userEntry.meta.createdOn = data.createdOn;
+                    this.userEntry.meta.imgURL = data.image;
+                    //this.planLevel = 0;
+                    //if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )
+                    //	this.planLevel = 1;
+                    //else if ( data.plan == DB.PLAN_GOLD )
+                    //	this.planLevel = 2;
+                    //else
+                    //	this.planLevel = 3;
                     this._isLoggedIn = true;
                     this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data));
                 }
                 else if (loader.url == "/user/log-out") {
-                    this.username = "";
+                    this.userEntry.username = "";
                     this._isLoggedIn = false;
                     this.dispatchEvent(new UserEvent(UserEvents.LOGGED_OUT, event.message, event.return_type, data));
                 }
@@ -3769,20 +3837,13 @@ var Animate;
                 }
                 else if (loader.url.match(/authenticated/)) {
                     if (data.loggedIn) {
-                        this.username = data.username;
-                        this.bio = data.bio;
-                        this.plan = data.plan;
-                        this.maxNumProjects = data.maxProjects;
-                        this.imgURL = (data.image == "" || data.image == null ? "media/blank-user.png" : data.image);
-                        this.createdOn = data.createdOn;
+                        this.userEntry.username = data.username;
+                        this.userEntry.meta.bio = data.bio;
+                        this.userEntry.meta.plan = data.plan;
+                        this.userEntry.meta.maxNumProjects = data.maxProjects;
+                        this.userEntry.meta.imgURL = (data.image == "" || data.image == null ? "media/blank-user.png" : data.image);
+                        this.userEntry.meta.createdOn = data.createdOn;
                         this._isLoggedIn = true;
-                        this.planLevel = 0;
-                        if (data.plan == Animate.DB.PLAN_SILVER || data.plan == Animate.DB.PLAN_BRONZE)
-                            this.planLevel = 1;
-                        else if (data.plan == Animate.DB.PLAN_GOLD)
-                            this.planLevel = 2;
-                        else
-                            this.planLevel = 3;
                     }
                     this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn));
                 }
@@ -3803,15 +3864,19 @@ var Animate;
             enumerable: true,
             configurable: true
         });
-        /**
-        * Gets the singleton instance.
-        * @returns {User}
-        */
-        User.getSingleton = function () {
-            if (!User._singleton)
-                new User();
-            return User._singleton;
-        };
+        Object.defineProperty(User, "get", {
+            /**
+            * Gets the singleton instance.
+            * @returns {User}
+            */
+            get: function () {
+                if (!User._singleton)
+                    new User();
+                return User._singleton;
+            },
+            enumerable: true,
+            configurable: true
+        });
         User._singleton = null;
         return User;
     })(Animate.EventDispatcher);
@@ -7026,7 +7091,7 @@ var Animate;
             this._focusObj = null;
             //Start the tooltip manager
             Animate.TooltipManager.create();
-            Animate.User.getSingleton();
+            Animate.User.get;
             this._resizeProxy = this.onWindowResized.bind(this);
             this._downProxy = this.onMouseDown.bind(this);
             var comp = jQuery(document.activeElement).data("component");
@@ -7116,7 +7181,7 @@ var Animate;
             Animate.TreeViewScene.getSingleton().projectReset();
             Animate.CanvasTab.getSingleton().projectReset();
             //Must be called after reset
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             if (user.project) {
                 user.project.dispose();
                 user.project = null;
@@ -7131,7 +7196,7 @@ var Animate;
         Application.prototype.projectReady = function () {
             Animate.Toolbar.getSingleton().newProject();
             Animate.CanvasTab.getSingleton().projectReady();
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.addEventListener(Animate.ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this);
             project.loadBehaviours();
             //Create the page title
@@ -7142,7 +7207,7 @@ var Animate;
         * This is called when a project has loaded all its behaviours.
         */
         Application.prototype.onBehavioursLoaded = function (response, event, sender) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this);
             project.addEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
             project.loadFiles();
@@ -7151,7 +7216,7 @@ var Animate;
         * This is called when a project has loaded all its assets.
         */
         Application.prototype.onAssetsLoaded = function (response, event, sender) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this);
             project.addEventListener(Animate.ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this);
             project.loadGroups();
@@ -7160,7 +7225,7 @@ var Animate;
         * This is called when a project has loaded all its files.
         */
         Application.prototype.onFilesLoaded = function (response, event, sender) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
             project.addEventListener(Animate.ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this);
             project.loadAssets();
@@ -7169,7 +7234,7 @@ var Animate;
         * This is called when a project has loaded all its groups.
         */
         Application.prototype.onGroupsLoaded = function (response, event, sender) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this);
             project.removeEventListener(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
             project.addEventListener(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
@@ -7588,7 +7653,7 @@ var Animate;
             var portal = Animate.Behaviour.prototype.addPortal.call(this, type, name, value, dataType);
             if (type == Animate.PortalType.PARAMETER) {
                 var id = parseInt(value.selected);
-                this._asset = Animate.User.getSingleton().project.getAssetByShallowId(id);
+                this._asset = Animate.User.get.project.getAssetByShallowId(id);
             }
             return portal;
         };
@@ -8000,7 +8065,7 @@ var Animate;
             _super.call(this, parent, text);
             var behaviour = this;
             var element = this.element;
-            var plan = Animate.User.getSingleton().plan;
+            var plan = Animate.User.get.userEntry.meta.plan;
             this.scriptTab = null;
             this.shallowId = shallowId;
             if (plan.toString() != Animate.DB.PLAN_FREE)
@@ -8017,7 +8082,7 @@ var Animate;
                 var loader = new Animate.AnimateLoader();
                 loader.addEventListener(Animate.LoaderEvents.COMPLETE, onServer);
                 loader.addEventListener(Animate.LoaderEvents.FAILED, onServer);
-                loader.load("/project/copy-script", { projectId: Animate.User.getSingleton().project._id, originalId: shallowId, shallowId: behaviour.shallowId });
+                loader.load("/project/copy-script", { projectId: Animate.User.get.project._id, originalId: shallowId, shallowId: behaviour.shallowId });
                 //When we have copied the script
                 function onServer(response, event) {
                     loader = null;
@@ -8056,7 +8121,7 @@ var Animate;
             var loader = new Animate.AnimateLoader();
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, onServer);
             loader.addEventListener(Animate.LoaderEvents.FAILED, onServer);
-            loader.load("/project/delete-scripts", { projectId: Animate.User.getSingleton().project._id, ids: [this.shallowId] });
+            loader.load("/project/delete-scripts", { projectId: Animate.User.get.project._id, ids: [this.shallowId] });
             //When we 
             function onServer(response, event) {
                 loader = null;
@@ -8080,7 +8145,7 @@ var Animate;
             var loader = new Animate.AnimateLoader();
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, onServer);
             loader.addEventListener(Animate.LoaderEvents.FAILED, onServer);
-            loader.load("/project/initialize-behaviour-script", { projectId: Animate.User.getSingleton().project._id, containerId: this.parent.behaviourContainer.shallowId, behaviourId: behaviour.id });
+            loader.load("/project/initialize-behaviour-script", { projectId: Animate.User.get.project._id, containerId: this.parent.behaviourContainer.shallowId, behaviourId: behaviour.id });
             //When we 
             function onServer(response, event, sender) {
                 loader = null;
@@ -8166,7 +8231,7 @@ var Animate;
         */
         UserPreferences.prototype.onClick = function (e) {
             var comp = jQuery(e.currentTarget).data("component");
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             if (comp == this.saveDetails) {
                 //Check for special chars
                 this.bio.val.textfield.element.removeClass("red-border");
@@ -8185,7 +8250,7 @@ var Animate;
         * When we receive a server command
         */
         UserPreferences.prototype.onServer = function (event, e) {
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             user.removeEventListener(Animate.UserEvents.FAILED, this.onServer, this);
             if (e.return_type == Animate.AnimateLoaderResponses.ERROR) {
                 Animate.BuildOptionsForm.getSingleton().message(e.tag.message, true);
@@ -8194,7 +8259,7 @@ var Animate;
             if (event == Animate.UserEvents.DETAILS_SAVED) {
                 user.removeEventListener(Animate.UserEvents.DETAILS_SAVED, this.onServer, this);
                 Animate.BuildOptionsForm.getSingleton().message(e.tag.message, false);
-                user.bio = e.tag.bio;
+                user.userEntry.meta.bio = e.tag.bio;
             }
             else
                 Animate.BuildOptionsForm.getSingleton().message(e.tag.message, true);
@@ -8237,7 +8302,7 @@ var Animate;
             if (Animate.AnimateLoaderResponses.fromString(response.return_type) == Animate.AnimateLoaderResponses.SUCCESS) {
                 this.userImgButton.enabled = true;
                 Animate.BuildOptionsForm.getSingleton().message(response.message, false);
-                Animate.User.getSingleton().imgURL = response.imageUrl;
+                Animate.User.get.userEntry.meta.imgURL = response.imageUrl;
                 this.imgPreview.element.html((response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : ""));
             }
             else {
@@ -8369,21 +8434,19 @@ var Animate;
             this.leftTop.clear();
             this.leftTop.addChild("<div><div class='proj-info-left'><img src='media/project-item.png'/></div>" +
                 "<div class='proj-info-right'>" +
-                "<div class='name'>Name: " + Animate.User.getSingleton().project.mName + "</div>" +
-                "<div class='owner'>User: " + Animate.User.getSingleton().username + "</div>" +
-                "<div class='created-by'>Last Updated: " + new Date(Animate.User.getSingleton().project.lastModified).toDateString() + "</div>" +
+                "<div class='name'>Name: " + Animate.User.get.project.mName + "</div>" +
+                "<div class='owner'>User: " + Animate.User.get.userEntry.username + "</div>" +
+                "<div class='created-by'>Last Updated: " + new Date(Animate.User.get.project.lastModified).toDateString() + "</div>" +
                 "</div></div><div class='fix'></div>");
             this.pluginList.clear();
             var comp = new Animate.Label("Project Plugins", this.pluginList);
             comp.element.addClass("heading");
             comp.element.css({ "pointer-events": "none" });
-            var plugins = Animate.User.getSingleton().project.plugins;
-            var user = Animate.User.getSingleton();
+            var plugins = Animate.User.get.project.plugins;
+            var user = Animate.User.get;
             //Create each of the plugin items that the user has set
             for (var i = 0, l = plugins.length; i < l; i++) {
-                if (plugins[i].plan == "basic")
-                    this.addProjectPluginComp(plugins[i]);
-                else if (plugins[i].plan != "basic" && user.planLevel > 1)
+                if (plugins[i].plan <= user.userEntry.meta.plan)
                     this.addProjectPluginComp(plugins[i]);
             }
             //Now create each of the plugin items for the actual plugins we can load.
@@ -8402,16 +8465,16 @@ var Animate;
             jQuery(".close-but", item.element).click(jQuery.proxy(this.onRemoveProject, this));
             var alreadyHasPlugin = false;
             //Remove any duplicates
-            var userPlugins = Animate.User.getSingleton().project.plugins;
+            var userPlugins = Animate.User.get.project.plugins;
             if (userPlugins.indexOf(plugin) == -1)
-                Animate.User.getSingleton().project.plugins.push(plugin);
+                Animate.User.get.project.plugins.push(plugin);
             return item;
         };
         /**
         * Resets the component and fills it with user plugin data
         */
         PluginBrowser.prototype.resetAvailablePlugins = function () {
-            var userPlugins = Animate.User.getSingleton().project.plugins;
+            var userPlugins = Animate.User.get.project.plugins;
             this.projectNext.enabled = true;
             this.newPlugsLower.clear();
             var selectedFilter = this.selectedFilter;
@@ -8437,11 +8500,11 @@ var Animate;
                     return 1;
                 return 0;
             });
-            var userPlan = Animate.User.getSingleton().plan;
+            var userPlan = Animate.User.get.userEntry.meta.plan;
             var len = __plugins.length;
             for (var i = 0; i < len; i++) {
                 //Only allow plugins based on your plan.
-                if (userPlan != Animate.UserPlanType.PLAN_GOLD && userPlan != Animate.UserPlanType.PLAN_PLATINUM && __plugins[i].plan == "premium")
+                if (userPlan != Animate.UserPlan.Gold && userPlan != Animate.UserPlan.Platinum && __plugins[i].plan <= userPlan)
                     continue;
                 var alreadyAdded = false;
                 var ii = (userPlugins ? userPlugins.length : 0);
@@ -8483,7 +8546,7 @@ var Animate;
             var comp = jQuery(e.currentTarget).parent().data("component");
             var parent = this.pluginList;
             var plugin = comp.element.data("plugin");
-            var userPlugins = Animate.User.getSingleton().project.plugins;
+            var userPlugins = Animate.User.get.project.plugins;
             var i = userPlugins.length;
             while (i--)
                 if (userPlugins[i].name == plugin.name) {
@@ -8523,7 +8586,7 @@ var Animate;
         * @param {any} e The jQuery event object
         */
         PluginBrowser.prototype.onNextClick = function (e) {
-            var userPlugins = Animate.User.getSingleton().project.plugins;
+            var userPlugins = Animate.User.get.project.plugins;
             if (userPlugins.length == 0) {
                 Animate.MessageBox.show("You must select at least 1 plugin before you can continue.", ["Ok"], null, null);
                 return;
@@ -8532,7 +8595,7 @@ var Animate;
             //Implement changes into DB
             var projectStr = "";
             var data = {};
-            data["projectId"] = Animate.User.getSingleton().project._id;
+            data["projectId"] = Animate.User.get.project._id;
             var plugins = [];
             //Create a multidimension array and pass each of the plugins in
             for (var i = 0, l = userPlugins.length; i < l; i++)
@@ -8621,7 +8684,7 @@ var Animate;
                 children[i].element.off("click", this._reloadProxy);
                 children[i].dispose();
             }
-            var plugins = Animate.User.getSingleton().project.plugins;
+            var plugins = Animate.User.get.project.plugins;
             //Add the localally installed plugins
             for (var i = 0; i < plugins.length; i++) {
                 var comp = new Animate.Component("<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this);
@@ -9622,7 +9685,7 @@ var Animate;
             this.treeview = treeview;
             this.element.addClass("tree-node-group");
             //Add each of the node references
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             this.json = json;
             for (var i in this.json.assets)
                 this.addNode(new Animate.TreeNodeGroupInstance(this.json.assets[i].id, this.json.assets[i].name));
@@ -9637,7 +9700,7 @@ var Animate;
             //Remove all current nodes
             while (this.children.length > 0)
                 this.children[0].dispose();
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             this.saved = true;
             this.text = this.originalText;
             this.name = name;
@@ -9968,7 +10031,7 @@ var Animate;
         Canvas.prototype.removeAsset = function (asset) {
             var pManager = Animate.PluginManager.getSingleton();
             var contEvent = new Animate.AssetContainerEvent(Animate.EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._behaviourContainer);
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             for (var i = 0, l = this.children.length; i < l; i++) {
                 var item = this.children[i];
                 //If it contains any assests - then we make sure they are removed from this canvas
@@ -10108,7 +10171,7 @@ var Animate;
                 return;
             if (assetMap.indexOf(asset.shallowId) == -1)
                 assetMap.push(asset.shallowId);
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             var properties = asset.properties.variables;
             for (var i = 0, l = properties.length; i < l; i++)
                 if (properties[i].type == Animate.ParameterType.ASSET)
@@ -10127,7 +10190,7 @@ var Animate;
             var curAssets = [];
             var curGroups = [];
             var children = this.children;
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             for (var i = 0; i < children.length; i++) {
                 if (children[i] instanceof Animate.Behaviour) {
                     var behaviour = children[i];
@@ -10349,7 +10412,7 @@ var Animate;
         * Iteratively goes through each container to check if its pointing to this behaviour
         */
         Canvas.prototype.isCyclicDependency = function (container, ref) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             var thisContainer = this._behaviourContainer;
             var json = null;
             var canvas = null;
@@ -10826,7 +10889,7 @@ var Animate;
                     else if (jsonObj.items[i].type == "BehaviourScript")
                         item = new Animate.BehaviourScript(this, jsonObj.items[i].shallowId, jsonObj.items[i].name, !clearItems);
                     else if (jsonObj.items[i].type == "BehaviourInstance") {
-                        var project = Animate.User.getSingleton().project;
+                        var project = Animate.User.get.project;
                         var container = project.getBehaviourByShallowId(jsonObj.items[i].containerId);
                         if (!container)
                             continue;
@@ -11544,8 +11607,8 @@ var Animate;
         * @param {ProjectEvent} event
         */
         HTMLTab.prototype.onServer = function (response, event) {
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
             if (response == Animate.ProjectEvents.FAILED) {
                 this.saved = false;
                 Animate.MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array("Ok"), null, null);
@@ -11563,9 +11626,9 @@ var Animate;
         HTMLTab.prototype.onMessage = function (val) {
             if (val == "Yes") {
                 this.close = true;
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
-                Animate.User.getSingleton().project.saveHTML();
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
+                Animate.User.get.project.saveHTML();
             }
             else {
                 this.saved = true;
@@ -11624,7 +11687,7 @@ var Animate;
             editor.setTheme("ace/theme/chrome");
             editor.getSession().setMode("ace/mode/html");
             this._editor = editor;
-            editor.setValue(Animate.User.getSingleton().project.mCurBuild.html);
+            editor.setValue(Animate.User.get.project.mCurBuild.html);
             this._editor.selection.moveCursorFileStart();
             // Ctrl + S
             this._editor.commands.addCommand({
@@ -11673,8 +11736,8 @@ var Animate;
         * @param {ProjectEvent} event
         */
         CSSTab.prototype.onServer = function (response, event) {
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
             if (response == Animate.ProjectEvents.FAILED) {
                 this.saved = false;
                 Animate.MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array("Ok"), null, null);
@@ -11692,9 +11755,9 @@ var Animate;
         CSSTab.prototype.onMessage = function (val) {
             if (val == "Yes") {
                 this.close = true;
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
-                Animate.User.getSingleton().project.saveCSS();
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.FAILED, this.onServer, this);
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
+                Animate.User.get.project.saveCSS();
             }
             else {
                 this.saved = true;
@@ -11753,7 +11816,7 @@ var Animate;
             editor.setTheme("ace/theme/chrome");
             editor.getSession().setMode("ace/mode/css");
             this._editor = editor;
-            editor.setValue(Animate.User.getSingleton().project.mCurBuild.css);
+            editor.setValue(Animate.User.get.project.mCurBuild.css);
             this._editor.selection.moveCursorFileStart();
             // Ctrl + S
             this._editor.commands.addCommand({
@@ -11915,7 +11978,7 @@ var Animate;
             //Get the current scripts
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, onServer);
             loader.addEventListener(Animate.LoaderEvents.FAILED, onServer);
-            loader.load("/project/get-behaviour-scripts", { projectId: Animate.User.getSingleton().project._id, shallowId: shallowId });
+            loader.load("/project/get-behaviour-scripts", { projectId: Animate.User.get.project._id, shallowId: shallowId });
             this.onSelected();
         };
         /**
@@ -12064,7 +12127,7 @@ var Animate;
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, onSave);
             loader.addEventListener(Animate.LoaderEvents.FAILED, onSave);
             loader.load("/project/save-behaviour-script", {
-                projectId: Animate.User.getSingleton().project._id,
+                projectId: Animate.User.get.project._id,
                 onEnter: this.onEnter,
                 onInitialize: this.onInitialize,
                 onDispose: this.onDispose,
@@ -12427,7 +12490,7 @@ var Animate;
             var fileID = propertyValue.id || "";
             var fileExtensions = propertyValue.extensions || [];
             var path = propertyValue.path || "";
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             var file = project.getFile(fileID);
             //Create HTML	
             var editor = this.createEditorJQuery(propertyName, "<div class='prop-file'><div class='file-name'>" + (file ? file.name : path) + "</div><div class='file-button reg-gradient'>...</div><div class='file-button-image'><img src='media/download-file.png'/></div></div>", propertyValue);
@@ -12680,7 +12743,7 @@ var Animate;
             };
             var onEye = function (e) {
                 var val = parseInt(selector.val());
-                var asset = Animate.User.getSingleton().project.getAssetByShallowId(val);
+                var asset = Animate.User.get.project.getAssetByShallowId(val);
                 if (asset)
                     Animate.TreeViewScene.getSingleton().selectNode(Animate.TreeViewScene.getSingleton().findNode("asset", asset), true);
                 else
@@ -12758,14 +12821,14 @@ var Animate;
             }
             // Fill the already selected items 
             for (var i = 0, l = selectedIDs.length; i < l; i++) {
-                var selectedAsset = Animate.User.getSingleton().project.getAssetByShallowId(selectedIDs[i]);
+                var selectedAsset = Animate.User.get.project.getAssetByShallowId(selectedIDs[i]);
                 if (selectedAsset)
                     items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.className + "' value='" + selectedAsset.shallowId + "'>" + selectedAsset.name + "</option>");
             }
             // When we select an asset
             var onSelect = function (e) {
                 assetId = parseInt(selector.val());
-                asset = Animate.User.getSingleton().project.getAssetByShallowId(assetId);
+                asset = Animate.User.get.project.getAssetByShallowId(assetId);
             };
             // When we select an asset in the list, select that in the drop down
             var onItemSelect = function (e) {
@@ -12774,7 +12837,7 @@ var Animate;
             // When we click on the eye selector
             var onEye = function (e) {
                 var val = parseInt(selector.val());
-                asset = Animate.User.getSingleton().project.getAssetByShallowId(val);
+                asset = Animate.User.get.project.getAssetByShallowId(val);
                 if (asset)
                     Animate.TreeViewScene.getSingleton().selectNode(Animate.TreeViewScene.getSingleton().findNode("asset", asset), true);
                 else
@@ -14120,8 +14183,8 @@ var Animate;
                 var name = this._name.val.text;
                 var description = this._description.val.text;
                 var tags = this._tags.val.text;
-                var user = Animate.User.getSingleton();
-                var project = Animate.User.getSingleton().project;
+                var user = Animate.User.get;
+                var project = Animate.User.get.project;
                 user.addEventListener(Animate.UserEvents.FAILED, this._renameProxy);
                 user.addEventListener(Animate.UserEvents.PROJECT_RENAMED, this._renameProxy);
                 user.renameProject(project._id, name, description, tags.split(","), this._category.val.selectedItem, "", this._projVisibility.val.selectedItem);
@@ -14138,8 +14201,8 @@ var Animate;
                     this._warning.text = message;
                     return;
                 }
-                var user = Animate.User.getSingleton();
-                var project = Animate.User.getSingleton().project;
+                var user = Animate.User.get;
+                var project = Animate.User.get.project;
                 var build = project.mCurBuild;
                 project.addEventListener(Animate.ProjectEvents.FAILED, this._buildProxy, this);
                 project.addEventListener(Animate.ProjectEvents.BUILD_SAVED, this._buildProxy, this);
@@ -14171,8 +14234,8 @@ var Animate;
                     this._warning.text = "Please only use numbers";
                     return;
                 }
-                var user = Animate.User.getSingleton();
-                var project = Animate.User.getSingleton().project;
+                var user = Animate.User.get;
+                var project = Animate.User.get.project;
                 project.addEventListener(Animate.ProjectEvents.FAILED, this._buildProxy, this);
                 project.addEventListener(Animate.ProjectEvents.BUILD_SELECTED, this._buildProxy, this);
                 project.selectBuild(this._buildVerMaj.val.text, this._buildVerMid.val.text, this._buildVerMin.val.text);
@@ -14191,8 +14254,8 @@ var Animate;
         * @param {Event} data
         */
         BuildOptionsForm.prototype.onBuildResponse = function (response, event) {
-            var user = Animate.User.getSingleton();
-            var project = Animate.User.getSingleton().project;
+            var user = Animate.User.get;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.FAILED, this._buildProxy, this);
             project.removeEventListener(Animate.ProjectEvents.BUILD_SAVED, this._buildProxy, this);
             project.removeEventListener(Animate.ProjectEvents.BUILD_SELECTED, this._buildProxy, this);
@@ -14245,8 +14308,8 @@ var Animate;
         * @param {UserEvent} data
         */
         BuildOptionsForm.prototype.onRenamed = function (response, event) {
-            var user = Animate.User.getSingleton();
-            var project = Animate.User.getSingleton().project;
+            var user = Animate.User.get;
+            var project = Animate.User.get.project;
             if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
                 this._warning.textfield.element.css("color", "#FF0000");
                 this._warning.text = event.message;
@@ -14273,7 +14336,7 @@ var Animate;
         BuildOptionsForm.prototype.show = function () {
             Animate.OkCancelForm.prototype.show.call(this);
             this._tab.selectTab(this._tab.getTab("Project"));
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             var project = user.project;
             //Start the image uploader
             this.initializeLoader();
@@ -14323,7 +14386,7 @@ var Animate;
                 });
                 this._uploader._options.allowedExtensions.push("jpg", "png", "jpeg");
             }
-            this._uploader.setParams({ projectId: Animate.User.getSingleton().project._id });
+            this._uploader.setParams({ projectId: Animate.User.get.project._id });
         };
         /**
         * Use this function to print a message on the settings screen.
@@ -14346,7 +14409,7 @@ var Animate;
                 this._addButton.enabled = true;
                 if (Animate.AnimateLoaderResponses.fromString(response.return_type) == Animate.AnimateLoaderResponses.SUCCESS) {
                     this._warning.textfield.element.css("color", "#5DB526");
-                    var project = Animate.User.getSingleton().project;
+                    var project = Animate.User.get.project;
                     project.mImgPath = response.imageUrl;
                     this._imgPreview.element.html((response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : ""));
                 }
@@ -14669,7 +14732,7 @@ var Animate;
         * @param {Event} data
         */
         FileViewerForm.prototype.onFilesLoaded = function (response, data) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.FILES_CREATED, this.onFilesLoaded, this);
             this.populateFiles(project.files);
         };
@@ -14707,7 +14770,7 @@ var Animate;
         */
         FileViewerForm.prototype.onFileImported = function (e, event) {
             //Not a project file - so we have to import it.
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.FILE_IMPORTED, this.onFileImported, this);
             var items = this.menu.getSelectedItems();
             var file = null;
@@ -14742,7 +14805,7 @@ var Animate;
                 }
                 else {
                     //Not a project file - so we have to import it.
-                    var project = Animate.User.getSingleton().project;
+                    var project = Animate.User.get.project;
                     project.importFile([file.id]);
                     project.removeEventListener(Animate.ProjectEvents.FILE_IMPORTED, this.onFileImported, this);
                     project.addEventListener(Animate.ProjectEvents.FILE_IMPORTED, this.onFileImported, this);
@@ -14769,7 +14832,7 @@ var Animate;
                     //Re-download project files
                     this.update();
                     this.onItemClicked(null, null);
-                    var project = Animate.User.getSingleton().project;
+                    var project = Animate.User.get.project;
                     project.loadFiles("project");
                     project.removeEventListener(Animate.ProjectEvents.FILES_CREATED, this.onFilesLoaded, this);
                     project.addEventListener(Animate.ProjectEvents.FILES_CREATED, this.onFilesLoaded, this);
@@ -14780,7 +14843,7 @@ var Animate;
                     this.favouriteGroup.enabled = false;
                     //Either download user or global files
                     this.onItemClicked(null, null);
-                    var project = Animate.User.getSingleton().project;
+                    var project = Animate.User.get.project;
                     project.removeEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
                     project.addEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
                     if (target.is(this.catUser.element))
@@ -14791,7 +14854,7 @@ var Animate;
                 }
             }
             else if (target.is(this.removeButton.element)) {
-                var project = Animate.User.getSingleton().project;
+                var project = Animate.User.get.project;
                 var items = this.menu.getSelectedItems();
                 //Remove
                 if (items.length > 0) {
@@ -14806,7 +14869,7 @@ var Animate;
                 }
             }
             else if (target.is(this.updateButton.element)) {
-                var project = Animate.User.getSingleton().project;
+                var project = Animate.User.get.project;
                 project.addEventListener(Animate.ProjectEvents.FAILED, this.onFileDeleted, this);
                 var items = this.menu.getSelectedItems();
                 if (items.length > 0) {
@@ -14973,7 +15036,7 @@ var Animate;
             if (Animate.LoaderEvents.fromString(response.return_type.toString()) == Animate.AnimateLoaderResponses.SUCCESS) {
                 jQuery(".upload-text", this.statusBar.element).text(response.message);
                 this.addButton.enabled = true;
-                var project = Animate.User.getSingleton().project;
+                var project = Animate.User.get.project;
                 project.removeEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
                 project.addEventListener(Animate.ProjectEvents.FILES_LOADED, this.onFilesLoaded, this);
                 if (this.catUser.selected)
@@ -15063,7 +15126,7 @@ var Animate;
             }
             var f = selectedItems[0].tag;
             //Update the thumbuploader
-            this.thumbUploader.setParams({ projectId: Animate.User.getSingleton().project._id, "fileId": f.id });
+            this.thumbUploader.setParams({ projectId: Animate.User.get.project._id, "fileId": f.id });
             jQuery(".upload-text", this.statusBar.element).text('Uploading...');
             this.addButton.enabled = false;
         };
@@ -15094,9 +15157,9 @@ var Animate;
                 });
                 this.thumbUploader._options.allowedExtensions.push("jpg", "png", "jpeg");
             }
-            //this.uploader.setParams( { projectID: User.getSingleton().project._id, "category": "files", "command": "upload" });
-            //this.thumbUploader.setParams( { projectID: User.getSingleton().project._id, "category": "files", "command": "uploadThumb", "file": "" });
-            var projId = Animate.User.getSingleton().project._id;
+            //this.uploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "upload" });
+            //this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
+            var projId = Animate.User.get.project._id;
             this.uploader.setParams({ projectId: projId, });
             this.thumbUploader.setParams({ projectId: projId, fileId: "" });
             //Set the allowed extensions
@@ -15112,7 +15175,7 @@ var Animate;
         FileViewerForm.prototype.onFileUpdated = function (response, event) {
             var data = event.tag;
             var items = this.menu.getSelectedItems();
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             project.removeEventListener(Animate.ProjectEvents.FILE_UPDATED, this.onFileUpdated, this);
             project.removeEventListener(Animate.ProjectEvents.FILE_DELETED, this.onFileDeleted, this);
             project.removeEventListener(Animate.ProjectEvents.FAILED, this.onFileDeleted, this);
@@ -15141,7 +15204,7 @@ var Animate;
         * This is called when a file has been successfully deleted.
         */
         FileViewerForm.prototype.onFileDeleted = function (response, event) {
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             if (response == Animate.ProjectEvents.FILE_DELETED) {
                 var items = this.menu.getSelectedItems();
                 if (items.length > 0)
@@ -15337,17 +15400,17 @@ var Animate;
                     return;
                 }
                 //Create the Behaviour in the DB
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.FAILED, this.createProxy);
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
-                Animate.User.getSingleton().project.createBehaviour(this.name.val.text);
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.FAILED, this.createProxy);
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
+                Animate.User.get.project.createBehaviour(this.name.val.text);
                 return;
             }
             _super.prototype.OnButtonClick.call(this, e);
         };
         /** Called when we create a behaviour.*/
         NewBehaviourForm.prototype.onCreated = function (response, event) {
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.FAILED, this.createProxy);
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.FAILED, this.createProxy);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
             if (response == Animate.ProjectEvents.FAILED) {
                 this.warning.textfield.element.css("color", "#FF0000");
                 this.warning.text = event.message;
@@ -15642,7 +15705,7 @@ var Animate;
                     this.object = null;
                     return;
                 }
-                var user = Animate.User.getSingleton();
+                var user = Animate.User.get;
                 //Create the Behaviour in the DB
                 if (user.project) {
                     user.project.addEventListener(Animate.ProjectEvents.FAILED, this.onRenamed, this);
@@ -15664,7 +15727,7 @@ var Animate;
         * @param {any} data
         */
         RenameForm.prototype.onRenamed = function (response, data) {
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             user.removeEventListener(Animate.UserEvents.PROJECT_RENAMED, this.onRenamed, this);
             if (user.project) {
                 user.project.removeEventListener(Animate.ProjectEvents.FAILED, this.onRenamed, this);
@@ -15788,7 +15851,7 @@ var Animate;
             }
             else {
                 //Get all the updated users
-                var project = Animate.User.getSingleton().project;
+                var project = Animate.User.get.project;
                 var ids = [];
                 var access = [];
                 //Create a multidimension array and pass each of the user dependencies
@@ -15815,7 +15878,7 @@ var Animate;
         */
         UserPrivilegesForm.prototype.show = function () {
             _super.prototype.show.call(this, null, NaN, NaN, true);
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             this.mMenu.clearItems();
             var loader = new Animate.AnimateLoader();
             loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
@@ -15937,8 +16000,8 @@ var Animate;
                 //We need to build an array of the canvas objects we are trying to save.
                 var saveDataObj = canvas.buildDataObject();
                 //Now get the project to save it.
-                Animate.User.getSingleton().project.addEventListener(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
-                Animate.User.getSingleton().project.saveBehaviours([canvas.behaviourContainer.id]);
+                Animate.User.get.project.addEventListener(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
+                Animate.User.get.project.saveBehaviours([canvas.behaviourContainer.id]);
             }
             else {
                 var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", canvas.behaviourContainer);
@@ -15966,7 +16029,7 @@ var Animate;
         * @param <object> behaviour
         */
         CanvasTab.prototype.onBehaviourSaved = function (response, event, sender) {
-            Animate.User.getSingleton().project.removeEventListener(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
+            Animate.User.get.project.removeEventListener(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
             if (response == Animate.ProjectEvents.BEHAVIOUR_SAVED) {
                 var canvas = this.closingTabPair.canvas;
                 if (canvas.behaviourContainer == event.tag) {
@@ -15998,7 +16061,7 @@ var Animate;
         */
         CanvasTab.prototype.onTabSelected = function (tab) {
             var pManager = Animate.PluginManager.getSingleton();
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             //Remove prev we need to notify the plugins of added or removed assets
             if (this._currentCanvas && !this._currentCanvas.disposed) {
                 var contEvent = new Animate.AssetContainerEvent(Animate.EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.behaviourContainer);
@@ -16106,7 +16169,7 @@ var Animate;
                 var pManager = Animate.PluginManager.getSingleton();
                 var contEvent = new Animate.AssetContainerEvent(Animate.EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.behaviourContainer);
                 //Remove prev we need to notify the plugins of added or removed assets		
-                var project = Animate.User.getSingleton().project;
+                var project = Animate.User.get.project;
                 //Tell the plugins to remove the current assets
                 var references = canvas.containerReferences;
                 for (var i = 0, l = references.assets.length; i < l; i++) {
@@ -16419,7 +16482,7 @@ var Animate;
             else if (comp == this._privileges)
                 Animate.UserPrivilegesForm.getSingleton().show();
             else if (comp == this._save)
-                Animate.User.getSingleton().project.saveAll();
+                Animate.User.get.project.saveAll();
             else if (comp == this._build)
                 Animate.BuildOptionsForm.getSingleton().show();
             else if (comp == this._run) {
@@ -16734,7 +16797,7 @@ var Animate;
                     var toRet = new Animate.TreeNodeAssetClass(assetClass, this);
                     this._assetsNode.addNode(toRet);
                 }
-            this._curProj = Animate.User.getSingleton().project;
+            this._curProj = Animate.User.get.project;
             this._curProj.addEventListener(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this);
             this._curProj.addEventListener(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
             this._curProj.addEventListener(Animate.ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this);
@@ -16854,7 +16917,7 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         behaviours.push(selectedNodes[i].behaviour.id);
-                    Animate.User.getSingleton().project.deleteBehaviours(behaviours);
+                    Animate.User.get.project.deleteBehaviours(behaviours);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeAssetInstance) {
                     var selectedNodes = [];
@@ -16865,7 +16928,7 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         assets.push(selectedNodes[i].asset.id);
-                    Animate.User.getSingleton().project.deleteAssets(assets);
+                    Animate.User.get.project.deleteAssets(assets);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeGroup) {
                     var selectedNodes = [];
@@ -16876,7 +16939,7 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         groups.push(selectedNodes[i].groupID);
-                    Animate.User.getSingleton().project.deleteGroups(groups);
+                    Animate.User.get.project.deleteGroups(groups);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeGroupInstance)
                     this._contextNode.dispose();
@@ -16884,36 +16947,36 @@ var Animate;
             //COPY
             if (this._contextNode && event.item == this._contextCopy) {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.getSingleton().project.copyAsset(this._contextNode.asset.id);
+                    Animate.User.get.project.copyAsset(this._contextNode.asset.id);
             }
             else if (this._contextNode && event.item == this._contextAddInstance)
-                Animate.User.getSingleton().project.createAsset("New " + this._contextNode.assetClass.name, this._contextNode.assetClass.name);
+                Animate.User.get.project.createAsset("New " + this._contextNode.assetClass.name, this._contextNode.assetClass.name);
             else if (this._contextNode && event.item.text == "Save") {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.getSingleton().project.saveAssets([this._contextNode.asset.id]);
+                    Animate.User.get.project.saveAssets([this._contextNode.asset.id]);
                 if (this._contextNode instanceof Animate.TreeNodeGroup)
-                    Animate.User.getSingleton().project.saveGroups([this._contextNode.groupID]);
+                    Animate.User.get.project.saveGroups([this._contextNode.groupID]);
                 else if (this._contextNode instanceof Animate.TreeNodeBehaviour)
-                    Animate.User.getSingleton().project.saveBehaviours([this._contextNode.behaviour.id]);
+                    Animate.User.get.project.saveBehaviours([this._contextNode.behaviour.id]);
             }
             else if (this._contextNode && event.item.text == "Add Group")
-                Animate.User.getSingleton().project.createGroup("New Group");
+                Animate.User.get.project.createGroup("New Group");
             else if (this._contextNode && event.item.text == "Update") {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance) {
-                    Animate.User.getSingleton().project.updateAssets([this._contextNode.asset.id]);
+                    Animate.User.get.project.updateAssets([this._contextNode.asset.id]);
                 }
                 else if (this._contextNode == this._groupsNode) {
                     while (this._groupsNode.children.length > 0)
                         this._groupsNode.children[0].dispose();
-                    Animate.User.getSingleton().project.loadGroups();
+                    Animate.User.get.project.loadGroups();
                 }
                 else if (this._contextNode == this._sceneNode) {
                     while (this._sceneNode.children.length > 0)
                         this._sceneNode.children[0].dispose();
-                    Animate.User.getSingleton().project.loadBehaviours();
+                    Animate.User.get.project.loadBehaviours();
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeGroup) {
-                    Animate.User.getSingleton().project.updateGroups([this._contextNode.groupID]);
+                    Animate.User.get.project.updateGroups([this._contextNode.groupID]);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeAssetClass) {
                     var nodes = this._contextNode.getAllNodes(Animate.TreeNodeAssetInstance);
@@ -16921,10 +16984,10 @@ var Animate;
                     for (var i = 0, l = nodes.length; i < l; i++)
                         if (nodes[i] instanceof Animate.TreeNodeAssetInstance)
                             ids.push(nodes[i].asset.id);
-                    Animate.User.getSingleton().project.updateAssets(ids);
+                    Animate.User.get.project.updateAssets(ids);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeBehaviour) {
-                    Animate.User.getSingleton().project.updateBehaviours([this._contextNode.behaviour.id]);
+                    Animate.User.get.project.updateBehaviours([this._contextNode.behaviour.id]);
                 }
             }
         };
@@ -17000,7 +17063,7 @@ var Animate;
         TreeViewScene.prototype.onRenameCheck = function (response, event, sender) {
             //if (event.tag.object.type == "project" )
             //	return;
-            var project = Animate.User.getSingleton().project;
+            var project = Animate.User.get.project;
             var len = project.behaviours.length;
             if (event.object instanceof Animate.BehaviourContainer)
                 for (var i = 0; i < len; i++)
@@ -17046,7 +17109,7 @@ var Animate;
         * @param {Event} data The data sent from the server
         */
         TreeViewScene.prototype.onBehaviourResponse = function (response, event) {
-            var proj = Animate.User.getSingleton().project;
+            var proj = Animate.User.get.project;
             //SAVE
             if (response == Animate.ProjectEvents.BEHAVIOUR_SAVED) {
                 //If we have the behaviour
@@ -17063,7 +17126,7 @@ var Animate;
         */
         TreeViewScene.prototype.onAssetResponse = function (response, event) {
             var data = event.asset;
-            var proj = Animate.User.getSingleton().project;
+            var proj = Animate.User.get.project;
             if (response == Animate.ProjectEvents.ASSET_DELETING) {
                 Animate.CanvasTab.getSingleton().removeAsset(data);
                 var selectedNodes = [];
@@ -17333,16 +17396,16 @@ var Animate;
         __extends(Splash, _super);
         function Splash() {
             _super.call(this, 800, 520);
-            if (Splash._singleton != null)
-                throw new Error("The Splash class is a singleton. You need to call the Splash.get() function.");
             Splash._singleton = this;
-            this.user = Animate.User.getSingleton();
+            this.user = Animate.User.get;
             this.element.addClass("splash-window");
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
-            this.welcomeBackground = Animate.Compiler.build(jQuery("#splash-welcome").clone(), this);
+            this.welcomeBackground = Animate.Compiler.build(jQuery(".en-splash-welcome").clone(), this);
             this.content.element.append(this.welcomeBackground);
             this.newProjectBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
-            this.loginBackground = new Animate.Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
+            //this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
+            this.loginBackground = Animate.Compiler.build(jQuery(".en-splash-login").clone(), this);
+            this.content.element.append(this.loginBackground);
             this.pluginsBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
             this.finalScreen = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
             this.clickProxy = this.onButtonClick.bind(this);
@@ -17351,6 +17414,7 @@ var Animate;
             this.slideTime = 500;
             this.modalBackdrop.css({ "z-index": "900" });
             this.element.css({ "z-index": "901" });
+            this.$loginError = "";
         }
         /**
         * This function can be called to reset all the splash variables and states.absolute
@@ -17361,25 +17425,27 @@ var Animate;
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
             this.welcomeBackground.css({ "left": "0px", "top": "0px" });
             this.newProjectBackground.element.css({ "left": "800px" });
-            this.loginBackground.element.css({ "top": "-520px" });
+            //this.loginBackground.element.css({ "top": "-520px" });
+            this.loginBackground.css({ "top": "-520px" });
             this.pluginsBackground.element.css({ "left": "800px" });
             this.finalScreen.element.css({ "left": "800px" });
             this.enableButtons(true);
             this.projectError.element.hide();
             this.finalError.element.hide();
-            this.loginError.element.hide();
+            //this.loginError.element.hide();
             //this.closeButton.element.show();
-            this.loginUsername.textfield.element.removeClass("red-border");
-            this.loginPassword.textfield.element.removeClass("red-border");
-            this.regUsername.textfield.element.removeClass("red-border");
-            this.regPassword.textfield.element.removeClass("red-border");
-            this.regPasswordCheck.textfield.element.removeClass("red-border");
-            this.regEmail.textfield.element.removeClass("red-border");
+            //this.loginUsername.textfield.element.removeClass("red-border");
+            //this.loginPassword.textfield.element.removeClass("red-border");
+            //this.regUsername.textfield.element.removeClass("red-border");
+            //this.regPassword.textfield.element.removeClass("red-border");
+            //this.regPasswordCheck.textfield.element.removeClass("red-border");
+            //this.regEmail.textfield.element.removeClass("red-border");
             this.projectName.textfield.element.removeClass("red-border");
             this.projectDesc.textfield.element.removeClass("red-border");
             //Refresh the projects
-            Animate.User.getSingleton().downloadProjects();
-            Animate.Compiler.build(this.welcomeBackground, this);
+            Animate.User.get.downloadProjects();
+            Animate.Compiler.digest(this.welcomeBackground, this);
+            Animate.Compiler.digest(this.loginBackground, this);
             return;
         };
         /**
@@ -17391,17 +17457,11 @@ var Animate;
                 this.projectBack.enabled = value;
                 this.projectNext.enabled = value;
                 this.finalButton.enabled = value;
-                this.login.enabled = value;
-                this.loginBack.enabled = value;
-                this.register.enabled = value;
             }
             else {
                 this.projectBack.enabled = true;
                 this.projectNext.enabled = true;
                 this.finalButton.enabled = true;
-                this.login.enabled = true;
-                this.loginBack.enabled = true;
-                this.register.enabled = true;
             }
         };
         /**
@@ -17472,137 +17532,149 @@ var Animate;
         * @extends <Splash>
         */
         Splash.prototype.createLoginPage = function () {
-            this.loginBack = new Animate.Component("<div class='close-but'>X</div>", this.loginBackground);
-            var heading = new Animate.Label("User Login", this.loginBackground);
-            heading.element.addClass("heading");
-            heading.textfield.element.prepend("<img src='media/blank-user.png' />");
-            heading.element.append("<div class='fix'></div>");
+            //this.loginBack = new Component("<div class='close-but'>X</div>", this.loginBackground);
+            //var heading = new Label("User Login", this.loginBackground);
+            //heading.element.addClass("heading");
+            //heading.textfield.element.prepend("<img src='media/blank-user.png' />");
+            //heading.element.append("<div class='fix'></div>");
             //Create container div and main elements
-            var sub = new Animate.Component("<div></div>", this.loginBackground);
-            this.loginBackground.element.append("<div class='fix'></div>");
-            var login = new Animate.Component("<div class='splash-section'></div>", sub);
-            var register = new Animate.Component("<div class='splash-section splash-section-right'></div>", sub);
+            //var sub = new Component("<div></div>", this.loginBackground);
+            //this.loginBackground.element.append("<div class='fix'></div>");
+            //var login = new Component("<div class='splash-section'></div>", sub);
+            //var register = new Component("<div class='splash-section splash-section-right'></div>", sub);
             //Create login form
-            new Animate.Label("Username:", login);
-            this.loginUsername = new Animate.InputBox(login, "");
-            new Animate.Label("Password:", login);
-            this.loginPassword = new Animate.InputBox(login, "", false, true);
-            this.loginRemembeMe = new Animate.Checkbox(login, "Remember me", true);
-            this.loginReset = new Animate.Label("Reset Password", login);
-            this.loginReset.element.addClass("hyperlink");
-            this.loginResend = new Animate.Label("Resend Activation Email", login);
-            this.loginResend.element.addClass("hyperlink");
-            this.loginResend.element.css({ "margin": "20px 0 0 0" });
+            //new Label("Username:", login);
+            //this.loginUsername = new InputBox(login, "");
+            //new Label("Password:", login);
+            //this.loginPassword = new InputBox(login, "", false, true);
+            //this.loginRemembeMe = new Checkbox(login, "Remember me", true);
+            //this.loginReset = new Label("Reset Password", login);
+            //this.loginReset.element.addClass("hyperlink");
+            //this.loginResend = new Label("Resend Activation Email", login);
+            //this.loginResend.element.addClass("hyperlink");
+            //this.loginResend.element.css({ "margin": "20px 0 0 0" });
             //Create register form
-            new Animate.Label("Username:", register);
-            this.regUsername = new Animate.InputBox(register, "");
-            new Animate.Label("Email:", register);
-            this.regEmail = new Animate.InputBox(register, "");
-            new Animate.Label("Password:", register);
-            this.regPassword = new Animate.InputBox(register, "", false, true);
-            new Animate.Label("Retype Password:", register);
-            this.regPasswordCheck = new Animate.InputBox(register, "", false, true);
-            register.element.append("<div id='animate-captcha'></div>");
-            jQuery('#animate-captcha').each(function () {
-                if (window.Recaptcha)
-                    Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
-            });
+            //new Label("Username:", register);
+            //this.regUsername = new InputBox(register, "");
+            //new Label("Email:", register);
+            //this.regEmail = new InputBox(register, "");
+            //new Label("Password:", register);
+            //this.regPassword = new InputBox(register, "", false, true);
+            //new Label("Retype Password:", register);
+            //this.regPasswordCheck = new InputBox(register, "", false, true);
+            //register.element.append("<div id='animate-captcha'></div>");
+            //jQuery('#animate-captcha').each(function ()
+            //{
+            //	if ( (<any>window).Recaptcha)
+            //		Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
+            //});
+            Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", "animate-captcha", { theme: "white" });
             //Create Buttons
-            this.login = new Animate.Button("Login", login);
-            this.register = new Animate.Button("Register", register);
-            this.login.css({ width: "", height: 40 });
-            this.register.css({ width: "", height: 40 });
+            //this.login = new Button("Login", login);
+            //this.register = new Button("Register", register);
+            //this.login.css({ width: "", height: 40 });
+            //this.register.css({ width: "", height: 40 });
             //Error label
-            this.loginError = new Animate.Label("", this.loginBackground);
-            this.loginError.element.hide();
-            this.loginError.textfield.element.css({ color: "#ff0000", clear: "both", "font-size": "14px", "text-align": "center", "margin-top": "0px", "font-weight": "bold" });
-            this.login.element.click(this.clickProxy);
-            this.register.element.click(this.clickProxy);
-            this.loginBack.element.click(this.clickProxy);
-            this.loginReset.element.click(this.clickProxy);
-            this.loginResend.element.click(this.clickProxy);
+            //this.loginError = new Label("", this.loginBackground);
+            //this.loginError.element.hide();
+            //this.loginError.textfield.element.css({ color: "#ff0000", clear: "both", "font-size": "14px", "text-align": "center", "margin-top": "0px", "font-weight": "bold" });
+            //this.login.element.click(this.clickProxy);
+            //this.register.element.click(this.clickProxy);
+            //this.loginBack.element.click(this.clickProxy);
+            //this.loginReset.element.click(this.clickProxy);
+            //this.loginResend.element.click(this.clickProxy);
         };
         /**
         * Checks each of the login fields based on which button was pressed.
         * @param {any} button
         */
-        Splash.prototype.validateLogins = function (button) {
-            this.loginUsername.textfield.element.removeClass("red-border");
-            this.loginPassword.textfield.element.removeClass("red-border");
-            this.regUsername.textfield.element.removeClass("red-border");
-            this.regPassword.textfield.element.removeClass("red-border");
-            this.regPasswordCheck.textfield.element.removeClass("red-border");
-            this.regEmail.textfield.element.removeClass("red-border");
-            if (this.loginReset == button || this.loginResend == button) {
+        Splash.prototype.validateLogins = function (jComp) {
+            var toRet = true;
+            //this.loginUsername.textfield.element.removeClass("red-border");
+            //this.loginPassword.textfield.element.removeClass("red-border");
+            //this.regUsername.textfield.element.removeClass("red-border");
+            //this.regPassword.textfield.element.removeClass("red-border");
+            //this.regPasswordCheck.textfield.element.removeClass("red-border");
+            //this.regEmail.textfield.element.removeClass("red-border");
+            if (jComp.is(".en-login-reset") || jComp.is(".en-login-resend")) {
                 //Check username
-                var message = jQuery.trim(this.loginUsername.text);
+                var message = jQuery.trim(jQuery("#en-login-username").val());
                 if (message == "") {
-                    this.loginError.element.show();
-                    this.loginError.text = "Please enter your username or email";
-                    this.loginUsername.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = "Please enter your username or email";
+                    this.$loginError = "Please enter your username or email";
+                    //this.loginUsername.textfield.element.addClass("red-border");
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
             }
-            if (this.login == button) {
+            else if (jComp.is(".en-login")) {
                 //Check username
-                var message = Animate.Utils.checkForSpecialChars(this.loginUsername.text);
+                var message = Animate.Utils.checkForSpecialChars(jQuery("#en-login-username").val());
                 if (message) {
-                    this.loginError.element.show();
-                    this.loginError.text = message;
-                    this.loginUsername.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+                    //this.loginUsername.textfield.element.addClass("red-border");
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
                 //Check password
-                message = Animate.Utils.checkForSpecialChars(this.loginPassword.text);
+                message = Animate.Utils.checkForSpecialChars(jQuery("#en-login-password").val());
                 if (message) {
-                    this.loginError.element.show();
-                    this.loginError.text = message;
-                    this.loginPassword.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+                    //this.loginPassword.textfield.element.addClass("red-border");
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
             }
-            else if (this.loginReset != button && this.loginResend != button) {
+            else if (jComp.is(".en-login-reset") == false && jComp.is(".en-login-resend") == false) {
                 //Check username
-                var message = Animate.Utils.checkForSpecialChars(this.regUsername.text);
+                var message = Animate.Utils.checkForSpecialChars(jQuery("#en-reg-username").val());
                 if (message) {
-                    this.loginError.element.show();
-                    this.loginError.text = message;
-                    this.regUsername.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+                    //this.regUsername.textfield.element.addClass("red-border");
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
                 //Check email
-                var emailValid = Animate.Utils.validateEmail(this.regEmail.text);
+                var emailValid = Animate.Utils.validateEmail(jQuery("#en-reg-email").val());
                 if (!emailValid) {
-                    this.loginError.element.show();
-                    this.loginError.text = "Please enter a valid email address.";
-                    this.regEmail.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = "Please enter a valid email address.";
+                    this.$loginError = "Please enter a valid email address.";
+                    //this.regEmail.textfield.element.addClass("red-border");
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
                 //Check password
-                message = Animate.Utils.checkForSpecialChars(this.regPassword.text);
+                message = Animate.Utils.checkForSpecialChars(jQuery("#en-reg-password").val());
                 if (message) {
-                    this.loginError.element.show();
-                    this.loginError.text = message;
-                    this.regPassword.textfield.element.addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+                    //this.regPassword.textfield.element.addClass("red-border");
                     this.enableButtons(true);
                     return false;
                 }
                 //Make sure passwords match
-                if (this.regPassword.text != this.regPasswordCheck.text) {
-                    this.regPassword.textfield.element.addClass("red-border");
-                    this.regPasswordCheck.textfield.element.addClass("red-border");
-                    this.loginError.element.show();
-                    this.loginError.text = "Your passwords do not match.";
+                if (jQuery("#en-reg-password").val() != jQuery("#en-reg-password-check").val()) {
+                    //this.regPassword.textfield.element.addClass("red-border");
+                    //this.regPasswordCheck.textfield.element.addClass("red-border");
+                    jQuery("#en-reg-password").addClass("red-border");
+                    jQuery("#en-reg-password-check").addClass("red-border");
+                    //this.loginError.element.show();
+                    //this.loginError.text = "Your passwords do not match.";
+                    this.$loginError = "Your passwords do not match.";
                     this.enableButtons(true);
-                    return false;
+                    toRet = false;
                 }
             }
-            return true;
+            return toRet;
         };
         /**
         * Checks each of the fields for creating a new project.
@@ -17626,8 +17698,8 @@ var Animate;
         * Creates the first page on the splash screen
         */
         Splash.prototype.createWelcomePage = function () {
-            var user = Animate.User.getSingleton();
-            Animate.Compiler.build(this.welcomeBackground, this);
+            var user = Animate.User.get;
+            //Compiler.build(this.welcomeBackground, this);
             //var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
             //this.project = new Component("<div class='splash-section'></div>", sub);
             //this.news = new Component("<div class='splash-section'></div>", sub);
@@ -17656,7 +17728,7 @@ var Animate;
         * Shows the window by adding it to a parent.
         */
         Splash.prototype.onProjectCombo = function (response, event) {
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             if (!user.isLoggedIn)
                 return Animate.MessageBox.show("Please log in", ["Ok"], null, null);
             //WELCOME - Next
@@ -17677,7 +17749,7 @@ var Animate;
                     this.enableButtons(true);
                     return;
                 }
-                var user = Animate.User.getSingleton();
+                var user = Animate.User.get;
                 if (user.project) {
                     this.response = "open";
                     Animate.MessageBox.show("Are you sure you want to create a new project? Your open project will need to be closed.", ["Yes", "No"], this.onProjectOpenMessageBox, this);
@@ -17715,42 +17787,46 @@ var Animate;
         */
         Splash.prototype.onButtonClick = function (e) {
             this.enableButtons(false);
+            var jComp = jQuery(e.currentTarget);
             var comp = jQuery(e.currentTarget).data("component");
             //WELCOME - Login
-            if (jQuery(e.currentTarget).is(".login-link") || jQuery(e.currentTarget).is(".register-link")) {
-                this.loginError.element.hide();
-                this.loginPassword.text = "";
+            if (jComp.is(".login-link") || jComp.is(".register-link")) {
+                //this.loginError.element.hide();
+                //this.loginPassword.text = "";
+                this.$loginError = "";
                 //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                //this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
             }
-            else if (jQuery(e.currentTarget).is(".logout-link")) {
-                Animate.User.getSingleton().logout();
+            else if (jComp.is(".logout-link")) {
+                Animate.User.get.logout();
                 Animate.Application.getInstance().projectReset();
             }
-            else if (comp == this.loginBack) {
+            else if (jComp.is(".en-splash-login .close-but")) {
                 //this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                //this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
             }
-            else if (jQuery(e.currentTarget).is(".close-but")) {
+            else if (jComp.is(".close-but")) {
                 this.hide();
             }
-            else if (comp == this.loginReset) {
-                if (this.validateLogins(this.loginReset))
-                    Animate.User.getSingleton().resetPassword(this.loginUsername.text);
+            else if (jComp.is(".en-login-reset")) {
+                if (this.validateLogins(jComp))
+                    Animate.User.get.resetPassword(jQuery("#en-login-username").val());
             }
-            else if (comp == this.loginResend) {
-                if (this.validateLogins(this.loginResend))
-                    Animate.User.getSingleton().resendActivation(this.loginUsername.text);
+            else if (jComp.is(".en-login-resend")) {
+                if (this.validateLogins(jComp))
+                    Animate.User.get.resendActivation(jQuery("#en-login-username").val());
             }
-            else if (comp == this.login) {
-                if (this.validateLogins(this.login))
-                    Animate.User.getSingleton().login(this.loginUsername.text, this.loginPassword.text, this.loginRemembeMe.checked);
+            else if (jComp.is(".en-login")) {
+                if (this.validateLogins(jComp))
+                    Animate.User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val());
             }
-            else if (comp == this.register) {
-                if (this.validateLogins(this.register))
-                    Animate.User.getSingleton().register(this.regUsername.text, this.regPassword.text, this.regEmail.text, jQuery("#recaptcha_response_field").val(), jQuery("#recaptcha_challenge_field").val());
+            else if (jComp.is(".en-register")) {
+                if (this.validateLogins(jComp))
+                    Animate.User.get.register(jQuery("#en-reg-username").val(), jQuery("#en-reg-password").val(), jQuery("#en-reg-email").val(), jQuery("#recaptcha_response_field").val(), jQuery("#recaptcha_challenge_field").val());
             }
             else if (comp == this.projectBack) {
                 //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
@@ -17760,11 +17836,11 @@ var Animate;
                 this.projectDesc.text = "";
                 //refil the projects
                 this.projectBrowser.clearItems();
-                Animate.User.getSingleton().downloadProjects();
+                Animate.User.get.downloadProjects();
             }
             else if (comp == this.projectNext) {
                 if (this.validateNewProject()) {
-                    var user = Animate.User.getSingleton();
+                    var user = Animate.User.get;
                     user.addEventListener(Animate.UserEvents.PROJECT_CREATED, this.onProjectData, this);
                     user.addEventListener(Animate.UserEvents.FAILED, this.onProjectData, this);
                     user.createProject(this.projectName.text, this.projectDesc.text);
@@ -17784,7 +17860,7 @@ var Animate;
         Splash.prototype.onProjectOpenMessageBox = function (response) {
             this.enableButtons(true);
             if (response == "Yes") {
-                var user = Animate.User.getSingleton();
+                var user = Animate.User.get;
                 //If a project already exists - warn the user it will have to be closed.
                 if (user.project) {
                     user.removeEventListener(Animate.UserEvents.PROJECT_CREATED, this.onProjectData, this);
@@ -17809,7 +17885,7 @@ var Animate;
         Splash.prototype.onCopyMessageBox = function (response) {
             this.enableButtons(true);
             if (response == "Yes")
-                Animate.User.getSingleton().copyProject(this.projectBrowser.selectedID);
+                Animate.User.get.copyProject(this.projectBrowser.selectedID);
         };
         /**
         * This is called when we click a button on the message box.
@@ -17818,7 +17894,7 @@ var Animate;
         Splash.prototype.onMessageBox = function (response) {
             this.enableButtons(true);
             if (response == "Yes")
-                Animate.User.getSingleton().deleteProject(this.projectBrowser.selectedID);
+                Animate.User.get.deleteProject(this.projectBrowser.selectedID);
         };
         /**
         * This is called when we click a button on the message box.
@@ -17835,7 +17911,7 @@ var Animate;
         * This is called when we receive data from the projects.
         */
         Splash.prototype.onProjectData = function (response, data, sender) {
-            var user = Animate.User.getSingleton();
+            var user = Animate.User.get;
             user.removeEventListener(Animate.UserEvents.PROJECT_CREATED, this.onProjectData, this);
             user.removeEventListener(Animate.UserEvents.FAILED, this.onProjectData, this);
             user.removeEventListener(Animate.UserEvents.PROJECT_OPENED, this.onProjectData, this);
@@ -17925,43 +18001,46 @@ var Animate;
                 //Remove links and create normal login section
                 //jQuery(".login-link", this.userBoxDetails.element).unbind();
                 //jQuery(".register-link", this.userBoxDetails.element).unbind();
-                var user = Animate.User.getSingleton();
-                Animate.Compiler.build(this.welcomeBackground, this);
+                var user = Animate.User.get;
+                Animate.Compiler.digest(this.welcomeBackground, this);
                 //this.userBoxDetails.element.remove();
                 //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
                 //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
                 //Fill project list
                 user.downloadProjects();
                 //Go back to main window
-                this.loginBack.element.trigger("click");
+                //this.loginBack.element.trigger("click");
+                jQuery(".splash-login-user .close-but").trigger("click");
                 return;
             }
             else if (response == Animate.UserEvents.PROJECT_DELETED) {
                 if (event.return_type == Animate.AnimateLoaderResponses.ERROR)
                     Animate.MessageBox.show(event.message, ["Ok"], null, null);
                 //Refresh the projects
-                Animate.User.getSingleton().downloadProjects();
+                Animate.User.get.downloadProjects();
                 return;
             }
             else if ((response == Animate.UserEvents.PROJECT_COPIED) && event.return_type == Animate.AnimateLoaderResponses.SUCCESS)
-                Animate.User.getSingleton().downloadProjects();
+                Animate.User.get.downloadProjects();
             else if ((response == Animate.UserEvents.PROJECTS_RECIEVED) && event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
                 this.projectBrowser.fill(event.tag);
             }
-            this.loginError.element.show();
-            this.loginError.text = event.message;
+            //this.loginError.element.show();
+            //this.loginError.text = event.message;
+            this.$loginError = event.message;
+            Animate.Compiler.digest(this.welcomeBackground, this);
         };
-        Splash.prototype.onUserLoggedInCheck = function (response, event, sender) {
-            Animate.User.getSingleton().removeEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.LOGGED_OUT, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.FAILED, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.REGISTERED, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.PASSWORD_RESET, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.ACTIVATION_RESET, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.PROJECTS_RECIEVED, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.PROJECT_COPIED, this.onUserData, this);
-            Animate.User.getSingleton().addEventListener(Animate.UserEvents.PROJECT_DELETED, this.onUserData, this);
+        Splash.prototype.onUserLoggedInCheck = function () {
+            Animate.User.get.removeEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.LOGGED_OUT, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.FAILED, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.REGISTERED, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.PASSWORD_RESET, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.ACTIVATION_RESET, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.PROJECTS_RECIEVED, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.PROJECT_COPIED, this.onUserData, this);
+            Animate.User.get.addEventListener(Animate.UserEvents.PROJECT_DELETED, this.onUserData, this);
             this.initialized = true;
             this.createNewProjectPage();
             this.createWelcomePage();
@@ -17976,12 +18055,18 @@ var Animate;
             _super.prototype.show.call(this, null, 0, 0, true);
             this.onWindowResized(null);
             if (this.initialized == false) {
-                Animate.User.getSingleton().addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
-                Animate.User.getSingleton().updatedLoggedIn();
-                Animate.User.getSingleton().authenticated();
+                var that = this;
+                //User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
+                //User.get.updatedLoggedIn();
+                Animate.User.get.authenticated().then(function (loggedIn) {
+                    that.onUserLoggedInCheck();
+                }).fail(this.handleError);
             }
             else
-                jQuery("img", this.userImg.element).attr("src", Animate.User.getSingleton().imgURL);
+                jQuery("img", this.userImg.element).attr("src", Animate.User.get.userEntry.meta.imgURL);
+        };
+        Splash.prototype.handleError = function (err) {
+            Animate.MessageBox.show(err.message, ["Ok"], null, null);
         };
         /**
         * Gets the singleton reference of this class.
@@ -18056,6 +18141,7 @@ jQuery(document).ready(function () {
 /// <reference path="./definitions/FileUploader.d.ts" />
 /// <reference path="./definitions/Recaptcha.d.ts" />
 /// <reference path="./definitions/ExportToken.d.ts" />
+/// <reference path="./definitions/es6-promise.d.ts" />
 /// <reference path="../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
@@ -18178,203 +18264,3 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/forms/Splash.ts" />
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" /> 
-var Animate;
-(function (Animate) {
-    'use strict';
-    /**
-    * Configures the Angular application
-    */
-    var Config = (function () {
-        /**
-        * Creates an instance of the configurator
-        */
-        function Config(routeProvider, stateProvider, $locationProvider, $httpProvider, cfpLoadingBarProvider) {
-            $locationProvider.html5Mode(true);
-            // Turn off the loading bar spinner
-            cfpLoadingBarProvider.includeSpinner = false;
-            // Allows us to use CORS with angular
-            $httpProvider.defaults.withCredentials = true;
-            // Setup the different states
-            stateProvider
-                .state("main", {
-                views: {
-                    "main-view": {
-                        templateUrl: "templates/splash.html",
-                        controller: ["$scope", function (scope) {
-                                scope.items = [["hello", "world"], ["lovely", "day"]];
-                            }]
-                    }
-                },
-                url: "/",
-                authenticate: true
-            });
-        }
-        // $inject annotation.
-        Config.$inject = [
-            "$urlRouterProvider",
-            "$stateProvider",
-            "$locationProvider",
-            "$httpProvider",
-            "cfpLoadingBarProvider"
-        ];
-        return Config;
-    })();
-    Animate.Config = Config;
-})(Animate || (Animate = {}));
-var Engine;
-(function (Engine) {
-    /**
-    * Returns an interface that describes this directive
-    * @returns {IDirective}
-    */
-    function ListViewColumnDirective() {
-        return {
-            templateUrl: "templates/list-view-column.html", restrict: "E",
-            require: "^enListView",
-            controller: ListViewColumnController,
-            controllerAs: "ctrl",
-            link: function (scope, element, attrs, controller) { controller.initialize(element); },
-            scope: {
-                title: "@",
-                subItems: "="
-            }
-        };
-    }
-    Engine.ListViewColumnDirective = ListViewColumnDirective;
-    /*
-    * Controls the functionality of the list view directive
-    */
-    var ListViewColumnController = (function () {
-        function ListViewColumnController($scope) {
-            this.scope = $scope;
-        }
-        /*
-        * Called via the link function in the directive description
-        */
-        ListViewColumnController.prototype.initialize = function (elem) {
-            this.elem = elem;
-        };
-        /*
-        * Destroys the window and removes it from the DOM
-        */
-        ListViewColumnController.prototype.close = function () {
-            this.elem.remove();
-            this.scope.$destroy();
-        };
-        ListViewColumnController.$inject = ["$scope"];
-        return ListViewColumnController;
-    })();
-    Engine.ListViewColumnController = ListViewColumnController;
-})(Engine || (Engine = {}));
-var Engine;
-(function (Engine) {
-    /**
-    * Returns an interface that describes this directive
-    * @returns {IDirective}
-    */
-    function ListViewDirective() {
-        return {
-            template: "<div class='list-view' ng-transclude></div>",
-            restrict: "E",
-            controller: ListViewController,
-            controllerAs: "ctrl",
-            transclude: true,
-            link: function (scope, element, attrs, controller) { controller.initialize(element); },
-            scope: {
-                "items": "="
-            }
-        };
-    }
-    Engine.ListViewDirective = ListViewDirective;
-    /*
-    * Controls the functionality of the list view directive
-    */
-    var ListViewController = (function () {
-        function ListViewController($scope) {
-            this.scope = $scope;
-        }
-        /*
-        * Called via the link function in the directive description
-        */
-        ListViewController.prototype.initialize = function (elem) {
-            this.elem = elem;
-        };
-        /*
-        * Destroys the window and removes it from the DOM
-        */
-        ListViewController.prototype.close = function () {
-            this.elem.remove();
-            this.scope.$destroy();
-        };
-        ListViewController.$inject = ["$scope"];
-        return ListViewController;
-    })();
-    Engine.ListViewController = ListViewController;
-})(Engine || (Engine = {}));
-var Engine;
-(function (Engine) {
-    /**
-    * Returns an interface that describes this directive
-    * @returns {IDirective}
-    */
-    function windowDirective() {
-        return {
-            templateUrl: "templates/window.html", restrict: "E",
-            transclude: true,
-            controller: WindowController,
-            controllerAs: "ctrl",
-            link: function (scope, element, attrs, controller) { controller.initialize(element); },
-            scope: {
-                title: "@enTitle",
-                center: "@enCenter"
-            }
-        };
-    }
-    Engine.windowDirective = windowDirective;
-    /*
-    * Controls the functionality of the window
-    */
-    var WindowController = (function () {
-        function WindowController($scope) {
-            this.scope = $scope;
-        }
-        /*
-        * Called via the link function in the directive description
-        */
-        WindowController.prototype.initialize = function (elem) {
-            this.elem = elem;
-            if (this.scope.center)
-                this.center();
-            jQuery(".window", elem).draggable({ handle: ".window-control-box", containment: "parent" });
-        };
-        /**
-        * Centers the window into the middle of the screen. This only works if the elements are added to the DOM first
-        */
-        WindowController.prototype.center = function () {
-            var window = jQuery(".window", this.elem);
-            window.css({
-                left: (jQuery("body").width() / 2 - window.width() / 2),
-                top: (jQuery("body").height() / 2 - window.height() / 2)
-            });
-        };
-        /**
-        * When we click the modal window we flash the window
-        */
-        WindowController.prototype.onModalClicked = function () {
-            var win = jQuery(".window", this.elem);
-            win.removeClass("anim-shadow-focus");
-            win.offset(win.offset());
-            win.addClass("anim-shadow-focus");
-        };
-        /*
-        * Destroys the window and removes it from the DOM
-        */
-        WindowController.prototype.close = function () {
-            this.elem.remove();
-            this.scope.$destroy();
-        };
-        WindowController.$inject = ["$scope"];
-        return WindowController;
-    })();
-    Engine.WindowController = WindowController;
-})(Engine || (Engine = {}));

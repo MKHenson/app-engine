@@ -73,7 +73,7 @@ module Animate
 			{
 				var val = parseInt( selector.val() );
 				
-				var asset: Asset = User.getSingleton().project.getAssetByShallowId( val );
+				var asset: Asset = User.get.project.getAssetByShallowId( val );
 
 				if ( asset )
 					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "asset", asset ), true );

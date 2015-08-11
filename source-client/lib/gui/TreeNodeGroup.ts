@@ -26,7 +26,7 @@ module Animate
 			this.element.addClass( "tree-node-group" );
 			
 			//Add each of the node references
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 			this.json = json;
 			
 			for ( var i in this.json.assets )
@@ -46,7 +46,7 @@ module Animate
 			while ( this.children.length > 0 )
 				this.children[0].dispose();
 
-			var project : Project = User.getSingleton().project;
+			var project : Project = User.get.project;
 
 			this.saved = true;
 			this.text = this.originalText;

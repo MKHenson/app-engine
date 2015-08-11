@@ -252,7 +252,7 @@ module Animate
 		{
 			var pManager: PluginManager = PluginManager.getSingleton();
 			var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._behaviourContainer );
-			var project: Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 
 			for ( var i = 0, l = this.children.length; i < l; i++ )
 			{
@@ -438,7 +438,7 @@ module Animate
 			if ( assetMap.indexOf( asset.shallowId ) == -1 )
 				assetMap.push( asset.shallowId );
 
-			var project: Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 			var properties = asset.properties.variables;
 
 			for ( var i = 0, l = properties.length; i < l; i++ )
@@ -463,7 +463,7 @@ module Animate
 			var curGroups : Array<string> = [];
 
 			var children = this.children;
-			var project: Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 
 			for ( var i = 0; i < children.length; i++ )
 			{
@@ -777,7 +777,7 @@ module Animate
 		*/
 		private isCyclicDependency( container : BehaviourContainer, ref : string ) : boolean
 		{
-			var project = User.getSingleton().project;
+            var project = User.get.project;
 			var thisContainer = this._behaviourContainer;
 			var json: CanvasToken = null;
 			var canvas: Canvas = null;
@@ -1420,7 +1420,7 @@ module Animate
 						item = new BehaviourScript( this, jsonObj.items[i].shallowId, jsonObj.items[i].name, !clearItems );
 					else if ( jsonObj.items[i].type == "BehaviourInstance" )
 					{
-						var project = User.getSingleton().project;
+                        var project = User.get.project;
 						var container = project.getBehaviourByShallowId( jsonObj.items[i].containerId );
 						if ( !container )
 							continue;

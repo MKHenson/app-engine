@@ -212,7 +212,7 @@ module Animate
 			else if ( comp == this._privileges )
 				UserPrivilegesForm.getSingleton().show();
 			else if ( comp == this._save )
-				User.getSingleton().project.saveAll();
+				User.get.project.saveAll();
 			else if ( comp == this._build )
 				BuildOptionsForm.getSingleton().show();
 			else if ( comp == this._run )

@@ -133,8 +133,8 @@ module Animate
 				var saveDataObj: CanvasToken = canvas.buildDataObject();
 
 				//Now get the project to save it.
-				User.getSingleton().project.addEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
-				User.getSingleton().project.saveBehaviours( [canvas.behaviourContainer.id] );
+				User.get.project.addEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+				User.get.project.saveBehaviours( [canvas.behaviourContainer.id] );
 			}
 			else
 			{
@@ -169,7 +169,7 @@ module Animate
 		*/
 		onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
 		{
-			User.getSingleton().project.removeEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+			User.get.project.removeEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
 			if ( response == ProjectEvents.BEHAVIOUR_SAVED )
 			{
 				var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
@@ -211,7 +211,7 @@ module Animate
 		onTabSelected( tab : TabPair )
 		{
 			var pManager: PluginManager = PluginManager.getSingleton();
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 
 			//Remove prev we need to notify the plugins of added or removed assets
 			if ( this._currentCanvas && !this._currentCanvas.disposed )
@@ -361,7 +361,7 @@ module Animate
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.behaviourContainer );
 
 				//Remove prev we need to notify the plugins of added or removed assets		
-				var project = User.getSingleton().project;
+                var project = User.get.project;
 
 				//Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;

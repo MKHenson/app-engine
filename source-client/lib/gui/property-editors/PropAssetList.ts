@@ -68,7 +68,7 @@ module Animate
 			// Fill the already selected items 
 			for ( var i = 0, l = selectedIDs.length; i < l; i++ )
 			{
-				var selectedAsset = User.getSingleton().project.getAssetByShallowId( selectedIDs[i] );
+				var selectedAsset = User.get.project.getAssetByShallowId( selectedIDs[i] );
 				if ( selectedAsset )
 					items.append( "<option title='" + selectedIDs[i] + " : " + selectedAsset.className + "' value='" + selectedAsset.shallowId + "'>" + selectedAsset.name + "</option>" );
 			}
@@ -77,7 +77,7 @@ module Animate
             var onSelect = function (e: JQueryEventObject  ) 
 			{
 				assetId = parseInt( selector.val() );
-				asset = User.getSingleton().project.getAssetByShallowId( assetId );
+				asset = User.get.project.getAssetByShallowId( assetId );
 			};
 
 
@@ -91,7 +91,7 @@ module Animate
             var onEye = function (e: JQueryEventObject ) 
 			{
 				var val = parseInt( selector.val() );
-				asset = User.getSingleton().project.getAssetByShallowId( val );
+				asset = User.get.project.getAssetByShallowId( val );
 
 				if ( asset )
 					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "asset", asset ), true );

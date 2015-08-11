@@ -1,15 +1,5 @@
 module Animate
 {
-	export class UserPlanType extends ENUM
-	{
-		constructor( v: string ) { super( v ); }
-		static PLAN_FREE: UserPlanType = new UserPlanType( "animate-free" );
-		static PLAN_BRONZE: UserPlanType = new UserPlanType( "animate-bronze" );
-		static PLAN_SILVER: UserPlanType = new UserPlanType( "animate-silver" );
-		static PLAN_GOLD: UserPlanType = new UserPlanType( "animate-gold" );
-		static PLAN_PLATINUM: UserPlanType = new UserPlanType( "animate-platinum" );
-	}
-
 	export class UserEvents extends ENUM
 	{
 		constructor( v: string ) { super( v ); }
@@ -36,21 +26,32 @@ module Animate
 		}
 	}
 
+   /*
+   * The payment type of the user
+   */
+    export enum UserPlan
+    {
+        Free,
+        Bronze,
+        Silver,
+        Gold,
+        Platinum
+    }
     
 	/**
 	* This class is used to represent the user who is logged into Animate.
 	*/
-    export class User extends EventDispatcher implements ng.IServiceProvider 
+    export class User extends EventDispatcher
 	{
-		private static _singleton = null;
-
-		public username: string;
-		public bio: string;
-		public createdOn: string;		
-		public plan: UserPlanType;
-		public maxNumProjects: number;
-		public planLevel: number;
-		public imgURL: string;
+        private static _singleton = null;
+        public userEntry: UsersInterface.IEngineUser;
+		//public username: string;
+		//public bio: string;
+  //      public createdOn: number;
+  //      public plan: UsersInterface.UserPlan;
+		//public maxNumProjects: number;
+		//public planLevel: number;
+		//public imgURL: string;
 
 		private _project: Project;
 		private _isLoggedIn: boolean;
@@ -61,18 +62,23 @@ module Animate
             User._singleton = this;
 
 			// Call super-class constructor
-			EventDispatcher.call( this );
+            EventDispatcher.call(this);
 
-			this.username = "";
-			this.bio = "";
-			this.createdOn = "";
-			//this.mRequest = "";
-			this.plan = UserPlanType.PLAN_FREE;
-			this._isLoggedIn = false;
-			this.imgURL = "media/blank-user.png";
-			this._project = null;
-			this.planLevel = -1;
-			this.maxNumProjects = 0;
+            // Create the default entry
+            this.userEntry = {
+                username : "",
+                meta : {
+                    bio: "",
+                    createdOn: 0,
+                    plan: UserPlan.Free,
+                    imgURL: "media/blank-user.png",
+                    maxNumProjects: 0
+                }
+            };
+
+            this._project = null;
+            this._isLoggedIn = false;
+            
         }
 
 
@@ -99,32 +105,36 @@ module Animate
         /**
 		* Checks if a user is logged in or not. This checks the server using 
 		* cookie and session data from the browser.
-		* @returns {Promise<boolean>}
+		* @returns {JQueryPromise<boolean>}
 		*/
-        authenticated(): Promise<boolean>
+        authenticated(): JQueryPromise<boolean>
         {
-            this._isLoggedIn = false;
-
+            var d = jQuery.Deferred<boolean>();
             var that = this;
-            return new Promise<boolean>(function (resolve, reject)
+            that._isLoggedIn = false;
+
+            jQuery.getJSON(`${DB.USERS}/users/authenticated`).done(function (data: UsersInterface.IAuthenticationResponse)
             {
-                jQuery.getJSON(`${DB.USERS}/users/authenticated`).done(function(data: UsersInterface.IAuthenticationResponse)
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                if (data.authenticated)
                 {
-                    if (data.error)
-                        return reject(new Error(data.message));
+                    that._isLoggedIn = true;
+                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                    that._isLoggedIn = true;
+                }
+                else
+                    that._isLoggedIn = false;
 
-                    if (data.authenticated)
-                        that._isLoggedIn = true;
-                    else
-                        that._isLoggedIn = false;
+                return d.resolve(data.authenticated);
 
-                    return resolve(data.authenticated);
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            })
 
-                }).fail(function (err)
-                {
-                    return reject(err);
-                });
-            });
+            return d.promise(); 
         }
 
 		/**
@@ -301,7 +311,7 @@ module Animate
 				return;
 			}
 
-			this.username = user;
+            this.userEntry.username = user;
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
 			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
@@ -329,7 +339,7 @@ module Animate
 				return;
 			}
 
-			this.username = user;
+            this.userEntry.username = user;
 
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
@@ -366,19 +376,19 @@ module Animate
 
                 if (loader.url == "/user/log-in")
 				{
-					this.bio = data.bio;
-					this.plan = data.plan;
-					this.maxNumProjects = data.maxProjects;
-					this.createdOn = data.createdOn;
-					this.imgURL = data.image;
+                    this.userEntry.meta.bio = data.bio;
+                    this.userEntry.meta.plan = data.plan;
+                    this.userEntry.meta.maxNumProjects = data.maxProjects;
+                    this.userEntry.meta.createdOn = data.createdOn;
+                    this.userEntry.meta.imgURL = data.image;
 
-					this.planLevel = 0;
-					if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )
-						this.planLevel = 1;
-					else if ( data.plan == DB.PLAN_GOLD )
-						this.planLevel = 2;
-					else
-						this.planLevel = 3;
+					//this.planLevel = 0;
+					//if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )
+					//	this.planLevel = 1;
+					//else if ( data.plan == DB.PLAN_GOLD )
+					//	this.planLevel = 2;
+					//else
+					//	this.planLevel = 3;
 
 					this._isLoggedIn = true;
 
@@ -386,7 +396,7 @@ module Animate
 				}
 				else if ( loader.url == "/user/log-out" )
 				{
-					this.username = "";
+                    this.userEntry.username = "";
 					this._isLoggedIn = false;
 					this.dispatchEvent( new UserEvent( UserEvents.LOGGED_OUT, event.message, event.return_type, data ) );
 				}
@@ -432,21 +442,21 @@ module Animate
 				{
 					if ( data.loggedIn )
 					{
-						this.username = data.username;
-						this.bio = data.bio;
-						this.plan = data.plan;
-						this.maxNumProjects = data.maxProjects;
-						this.imgURL = ( data.image == "" || data.image == null ? "media/blank-user.png" : data.image );
-						this.createdOn = data.createdOn;
+                        this.userEntry.username = data.username;
+                        this.userEntry.meta.bio = data.bio;
+                        this.userEntry.meta.plan = data.plan;
+                        this.userEntry.meta.maxNumProjects = data.maxProjects;
+                        this.userEntry.meta.imgURL = ( data.image == "" || data.image == null ? "media/blank-user.png" : data.image );
+                        this.userEntry.meta.createdOn = data.createdOn;
 						this._isLoggedIn = true;
 
-						this.planLevel = 0;
-						if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )
-							this.planLevel = 1;
-						else if ( data.plan == DB.PLAN_GOLD )
-							this.planLevel = 2;
-						else
-							this.planLevel = 3;
+						//this.planLevel = 0;
+						//if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )
+						//	this.planLevel = 1;
+						//else if ( data.plan == DB.PLAN_GOLD )
+						//	this.planLevel = 2;
+						//else
+						//	this.planLevel = 3;
 					}
 
 					this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
@@ -468,7 +478,7 @@ module Animate
 		* Gets the singleton instance.
 		* @returns {User}
 		*/
-		static getSingleton() : User
+		static get get() : User
         {
             if (!User._singleton)
                 new User();

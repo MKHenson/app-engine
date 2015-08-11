@@ -62,7 +62,7 @@ module Animate
 				children[i].dispose();
 			}
 
-			var plugins = User.getSingleton().project.plugins;
+			var plugins = User.get.project.plugins;
 
 			//Add the localally installed plugins
 			for ( var i = 0; i < plugins.length; i++ ) 

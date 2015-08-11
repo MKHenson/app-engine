@@ -29,7 +29,7 @@ module Animate
 
 			//Start the tooltip manager
             TooltipManager.create();
-            User.getSingleton();
+            User.get;
 
 			this._resizeProxy = this.onWindowResized.bind( this );
 			this._downProxy = this.onMouseDown.bind( this );
@@ -149,7 +149,7 @@ module Animate
 			CanvasTab.getSingleton().projectReset();
 
 			//Must be called after reset
-			var user = User.getSingleton();
+            var user = User.get;
 			if ( user.project )
 			{
 				user.project.dispose();
@@ -170,7 +170,7 @@ module Animate
 
 			CanvasTab.getSingleton().projectReady();
 
-			var project : Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 			project.addEventListener( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			project.loadBehaviours();
 
@@ -186,7 +186,7 @@ module Animate
 		*/
 		onBehavioursLoaded( response: ProjectEvents, event: ProjectEvent, sender? : EventDispatcher ) : void
 		{
-			var project: Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 			project.removeEventListener( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			
 			project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
@@ -198,7 +198,7 @@ module Animate
 		*/
 		onAssetsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
-			var project : Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 			project.removeEventListener( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
 
 			project.addEventListener( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
@@ -210,7 +210,7 @@ module Animate
 		*/
 		onFilesLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
-			var project: Project = User.getSingleton().project;
+            var project: Project = User.get.project;
 			project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 			project.addEventListener( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
@@ -222,7 +222,7 @@ module Animate
 		*/
 		onGroupsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
-			var project = User.getSingleton().project;
+            var project = User.get.project;
 			project.removeEventListener( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
 
 			project.removeEventListener( ProjectEvents.SAVED_ALL, this.onSaveAll, this );

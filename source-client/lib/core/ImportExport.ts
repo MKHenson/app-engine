@@ -62,7 +62,7 @@ module Animate
 		exportScene()
 		{
 			this.runWhenDone = false;
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 
 			var data = {};
 			data["category"] = "builds";
@@ -296,7 +296,7 @@ module Animate
 				return;
 
 			var assetVars = asset.properties.variables;
-			var project = User.getSingleton().project;
+            var project = User.get.project;
 
 			//Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
 			for ( var i = 0, l = assetVars.length; i < l; i++ )
@@ -356,7 +356,7 @@ module Animate
 			if ( group == null )
 				return;
 
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 
 			// Add the group
 			if ( container.groups.indexOf( group.groupID ) == -1 )
@@ -417,7 +417,7 @@ module Animate
 			}
 			else if ( propType == ParameterType.HIDDEN_FILE )
 			{
-				var file: File = Animate.User.getSingleton().project.getFile( value );
+                var file: File = Animate.User.get.project.getFile( value );
 				if ( file )
 				{
 					var urlParts = file.path.split( "/" );

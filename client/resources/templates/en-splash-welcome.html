@@ -1,18 +1,18 @@
-﻿<div id="splash-welcome" class='splash-outer-container splash-welcome'>
+﻿<div class='en-splash-welcome splash-outer-container splash-welcome'>
 	<div class='splash-container'>
 		<div class='splash-section splash-projects'></div>
 		<div class='splash-section'>
 			<div class='splash-user-box'>
-				<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="onButtonClick">X</div>
+				<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
 				<div class='details'>
-					<img en-src="ctrl.user.imgURL" />
+					<img en-src="ctrl.user.userEntry.meta.imgURL" />
 				</div>
 
-				<div en-show="ctrl.user.isLoggedIn" class='details'>{{ctrl.user.username}}</div>
-				<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="onButtonClick">Logout</div></div>
+				<div en-show="ctrl.user.isLoggedIn" class='details'>{{ctrl.user.userEntry.username}}</div>
+				<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="ctrl.onButtonClick(e)">Logout</div></div>
 
-				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="onButtonClick">Login</span></div>
-				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="onButtonClick">Register</span></div>
+				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="ctrl.onButtonClick(e)">Login</span></div>
+				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="ctrl.onButtonClick(e)">Register</span></div>
 			
 				<div class='fix'></div>
 			</div>

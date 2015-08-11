@@ -142,7 +142,7 @@ module Animate
 					this._assetsNode.addNode( toRet );
 				}
 
-			this._curProj = User.getSingleton().project;
+			this._curProj = User.get.project;
 			this._curProj.addEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
 			this._curProj.addEventListener( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
 			this._curProj.addEventListener( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
@@ -295,7 +295,7 @@ module Animate
 					while ( i-- )
 						behaviours.push( selectedNodes[i].behaviour.id );
 
-					User.getSingleton().project.deleteBehaviours( behaviours );
+					User.get.project.deleteBehaviours( behaviours );
 				}
 				else if ( this._contextNode instanceof TreeNodeAssetInstance )
 				{
@@ -311,7 +311,7 @@ module Animate
 					while ( i-- )
 						assets.push( selectedNodes[i].asset.id );
 
-					User.getSingleton().project.deleteAssets( assets );
+					User.get.project.deleteAssets( assets );
 				}
 				else if ( this._contextNode instanceof TreeNodeGroup )
 				{
@@ -325,7 +325,7 @@ module Animate
 					while ( i-- )
 						groups.push( selectedNodes[i].groupID );
 
-					User.getSingleton().project.deleteGroups( groups );
+					User.get.project.deleteGroups( groups );
 				}
 				else if ( this._contextNode instanceof TreeNodeGroupInstance )
 					this._contextNode.dispose();
@@ -334,30 +334,30 @@ module Animate
 			if ( this._contextNode && event.item == this._contextCopy )
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
-					User.getSingleton().project.copyAsset((<TreeNodeAssetInstance>this._contextNode).asset.id );
+					User.get.project.copyAsset((<TreeNodeAssetInstance>this._contextNode).asset.id );
 			}
 			//ADD INSTANCE
 			else if ( this._contextNode && event.item == this._contextAddInstance )
-				User.getSingleton().project.createAsset("New " + (<TreeNodeAssetClass>this._contextNode).assetClass.name, (<TreeNodeAssetClass>this._contextNode).assetClass.name );
+				User.get.project.createAsset("New " + (<TreeNodeAssetClass>this._contextNode).assetClass.name, (<TreeNodeAssetClass>this._contextNode).assetClass.name );
 			//SAVE
 			else if ( this._contextNode && event.item.text == "Save" )
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
-					User.getSingleton().project.saveAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id] );
+					User.get.project.saveAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id] );
 				if ( this._contextNode instanceof TreeNodeGroup )
-					User.getSingleton().project.saveGroups([ (<TreeNodeGroup>this._contextNode).groupID ] );
+					User.get.project.saveGroups([ (<TreeNodeGroup>this._contextNode).groupID ] );
 				else if ( this._contextNode instanceof TreeNodeBehaviour )
-					User.getSingleton().project.saveBehaviours( [ (<TreeNodeBehaviour>this._contextNode).behaviour.id] );				
+					User.get.project.saveBehaviours( [ (<TreeNodeBehaviour>this._contextNode).behaviour.id] );				
 			}
 			//ADD GROUP NODE
 			else if ( this._contextNode && event.item.text == "Add Group" )
-				User.getSingleton().project.createGroup( "New Group");
+				User.get.project.createGroup( "New Group");
 			//UPDATE
 			else if ( this._contextNode && event.item.text == "Update" )
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
 				{
-					User.getSingleton().project.updateAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id]);
+					User.get.project.updateAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id]);
 				}
 				//Update all groups
 				else if ( this._contextNode == this._groupsNode )
@@ -365,18 +365,18 @@ module Animate
 					while ( this._groupsNode.children.length > 0 )
 						this._groupsNode.children[0].dispose();
 
-					User.getSingleton().project.loadGroups();
+					User.get.project.loadGroups();
 				}
 				//Update the scene
 				else if ( this._contextNode == this._sceneNode )
 				{
 					while ( this._sceneNode.children.length > 0 )
 						this._sceneNode.children[0].dispose();
-					User.getSingleton().project.loadBehaviours();
+					User.get.project.loadBehaviours();
 				}
 				else if ( this._contextNode instanceof TreeNodeGroup )
 				{
-					User.getSingleton().project.updateGroups( [( <TreeNodeGroup>this._contextNode ).groupID ] );
+					User.get.project.updateGroups( [( <TreeNodeGroup>this._contextNode ).groupID ] );
 				}
 				else if ( this._contextNode instanceof TreeNodeAssetClass )
 				{
@@ -386,11 +386,11 @@ module Animate
 						if ( nodes[i] instanceof TreeNodeAssetInstance )
 							ids.push( ( <TreeNodeAssetInstance>nodes[i] ).asset.id );
 
-					User.getSingleton().project.updateAssets( ids );
+					User.get.project.updateAssets( ids );
 				}
 				else if ( this._contextNode instanceof TreeNodeBehaviour )
 				{
-					User.getSingleton().project.updateBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.id] );
+					User.get.project.updateBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.id] );
 				}
 			}
 		}
@@ -489,7 +489,7 @@ module Animate
 		{
 			//if (event.tag.object.type == "project" )
 			//	return;
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 			var len = project.behaviours.length;
 			if (event.object instanceof BehaviourContainer )
 				for ( var i = 0; i < len; i++ )
@@ -548,7 +548,7 @@ module Animate
 		*/
 		onBehaviourResponse(response: ProjectEvents, event: ProjectEvent )
 		{
-			var proj = User.getSingleton().project;
+			var proj = User.get.project;
 			//SAVE
 			if (response == ProjectEvents.BEHAVIOUR_SAVED )
 			{
@@ -570,7 +570,7 @@ module Animate
 		onAssetResponse(response: ProjectEvents, event: AssetEvent  )
 		{
 			var data : Asset = event.asset;
-			var proj: Project = User.getSingleton().project;
+			var proj: Project = User.get.project;
 
 			if (response == ProjectEvents.ASSET_DELETING )
 			{

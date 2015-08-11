@@ -1,4 +1,21 @@
-﻿declare module Engine
+﻿declare module UsersInterface
+{
+    /*
+    * An interface to describe the data stored in the database for users
+    */
+    export interface IEngineUser extends IUserEntry
+    {
+        meta?: {
+            bio: string;
+            plan: number;
+            maxNumProjects: number;
+            createdOn: number;
+            imgURL: string;
+        };
+    }
+}
+
+declare module Engine
 {
     /**
     * A class that is used to describe the assets model
@@ -25,7 +42,7 @@
         folderName?: string;
         description?: string;
         shortDescription?: string;
-        plan?: string;
+        plan?: number;
         path?: string;
         header?: string;
         body?: string;

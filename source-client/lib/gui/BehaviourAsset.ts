@@ -40,7 +40,7 @@ module Animate
 			if (type == PortalType.PARAMETER)
 			{
 				var id = parseInt( value.selected );
-				this._asset = User.getSingleton().project.getAssetByShallowId(id);
+				this._asset = User.get.project.getAssetByShallowId(id);
 			}
 
 			return portal;

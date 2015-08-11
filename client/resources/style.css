@@ -298,7 +298,7 @@ input:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{ back
 .close-but:hover{ color:#777; }
 
 .splash-login-user .close-but { margin:10px 10px 0 0; }
-.splash-login-user .button{ height:40px; margin-top:375px; position:absolute; top:390px; width:230px;  }
+.splash-login-user .button{ height:40px; position:absolute; top:390px; width:230px;  }
 .splash-login-user .button .textfield{ font-size:14px; }
 .splash-login-user .heading img{ vertical-align:middle; }
 .splash-login-user .hyperlink { clear:both; margin-top:60px; }

@@ -1,0 +1,87 @@
+﻿<div class='en-splash-login splash-outer-container splash-login-user' style='top:-520px;'>
+	<div class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
+	<div class='label heading'>
+		<div class='textfield'>
+			<img src='media/blank-user.png' />User Login
+		</div>
+		<div class='fix'></div>
+	</div>
+	<div>
+		<div class='splash-section'>
+			<div class='label'>
+				<div class='textfield'>Username: </div>
+			</div>
+			<div class='input-box'>
+				<input type='text' id="en-login-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+			</div>
+			<div class='label'>
+				<div class='textfield'>Password: </div>
+			</div>
+			<div class='input-box'>
+				<input type='password'  id="en-login-password" en-class="{ 'red-border' : elm.$error }" en-validate="alpha-numeric|non-empty|alpha-numeric-plus" />
+			</div>
+			<div class='checkbox'>
+				<input type='checkbox' on id="en-login-remember" />
+				<div class='text'>Remember me</div>
+			</div>
+
+			<div class='label hyperlink en-login-reset' en-click="ctrl.onButtonClick(e)">
+				<div class='textfield'>Reset Password</div>
+			</div>
+			<div class='label hyperlink en-login-resend' style="margin: 20px 0 0 0;" en-click="ctrl.onButtonClick(e)">
+				<div class='textfield'>Resend Activation Email</div>
+			</div>
+			
+			<div en-click="ctrl.onButtonClick(e)" class='button reg-gradient curve-small en-login'>
+				<div class="textfield">
+					Login
+				</div>
+			</div>
+
+		</div>
+		<div class='splash-section splash-section-right'>
+
+			<div class='label'>
+				<div class='textfield'>Username: </div>
+			</div>
+			<div class='input-box'>
+				<input type='text' id="en-reg-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+			</div>
+			<div class='label'>
+				<div class='textfield'>Email: </div>
+			</div>
+			<div class='input-box'>
+				<input type='text' id="en-reg-email" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|email" />
+			</div>
+
+			<div class='label'>
+				<div class='textfield'>Password: </div>
+			</div>
+			<div class='input-box'>
+				<input type='text' id="en-reg-password" en-class="{ 'red-border' : elm.$error }" en-validate="alpha-numeric|non-empty|alpha-numeric-plus" />
+			</div>
+
+			<div class='label'>
+				<div class='textfield'>Retype Password: </div>
+			</div>
+			<div class='input-box'>
+				<input type='text'  id="en-reg-password-check" en-class="{ 'red-border' : elm.$error }" en-validate="alpha-numeric|non-empty|alpha-numeric-plus" />
+			</div>
+
+			<div id='animate-captcha'></div>
+
+			<div en-click="ctrl.onButtonClick(e)" class='button reg-gradient curve-small en-register'>
+				<div class="textfield">
+					Register
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div class='fix'></div>
+
+	<div class='label' en-show="ctrl.$loginError != ''">
+		<div class='textfield' style="color: #ff0000; clear: both; font-size: 14px; text-align: center; margin-top: 0px; font-weight: bold;">{{ctrl.$loginError}}</div>
+	</div>
+
+</div>

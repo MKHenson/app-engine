@@ -24,14 +24,11 @@
     <Content Include="..\client\resources\style.css">
       <Link>html\style.css</Link>
     </Content>
-    <Content Include="..\client\resources\templates\list-view-column.html">
-      <Link>html\templates\list-view-column.html</Link>
+    <Content Include="..\client\resources\templates\en-splash-login.html">
+      <Link>html\templates\en-splash-login.html</Link>
     </Content>
-    <Content Include="..\client\resources\templates\splash-welcome.html">
-      <Link>html\templates\splash-welcome.html</Link>
-    </Content>
-    <Content Include="..\client\resources\templates\window.html">
-      <Link>html\templates\window.html</Link>
+    <Content Include="..\client\resources\templates\en-splash-welcome.html">
+      <Link>html\templates\en-splash-welcome.html</Link>
     </Content>
     <Content Include="lib\html\index.html" />
     <Content Include="lib\html\style-trike.css" />
@@ -39,8 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
-    <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
-    <TypeScriptCompile Include="definitions\angular.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />
@@ -48,7 +43,6 @@
     <TypeScriptCompile Include="definitions\jquery.scrollTo.d.ts" />
     <TypeScriptCompile Include="definitions\jqueryui.d.ts" />
     <TypeScriptCompile Include="definitions\JSColor.d.ts" />
-    <TypeScriptCompile Include="lib\Config.ts" />
     <TypeScriptCompile Include="lib\core\Asset.ts" />
     <TypeScriptCompile Include="lib\core\AssetClass.ts" />
     <TypeScriptCompile Include="lib\core\AssetTemplate.ts" />
@@ -77,9 +71,6 @@
     <TypeScriptCompile Include="lib\core\Project.ts" />
     <TypeScriptCompile Include="lib\core\TypeConverter.ts" />
     <TypeScriptCompile Include="lib\core\Utils.ts" />
-    <TypeScriptCompile Include="lib\directives\ListViewColumn.ts" />
-    <TypeScriptCompile Include="lib\directives\ListView.ts" />
-    <TypeScriptCompile Include="lib\directives\Window.ts" />
     <TypeScriptCompile Include="lib\gui\Application.ts" />
     <TypeScriptCompile Include="lib\core\EventDispatcher.ts" />
     <TypeScriptCompile Include="lib\core\User.ts" />

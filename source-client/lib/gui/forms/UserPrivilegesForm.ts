@@ -135,7 +135,7 @@ module Animate
 			else
 			{
 				//Get all the updated users
-				var project = User.getSingleton().project;
+				var project = User.get.project;
 				var ids = [];
 				var access = [];
 
@@ -170,7 +170,7 @@ module Animate
 		{
 			super.show( null, NaN, NaN, true);
 
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 			this.mMenu.clearItems();
 
 			var loader = new AnimateLoader();

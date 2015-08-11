@@ -17,7 +17,7 @@ module Animate
 			
 			var behaviour: BehaviourScript = this;
 			var element = this.element;
-			var plan : UserPlanType = User.getSingleton().plan;
+            var plan: UserPlan = User.get.userEntry.meta.plan;
 			this.scriptTab = null;
 			this.shallowId = shallowId;
 
@@ -41,7 +41,7 @@ module Animate
 				var loader = new AnimateLoader();
 				loader.addEventListener( LoaderEvents.COMPLETE, onServer );
 				loader.addEventListener( LoaderEvents.FAILED, onServer );
-				loader.load( "/project/copy-script", { projectId: User.getSingleton().project._id, originalId: shallowId, shallowId: behaviour.shallowId });
+                loader.load("/project/copy-script", { projectId: User.get.project._id, originalId: shallowId, shallowId: behaviour.shallowId });
 
 				//When we have copied the script
 				function onServer( response: LoaderEvents, event: AnimateLoaderEvent )
@@ -94,7 +94,7 @@ module Animate
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
 			loader.addEventListener( LoaderEvents.FAILED, onServer );
-			loader.load( "/project/delete-scripts", { projectId: User.getSingleton().project._id, ids: [this.shallowId] });
+            loader.load("/project/delete-scripts", { projectId: User.get.project._id, ids: [this.shallowId] });
 			
 			//When we 
 			function onServer( response: LoaderEvents, event : AnimateLoaderEvent)
@@ -126,7 +126,7 @@ module Animate
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
 			loader.addEventListener( LoaderEvents.FAILED, onServer );
-			loader.load( "/project/initialize-behaviour-script", { projectId: User.getSingleton().project._id, containerId: (<Canvas>this.parent).behaviourContainer.shallowId, behaviourId: behaviour.id });
+            loader.load("/project/initialize-behaviour-script", { projectId: User.get.project._id, containerId: (<Canvas>this.parent).behaviourContainer.shallowId, behaviourId: behaviour.id });
 			
 			//When we 
 			function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )

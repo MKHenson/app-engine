@@ -112,9 +112,9 @@ module Animate
 			this.leftTop.clear();
 			this.leftTop.addChild( "<div><div class='proj-info-left'><img src='media/project-item.png'/></div>" +
 				"<div class='proj-info-right'>" +
-				"<div class='name'>Name: " + User.getSingleton().project.mName + "</div>" +
-				"<div class='owner'>User: " + User.getSingleton().username + "</div>" +
-				"<div class='created-by'>Last Updated: " + new Date( User.getSingleton().project.lastModified ).toDateString() + "</div>" +
+				"<div class='name'>Name: " + User.get.project.mName + "</div>" +
+                "<div class='owner'>User: " + User.get.userEntry.username + "</div>" +
+				"<div class='created-by'>Last Updated: " + new Date( User.get.project.lastModified ).toDateString() + "</div>" +
 				"</div></div><div class='fix'></div>" );
 
 			this.pluginList.clear();
@@ -124,17 +124,15 @@ module Animate
 			comp.element.css( { "pointer-events": "none" });
 
 
-            var plugins: Array<Engine.IPlugin> = User.getSingleton().project.plugins;			
-			var user : User = User.getSingleton();
+            var plugins: Array<Engine.IPlugin> = User.get.project.plugins;			
+			var user : User = User.get;
 
 			//Create each of the plugin items that the user has set
 			for ( var i = 0, l = plugins.length; i < l; i++ )
-			{
-				if ( plugins[i].plan == "basic" )
+            {
+                if (plugins[i].plan <= user.userEntry.meta.plan)
 					this.addProjectPluginComp( plugins[i] );
-				else if ( plugins[i].plan != "basic" && user.planLevel > 1 )
-					this.addProjectPluginComp( plugins[i] );
-			}
+            }
 
 			//Now create each of the plugin items for the actual plugins we can load.
 			this.resetAvailablePlugins();
@@ -158,9 +156,9 @@ module Animate
 			var alreadyHasPlugin: boolean = false;
 
 			//Remove any duplicates
-			var userPlugins = User.getSingleton().project.plugins;
+			var userPlugins = User.get.project.plugins;
 			if ( userPlugins.indexOf( plugin ) == -1 )
-				User.getSingleton().project.plugins.push( plugin );
+				User.get.project.plugins.push( plugin );
 
 			return item;
 		}
@@ -170,7 +168,7 @@ module Animate
 		*/
 		resetAvailablePlugins()
 		{
-			var userPlugins = User.getSingleton().project.plugins;
+			var userPlugins = User.get.project.plugins;
 			this.projectNext.enabled = true;
 
 			this.newPlugsLower.clear();
@@ -207,13 +205,13 @@ module Animate
 				return 0; 
 			});
 
-			var userPlan : UserPlanType = User.getSingleton().plan;
+            var userPlan: UserPlan = User.get.userEntry.meta.plan;
 
 			var len : number = __plugins.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				//Only allow plugins based on your plan.
-				if ( userPlan != UserPlanType.PLAN_GOLD && userPlan != UserPlanType.PLAN_PLATINUM && __plugins[i].plan == "premium" )
+                //Only allow plugins based on your plan.
+                if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan <= userPlan )
 					continue;
 
 				var alreadyAdded : boolean = false;
@@ -266,7 +264,7 @@ module Animate
 			var parent = this.pluginList;
 
             var plugin: Engine.IPlugin = comp.element.data( "plugin" );
-			var userPlugins = User.getSingleton().project.plugins;
+			var userPlugins = User.get.project.plugins;
 			var i = userPlugins.length;
 			while ( i-- )
 				if ( userPlugins[i].name == plugin.name )
@@ -318,7 +316,7 @@ module Animate
 		*/
 		onNextClick( e: any )
 		{
-			var userPlugins = User.getSingleton().project.plugins;
+			var userPlugins = User.get.project.plugins;
 
 			if( userPlugins.length == 0 )
 			{
@@ -331,7 +329,7 @@ module Animate
 			//Implement changes into DB
 			var projectStr = "";
 			var data = {};
-			data["projectId"] = User.getSingleton().project._id;
+			data["projectId"] = User.get.project._id;
 
 			var plugins = [];
 

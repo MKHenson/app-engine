@@ -70,7 +70,7 @@ module Animate
 		onClick( e : any )
 		{
 			var comp : Component = jQuery( e.currentTarget ).data( "component" );
-			var user : User = User.getSingleton();
+			var user : User = User.get;
 
 			if ( comp == this.saveDetails )
 			{
@@ -95,7 +95,7 @@ module Animate
 		*/
 		onServer( event: UserEvents, e : UserEvent )
 		{
-			var user : User = User.getSingleton();
+			var user : User = User.get;
 			user.removeEventListener( UserEvents.FAILED, this.onServer, this );
 
 			if ( e.return_type == AnimateLoaderResponses.ERROR )
@@ -107,8 +107,8 @@ module Animate
 			if ( event == UserEvents.DETAILS_SAVED )
 			{
 				user.removeEventListener( UserEvents.DETAILS_SAVED, this.onServer, this );
-				BuildOptionsForm.getSingleton().message( e.tag.message, false );
-				user.bio = e.tag.bio;
+                BuildOptionsForm.getSingleton().message(e.tag.message, false);
+                user.userEntry.meta.bio = e.tag.bio;
 			}
 			else
 				BuildOptionsForm.getSingleton().message( e.tag.message, true );
@@ -163,7 +163,7 @@ module Animate
 				this.userImgButton.enabled = true;
 
 				BuildOptionsForm.getSingleton().message( response.message, false );
-				User.getSingleton().imgURL = response.imageUrl;
+                User.get.userEntry.meta.imgURL = response.imageUrl;
 				this.imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );				
 			}
 			else

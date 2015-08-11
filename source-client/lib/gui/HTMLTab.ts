@@ -39,8 +39,8 @@ module Animate
 		*/
 		onServer(response: ProjectEvents, event: ProjectEvent)
 		{
-			User.getSingleton().project.removeEventListener(ProjectEvents.FAILED, this.onServer, this);
-			User.getSingleton().project.removeEventListener(ProjectEvents.HTML_SAVED, this.onServer, this);
+			User.get.project.removeEventListener(ProjectEvents.FAILED, this.onServer, this);
+			User.get.project.removeEventListener(ProjectEvents.HTML_SAVED, this.onServer, this);
 
 			if (response == ProjectEvents.FAILED)
 			{
@@ -65,9 +65,9 @@ module Animate
 			if (val == "Yes")
 			{
 				this.close = true;
-				User.getSingleton().project.addEventListener( ProjectEvents.FAILED, this.onServer, this );
-				User.getSingleton().project.addEventListener( ProjectEvents.HTML_SAVED, this.onServer, this );
-				User.getSingleton().project.saveHTML();
+				User.get.project.addEventListener( ProjectEvents.FAILED, this.onServer, this );
+				User.get.project.addEventListener( ProjectEvents.HTML_SAVED, this.onServer, this );
+				User.get.project.saveHTML();
 			}
 			else
 			{
@@ -142,7 +142,7 @@ module Animate
 			editor.getSession().setMode("ace/mode/html");
 			this._editor = editor;
 
-			editor.setValue( User.getSingleton().project.mCurBuild.html);
+			editor.setValue( User.get.project.mCurBuild.html);
 			this._editor.selection.moveCursorFileStart();
 
 			// Ctrl + S

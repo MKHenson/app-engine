@@ -211,8 +211,8 @@ module Animate
 				var name = ( <Label>this._name.val ).text;
 				var description = ( <Label>this._description.val ).text;
 				var tags = ( <Label>this._tags.val ).text;
-				var user = User.getSingleton();
-				var project : Project = User.getSingleton().project;
+				var user = User.get;
+				var project : Project = User.get.project;
 
 				user.addEventListener( UserEvents.FAILED, this._renameProxy );
 				user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
@@ -234,8 +234,8 @@ module Animate
 					return;
 				}
 
-				var user : User = User.getSingleton();
-				var project : Project = User.getSingleton().project;
+                var user: User = User.get;
+                var project: Project = User.get.project;
 				var build = project.mCurBuild;
 
 				project.addEventListener( ProjectEvents.FAILED, this._buildProxy, this );
@@ -277,8 +277,8 @@ module Animate
 				}
 
 
-				var user : User = User.getSingleton();
-				var project : Project = User.getSingleton().project;
+				var user : User = User.get;
+				var project : Project = User.get.project;
 				project.addEventListener( ProjectEvents.FAILED, this._buildProxy, this );
 				project.addEventListener( ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
 				project.selectBuild( (<Label>this._buildVerMaj.val).text, (<Label>this._buildVerMid.val).text, (<Label>this._buildVerMin.val).text );
@@ -302,8 +302,8 @@ module Animate
 		*/
         onBuildResponse(response: ProjectEvents, event : ProjectEvent )
 		{
-			var user = User.getSingleton();
-			var project = User.getSingleton().project;
+			var user = User.get;
+			var project = User.get.project;
 
             project.removeEventListener(ProjectEvents.FAILED, this._buildProxy, this );
             project.removeEventListener(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
@@ -371,8 +371,8 @@ module Animate
 		*/
         onRenamed( response: UserEvents, event: UserEvent )
 		{
-			var user : User = User.getSingleton();
-			var project = User.getSingleton().project;
+			var user : User = User.get;
+			var project = User.get.project;
 
 			if ( event.return_type == AnimateLoaderResponses.ERROR )
 			{
@@ -408,7 +408,7 @@ module Animate
 			OkCancelForm.prototype.show.call( this );
             this._tab.selectTab( this._tab.getTab( "Project" ) );
 
-			var user = User.getSingleton();
+			var user = User.get;
 			var project = user.project;
 
 			//Start the image uploader
@@ -475,7 +475,7 @@ module Animate
 				this._uploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
 			}
 
-			this._uploader.setParams( { projectId: User.getSingleton().project._id });
+			this._uploader.setParams( { projectId: User.get.project._id });
 		}
 
 		/**
@@ -506,7 +506,7 @@ module Animate
 				if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
 				{
 					this._warning.textfield.element.css( "color", "#5DB526" );
-					var project = User.getSingleton().project;
+					var project = User.get.project;
 					project.mImgPath = response.imageUrl;
 					this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
 				}

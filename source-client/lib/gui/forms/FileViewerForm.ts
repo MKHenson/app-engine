@@ -374,7 +374,7 @@ module Animate
 		*/
 		onFilesLoaded( response: ProjectEvents, data : ProjectEvent )
 		{
-			var project = User.getSingleton().project;
+			var project = User.get.project;
 			project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 			this.populateFiles( project.files );
 		}
@@ -421,7 +421,7 @@ module Animate
 		onFileImported( e: ProjectEvents, event : ProjectEvent )
 		{
 			//Not a project file - so we have to import it.
-			var project : Project = User.getSingleton().project;
+			var project : Project = User.get.project;
 			project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
@@ -468,7 +468,7 @@ module Animate
 				else
 				{
 					//Not a project file - so we have to import it.
-					var project = User.getSingleton().project;
+					var project = User.get.project;
 					project.importFile( [file.id] );
 					project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 					project.addEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
@@ -505,7 +505,7 @@ module Animate
 					//Re-download project files
 					this.update();
 					this.onItemClicked( null, null );
-					var project: Project  = User.getSingleton().project;
+                    var project: Project = User.get.project;
 					project.loadFiles( "project" );
 					project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 					project.addEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
@@ -519,7 +519,7 @@ module Animate
 
 					//Either download user or global files
 					this.onItemClicked( null, null );
-					var project: Project = User.getSingleton().project;
+                    var project: Project = User.get.project;
 					
 
 					project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
@@ -536,7 +536,7 @@ module Animate
 			//Delete
 			else if ( target.is( this.removeButton.element ) )
 			{
-				var project : Project = User.getSingleton().project;
+				var project : Project = User.get.project;
 				var items: Array<ListViewItem> = this.menu.getSelectedItems();
 
 				//Remove
@@ -558,7 +558,7 @@ module Animate
 			//Update
 			else if ( target.is( this.updateButton.element ) )
 			{
-				var project : Project = User.getSingleton().project;
+				var project : Project = User.get.project;
 				project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
 				var items: Array<ListViewItem> = this.menu.getSelectedItems();
 				if ( items.length > 0 )
@@ -773,7 +773,7 @@ module Animate
 			{
 				jQuery( ".upload-text", this.statusBar.element ).text( response.message );
 				this.addButton.enabled = true;
-				var project: Project = User.getSingleton().project;
+				var project: Project = User.get.project;
 				project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 				project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
@@ -892,7 +892,7 @@ module Animate
 			var f : File = <File>selectedItems[0].tag;
 
 			//Update the thumbuploader
-			this.thumbUploader.setParams( { projectId: User.getSingleton().project._id, "fileId": f.id });
+			this.thumbUploader.setParams( { projectId: User.get.project._id, "fileId": f.id });
 
 			jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
 			this.addButton.enabled = false;
@@ -934,10 +934,10 @@ module Animate
 				this.thumbUploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
 			}
 
-			//this.uploader.setParams( { projectID: User.getSingleton().project._id, "category": "files", "command": "upload" });
-			//this.thumbUploader.setParams( { projectID: User.getSingleton().project._id, "category": "files", "command": "uploadThumb", "file": "" });
+			//this.uploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "upload" });
+			//this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
 
-			var projId: string = User.getSingleton().project._id;
+			var projId: string = User.get.project._id;
 			this.uploader.setParams( { projectId: projId,  });
 			this.thumbUploader.setParams( { projectId: projId, fileId: "" });
 
@@ -958,7 +958,7 @@ module Animate
 		{
 			var data = event.tag;
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
-			var project : Project = User.getSingleton().project;
+			var project : Project = User.get.project;
 			project.removeEventListener( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
 			project.removeEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
 			project.removeEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
@@ -996,7 +996,7 @@ module Animate
 		*/
 		onFileDeleted( response : ProjectEvents, event : ProjectEvent )
 		{
-			var project : Project = User.getSingleton().project;
+			var project : Project = User.get.project;
 
 			if ( response == ProjectEvents.FILE_DELETED )
 			{

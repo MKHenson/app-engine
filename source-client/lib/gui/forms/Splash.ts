@@ -8,7 +8,8 @@ module Animate
         private welcomeBackground: JQuery;
 
 		private newProjectBackground: Component;
-		private loginBackground: Component;
+        //private loginBackground: Component;
+        private loginBackground: JQuery;
 		private pluginsBackground: Component;
 		private finalScreen: Component;
 		private projectError: Label;
@@ -18,16 +19,16 @@ module Animate
 		private projectNext: Button;
 		private finalButton: Button;
 		private projectDesc: InputBox;
-		private loginBack: Component;
-		private loginUsername: InputBox;
-		private loginPassword: InputBox;
-		private loginRemembeMe: Checkbox;
-		private loginReset: Label;
-		private regUsername: InputBox;
-		private regEmail: InputBox;
-		private regPassword: InputBox;
-		private regPasswordCheck: InputBox;
-		private loginResend: Label;
+		//private loginBack: Component;
+		//private loginUsername: InputBox;
+		//private loginPassword: InputBox;
+		//private loginRemembeMe: Checkbox;
+		//private loginReset: Label;
+		//private regUsername: InputBox;
+		//private regEmail: InputBox;
+		//private regPassword: InputBox;
+		//private regPasswordCheck: InputBox;
+		//private loginResend: Label;
 		//private project :Component;
 		//private news :Component;
 		//private userBox :Component;
@@ -37,38 +38,37 @@ module Animate
 		private response: string;
 		private pluginLoader: ProjectLoader;
 		private projectBrowser: ProjectBrowser;
-		private login :Button;
-		private register : Button;
-		private loginError: Label;		
+		//private login :Button;
+		//private register : Button;
+		//private loginError: Label;		
 		private pluginBrowser: PluginBrowser;
 		private clickProxy: any;
 		private animateProxy: any;
 		private initialized: boolean;
         private slideTime: number;
 
+        // New changes
         private user: User;
+        private $loginError: string;
 
         constructor()
         {
             super(800, 520);
 
-            if (Splash._singleton != null)
-                throw new Error("The Splash class is a singleton. You need to call the Splash.get() function.");
-
             Splash._singleton = this;
-
-            this.user = User.getSingleton();
-
-			
+            this.user = User.get;
 			this.element.addClass("splash-window");
 
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
-            this.welcomeBackground = Compiler.build(jQuery("#splash-welcome").clone(), this);
+            this.welcomeBackground = Compiler.build(jQuery(".en-splash-welcome").clone(), this);
             this.content.element.append(this.welcomeBackground);
 
 			this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
-			this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
-			this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
+			//this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
+            this.loginBackground = Compiler.build(jQuery(".en-splash-login").clone(), this);
+            this.content.element.append(this.loginBackground);
+
+            this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
 			this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
 
 			this.clickProxy = this.onButtonClick.bind( this);
@@ -77,7 +77,9 @@ module Animate
 			this.slideTime = 500;
 
 			this.modalBackdrop.css({ "z-index": "900" });
-			this.element.css({ "z-index": "901" });			
+            this.element.css({ "z-index": "901" });
+
+            this.$loginError = "";
 		}
 
 		/**
@@ -90,7 +92,8 @@ module Animate
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
             this.welcomeBackground.css({ "left": "0px", "top": "0px" });
 			this.newProjectBackground.element.css({ "left": "800px" });
-			this.loginBackground.element.css({ "top": "-520px" });
+			//this.loginBackground.element.css({ "top": "-520px" });
+            this.loginBackground.css({ "top": "-520px" });
 			this.pluginsBackground.element.css({ "left": "800px" });
 			this.finalScreen.element.css({ "left": "800px" });
 
@@ -98,24 +101,26 @@ module Animate
 
 			this.projectError.element.hide();
 			this.finalError.element.hide();
-			this.loginError.element.hide();
+			//this.loginError.element.hide();
 
 			//this.closeButton.element.show();
 
-			this.loginUsername.textfield.element.removeClass("red-border");
-			this.loginPassword.textfield.element.removeClass("red-border");
-			this.regUsername.textfield.element.removeClass("red-border");
-			this.regPassword.textfield.element.removeClass("red-border");
-			this.regPasswordCheck.textfield.element.removeClass("red-border");
-			this.regEmail.textfield.element.removeClass("red-border");
+			//this.loginUsername.textfield.element.removeClass("red-border");
+			//this.loginPassword.textfield.element.removeClass("red-border");
+			//this.regUsername.textfield.element.removeClass("red-border");
+			//this.regPassword.textfield.element.removeClass("red-border");
+			//this.regPasswordCheck.textfield.element.removeClass("red-border");
+			//this.regEmail.textfield.element.removeClass("red-border");
 
 			this.projectName.textfield.element.removeClass("red-border");
 			this.projectDesc.textfield.element.removeClass("red-border");
 
 			//Refresh the projects
-            User.getSingleton().downloadProjects();
+            User.get.downloadProjects();
 
-            Compiler.build(this.welcomeBackground, this);
+            
+            Compiler.digest(this.welcomeBackground, this);
+            Compiler.digest(this.loginBackground, this);
 
 			return;
 		}
@@ -130,19 +135,21 @@ module Animate
 			{
 				this.projectBack.enabled = value;
 				this.projectNext.enabled = value;
-				this.finalButton.enabled = value;
-				this.login.enabled = value;
-				this.loginBack.enabled = value;
-				this.register.enabled = value;
+                this.finalButton.enabled = value;
+                // TODO - button enabled
+				//this.login.enabled = value;
+				//this.loginBack.enabled = value;
+				//this.register.enabled = value;
 			}
 			else
 			{
 				this.projectBack.enabled = true;
 				this.projectNext.enabled = true;
-				this.finalButton.enabled = true;
-				this.login.enabled = true;
-				this.loginBack.enabled = true;
-				this.register.enabled = true;
+                this.finalButton.enabled = true;
+                // TODO - button enabled
+				//this.login.enabled = true;
+				//this.loginBack.enabled = true;
+				//this.register.enabled = true;
 			}
 		}
 
@@ -233,168 +240,180 @@ module Animate
 		*/
 		createLoginPage()
 		{
-			this.loginBack = new Component("<div class='close-but'>X</div>", this.loginBackground);
-			var heading = new Label("User Login", this.loginBackground);
+			//this.loginBack = new Component("<div class='close-but'>X</div>", this.loginBackground);
+			//var heading = new Label("User Login", this.loginBackground);
 
-			heading.element.addClass("heading");
-			heading.textfield.element.prepend("<img src='media/blank-user.png' />");
-			heading.element.append("<div class='fix'></div>");
+			//heading.element.addClass("heading");
+			//heading.textfield.element.prepend("<img src='media/blank-user.png' />");
+			//heading.element.append("<div class='fix'></div>");
 
 			//Create container div and main elements
-			var sub = new Component("<div></div>", this.loginBackground);
-			this.loginBackground.element.append("<div class='fix'></div>");
-			var login = new Component("<div class='splash-section'></div>", sub);
-			var register = new Component("<div class='splash-section splash-section-right'></div>", sub);
+			//var sub = new Component("<div></div>", this.loginBackground);
+			//this.loginBackground.element.append("<div class='fix'></div>");
+			//var login = new Component("<div class='splash-section'></div>", sub);
+			//var register = new Component("<div class='splash-section splash-section-right'></div>", sub);
 
 			//Create login form
-			new Label("Username:", login);
-			this.loginUsername = new InputBox(login, "");
-			new Label("Password:", login);
-			this.loginPassword = new InputBox(login, "", false, true);
-			this.loginRemembeMe = new Checkbox(login, "Remember me", true);
+			//new Label("Username:", login);
+			//this.loginUsername = new InputBox(login, "");
+			//new Label("Password:", login);
+			//this.loginPassword = new InputBox(login, "", false, true);
+			//this.loginRemembeMe = new Checkbox(login, "Remember me", true);
 
-			this.loginReset = new Label("Reset Password", login);
-			this.loginReset.element.addClass("hyperlink");
-			this.loginResend = new Label("Resend Activation Email", login);
-			this.loginResend.element.addClass("hyperlink");
-			this.loginResend.element.css({ "margin": "20px 0 0 0" });
+			//this.loginReset = new Label("Reset Password", login);
+			//this.loginReset.element.addClass("hyperlink");
+			//this.loginResend = new Label("Resend Activation Email", login);
+			//this.loginResend.element.addClass("hyperlink");
+			//this.loginResend.element.css({ "margin": "20px 0 0 0" });
 
 			//Create register form
-			new Label("Username:", register);
-			this.regUsername = new InputBox(register, "");
-			new Label("Email:", register);
-			this.regEmail = new InputBox(register, "");
-			new Label("Password:", register);
-			this.regPassword = new InputBox(register, "", false, true);
-			new Label("Retype Password:", register);
-			this.regPasswordCheck = new InputBox(register, "", false, true);
-			register.element.append("<div id='animate-captcha'></div>");
+			//new Label("Username:", register);
+			//this.regUsername = new InputBox(register, "");
+			//new Label("Email:", register);
+			//this.regEmail = new InputBox(register, "");
+			//new Label("Password:", register);
+			//this.regPassword = new InputBox(register, "", false, true);
+			//new Label("Retype Password:", register);
+			//this.regPasswordCheck = new InputBox(register, "", false, true);
+			//register.element.append("<div id='animate-captcha'></div>");
 
-			jQuery('#animate-captcha').each(function ()
-			{
-				if ( (<any>window).Recaptcha)
-					Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
-			});
+			//jQuery('#animate-captcha').each(function ()
+			//{
+			//	if ( (<any>window).Recaptcha)
+			//		Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
+			//});
+
+            Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", "animate-captcha", { theme: "white" });
 
 
 			//Create Buttons
-			this.login = new Button("Login", login);
-			this.register = new Button("Register", register);
+			//this.login = new Button("Login", login);
+			//this.register = new Button("Register", register);
 
 
-			this.login.css({ width: "", height: 40 });
-			this.register.css({ width: "", height: 40 });
+			//this.login.css({ width: "", height: 40 });
+			//this.register.css({ width: "", height: 40 });
 
 			//Error label
-			this.loginError = new Label("", this.loginBackground);
-			this.loginError.element.hide();
-			this.loginError.textfield.element.css({ color: "#ff0000", clear: "both", "font-size": "14px", "text-align": "center", "margin-top": "0px", "font-weight": "bold" });
+			//this.loginError = new Label("", this.loginBackground);
+			//this.loginError.element.hide();
+			//this.loginError.textfield.element.css({ color: "#ff0000", clear: "both", "font-size": "14px", "text-align": "center", "margin-top": "0px", "font-weight": "bold" });
 
-			this.login.element.click(this.clickProxy);
-			this.register.element.click(this.clickProxy);
-			this.loginBack.element.click(this.clickProxy);
-			this.loginReset.element.click(this.clickProxy);
-			this.loginResend.element.click(this.clickProxy);
+			//this.login.element.click(this.clickProxy);
+			//this.register.element.click(this.clickProxy);
+			//this.loginBack.element.click(this.clickProxy);
+			//this.loginReset.element.click(this.clickProxy);
+			//this.loginResend.element.click(this.clickProxy);
 		}
 
 		/**
 		* Checks each of the login fields based on which button was pressed.
 		* @param {any} button 
 		*/
-		validateLogins(button)
-		{
-			this.loginUsername.textfield.element.removeClass("red-border");
-			this.loginPassword.textfield.element.removeClass("red-border");
-			this.regUsername.textfield.element.removeClass("red-border");
-			this.regPassword.textfield.element.removeClass("red-border");
-			this.regPasswordCheck.textfield.element.removeClass("red-border");
-			this.regEmail.textfield.element.removeClass("red-border");
+        validateLogins(jComp: JQuery)
+        {
+            var toRet = true;
+			//this.loginUsername.textfield.element.removeClass("red-border");
+			//this.loginPassword.textfield.element.removeClass("red-border");
+			//this.regUsername.textfield.element.removeClass("red-border");
+			//this.regPassword.textfield.element.removeClass("red-border");
+			//this.regPasswordCheck.textfield.element.removeClass("red-border");
+			//this.regEmail.textfield.element.removeClass("red-border");
 
-			if (this.loginReset == button || this.loginResend == button)
+            if (jComp.is(".en-login-reset") || jComp.is(".en-login-resend"))
 			{
-				//Check username
-				var message = jQuery.trim(this.loginUsername.text)
+                //Check username
+                var message = jQuery.trim(jQuery("#en-login-username").val())
 				if (message == "")
 				{
-					this.loginError.element.show();
-					this.loginError.text = "Please enter your username or email";
-					this.loginUsername.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+					//this.loginError.text = "Please enter your username or email";
+                    this.$loginError = "Please enter your username or email";
+					//this.loginUsername.textfield.element.addClass("red-border");
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
 			}
-			if (this.login == button)
+            else if (jComp.is(".en-login"))
 			{
 				//Check username
-				var message: string = Utils.checkForSpecialChars(this.loginUsername.text)
+                var message: string = Utils.checkForSpecialChars(jQuery("#en-login-username").val())
 				if (message)
 				{
-					this.loginError.element.show();
-					this.loginError.text = message;
-					this.loginUsername.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+					//this.loginError.text = message;
+                    this.$loginError = message;
+					//this.loginUsername.textfield.element.addClass("red-border");
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
 
 				//Check password
-				message = Utils.checkForSpecialChars(this.loginPassword.text)
+                message = Utils.checkForSpecialChars(jQuery("#en-login-password").val())
 				if (message)
 				{
-					this.loginError.element.show();
-					this.loginError.text = message;
-					this.loginPassword.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+					//this.loginPassword.textfield.element.addClass("red-border");
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
-			}
-			else if (this.loginReset != button && this.loginResend != button)
+            }
+            else if (jComp.is(".en-login-reset") == false && jComp.is(".en-login-resend") == false)
 			{
 				//Check username
-				var message: string = Utils.checkForSpecialChars(this.regUsername.text)
+                var message: string = Utils.checkForSpecialChars(jQuery("#en-reg-username").val())
 				if (message)
 				{
-					this.loginError.element.show();
-					this.loginError.text = message;
-					this.regUsername.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+                    //this.loginError.text = message;
+                    this.$loginError = message;
+					//this.regUsername.textfield.element.addClass("red-border");
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
 
 				//Check email
-				var emailValid: boolean = Utils.validateEmail(this.regEmail.text)
+                var emailValid: boolean = Utils.validateEmail(jQuery("#en-reg-email").val())
 				if (!emailValid)
 				{
-					this.loginError.element.show();
-					this.loginError.text = "Please enter a valid email address.";
-					this.regEmail.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+					//this.loginError.text = "Please enter a valid email address.";
+                    this.$loginError = "Please enter a valid email address.";
+					//this.regEmail.textfield.element.addClass("red-border");
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
 
 				//Check password
-				message = Utils.checkForSpecialChars(this.regPassword.text)
+                message = Utils.checkForSpecialChars(jQuery("#en-reg-password").val())
 				if (message)
 				{
-					this.loginError.element.show();
-					this.loginError.text = message;
-					this.regPassword.textfield.element.addClass("red-border");
+					//this.loginError.element.show();
+					//this.loginError.text = message;
+                    this.$loginError = message;
+					//this.regPassword.textfield.element.addClass("red-border");
 					this.enableButtons(true);
 					return false;
 				}
 
 				//Make sure passwords match
-				if (this.regPassword.text != this.regPasswordCheck.text)
+                if (jQuery("#en-reg-password").val() != jQuery("#en-reg-password-check").val())
 				{
-					this.regPassword.textfield.element.addClass("red-border");
-					this.regPasswordCheck.textfield.element.addClass("red-border");
-					this.loginError.element.show();
-					this.loginError.text = "Your passwords do not match.";
+					//this.regPassword.textfield.element.addClass("red-border");
+					//this.regPasswordCheck.textfield.element.addClass("red-border");
+                    jQuery("#en-reg-password").addClass("red-border");
+                    jQuery("#en-reg-password-check").addClass("red-border");
+					//this.loginError.element.show();
+					//this.loginError.text = "Your passwords do not match.";
+                    this.$loginError = "Your passwords do not match.";
 					this.enableButtons(true);
-					return false;
+                    toRet = false;
 				}
 			}
-
-			return true;
+            
+            return toRet;
 		}
 		/**
 		* Checks each of the fields for creating a new project.
@@ -424,9 +443,9 @@ module Animate
 		*/
 		createWelcomePage()
 		{
-            var user: User = User.getSingleton();
+            var user: User = User.get;
 
-            Compiler.build(this.welcomeBackground, this);
+            //Compiler.build(this.welcomeBackground, this);
 
 			//var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
 			//this.project = new Component("<div class='splash-section'></div>", sub);
@@ -473,7 +492,7 @@ module Animate
 		*/
 		onProjectCombo( response: ProjectBrowserEvents, event: ProjectBrowserEvent)
 		{
-			var user: User = User.getSingleton();
+			var user: User = User.get;
 
 			if ( !user.isLoggedIn )
 				return MessageBox.show("Please log in", ["Ok"], null, null );
@@ -506,7 +525,7 @@ module Animate
 				}
 
 				
-				var user = User.getSingleton();
+				var user = User.get;
 				if (user.project)
 				{
 					this.response = "open";
@@ -563,60 +582,69 @@ module Animate
 		{
 			this.enableButtons(false);
 
+            var jComp = jQuery(e.currentTarget);
 			var comp = jQuery(e.currentTarget).data("component");
 
 
 			//WELCOME - Login
-			if (jQuery(e.currentTarget).is(".login-link") || jQuery(e.currentTarget).is(".register-link"))
+            if (jComp.is(".login-link") || jComp.is(".register-link"))
 			{
-				this.loginError.element.hide();
-				this.loginPassword.text = "";
+				//this.loginError.element.hide();
+                //this.loginPassword.text = "";
+                this.$loginError = "";
+                
                 //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-				this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+				//this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
 			}
 			//WELCOME - Logout
-			else if (jQuery(e.currentTarget).is(".logout-link"))
+            else if (jComp.is(".logout-link"))
 			{
-				User.getSingleton().logout();
+				User.get.logout();
 				Application.getInstance().projectReset();
 			}
 			//LOGIN - back
-			else if (comp == this.loginBack)
+            else if (jComp.is(".en-splash-login .close-but"))
 			{
 				//this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-				this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+				//this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
             }
             //WELCOME - Close
-            else if (jQuery(e.currentTarget).is(".close-but"))
+            else if (jComp.is(".close-but"))
             {
                 this.hide();
 
             }
 			//LOGIN - reset password
-			else if (comp == this.loginReset)
+            else if (jComp.is(".en-login-reset"))
 			{
-				if (this.validateLogins(this.loginReset))
-					User.getSingleton().resetPassword(this.loginUsername.text);
+                if (this.validateLogins(jComp))
+                    User.get.resetPassword(jQuery("#en-login-username").val());
 			}
 			//LOGIN - resend activation
-			else if (comp == this.loginResend)
+            else if (jComp.is(".en-login-resend"))
 			{
-				if (this.validateLogins(this.loginResend))
-					User.getSingleton().resendActivation(this.loginUsername.text);
+                if (this.validateLogins(jComp))
+                    User.get.resendActivation(jQuery("#en-login-username").val());
 			}
 			//LOGIN - login
-			else if (comp == this.login)
+            else if (jComp.is(".en-login"))
 			{
-				if (this.validateLogins(this.login))
-					User.getSingleton().login(this.loginUsername.text, this.loginPassword.text, this.loginRemembeMe.checked );
+                if (this.validateLogins(jComp))
+                    User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val() );
 			}
 			//LOGIN - register
-			else if (comp == this.register)
+            else if (jComp.is(".en-register"))
 			{
-				if (this.validateLogins(this.register))
-					User.getSingleton().register(this.regUsername.text, this.regPassword.text, this.regEmail.text, jQuery("#recaptcha_response_field").val(), jQuery("#recaptcha_challenge_field").val() );
+                if (this.validateLogins(jComp))
+                    User.get.register(jQuery("#en-reg-username").val(),
+                        jQuery("#en-reg-password").val(),
+                        jQuery("#en-reg-email").val(),
+                        jQuery("#recaptcha_response_field").val(),
+                        jQuery("#recaptcha_challenge_field").val());
 			}
 			//PROJECT SCREEN - back
 			else if (comp == this.projectBack)
@@ -629,14 +657,14 @@ module Animate
 
 				//refil the projects
 				this.projectBrowser.clearItems();
-				User.getSingleton().downloadProjects();
+				User.get.downloadProjects();
 			}
 			//PROJECT SCREEN - Next
 			else if (comp == this.projectNext)
 			{
 				if (this.validateNewProject())
 				{
-					var user = User.getSingleton();
+					var user = User.get;
 					user.addEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
 					user.addEventListener( UserEvents.FAILED, this.onProjectData, this );
 					user.createProject( this.projectName.text, this.projectDesc.text );
@@ -663,7 +691,7 @@ module Animate
 			this.enableButtons(true);
 			if (response == "Yes")
 			{
-				var user = User.getSingleton();
+				var user = User.get;
 
 				//If a project already exists - warn the user it will have to be closed.
 				if (user.project)
@@ -695,7 +723,7 @@ module Animate
 			this.enableButtons(true);
 
 			if (response == "Yes")
-				User.getSingleton().copyProject(this.projectBrowser.selectedID);
+				User.get.copyProject(this.projectBrowser.selectedID);
 		}
 
 		/**
@@ -707,7 +735,7 @@ module Animate
 			this.enableButtons(true);
 
 			if (response == "Yes")
-				User.getSingleton().deleteProject(this.projectBrowser.selectedID);
+				User.get.deleteProject(this.projectBrowser.selectedID);
 		}
 
 		/**
@@ -729,7 +757,7 @@ module Animate
 		*/
 		onProjectData(response : UserEvents, data : ProjectEvent, sender? : EventDispatcher )
 		{
-			var user : User = User.getSingleton();
+			var user : User = User.get;
 			user.removeEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
 			user.removeEventListener( UserEvents.FAILED, this.onProjectData, this );
 			user.removeEventListener( UserEvents.PROJECT_OPENED, this.onProjectData, this );
@@ -848,8 +876,8 @@ module Animate
 				//jQuery(".login-link", this.userBoxDetails.element).unbind();
 				//jQuery(".register-link", this.userBoxDetails.element).unbind();
 
-                var user = User.getSingleton();
-                Compiler.build(this.welcomeBackground, this);
+                var user = User.get;
+                Compiler.digest(this.welcomeBackground, this);
 				//this.userBoxDetails.element.remove();
 				//this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
 				//jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
@@ -858,7 +886,8 @@ module Animate
 				user.downloadProjects();
 
 				//Go back to main window
-				this.loginBack.element.trigger("click");
+                //this.loginBack.element.trigger("click");
+                jQuery(".splash-login-user .close-but").trigger("click");
 				return;
 			}
 			else if (response == UserEvents.PROJECT_DELETED)
@@ -867,34 +896,35 @@ module Animate
 					MessageBox.show(event.message, ["Ok"], null, null );
 
 				//Refresh the projects
-				User.getSingleton().downloadProjects();
+				User.get.downloadProjects();
 				return;
 			}
 			else if ( ( response == UserEvents.PROJECT_COPIED ) && event.return_type == AnimateLoaderResponses.SUCCESS )
-				User.getSingleton().downloadProjects();
+				User.get.downloadProjects();
 			//FILL PROJECTS LIST
 			else if ((response == UserEvents.PROJECTS_RECIEVED) && event.return_type == AnimateLoaderResponses.SUCCESS)
 			{
 				this.projectBrowser.fill( event.tag )
 			}
 
-			this.loginError.element.show();
-			this.loginError.text = event.message;
+			//this.loginError.element.show();
+            //this.loginError.text = event.message;
+            this.$loginError = event.message;
+            Compiler.digest(this.welcomeBackground, this);
 		}
 
-		onUserLoggedInCheck( response: UserEvents, event: UserEvent, sender?: EventDispatcher )
+		onUserLoggedInCheck()
 		{
-			User.getSingleton().removeEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
-
-			User.getSingleton().addEventListener( UserEvents.LOGGED_IN, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.LOGGED_OUT, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.FAILED, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.REGISTERED, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.PASSWORD_RESET, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.ACTIVATION_RESET, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.PROJECTS_RECIEVED, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.PROJECT_COPIED, this.onUserData, this );
-			User.getSingleton().addEventListener( UserEvents.PROJECT_DELETED, this.onUserData, this );
+			User.get.removeEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
+			User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserData, this );
+			User.get.addEventListener( UserEvents.LOGGED_OUT, this.onUserData, this );
+			User.get.addEventListener( UserEvents.FAILED, this.onUserData, this );
+			User.get.addEventListener( UserEvents.REGISTERED, this.onUserData, this );
+			User.get.addEventListener( UserEvents.PASSWORD_RESET, this.onUserData, this );
+			User.get.addEventListener( UserEvents.ACTIVATION_RESET, this.onUserData, this );
+			User.get.addEventListener( UserEvents.PROJECTS_RECIEVED, this.onUserData, this );
+			User.get.addEventListener( UserEvents.PROJECT_COPIED, this.onUserData, this );
+			User.get.addEventListener( UserEvents.PROJECT_DELETED, this.onUserData, this );
 
 			this.initialized = true;
 			this.createNewProjectPage();
@@ -914,14 +944,24 @@ module Animate
 
 			
 			if (this.initialized == false)
-			{
-				User.getSingleton().addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
-                User.getSingleton().updatedLoggedIn();
-                User.getSingleton().authenticated();
+            {
+                var that = this;
+				//User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
+                //User.get.updatedLoggedIn();
+                User.get.authenticated().then(function (loggedIn: boolean)
+                {
+                    that.onUserLoggedInCheck();
+
+                }).fail(this.handleError);
 			}
 			else
-				jQuery( "img", this.userImg.element ).attr("src", User.getSingleton().imgURL );
-		}
+                jQuery("img", this.userImg.element).attr("src", User.get.userEntry.meta.imgURL );
+        }
+
+        handleError(err: Error)
+        {
+            MessageBox.show(err.message, ["Ok"], null, null);
+        }
 
 
 		/**

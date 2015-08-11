@@ -116,7 +116,7 @@ module Animate
 					return;
 				}
 
-				var user = User.getSingleton();
+				var user = User.get;
 
 				//Create the Behaviour in the DB
 				if ( user.project )
@@ -145,7 +145,7 @@ module Animate
 		*/
 		onRenamed(response: ProjectEvents, data: ProjectEvent )
 		{
-			var user : User = User.getSingleton();
+			var user : User = User.get;
 
 			user.removeEventListener( UserEvents.PROJECT_RENAMED, this.onRenamed, this );
 

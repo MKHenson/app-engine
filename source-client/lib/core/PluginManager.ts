@@ -319,7 +319,7 @@ module Animate
 		*/
 		assetEdited( asset: Asset, propertyNam: string, newValue: any, oldValue: any, propertyType: ParameterType )
 		{
-			var project: Project = User.getSingleton().project;
+			var project: Project = User.get.project;
 
 			if ( propertyType == ParameterType.NUMBER )
 				newValue = newValue.selected;
@@ -355,7 +355,7 @@ module Animate
 		getAssetById( id: string ): Asset
 		{
 			var toRet: Asset = null;
-			toRet = User.getSingleton().project.getAssetByID( id );
+            toRet = User.get.project.getAssetByID( id );
 			return toRet;
 		}
 
@@ -367,7 +367,7 @@ module Animate
 		getAssetByShallowId( id: number ): Asset
 		{
 			var toRet: Asset = null;
-			toRet = User.getSingleton().project.getAssetByShallowId( id );
+			toRet = User.get.project.getAssetByShallowId( id );
 			return toRet;
 		}
 
@@ -439,7 +439,7 @@ module Animate
 		{
 			this.dispatchEvent( new Event( EditorEvents.EDITOR_READY, null ) );
 
-			if ( User.getSingleton().plan == UserPlanType.PLAN_FREE )
+            if (User.get.userEntry.meta.plan == UserPlan.Free)
 			{
 				if ( this.behaviourTemplates.indexOf( this.scriptTemplate ) != -1 )
 				{
