@@ -43,7 +43,7 @@ module Animate
 		//private loginError: Label;		
 		private pluginBrowser: PluginBrowser;
 		private clickProxy: any;
-		private animateProxy: any;
+		//private animateProxy: any;
 		private initialized: boolean;
         private slideTime: number;
 
@@ -58,29 +58,124 @@ module Animate
             Splash._singleton = this;
             this.user = User.get;
 			this.element.addClass("splash-window");
-
+            this.$loginError = "";
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
-            this.welcomeBackground = Compiler.build(jQuery(".en-splash-welcome").clone(), this);
+            this.welcomeBackground = Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
             this.content.element.append(this.welcomeBackground);
 
 			this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
 			//this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
-            this.loginBackground = Compiler.build(jQuery(".en-splash-login").clone(), this);
+            this.loginBackground = Compiler.build(jQuery(".en-splash-login").remove().clone(), this);
             this.content.element.append(this.loginBackground);
 
             this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
 			this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
 
 			this.clickProxy = this.onButtonClick.bind( this);
-			this.animateProxy = this.enableButtons.bind(this);
+			//this.animateProxy = this.enableButtons.bind(this);
 			this.initialized = false;
 			this.slideTime = 500;
 
 			this.modalBackdrop.css({ "z-index": "900" });
             this.element.css({ "z-index": "901" });
 
-            this.$loginError = "";
-		}
+           
+        }
+        
+        /**
+		* Given a form element, we look at if it has an error and based on the expression. If there is we set 
+        * the login error message
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+		*/
+        reportError(form: EngineForm): boolean
+        {
+            if (!form.$error)
+                this.$loginError = "";
+            else
+            {
+                var name = form.$errorInput;
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+
+                switch (form.$errorExpression)
+                {
+                    case "alpha-numeric":
+                        this.$loginError = `${name} must only contain alphanumeric characters`;
+                        break;
+                    case "non-empty":
+                        this.$loginError = `${name} cannot be empty`;
+                        break;
+                    case "email":
+                        this.$loginError = `${name} must be a valid email`;
+                        break;
+                    case "alpha-numeric-plus":
+                        this.$loginError = `${name} must only contain alphanumeric characters and '-', '!', or '_'`;
+                        break;
+                    default:
+                        this.$loginError = "";
+                        break;
+                }
+            }
+
+            if (this.$loginError == "")
+                return false;
+            else
+                return true;
+        }
+
+        loginError(err: Error)
+        {
+            this.$loginError = err.message;
+            Compiler.digest(this.loginBackground, this);
+        }
+
+        /**
+		* Attempts to log the user in
+        * @param {string} user The username
+        * @param {string} password The user password
+        * @param {boolean} remember Should the user cookie be saved
+		*/
+        login(user: string, password: string, remember: boolean)
+        {
+            var that = this;
+            this.user.login(user, password, remember).then(function (data)
+            {
+                if (data.error)
+                    that.$loginError = data.message;
+                else
+                    that.$loginError = "";
+
+                jQuery(".close-but", that.loginBackground).trigger("click");
+
+                Compiler.digest(that.loginBackground, that);
+                Compiler.digest(that.welcomeBackground, that);
+
+            }).fail(this.loginError);
+        }
+
+        /**
+		* Attempts to register a new user
+        * @param {string} user The username
+        * @param {string} password The user password
+        * @param {boolean} remember Should the user cookie be saved
+		*/
+        register(user: string, password: string, remember: boolean)
+        {
+            var that = this;
+            this.user.register(user, password, remember).then(function (data)
+            {
+                if (data.error)
+                    that.$loginError = data.message;
+                else
+                    that.$loginError = "";
+
+                jQuery(".close-but", that.loginBackground).trigger("click");
+
+                Compiler.digest(that.loginBackground, that);
+                Compiler.digest(that.welcomeBackground, that);
+
+            }).fail(this.loginError);
+        }
 
 		/**
 		* This function can be called to reset all the splash variables and states.absolute
@@ -97,7 +192,7 @@ module Animate
 			this.pluginsBackground.element.css({ "left": "800px" });
 			this.finalScreen.element.css({ "left": "800px" });
 
-			this.enableButtons(true);
+			//this.enableButtons(true);
 
 			this.projectError.element.hide();
 			this.finalError.element.hide();
@@ -125,33 +220,33 @@ module Animate
 			return;
 		}
 
-		/**
-		* Enables the buttons based on the value parameter
-		* @param <bool> value 
-		*/
-		enableButtons(value)
-		{
-			if (typeof value !== "undefined")
-			{
-				this.projectBack.enabled = value;
-				this.projectNext.enabled = value;
-                this.finalButton.enabled = value;
-                // TODO - button enabled
-				//this.login.enabled = value;
-				//this.loginBack.enabled = value;
-				//this.register.enabled = value;
-			}
-			else
-			{
-				this.projectBack.enabled = true;
-				this.projectNext.enabled = true;
-                this.finalButton.enabled = true;
-                // TODO - button enabled
-				//this.login.enabled = true;
-				//this.loginBack.enabled = true;
-				//this.register.enabled = true;
-			}
-		}
+		///**
+		//* Enables the buttons based on the value parameter
+		//* @param <bool> value 
+		//*/
+		//enableButtons(value)
+		//{
+		//	if (typeof value !== "undefined")
+		//	{
+		//		this.projectBack.enabled = value;
+		//		this.projectNext.enabled = value;
+  //              this.finalButton.enabled = value;
+  //              // TODO - button enabled
+		//		//this.login.enabled = value;
+		//		//this.loginBack.enabled = value;
+		//		//this.register.enabled = value;
+		//	}
+		//	else
+		//	{
+		//		this.projectBack.enabled = true;
+		//		this.projectNext.enabled = true;
+  //              this.finalButton.enabled = true;
+  //              // TODO - button enabled
+		//		//this.login.enabled = true;
+		//		//this.loginBack.enabled = true;
+		//		//this.register.enabled = true;
+		//	}
+		//}
 
 		/**
 		* Creates the new project page on the splash screen
@@ -283,7 +378,7 @@ module Animate
 			//		Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", this, { theme: "white" });
 			//});
 
-            Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", "animate-captcha", { theme: "white" });
+            Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
 
 
 			//Create Buttons
@@ -306,115 +401,116 @@ module Animate
 			//this.loginResend.element.click(this.clickProxy);
 		}
 
-		/**
-		* Checks each of the login fields based on which button was pressed.
-		* @param {any} button 
-		*/
-        validateLogins(jComp: JQuery)
-        {
-            var toRet = true;
-			//this.loginUsername.textfield.element.removeClass("red-border");
-			//this.loginPassword.textfield.element.removeClass("red-border");
-			//this.regUsername.textfield.element.removeClass("red-border");
-			//this.regPassword.textfield.element.removeClass("red-border");
-			//this.regPasswordCheck.textfield.element.removeClass("red-border");
-			//this.regEmail.textfield.element.removeClass("red-border");
+		///**
+		//* Checks each of the login fields based on which button was pressed.
+		//* @param {any} button 
+		//*/
+  //      validateLogins(jComp: JQuery)
+  //      {
+  //          var toRet = true;
+		//	//this.loginUsername.textfield.element.removeClass("red-border");
+		//	//this.loginPassword.textfield.element.removeClass("red-border");
+		//	//this.regUsername.textfield.element.removeClass("red-border");
+		//	//this.regPassword.textfield.element.removeClass("red-border");
+		//	//this.regPasswordCheck.textfield.element.removeClass("red-border");
+		//	//this.regEmail.textfield.element.removeClass("red-border");
 
-            if (jComp.is(".en-login-reset") || jComp.is(".en-login-resend"))
-			{
-                //Check username
-                var message = jQuery.trim(jQuery("#en-login-username").val())
-				if (message == "")
-				{
-					//this.loginError.element.show();
-					//this.loginError.text = "Please enter your username or email";
-                    this.$loginError = "Please enter your username or email";
-					//this.loginUsername.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-                    toRet = false;
-				}
-			}
-            else if (jComp.is(".en-login"))
-			{
-				//Check username
-                var message: string = Utils.checkForSpecialChars(jQuery("#en-login-username").val())
-				if (message)
-				{
-					//this.loginError.element.show();
-					//this.loginError.text = message;
-                    this.$loginError = message;
-					//this.loginUsername.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-                    toRet = false;
-				}
+  //          if (jComp.is(".en-login-reset") || jComp.is(".en-login-resend"))
+		//	{
+  //              //Check username
+  //              var message = jQuery.trim(jQuery("#en-login-username").val())
+		//		if (message == "")
+		//		{
+		//			//this.loginError.element.show();
+		//			//this.loginError.text = "Please enter your username or email";
+  //                  this.$loginError = "Please enter your username or email";
+		//			//this.loginUsername.textfield.element.addClass("red-border");
+		//			//this.enableButtons(true);
+  //                  toRet = false;
+		//		}
+		//	}
+  //          else if (jComp.is(".en-login"))
+		//	{
+		//		//Check username
+  //              var message: string = Utils.checkForSpecialChars(jQuery("#en-login-username").val())
+		//		if (message)
+		//		{
+		//			//this.loginError.element.show();
+		//			//this.loginError.text = message;
+  //                  this.$loginError = message;
+		//			//this.loginUsername.textfield.element.addClass("red-border");
+		//			this.enableButtons(true);
+  //                  toRet = false;
+		//		}
 
-				//Check password
-                message = Utils.checkForSpecialChars(jQuery("#en-login-password").val())
-				if (message)
-				{
-					//this.loginError.element.show();
-                    //this.loginError.text = message;
-                    this.$loginError = message;
-					//this.loginPassword.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-                    toRet = false;
-				}
-            }
-            else if (jComp.is(".en-login-reset") == false && jComp.is(".en-login-resend") == false)
-			{
-				//Check username
-                var message: string = Utils.checkForSpecialChars(jQuery("#en-reg-username").val())
-				if (message)
-				{
-					//this.loginError.element.show();
-                    //this.loginError.text = message;
-                    this.$loginError = message;
-					//this.regUsername.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-                    toRet = false;
-				}
+		//		//Check password
+  //              message = Utils.checkForSpecialChars(jQuery("#en-login-password").val())
+		//		if (message)
+		//		{
+		//			//this.loginError.element.show();
+  //                  //this.loginError.text = message;
+  //                  this.$loginError = message;
+		//			//this.loginPassword.textfield.element.addClass("red-border");
+		//			this.enableButtons(true);
+  //                  toRet = false;
+		//		}
+  //          }
+  //          else if (jComp.is(".en-login-reset") == false && jComp.is(".en-login-resend") == false)
+		//	{
+		//		//Check username
+  //              var message: string = Utils.checkForSpecialChars(jQuery("#en-reg-username").val())
+		//		if (message)
+		//		{
+		//			//this.loginError.element.show();
+  //                  //this.loginError.text = message;
+  //                  this.$loginError = message;
+		//			//this.regUsername.textfield.element.addClass("red-border");
+		//			this.enableButtons(true);
+  //                  toRet = false;
+		//		}
 
-				//Check email
-                var emailValid: boolean = Utils.validateEmail(jQuery("#en-reg-email").val())
-				if (!emailValid)
-				{
-					//this.loginError.element.show();
-					//this.loginError.text = "Please enter a valid email address.";
-                    this.$loginError = "Please enter a valid email address.";
-					//this.regEmail.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-                    toRet = false;
-				}
+		//		//Check email
+  //              var emailValid: boolean = Utils.validateEmail(jQuery("#en-reg-email").val())
+		//		if (!emailValid)
+		//		{
+		//			//this.loginError.element.show();
+		//			//this.loginError.text = "Please enter a valid email address.";
+  //                  this.$loginError = "Please enter a valid email address.";
+		//			//this.regEmail.textfield.element.addClass("red-border");
+		//			this.enableButtons(true);
+  //                  toRet = false;
+		//		}
 
-				//Check password
-                message = Utils.checkForSpecialChars(jQuery("#en-reg-password").val())
-				if (message)
-				{
-					//this.loginError.element.show();
-					//this.loginError.text = message;
-                    this.$loginError = message;
-					//this.regPassword.textfield.element.addClass("red-border");
-					this.enableButtons(true);
-					return false;
-				}
+		//		//Check password
+  //              message = Utils.checkForSpecialChars(jQuery("#en-reg-password").val())
+		//		if (message)
+		//		{
+		//			//this.loginError.element.show();
+		//			//this.loginError.text = message;
+  //                  this.$loginError = message;
+		//			//this.regPassword.textfield.element.addClass("red-border");
+		//			this.enableButtons(true);
+		//			return false;
+		//		}
 
-				//Make sure passwords match
-                if (jQuery("#en-reg-password").val() != jQuery("#en-reg-password-check").val())
-				{
-					//this.regPassword.textfield.element.addClass("red-border");
-					//this.regPasswordCheck.textfield.element.addClass("red-border");
-                    jQuery("#en-reg-password").addClass("red-border");
-                    jQuery("#en-reg-password-check").addClass("red-border");
-					//this.loginError.element.show();
-					//this.loginError.text = "Your passwords do not match.";
-                    this.$loginError = "Your passwords do not match.";
-					this.enableButtons(true);
-                    toRet = false;
-				}
-			}
+		//		//Make sure passwords match
+  //              if (jQuery("#en-reg-password").val() != jQuery("#en-reg-password-check").val())
+		//		{
+		//			//this.regPassword.textfield.element.addClass("red-border");
+		//			//this.regPasswordCheck.textfield.element.addClass("red-border");
+  //                  jQuery("#en-reg-password").addClass("red-border");
+  //                  jQuery("#en-reg-password-check").addClass("red-border");
+		//			//this.loginError.element.show();
+		//			//this.loginError.text = "Your passwords do not match.";
+  //                  this.$loginError = "Your passwords do not match.";
+		//			this.enableButtons(true);
+  //                  toRet = false;
+		//		}
+		//	}
             
-            return toRet;
-		}
+  //          return toRet;
+  //      }
+
 		/**
 		* Checks each of the fields for creating a new project.
 		*/
@@ -431,7 +527,7 @@ module Animate
 				this.projectError.text = message;
 				this.projectError.element.show();
 				this.projectName.textfield.element.addClass("red-border");
-				this.enableButtons(true);
+				//this.enableButtons(true);
 				return;
 			}
 
@@ -510,9 +606,10 @@ module Animate
 				}
 
 				//this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
 
-				this.newProjectBackground.element.animate( { left: '-=800' }, this.slideTime, this.animateProxy );
+                //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
 				this.projectName.focus();
 			}
 			//WELCOME - Open project
@@ -520,7 +617,7 @@ module Animate
 			{
 				if (this.projectBrowser.selectedItem == null)
 				{
-					this.enableButtons(true);
+					//this.enableButtons(true);
 					return;
 				}
 
@@ -549,7 +646,7 @@ module Animate
 			{
 				if (this.projectBrowser.selectedItem == null)
 				{
-					this.enableButtons(true);
+					//this.enableButtons(true);
 					return;
 				}
 
@@ -563,7 +660,7 @@ module Animate
 			{
 				if (this.projectBrowser.selectedItem == null)
 				{
-					this.enableButtons(true);
+					//this.enableButtons(true);
 					return;
 				}
 
@@ -580,7 +677,7 @@ module Animate
 		*/
 		onButtonClick(e)
 		{
-			this.enableButtons(false);
+			//this.enableButtons(false);
 
             var jComp = jQuery(e.currentTarget);
 			var comp = jQuery(e.currentTarget).data("component");
@@ -594,9 +691,9 @@ module Animate
                 this.$loginError = "";
                 
                 //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime);
 				//this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '+=520' }, this.slideTime);
 			}
 			//WELCOME - Logout
             else if (jComp.is(".logout-link"))
@@ -608,9 +705,9 @@ module Animate
             else if (jComp.is(".en-splash-login .close-but"))
 			{
 				//this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime);
 				//this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
+                this.loginBackground.animate({ top: '-=520' }, this.slideTime);
             }
             //WELCOME - Close
             else if (jComp.is(".close-but"))
@@ -621,37 +718,38 @@ module Animate
 			//LOGIN - reset password
             else if (jComp.is(".en-login-reset"))
 			{
-                if (this.validateLogins(jComp))
-                    User.get.resetPassword(jQuery("#en-login-username").val());
+                //if (this.validateLogins(jComp))
+                //    User.get.resetPassword(jQuery("#en-login-username").val());
 			}
 			//LOGIN - resend activation
             else if (jComp.is(".en-login-resend"))
 			{
-                if (this.validateLogins(jComp))
-                    User.get.resendActivation(jQuery("#en-login-username").val());
+                //if (this.validateLogins(jComp))
+                //    User.get.resendActivation(jQuery("#en-login-username").val());
 			}
 			//LOGIN - login
             else if (jComp.is(".en-login"))
 			{
-                if (this.validateLogins(jComp))
-                    User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val() );
+               // if (this.validateLogins(jComp))
+               //     User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val() );
 			}
 			//LOGIN - register
             else if (jComp.is(".en-register"))
 			{
-                if (this.validateLogins(jComp))
-                    User.get.register(jQuery("#en-reg-username").val(),
-                        jQuery("#en-reg-password").val(),
-                        jQuery("#en-reg-email").val(),
-                        jQuery("#recaptcha_response_field").val(),
-                        jQuery("#recaptcha_challenge_field").val());
+                //if (this.validateLogins(jComp))
+                //    User.get.register(jQuery("#en-reg-username").val(),
+                //        jQuery("#en-reg-password").val(),
+                //        jQuery("#en-reg-email").val(),
+                //        jQuery("#recaptcha_response_field").val(),
+                //        jQuery("#recaptcha_challenge_field").val());
 			}
 			//PROJECT SCREEN - back
 			else if (comp == this.projectBack)
 			{
                 //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
-				this.newProjectBackground.element.animate( { left: '+=800' }, this.slideTime, this.animateProxy );
+                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
+                //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
+                this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime);
 				this.projectName.text = "";
 				this.projectDesc.text = "";
 
@@ -688,7 +786,7 @@ module Animate
 		*/
 		onProjectOpenMessageBox( response : string )
 		{
-			this.enableButtons(true);
+			//this.enableButtons(true);
 			if (response == "Yes")
 			{
 				var user = User.get;
@@ -720,7 +818,7 @@ module Animate
 		*/
 		onCopyMessageBox(response)
 		{
-			this.enableButtons(true);
+			//this.enableButtons(true);
 
 			if (response == "Yes")
 				User.get.copyProject(this.projectBrowser.selectedID);
@@ -732,7 +830,7 @@ module Animate
 		*/
 		onMessageBox(response)
 		{
-			this.enableButtons(true);
+			//this.enableButtons(true);
 
 			if (response == "Yes")
 				User.get.deleteProject(this.projectBrowser.selectedID);
@@ -744,7 +842,7 @@ module Animate
 		*/
 		onFinalMessageBox(response)
 		{
-			this.enableButtons(true);
+			//this.enableButtons(true);
 			if (response == "Yes")
 			{
 				this.hide();
@@ -766,22 +864,25 @@ module Animate
 			{
 				this.projectError.text = data.message;
 				this.projectError.element.show();
-				this.enableButtons(true);
+				//this.enableButtons(true);
 				return;
 			}
 			if ( response == UserEvents.PROJECT_OPENED )
 			{
                 //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-				this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
 				this.pluginBrowser.reset();
-				this.enableButtons(true);
+				//this.enableButtons(true);
 			}
 			else
 			{
 				//Project created - go to plugins screen!		
-				this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-				this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+				//this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
 				this.pluginBrowser.reset();
 			}
 		}
@@ -797,15 +898,17 @@ module Animate
 			{
 				//Go to final screen
 				this.pluginLoader.updateDependencies();
-				this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-				this.finalScreen.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+				//this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                //this.finalScreen.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
+                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.finalScreen.element.animate({ left: '-=800' }, this.slideTime);
 				this.pluginLoader.startLoading();
 			}
 			else
 			{
 				//this.pluginError.element.fadeIn();
 				//this.pluginError.text = data.message;
-				this.enableButtons(true);
+				//this.enableButtons(true);
 			}
 		}
 
@@ -845,7 +948,7 @@ module Animate
 			}
 
 			//LOG OUT
-			this.enableButtons(true);
+			//this.enableButtons(true);
 			if (response == UserEvents.LOGGED_OUT && event.return_type == AnimateLoaderResponses.SUCCESS)
 			{
 				this.projectBrowser.enabled = false;

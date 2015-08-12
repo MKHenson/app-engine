@@ -182,8 +182,7 @@
         email: string;
         captcha?: string;
         challenge?: string;
-        privileges: number;
-        meta: any;
+        meta?: any;
     }
 
     /*

@@ -101,7 +101,7 @@ module Animate
             loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
             loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
         }
-
+        
         /**
 		* Checks if a user is logged in or not. This checks the server using 
 		* cookie and session data from the browser.
@@ -120,7 +120,6 @@ module Animate
 
                 if (data.authenticated)
                 {
-                    that._isLoggedIn = true;
                     that.userEntry = <UsersInterface.IEngineUser>data.user;
                     that._isLoggedIn = true;
                 }
@@ -298,29 +297,43 @@ module Animate
 		}
 
 		/**
-		* Tries to log the user in asynchronously. Disptaches the UserEvents.LOGGED_IN when complete
+		* Tries to log the user in asynchronously. 
 		* @param {string} user The username of the user.
 		* @param {string} password The password of the user.
 		* @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
+        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
 		*/
-		login( user: string, password: string, rememberMe: boolean )
+        login(user: string, password: string, rememberMe: boolean): JQueryPromise<UsersInterface.IAuthenticationResponse>
 		{
-			if ( this._isLoggedIn )
-			{
-				this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, "You are already logged in.", LoaderEvents.COMPLETE, null ) );
-				return;
-			}
+            var d = jQuery.Deferred<UsersInterface.IAuthenticationResponse>(),
+                that = this,
+                token: UsersInterface.ILoginToken = {
+                    username: user,
+                    password: password,
+                    rememberMe: rememberMe
+                };
 
-            this.userEntry.username = user;
-			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/user/log-in",
-				{
-					user: user,
-					password: password,
-					rememberMe: rememberMe
-				} );
+            jQuery.post(`${DB.USERS}/users/login`, token).done(function (data: UsersInterface.IAuthenticationResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                
+                if (data.authenticated)
+                {
+                    that._isLoggedIn = true;
+                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                }
+                else
+                    that._isLoggedIn = false;
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            })
+
+            return d.promise(); 
 		}
 
 		/**
@@ -331,27 +344,59 @@ module Animate
 		* @param {string} captcha The captcha of the login screen
 		* @param {string} captha_challenge The captha_challenge of the login screen
 		*/
-		register( user: string, password: string, email: string, captcha: string, captha_challenge: string )
+        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): JQueryPromise<UsersInterface.IAuthenticationResponse>
 		{
-			if ( this._isLoggedIn )
-			{
-				this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", LoaderEvents.COMPLETE, null ));
-				return;
-			}
+			//if ( this._isLoggedIn )
+			//{
+			//	this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", LoaderEvents.COMPLETE, null ));
+			//	return;
+			//}
 
-            this.userEntry.username = user;
+   //         this.userEntry.username = user;
 
-			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/user/register",
-				{
-					user: user,
-					password: password,
-					email: email,
-					captcha: captcha,
-					captha_challenge: captha_challenge
-				} );
+			//var loader = new AnimateLoader();
+			//loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+			//loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			//loader.load( "/user/register",
+			//	{
+			//		user: user,
+			//		password: password,
+			//		email: email,
+			//		captcha: captcha,
+			//		captha_challenge: captha_challenge
+			//	} );
+
+            var d = jQuery.Deferred<UsersInterface.IAuthenticationResponse>(),
+                that = this,
+                token: UsersInterface.IRegisterToken = {
+                    username: user,
+                    password: password,
+                    email: email,
+                    captcha: captcha,
+                    challenge: captha_challenge
+                };
+
+            jQuery.post(`${DB.USERS}/users/login`, token).done(function (data: UsersInterface.IAuthenticationResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                if (data.authenticated)
+                {
+                    that._isLoggedIn = true;
+                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                }
+                else
+                    that._isLoggedIn = false;
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            })
+
+            return d.promise(); 
 		}
 
 		/**
