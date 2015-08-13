@@ -50,6 +50,7 @@ module Animate
         // New changes
         private user: User;
         private $loginError: string;
+        private $loginRed: boolean;
 
         constructor()
         {
@@ -59,6 +60,8 @@ module Animate
             this.user = User.get;
 			this.element.addClass("splash-window");
             this.$loginError = "";
+            this.$loginRed = true;
+
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
             this.welcomeBackground = Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
             this.content.element.append(this.welcomeBackground);
@@ -86,9 +89,10 @@ module Animate
 		* Given a form element, we look at if it has an error and based on the expression. If there is we set 
         * the login error message
         * @param {EngineForm} The form to check.
+        * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
 		*/
-        reportError(form: EngineForm): boolean
+        reportError(form: EngineForm, registerCheck: boolean = false): boolean
         {
             if (!form.$error)
                 this.$loginError = "";
@@ -117,16 +121,44 @@ module Animate
                 }
             }
 
+            if (registerCheck)
+            {
+                (<any>this).$regCaptcha = jQuery("#recaptcha_response_field").val();
+                (<any>this).$regChallenge = jQuery("#recaptcha_challenge_field").val();
+
+                if ((<any>this).$regPassword != (<any>this).$regPasswordCheck)
+                    this.$loginError = "Your passwords do not match";
+            }
+
             if (this.$loginError == "")
+            {
+                this.$loginRed = false;
                 return false;
+            }
             else
+            {
+                this.$loginRed = true;
                 return true;
+            }
         }
 
         loginError(err: Error)
         {
+            this.$loginRed = true;
             this.$loginError = err.message;
             Compiler.digest(this.loginBackground, this);
+        }
+
+        loginSuccess(data: UsersInterface.IResponse)
+        {
+            if (data.error)
+                this.$loginRed = true;
+            else
+                this.$loginRed = false;
+
+            this.$loginError = data.message;
+            Compiler.digest(this.loginBackground, this);
+            Compiler.digest(this.welcomeBackground, this);
         }
 
         /**
@@ -138,43 +170,93 @@ module Animate
         login(user: string, password: string, remember: boolean)
         {
             var that = this;
-            this.user.login(user, password, remember).then(function (data)
-            {
-                if (data.error)
-                    that.$loginError = data.message;
-                else
-                    that.$loginError = "";
-
-                jQuery(".close-but", that.loginBackground).trigger("click");
-
-                Compiler.digest(that.loginBackground, that);
-                Compiler.digest(that.welcomeBackground, that);
-
-            }).fail(this.loginError);
+            this.user.login(user, password, remember)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that))
+                .done(function ()
+                {
+                    jQuery(".close-but", that.loginBackground).trigger("click");
+                });
         }
 
         /**
 		* Attempts to register a new user
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
+        * @param {string} user The username of the user.
+		* @param {string} password The password of the user.
+		* @param {string} email The email of the user.
+		* @param {string} captcha The captcha of the login screen
+		* @param {string} captha_challenge The captha_challenge of the login screen
 		*/
-        register(user: string, password: string, remember: boolean)
+        register(user: string, password: string, email: string, captcha: string, challenge: string)
         {
             var that = this;
-            this.user.register(user, password, remember).then(function (data)
+            this.user.register(user, password, email, captcha, challenge)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        }
+
+       /**
+       * Attempts to resend the activation code
+       * @param {string} user The username or email of the user to resend the activation
+       */
+        resendActivation(user: string)
+        {
+            var that = this;
+
+            if (!user)
             {
-                if (data.error)
-                    that.$loginError = data.message;
-                else
-                    that.$loginError = "";
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this.loginBackground).each(function (index, elem) {
+                    this.$error = true;
+                });
 
-                jQuery(".close-but", that.loginBackground).trigger("click");
+                return Compiler.digest(that.loginBackground, that);
+            }
+            
+            this.user.resendActivation(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        }
 
-                Compiler.digest(that.loginBackground, that);
+        /**
+        * Attempts to reset the users password
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        resetPassword(user: string)
+        {
+            var that = this;
+
+            if (!user)
+            {
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this.loginBackground).each(function (index, elem)
+                {
+                    this.$error = true;
+                });
+
+                return Compiler.digest(that.loginBackground, that);
+            }
+
+            this.user.resetPassword(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        }
+
+        /**
+        * Attempts to resend the activation code
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        logout()
+        {
+            var that = this;
+
+            this.user.logout().then(function ()
+            {
+                that.$loginError = "";
+                Application.getInstance().projectReset();
                 Compiler.digest(that.welcomeBackground, that);
-
-            }).fail(this.loginError);
+            })
+            .fail(this.loginError.bind(that));
         }
 
 		/**

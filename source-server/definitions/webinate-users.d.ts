@@ -255,6 +255,11 @@
         * eg: "http://localhost/notify-user"
         */
         passwordRedirectURL: string;
+
+        /**
+	    * A secret string to identify authenticated servers
+	    */
+        secret: string;
     
         /**
         * An array of approved domains that can access this API. 

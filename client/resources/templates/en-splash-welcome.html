@@ -9,7 +9,7 @@
 				</div>
 
 				<div en-show="ctrl.user.isLoggedIn" class='details'>{{ctrl.user.userEntry.username}}</div>
-				<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="ctrl.onButtonClick(e)">Logout</div></div>
+				<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="ctrl.logout()">Logout</div></div>
 
 				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="ctrl.onButtonClick(e)">Login</span></div>
 				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="ctrl.onButtonClick(e)">Register</span></div>

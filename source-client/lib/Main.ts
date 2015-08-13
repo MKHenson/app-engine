@@ -32,7 +32,15 @@ function byteFilter()
 }
 
 jQuery(document).ready(function ()
-{    
+{
+    // Make sur we call ajax with credentials on
+    jQuery.ajaxSetup({
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+
 	var app = new Animate.Application( "body" );
 
 	var loader = new Animate.AnimateLoader();	

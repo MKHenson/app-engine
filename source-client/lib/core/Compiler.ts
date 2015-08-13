@@ -8,6 +8,7 @@
     export interface EngineInput extends HTMLInputElement
     {
         $error: boolean;
+        $autoClear: boolean;
     }
 
     export interface EngineForm extends HTMLFormElement
@@ -16,6 +17,7 @@
         $errorExpression: string;
         $errorInput: string;
         $pristine: boolean;
+        $autoClear: boolean;
     }
 
     export class Compiler
@@ -120,10 +122,13 @@
                     {
                         case "en-src":
                             (<HTMLImageElement>elem).src = Compiler.parse(value, controller, null, elem);
+                            break;
                         case "en-show":
                             (<HTMLImageElement>elem).style.display = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
+                            break;
                     }
                 });
             });
@@ -219,17 +224,26 @@
                         case "en-submit":
                             (<HTMLFormElement>elem).addEventListener( "submit", function (e)
                             {
+                                var form: EngineForm = <EngineForm>elem;
                                 e.preventDefault();
-                                (<EngineForm>elem).$error = false;
-                                (<EngineForm>elem).$errorExpression = "";
-                                (<EngineForm>elem).$errorInput = "";
+                                form.$error = false;
+                                form.$errorExpression = "";
+                                form.$errorInput = "";
 
-                                var validations = jQuery("[en-validate]", elem);
-                                validations.each(function (index, subElem)
-                                {
-                                    Compiler.checkValidations(validations[index].getAttribute("en-validate"), <HTMLInputElement>subElem);
-                                });
                                 
+                                jQuery("[en-validate]", elem).each(function (index, subElem) {
+                                    Compiler.checkValidations(this.getAttribute("en-validate"), <HTMLInputElement>subElem);
+                                });
+
+                                // If its an auto clear - then all the clear fields must be wiped
+                                if (form.$autoClear)
+                                {
+                                    jQuery("[en-auto-clear]", elem).each(function (index, subElem)
+                                    {
+                                        (<HTMLInputElement|HTMLTextAreaElement>this).value = "";
+                                    });
+                                }
+
                                 Compiler.parse(value, controller, e, elem);
                                 Compiler.digest(elm, controller);
                             });
@@ -245,6 +259,9 @@
                                 Compiler.checkValidations(value, <HTMLInputElement>elem);
                                 Compiler.digest(elm, controller);
                             });
+                            break;
+                        case "en-auto-clear":
+                            (<EngineForm | EngineInput>elem).$autoClear = true;
                             break;
                     }
                 });

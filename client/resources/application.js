@@ -75,10 +75,13 @@ var Animate;
                     switch (name) {
                         case "en-src":
                             elem.src = Compiler.parse(value, controller, null, elem);
+                            break;
                         case "en-show":
                             elem.style.display = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
+                            break;
                     }
                 });
             });
@@ -154,14 +157,20 @@ var Animate;
                             break;
                         case "en-submit":
                             elem.addEventListener("submit", function (e) {
+                                var form = elem;
                                 e.preventDefault();
-                                elem.$error = false;
-                                elem.$errorExpression = "";
-                                elem.$errorInput = "";
-                                var validations = jQuery("[en-validate]", elem);
-                                validations.each(function (index, subElem) {
-                                    Compiler.checkValidations(validations[index].getAttribute("en-validate"), subElem);
+                                form.$error = false;
+                                form.$errorExpression = "";
+                                form.$errorInput = "";
+                                jQuery("[en-validate]", elem).each(function (index, subElem) {
+                                    Compiler.checkValidations(this.getAttribute("en-validate"), subElem);
                                 });
+                                // If its an auto clear - then all the clear fields must be wiped
+                                if (form.$autoClear) {
+                                    jQuery("[en-auto-clear]", elem).each(function (index, subElem) {
+                                        this.value = "";
+                                    });
+                                }
                                 Compiler.parse(value, controller, e, elem);
                                 Compiler.digest(elm, controller);
                             });
@@ -174,6 +183,9 @@ var Animate;
                                 Compiler.checkValidations(value, elem);
                                 Compiler.digest(elm, controller);
                             });
+                            break;
+                        case "en-auto-clear":
+                            elem.$autoClear = true;
                             break;
                     }
                 });
@@ -3601,7 +3613,12 @@ var Animate;
             // Call super-class constructor
             Animate.EventDispatcher.call(this);
             // Create the default entry
-            this.userEntry = {
+            this.userEntry = this.createEmptyUer();
+            this._project = null;
+            this._isLoggedIn = false;
+        }
+        User.prototype.createEmptyUer = function () {
+            return {
                 username: "",
                 meta: {
                     bio: "",
@@ -3611,24 +3628,23 @@ var Animate;
                     maxNumProjects: 0
                 }
             };
-            this._project = null;
-            this._isLoggedIn = false;
-        }
+        };
         User.prototype.$get = function () {
             return this;
         };
-        /**
-        * Checks if a user is logged in or not. This checks the animate server using
-        * cookie and session data from the browser. The call is made synchronously.
-        * @extends {User}
-        */
-        User.prototype.updatedLoggedIn = function () {
-            this._isLoggedIn = false;
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load(Animate.DB.USERS + "/users/authenticated", {}, 3, "GET");
-        };
+        ///**
+        //* Checks if a user is logged in or not. This checks the animate server using 
+        //* cookie and session data from the browser. The call is made synchronously.
+        //* @extends {User} 
+        //*/
+        //      updatedLoggedIn()
+        //      {
+        //	this._isLoggedIn = false;
+        //	var loader = new AnimateLoader();
+        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+        //          loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+        //          loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
+        //      }
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
@@ -3648,6 +3664,144 @@ var Animate;
                 else
                     that._isLoggedIn = false;
                 return d.resolve(data.authenticated);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * Tries to log the user in asynchronously.
+        * @param {string} user The username of the user.
+        * @param {string} password The password of the user.
+        * @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
+        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        */
+        User.prototype.login = function (user, password, rememberMe) {
+            var d = jQuery.Deferred(), that = this, token = {
+                username: user,
+                password: password,
+                rememberMe: rememberMe
+            };
+            jQuery.post(Animate.DB.USERS + "/users/login", token).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                if (data.authenticated) {
+                    that._isLoggedIn = true;
+                    that.userEntry = data.user;
+                }
+                else
+                    that._isLoggedIn = false;
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * Tries to register a new user.
+        * @param {string} user The username of the user.
+        * @param {string} password The password of the user.
+        * @param {string} email The email of the user.
+        * @param {string} captcha The captcha of the login screen
+        * @param {string} captha_challenge The captha_challenge of the login screen
+        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        */
+        User.prototype.register = function (user, password, email, captcha, captha_challenge) {
+            //if ( this._isLoggedIn )
+            //{
+            //	this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", LoaderEvents.COMPLETE, null ));
+            //	return;
+            //}
+            //         this.userEntry.username = user;
+            //var loader = new AnimateLoader();
+            //loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+            //loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+            //loader.load( "/user/register",
+            //	{
+            //		user: user,
+            //		password: password,
+            //		email: email,
+            //		captcha: captcha,
+            //		captha_challenge: captha_challenge
+            //	} );
+            var d = jQuery.Deferred(), that = this, token = {
+                username: user,
+                password: password,
+                email: email,
+                captcha: captcha,
+                challenge: captha_challenge
+            };
+            jQuery.post(Animate.DB.USERS + "/users/register", token).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                if (data.authenticated) {
+                    that._isLoggedIn = true;
+                    that.userEntry = data.user;
+                }
+                else
+                    that._isLoggedIn = false;
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * This function is used to resend a user's activation code
+        * @param {string} user
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        */
+        User.prototype.resendActivation = function (user) {
+            //var loader = new AnimateLoader();
+            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
+            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+            //loader.load("/user/resend-activation", { user: user });
+            var d = jQuery.Deferred(), that = this;
+            jQuery.getJSON(Animate.DB.USERS + "/users/resend-activation/" + user).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * This function is used to reset a user's password.
+        * @param {string} user
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        */
+        User.prototype.resetPassword = function (user) {
+            //var loader = new AnimateLoader();
+            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
+            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+            //loader.load("/user/reset-password", { user: user });
+            var d = jQuery.Deferred(), that = this;
+            jQuery.getJSON(Animate.DB.USERS + "/users/request-password-reset/" + user).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * Attempts to log the user out
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        */
+        User.prototype.logout = function () {
+            //var loader = new AnimateLoader();
+            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
+            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+            //loader.load("/user/resend-activation", { user: user });
+            var d = jQuery.Deferred(), that = this;
+            jQuery.getJSON(Animate.DB.USERS + "/users/logout").done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                that.userEntry = that.createEmptyUer();
+                that._isLoggedIn = false;
+                return d.resolve(data);
             }).fail(function (err) {
                 d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
             });
@@ -3755,102 +3909,16 @@ var Animate;
             else
                 return null;
         };
-        /**
-        * This function is used to log a user out.
-        */
-        User.prototype.logout = function () {
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/user/log-out", {});
-        };
-        /**
-        * This function is used to reset a user's password.
-        * @param {string} user
-        */
-        User.prototype.resetPassword = function (user) {
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/user/reset-password", { user: user });
-        };
-        /**
-        * This function is used to resend a user's activation code
-        * @param {string} user
-        */
-        User.prototype.resendActivation = function (user) {
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/user/resend-activation", { user: user });
-        };
-        /**
-        * Tries to log the user in asynchronously. Disptaches the UserEvents.LOGGED_IN when complete
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        */
-        User.prototype.login = function (user, password, rememberMe) {
-            //if ( this._isLoggedIn )
-            //{
-            //	this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, "You are already logged in.", LoaderEvents.COMPLETE, null ) );
-            //	return;
-            //}
-            //         this.userEntry.username = user;
-            //var loader = new AnimateLoader();
-            //loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-            //loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-            //loader.load( "/user/log-in",
-            //	{
-            //		user: user,
-            //		password: password,
-            //		rememberMe: rememberMe
-            //	} );
-            var d = jQuery.Deferred(), that = this, token = {
-                username: user,
-                password: password,
-                rememberMe: rememberMe
-            };
-            jQuery.post(Animate.DB.USERS + "/users/login", token).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                if (data.authenticated) {
-                    that._isLoggedIn = true;
-                    that.userEntry = data.user;
-                }
-                else
-                    that._isLoggedIn = false;
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
-            });
-            return d.promise();
-        };
-        /**
-        * Tries to register a new user.
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
-        */
-        User.prototype.register = function (user, password, email, captcha, captha_challenge) {
-            if (this._isLoggedIn) {
-                this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", Animate.LoaderEvents.COMPLETE, null));
-                return;
-            }
-            this.userEntry.username = user;
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/user/register", {
-                user: user,
-                password: password,
-                email: email,
-                captcha: captcha,
-                captha_challenge: captha_challenge
-            });
-        };
+        ///**
+        //* This function is used to log a user out. 
+        //*/
+        //logout()
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+        //	loader.load( "/user/log-out", {} );
+        //}
         /**
         * This is the resonse from the server
         * @param {LoaderEvents} response The response from the server. The response will be either Loader.COMPLETE or Loader.FAILED
@@ -17485,6 +17553,7 @@ var Animate;
             this.user = Animate.User.get;
             this.element.addClass("splash-window");
             this.$loginError = "";
+            this.$loginRed = true;
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
             this.welcomeBackground = Animate.Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
             this.content.element.append(this.welcomeBackground);
@@ -17505,9 +17574,11 @@ var Animate;
         * Given a form element, we look at if it has an error and based on the expression. If there is we set
         * the login error message
         * @param {EngineForm} The form to check.
+        * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
         */
-        Splash.prototype.reportError = function (form) {
+        Splash.prototype.reportError = function (form, registerCheck) {
+            if (registerCheck === void 0) { registerCheck = false; }
             if (!form.$error)
                 this.$loginError = "";
             else {
@@ -17531,25 +17602,110 @@ var Animate;
                         break;
                 }
             }
-            if (this.$loginError == "")
+            if (registerCheck) {
+                this.$regCaptcha = jQuery("#recaptcha_response_field").val();
+                this.$regChallenge = jQuery("#recaptcha_challenge_field").val();
+                if (this.$regPassword != this.$regPasswordCheck)
+                    this.$loginError = "Your passwords do not match";
+            }
+            if (this.$loginError == "") {
+                this.$loginRed = false;
                 return false;
-            else
+            }
+            else {
+                this.$loginRed = true;
                 return true;
+            }
         };
+        Splash.prototype.loginError = function (err) {
+            this.$loginRed = true;
+            this.$loginError = err.message;
+            Animate.Compiler.digest(this.loginBackground, this);
+        };
+        Splash.prototype.loginSuccess = function (data) {
+            if (data.error)
+                this.$loginRed = true;
+            else
+                this.$loginRed = false;
+            this.$loginError = data.message;
+            Animate.Compiler.digest(this.loginBackground, this);
+            Animate.Compiler.digest(this.welcomeBackground, this);
+        };
+        /**
+        * Attempts to log the user in
+        * @param {string} user The username
+        * @param {string} password The user password
+        * @param {boolean} remember Should the user cookie be saved
+        */
         Splash.prototype.login = function (user, password, remember) {
             var that = this;
-            this.user.login(user, password, remember).then(function (data) {
-                if (data.error)
-                    that.$loginError = data.message;
-                else
-                    that.$loginError = "";
+            this.user.login(user, password, remember)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that))
+                .done(function () {
                 jQuery(".close-but", that.loginBackground).trigger("click");
-                Animate.Compiler.digest(that.loginBackground, that);
-                Animate.Compiler.digest(that.welcomeBackground, that);
-            }).fail(function (err) {
-                that.$loginError = err.message;
-                Animate.Compiler.digest(that.loginBackground, that);
             });
+        };
+        /**
+        * Attempts to register a new user
+        * @param {string} user The username of the user.
+        * @param {string} password The password of the user.
+        * @param {string} email The email of the user.
+        * @param {string} captcha The captcha of the login screen
+        * @param {string} captha_challenge The captha_challenge of the login screen
+        */
+        Splash.prototype.register = function (user, password, email, captcha, challenge) {
+            var that = this;
+            this.user.register(user, password, email, captcha, challenge)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        };
+        /**
+        * Attempts to resend the activation code
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.resendActivation = function (user) {
+            var that = this;
+            if (!user) {
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this.loginBackground).each(function (index, elem) {
+                    this.$error = true;
+                });
+                return Animate.Compiler.digest(that.loginBackground, that);
+            }
+            this.user.resendActivation(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        };
+        /**
+        * Attempts to reset the users password
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.resetPassword = function (user) {
+            var that = this;
+            if (!user) {
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this.loginBackground).each(function (index, elem) {
+                    this.$error = true;
+                });
+                return Animate.Compiler.digest(that.loginBackground, that);
+            }
+            this.user.resetPassword(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        };
+        /**
+        * Attempts to resend the activation code
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.logout = function () {
+            var that = this;
+            this.user.logout().then(function () {
+                that.$loginError = "";
+                Animate.Application.getInstance().projectReset();
+                Animate.Compiler.digest(that.welcomeBackground, that);
+            })
+                .fail(this.loginError.bind(that));
         };
         /**
         * This function can be called to reset all the splash variables and states.absolute
@@ -18256,6 +18412,13 @@ function byteFilter() {
     };
 }
 jQuery(document).ready(function () {
+    // Make sur we call ajax with credentials on
+    jQuery.ajaxSetup({
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true
+        }
+    });
     var app = new Animate.Application("body");
     var loader = new Animate.AnimateLoader();
     loader.addEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
