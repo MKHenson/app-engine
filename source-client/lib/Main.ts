@@ -2,21 +2,22 @@ declare var _users: string;
 declare var _cache: string;
 var __plugins: Array<Engine.IPlugin> = [];
 
-function onPluginsLoaded( eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
+function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
 {
-	sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
-	sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
+	//sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
+	//sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
 
-	if ( !event.tag )
-	{
-		Animate.MessageBox.show( "Could not connect to server", [], null, null );
-		return;
-	}
+	//if ( !event.tag )
+	//{
+	//	Animate.MessageBox.show( "Could not connect to server", [], null, null );
+	//	return;
+	//}
 
-	__plugins = event.tag.plugins;
+	//__plugins = event.tag.plugins;
+    __plugins = plugins;
 
 	//Start Splash screen
-	Animate.Splash.getSingleton().show();
+	Animate.Splash.get.show();
 }
 
 function byteFilter()
@@ -36,6 +37,7 @@ jQuery(document).ready(function ()
     // Make sur we call ajax with credentials on
     jQuery.ajaxSetup({
         crossDomain: true,
+        
         xhrFields: {
             withCredentials: true
         }
@@ -43,10 +45,25 @@ jQuery(document).ready(function ()
 
 	var app = new Animate.Application( "body" );
 
-	var loader = new Animate.AnimateLoader();	
-	loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
-	loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
-    loader.load("/plugins", {}, 3, "GET" );
+	//var loader = new Animate.AnimateLoader();	
+	//loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
+	//loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
+    //loader.load(`${Animate.DB.API}/plugins`, {}, 3, "GET");
+
+    var that = this;
+    Animate.LoaderBase.showLoader();
+    jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressEngine.IGetProjects)
+    {
+        onPluginsLoaded(response.data);
+
+    }).fail(function (err: JQueryXHR)
+    {
+        Animate.MessageBox.show(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, ["Ok"], null, null);
+
+    }).always(function ()
+    {
+        Animate.LoaderBase.hideLoader();
+    });
 
     //var stage = jQuery("#stage");
     //var splash = jQuery(jQuery("#en-splash").addBack().html());

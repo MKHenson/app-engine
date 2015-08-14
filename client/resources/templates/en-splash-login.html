@@ -1,13 +1,11 @@
 ﻿<div class='en-splash-login splash-outer-container splash-login-user' style='top:-520px;'>
 	<div class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
 	<div class='label heading'>
-		<div class='textfield'>
-			<img src='media/blank-user.png' />User Login
-		</div>
-		<div class='fix'></div>
+		<img en-show="ctrl.$loading" class="loading" src='media/loading-blue.gif' />
+		<img src='media/blank-user.png' />User Login
 	</div>
 	<div>
-		<div class='splash-section'>
+		<div class='double-column'>
 			<form name="login" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) &&  ctrl.login(ctrl.$logUsername, ctrl.$logPassword, ctrl.$logRemember)">
 				<div class='label'>Username: </div>
 				<div class='input-box'>
@@ -22,17 +20,22 @@
 					<div class='text'>Remember me</div>
 				</div>
 
-				<div class='label hyperlink en-login-reset' en-click="ctrl.resetPassword(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
+				<div class='label hyperlink en-login-reset' en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resetPassword(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
 					Reset Password
 				</div>
-				<div class='label hyperlink en-login-resend' en-click="ctrl.resendActivation(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
+				<div class='label hyperlink en-login-resend' en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resendActivation(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
 					Resend Activation Email
 				</div>
 
-				<input type='submit' class="button reg-gradient curve-small en-login" value="Login" />
+				<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient curve-small en-login" value="Login" />
 			</form>
+
+			<div class='label en-login-msg' en-class="{ 'error' : ctrl.$loginRed }" en-show="ctrl.$loginError != ''">
+				{{ctrl.$loginError}}
+			</div>
+
 		</div>
-		<div class='splash-section splash-section-right'>
+		<div class='double-column'>
 			<form name="register" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
 			
 				<div class='label'>Username: </div>
@@ -55,15 +58,13 @@
 				</div>
 
 				<div id='animate-captcha'></div>
-				<input type='submit' class="button reg-gradient curve-small en-register" value="Register" />
+				<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient curve-small en-register" value="Register" />
 				
 			</form>
 		</div>
 	</div>
 	<div class='fix'></div>
 
-	<div class='label en-login-msg'  en-class="{ 'error' : ctrl.$loginRed }" en-show="ctrl.$loginError != ''">
-		{{ctrl.$loginError}}
-	</div>
+	
 
 </div>

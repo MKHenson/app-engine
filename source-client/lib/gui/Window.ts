@@ -60,10 +60,10 @@ module Animate
 				this._headerText = <Component>this._header.addChild( "<div class='window-header'>" + title + "</div>" );
 				this._headerCloseBut = <Component>this._header.addChild( "<div class='close-but'>X</div>" );
 				this.addChild( "<div class='fix'></div>" );
-				this._content = <Component>this.addChild( "<div class='window-content' style='position:relative; width:" + width + "px;'></div>" );
+				this._content = <Component>this.addChild( "<div class='window-content'></div>" );
 			}
 			else
-				this._content = <Component>this.addChild( "<div class='window-content' style='position:relative; width:" + width + "px;'></div>" );
+                this._content = <Component>this.addChild( "<div class='window-content no-control'></div>" );
 
 			this._modalBackdrop = jQuery( "<div class='modal-backdrop dark-color'></div>" );
 

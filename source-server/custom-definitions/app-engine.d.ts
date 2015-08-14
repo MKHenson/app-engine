@@ -18,7 +18,7 @@
 declare module Engine
 {
     /**
-    * A class that is used to describe the assets model
+    * An interface that is used to describe the assets model
     */
     export interface IAsset
     {
@@ -34,7 +34,7 @@ declare module Engine
     }
 
     /**
-    * A class that is used to describe the plugin model
+    * An interface that is used to describe the plugin model
     */
     export interface IPlugin
     {
@@ -53,12 +53,43 @@ declare module Engine
         version?: string;
         _id?: any;
     }
+
+    /**
+    * An interface that is used to describe the project model
+    */
+    export interface IProject
+    {
+        name?: string;
+        description?: string;
+        image?: string;
+        category?: string;
+        subCategory?: string;
+        public?: boolean;
+        curFile?: string;
+        rating?: number;
+        suspicious?: boolean;
+        deleted?: boolean;
+        numRaters?: number;
+        user?: any;
+        build?: any;
+        type?: number;
+        tags?: Array<string>;
+        readPrivileges?: Array<string>;
+        writePrivileges?: Array<string>;
+        adminPrivileges?: Array<string>;
+        plugins?: Array<string>;
+        files?: Array<string>;
+        createdOn?: number;
+        lastModified?: number;
+        _id?: any;  
+    }
 }
 
 declare module ModepressEngine
 {
     export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }
     export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
+    export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
 }
 
 declare module "engine" {

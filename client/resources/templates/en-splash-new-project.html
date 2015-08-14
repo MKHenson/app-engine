@@ -1,0 +1,22 @@
+<div style='left:800px;' class='en-splash-new-project splash-outer-container splash-new-project'>
+	<div class="label heading">Create New Project</div>
+	<div class='splash-new-project-sub'>
+		<div class="label">Project Name</div>
+		<div class='input-box'>
+			<input type='text' name="name" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$projName" />
+		</div>
+		<div class="label instruction-text">
+			Please enter the name of your project.
+		</div>
+		<div class="label">Project Description</div>
+		<div class='input-box'>
+			<textarea en-validate="alpha-numeric-plus" en-model="ctrl.$projDesc" name="description"></textarea>
+		</div>
+		<div class="label instruction-text">
+			Optionally give a description of your project.
+		</div>
+		<div id="en-project-back" class='button reg-gradient curve-small' en-click="ctrl.onButtonClick(e)">Back</div>
+		<div id="en-project-next" class='button reg-gradient curve-small' en-click="ctrl.onButtonClick(e)">Next</div>
+		<div class="label red"></div>
+	</div>
+</div>

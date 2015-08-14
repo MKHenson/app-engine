@@ -193,8 +193,8 @@ module Animate
 			//Splash screen
 			else if ( comp == this._home )
 			{
-				Splash.getSingleton().reset();
-				Splash.getSingleton().show();
+				Splash.get.reset();
+				Splash.get.show();
 			}
 			else if ( comp == this._snapping )
 			{

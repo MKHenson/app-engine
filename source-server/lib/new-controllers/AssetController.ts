@@ -1,16 +1,14 @@
-﻿import * as mongodb from "mongodb";
-import * as express from "express";
+﻿import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse} from "modepress-api";
 import {IGetAssets} from "modepress-engine";
-
-import {AssetModel} from "../models/AssetModel";
+import {AssetModel} from "../new-models/AssetModel";
 import {IAsset} from "engine";
 
 /**
 * A controller that deals with asset models
 */
-export default class AssetController extends Controller
+export class AssetController extends Controller
 {
 	/**
 	* Creates a new instance of the email controller
@@ -30,7 +28,7 @@ export default class AssetController extends Controller
         router.get("/get/:id?", <any>[this.getRenders.bind(this)]);
 
         // Register the path
-        e.use("/assets", router);
+        e.use("/app-engine/assets", router);
     }
 
     /**
@@ -42,7 +40,7 @@ export default class AssetController extends Controller
     private getRenders(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var assets = this.getModel("assets");
+        var model = this.getModel("en-assets");
         var that = this;
         var count = 0;
 
@@ -70,10 +68,10 @@ export default class AssetController extends Controller
             (<IAsset>findToken).name = <any>new RegExp(req.query.search, "i");
         
         // First get the count
-        assets.count(findToken).then(function (num)
+        model.count(findToken).then(function (num)
         {
             count = num;
-            return assets.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
         }).then(function (instances)
         {

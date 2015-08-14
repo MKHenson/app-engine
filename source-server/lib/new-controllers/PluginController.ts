@@ -385,7 +385,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse} from "modepress-api";
 import {IGetPlugins} from "modepress-engine";
-import {PluginModel} from "../models/PluginModel";
+import {PluginModel} from "../new-models/PluginModel";
 import {IPlugin} from "engine";
 
 /**
@@ -411,7 +411,7 @@ export class PluginController extends Controller
         router.get("/:id?", <any>[this.getPlugins.bind(this)]);
 
         // Register the path
-        e.use("/plugins", router);
+        e.use("/app-engine/plugins", router);
     }
 
     /**
@@ -423,7 +423,7 @@ export class PluginController extends Controller
     private getPlugins(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var plugins = this.getModel("plugins");
+        var model = this.getModel("en-plugins");
         var that = this;
         var count = 0;
 
@@ -438,10 +438,10 @@ export class PluginController extends Controller
             (<IPlugin>findToken).name = <any>new RegExp(req.query.search, "i");
         
         // First get the count
-        plugins.count(findToken).then(function (num)
+        model.count(findToken).then(function (num)
         {
             count = num;
-            return plugins.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
         }).then(function (instances)
         {

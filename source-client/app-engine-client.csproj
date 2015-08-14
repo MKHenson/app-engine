@@ -27,12 +27,13 @@
     <Content Include="..\client\resources\templates\en-splash-login.html">
       <Link>html\templates\en-splash-login.html</Link>
     </Content>
+    <Content Include="..\client\resources\templates\en-splash-new-project.html">
+      <Link>html\templates\en-splash-new-project.html</Link>
+    </Content>
     <Content Include="..\client\resources\templates\en-splash-welcome.html">
       <Link>html\templates\en-splash-welcome.html</Link>
     </Content>
-    <Content Include="lib\html\index.html" />
     <Content Include="lib\html\style-trike.css" />
-    <Content Include="lib\html\style.css" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />

@@ -9,6 +9,7 @@ var ErrorController = require("./ErrorController");
 var UserController = require("./UserController");
 var ProjectController = require("./ProjectController");
 var BuildController = require("./BuildController");
+//import PluginController = require( "./PluginController" );
 var ExportController = require("./ExportController");
 var FileController = require("./FileController");
 var MiscController = require("./MiscController");

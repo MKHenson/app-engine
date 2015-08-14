@@ -2097,6 +2097,7 @@ var Animate;
         }
         DB.USERS = "http://webinate-test.net:8000";
         DB.HOST = "http://animate.webinate-test.net";
+        DB.API = "http://animate.webinate-test.net/app-engine";
         DB.PLAN_FREE = "animate-free";
         DB.PLAN_BRONZE = "animate-bronze";
         DB.PLAN_SILVER = "animate-silver";
@@ -3567,17 +3568,17 @@ var Animate;
         function UserEvents(v) {
             _super.call(this, v);
         }
-        UserEvents.LOGGED_IN = new UserEvents("user_logged_in");
+        //static LOGGED_IN: UserEvents = new UserEvents( "user_logged_in" );
         UserEvents.FAILED = new UserEvents("user_failed");
-        UserEvents.REGISTERED = new UserEvents("user_registered");
-        UserEvents.LOGGED_OUT = new UserEvents("user_logged_out");
-        UserEvents.PASSWORD_RESET = new UserEvents("user_password_reset");
-        UserEvents.ACTIVATION_RESET = new UserEvents("user_activation_reset");
+        //static REGISTERED: UserEvents = new UserEvents( "user_registered" );
+        //static LOGGED_OUT: UserEvents = new UserEvents( "user_logged_out" );
+        //static PASSWORD_RESET: UserEvents = new UserEvents( "user_password_reset" );
+        //static ACTIVATION_RESET: UserEvents = new UserEvents( "user_activation_reset" );
         UserEvents.PROJECT_CREATED = new UserEvents("user_project_created");
         UserEvents.PROJECT_OPENED = new UserEvents("user_project_opened");
-        UserEvents.PROJECTS_RECIEVED = new UserEvents("user_projects_recieved");
-        UserEvents.PROJECT_DELETED = new UserEvents("user_project_deleted");
-        UserEvents.PROJECT_COPIED = new UserEvents("user_project_copied");
+        //static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
+        //static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
+        //static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
         UserEvents.PROJECT_RENAMED = new UserEvents("user_project_rename");
         UserEvents.DETAILS_SAVED = new UserEvents("user_details_saved");
         return UserEvents;
@@ -3617,6 +3618,10 @@ var Animate;
             this._project = null;
             this._isLoggedIn = false;
         }
+        /**
+        * Creates an empty user with default values
+        * @returns {IEngineUser}
+        */
         User.prototype.createEmptyUer = function () {
             return {
                 username: "",
@@ -3629,22 +3634,6 @@ var Animate;
                 }
             };
         };
-        User.prototype.$get = function () {
-            return this;
-        };
-        ///**
-        //* Checks if a user is logged in or not. This checks the animate server using 
-        //* cookie and session data from the browser. The call is made synchronously.
-        //* @extends {User} 
-        //*/
-        //      updatedLoggedIn()
-        //      {
-        //	this._isLoggedIn = false;
-        //	var loader = new AnimateLoader();
-        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-        //          loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-        //          loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
-        //      }
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
@@ -3707,23 +3696,6 @@ var Animate;
         * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
         */
         User.prototype.register = function (user, password, email, captcha, captha_challenge) {
-            //if ( this._isLoggedIn )
-            //{
-            //	this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", LoaderEvents.COMPLETE, null ));
-            //	return;
-            //}
-            //         this.userEntry.username = user;
-            //var loader = new AnimateLoader();
-            //loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-            //loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-            //loader.load( "/user/register",
-            //	{
-            //		user: user,
-            //		password: password,
-            //		email: email,
-            //		captcha: captcha,
-            //		captha_challenge: captha_challenge
-            //	} );
             var d = jQuery.Deferred(), that = this, token = {
                 username: user,
                 password: password,
@@ -3752,10 +3724,6 @@ var Animate;
         * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
         User.prototype.resendActivation = function (user) {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/resend-activation", { user: user });
             var d = jQuery.Deferred(), that = this;
             jQuery.getJSON(Animate.DB.USERS + "/users/resend-activation/" + user).done(function (data) {
                 if (data.error)
@@ -3772,10 +3740,6 @@ var Animate;
         * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
         User.prototype.resetPassword = function (user) {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/reset-password", { user: user });
             var d = jQuery.Deferred(), that = this;
             jQuery.getJSON(Animate.DB.USERS + "/users/request-password-reset/" + user).done(function (data) {
                 if (data.error)
@@ -3791,10 +3755,6 @@ var Animate;
         * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
         User.prototype.logout = function () {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/resend-activation", { user: user });
             var d = jQuery.Deferred(), that = this;
             jQuery.getJSON(Animate.DB.USERS + "/users/logout").done(function (data) {
                 if (data.error)
@@ -3811,15 +3771,16 @@ var Animate;
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
         */
-        User.prototype.downloadProjects = function () {
-            if (this._isLoggedIn) {
-                var loader = new Animate.AnimateLoader();
-                loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-                loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-                loader.load("/project/get-user-projects", {});
-            }
-            else
-                return null;
+        User.prototype.getProjectList = function () {
+            var d = jQuery.Deferred(), that = this;
+            jQuery.getJSON(Animate.DB.API + "/projects").done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
         };
         /**
         * Use this function to rename a project
@@ -3947,23 +3908,13 @@ var Animate;
                     //else
                     //	this.planLevel = 3;
                     this._isLoggedIn = true;
-                    this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data));
                 }
                 else if (loader.url == "/user/log-out") {
                     this.userEntry.username = "";
                     this._isLoggedIn = false;
-                    this.dispatchEvent(new UserEvent(UserEvents.LOGGED_OUT, event.message, event.return_type, data));
                 }
-                else if (loader.url == "/user/register")
-                    this.dispatchEvent(new UserEvent(UserEvents.REGISTERED, event.message, event.return_type, data));
-                else if (loader.url == "/user/reset-password")
-                    this.dispatchEvent(new UserEvent(UserEvents.PASSWORD_RESET, event.message, event.return_type, data));
-                else if (loader.url == "/user/resend-activation")
-                    this.dispatchEvent(new UserEvent(UserEvents.ACTIVATION_RESET, event.message, event.return_type, data));
                 else if (loader.url == "/user/update-details")
                     this.dispatchEvent(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
-                else if (loader.url == "/project/get-user-projects")
-                    this.dispatchEvent(new UserEvent(UserEvents.PROJECTS_RECIEVED, "", event.return_type, data));
                 else if (loader.url == "/project/create") {
                     this.project = new Animate.Project(data.project._id, data.project.name, data.build);
                     this.dispatchEvent(new Animate.ProjectEvent(UserEvents.PROJECT_CREATED, event.message, data));
@@ -3973,10 +3924,6 @@ var Animate;
                     this.project.loadFromData(data);
                     this.dispatchEvent(new Animate.ProjectEvent(UserEvents.PROJECT_OPENED, event.message, data));
                 }
-                else if (loader.url == "/project/delete")
-                    this.dispatchEvent(new UserEvent(UserEvents.PROJECT_DELETED, event.message, event.return_type, data));
-                else if (loader.url == "/project/copy")
-                    this.dispatchEvent(new UserEvent(UserEvents.PROJECT_COPIED, event.message, event.return_type, data));
                 else if (loader.url == "/project/rename") {
                     this.project.mName = data.name;
                     this.project.mDescription = data.description;
@@ -3998,7 +3945,6 @@ var Animate;
                         this.userEntry.meta.createdOn = data.createdOn;
                         this._isLoggedIn = true;
                     }
-                    this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn));
                 }
                 else
                     this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
@@ -5163,10 +5109,10 @@ var Animate;
                 this._headerText = this._header.addChild("<div class='window-header'>" + title + "</div>");
                 this._headerCloseBut = this._header.addChild("<div class='close-but'>X</div>");
                 this.addChild("<div class='fix'></div>");
-                this._content = this.addChild("<div class='window-content' style='position:relative; width:" + width + "px;'></div>");
+                this._content = this.addChild("<div class='window-content'></div>");
             }
             else
-                this._content = this.addChild("<div class='window-content' style='position:relative; width:" + width + "px;'></div>");
+                this._content = this.addChild("<div class='window-content no-control'></div>");
             this._modalBackdrop = jQuery("<div class='modal-backdrop dark-color'></div>");
             //Proxies	
             this._externalClickProxy = this.onStageClick.bind(this);
@@ -16619,8 +16565,8 @@ var Animate;
             if (comp == this._addBehaviour)
                 Animate.NewBehaviourForm.getSingleton().show();
             else if (comp == this._home) {
-                Animate.Splash.getSingleton().reset();
-                Animate.Splash.getSingleton().show();
+                Animate.Splash.get.reset();
+                Animate.Splash.get.show();
             }
             else if (comp == this._snapping) {
                 if (this._snapping.element.hasClass("selected")) {
@@ -17554,10 +17500,13 @@ var Animate;
             this.element.addClass("splash-window");
             this.$loginError = "";
             this.$loginRed = true;
+            this.$loading = false;
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
             this.welcomeBackground = Animate.Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
             this.content.element.append(this.welcomeBackground);
-            this.newProjectBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
+            //this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
+            this.newProjectBackground = Animate.Compiler.build(jQuery(".en-splash-new-project").remove().clone(), this);
+            this.content.element.append(this.newProjectBackground);
             //this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
             this.loginBackground = Animate.Compiler.build(jQuery(".en-splash-login").remove().clone(), this);
             this.content.element.append(this.loginBackground);
@@ -17618,6 +17567,7 @@ var Animate;
             }
         };
         Splash.prototype.loginError = function (err) {
+            this.$loading = false;
             this.$loginRed = true;
             this.$loginError = err.message;
             Animate.Compiler.digest(this.loginBackground, this);
@@ -17627,6 +17577,7 @@ var Animate;
                 this.$loginRed = true;
             else
                 this.$loginRed = false;
+            this.$loading = false;
             this.$loginError = data.message;
             Animate.Compiler.digest(this.loginBackground, this);
             Animate.Compiler.digest(this.welcomeBackground, this);
@@ -17639,11 +17590,22 @@ var Animate;
         */
         Splash.prototype.login = function (user, password, remember) {
             var that = this;
+            that.$loading = true;
             this.user.login(user, password, remember)
-                .then(this.loginSuccess.bind(that))
+                .then(function (data) {
+                if (data.error)
+                    that.$loginRed = true;
+                else
+                    that.$loginRed = false;
+                that.$loginError = data.message;
+                that.refreshProjects();
+                Animate.Compiler.digest(that.loginBackground, that);
+                Animate.Compiler.digest(that.welcomeBackground, that);
+            })
                 .fail(this.loginError.bind(that))
                 .done(function () {
                 jQuery(".close-but", that.loginBackground).trigger("click");
+                that.$loading = false;
             });
         };
         /**
@@ -17656,9 +17618,16 @@ var Animate;
         */
         Splash.prototype.register = function (user, password, email, captcha, challenge) {
             var that = this;
+            that.$loading = true;
             this.user.register(user, password, email, captcha, challenge)
                 .then(this.loginSuccess.bind(that))
-                .fail(this.loginError.bind(that));
+                .fail(function (err) {
+                that.$loginRed = true;
+                that.$loginError = err.message;
+                that.$loading = false;
+                Recaptcha.reload();
+                Animate.Compiler.digest(that.loginBackground, that);
+            });
         };
         /**
         * Attempts to resend the activation code
@@ -17673,6 +17642,7 @@ var Animate;
                 });
                 return Animate.Compiler.digest(that.loginBackground, that);
             }
+            that.$loading = true;
             this.user.resendActivation(user)
                 .then(this.loginSuccess.bind(that))
                 .fail(this.loginError.bind(that));
@@ -17690,6 +17660,7 @@ var Animate;
                 });
                 return Animate.Compiler.digest(that.loginBackground, that);
             }
+            that.$loading = true;
             this.user.resetPassword(user)
                 .then(this.loginSuccess.bind(that))
                 .fail(this.loginError.bind(that));
@@ -17700,12 +17671,31 @@ var Animate;
         */
         Splash.prototype.logout = function () {
             var that = this;
+            that.$loading = true;
             this.user.logout().then(function () {
+                that.$loading = false;
                 that.$loginError = "";
                 Animate.Application.getInstance().projectReset();
+                that.projectBrowser.enabled = false;
+                that.refreshProjects();
                 Animate.Compiler.digest(that.welcomeBackground, that);
             })
                 .fail(this.loginError.bind(that));
+        };
+        /**
+        * Fills the project browser with projects from the server
+        */
+        Splash.prototype.refreshProjects = function () {
+            var that = this;
+            if (that.user.isLoggedIn) {
+                this.user.getProjectList().then(function (respose) {
+                    that.projectBrowser.fill(respose.data);
+                }).fail(function (err) {
+                    Animate.MessageBox.show(err.message, ["Ok"], null, null);
+                });
+            }
+            else
+                that.projectBrowser.clearItems();
         };
         /**
         * This function can be called to reset all the splash variables and states.absolute
@@ -17715,13 +17705,14 @@ var Animate;
         Splash.prototype.reset = function () {
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
             this.welcomeBackground.css({ "left": "0px", "top": "0px" });
-            this.newProjectBackground.element.css({ "left": "800px" });
+            //this.newProjectBackground.element.css({ "left": "800px" });
+            this.newProjectBackground.css({ "left": "800px" });
             //this.loginBackground.element.css({ "top": "-520px" });
             this.loginBackground.css({ "top": "-520px" });
             this.pluginsBackground.element.css({ "left": "800px" });
             this.finalScreen.element.css({ "left": "800px" });
             //this.enableButtons(true);
-            this.projectError.element.hide();
+            //this.projectError.element.hide();
             this.finalError.element.hide();
             //this.loginError.element.hide();
             //this.closeButton.element.show();
@@ -17731,10 +17722,11 @@ var Animate;
             //this.regPassword.textfield.element.removeClass("red-border");
             //this.regPasswordCheck.textfield.element.removeClass("red-border");
             //this.regEmail.textfield.element.removeClass("red-border");
-            this.projectName.textfield.element.removeClass("red-border");
-            this.projectDesc.textfield.element.removeClass("red-border");
+            //this.projectName.textfield.element.removeClass("red-border");
+            //this.projectDesc.textfield.element.removeClass("red-border");
             //Refresh the projects
-            Animate.User.get.downloadProjects();
+            //User.get.downloadProjects();
+            this.refreshProjects();
             Animate.Compiler.digest(this.welcomeBackground, this);
             Animate.Compiler.digest(this.loginBackground, this);
             return;
@@ -17770,30 +17762,30 @@ var Animate;
         * Creates the new project page on the splash screen
         */
         Splash.prototype.createNewProjectPage = function () {
-            var heading = new Animate.Label("Create New Project", this.newProjectBackground);
-            heading.element.addClass("heading");
+            //var heading = new Label("Create New Project", this.newProjectBackground)
+            //heading.element.addClass("heading");
             //Create container div
-            var project = new Animate.Component("<div class='splash-new-project-sub'></div>", this.newProjectBackground);
+            //var project = new Component("<div class='splash-new-project-sub'></div>", this.newProjectBackground);
             //Create inputs
-            new Animate.Label("Project Name", project);
-            this.projectName = new Animate.InputBox(project, "");
-            var sub = new Animate.Label("Please enter the name of your project.", project);
-            sub.textfield.element.addClass("instruction-text");
-            new Animate.Label("Project Description", project);
-            this.projectDesc = new Animate.InputBox(project, "", true);
-            sub = new Animate.Label("Optionally give a description of your project.", project);
-            sub.textfield.element.addClass("instruction-text");
+            //new Label("Project Name", project);
+            //this.projectName = new InputBox(project, "");
+            //var sub = new Label("Please enter the name of your project.", project);
+            //sub.textfield.element.addClass("instruction-text");
+            //new Label("Project Description", project);
+            //this.projectDesc = new InputBox(project, "", true);
+            //sub = new Label("Optionally give a description of your project.", project);
+            //sub.textfield.element.addClass("instruction-text");
             //Create continue Button
-            this.projectBack = new Animate.Button("Back", project);
-            this.projectNext = new Animate.Button("Next", project);
-            this.projectNext.css({ width: 100, height: 40 });
-            this.projectBack.css({ width: 100, height: 40 });
+            //this.projectBack = new Button("Back", project);
+            //this.projectNext = new Button("Next", project);
+            //this.projectNext.css({ width: 100, height: 40 });
+            //this.projectBack.css({ width: 100, height: 40 });
             //Error label
-            this.projectError = new Animate.Label("", project);
-            this.projectError.element.hide();
-            this.projectError.textfield.element.css({ color: "#ff0000", clear: "both" });
-            this.projectNext.element.click(this.clickProxy);
-            this.projectBack.element.click(this.clickProxy);
+            //this.projectError = new Label("", project);
+            //this.projectError.element.hide();
+            //this.projectError.textfield.element.css({ color: "#ff0000", clear: "both" });
+            //this.projectNext.element.click(this.clickProxy);
+            //this.projectBack.element.click(this.clickProxy);
         };
         /**
         * Creates the new plugins page on the splash screen
@@ -17989,24 +17981,26 @@ var Animate;
         //	}
         //          return toRet;
         //      }
-        /**
-        * Checks each of the fields for creating a new project.
-        */
-        Splash.prototype.validateNewProject = function () {
-            this.projectName.textfield.element.removeClass("red-border");
-            this.projectDesc.textfield.element.removeClass("red-border");
-            this.projectError.element.hide();
-            //Check for errors
-            var message = Animate.Utils.checkForSpecialChars(this.projectName.text);
-            if (message != null) {
-                this.projectError.text = message;
-                this.projectError.element.show();
-                this.projectName.textfield.element.addClass("red-border");
-                //this.enableButtons(true);
-                return;
-            }
-            return true;
-        };
+        ///**
+        //* Checks each of the fields for creating a new project.
+        //*/
+        //validateNewProject()
+        //{
+        //	this.projectName.textfield.element.removeClass("red-border");
+        //	this.projectDesc.textfield.element.removeClass("red-border");
+        //	this.projectError.element.hide();
+        //	//Check for errors
+        //	var message = Utils.checkForSpecialChars(this.projectName.text);
+        //	if (message != null)
+        //	{
+        //		this.projectError.text = message;
+        //		this.projectError.element.show();
+        //		this.projectName.textfield.element.addClass("red-border");
+        //		//this.enableButtons(true);
+        //		return;
+        //	}
+        //	return true;
+        //}
         /**
         * Creates the first page on the splash screen
         */
@@ -18024,16 +18018,23 @@ var Animate;
             //Get ajax news
             //newsBox.element.html("Hello and welcome back to Animate. If you're new around these parts, let's get you up and running in just a few minutes. Click the below button to learn how to create your very first Animate project. <br /><a href=\"javascript:window.open('https://webinate.net/tutorials-popup/','Animate Tutorials','width=1000,height=800')\"><div class='getting-started'><img src='media/play-arrow.png'/>Tutorial Videos</div></div></a>");
             //login sections	
-            if (user.isLoggedIn) {
-                //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-                //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
-                user.downloadProjects();
-            }
-            else {
-            }
+            //if ( user.isLoggedIn )
+            //{
+            //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+            //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+            //user.downloadProjects();
+            //this.closeButton.element.show();
+            //}
+            //else
+            //{
+            //this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
+            //jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
+            //jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
+            //this.closeButton.element.hide();
+            //}
             //this.projectBrowser = new ProjectBrowser(this.project);
             this.projectBrowser = new Animate.ProjectBrowser(null);
-            jQuery(".splash-section", this.welcomeBackground).first().append(this.projectBrowser.element);
+            jQuery(".double-column", this.welcomeBackground).first().append(this.projectBrowser.element);
             this.projectBrowser.addEventListener(Animate.ProjectBrowserEvents.COMBO, this.onProjectCombo, this);
             //this.closeButton.element.click(this.clickProxy);
         };
@@ -18055,8 +18056,10 @@ var Animate;
                 //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.projectName.focus();
+                //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.projectName.focus();
+                jQuery(".splash-new-project input[name='name']").focus();
             }
             else if (event.command == "Open") {
                 if (this.projectBrowser.selectedItem == null) {
@@ -18134,24 +18137,20 @@ var Animate;
             }
             else if (jComp.is(".en-register")) {
             }
-            else if (comp == this.projectBack) {
+            else if (jComp.is("#en-project-back")) {
                 //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
                 this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
                 //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
-                this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime);
-                this.projectName.text = "";
-                this.projectDesc.text = "";
+                //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime);
+                this.newProjectBackground.animate({ left: '+=800' }, this.slideTime);
+                //this.projectName.text = "";
+                //            this.projectDesc.text = "";
+                jQuery(".splash-new-project input[name='name']").val("");
+                jQuery(".splash-new-project input[name='description']").val("");
                 //refil the projects
                 this.projectBrowser.clearItems();
-                Animate.User.get.downloadProjects();
             }
-            else if (comp == this.projectNext) {
-                if (this.validateNewProject()) {
-                    var user = Animate.User.get;
-                    user.addEventListener(Animate.UserEvents.PROJECT_CREATED, this.onProjectData, this);
-                    user.addEventListener(Animate.UserEvents.FAILED, this.onProjectData, this);
-                    user.createProject(this.projectName.text, this.projectDesc.text);
-                }
+            else if (jComp.is("#en-project-next")) {
             }
             else if (comp == this.finalButton) {
                 if (this.pluginLoader.errorOccured)
@@ -18159,6 +18158,9 @@ var Animate;
                 else
                     this.hide();
             }
+        };
+        Splash.prototype.newProject = function (name, description) {
+            this.user.createProject(name, description);
         };
         /**
         * This is called when we click a button on the message box.
@@ -18223,8 +18225,8 @@ var Animate;
             user.removeEventListener(Animate.UserEvents.FAILED, this.onProjectData, this);
             user.removeEventListener(Animate.UserEvents.PROJECT_OPENED, this.onProjectData, this);
             if (response == Animate.UserEvents.FAILED) {
-                this.projectError.text = data.message;
-                this.projectError.element.show();
+                //this.projectError.text = data.message;
+                //this.projectError.element.show();
                 //this.enableButtons(true);
                 return;
             }
@@ -18239,7 +18241,8 @@ var Animate;
                 //Project created - go to plugins screen!		
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
                 this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
                 this.pluginBrowser.reset();
             }
@@ -18284,71 +18287,79 @@ var Animate;
         /**
         * When we receive data from the server
         */
-        Splash.prototype.onUserData = function (response, event) {
-            if ((response == Animate.UserEvents.FAILED || response == Animate.UserEvents.LOGGED_IN || response == Animate.UserEvents.REGISTERED) && event.return_type != Animate.AnimateLoaderResponses.SUCCESS) {
-                Recaptcha.reload();
-                Animate.MessageBox.show(event.message, ["Ok"], null, null);
-            }
-            //LOG OUT
-            //this.enableButtons(true);
-            if (response == Animate.UserEvents.LOGGED_OUT && event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
-                this.projectBrowser.enabled = false;
-                this.projectBrowser.clearItems();
-                //Remove links and create normal login section
-                //jQuery(".logout-link", this.userBoxDetails.element).unbind();
-                //this.closeButton.element.hide();
-                //this.userBoxDetails.element.remove();
-                //this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
-                //jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
-                //jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
-                return;
-            }
-            else if (response == Animate.UserEvents.LOGGED_IN && event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
-                this.projectBrowser.enabled = true;
-                //this.closeButton.element.show();
-                //Remove links and create normal login section
-                //jQuery(".login-link", this.userBoxDetails.element).unbind();
-                //jQuery(".register-link", this.userBoxDetails.element).unbind();
-                var user = Animate.User.get;
-                Animate.Compiler.digest(this.welcomeBackground, this);
-                //this.userBoxDetails.element.remove();
-                //this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
-                //jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
-                //Fill project list
-                user.downloadProjects();
-                //Go back to main window
-                //this.loginBack.element.trigger("click");
-                jQuery(".splash-login-user .close-but").trigger("click");
-                return;
-            }
-            else if (response == Animate.UserEvents.PROJECT_DELETED) {
-                if (event.return_type == Animate.AnimateLoaderResponses.ERROR)
-                    Animate.MessageBox.show(event.message, ["Ok"], null, null);
-                //Refresh the projects
-                Animate.User.get.downloadProjects();
-                return;
-            }
-            else if ((response == Animate.UserEvents.PROJECT_COPIED) && event.return_type == Animate.AnimateLoaderResponses.SUCCESS)
-                Animate.User.get.downloadProjects();
-            else if ((response == Animate.UserEvents.PROJECTS_RECIEVED) && event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
-                this.projectBrowser.fill(event.tag);
-            }
-            //this.loginError.element.show();
-            //this.loginError.text = event.message;
-            this.$loginError = event.message;
-            Animate.Compiler.digest(this.welcomeBackground, this);
-        };
+        //onUserData(response: UserEvents, event : UserEvent)
+        //{
+        //if ( ( response == UserEvents.FAILED || response == UserEvents.LOGGED_IN || response == UserEvents.REGISTERED ) && event.return_type != AnimateLoaderResponses.SUCCESS )
+        //{
+        //Recaptcha.reload();
+        //MessageBox.show( event.message, ["Ok"], null, null );
+        //}
+        //LOG OUT
+        //this.enableButtons(true);
+        //if (response == UserEvents.LOGGED_OUT && event.return_type == AnimateLoaderResponses.SUCCESS)
+        //{
+        //this.projectBrowser.enabled = false;
+        //this.projectBrowser.clearItems();
+        //Remove links and create normal login section
+        //jQuery(".logout-link", this.userBoxDetails.element).unbind();
+        //this.closeButton.element.hide();
+        //this.userBoxDetails.element.remove();
+        //this.userBoxDetails = new Component("<div class='details'><span class='hyperlink login-link'>Login</span></div><div class='details'><span class='hyperlink register-link'>Register</span></div><div class='fix'></div>", this.userBox);
+        //jQuery(".login-link", this.userBoxDetails.element).click(this.clickProxy);
+        //jQuery(".register-link", this.userBoxDetails.element).click(this.clickProxy);
+        //	return;
+        //}
+        //LOG IN
+        //if (response == UserEvents.LOGGED_IN && event.return_type == AnimateLoaderResponses.SUCCESS)
+        //{
+        //	this.projectBrowser.enabled = true;
+        //	//this.closeButton.element.show();
+        //	//Remove links and create normal login section
+        //	//jQuery(".login-link", this.userBoxDetails.element).unbind();
+        //	//jQuery(".register-link", this.userBoxDetails.element).unbind();
+        //             var user = User.get;
+        //             Compiler.digest(this.welcomeBackground, this);
+        //	//this.userBoxDetails.element.remove();
+        //	//this.userBoxDetails = new Component("<div class='details'>" + user.username + "</div><div class='details'><div class='hyperlink logout-link'>Logout</div></div><div class='fix'></div>", this.userBox);
+        //	//jQuery(".logout-link", this.userBoxDetails.element).click(this.clickProxy);
+        //	//Fill project list
+        //	user.downloadProjects();
+        //	//Go back to main window
+        //             //this.loginBack.element.trigger("click");
+        //             jQuery(".splash-login-user .close-but").trigger("click");
+        //	return;
+        //}
+        //if (response == UserEvents.PROJECT_DELETED)
+        //{
+        //	if (event.return_type == AnimateLoaderResponses.ERROR )
+        //		MessageBox.show(event.message, ["Ok"], null, null );
+        //Refresh the projects
+        //	User.get.downloadProjects();
+        //	return;
+        //}
+        //else if ( ( response == UserEvents.PROJECT_COPIED ) && event.return_type == AnimateLoaderResponses.SUCCESS )
+        //	User.get.downloadProjects();
+        //FILL PROJECTS LIST
+        //else if ((response == UserEvents.PROJECTS_RECIEVED) && event.return_type == AnimateLoaderResponses.SUCCESS)
+        //{
+        //	this.projectBrowser.fill( event.tag )
+        //}
+        //this.loginError.element.show();
+        //this.loginError.text = event.message;
+        //this.$loginError = event.message;
+        //Compiler.digest(this.welcomeBackground, this);
+        //}
         Splash.prototype.onUserLoggedInCheck = function () {
-            Animate.User.get.removeEventListener(Animate.UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.LOGGED_IN, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.LOGGED_OUT, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.FAILED, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.REGISTERED, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.PASSWORD_RESET, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.ACTIVATION_RESET, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.PROJECTS_RECIEVED, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.PROJECT_COPIED, this.onUserData, this);
-            Animate.User.get.addEventListener(Animate.UserEvents.PROJECT_DELETED, this.onUserData, this);
+            //User.get.removeEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
+            //User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.LOGGED_OUT, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.FAILED, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.REGISTERED, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.PASSWORD_RESET, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.ACTIVATION_RESET, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.PROJECTS_RECIEVED, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.PROJECT_COPIED, this.onUserData, this );
+            //User.get.addEventListener( UserEvents.PROJECT_DELETED, this.onUserData, this );
             this.initialized = true;
             this.createNewProjectPage();
             this.createWelcomePage();
@@ -18364,42 +18375,47 @@ var Animate;
             this.onWindowResized(null);
             if (this.initialized == false) {
                 var that = this;
-                //User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
-                //User.get.updatedLoggedIn();
                 Animate.User.get.authenticated().then(function (loggedIn) {
                     that.onUserLoggedInCheck();
-                }).fail(this.handleError);
+                    that.refreshProjects();
+                    Animate.Compiler.digest(that.welcomeBackground, that);
+                }).fail(function (err) {
+                    Animate.MessageBox.show(err.message, ["Ok"], null, null);
+                });
             }
             else
                 jQuery("img", this.userImg.element).attr("src", Animate.User.get.userEntry.meta.imgURL);
         };
-        Splash.prototype.handleError = function (err) {
-            Animate.MessageBox.show(err.message, ["Ok"], null, null);
-        };
-        /**
-        * Gets the singleton reference of this class.
-        * @returns {Splash}
-        */
-        Splash.getSingleton = function () {
-            if (!Splash._singleton)
-                new Splash();
-            return Splash._singleton;
-        };
+        Object.defineProperty(Splash, "get", {
+            /**
+            * Gets the singleton reference of this class.
+            * @returns {Splash}
+            */
+            get: function () {
+                if (!Splash._singleton)
+                    new Splash();
+                return Splash._singleton;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return Splash;
     })(Animate.Window);
     Animate.Splash = Splash;
 })(Animate || (Animate = {}));
 var __plugins = [];
-function onPluginsLoaded(eventType, event, sender) {
-    sender.removeEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
-    sender.removeEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
-    if (!event.tag) {
-        Animate.MessageBox.show("Could not connect to server", [], null, null);
-        return;
-    }
-    __plugins = event.tag.plugins;
+function onPluginsLoaded(plugins) {
+    //sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
+    //sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
+    //if ( !event.tag )
+    //{
+    //	Animate.MessageBox.show( "Could not connect to server", [], null, null );
+    //	return;
+    //}
+    //__plugins = event.tag.plugins;
+    __plugins = plugins;
     //Start Splash screen
-    Animate.Splash.getSingleton().show();
+    Animate.Splash.get.show();
 }
 function byteFilter() {
     return function (bytes, precision) {
@@ -18420,10 +18436,19 @@ jQuery(document).ready(function () {
         }
     });
     var app = new Animate.Application("body");
-    var loader = new Animate.AnimateLoader();
-    loader.addEventListener(Animate.LoaderEvents.COMPLETE, onPluginsLoaded);
-    loader.addEventListener(Animate.LoaderEvents.FAILED, onPluginsLoaded);
-    loader.load("/plugins", {}, 3, "GET");
+    //var loader = new Animate.AnimateLoader();	
+    //loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
+    //loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
+    //loader.load(`${Animate.DB.API}/plugins`, {}, 3, "GET");
+    var that = this;
+    Animate.LoaderBase.showLoader();
+    jQuery.getJSON(Animate.DB.API + "/plugins").done(function (response) {
+        onPluginsLoaded(response.data);
+    }).fail(function (err) {
+        Animate.MessageBox.show("An error occurred while connecting to the server. " + err.status + ": " + err.responseText, ["Ok"], null, null);
+    }).always(function () {
+        Animate.LoaderBase.hideLoader();
+    });
     //var stage = jQuery("#stage");
     //var splash = jQuery(jQuery("#en-splash").addBack().html());
     //stage.append(splash);

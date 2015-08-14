@@ -3,17 +3,17 @@ module Animate
 	export class UserEvents extends ENUM
 	{
 		constructor( v: string ) { super( v ); }
-		static LOGGED_IN: UserEvents = new UserEvents( "user_logged_in" );
+		//static LOGGED_IN: UserEvents = new UserEvents( "user_logged_in" );
 		static FAILED: UserEvents = new UserEvents( "user_failed" );
-		static REGISTERED: UserEvents = new UserEvents( "user_registered" );
-		static LOGGED_OUT: UserEvents = new UserEvents( "user_logged_out" );
-		static PASSWORD_RESET: UserEvents = new UserEvents( "user_password_reset" );
-		static ACTIVATION_RESET: UserEvents = new UserEvents( "user_activation_reset" );
+		//static REGISTERED: UserEvents = new UserEvents( "user_registered" );
+		//static LOGGED_OUT: UserEvents = new UserEvents( "user_logged_out" );
+		//static PASSWORD_RESET: UserEvents = new UserEvents( "user_password_reset" );
+		//static ACTIVATION_RESET: UserEvents = new UserEvents( "user_activation_reset" );
 		static PROJECT_CREATED: UserEvents = new UserEvents( "user_project_created" );
 		static PROJECT_OPENED: UserEvents = new UserEvents( "user_project_opened" );
-		static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
-		static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
-		static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
+		//static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
+		//static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
+		//static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
 		static PROJECT_RENAMED: UserEvents = new UserEvents( "user_project_rename" );
 		static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
 	}
@@ -71,6 +71,10 @@ module Animate
             
         }
 
+        /**
+		* Creates an empty user with default values
+		* @returns {IEngineUser}
+		*/
         private createEmptyUer(): UsersInterface.IEngineUser
         {
             return {
@@ -84,27 +88,7 @@ module Animate
                 }
             };
         }
-
-        public $get(): User
-        {
-            return this;
-        }
-        
-
-		///**
-		//* Checks if a user is logged in or not. This checks the animate server using 
-		//* cookie and session data from the browser. The call is made synchronously.
-		//* @extends {User} 
-		//*/
-  //      updatedLoggedIn()
-  //      {
-		//	this._isLoggedIn = false;
-		//	var loader = new AnimateLoader();
-		//	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-  //          loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-  //          loader.load(`${DB.USERS}/users/authenticated`, {}, 3, "GET");
-  //      }
-        
+                
         /**
 		* Checks if a user is logged in or not. This checks the server using 
 		* cookie and session data from the browser.
@@ -190,26 +174,6 @@ module Animate
 		*/
         register(user: string, password: string, email: string, captcha: string, captha_challenge: string): JQueryPromise<UsersInterface.IAuthenticationResponse>
         {
-            //if ( this._isLoggedIn )
-            //{
-            //	this.dispatchEvent(new UserEvent(UserEvents.FAILED, "You are already logged in.", LoaderEvents.COMPLETE, null ));
-            //	return;
-            //}
-
-            //         this.userEntry.username = user;
-
-            //var loader = new AnimateLoader();
-            //loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-            //loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-            //loader.load( "/user/register",
-            //	{
-            //		user: user,
-            //		password: password,
-            //		email: email,
-            //		captcha: captcha,
-            //		captha_challenge: captha_challenge
-            //	} );
-
             var d = jQuery.Deferred<UsersInterface.IAuthenticationResponse>(),
                 that = this,
                 token: UsersInterface.IRegisterToken = {
@@ -250,11 +214,6 @@ module Animate
 		*/
         resendActivation(user: string): JQueryPromise<UsersInterface.IResponse>
         {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/resend-activation", { user: user });
-
             var d = jQuery.Deferred<UsersInterface.IResponse>(),
                 that = this;
             
@@ -280,11 +239,6 @@ module Animate
 		*/
         resetPassword(user: string): JQueryPromise<UsersInterface.IResponse>
         {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/reset-password", { user: user });
-
             var d = jQuery.Deferred<UsersInterface.IResponse>(),
                 that = this;
 
@@ -309,11 +263,6 @@ module Animate
 		*/
         logout(): JQueryPromise<UsersInterface.IResponse>
         {
-            //var loader = new AnimateLoader();
-            //loader.addEventListener(LoaderEvents.COMPLETE, this.onServer, this);
-            //loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
-            //loader.load("/user/resend-activation", { user: user });
-
             var d = jQuery.Deferred<UsersInterface.IResponse>(),
                 that = this;
 
@@ -338,17 +287,24 @@ module Animate
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
 		* it will return null.
 		*/
-		downloadProjects()
-		{
-			if ( this._isLoggedIn )
-			{
-				var loader = new AnimateLoader();
-				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-				loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-				loader.load( "/project/get-user-projects", {} );
-			}
-			else
-				return null;
+        getProjectList(): JQueryPromise<ModepressEngine.IGetProjects>
+        {
+            var d = jQuery.Deferred<ModepressEngine.IGetProjects>(),
+                that = this;
+
+            jQuery.getJSON(`${DB.API}/projects`).done(function (data: ModepressEngine.IGetProjects)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            })
+
+            return d.promise();
 		}
 
 		/**
@@ -516,24 +472,24 @@ module Animate
 
 					this._isLoggedIn = true;
 
-					this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data));
+					//this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data));
 				}
 				else if ( loader.url == "/user/log-out" )
 				{
                     this.userEntry.username = "";
 					this._isLoggedIn = false;
-					this.dispatchEvent( new UserEvent( UserEvents.LOGGED_OUT, event.message, event.return_type, data ) );
+					//this.dispatchEvent( new UserEvent( UserEvents.LOGGED_OUT, event.message, event.return_type, data ) );
 				}
-				else if ( loader.url == "/user/register" )
-					this.dispatchEvent( new UserEvent( UserEvents.REGISTERED, event.message, event.return_type, data ) );
-				else if ( loader.url == "/user/reset-password" )
-					this.dispatchEvent( new UserEvent( UserEvents.PASSWORD_RESET, event.message, event.return_type, data ) );
-				else if ( loader.url == "/user/resend-activation" )
-					this.dispatchEvent( new UserEvent( UserEvents.ACTIVATION_RESET, event.message, event.return_type, data ) );
+				//else if ( loader.url == "/user/register" )
+				//	this.dispatchEvent( new UserEvent( UserEvents.REGISTERED, event.message, event.return_type, data ) );
+				//else if ( loader.url == "/user/reset-password" )
+				//	this.dispatchEvent( new UserEvent( UserEvents.PASSWORD_RESET, event.message, event.return_type, data ) );
+				//else if ( loader.url == "/user/resend-activation" )
+				//	this.dispatchEvent( new UserEvent( UserEvents.ACTIVATION_RESET, event.message, event.return_type, data ) );
 				else if ( loader.url == "/user/update-details" )
 					this.dispatchEvent(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
-				else if ( loader.url == "/project/get-user-projects" )
-					this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, "", event.return_type, data ) );
+				//else if ( loader.url == "/project/get-user-projects" )
+				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, "", event.return_type, data ) );
 				else if ( loader.url == "/project/create" )
 				{
 					this.project = new Project( data.project._id, data.project.name, data.build );
@@ -545,10 +501,10 @@ module Animate
 					this.project.loadFromData( data );
 					this.dispatchEvent( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
 				}
-				else if ( loader.url == "/project/delete" )
-					this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
-				else if ( loader.url == "/project/copy" )
-					this.dispatchEvent(new UserEvent(UserEvents.PROJECT_COPIED, event.message, event.return_type, data));
+				//else if ( loader.url == "/project/delete" )
+				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
+				//else if ( loader.url == "/project/copy" )
+				//	this.dispatchEvent(new UserEvent(UserEvents.PROJECT_COPIED, event.message, event.return_type, data));
 				else if ( loader.url == "/project/rename" )
 				{
 					this.project.mName = data.name;
@@ -583,7 +539,7 @@ module Animate
 						//	this.planLevel = 3;
 					}
 
-					this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
+					//this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
 				}				
 								
 				else
