@@ -7,13 +7,30 @@ var Animate;
         * Given an HTML Element, this function returns all TextNodes
         * @return {Array<Node>}
         */
-        Compiler.getTextNodesIn = function (node, includeWhitespaceNodes) {
+        Compiler.getTextNodesIn = function (node) {
             var textNodes = [], nonWhitespaceMatcher = /\S/;
             function getTextNodes(node) {
                 if (node.nodeType == 3) {
-                    if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
-                        textNodes.push(node);
+                    textNodes.push(node);
+                }
+                else {
+                    for (var i = 0, len = node.childNodes.length; i < len; ++i) {
+                        getTextNodes(node.childNodes[i]);
                     }
+                }
+            }
+            getTextNodes(node);
+            return textNodes;
+        };
+        /**
+        * Given an HTML Element, this function returns all comment nodes
+        * @return {Array<Node>}
+        */
+        Compiler.getCommentNodesIn = function (node) {
+            var textNodes = [], nonWhitespaceMatcher = /\S/;
+            function getTextNodes(node) {
+                if (node.nodeType == 8) {
+                    textNodes.push(node);
                 }
                 else {
                     for (var i = 0, len = node.childNodes.length; i < len; ++i) {
@@ -29,7 +46,17 @@ var Animate;
         * @return {any}
         */
         Compiler.parse = function (script, ctrl, e, elm) {
-            return eval("'use strict'; var __ret = " + script + "; __ret;");
+            var contexts = {};
+            var p = elm;
+            while (p) {
+                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
+                    contexts[p.$ctx] = p.$ctxValue;
+                p = p.parentNode;
+            }
+            var ctx = "";
+            for (var i in contexts)
+                ctx += "var " + i + " = contexts['" + i + "'];";
+            return eval("'use strict'; " + ctx + " var __ret = " + script + "; __ret;");
         };
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
@@ -43,29 +70,129 @@ var Animate;
                     elm.classList.remove(i);
         };
         /**
+        * Removes all registered events from the node
+        * @param {Element} elem The element to remove events from
+        */
+        Compiler.removeEvents = function (elem) {
+            var appNode = elem;
+            if (appNode.$events) {
+                for (var i = 0, l = appNode.$events.length; i < l; i++)
+                    appNode.removeEventListener(appNode.$events[i].name, appNode.$events[i].func);
+                appNode.$events.splice(0, appNode.$events.length);
+            }
+        };
+        /**
+        * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
+        * @param {Element} elm The root element to explore
+        * @param {any} ctrl The controller
+        */
+        Compiler.expand = function (elm, ctrl) {
+            var potentials = [];
+            var toRemove = [];
+            // Traverse each element
+            jQuery(elm).find("*").addBack().each(function (index, elem) {
+                if (elem.$dynamic)
+                    return toRemove.push(elem);
+                // Go through each element's attributes
+                jQuery.each(this.attributes, function (i, attrib) {
+                    if (!attrib)
+                        return;
+                    var name = attrib.name;
+                    var value = attrib.value;
+                    switch (name) {
+                        case "en-repeat":
+                            elem.$expression = value;
+                            elem.$expressionType = "en-repeat";
+                            potentials.push(elem);
+                            break;
+                        case "en-if":
+                            elem.$expression = value;
+                            elem.$expressionType = "en-if";
+                            potentials.push(elem);
+                            break;
+                    }
+                });
+            });
+            // Get the comments
+            var comments = Compiler.getCommentNodesIn(elm);
+            // Remove existing clones
+            for (var i = 0, l = toRemove.length; i < l; i++) {
+                var appNode = toRemove[i];
+                appNode.$ctx = "";
+                appNode.$ctxValue = null;
+                jQuery(toRemove[i]).remove();
+            }
+            // Replace the potentials with comments that keep a reference to the original node
+            for (var i = 0, l = potentials.length; i < l; i++) {
+                var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
+                var commentElement = comment.get(0);
+                commentElement.$originalNode = potentials[i];
+                commentElement.$expression = commentElement.$originalNode.$expression;
+                commentElement.$expressionType = commentElement.$originalNode.$expressionType;
+                jQuery(potentials[i]).replaceWith(comment);
+                comments.push(commentElement);
+            }
+            // Go through each comment and expand it
+            for (var i = 0, l = comments.length; i < l; i++) {
+                var comment = jQuery(comments[i]);
+                var appNode = comments[i];
+                if (appNode.$expression) {
+                    var $expression = appNode.$expression;
+                    if (appNode.$expressionType == "en-repeate") {
+                        var e = $expression.split("as");
+                        if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
+                            var loopExpression = e[0];
+                            var ctx = e[1];
+                            eval("'use strict';\n                             for ( var i in " + loopExpression + " ) {\n                                var clone = jQuery(appNode.$originalNode).clone();\n                                clone.get(0).$dynamic = true;\n                                clone.get(0).$ctx = ctx;\n                                clone.get(0).$ctxValue = " + loopExpression + "[i];\n                                clone.insertAfter(comment);\n                            }");
+                        }
+                    }
+                    else if (appNode.$expressionType == "en-if") {
+                        if (Compiler.parse($expression, ctrl, null, appNode)) {
+                            var clone = jQuery(appNode.$originalNode).clone();
+                            if (appNode.$originalNode == elm)
+                                elm = clone.get(0);
+                            clone.get(0).$dynamic = true;
+                            clone.insertAfter(comment);
+                        }
+                    }
+                }
+            }
+            return elm;
+        };
+        /**
+        * Registers an internal function reference for later cleanup
+        * @param {AppNode} node The element we are attaching events to
+        * @param {string} name The name of the event
+        * @param {any} func The function to call
+        */
+        Compiler.registerFunc = function (node, name, tag, func) {
+            if (!node.$events)
+                node.$events = [];
+            // Do not re-add events if the node already has it
+            for (var i = 0, l = node.$events.length; i < l; i++)
+                if (node.$events[i].tag == tag)
+                    return;
+            node.addEventListener(name, func);
+            node.$events.push({ name: name, func: func, tag: tag });
+        };
+        /**
         * Goes through any expressions in the element and updates them according to the expression result.
         * @param {JQuery} elm The element to traverse
         * @param {any} controller The controller associated with the element
-        * @returns {JQuery}
+        * @returns {Element}
         */
-        Compiler.digest = function (elm, controller) {
-            // Gets each of the text nodes and does a search replace on any double moustace characters
-            var tnodes = Compiler.getTextNodesIn(elm.get(0), true);
+        Compiler.digest = function (jElem, controller) {
+            var elm = jElem.get(0);
             var matches;
             var textNode;
-            for (var i = 0, l = tnodes.length; i < l; i++) {
-                textNode = tnodes[i];
-                if (!textNode.$expression)
-                    textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val) {
-                        var t = sub.match(/[^{}]+/);
-                        textNode.$expression = t[0];
-                        return t[0];
-                    });
-                if (textNode.$expression)
-                    textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, textNode);
+            var expanded = Compiler.expand(elm, controller);
+            if (expanded != elm) {
+                elm = expanded;
+                jElem = jQuery(elm);
             }
             // Traverse each element
-            elm.find("*").addBack().each(function (index, elem) {
+            jQuery(elm).find("*").addBack().each(function (index, elem) {
+                var appNode = elem;
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib) {
                     if (!attrib)
@@ -82,8 +209,83 @@ var Animate;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
                             break;
+                        case "en-model":
+                            var ev = function (e) {
+                                Compiler.parse(value + " = '" + elem.value + "'", controller, e, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.parse(value + " = '" + elem.value + "'", controller, null, elem);
+                            Compiler.registerFunc(appNode, "change", "en-model", ev);
+                            break;
+                        case "en-click":
+                            var ev = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.registerFunc(appNode, "click", "en-click", ev);
+                            break;
+                        case "en-dclick":
+                            var ev = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.registerFunc(appNode, "dblclick", "en-dclick", ev);
+                            break;
+                        case "en-change":
+                            var ev = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.registerFunc(appNode, "change", "en-model", ev);
+                            break;
+                        case "en-submit":
+                            var ev = function (e) {
+                                var form = elem;
+                                e.preventDefault();
+                                form.$error = false;
+                                form.$errorExpression = "";
+                                form.$errorInput = "";
+                                jQuery("[en-validate]", elem).each(function (index, subElem) {
+                                    Compiler.checkValidations(this.getAttribute("en-validate"), subElem);
+                                });
+                                // If its an auto clear - then all the clear fields must be wiped
+                                if (form.$autoClear) {
+                                    jQuery("[en-auto-clear]", elem).each(function (index, subElem) {
+                                        this.value = "";
+                                    });
+                                }
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.registerFunc(appNode, "submit", "en-submit", ev);
+                            break;
+                        case "en-validate":
+                            // Set the parent form to be pristine
+                            if (elem.form)
+                                elem.form.$pristine = true;
+                            var ev = function (e) {
+                                Compiler.checkValidations(value, elem);
+                                Compiler.digest(jElem, controller);
+                            };
+                            Compiler.registerFunc(appNode, "change", "en-validate", ev);
+                            break;
+                        case "en-auto-clear":
+                            elem.$autoClear = true;
+                            break;
                     }
                 });
+                for (var i = 0, l = elem.childNodes.length; i < l; i++)
+                    if (elem.childNodes[i].nodeType == 3) {
+                        textNode = elem.childNodes[i];
+                        if (!textNode.$expression)
+                            textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val) {
+                                var t = sub.match(/[^{}]+/);
+                                textNode.$expression = t[0];
+                                return t[0];
+                            });
+                        if (textNode.$expression)
+                            textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, textNode);
+                    }
             });
             return elm;
         };
@@ -122,75 +324,7 @@ var Animate;
         * @returns {JQuery}
         */
         Compiler.build = function (elm, controller) {
-            // Traverse each element
-            elm.find("*").addBack().each(function (index, elem) {
-                // Go through each element's attributes
-                jQuery.each(this.attributes, function (i, attrib) {
-                    if (!attrib)
-                        return;
-                    var name = attrib.name;
-                    var value = attrib.value;
-                    switch (name) {
-                        case "en-model":
-                            elem.addEventListener("change", function (e) {
-                                Compiler.parse(value + " = '" + elem.value + "'", controller, e, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-click":
-                            elem.addEventListener("click", function (e) {
-                                Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-dclick":
-                            elem.addEventListener("dblclick", function (e) {
-                                Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-change":
-                            elem.addEventListener("change", function (e) {
-                                Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-submit":
-                            elem.addEventListener("submit", function (e) {
-                                var form = elem;
-                                e.preventDefault();
-                                form.$error = false;
-                                form.$errorExpression = "";
-                                form.$errorInput = "";
-                                jQuery("[en-validate]", elem).each(function (index, subElem) {
-                                    Compiler.checkValidations(this.getAttribute("en-validate"), subElem);
-                                });
-                                // If its an auto clear - then all the clear fields must be wiped
-                                if (form.$autoClear) {
-                                    jQuery("[en-auto-clear]", elem).each(function (index, subElem) {
-                                        this.value = "";
-                                    });
-                                }
-                                Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-validate":
-                            // Set the parent form to be pristine
-                            if (elem.form)
-                                elem.form.$pristine = true;
-                            elem.addEventListener("change", function (e) {
-                                Compiler.checkValidations(value, elem);
-                                Compiler.digest(elm, controller);
-                            });
-                            break;
-                        case "en-auto-clear":
-                            elem.$autoClear = true;
-                            break;
-                    }
-                });
-            });
-            return Compiler.digest(elm, controller);
+            return jQuery(Compiler.digest(elm, controller));
         };
         Compiler.validators = {
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric" },
@@ -5060,7 +5194,6 @@ var Animate;
     })(Animate.Component);
     Animate.SplitPanel = SplitPanel;
 })(Animate || (Animate = {}));
-/// <reference path="Component.ts" />
 var Animate;
 (function (Animate) {
     var WindowEvents = (function (_super) {
@@ -15354,15 +15487,6 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    var MessageBoxEvents = (function (_super) {
-        __extends(MessageBoxEvents, _super);
-        function MessageBoxEvents(v) {
-            _super.call(this, v);
-        }
-        MessageBoxEvents.BUTTON_CLICKED = new MessageBoxEvents("message_box_button_clicked");
-        return MessageBoxEvents;
-    })(Animate.ENUM);
-    Animate.MessageBoxEvents = MessageBoxEvents;
     /**
     * A window to show a blocking window with a message to the user.
     */
@@ -15370,18 +15494,12 @@ var Animate;
         __extends(MessageBox, _super);
         function MessageBox() {
             _super.call(this, 400, 200, true, false, null);
-            if (MessageBox._singleton != null)
-                throw new Error("The MessageBox class is a singleton. You need to call the MessageBox.getSingleton() function.");
-            MessageBox._singleton = this;
+            this.$message = "";
+            this.$buttons = [];
+            this._handle = Animate.Compiler.build(jQuery("#en-message-box").remove(), this);
+            this.content.element.append(this._handle);
             this.element.addClass("message-box");
-            this.element.css({ height: "" });
-            this.mCaption = this.addChild(new Animate.Label("", null));
-            this.element.append("<div class='fix'></div>");
-            this.buttonsDiv = new Animate.Component("<div class='buttons'></div>", this);
-            this.mButtons = null;
-            this.mButtonComps = [];
-            this.mCallback = null;
-            this.mContext = null;
+            this.element.css({ "width": "", "height": "" });
             //Hook events
             jQuery(window).on('resize', this.onResize.bind(this));
         }
@@ -15389,23 +15507,18 @@ var Animate;
         * Hide the window when ok is clicked.
         * @param {any} e The jQuery event object
         */
-        MessageBox.prototype.onButtonClick = function (e) {
+        MessageBox.prototype.onButtonClick = function (e, button) {
             this.hide();
-            this.dispatchEvent(MessageBoxEvents.BUTTON_CLICKED, jQuery(e.target).data("component").text);
-            if (this.mCallback)
-                this.mCallback.call(this.mContext ? this.mContext : this, jQuery(e.target).data("component").text);
+            if (this._callback)
+                this._callback.call(this._context ? this._context : this, button);
         };
         /**
         * When the window resizes we make sure the component is centered
         * @param {any} e The jQuery event object
         */
         MessageBox.prototype.onResize = function (e) {
-            if (this.visible) {
-                this.element.css({
-                    left: (jQuery("body").width() / 2 - this.element.width() / 2),
-                    top: (jQuery("body").height() / 2 - this.element.height() / 2)
-                });
-            }
+            if (this.visible)
+                this.center();
         };
         /**
         * Static function to show the message box
@@ -15416,31 +15529,17 @@ var Animate;
         */
         MessageBox.show = function (caption, buttons, callback, context) {
             var box = MessageBox.getSingleton();
-            box.mCaption.text = caption;
-            box.mCallback = callback;
-            box.mContext = context;
-            //Remove previous buttons	
-            for (var i = 0; i < box.mButtonComps.length; i++)
-                box.mButtonComps[i].dispose();
-            box.mButtonComps.splice(0, box.mButtonComps.length);
-            box.buttonsDiv.element.empty();
+            //box.mCaption.text = caption;
+            box._callback = callback;
+            box._context = context;
             //If no buttons specified - then add one
-            if (!buttons) {
-                buttons = new Array();
-                buttons.push("Ok");
-            }
-            box.mButtons = buttons;
-            //Create all the buttons
-            for (var i = 0; i < box.mButtons.length; i++) {
-                var button = new Animate.Button(box.mButtons[i], box.buttonsDiv);
-                button.element.css({ width: "80px", height: "30px", margin: "5px 5px 5px 0", "float": "left" });
-                button.textfield.element.css({ top: "6px" });
-                button.element.on('click', jQuery.proxy(box.onButtonClick, box));
-                box.mButtonComps.push(button);
-            }
-            box.buttonsDiv.element.css({ "width": (box.mButtons.length * 90) + "px", "margin": "0 auto" });
+            if (!buttons)
+                buttons = ["Ok"];
+            box.$message = caption;
+            box.$buttons = buttons;
+            Animate.Compiler.digest(box._handle, box);
             //Center and show the box
-            box.show(Animate.Application.getInstance(), (jQuery("body").width() / 2 - box.element.width() / 2), (jQuery("body").height() / 2 - box.element.height() / 2), true);
+            box.show(Animate.Application.getInstance(), NaN, NaN, true);
         };
         /**
         * Gets the message box singleton
@@ -15448,7 +15547,7 @@ var Animate;
         */
         MessageBox.getSingleton = function () {
             if (!MessageBox._singleton)
-                new MessageBox();
+                MessageBox._singleton = new MessageBox();
             return MessageBox._singleton;
         };
         return MessageBox;
@@ -17495,27 +17594,35 @@ var Animate;
         __extends(Splash, _super);
         function Splash() {
             _super.call(this, 800, 520);
+            //private slideTime: number;
+            this.names = [{ name: "mathew", lastname: "henson" }, { name: "suzy", lastname: "miller" }];
             Splash._singleton = this;
             this.user = Animate.User.get;
             this.element.addClass("splash-window");
             this.$loginError = "";
             this.$loginRed = true;
             this.$loading = false;
+            this.$activePane = "welcome";
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
-            this.welcomeBackground = Animate.Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
+            this.welcomeBackground = jQuery(".temp-splash-welcome").remove().clone();
             this.content.element.append(this.welcomeBackground);
+            Animate.Compiler.build(this.welcomeBackground, this);
             //this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
-            this.newProjectBackground = Animate.Compiler.build(jQuery(".en-splash-new-project").remove().clone(), this);
+            this.newProjectBackground = jQuery(".temp-splash-new-project").remove().clone();
             this.content.element.append(this.newProjectBackground);
+            Animate.Compiler.build(this.newProjectBackground, this);
             //this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
-            this.loginBackground = Animate.Compiler.build(jQuery(".en-splash-login").remove().clone(), this);
+            this.loginBackground = jQuery(".temp-splash-login").remove().clone();
             this.content.element.append(this.loginBackground);
-            this.pluginsBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
-            this.finalScreen = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
+            Animate.Compiler.build(this.loginBackground, this);
+            //this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
+            //this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
+            this.pluginsBackground = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>");
+            this.finalScreen = new Animate.Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>");
             this.clickProxy = this.onButtonClick.bind(this);
             //this.animateProxy = this.enableButtons.bind(this);
             this.initialized = false;
-            this.slideTime = 500;
+            //his.slideTime = 500;
             this.modalBackdrop.css({ "z-index": "900" });
             this.element.css({ "z-index": "901" });
         }
@@ -17704,13 +17811,13 @@ var Animate;
         */
         Splash.prototype.reset = function () {
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
-            this.welcomeBackground.css({ "left": "0px", "top": "0px" });
+            //this.welcomeBackground.css({ "left": "0px", "top": "0px" });
             //this.newProjectBackground.element.css({ "left": "800px" });
-            this.newProjectBackground.css({ "left": "800px" });
+            //this.newProjectBackground.css({ "left": "800px" });
             //this.loginBackground.element.css({ "top": "-520px" });
-            this.loginBackground.css({ "top": "-520px" });
-            this.pluginsBackground.element.css({ "left": "800px" });
-            this.finalScreen.element.css({ "left": "800px" });
+            //this.loginBackground.css({ "top": "-520px" });
+            //this.pluginsBackground.element.css({ "left": "800px" });
+            //this.finalScreen.element.css({ "left": "800px" });
             //this.enableButtons(true);
             //this.projectError.element.hide();
             this.finalError.element.hide();
@@ -18044,7 +18151,7 @@ var Animate;
         Splash.prototype.onProjectCombo = function (response, event) {
             var user = Animate.User.get;
             if (!user.isLoggedIn)
-                return Animate.MessageBox.show("Please log in", ["Ok"], null, null);
+                return Animate.MessageBox.show("Please log in", ["Ok"]);
             //WELCOME - Next
             if (event.command == "Create New") {
                 //If a project already exists - warn the user it will have to be closed.
@@ -18054,12 +18161,13 @@ var Animate;
                     return;
                 }
                 //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "project";
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
                 //this.projectName.focus();
-                jQuery(".splash-new-project input[name='name']").focus();
+                jQuery(".temp-splash-new-project input[name='name']").focus();
             }
             else if (event.command == "Open") {
                 if (this.projectBrowser.selectedItem == null) {
@@ -18097,6 +18205,8 @@ var Animate;
                 if (this.projectBrowser.selectedItem)
                     Animate.MessageBox.show("Are you sure you want to duplicate '" + this.projectBrowser.selectedName + "'?", ["Yes", "No"], this.onCopyMessageBox, this);
             }
+            Animate.Compiler.digest(this.welcomeBackground, this);
+            Animate.Compiler.digest(this.newProjectBackground, this);
         };
         /**
         * When we click a button
@@ -18111,46 +18221,28 @@ var Animate;
                 //this.loginError.element.hide();
                 //this.loginPassword.text = "";
                 this.$loginError = "";
-                //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime);
-                //this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '+=520' }, this.slideTime);
+                this.$activePane = "login";
             }
-            else if (jComp.is(".logout-link")) {
-                Animate.User.get.logout();
-                Animate.Application.getInstance().projectReset();
-            }
-            else if (jComp.is(".en-splash-login .close-but")) {
+            else if (jComp.is(".temp-splash-login .close-but")) {
                 //this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime);
+                //this.welcomeBackground.animate({ top: '-=520' }, this.slideTime);
                 //this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '-=520' }, this.slideTime);
-            }
-            else if (jComp.is(".close-but")) {
-                this.hide();
-            }
-            else if (jComp.is(".en-login-reset")) {
-            }
-            else if (jComp.is(".en-login-resend")) {
-            }
-            else if (jComp.is(".en-login")) {
-            }
-            else if (jComp.is(".en-register")) {
+                //this.loginBackground.animate({ top: '-=520' }, this.slideTime);
+                this.$activePane = "welcome";
             }
             else if (jComp.is("#en-project-back")) {
                 //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
                 //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '+=800' }, this.slideTime);
+                // this.newProjectBackground.animate({ left: '+=800' }, this.slideTime);
                 //this.projectName.text = "";
                 //            this.projectDesc.text = "";
-                jQuery(".splash-new-project input[name='name']").val("");
-                jQuery(".splash-new-project input[name='description']").val("");
+                this.$activePane = "welcome";
+                jQuery(".temp-splash-new-project input[name='name']").val("");
+                jQuery(".temp-splash-new-project input[name='description']").val("");
                 //refil the projects
                 this.projectBrowser.clearItems();
-            }
-            else if (jComp.is("#en-project-next")) {
             }
             else if (comp == this.finalButton) {
                 if (this.pluginLoader.errorOccured)
@@ -18158,6 +18250,8 @@ var Animate;
                 else
                     this.hide();
             }
+            Animate.Compiler.digest(this.welcomeBackground, this);
+            Animate.Compiler.digest(this.loginBackground, this);
         };
         Splash.prototype.newProject = function (name, description) {
             this.user.createProject(name, description);
@@ -18232,9 +18326,10 @@ var Animate;
             }
             if (response == Animate.UserEvents.PROJECT_OPENED) {
                 //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.$activePane = "final";
                 this.pluginBrowser.reset();
             }
             else {
@@ -18242,8 +18337,9 @@ var Animate;
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "plugins";
                 this.pluginBrowser.reset();
             }
         };
@@ -18258,8 +18354,9 @@ var Animate;
                 this.pluginLoader.updateDependencies();
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.finalScreen.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.finalScreen.element.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.finalScreen.element.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "final";
                 this.pluginLoader.startLoading();
             }
             else {

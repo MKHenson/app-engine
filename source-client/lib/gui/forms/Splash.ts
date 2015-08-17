@@ -46,13 +46,16 @@ module Animate
 		private clickProxy: any;
 		//private animateProxy: any;
 		private initialized: boolean;
-        private slideTime: number;
+        //private slideTime: number;
+
+        public names = [{name: "mathew", lastname: "henson"}, { name: "suzy", lastname: "miller" } ];
 
         // New changes
         private user: User;
         private $loginError: string;
         private $loginRed: boolean;
         private $loading: boolean;
+        private $activePane: string;
 
         constructor()
         {
@@ -64,26 +67,32 @@ module Animate
             this.$loginError = "";
             this.$loginRed = true;
             this.$loading = false;
-
+            this.$activePane = "welcome";
+            
             //this.welcomeBackground = new Component("<div class='splash-outer-container splash-welcome'></div>", this.content);
-            this.welcomeBackground = Compiler.build(jQuery(".en-splash-welcome").remove().clone(), this);
+            this.welcomeBackground = jQuery(".temp-splash-welcome").remove().clone();
             this.content.element.append(this.welcomeBackground);
+            Compiler.build(this.welcomeBackground, this);
 
 			//this.newProjectBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-new-project'></div>", this.content);
-            this.newProjectBackground = Compiler.build(jQuery(".en-splash-new-project").remove().clone(), this);
+            this.newProjectBackground = jQuery(".temp-splash-new-project").remove().clone();
             this.content.element.append(this.newProjectBackground);
+            Compiler.build(this.newProjectBackground, this);
 
 			//this.loginBackground = new Component("<div style='top:-520px;' class='splash-outer-container splash-login-user'></div>", this.content);
-            this.loginBackground = Compiler.build(jQuery(".en-splash-login").remove().clone(), this);
+            this.loginBackground = jQuery(".temp-splash-login").remove().clone();
             this.content.element.append(this.loginBackground);
+            Compiler.build(this.loginBackground, this);
 
-            this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
-			this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
+            //this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>", this.content);
+			//this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>", this.content);
+            this.pluginsBackground = new Component("<div style='left:800px;' class='splash-outer-container splash-plugins'></div>");
+			this.finalScreen = new Component("<div style='left:800px;' class='splash-outer-container splash-final-screen'></div>");
 
 			this.clickProxy = this.onButtonClick.bind( this);
 			//this.animateProxy = this.enableButtons.bind(this);
 			this.initialized = false;
-			this.slideTime = 500;
+			//his.slideTime = 500;
 
 			this.modalBackdrop.css({ "z-index": "900" });
             this.element.css({ "z-index": "901" });
@@ -323,13 +332,13 @@ module Animate
 		reset()
 		{
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
-            this.welcomeBackground.css({ "left": "0px", "top": "0px" });
+            //this.welcomeBackground.css({ "left": "0px", "top": "0px" });
 			//this.newProjectBackground.element.css({ "left": "800px" });
-            this.newProjectBackground.css({ "left": "800px" });
+            //this.newProjectBackground.css({ "left": "800px" });
 			//this.loginBackground.element.css({ "top": "-520px" });
-            this.loginBackground.css({ "top": "-520px" });
-			this.pluginsBackground.element.css({ "left": "800px" });
-			this.finalScreen.element.css({ "left": "800px" });
+            //this.loginBackground.css({ "top": "-520px" });
+			//this.pluginsBackground.element.css({ "left": "800px" });
+			//this.finalScreen.element.css({ "left": "800px" });
 
 			//this.enableButtons(true);
 
@@ -731,7 +740,7 @@ module Animate
 			var user: User = User.get;
 
 			if ( !user.isLoggedIn )
-				return MessageBox.show("Please log in", ["Ok"], null, null );
+				return MessageBox.show("Please log in", ["Ok"] );
 
 			//WELCOME - Next
 			if ( event.command == "Create New")
@@ -746,13 +755,14 @@ module Animate
 				}
 
 				//this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "project";
 
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
                 //this.projectName.focus();
-                jQuery(".splash-new-project input[name='name']").focus();
+                jQuery(".temp-splash-new-project input[name='name']").focus();
 			}
 			//WELCOME - Open project
 			else if ( event.command == "Open")
@@ -809,10 +819,12 @@ module Animate
 				if (this.projectBrowser.selectedItem)
 					MessageBox.show("Are you sure you want to duplicate '" + this.projectBrowser.selectedName + "'?",
 						["Yes", "No"], this.onCopyMessageBox, this);
-			}
+            }
+
+            Compiler.digest(this.welcomeBackground, this);
+            Compiler.digest(this.newProjectBackground, this);
 		}
-
-
+        
 		/**
 		* When we click a button
 		* @param {any} e 
@@ -831,89 +843,93 @@ module Animate
 				//this.loginError.element.hide();
                 //this.loginPassword.text = "";
                 this.$loginError = "";
+                this.$activePane = "login";
                 
                 //this.welcomeBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '+=520' }, this.slideTime);
+               // this.welcomeBackground.animate({ top: '+=520' }, this.slideTime);
 				//this.loginBackground.element.animate({ top: '+=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '+=520' }, this.slideTime);
+               // this.loginBackground.animate({ top: '+=520' }, this.slideTime);
 			}
-			//WELCOME - Logout
-            else if (jComp.is(".logout-link"))
-			{
-				User.get.logout();
-				Application.getInstance().projectReset();
-			}
+			////WELCOME - Logout
+   //         else if (jComp.is(".logout-link"))
+			//{
+			//	User.get.logout();
+			//	Application.getInstance().projectReset();
+			//}
 			//LOGIN - back
-            else if (jComp.is(".en-splash-login .close-but"))
+            else if (jComp.is(".temp-splash-login .close-but"))
 			{
 				//this.welcomeBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ top: '-=520' }, this.slideTime);
+                //this.welcomeBackground.animate({ top: '-=520' }, this.slideTime);
 				//this.loginBackground.element.animate({ top: '-=520' }, this.slideTime, this.animateProxy);
-                this.loginBackground.animate({ top: '-=520' }, this.slideTime);
+                //this.loginBackground.animate({ top: '-=520' }, this.slideTime);
+                this.$activePane = "welcome";
             }
-            //WELCOME - Close
-            else if (jComp.is(".close-but"))
-            {
-                this.hide();
+            ////WELCOME - Close
+            //else if (jComp.is(".close-but"))
+            //{
+            //    this.hide();
 
-            }
+            //}
 			//LOGIN - reset password
-            else if (jComp.is(".en-login-reset"))
-			{
-                //if (this.validateLogins(jComp))
-                //    User.get.resetPassword(jQuery("#en-login-username").val());
-			}
-			//LOGIN - resend activation
-            else if (jComp.is(".en-login-resend"))
-			{
-                //if (this.validateLogins(jComp))
-                //    User.get.resendActivation(jQuery("#en-login-username").val());
-			}
-			//LOGIN - login
-            else if (jComp.is(".en-login"))
-			{
-               // if (this.validateLogins(jComp))
-               //     User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val() );
-			}
-			//LOGIN - register
-            else if (jComp.is(".en-register"))
-			{
-                //if (this.validateLogins(jComp))
-                //    User.get.register(jQuery("#en-reg-username").val(),
-                //        jQuery("#en-reg-password").val(),
-                //        jQuery("#en-reg-email").val(),
-                //        jQuery("#recaptcha_response_field").val(),
-                //        jQuery("#recaptcha_challenge_field").val());
-			}
+   //         else if (jComp.is(".en-login-reset"))
+			//{
+   //             //if (this.validateLogins(jComp))
+   //             //    User.get.resetPassword(jQuery("#en-login-username").val());
+			//}
+			////LOGIN - resend activation
+   //         else if (jComp.is(".en-login-resend"))
+			//{
+   //             //if (this.validateLogins(jComp))
+   //             //    User.get.resendActivation(jQuery("#en-login-username").val());
+			//}
+			////LOGIN - login
+   //         else if (jComp.is(".en-login"))
+			//{
+   //            // if (this.validateLogins(jComp))
+   //            //     User.get.login(jQuery("#en-login-username").val(), jQuery("#en-login-password").val(), jQuery("#en-login-remember").val() );
+			//}
+			////LOGIN - register
+   //         else if (jComp.is(".en-register"))
+			//{
+   //             //if (this.validateLogins(jComp))
+   //             //    User.get.register(jQuery("#en-reg-username").val(),
+   //             //        jQuery("#en-reg-password").val(),
+   //             //        jQuery("#en-reg-email").val(),
+   //             //        jQuery("#recaptcha_response_field").val(),
+   //             //        jQuery("#recaptcha_challenge_field").val());
+			//}
 			//PROJECT SCREEN - back
             else if (jComp.is("#en-project-back"))
 			{
                 //this.welcomeBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '+=800' }, this.slideTime);
                 //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '+=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '+=800' }, this.slideTime);
+               // this.newProjectBackground.animate({ left: '+=800' }, this.slideTime);
 				//this.projectName.text = "";
     //            this.projectDesc.text = "";
 
-                jQuery(".splash-new-project input[name='name']").val("");
-                jQuery(".splash-new-project input[name='description']").val("");
+                this.$activePane = "welcome";
+
+                jQuery(".temp-splash-new-project input[name='name']").val("");
+                jQuery(".temp-splash-new-project input[name='description']").val("");
 
 				//refil the projects
 				this.projectBrowser.clearItems();
 				//User.get.downloadProjects();
 			}
-			//PROJECT SCREEN - Next
-            else if (jComp.is("#en-project-next"))
-			{
-				//if (this.validateNewProject())
-				//{
-				//	var user = User.get;
-				//	user.addEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
-				//	user.addEventListener( UserEvents.FAILED, this.onProjectData, this );
-				//	user.createProject( this.projectName.text, this.projectDesc.text );
-				//}
-			}
+			////PROJECT SCREEN - Next
+   //         else if (jComp.is("#en-project-next"))
+			//{
+			//	//if (this.validateNewProject())
+			//	//{
+			//	//	var user = User.get;
+			//	//	user.addEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
+			//	//	user.addEventListener( UserEvents.FAILED, this.onProjectData, this );
+			//	//	user.createProject( this.projectName.text, this.projectDesc.text );
+			//	//}
+			//}
 			//FINAL SCREEN - FINISHED
 			else if (comp == this.finalButton)
 			{
@@ -922,7 +938,10 @@ module Animate
 						["Yes", "No"], this.onFinalMessageBox, this);
 				else
 					this.hide();
-			}
+            }
+
+            Compiler.digest(this.welcomeBackground, this);
+            Compiler.digest(this.loginBackground, this);
         }
 
         newProject(name: string, description: string)
@@ -1021,9 +1040,10 @@ module Animate
 			if ( response == UserEvents.PROJECT_OPENED )
 			{
                 //this.welcomeBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.welcomeBackground.animate({ left: '-=800' }, this.slideTime);
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.$activePane = "final";
 				this.pluginBrowser.reset();
 				//this.enableButtons(true);
 			}
@@ -1033,8 +1053,9 @@ module Animate
 				//this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.newProjectBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.newProjectBackground.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "plugins";
 				this.pluginBrowser.reset();
 			}
 		}
@@ -1052,8 +1073,9 @@ module Animate
 				this.pluginLoader.updateDependencies();
 				//this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
                 //this.finalScreen.element.animate({ left: '-=800' }, this.slideTime, this.animateProxy);
-                this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
-                this.finalScreen.element.animate({ left: '-=800' }, this.slideTime);
+                //this.pluginsBackground.element.animate({ left: '-=800' }, this.slideTime);
+                //this.finalScreen.element.animate({ left: '-=800' }, this.slideTime);
+                this.$activePane = "final";
 				this.pluginLoader.startLoading();
 			}
 			else

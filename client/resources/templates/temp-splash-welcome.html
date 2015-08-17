@@ -1,9 +1,9 @@
-﻿<div class='en-splash-welcome splash-outer-container splash-welcome'>
+﻿<div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
 	<div class='splash-container'>
 		<div class='double-column splash-projects'></div>
 		<div class='double-column'>
 			<div class='splash-user-box'>
-				<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
+				<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="ctrl.hide()">X</div>
 				<div class='details'>
 					<img en-src="ctrl.user.userEntry.meta.imgURL" />
 				</div>

@@ -332,23 +332,22 @@ Please only put css rules in here for layout related requirements.
     outline: none;
 }
 
-html .message-box {
-    height:auto;
-}
-
 /**
 *  WINDOW
 */
+.window {
+    position: absolute;
+    background-color: #eee;
+    z-index: 9998;
+}
 .window-content {
     position:relative;
-    overflow:hidden;
+    overflow:auto;
+    height:calc(100% - 25px);
+    width:100%;
 }
 .window-content.no-control {
     height:100%;
-}
-.window-content {
-    height:calc(100% - 25px);
-    width:100%;
 }
 .window-control-box {
     height: 25px;
@@ -365,10 +364,114 @@ html .message-box {
     font-size: 14px;
     color: #666;
 }
-.window {
+
+/**
+*  LIST VIEW
+*/
+.list-view {
+    position: relative;
+    background: #fff;
+    height:100%;
+}
+.list-view .list {
+    float: left;
+    width: auto;
+    height: auto;
+    min-width: 60px;
+    overflow: hidden;
+}
+.list-view-header {
+    cursor: pointer;
+    height: 22px;
+    border-bottom: 1px solid #ccc;
+    box-sizing: border-box;
+}
+.list-view-header .inner {
+    line-height: 22px;
+    padding: 0 0 0 5px;
+    border-left: 1px solid #ccc;
+    pointer-events: none;
+}
+.list:first-child .list-view-header .inner {
+    border-left: none;
+}
+.list-view .list:last-child {
+    border-right: 1px solid #ccc;
+}
+.list-view-field {
+    line-height: 22px;
+    padding: 0px;
+    cursor: pointer;
+    height: 22px;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    text-overflow: ellipsis;
+}
+.list-box select {
+    overflow: hidden;
+}
+
+.list-view .dragger {
+    float: right;
+    height: 20px;
+    width: 5px;
+    cursor: e-resize;
+}
+.list-view .divider {
+    width: 5px;
+    height: 100%;
+    top: 0px;
     position: absolute;
-    background-color: #eee;
-    z-index: 9998;
+}
+
+.list-view-preview {
+    float: left;
+    cursor: pointer;
+    color: #444;
+    padding: 8px;
+    overflow: hidden;
+}
+.list-view-preview .image {
+    overflow: hidden;
+    pointer-events: none;
+}
+.list-view-preview img {
+    width: 100%;
+    height: 100%;
+}
+.list-view-preview .info {
+    pointer-events: none;
+    margin: 5px 0 0 0;
+    min-width: 160px;
+}
+
+/**
+*  LIST
+*/
+.list:focus {
+    border: none;
+    outline: none;
+}
+
+/**
+*  MESSAGE BOX
+*/
+.message-box .message {
+    text-align:center;
+    margin:10px;
+}
+.window.message-box {
+    padding: 15px;
+    left: 50%;
+    width:auto;
+    height:auto;
+}
+.message-box .buttons {
+    text-align:center;
+}
+.message-box .button {
+    margin:5px;
 }
 
 /**
@@ -422,11 +525,11 @@ html, body, #stage {
 .en-login-resend {
     margin: 20px 0 0 0;
 }
-.en-splash-login .loading {
+.temp-splash-login .loading {
     width: 50px;
     margin: 0 20px;
 }
-.en-splash-login .button {
+.temp-splash-login .button {
     position: absolute;
     top: 460px;
     width: 230px;
@@ -435,7 +538,7 @@ html, body, #stage {
     padding: 10px;
     margin: 30px 15px;
 }
-.en-splash-login .double-column:nth-child(2) {
+.temp-splash-login .double-column:nth-child(2) {
      border-left: 1px solid #ddd;
 }
 .news {
@@ -465,20 +568,37 @@ html, body, #stage {
     left: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
+}
+.temp-splash-new-project .button {
+    float: left;
+    margin: 5px 5px 0 0;
+}
+.splash-new-project-sub {
+    padding-left: 10px;
+    padding-right: 20px;
 }
 .splash-new-project-sub textarea {
     height: 300px;
 }
-.splash-login-user .close-but {
+.temp-splash-login .close-but {
     margin: 10px 10px 0 0;
 }
-.splash-login-user .hyperlink {
+.temp-splash-login .hyperlink {
     margin-top: 20px;
 }
-.splash-login-user .hyperlink.en-login-reset {
+.temp-splash-login .hyperlink.en-login-reset {
     margin-top: 50px;
 }
-
+.temp-splash-login .checkbox .text {
+    margin-left: 5px;
+}
+.temp-splash-login .checkbox {
+    margin-top: 5px;
+}
+.temp-splash-login .input-box {
+    margin: 5px 0 10px 0;
+}
 /**
 ======================================================
 				CSS MODULE DEFINITIONS
@@ -510,7 +630,6 @@ Please only put css rules in here for generalized modules.
 
 .behaviour-picker .list{ height:100%; border:none; }
 
-/* .button{ position:relative; } */
 .button img{ margin-right:5px; margin-left:-5px; }
 .button .textfield, .behaviour .textfield { position: absolute; pointer-events: none; }
 .button, .behaviour, .tab-close{ cursor:pointer; z-index:1; }
@@ -518,7 +637,6 @@ Please only put css rules in here for generalized modules.
 .behaviour-comment .textfield{ text-align:left; overflow:hidden; padding: 4px; box-sizing: border-box; }
 .behaviour-comment textarea{ width:100%; height:100%; border:none;  }
 .behaviour-shortcut{ opacity:0.7; }
-.behaviour.button-selected{ }
 
 .group { position: relative; margin: 20px 10px 10px 10px; border: 1px solid #ddd; padding: 10px; }
 .group-header { background:#eee; position: absolute; top: -10px; padding: 3px; left: 8px; font-weight:bold; }
@@ -640,10 +758,10 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .header-panel-heading { height:25px; width:100%; -moz-box-shadow:none; -webkit-box-shadow:none; box-shadow: none; }
 .header-panel-heading .textfield{ text-align:left; line-height:20px; }
 
-.window .button .textfield{ color:#FFF; }
+
 .window .header-panel-heading{ height:30px; cursor:move; }
 .modal-backdrop { background-color:rgba(0,0,0,0.3) !important; position:absolute; top:0px; left:0px; z-index:9998; width:100%; height:100%; }
-.message-box{ padding: 5px; left:50%;}
+
 
 
 
@@ -708,7 +826,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .project-browser .combo-box{ width:100px; float:left; }
 .project-browser-search{ float:right;}
 .project-browser-search img{ margin-left:5px; }
-.project-browser-bottom{ clear:both; height:460px; background:#fff; margin-top:10px; overflow:auto; border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC;}
+.project-browser-bottom{ clear:both; height:460px; margin-top:10px; overflow:auto; }
 .project-browser-item{  height:80px; padding:5px; cursor:pointer; }
 .project-browser-search input{ width: 150px; }
 .project-browser-search input:focus{ width:200px; transition : width 500ms ease-out; -webkit-transition : width 500ms ease-out; -moz-transition : width 500ms ease-out; -o-transition : width 500ms ease-out; }
@@ -740,8 +858,8 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .splash-next-button{ float:left; padding-left:15px; font-size:23px; line-height:70px; background-repeat: no-repeat; color:#FFF; width:185px; cursor:pointer; height:75px; background-image:url(media/new-project.png); background-position:0px 0px; }
 .splash-next-button:active{ color:#FFF; text-shadow:0px 0px 10px #FFF; }
 .splash-next-button:hover{ background-position:0px -75px; }
-.splash-new-project-sub{ padding-left:10px; padding-right:20px; }
-.splash-new-project .button{ float:left; margin: 5px 5px 0 0; }
+
+
 .splash-window .instruction-text {
     font-weight: normal;
     font-style: italic;
@@ -752,9 +870,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .close-but:hover{ color:#777; }
 
 
-.splash-login-user .checkbox .text { margin-left:5px; }
-.splash-login-user .checkbox{ margin-top:5px; }
-.splash-login-user .input-box { margin: 5px 0 10px 0; }
+
 .splash-plugins .label .instruction-text{ text-align:center; }
 .login-or-label .textfield{ text-align:center; margin-bottom:10px; }
 .login-or-label{ margin-top: 30px; }
@@ -889,21 +1005,8 @@ border-radius: 0px 5px 0px 0px;
 .user-privileges .list:first-child { border-left: 1px solid #ccc; }
 
 .viewer-block .list-block { height: 495px; overflow:auto; background:#fff; }
-.list-view { position:relative; background:#fff; }
-.list-view .list{ float:left; width:auto; height:auto;  min-width:60px; overflow:hidden; }
-.list-view-header{ background:#bbb; cursor:pointer; height:22px; border-top:1px solid #ccc; border-bottom:1px solid #ccc; box-sizing: border-box; }
-.list-view-header .inner{ line-height:22px; padding:0 0 0 5px; border-left: 1px solid #ccc; pointer-events:none; }
-.list:first-child .list-view-header .inner{ border-left: none; }
-.list-view-field{  line-height:22px; padding:0px; cursor:pointer; height:22px; overflow:hidden; width:100%; position:relative; }
-.dragger{ float:right; height:22px; width:5px; cursor:e-resize; }
-.divider{ width:5px; height:100%; top:0px; position:absolute; }
-.list-view .list:last-child {  border-right:1px solid #ccc; }
-.list-view-preview { float:left; cursor:pointer; color:#444; padding:8px; overflow: hidden; }
-.list-view-preview .image { overflow:hidden;  pointer-events:none; }
-.list-view-preview img{ width:100%; height:100%; }
-.list-view-preview .info{ pointer-events:none; margin: 5px 0 0 0; min-width:160px; }
-.list-box select{ overflow:hidden; }
-.list:focus{ border:none; outline: none; }
+
+
 
 .menu-list{width: 100%; height: 100%; overflow:auto; }
 .menu-list-text{ pointer-events:none; }
@@ -1123,6 +1226,12 @@ div .selected:hover{ text-shadow: 0px 0px 5px #c4ff00 !important; }
     100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
 }
 
+.fade-in {
+    animation: fade_in 0.5s ease-in-out 0s;
+    -moz-animation: fade_in 0.5s ease-in-out 0s;
+    -webkit-animation: fade_in 0.5s ease-in-out 0s;
+    -o-animation: fade_in 0.5s ease-in-out 0s;
+}
 
 .fade-animation
 {
@@ -1158,128 +1267,43 @@ div .selected:hover{ text-shadow: 0px 0px 5px #c4ff00 !important; }
     -o-animation: rotate_cog 15s linear 0s infinite;
 }
 
+/*===================
+FADE IN
+=====================*/
+@keyframes fade_in { 0% {opacity: 0;} 100% {opacity: 1;} }
+@-moz-keyframes fade_in { 0% {opacity: 0; } 100% {opacity: 1; } }
+@-webkit-keyframes fade_in { 0% {opacity: 0; } 100% {opacity: 1; } }
+@-o-keyframes fade_in { 0% {opacity: 0; } 100% {opacity: 1; } }
+
 
 /*===================
 Rotate 360
 =====================*/
-@keyframes rotate_cog
-{
-from { transform: rotate(0deg); }
-to { transform: rotate(360deg); }
-}
-
-
-@-webkit-keyframes rotate_cog
-{
-from		{-webkit-transform: rotate(0deg); }
-to		{-webkit-transform: rotate(360deg); }
-}
-
-@-moz-keyframes rotate_cog
-{
-from   {-moz-transform: rotate(0deg); }
-to  {-moz-transform: rotate(360deg); }
-}
-
-@-o-keyframes rotate_cog
-{
-from   {transform: rotate(0deg); }
-to  {transform: rotate(360deg); }
-}
+@keyframes rotate_cog { from { transform: rotate(0deg); } to { transform: rotate(360deg); }}
+@-webkit-keyframes rotate_cog { from {-webkit-transform: rotate(0deg); }  to {-webkit-transform: rotate(360deg); }}
+@-moz-keyframes rotate_cog { from {-moz-transform: rotate(0deg); } to {-moz-transform: rotate(360deg); }}
+@-o-keyframes rotate_cog { from {transform: rotate(0deg); } to {transform: rotate(360deg); }}
 
 /*===================
 GROW / SHRINK 
 =====================*/
-
-
-@keyframes scale_up
-{
-0%   {transform: scale(1,1);}
-50%  {transform: scale(1.04,1.04);}
-100%  {transform: scale(1,1);}
-}
-
-
-@-webkit-keyframes scale_up
-{
-0% 	{-webkit-transform: scale(1,1); }
-50%		{-webkit-transform: scale(1.04,1.04); }
-100%		{-webkit-transform: scale(1,1); }
-}
-
-
-@-o-keyframes scale_up
-{
-0%    {transform: scale(1,1); }
-50%  {transform: scale(1.04,1.04); }
-100%  {transform: scale(1,1); }
-}
+@keyframes scale_up { 0% {transform: scale(1,1);} 50% {transform: scale(1.04,1.04);} 100%  {transform: scale(1,1);}}
+@-webkit-keyframes scale_up { 0% {-webkit-transform: scale(1,1); } 50% {-webkit-transform: scale(1.04,1.04); } 100% {-webkit-transform: scale(1,1); }}
+@-o-keyframes scale_up { 0% {transform: scale(1,1); } 50% {transform: scale(1.04,1.04); } 100% {transform: scale(1,1); }}
 
 
 /*===================
 FADE IN / OUT
 =====================*/
-
-
-@keyframes fade_in_out
-{
-0%   {opacity: 0;}
-50%  {opacity: 1;}
-100%  {opacity: 0;}
-}
-
-@-moz-keyframes fade_in_out
-{
-0% 	{opacity: 0; }
-50%		{opacity: 1; }
-100%		{opacity: 0; }
-}
-
-@-webkit-keyframes fade_in_out
-{
-0% 	{opacity: 0; }
-50%		{opacity: 1; }
-100%		{opacity: 0; }
-}
-
-
-@-o-keyframes fade_in_out
-{
-0%    {opacity: 0; }
-50%  {opacity: 1; }
-100%  {opacity: 0; }
-}
+@keyframes fade_in_out { 0% {opacity: 0;} 50% {opacity: 1;} 100% {opacity: 0;} }
+@-moz-keyframes fade_in_out { 0% {opacity: 0; } 50% {opacity: 1; } 100% {opacity: 0; } }
+@-webkit-keyframes fade_in_out { 0% {opacity: 0; } 50% {opacity: 1; } 100% {opacity: 0; } }
+@-o-keyframes fade_in_out { 0% {opacity: 0; } 50% {opacity: 1; } 100% {opacity: 0; } }
 
 /*===================
 SCALE IN
 =====================*/
-
-
-@keyframes scale_in
-{
-0% { transform: scale(0,0); -ms-transform: scale(0,0); }
-75%  { transform: scale(1.1, 1.1); -ms-transform: scale(1.1, 1.1); }
-100% { transform: scale(1, 1); -ms-transform: scale(1, 1); }
-}
-
-@-moz-keyframes scale_in
-{
-0% { -moz-transform: scale(0,0); }
-75%	 { -moz-transform: scale(1.1, 1.1); }
-100% { -moz-transform: scale(1, 1); }
-}
-
-@-webkit-keyframes scale_in
-{
-0% { -webkit-transform: scale(0,0); }
-75%	{ -webkit-transform: scale(1.1, 1.1); }
-100% { -webkit-transform: scale(1, 1); }
-}
-
-
-@-o-keyframes scale_in
-{
-0% { -o-transform: scale(0,0); }
-75% { -o-transform: scale( 1.1, 1.1 ); }
-100% { -o-transform: scale( 1, 1 ); }
-}
+@keyframes scale_in { 0% { transform: scale(0,0); -ms-transform: scale(0,0); } 75% { transform: scale(1.1, 1.1); -ms-transform: scale(1.1, 1.1); } 100% { transform: scale(1, 1); -ms-transform: scale(1, 1); }}
+@-moz-keyframes scale_in { 0% { -moz-transform: scale(0,0); } 75% { -moz-transform: scale(1.1, 1.1); } 100% { -moz-transform: scale(1, 1); } }
+@-webkit-keyframes scale_in { 0% { -webkit-transform: scale(0,0); } 75% { -webkit-transform: scale(1.1, 1.1); } 100% { -webkit-transform: scale(1, 1); }}
+@-o-keyframes scale_in { 0% { -o-transform: scale(0,0); } 75% { -o-transform: scale( 1.1, 1.1 ); } 100% { -o-transform: scale( 1, 1 ); }}

@@ -1,5 +1,3 @@
-/// <reference path="Component.ts" />
-
 module Animate
 {
 	export class WindowEvents extends ENUM

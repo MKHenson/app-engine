@@ -1,4 +1,4 @@
-﻿<div class='en-splash-login splash-outer-container splash-login-user' style='top:-520px;'>
+﻿<div class='temp-splash-login splash-outer-container animate-all fade-in' en-show="ctrl.$activePane == 'login'">
 	<div class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
 	<div class='label heading'>
 		<img en-show="ctrl.$loading" class="loading" src='media/loading-blue.gif' />
@@ -13,7 +13,7 @@
 				</div>
 				<div class='label'>Password: </div>
 				<div class='input-box'>
-					<input type='password' en-auto-clear name="password" id="en-login-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logPassword" />
+					<input type='password' autocomplete="off" en-auto-clear name="password" id="en-login-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logPassword" />
 				</div>
 				<div class='checkbox'>
 					<input type='checkbox' name="cookies" on id="en-login-remember" en-model="ctrl.$logRemember" />
@@ -34,27 +34,29 @@
 				{{ctrl.$loginError}}
 			</div>
 
+			
+
 		</div>
 		<div class='double-column'>
 			<form name="register" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
 			
 				<div class='label'>Username: </div>
 				<div class='input-box'>
-					<input type='text' name="username" en-model="ctrl.$regUsername" id="en-reg-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+					<input type='text' autocomplete="off" name="username" en-model="ctrl.$regUsername" id="en-reg-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
 				</div>
 				<div class='label'>Email: </div>
 				<div class='input-box'>
-					<input type='text' name="email" en-model="ctrl.$regEmail" id="en-reg-email" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|email" />
+					<input type='text' autocomplete="off" name="email" en-model="ctrl.$regEmail" id="en-reg-email" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|email" />
 				</div>
 
 				<div class='label'>Password: </div>
 				<div class='input-box'>
-					<input type='password' en-auto-clear name="password" en-model="ctrl.$regPassword" id="en-reg-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+					<input type='password' autocomplete="off" en-auto-clear name="password" en-model="ctrl.$regPassword" id="en-reg-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
 				</div>
 
 				<div class='label'>Retype Password: </div>
 				<div class='input-box'>
-					<input type='password' en-auto-clear id="en-reg-password-check" en-model="ctrl.$regPasswordCheck" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+					<input type='password' autocomplete="off" en-auto-clear id="en-reg-password-check" en-model="ctrl.$regPasswordCheck" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
 				</div>
 
 				<div id='animate-captcha'></div>

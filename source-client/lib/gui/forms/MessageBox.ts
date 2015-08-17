@@ -1,46 +1,28 @@
 module Animate
 {
-	export class MessageBoxEvents extends ENUM
-	{
-		constructor(v: string) { super(v); }
-
-		static BUTTON_CLICKED: MessageBoxEvents = new MessageBoxEvents("message_box_button_clicked");
-	}
-
 	/** 
 	* A window to show a blocking window with a message to the user.
 	*/
 	export class MessageBox extends Window
 	{
-		private static _singleton: MessageBox;
+        private static _singleton: MessageBox;
 
-		private mCaption: Label;
-		private buttonsDiv: Component;
-		private mButtons: Array<string>;
-		private mButtonComps: Array<Component>;
-		private mCallback: ( text : string ) => void;
-		private mContext: any;
+        private $message: string;
+        private $buttons: Array<string>;
+        private _handle: JQuery;
+		private _callback: ( text : string ) => void;
+		private _context: any;
 
 		constructor()
 		{
-			super( 400, 200, true, false, null );
+            super(400, 200, true, false, null);
 
-			if ( MessageBox._singleton != null )
-				throw new Error( "The MessageBox class is a singleton. You need to call the MessageBox.getSingleton() function." );
-
-			MessageBox._singleton = this;
-
-			this.element.addClass( "message-box" );
-
-			this.element.css( { height: "" });
-			this.mCaption = <Label>this.addChild( new Label("", null) );
-			this.element.append( "<div class='fix'></div>" );
-			this.buttonsDiv = new Component( "<div class='buttons'></div>", this );
-
-			this.mButtons = null;
-			this.mButtonComps = [];
-			this.mCallback = null;
-			this.mContext = null;
+            this.$message = "";
+            this.$buttons = [];
+            this._handle = Compiler.build(jQuery("#en-message-box").remove(), this);
+            this.content.element.append(this._handle);
+            this.element.addClass("message-box");
+            this.element.css({ "width": "", "height":"" });
 
 			//Hook events
 			jQuery( window ).on( 'resize', this.onResize.bind( this ) );
@@ -50,12 +32,11 @@ module Animate
 		* Hide the window when ok is clicked.
 		* @param {any} e The jQuery event object
 		*/
-		onButtonClick( e )
+        onButtonClick(e: MouseEvent, button: string)
 		{
 			this.hide();
-			this.dispatchEvent( MessageBoxEvents.BUTTON_CLICKED, jQuery( e.target ).data( "component" ).text );
-			if ( this.mCallback )
-				this.mCallback.call(this.mContext ? this.mContext : this, jQuery( e.target ).data( "component" ).text );
+			if ( this._callback )
+                this._callback.call(this._context ? this._context : this, button );
 		}
 
 		/**
@@ -65,14 +46,8 @@ module Animate
 		onResize( e )
 		{
 			if ( this.visible )
-			{
-				this.element.css( {
-					left: ( jQuery( "body" ).width() / 2 - this.element.width() / 2 ),
-					top: ( jQuery( "body" ).height() / 2 - this.element.height() / 2 )
-				});
-			}
+                this.center();
 		}
-
 
 		/**
 		* Static function to show the message box 
@@ -81,46 +56,24 @@ module Animate
 		* @param { ( text : string ) => void} callback A function to call when a button is clicked 
 		* @param {any} context The function context (ie the caller object)
 		*/
-		public static show( caption: string, buttons: Array<string>, callback: ( text: string ) => void, context : any )
+		public static show( caption: string, buttons?: Array<string>, callback?: ( text: string ) => void, context? : any )
 		{
-			var box : MessageBox = MessageBox.getSingleton();
-			box.mCaption.text = caption;
-			box.mCallback = callback;
-			box.mContext = context;
-
-			//Remove previous buttons	
-			for ( var i = 0; i < box.mButtonComps.length; i++ )
-				box.mButtonComps[i].dispose();
-
-			box.mButtonComps.splice( 0, box.mButtonComps.length );
-			box.buttonsDiv.element.empty();
+            var box: MessageBox = MessageBox.getSingleton();
+            
+			//box.mCaption.text = caption;
+			box._callback = callback;
+			box._context = context;
 
 			//If no buttons specified - then add one
 			if ( !buttons )
-			{
-				buttons = new Array();
-				buttons.push( "Ok" );
-			}
+                buttons = ["Ok"];
 
-			box.mButtons = buttons;
+            box.$message = caption;
+            box.$buttons = buttons;
+            Compiler.digest(box._handle, box);
 
-			//Create all the buttons
-			for ( var i = 0; i < box.mButtons.length; i++ )
-			{
-				var button = new Button( box.mButtons[i], box.buttonsDiv );
-				button.element.css( { width: "80px", height: "30px", margin: "5px 5px 5px 0", "float": "left" });
-				button.textfield.element.css( { top: "6px" });
-				button.element.on( 'click', jQuery.proxy( box.onButtonClick, box ) );
-				box.mButtonComps.push( button );
-			}
-
-			box.buttonsDiv.element.css( { "width": ( box.mButtons.length * 90 ) + "px", "margin": "0 auto" });
-
-
-			//Center and show the box
-			box.show( Application.getInstance(),
-				( jQuery( "body" ).width() / 2 - box.element.width() / 2 ),
-				( jQuery( "body" ).height() / 2 - box.element.height() / 2 ), true );
+            //Center and show the box
+            box.show(Application.getInstance(), NaN, NaN, true);
 		}
 
 		/**
@@ -129,8 +82,8 @@ module Animate
 		*/
 		static getSingleton() : MessageBox
 		{
-			if ( !MessageBox._singleton )
-				new MessageBox();
+            if (!MessageBox._singleton)
+                MessageBox._singleton = new MessageBox();
 
 			return MessageBox._singleton;
 		}
