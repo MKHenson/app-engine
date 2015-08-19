@@ -276,6 +276,13 @@ html body .error {
     clear:both; 
 }
 
+.unselectable {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 input, textarea { 
     -webkit-box-sizing: border-box; 
     -moz-box-sizing: border-box; 
@@ -562,6 +569,10 @@ html, body, #stage {
     color:#504E50; 
     font-size:35px;
 }
+.splash-window .double-column {
+    padding: 10px 20px 0 20px;
+}
+
 .splash-outer-container {
     position: absolute;
     top: 0;
@@ -587,9 +598,6 @@ html, body, #stage {
 .temp-splash-login .hyperlink {
     margin-top: 20px;
 }
-.temp-splash-login .hyperlink.en-login-reset {
-    margin-top: 50px;
-}
 .temp-splash-login .checkbox .text {
     margin-left: 5px;
 }
@@ -601,19 +609,17 @@ html, body, #stage {
 }
 /**
 ======================================================
-				CSS MODULE DEFINITIONS
+				COLORS
 ======================================================
 Please only put css rules in here for generalized modules. 
 
 	eg: classes for highlighting text on certain pages
 **/
-
-.unselectable { 
-   -moz-user-select: none;
-  -webkit-user-select: none; 
-  -ms-user-select: none; 
-  user-select: none; 
+input-box textarea, .input-box input, .list-box select, .combo-box select {
+    border: 1px solid #eee;
 }
+
+
 
 
 /**
@@ -624,8 +630,19 @@ Please only put css rules in here for generalized modules.
 #stage{ background-color:#FFF; position:relative;  }
 
 .hyperlink:hover{ text-decoration:underline; cursor:pointer; }
+.input-box textarea, .input-box input, .list-box select, .combo-box select {
+    font-size: 14px;
+    width: 100%;
+    margin: 0;
+    padding: 3px;
+    height: 25px;
+    outline: none;
+    transition: border 500ms ease-out;
+    -webkit-transition: border 500ms ease-out;
+    -moz-transition: border 500ms ease-out;
+    -o-transition: border 500ms ease-out;
+}
 
-.input-box textarea, .input-box input, .list-box select, .combo-box select { font-size:14px; width:100%; margin:0; padding:3px; border:0; border: 1px solid #ccc; height:25px; outline: none; transition : border 500ms ease-out; -webkit-transition : border 500ms ease-out; -moz-transition : border 500ms ease-out; -o-transition : border 500ms ease-out; }
 .disabled{ opacity:0.4; pointer-events: none; }
 
 .behaviour-picker .list{ height:100%; border:none; }
@@ -1053,38 +1070,20 @@ border-radius: 0px 5px 0px 0px;
 .reg-gradient:active {
     background: #04508C;
 }
-
-.list-view-field{ border-bottom:1px solid #ccc; padding-left:4px; box-sizing: border-box; }
-.disabled-gradient {
-    background: rgb(206,220,231); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(206,220,231,1) 0%, rgba(89,106,114,1) 100%) !important; /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(206,220,231,1)), color-stop(100%,rgba(89,106,114,1))) !important; /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(206,220,231,1) 0%,rgba(89,106,114,1) 100%) !important; /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(206,220,231,1) 0%,rgba(89,106,114,1) 100%) !important; /* Opera 11.10+ */
-    background: linear-gradient(to bottom, rgba(206,220,231,1) 0%,rgba(89,106,114,1) 100%) !important; /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 ) !important; /* IE6-9 */
-    color: #AAA !important;
+.list-view-field {
+    border-bottom: 1px solid #ccc;
+    padding-left: 4px;
+    box-sizing: border-box;
 }
-
-.reg-gradient-static { background:#076FC2; color:#FFF; }
-
-.light-gradient-static {
-    background: rgb(235,241,246); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(235,241,246,1) 0%, rgba(171,211,238,1) 50%, rgba(137,195,235,1) 51%, rgba(213,235,251,1) 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(235,241,246,1)), color-stop(50%,rgba(171,211,238,1)), color-stop(51%,rgba(137,195,235,1)), color-stop(100%,rgba(213,235,251,1))); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, rgba(235,241,246,1) 0%,rgba(171,211,238,1) 50%,rgba(137,195,235,1) 51%,rgba(213,235,251,1) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, rgba(235,241,246,1) 0%,rgba(171,211,238,1) 50%,rgba(137,195,235,1) 51%,rgba(213,235,251,1) 100%); /* Opera 11.10+ */
-    background: linear-gradient(to bottom, rgba(235,241,246,1) 0%,rgba(171,211,238,1) 50%,rgba(137,195,235,1) 51%,rgba(213,235,251,1) 100%); /* W3C */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ebf1f6', endColorstr='#d5ebfb',GradientType=0 ); /* IE6-9 */
-    color: #292E38;
-}
-
 .button-selected {
     background: #88CF0E !important;
     color: #fff !important;
 }
-
-.comment{ background:#FFFDBA; border:none; position: absolute; }
+.comment {
+    background: #FFFDBA;
+    border: none;
+    position: absolute;
+}
 
 .reg-color{ background-color: #04508C; }
 .dark-color{ background-color: #292E38; }
