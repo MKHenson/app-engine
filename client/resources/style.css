@@ -850,16 +850,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 * ================================== 
 */
 
-
-
-
-.splash-projects-buttons{ clear:both; padding-left:0px; }
-.splash-projects-buttons .button{ float:left; margin: 0 2px 5px 0; }
-.splash-next-button{ float:left; padding-left:15px; font-size:23px; line-height:70px; background-repeat: no-repeat; color:#FFF; width:185px; cursor:pointer; height:75px; background-image:url(media/new-project.png); background-position:0px 0px; }
-.splash-next-button:active{ color:#FFF; text-shadow:0px 0px 10px #FFF; }
-.splash-next-button:hover{ background-position:0px -75px; }
-
-
 .splash-window .instruction-text {
     font-weight: normal;
     font-style: italic;

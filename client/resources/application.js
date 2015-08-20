@@ -138,7 +138,7 @@ var Animate;
                 var appNode = comments[i];
                 if (appNode.$expression) {
                     var $expression = appNode.$expression;
-                    if (appNode.$expressionType == "en-repeate") {
+                    if (appNode.$expressionType == "en-repeat") {
                         var e = $expression.split("as");
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
                             var loopExpression = e[0];
