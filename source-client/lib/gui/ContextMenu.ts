@@ -76,7 +76,7 @@ module Animate
 
 			this.element.addClass( "context-menu" );
 
-			this.element.addClass( "reg-gradient-static" );
+			this.element.addClass( "reg-gradient" );
 			this.element.addClass( "curve-small" );
 
 			this.element.css( "height", "" );

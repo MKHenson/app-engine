@@ -38,7 +38,7 @@
 
 		</div>
 		<div class='double-column'>
-			<form name="register" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
+			<form name="register" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
 			
 				<div class='label'>Username: </div>
 				<div class='input-box'>

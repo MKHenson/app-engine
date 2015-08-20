@@ -5232,8 +5232,7 @@ var Animate;
             if (controlBox === void 0) { controlBox = false; }
             if (title === void 0) { title = ""; }
             // Call super-class constructor
-            _super.call(this, "<div class='window shadow-med' style='width:"
-                + width + "px; height:" + height + "px;'></div>", null);
+            _super.call(this, "<div class='window shadow-med' style='width:" + width + "px; height:" + height + "px;'></div>", null);
             this._autoCenter = autoCenter;
             this._controlBox = controlBox;
             //If we have a control box we add the title and close button

@@ -45,8 +45,7 @@ module Animate
 		constructor( width: number, height: number, autoCenter: boolean = true, controlBox: boolean = false, title :string = "" )
 		{
 			// Call super-class constructor
-			super( "<div class='window shadow-med' style='width:"
-				+ width + "px; height:" + height + "px;'></div>", null );
+            super(`<div class='window shadow-med' style='width:${width}px; height:${height}px;'></div>`, null );
 
 			this._autoCenter = autoCenter;
 			this._controlBox = controlBox;
