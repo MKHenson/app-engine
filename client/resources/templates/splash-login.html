@@ -1,0 +1,138 @@
+﻿<div class='login animate-all fade-in' en-show="ctrl.$activePane == 'login'">
+	
+	<form name="login" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) &&  ctrl.login(ctrl.$logUsername, ctrl.$logPassword, ctrl.$logRemember)">
+		<h2>Login</h2>
+		<div class="avatar"><img src="media/blank-user.png" /></div>
+		<div class='input-box'>
+			<input autocomplete="off" placeholder="Email or Username"  autofocus="" type='text' name="username" id="en-login-username" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logUsername" />
+		</div>		
+		<div class='input-box'>
+			<input autocomplete="off" placeholder="Password" autofocus="" type='password' en-auto-clear name="password" id="en-login-password" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logPassword" />
+			<a id="forgot-pass" en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resetPassword(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">Forgot</a>
+		</div>
+		<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$loginRed }" en-style="{'max-height': '150px' }" en-show="ctrl.$loginError != ''">
+			{{ctrl.$loginError}}
+		</div>
+		<div class="checkbox">
+			<div class="tick-box" en-click="ctrl.$logRemember = !ctrl.$logRemember">
+				<div class="tick" en-show="ctrl.$logRemember"></div>
+			</div>
+			Remember me
+		</div>
+		<a en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resendActivation(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
+			Resend Activation Email
+		</a><br />
+		<div class="double-column">
+			<div en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient en-register">Register</div>
+		</div>
+		<div class="double-column">
+			<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient en-login" value="Login" />
+		</div>
+	</form>
+</div>
+<div class='login animate-all fade-in' en-show="ctrl.$activePane == 'register'">
+	<form name="register" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
+		<h2>Register</h2>
+		<div class='label'>Username: </div>
+		<div class='input-box'>
+			<input type='text' autocomplete="off" name="username" en-model="ctrl.$regUsername" id="en-reg-username" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+		</div>
+		<div class='label'>Email: </div>
+		<div class='input-box'>
+			<input type='text' autocomplete="off" name="email" en-model="ctrl.$regEmail" id="en-reg-email" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email" />
+		</div>
+
+		<div class='label'>Password: </div>
+		<div class='input-box'>
+			<input type='password' autocomplete="off" en-auto-clear name="password" en-model="ctrl.$regPassword" id="en-reg-password" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+		</div>
+
+		<div class='label'>Retype Password: </div>
+		<div class='input-box'>
+			<input type='password' autocomplete="off" en-auto-clear id="en-reg-password-check" en-model="ctrl.$regPasswordCheck" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+		</div>
+		<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$loginRed }" en-style="{ 'max-height': '150px' }" en-show="ctrl.$loginError != ''">
+			{{ctrl.$loginError}}
+		</div>
+		<div id='animate-captcha'></div>
+		<div class="double-column">
+			<div en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient en-register">Login</div>
+		</div>
+		<div class="double-column">
+			<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient en-register" value="Register" />
+		</div>
+	</form>
+	
+</div>
+<!--div class='temp-splash-login splash-outer-container animate-all fade-in' en-show="ctrl.$activePane == 'login'">
+	<div class='close-but' en-click="ctrl.onButtonClick(e)">X</div>
+	<div class='label heading'>
+		<img en-show="ctrl.$loading" class="loading" src='media/loading-blue.gif' />
+		<img src='media/blank-user.png' />User Login
+	</div>
+	<div>
+		<div class='double-column'>
+			<form name="login" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) &&  ctrl.login(ctrl.$logUsername, ctrl.$logPassword, ctrl.$logRemember)">
+				<div class='label'>Username: </div>
+				<div class='input-box'>
+					<input type='text' name="username" id="en-login-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logUsername" />
+				</div>
+				<div class='label'>Password: </div>
+				<div class='input-box'>
+					<input type='password' autocomplete="off" en-auto-clear name="password" id="en-login-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logPassword" />
+				</div>
+				<div class='checkbox'>
+					<input type='checkbox' name="cookies" on id="en-login-remember" en-model="ctrl.$logRemember" />
+					<div class='text'>Remember me</div>
+				</div>
+
+				<div class='label hyperlink en-login-reset' en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resetPassword(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
+					Reset Password
+				</div>
+				<div class='label hyperlink en-login-resend' en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resendActivation(ctrl.$logUsername || ctrl.$regUsername || ctrl.$regEmail )">
+					Resend Activation Email
+				</div>
+
+				<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient curve-small en-login" value="Login" />
+			</form>
+
+			<div class='label en-login-msg' en-class="{ 'error' : ctrl.$loginRed }" en-show="ctrl.$loginError != ''">
+				{{ctrl.$loginError}}
+			</div>
+
+			
+
+		</div>
+		<div class='double-column'>
+			<form name="register" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
+			
+				<div class='label'>Username: </div>
+				<div class='input-box'>
+					<input type='text' autocomplete="off" name="username" en-model="ctrl.$regUsername" id="en-reg-username" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+				</div>
+				<div class='label'>Email: </div>
+				<div class='input-box'>
+					<input type='text' autocomplete="off" name="email" en-model="ctrl.$regEmail" id="en-reg-email" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|email" />
+				</div>
+
+				<div class='label'>Password: </div>
+				<div class='input-box'>
+					<input type='password' autocomplete="off" en-auto-clear name="password" en-model="ctrl.$regPassword" id="en-reg-password" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+				</div>
+
+				<div class='label'>Retype Password: </div>
+				<div class='input-box'>
+					<input type='password' autocomplete="off" en-auto-clear id="en-reg-password-check" en-model="ctrl.$regPasswordCheck" en-class="{ 'red-border' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
+				</div>
+
+				<div id='animate-captcha'></div>
+				<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient curve-small en-register" value="Register" />
+				
+			</form>
+		</div>
+	</div>
+	<div class='fix'></div>
+
+	
+
+</div-->

@@ -16,7 +16,11 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
 	//__plugins = event.tag.plugins;
     __plugins = plugins;
 
-	//Start Splash screen
+	
+    var app = new Animate.Application("#application");
+    Animate.Splash.init(app);
+
+    //Start Splash screen
 	Animate.Splash.get.show();
 }
 
@@ -43,7 +47,7 @@ jQuery(document).ready(function ()
         }
     });
 
-	var app = new Animate.Application( "body" );
+   
 
 	//var loader = new Animate.AnimateLoader();	
 	//loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );

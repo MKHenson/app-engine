@@ -63,11 +63,20 @@ var Animate;
         */
         Compiler.digestCSS = function (elm, controller, value) {
             var object = Compiler.parse(value, controller, null, elm);
-            for (var i in object)
+            for (var i in object) {
                 if (object[i])
                     elm.classList.add(i);
                 else if (elm.classList.contains(i))
                     elm.classList.remove(i);
+            }
+        };
+        /**
+        * Evaluates an expression and assigns new CSS styles based on the object returned
+        */
+        Compiler.digestStyle = function (elm, controller, value) {
+            var object = Compiler.parse(value, controller, null, elm);
+            for (var i in object)
+                elm.style[i] = object[i];
         };
         /**
         * Removes all registered events from the node
@@ -81,18 +90,38 @@ var Animate;
                 appNode.$events.splice(0, appNode.$events.length);
             }
         };
+        Compiler.traverse = function (elm, callback) {
+            var cont = true;
+            function search(e) {
+                cont = callback.call(e, e);
+                if (cont !== false)
+                    for (var i = 0, l = e.childNodes.length; i < l; i++)
+                        search(e.childNodes[i]);
+            }
+            search(elm);
+        };
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
         * @param {Element} elm The root element to explore
         * @param {any} ctrl The controller
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        Compiler.expand = function (elm, ctrl) {
+        Compiler.expand = function (elm, ctrl, includeSubTemplates) {
+            if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var potentials = [];
             var toRemove = [];
             // Traverse each element
-            jQuery(elm).find("*").addBack().each(function (index, elem) {
-                if (elem.$dynamic)
-                    return toRemove.push(elem);
+            //jQuery(elm).find("*").addBack().each(function (index, elem)
+            Compiler.traverse(elm, function (elem) {
+                if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != ctrl)
+                    return false;
+                // Only allow element nodes
+                if (elem.nodeType != 1)
+                    return;
+                if (elem.$dynamic) {
+                    toRemove.push(elem);
+                    return;
+                }
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib) {
                     if (!attrib)
@@ -179,19 +208,37 @@ var Animate;
         * Goes through any expressions in the element and updates them according to the expression result.
         * @param {JQuery} elm The element to traverse
         * @param {any} controller The controller associated with the element
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {Element}
         */
-        Compiler.digest = function (jElem, controller) {
+        Compiler.digest = function (jElem, controller, includeSubTemplates) {
+            if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var elm = jElem.get(0);
             var matches;
             var textNode;
-            var expanded = Compiler.expand(elm, controller);
+            var expanded = Compiler.expand(elm, controller, includeSubTemplates);
             if (expanded != elm) {
                 elm = expanded;
                 jElem = jQuery(elm);
             }
             // Traverse each element
-            jQuery(elm).find("*").addBack().each(function (index, elem) {
+            //jQuery(elm).find("*").addBack().each(function (index, elem)
+            Compiler.traverse(elm, function (elem) {
+                if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != controller)
+                    return false;
+                // If a text node
+                if (elem.nodeType == 3) {
+                    textNode = elem;
+                    if (!textNode.$expression)
+                        textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val) {
+                            var t = sub.match(/[^{}]+/);
+                            textNode.$expression = t[0];
+                            return t[0];
+                        });
+                    if (textNode.$expression)
+                        textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, textNode);
+                    return;
+                }
                 var appNode = elem;
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib) {
@@ -208,6 +255,9 @@ var Animate;
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
+                            break;
+                        case "en-style":
+                            Compiler.digestStyle(elem, controller, value);
                             break;
                         case "en-model":
                             var ev = function (e) {
@@ -274,18 +324,6 @@ var Animate;
                             break;
                     }
                 });
-                for (var i = 0, l = elem.childNodes.length; i < l; i++)
-                    if (elem.childNodes[i].nodeType == 3) {
-                        textNode = elem.childNodes[i];
-                        if (!textNode.$expression)
-                            textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val) {
-                                var t = sub.match(/[^{}]+/);
-                                textNode.$expression = t[0];
-                                return t[0];
-                            });
-                        if (textNode.$expression)
-                            textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, textNode);
-                    }
             });
             return elm;
         };
@@ -321,10 +359,13 @@ var Animate;
         * element after compilation you can use the digest method
         * @param {JQuery} elm The element to traverse
         * @param {any} controller The controller associated with the element
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {JQuery}
         */
-        Compiler.build = function (elm, controller) {
-            return jQuery(Compiler.digest(elm, controller));
+        Compiler.build = function (elm, controller, includeSubTemplates) {
+            if (includeSubTemplates === void 0) { includeSubTemplates = false; }
+            elm.get(0).$ctrl = controller;
+            return jQuery(Compiler.digest(elm, controller, includeSubTemplates));
         };
         Compiler.validators = {
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric" },
@@ -17589,13 +17630,13 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    var Splash = (function (_super) {
-        __extends(Splash, _super);
-        function Splash() {
+    var Splash2 = (function (_super) {
+        __extends(Splash2, _super);
+        function Splash2() {
             _super.call(this, 800, 520);
             //private slideTime: number;
             this.names = [{ name: "mathew", lastname: "henson" }, { name: "suzy", lastname: "miller" }];
-            Splash._singleton = this;
+            Splash2._singleton = this;
             this.user = Animate.User.get;
             this.element.addClass("splash-window");
             this.$loginError = "";
@@ -17632,7 +17673,7 @@ var Animate;
         * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
         */
-        Splash.prototype.reportError = function (form, registerCheck) {
+        Splash2.prototype.reportError = function (form, registerCheck) {
             if (registerCheck === void 0) { registerCheck = false; }
             if (!form.$error)
                 this.$loginError = "";
@@ -17672,13 +17713,13 @@ var Animate;
                 return true;
             }
         };
-        Splash.prototype.loginError = function (err) {
+        Splash2.prototype.loginError = function (err) {
             this.$loading = false;
             this.$loginRed = true;
             this.$loginError = err.message;
             Animate.Compiler.digest(this.loginBackground, this);
         };
-        Splash.prototype.loginSuccess = function (data) {
+        Splash2.prototype.loginSuccess = function (data) {
             if (data.error)
                 this.$loginRed = true;
             else
@@ -17694,7 +17735,7 @@ var Animate;
         * @param {string} password The user password
         * @param {boolean} remember Should the user cookie be saved
         */
-        Splash.prototype.login = function (user, password, remember) {
+        Splash2.prototype.login = function (user, password, remember) {
             var that = this;
             that.$loading = true;
             this.user.login(user, password, remember)
@@ -17722,7 +17763,7 @@ var Animate;
         * @param {string} captcha The captcha of the login screen
         * @param {string} captha_challenge The captha_challenge of the login screen
         */
-        Splash.prototype.register = function (user, password, email, captcha, challenge) {
+        Splash2.prototype.register = function (user, password, email, captcha, challenge) {
             var that = this;
             that.$loading = true;
             this.user.register(user, password, email, captcha, challenge)
@@ -17739,7 +17780,7 @@ var Animate;
         * Attempts to resend the activation code
         * @param {string} user The username or email of the user to resend the activation
         */
-        Splash.prototype.resendActivation = function (user) {
+        Splash2.prototype.resendActivation = function (user) {
             var that = this;
             if (!user) {
                 this.$loginError = "Please specify a username or email to fetch";
@@ -17757,7 +17798,7 @@ var Animate;
         * Attempts to reset the users password
         * @param {string} user The username or email of the user to resend the activation
         */
-        Splash.prototype.resetPassword = function (user) {
+        Splash2.prototype.resetPassword = function (user) {
             var that = this;
             if (!user) {
                 this.$loginError = "Please specify a username or email to fetch";
@@ -17775,7 +17816,7 @@ var Animate;
         * Attempts to resend the activation code
         * @param {string} user The username or email of the user to resend the activation
         */
-        Splash.prototype.logout = function () {
+        Splash2.prototype.logout = function () {
             var that = this;
             that.$loading = true;
             this.user.logout().then(function () {
@@ -17791,7 +17832,7 @@ var Animate;
         /**
         * Fills the project browser with projects from the server
         */
-        Splash.prototype.refreshProjects = function () {
+        Splash2.prototype.refreshProjects = function () {
             var that = this;
             if (that.user.isLoggedIn) {
                 this.user.getProjectList().then(function (respose) {
@@ -17808,7 +17849,7 @@ var Animate;
         * This is called from Animate when we click the home button.
         * @returns {any}
         */
-        Splash.prototype.reset = function () {
+        Splash2.prototype.reset = function () {
             //this.welcomeBackground.element.css({ "left": "0px", "top": "0px" });
             //this.welcomeBackground.css({ "left": "0px", "top": "0px" });
             //this.newProjectBackground.element.css({ "left": "800px" });
@@ -17867,7 +17908,7 @@ var Animate;
         /**
         * Creates the new project page on the splash screen
         */
-        Splash.prototype.createNewProjectPage = function () {
+        Splash2.prototype.createNewProjectPage = function () {
             //var heading = new Label("Create New Project", this.newProjectBackground)
             //heading.element.addClass("heading");
             //Create container div
@@ -17896,7 +17937,7 @@ var Animate;
         /**
         * Creates the new plugins page on the splash screen
         */
-        Splash.prototype.createPluginsPage = function () {
+        Splash2.prototype.createPluginsPage = function () {
             //Add the explorer
             this.pluginBrowser = new Animate.PluginBrowser(this.pluginsBackground);
             this.pluginBrowser.addEventListener(Animate.PluginBrowserEvents.PLUGINS_IMPLEMENTED, this.onPluginResponse, this);
@@ -17905,7 +17946,7 @@ var Animate;
         * Creates the final screen.
         * This screen loads each of the plugins and allows the user to enter the application.
         */
-        Splash.prototype.createFinalScreen = function () {
+        Splash2.prototype.createFinalScreen = function () {
             //Heading
             var heading = new Animate.Label("Setting up workspace", this.finalScreen);
             heading.element.addClass("heading");
@@ -17931,7 +17972,7 @@ var Animate;
         * Creates the login page on the Splash menu
         * @extends <Splash>
         */
-        Splash.prototype.createLoginPage = function () {
+        Splash2.prototype.createLoginPage = function () {
             //this.loginBack = new Component("<div class='close-but'>X</div>", this.loginBackground);
             //var heading = new Label("User Login", this.loginBackground);
             //heading.element.addClass("heading");
@@ -18110,7 +18151,7 @@ var Animate;
         /**
         * Creates the first page on the splash screen
         */
-        Splash.prototype.createWelcomePage = function () {
+        Splash2.prototype.createWelcomePage = function () {
             var user = Animate.User.get;
             //Compiler.build(this.welcomeBackground, this);
             //var sub = new Component("<div class='splash-container'></div>", this.welcomeBackground);
@@ -18147,7 +18188,7 @@ var Animate;
         /**
         * Shows the window by adding it to a parent.
         */
-        Splash.prototype.onProjectCombo = function (response, event) {
+        Splash2.prototype.onProjectCombo = function (response, event) {
             var user = Animate.User.get;
             if (!user.isLoggedIn)
                 return Animate.MessageBox.show("Please log in", ["Ok"]);
@@ -18211,7 +18252,7 @@ var Animate;
         * When we click a button
         * @param {any} e
         */
-        Splash.prototype.onButtonClick = function (e) {
+        Splash2.prototype.onButtonClick = function (e) {
             //this.enableButtons(false);
             var jComp = jQuery(e.currentTarget);
             var comp = jQuery(e.currentTarget).data("component");
@@ -18252,14 +18293,14 @@ var Animate;
             Animate.Compiler.digest(this.welcomeBackground, this);
             Animate.Compiler.digest(this.loginBackground, this);
         };
-        Splash.prototype.newProject = function (name, description) {
+        Splash2.prototype.newProject = function (name, description) {
             this.user.createProject(name, description);
         };
         /**
         * This is called when we click a button on the message box.
         * @param {string} response
         */
-        Splash.prototype.onProjectOpenMessageBox = function (response) {
+        Splash2.prototype.onProjectOpenMessageBox = function (response) {
             //this.enableButtons(true);
             if (response == "Yes") {
                 var user = Animate.User.get;
@@ -18284,7 +18325,7 @@ var Animate;
         * This is called when we click a button on the message box.
         * @param {any} response
         */
-        Splash.prototype.onCopyMessageBox = function (response) {
+        Splash2.prototype.onCopyMessageBox = function (response) {
             //this.enableButtons(true);
             if (response == "Yes")
                 Animate.User.get.copyProject(this.projectBrowser.selectedID);
@@ -18293,7 +18334,7 @@ var Animate;
         * This is called when we click a button on the message box.
         * @param {any} response
         */
-        Splash.prototype.onMessageBox = function (response) {
+        Splash2.prototype.onMessageBox = function (response) {
             //this.enableButtons(true);
             if (response == "Yes")
                 Animate.User.get.deleteProject(this.projectBrowser.selectedID);
@@ -18302,7 +18343,7 @@ var Animate;
         * This is called when we click a button on the message box.
         * @param {any} response
         */
-        Splash.prototype.onFinalMessageBox = function (response) {
+        Splash2.prototype.onFinalMessageBox = function (response) {
             //this.enableButtons(true);
             if (response == "Yes") {
                 this.hide();
@@ -18312,7 +18353,7 @@ var Animate;
         /**
         * This is called when we receive data from the projects.
         */
-        Splash.prototype.onProjectData = function (response, data, sender) {
+        Splash2.prototype.onProjectData = function (response, data, sender) {
             var user = Animate.User.get;
             user.removeEventListener(Animate.UserEvents.PROJECT_CREATED, this.onProjectData, this);
             user.removeEventListener(Animate.UserEvents.FAILED, this.onProjectData, this);
@@ -18347,7 +18388,7 @@ var Animate;
         * @param {any} response
         * @param {any} data >
         */
-        Splash.prototype.onPluginResponse = function (response, event) {
+        Splash2.prototype.onPluginResponse = function (response, event) {
             if (response == Animate.PluginBrowserEvents.PLUGINS_IMPLEMENTED) {
                 //Go to final screen
                 this.pluginLoader.updateDependencies();
@@ -18366,7 +18407,7 @@ var Animate;
         * @param {ProjectLoaderEvents} response
         * @param {ProjectLoaderEvent} data
         */
-        Splash.prototype.onProjectLoaderResponse = function (response, event) {
+        Splash2.prototype.onProjectLoaderResponse = function (response, event) {
             if (response == Animate.ProjectLoaderEvents.READY) {
                 //All loaded! Lets finally get into the app :)
                 this.finalButton.enabled = true;
@@ -18445,7 +18486,7 @@ var Animate;
         //this.$loginError = event.message;
         //Compiler.digest(this.welcomeBackground, this);
         //}
-        Splash.prototype.onUserLoggedInCheck = function () {
+        Splash2.prototype.onUserLoggedInCheck = function () {
             //User.get.removeEventListener( UserEvents.LOGGED_IN, this.onUserLoggedInCheck, this );
             //User.get.addEventListener( UserEvents.LOGGED_IN, this.onUserData, this );
             //User.get.addEventListener( UserEvents.LOGGED_OUT, this.onUserData, this );
@@ -18466,7 +18507,7 @@ var Animate;
         /**
         * Shows the window by adding it to a parent.
         */
-        Splash.prototype.show = function () {
+        Splash2.prototype.show = function () {
             _super.prototype.show.call(this, null, 0, 0, true);
             this.onWindowResized(null);
             if (this.initialized == false) {
@@ -18482,21 +18523,238 @@ var Animate;
             else
                 jQuery("img", this.userImg.element).attr("src", Animate.User.get.userEntry.meta.imgURL);
         };
+        Object.defineProperty(Splash2, "get", {
+            /**
+            * Gets the singleton reference of this class.
+            * @returns {Splash}
+            */
+            get: function () {
+                if (!Splash2._singleton)
+                    new Splash2();
+                return Splash2._singleton;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Splash2;
+    })(Animate.Window);
+    Animate.Splash2 = Splash2;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * The splash screen when starting the app
+    */
+    var Splash = (function () {
+        /**
+        * Creates an instance of the splash screen
+        */
+        function Splash(app) {
+            this._app = app;
+            this._splashElm = jQuery(".splash").remove().clone();
+            this._loginElm = jQuery(".login").remove().clone();
+            this.$user = Animate.User.get;
+            this.$activePane = "login";
+            this.$loginError = "";
+            this.$loginRed = true;
+            this.$loading = false;
+            // Create a random theme for the splash screen
+            if (Math.random() < 0.4)
+                this.$theme = { "welcome-blue": true };
+            else
+                this.$theme = { "welcome-pink": true };
+            // Add the elements
+            jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
+            // Build each of the templates
+            Animate.Compiler.build(this._splashElm, this);
+            Animate.Compiler.build(this._loginElm, this);
+        }
+        Splash.prototype.show = function () {
+            this._app.element.detach();
+            Animate.Compiler.digest(this._splashElm, this, true);
+            jQuery("body").append(this._splashElm);
+            jQuery("#en-login-username", this._loginElm).val("");
+        };
+        Splash.prototype.splashDimensions = function () {
+            if (this.$activePane == "login")
+                return { "compact": true, "wide": false };
+        };
+        Splash.prototype.reset = function () {
+        };
+        /**
+        * Given a form element, we look at if it has an error and based on the expression. If there is we set
+        * the login error message
+        * @param {EngineForm} The form to check.
+        * @param {boolean} registerCheck Check register password and assign captcha
+        * @param {boolean} True if there is an error
+        */
+        Splash.prototype.reportError = function (form, registerCheck) {
+            if (registerCheck === void 0) { registerCheck = false; }
+            if (!form.$error)
+                this.$loginError = "";
+            else {
+                var name = form.$errorInput;
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+                switch (form.$errorExpression) {
+                    case "alpha-numeric":
+                        this.$loginError = name + " must only contain alphanumeric characters";
+                        break;
+                    case "non-empty":
+                        this.$loginError = name + " cannot be empty";
+                        break;
+                    case "email":
+                        this.$loginError = name + " must be a valid email";
+                        break;
+                    case "alpha-numeric-plus":
+                        this.$loginError = name + " must only contain alphanumeric characters and '-', '!', or '_'";
+                        break;
+                    default:
+                        this.$loginError = "";
+                        break;
+                }
+            }
+            if (registerCheck) {
+                this.$regCaptcha = jQuery("#recaptcha_response_field").val();
+                this.$regChallenge = jQuery("#recaptcha_challenge_field").val();
+                if (this.$regPassword != this.$regPasswordCheck)
+                    this.$loginError = "Your passwords do not match";
+            }
+            if (this.$loginError == "") {
+                this.$loginRed = false;
+                return false;
+            }
+            else {
+                this.$loginRed = true;
+                return true;
+            }
+        };
+        Splash.prototype.loginError = function (err) {
+            this.$loading = false;
+            this.$loginRed = true;
+            this.$loginError = err.message;
+            Animate.Compiler.digest(this._loginElm, this);
+        };
+        Splash.prototype.loginSuccess = function (data) {
+            if (data.error)
+                this.$loginRed = true;
+            else
+                this.$loginRed = false;
+            this.$loading = false;
+            this.$loginError = data.message;
+            Animate.Compiler.digest(this._splashElm, this, true);
+        };
+        /**
+        * Attempts to log the user in
+        * @param {string} user The username
+        * @param {string} password The user password
+        * @param {boolean} remember Should the user cookie be saved
+        */
+        Splash.prototype.login = function (user, password, remember) {
+            var that = this;
+            that.$loading = true;
+            this.$user.login(user, password, remember)
+                .then(function (data) {
+                if (data.error)
+                    that.$loginRed = true;
+                else
+                    that.$loginRed = false;
+                that.$loginError = data.message;
+                Animate.Compiler.digest(that._splashElm, that, true);
+            })
+                .fail(this.loginError.bind(that))
+                .done(function () {
+                jQuery(".close-but", that._loginElm).trigger("click");
+                that.$loading = false;
+            });
+        };
+        /**
+        * Attempts to register a new user
+        * @param {string} user The username of the user.
+        * @param {string} password The password of the user.
+        * @param {string} email The email of the user.
+        * @param {string} captcha The captcha of the login screen
+        * @param {string} captha_challenge The captha_challenge of the login screen
+        */
+        Splash.prototype.register = function (user, password, email, captcha, challenge) {
+            var that = this;
+            that.$loading = true;
+            this.$user.register(user, password, email, captcha, challenge)
+                .then(this.loginSuccess.bind(that))
+                .fail(function (err) {
+                that.$loginRed = true;
+                that.$loginError = err.message;
+                that.$loading = false;
+                Recaptcha.reload();
+                Animate.Compiler.digest(that._loginElm, that);
+            });
+        };
+        /**
+        * Attempts to resend the activation code
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.resendActivation = function (user) {
+            var that = this;
+            if (!user) {
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
+                    this.$error = true;
+                });
+                return Animate.Compiler.digest(that._loginElm, that);
+            }
+            that.$loading = true;
+            this.$user.resendActivation(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        };
+        /**
+        * Attempts to reset the users password
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.resetPassword = function (user) {
+            var that = this;
+            if (!user) {
+                this.$loginError = "Please specify a username or email to fetch";
+                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
+                    this.$error = true;
+                });
+                return Animate.Compiler.digest(that._loginElm, that);
+            }
+            that.$loading = true;
+            this.$user.resetPassword(user)
+                .then(this.loginSuccess.bind(that))
+                .fail(this.loginError.bind(that));
+        };
+        /**
+        * Attempts to resend the activation code
+        * @param {string} user The username or email of the user to resend the activation
+        */
+        Splash.prototype.logout = function () {
+            var that = this;
+            that.$loading = true;
+            this.$user.logout().then(function () {
+                that.$loading = false;
+                that.$loginError = "";
+                Animate.Application.getInstance().projectReset();
+                Animate.Compiler.digest(that._splashElm, that, true);
+            }).fail(this.loginError.bind(that));
+        };
+        Splash.init = function (app) {
+            Splash._singleton = new Splash(app);
+            return Splash._singleton;
+        };
         Object.defineProperty(Splash, "get", {
             /**
             * Gets the singleton reference of this class.
             * @returns {Splash}
             */
             get: function () {
-                if (!Splash._singleton)
-                    new Splash();
                 return Splash._singleton;
             },
             enumerable: true,
             configurable: true
         });
         return Splash;
-    })(Animate.Window);
+    })();
     Animate.Splash = Splash;
 })(Animate || (Animate = {}));
 var __plugins = [];
@@ -18510,6 +18768,8 @@ function onPluginsLoaded(plugins) {
     //}
     //__plugins = event.tag.plugins;
     __plugins = plugins;
+    var app = new Animate.Application("#application");
+    Animate.Splash.init(app);
     //Start Splash screen
     Animate.Splash.get.show();
 }
@@ -18531,7 +18791,6 @@ jQuery(document).ready(function () {
             withCredentials: true
         }
     });
-    var app = new Animate.Application("body");
     //var loader = new Animate.AnimateLoader();	
     //loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
     //loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
@@ -18698,5 +18957,6 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/ToolBar.ts" />
 /// <reference path="lib/gui/TreeViewScene.ts" />
 /// <reference path="lib/gui/forms/Splash.ts" />
+/// <reference path="lib/gui/splash/Splash.ts" />
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" /> 

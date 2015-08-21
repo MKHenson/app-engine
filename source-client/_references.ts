@@ -143,5 +143,7 @@
 /// <reference path="lib/gui/TreeViewScene.ts" />
 /// <reference path="lib/gui/forms/Splash.ts" />
 
+/// <reference path="lib/gui/splash/Splash.ts" />
+
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" />

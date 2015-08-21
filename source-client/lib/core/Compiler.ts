@@ -8,7 +8,8 @@
         $originalNode: AppNode;
         $ctx: string;
         $ctxValue: any;
-        $events: Array< { name: string; tag: string; func: any; } >;
+        $events: Array< { name: string; tag: string; func: any; }>;
+        $ctrl: any;
     }
 
     export interface EngineInput extends HTMLInputElement
@@ -119,10 +120,22 @@
         {
             var object = Compiler.parse(value, controller, null, elm);
             for (var i in object)
+            {
                 if (object[i])
                     elm.classList.add(i);
                 else if (elm.classList.contains(i))
                     elm.classList.remove(i);
+            }
+        }
+
+        /**
+        * Evaluates an expression and assigns new CSS styles based on the object returned
+        */
+        static digestStyle(elm: HTMLElement, controller: any, value: string)
+        {
+            var object = Compiler.parse(value, controller, null, elm);
+            for (var i in object)
+                elm.style[i] = object[i];
         }
 
         /**
@@ -141,26 +154,54 @@
             }
         }
 
+        static traverse(elm: Node, callback: Function)
+        {
+            var cont = true;
+            function search(e: Node)
+            {
+                cont = callback.call(e, e);
+                if (cont !== false)
+                    for (var i = 0, l = e.childNodes.length; i < l; i++)
+                        search(e.childNodes[i]);
+            }
+
+            search(elm);
+        }
+
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
         * @param {Element} elm The root element to explore
         * @param {any} ctrl The controller
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        static expand(elm: Element, ctrl: any): Element
+        static expand(elm: Element, ctrl: any, includeSubTemplates: boolean = false): Element
         {
             var potentials: Array<Element> = [];
             var toRemove: Array<Element> = [];
 
             // Traverse each element
-            jQuery(elm).find("*").addBack().each(function (index, elem)
+            //jQuery(elm).find("*").addBack().each(function (index, elem)
+            Compiler.traverse(elm, function (elem: Element)
             {
+                if (!includeSubTemplates && (<AppNode><Node>elem).$ctrl && (<AppNode><Node>elem).$ctrl != ctrl)
+                    return false;
+
+                // Only allow element nodes
+                if (elem.nodeType != 1)
+                    return;
+
                 if ((<AppNode><Node>elem).$dynamic)
-                    return toRemove.push(elem);
+                {
+                    toRemove.push(elem);
+                    return;
+                }
 
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib)
                 {
-                    if (!attrib) return;
+                    if (!attrib)
+                        return;
+
                     var name = attrib.name;
                     var value = attrib.value;
 
@@ -277,14 +318,15 @@
         * Goes through any expressions in the element and updates them according to the expression result.
         * @param {JQuery} elm The element to traverse
         * @param {any} controller The controller associated with the element
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {Element}
         */
-        static digest(jElem: JQuery, controller: any): Element
+        static digest(jElem: JQuery, controller: any, includeSubTemplates: boolean = false): Element
         {
             var elm: Element = jElem.get(0);
             var matches: RegExpMatchArray;
             var textNode: AppNode;
-            var expanded = Compiler.expand(elm, controller);
+            var expanded = Compiler.expand(elm, controller, includeSubTemplates);
             if (expanded != elm)
             {
                 elm = expanded;
@@ -293,8 +335,32 @@
             }
 
             // Traverse each element
-            jQuery(elm).find("*").addBack().each(function (index, elem)
+            //jQuery(elm).find("*").addBack().each(function (index, elem)
+            Compiler.traverse(elm, function (elem)
             {
+                if (!includeSubTemplates && (<AppNode>elem).$ctrl && (<AppNode>elem).$ctrl != controller)
+                    return false;
+
+           
+                // If a text node
+                if (elem.nodeType == 3)
+                {
+                    textNode = <AppNode><Node>elem;
+
+                    if (!textNode.$expression)
+                        textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val)
+                        {
+                            var t = sub.match(/[^{}]+/);
+                            textNode.$expression = t[0];
+                            return t[0];
+                        })
+
+                    if (textNode.$expression)
+                        textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, <Element><Node>textNode);
+
+                    return;
+                }
+
                 var appNode = <AppNode><Node>elem;
                                 
                 // Go through each element's attributes
@@ -314,6 +380,9 @@
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
+                            break;
+                        case "en-style":
+                            Compiler.digestStyle(elem, controller, value);
                             break;
                         case "en-model":
                             var ev = function (e)
@@ -403,23 +472,6 @@
                             break;
                     }
                 });
-
-                for (var i = 0, l = elem.childNodes.length; i < l; i++)
-                    if (elem.childNodes[i].nodeType == 3)
-                    {
-                        textNode = <AppNode><Node>elem.childNodes[i];
-
-                        if (!textNode.$expression)
-                            textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val)
-                            {
-                                var t = sub.match(/[^{}]+/);
-                                textNode.$expression = t[0];
-                                return t[0];
-                            })
-
-                        if (textNode.$expression)
-                            textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, <Element><Node>textNode);
-                    }
             });
 
             return elm;
@@ -466,11 +518,13 @@
         * element after compilation you can use the digest method
         * @param {JQuery} elm The element to traverse
         * @param {any} controller The controller associated with the element
+        * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {JQuery}
         */
-        static build(elm: JQuery, controller: any): JQuery
+        static build(elm: JQuery, controller: any, includeSubTemplates: boolean = false): JQuery
         {
-            return jQuery( Compiler.digest(elm, controller) );
+            (<AppNode><Node>elm.get(0)).$ctrl = controller;
+            return jQuery(Compiler.digest(elm, controller, includeSubTemplates));
         }
     }
 }

@@ -7,6 +7,7 @@ html(lang="en")
 		title(App Engine)
 		link(rel="SHORTCUT ICON", href=url + "/media/page-icon.png")
 		link(href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,300", rel="stylesheet", type="text/css")
+		link(href="http://fonts.googleapis.com/css?family=Raleway:100", rel="stylesheet", type="text/css")
 		link(rel="stylesheet", href=url + "/style.css", type="text/css")
 		link(rel="stylesheet", href=url + "/style-directives.css", type="text/css")
 		link(rel="stylesheet", href=url + "/style-trike.css", type="text/css")
@@ -30,9 +31,11 @@ html(lang="en")
 
 	body()
 		en-templates(style="display:none;")
-			include ../resources/templates/temp-splash-welcome.html
-			include ../resources/templates/temp-splash-login.html
-			include ../resources/templates/temp-splash-new-project.html
-			include ../resources/templates/en-message-box.html
-		div(id="toolbar")
-		div(id="stage")
+			include ../resources/templates/splash-welcome.html
+			include ../resources/templates/splash-login.html
+			include ../resources/templates/splash-new-project.html
+			include ../resources/templates/splash.html
+			include ../resources/templates/message-box.html
+		div(id="application")
+			div(id="toolbar")
+			div(id="stage")

@@ -1,4 +1,20 @@
 ﻿<div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
+	<div class='splash-user-box'>
+		<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="ctrl.hide()">X</div>
+		<div class='details'>
+			<img en-src="ctrl.user.userEntry.meta.imgURL" />
+		</div>
+
+		<div en-show="ctrl.user.isLoggedIn" class='details'>{{ctrl.user.userEntry.username}}</div>
+		<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="ctrl.logout()">Logout</div></div>
+
+		<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="ctrl.onButtonClick(e)">Login</span></div>
+		<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="ctrl.onButtonClick(e)">Register</span></div>
+
+		<div class='fix'></div>
+	</div>
+</div>
+<!-- div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
 	<div class='splash-container'>
 		<div class='double-column splash-projects'></div>
 		<div class='double-column'>
@@ -13,7 +29,7 @@
 
 				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="ctrl.onButtonClick(e)">Login</span></div>
 				<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="ctrl.onButtonClick(e)">Register</span></div>
-			
+
 				<div class='fix'></div>
 			</div>
 			<h2>Welcome to Animate</h2>
@@ -27,4 +43,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div -->

@@ -1,8 +1,8 @@
 module Animate
 {
-	export class Splash extends Window
+	export class Splash2 extends Window
 	{
-		private static _singleton: Splash;
+		private static _singleton: Splash2;
 
 		//private welcomeBackground: Component;
         private welcomeBackground: JQuery;
@@ -61,7 +61,7 @@ module Animate
         {
             super(800, 520);
 
-            Splash._singleton = this;
+            Splash2._singleton = this;
             this.user = User.get;
 			this.element.addClass("splash-window");
             this.$loginError = "";
@@ -1241,12 +1241,12 @@ module Animate
 		* Gets the singleton reference of this class.
 		* @returns {Splash}
 		*/
-		static get get() : Splash
+		static get get() : Splash2
 		{
-			if (!Splash._singleton)
-				new Splash();
+			if (!Splash2._singleton)
+				new Splash2();
 
-			return Splash._singleton;
+			return Splash2._singleton;
 		}
 	}
 }
