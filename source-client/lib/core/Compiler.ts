@@ -33,6 +33,7 @@
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric" },
             "non-empty": { regex: /\S/, name: "non-empty" },
             "alpha-numeric-plus": { regex: /^[a-zA-Z0-9_\-!]+$/, name: "alpha-numeric-plus" },
+            "email-plus": { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus" },
             "email": { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email" }
         };
 
@@ -180,7 +181,6 @@
             var toRemove: Array<Element> = [];
 
             // Traverse each element
-            //jQuery(elm).find("*").addBack().each(function (index, elem)
             Compiler.traverse(elm, function (elem: Element)
             {
                 if (!includeSubTemplates && (<AppNode><Node>elem).$ctrl && (<AppNode><Node>elem).$ctrl != ctrl)
@@ -326,22 +326,26 @@
             var elm: Element = jElem.get(0);
             var matches: RegExpMatchArray;
             var textNode: AppNode;
-            var expanded = Compiler.expand(elm, controller, includeSubTemplates);
+            var expanded;
+            
+
+            expanded = Compiler.expand(elm, controller, includeSubTemplates);
             if (expanded != elm)
             {
                 elm = expanded;
                 jElem = jQuery(elm);
-
             }
 
             // Traverse each element
-            //jQuery(elm).find("*").addBack().each(function (index, elem)
             Compiler.traverse(elm, function (elem)
             {
                 if (!includeSubTemplates && (<AppNode>elem).$ctrl && (<AppNode>elem).$ctrl != controller)
                     return false;
 
-           
+                // Do nothing for comment nodes
+                if (elem.nodeType == 8)
+                    return;
+                
                 // If a text node
                 if (elem.nodeType == 3)
                 {
@@ -435,7 +439,12 @@
 
                                 jQuery("[en-validate]", elem).each(function (index, subElem)
                                 {
-                                    Compiler.checkValidations(this.getAttribute("en-validate"), <HTMLInputElement>subElem);
+                                    var err = Compiler.checkValidations(this.getAttribute("en-validate"), <HTMLInputElement>subElem);
+                                    if (err)
+                                    {
+                                        form.$error = true;
+                                        form.$pristine = false;
+                                    }
                                 });
 
                                 // If its an auto clear - then all the clear fields must be wiped
@@ -462,6 +471,19 @@
                             var ev = function (e)
                             {
                                 Compiler.checkValidations(value, <HTMLInputElement>elem);
+
+                                // IF it has a form - check other elements for errors
+                                var form: EngineForm = <EngineForm>(<HTMLInputElement>elem).form;
+                                if (form)
+                                {
+                                    form.$error = false;
+                                    jQuery("[en-validate]", form).each(function (index, subElem)
+                                    {
+                                        if ((<EngineInput>subElem).$error)
+                                            form.$error = true;
+                                    });
+                                }
+
                                 Compiler.digest(jElem, controller);
                             };
                             
@@ -482,7 +504,7 @@
         * @param {string} value The list of expression names separated by |
         * @param {HTMLInputElement| HTMLTextAreaElement} elem The element to traverse
         */
-        static checkValidations(value: string, elem: HTMLInputElement| HTMLTextAreaElement)
+        static checkValidations(value: string, elem: HTMLInputElement| HTMLTextAreaElement): boolean
         {
             var expressions: Array<{ name: string; regex: RegExp; }> = [];
             var form: EngineForm = <EngineForm>elem.form;
@@ -495,7 +517,7 @@
             for (var i = 0, l = expressions.length; i < l; i++)
                 if (!(elem.value.match(expressions[i].regex)))
                 {
-                    (<any>elem).$error = true;
+                    (<EngineInput>elem).$error = true;
                     if (form)
                     {
                         form.$errorExpression = expressions[i].name;
@@ -505,11 +527,7 @@
                     break;
                 }
 
-            if (form)
-            {
-                form.$error = (<any>elem).$error;
-                form.$pristine = false;
-            }
+            return (<EngineInput>elem).$error;
         }
 
         /**

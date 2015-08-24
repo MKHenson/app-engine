@@ -8,13 +8,16 @@
         private static _singleton: Splash;
         private _splashElm: JQuery;
         private _loginElm: JQuery;
+        private _welcomeElm: JQuery;
         private _app: Application;
+        private _captureInitialized: boolean;
         private $user: User;
         private $theme: any;
         private $activePane: string;
         private $loginError: string;
         private $loginRed: boolean;
         private $loading: boolean;
+        private $projects: Array<Engine.IProject>;
 
         /**
 		* Creates an instance of the splash screen
@@ -22,13 +25,16 @@
         constructor(app: Application)
         {
             this._app = app;
-            this._splashElm = jQuery(".splash").remove().clone();
-            this._loginElm = jQuery(".login").remove().clone();
+            this._captureInitialized = false;
+            this._splashElm = jQuery("#splash").remove().clone();
+            this._loginElm = jQuery("#log-reg").remove().clone();
+            this._welcomeElm = jQuery("#splash-welcome").remove().clone();
             this.$user = User.get;
-            this.$activePane = "login";
+            this.$activePane = "loading";
             this.$loginError = "";
             this.$loginRed = true;
             this.$loading = false;
+            this.$projects = [];
 
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
@@ -38,27 +44,89 @@
 
             // Add the elements
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
-
-            // Build each of the templates
-            Compiler.build(this._splashElm, this);
-            Compiler.build(this._loginElm, this);
+            jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
         }
 
+        /*
+        * Shows the splash screen
+        */
         show()
         {
-            this._app.element.detach();
-            Compiler.digest(this._splashElm, this, true);
+            var that = this;
+            that._app.element.detach();
+            jQuery("body").append(that._splashElm);
+            jQuery("#en-login-username", that._loginElm).val("");
+            that.$loading = true;
+            
+            if (!that._captureInitialized)
+            {
+                // Build each of the templates
+                Compiler.build(this._splashElm, this);
+                Compiler.build(this._loginElm, this);
+                Compiler.build(this._welcomeElm, this);
+                Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
+            }
+            else
+            {
+                Compiler.digest(this._splashElm, that, true);
+                Recaptcha.reload();                
+            }
+           
+            that.$user.authenticated().done(function( val )
+            {
+                if (!val)
+                    that.goState("login", true);
+                else
+                    that.goState("welcome", true);
 
-            jQuery("body").append(this._splashElm);
-            jQuery("#en-login-username", this._loginElm).val("");
+            }).fail(function (err)
+            {
+                that.goState("login", true);
+            });
         }
 
-        splashDimensions()
+        /*
+        * Gets the dimensions of the splash screen based on the active pane
+        */
+        splashDimensions(): any
         {
             if (this.$activePane == "login")
                 return { "compact": true, "wide": false };
+            else
+                return { "compact": false, "wide": true };
+        }
+        
+        /*
+        * Goes to pane state
+        * @param {state} The name of the state
+        */
+        goState(state: string, digest: boolean = false)
+        {
+            var that = this;
+            that.$loading = false;
+            that.$activePane = state;
+            that.$loginError = "";
+            if (digest)
+                Animate.Compiler.digest(that._splashElm, that, true);
+
+            if (state == "welcome")
+            {
+                that.$user.getProjectList().then(function (projects)
+                {
+                    that.$projects = projects.data;
+                    if (!that.$projects || that.$projects.length == 0)
+                        that.$projects = <any>[{ name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }];
+
+                }).done(function()
+                {
+                    Animate.Compiler.digest(that._welcomeElm, that);
+                });
+            }
         }
 
+        /*
+        * Called by the app when everything needs to be reset
+        */
         reset()
         {
         }
@@ -104,8 +172,8 @@
                 (<any>this).$regCaptcha = jQuery("#recaptcha_response_field").val();
                 (<any>this).$regChallenge = jQuery("#recaptcha_challenge_field").val();
 
-                if ((<any>this).$regPassword != (<any>this).$regPasswordCheck)
-                    this.$loginError = "Your passwords do not match";
+                if ((<any>this).$regCaptcha == "")
+                    this.$loginError = "Please enter the capture code";
             }
 
             if (this.$loginError == "")
@@ -120,14 +188,21 @@
             }
         }
 
+        /*
+        * General error handler
+        */
         loginError(err: Error)
         {
             this.$loading = false;
             this.$loginRed = true;
             this.$loginError = err.message;
             Compiler.digest(this._loginElm, this);
+            Compiler.digest(this._splashElm, this);
         }
 
+        /*
+        * General success handler
+        */
         loginSuccess(data: UsersInterface.IResponse)
         {
             if (data.error)
@@ -159,13 +234,16 @@
                         that.$loginRed = false;
 
                     that.$loginError = data.message;
-                    Compiler.digest(that._splashElm, that, true);
+                    
                 })
                 .fail(this.loginError.bind(that))
                 .done(function ()
                 {
-                    jQuery(".close-but", that._loginElm).trigger("click");
                     that.$loading = false;
+                    if (that.$user.isLoggedIn)
+                        that.goState("welcome", true)
+                    else
+                        Compiler.digest(that._splashElm, that, true);
                 });
         }
 
@@ -190,6 +268,7 @@
                     that.$loading = false;
                     Recaptcha.reload();
                     Compiler.digest(that._loginElm, that);
+                    Compiler.digest(that._splashElm, that);
                 });
         }
 
@@ -209,7 +288,9 @@
                     this.$error = true;
                 });
 
-                return Compiler.digest(that._loginElm, that);
+                Compiler.digest(that._loginElm, that);
+                Compiler.digest(that._splashElm, that);
+                return;
             }
 
             that.$loading = true;
@@ -234,7 +315,9 @@
                     this.$error = true;
                 });
 
-                return Compiler.digest(that._loginElm, that);
+                Compiler.digest(that._loginElm, that);
+                Compiler.digest(that._splashElm, that);
+                return;
             }
 
             that.$loading = true;
@@ -245,7 +328,6 @@
 
         /**
         * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
         */
         logout()
         {
@@ -255,12 +337,19 @@
             {
                 that.$loading = false;
                 that.$loginError = "";
+            })
+            .fail(this.loginError.bind(that))
+            .always(function ()
+            {
                 Application.getInstance().projectReset();
-                Compiler.digest(that._splashElm, that, true);
-
-            }).fail(this.loginError.bind(that));
+                that.goState("login", true);
+            });
         }
         
+        /**
+		* Initializes the spash screen
+		* @returns {Splash}
+		*/
         static init(app: Application): Splash
         {
             Splash._singleton = new Splash(app);

@@ -111,7 +111,6 @@ var Animate;
             var potentials = [];
             var toRemove = [];
             // Traverse each element
-            //jQuery(elm).find("*").addBack().each(function (index, elem)
             Compiler.traverse(elm, function (elem) {
                 if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != ctrl)
                     return false;
@@ -216,16 +215,19 @@ var Animate;
             var elm = jElem.get(0);
             var matches;
             var textNode;
-            var expanded = Compiler.expand(elm, controller, includeSubTemplates);
+            var expanded;
+            expanded = Compiler.expand(elm, controller, includeSubTemplates);
             if (expanded != elm) {
                 elm = expanded;
                 jElem = jQuery(elm);
             }
             // Traverse each element
-            //jQuery(elm).find("*").addBack().each(function (index, elem)
             Compiler.traverse(elm, function (elem) {
                 if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != controller)
                     return false;
+                // Do nothing for comment nodes
+                if (elem.nodeType == 8)
+                    return;
                 // If a text node
                 if (elem.nodeType == 3) {
                     textNode = elem;
@@ -296,7 +298,11 @@ var Animate;
                                 form.$errorExpression = "";
                                 form.$errorInput = "";
                                 jQuery("[en-validate]", elem).each(function (index, subElem) {
-                                    Compiler.checkValidations(this.getAttribute("en-validate"), subElem);
+                                    var err = Compiler.checkValidations(this.getAttribute("en-validate"), subElem);
+                                    if (err) {
+                                        form.$error = true;
+                                        form.$pristine = false;
+                                    }
                                 });
                                 // If its an auto clear - then all the clear fields must be wiped
                                 if (form.$autoClear) {
@@ -315,6 +321,15 @@ var Animate;
                                 elem.form.$pristine = true;
                             var ev = function (e) {
                                 Compiler.checkValidations(value, elem);
+                                // IF it has a form - check other elements for errors
+                                var form = elem.form;
+                                if (form) {
+                                    form.$error = false;
+                                    jQuery("[en-validate]", form).each(function (index, subElem) {
+                                        if (subElem.$error)
+                                            form.$error = true;
+                                    });
+                                }
                                 Compiler.digest(jElem, controller);
                             };
                             Compiler.registerFunc(appNode, "change", "en-validate", ev);
@@ -348,10 +363,7 @@ var Animate;
                     }
                     break;
                 }
-            if (form) {
-                form.$error = elem.$error;
-                form.$pristine = false;
-            }
+            return elem.$error;
         };
         /**
         * Goes through an element and prepares it for the compiler. This usually involves adding event listeners
@@ -371,6 +383,7 @@ var Animate;
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric" },
             "non-empty": { regex: /\S/, name: "non-empty" },
             "alpha-numeric-plus": { regex: /^[a-zA-Z0-9_\-!]+$/, name: "alpha-numeric-plus" },
+            "email-plus": { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus" },
             "email": { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email" }
         };
         return Compiler;
@@ -18551,13 +18564,16 @@ var Animate;
         */
         function Splash(app) {
             this._app = app;
-            this._splashElm = jQuery(".splash").remove().clone();
-            this._loginElm = jQuery(".login").remove().clone();
+            this._captureInitialized = false;
+            this._splashElm = jQuery("#splash").remove().clone();
+            this._loginElm = jQuery("#log-reg").remove().clone();
+            this._welcomeElm = jQuery("#splash-welcome").remove().clone();
             this.$user = Animate.User.get;
-            this.$activePane = "login";
+            this.$activePane = "loading";
             this.$loginError = "";
             this.$loginRed = true;
             this.$loading = false;
+            this.$projects = [];
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
                 this.$theme = { "welcome-blue": true };
@@ -18565,20 +18581,71 @@ var Animate;
                 this.$theme = { "welcome-pink": true };
             // Add the elements
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
-            // Build each of the templates
-            Animate.Compiler.build(this._splashElm, this);
-            Animate.Compiler.build(this._loginElm, this);
+            jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
         }
+        /*
+        * Shows the splash screen
+        */
         Splash.prototype.show = function () {
-            this._app.element.detach();
-            Animate.Compiler.digest(this._splashElm, this, true);
-            jQuery("body").append(this._splashElm);
-            jQuery("#en-login-username", this._loginElm).val("");
+            var that = this;
+            that._app.element.detach();
+            jQuery("body").append(that._splashElm);
+            jQuery("#en-login-username", that._loginElm).val("");
+            that.$loading = true;
+            if (!that._captureInitialized) {
+                // Build each of the templates
+                Animate.Compiler.build(this._splashElm, this);
+                Animate.Compiler.build(this._loginElm, this);
+                Animate.Compiler.build(this._welcomeElm, this);
+                Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", document.getElementById("animate-captcha"), { theme: "white" });
+            }
+            else {
+                Animate.Compiler.digest(this._splashElm, that, true);
+                Recaptcha.reload();
+            }
+            that.$user.authenticated().done(function (val) {
+                if (!val)
+                    that.goState("login", true);
+                else
+                    that.goState("welcome", true);
+            }).fail(function (err) {
+                that.goState("login", true);
+            });
         };
+        /*
+        * Gets the dimensions of the splash screen based on the active pane
+        */
         Splash.prototype.splashDimensions = function () {
             if (this.$activePane == "login")
                 return { "compact": true, "wide": false };
+            else
+                return { "compact": false, "wide": true };
         };
+        /*
+        * Goes to pane state
+        * @param {state} The name of the state
+        */
+        Splash.prototype.goState = function (state, digest) {
+            if (digest === void 0) { digest = false; }
+            var that = this;
+            that.$loading = false;
+            that.$activePane = state;
+            that.$loginError = "";
+            if (digest)
+                Animate.Compiler.digest(that._splashElm, that, true);
+            if (state == "welcome") {
+                that.$user.getProjectList().then(function (projects) {
+                    that.$projects = projects.data;
+                    if (!that.$projects || that.$projects.length == 0)
+                        that.$projects = [{ name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }];
+                }).done(function () {
+                    Animate.Compiler.digest(that._welcomeElm, that);
+                });
+            }
+        };
+        /*
+        * Called by the app when everything needs to be reset
+        */
         Splash.prototype.reset = function () {
         };
         /**
@@ -18616,8 +18683,8 @@ var Animate;
             if (registerCheck) {
                 this.$regCaptcha = jQuery("#recaptcha_response_field").val();
                 this.$regChallenge = jQuery("#recaptcha_challenge_field").val();
-                if (this.$regPassword != this.$regPasswordCheck)
-                    this.$loginError = "Your passwords do not match";
+                if (this.$regCaptcha == "")
+                    this.$loginError = "Please enter the capture code";
             }
             if (this.$loginError == "") {
                 this.$loginRed = false;
@@ -18628,12 +18695,19 @@ var Animate;
                 return true;
             }
         };
+        /*
+        * General error handler
+        */
         Splash.prototype.loginError = function (err) {
             this.$loading = false;
             this.$loginRed = true;
             this.$loginError = err.message;
             Animate.Compiler.digest(this._loginElm, this);
+            Animate.Compiler.digest(this._splashElm, this);
         };
+        /*
+        * General success handler
+        */
         Splash.prototype.loginSuccess = function (data) {
             if (data.error)
                 this.$loginRed = true;
@@ -18659,12 +18733,14 @@ var Animate;
                 else
                     that.$loginRed = false;
                 that.$loginError = data.message;
-                Animate.Compiler.digest(that._splashElm, that, true);
             })
                 .fail(this.loginError.bind(that))
                 .done(function () {
-                jQuery(".close-but", that._loginElm).trigger("click");
                 that.$loading = false;
+                if (that.$user.isLoggedIn)
+                    that.goState("welcome", true);
+                else
+                    Animate.Compiler.digest(that._splashElm, that, true);
             });
         };
         /**
@@ -18686,6 +18762,7 @@ var Animate;
                 that.$loading = false;
                 Recaptcha.reload();
                 Animate.Compiler.digest(that._loginElm, that);
+                Animate.Compiler.digest(that._splashElm, that);
             });
         };
         /**
@@ -18699,7 +18776,9 @@ var Animate;
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
                     this.$error = true;
                 });
-                return Animate.Compiler.digest(that._loginElm, that);
+                Animate.Compiler.digest(that._loginElm, that);
+                Animate.Compiler.digest(that._splashElm, that);
+                return;
             }
             that.$loading = true;
             this.$user.resendActivation(user)
@@ -18717,7 +18796,9 @@ var Animate;
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
                     this.$error = true;
                 });
-                return Animate.Compiler.digest(that._loginElm, that);
+                Animate.Compiler.digest(that._loginElm, that);
+                Animate.Compiler.digest(that._splashElm, that);
+                return;
             }
             that.$loading = true;
             this.$user.resetPassword(user)
@@ -18726,7 +18807,6 @@ var Animate;
         };
         /**
         * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
         */
         Splash.prototype.logout = function () {
             var that = this;
@@ -18734,10 +18814,17 @@ var Animate;
             this.$user.logout().then(function () {
                 that.$loading = false;
                 that.$loginError = "";
+            })
+                .fail(this.loginError.bind(that))
+                .always(function () {
                 Animate.Application.getInstance().projectReset();
-                Animate.Compiler.digest(that._splashElm, that, true);
-            }).fail(this.loginError.bind(that));
+                that.goState("login", true);
+            });
         };
+        /**
+        * Initializes the spash screen
+        * @returns {Splash}
+        */
         Splash.init = function (app) {
             Splash._singleton = new Splash(app);
             return Splash._singleton;
@@ -18960,3 +19047,76 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/splash/Splash.ts" />
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" /> 
+var Animate;
+(function (Animate) {
+    /**
+    * Abstract class downloading content by pages
+    */
+    var PageLoader = (function () {
+        function PageLoader() {
+            this.loading = false;
+            this.error = false;
+            this.errorMsg = "";
+            this.index = 0;
+            this.limit = 10;
+            this.last = 1;
+            this.searchTerm = "";
+        }
+        /**
+        * Updates the content
+        */
+        PageLoader.prototype.updatePageContent = function () {
+        };
+        /**
+        * Gets the current page number
+        * @returns {number}
+        */
+        PageLoader.prototype.getPageNum = function () {
+            return (this.index / this.limit) + 1;
+        };
+        /**
+        * Gets the total number of pages
+        * @returns {number}
+        */
+        PageLoader.prototype.getTotalPages = function () {
+            return Math.ceil(this.last / this.limit);
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goFirst = function () {
+            this.index = 0;
+            this.updatePageContent();
+        };
+        /**
+        * Gets the last set of users
+        */
+        PageLoader.prototype.goLast = function () {
+            this.index = this.last - (this.last % this.limit);
+            this.updatePageContent();
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goNext = function () {
+            this.index += this.limit;
+            this.updatePageContent();
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goPrev = function () {
+            this.index -= this.limit;
+            if (this.index < 0)
+                this.index = 0;
+            this.updatePageContent();
+        };
+        /**
+        * Called when the controller is being destroyed
+        */
+        PageLoader.prototype.dispose = function () {
+        };
+        return PageLoader;
+    })();
+    Animate.PageLoader = PageLoader;
+})(Animate || (Animate = {}));

@@ -539,45 +539,86 @@ html, body, #stage {
     width:50%;
 }
 
+.navigation-column {
+    width:33.333333333%;
+    box-sizing:border-box;
+    float:left;
+}
+.navigation-column.back {
+    text-align: left;
+}
+.navigation-column.index {
+    text-align: center;
+}
+.navigation-column.next {
+    text-align: right;
+}
+.navigation-column.back a {
+    margin:0 10px 0 0;
+}
+.navigation-column.next a {
+    margin:0 0 0 10px;
+}
+
 /**
 *  SPLASH SCREEN 
 *  =============
 */
-.splash {
+#splash {
     width:100%;
     height:100%;
     background-size:100% 100%;
+    overflow:auto;
 }
 
-.splash .logo {
+#splash .logo {
     overflow: hidden;
     text-align: center;
     font-size: 70px;
     position: relative;
 }
-.splash .logo h2 {
+#splash .logo h2 {
     font-weight: 100;
     margin: 40px 0;
 }
 #splash-view {
     overflow:auto;
     text-align:center;
-}
-#splash-view .avatar {
-    margin:0 0 15px 0;
-}
-#splash-view .input-box {
     position:relative;
-}
-#splash-view input[type="text"], #splash-view input[type="password"] {
-    padding:25px;
-    background:#F5F5F5;
-}
-#splash-view.compact {
-    position:relative;
-    width:25%;
     margin:0 auto;
     min-width: 400px;
+}
+#splash-view.compact {
+    width:25%;
+}
+#splash-view.wide {
+    width:80%;
+    min-width: 910px;
+}
+#splash-loading-icon {
+    margin:0 10px 0 0;
+    height: 100px;
+}
+#splash .logout {
+    font-size: 30px;
+    position: absolute;
+    top: 0;
+    padding: 10px;
+    left: calc(100% - 100px);
+}
+/**
+*  SPLASH SCREEN - LOGIN + REGISTER
+*  =============
+*/
+#log-reg .input-box {
+    position:relative;
+}
+#log-reg .avatar {
+    margin:0 0 15px 0;
+}
+#log-reg input[type="text"], #splash-view input[type="password"] {
+    padding:25px;
+    background:#F5F5F5;
 }
 #forgot-pass {
     position: absolute;
@@ -585,15 +626,10 @@ html, body, #stage {
     top: 20px;
     color: #aaa;
 }
-#splash-loading-icon {
-    position:absolute;
-    top:110%;
-    left:35%;
-}
-#splash-view .checkbox {
+#log-reg .checkbox {
     margin:15px 0 10px 0
 }
-#splash-view form input[type="submit"], #splash-view form .button {
+#log-reg form input[type="submit"], #splash-view form .button {
     width: 100%;
     height: 80px;
     margin: 10px 0 0 0;
@@ -604,11 +640,116 @@ html, body, #stage {
     line-height:40px;
 }
 .login-msg {
-    color:green;
-    background: #FFF1E8;
     text-align: center;
     padding: 10px;
+    overflow:hidden;
+    max-height:0px;
 }
+#animate-captcha {
+    display: inline-block;
+    margin: 20px 0 0 0;
+}
+
+/**
+*  SPLASH SCREEN - WELCOME
+*  =============
+*/
+#splash-welcome {
+    font-size:26px;
+    text-align:left;
+}
+#splash-welcome .search {
+    float:right;
+}
+.projects-view {
+    min-height:300px;
+    min-height: 300px;
+    overflow: auto;
+    max-height: 500px;
+    width: 100%;
+}
+#splash-welcome .navigation-column {
+    padding:10px;
+}
+.projects-toolbar .button {
+    padding:20px;
+}
+.projects-toolbar .search {
+    margin:10px;
+}
+.projects-toolbar .search input {
+    padding: 10px;
+}
+.project-info {
+    width: 0%;
+    position: absolute;
+    left: 75%;
+    top:0;
+    height: 100%;
+}
+.project-info .project-details {
+    height:85%;
+    overflow:auto;
+    padding:10px;
+}
+.project-info .buttons {
+    height:15%;
+}
+.project-item {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    float: left;
+    margin: 10px;
+    cursor: pointer;
+}
+.project-item .welcome-preview {
+    background: #fff;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
+    padding-top: 75%;
+    position: relative;
+}
+.project-item .welcome-preview .inner {
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    white-space: nowrap;
+}
+.project-item .background-tiles {
+    background-color: white;
+    background-image: -webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),-webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
+    background-image: linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
+    background-position: 0 0,10px 10px;
+    -webkit-background-size: 21px 21px;
+    background-size: 21px 21px;
+}
+.project-item .item-name {
+    color: inherit;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 10px 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.project-item .inner .div-center {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+.project-item .inner img {
+    display: inline-block;
+    max-height: 100%;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+
 
 
 .splash-user-box {
@@ -699,14 +840,23 @@ Please only put css rules in here for generalized modules.
 
 	eg: classes for highlighting text on certain pages
 **/
-.splash.welcome-blue {
+#splash.welcome-blue {
     background-image:url("media/aurora.png");
 }
-.splash.welcome-pink {
+#splash.welcome-pink {
     background-image:url("media/aurora2.png");
 }
 .background {
     background:#fff;
+}
+.background-a {
+    background:rgba(255, 255, 255, 0.3);
+}
+.background-view {
+    background:#ddd;
+}
+.background-view-light {
+    background:#eee;
 }
 a:active, a:hover {
   border-bottom:1px solid #ccc;
@@ -720,12 +870,60 @@ a:active, a:hover {
 .tick-box:active {
     background: #ccc;
 }
-.splash .logo h2 {
+#splash .logo h2, #splash .logout a {
     color: #fff;
 }
-.green-glow { -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7); box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7); }
-.green-glow-strong { -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1); box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1); }
-.red-glow-strong { -webkit-box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1); box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1); }
+.reg-gradient {
+    background: #5EA4EA;
+    color: #FFF !important;
+}
+.reg-gradient:hover {
+    background: #5893cf;
+    color: #FFF;
+}
+.reg-gradient:active {
+    background: #04508C;
+}
+
+.reg-gradient .cross:before, .reg-gradient .cross:after, .reg-gradient .tick:before, .reg-gradient .tick:after, .reg-gradient .minus:before, .reg-gradient .minus:after {
+    background-color:#fff;
+}
+
+.list-view-field {
+    border-bottom: 1px solid #ccc;
+    padding-left: 4px;
+    box-sizing: border-box;
+}
+.button-selected {
+    background: #88CF0E !important;
+    color: #fff !important;
+}
+.comment {
+    background: #FFFDBA;
+    border: none;
+    position: absolute;
+}
+.reg-color {
+    background-color: #04508C;
+}
+.dark-color {
+    background-color: #292E38;
+}
+.light-color {
+    background-color: #ADC0DB;
+}
+.green-glow {
+    -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
+    box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
+}
+.green-glow-strong {
+    -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1);
+    box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1);
+}
+.red-glow-strong {
+    -webkit-box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1);
+    box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1);
+}
 html .bad-input {
     background: #ffe9e9 !important;
 }
@@ -1264,37 +1462,16 @@ border-radius: 0px 5px 0px 0px;
 
 /**COLOR THEMES (#04508C)
 ============================================*/
-.reg-gradient {
-    background: #5EA4EA;
-    color: #FFF;
-}
-.reg-gradient:active {
-    background: #04508C;
-}
-.list-view-field {
-    border-bottom: 1px solid #ccc;
-    padding-left: 4px;
-    box-sizing: border-box;
-}
-.button-selected {
-    background: #88CF0E !important;
-    color: #fff !important;
-}
-.comment {
-    background: #FFFDBA;
-    border: none;
-    position: absolute;
-}
 
-.reg-color{ background-color: #04508C; }
-.dark-color{ background-color: #292E38; }
-.light-color{ background-color: #ADC0DB; }
 
 .tool-bar-top{ background: #04508C; color:#FFF; }
 .tool-bar-group, .tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
-.tool-tab, .tab-selector{ background-color: #5988BD; color:#fff; 
--webkit-border-radius: 0px 5px 0px 0px;
-border-radius: 0px 5px 0px 0px;  }
+.tool-tab, .tab-selector {
+    background-color: #5988BD;
+    color: #fff;
+    -webkit-border-radius: 0px 5px 0px 0px;
+    border-radius: 0px 5px 0px 0px;
+}
 .tool-tab:hover{ background-color: #44464D !important; }
 
 .tool-tab-selected, .tab-selected{ background-color:#FFF !important; color: #04508C; font-weight:bold;

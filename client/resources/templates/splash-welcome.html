@@ -1,17 +1,48 @@
-﻿<div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
-	<div class='splash-user-box'>
-		<div en-show="ctrl.user.isLoggedIn" class='close-but' en-click="ctrl.hide()">X</div>
-		<div class='details'>
-			<img en-src="ctrl.user.userEntry.meta.imgURL" />
+﻿<div id='splash-welcome' class="fade-in" en-show="ctrl.$activePane == 'welcome'">
+	<div class="projects-toolbar">
+		<div class="button reg-gradient"><div class="cross"></div>Add</div>
+		<div class="search"><input placeholder="Keywords" class="background-view-light" type="text" /></div>
+	</div>
+	<div style="position:relative;">
+		<div class="projects-view background-view" en-style="{ width: (ctrl.$selectedProject ? '75%' : '') }">
+			<div class="project-item unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.$selectedProject = project; project.selected = !project.selected">
+				<div class="welcome-preview">
+					<div class="background-tiles inner ng-scope">
+						<img src="https://storage.googleapis.com/webinate-bucket-qialuiuj/jbn24kqpyMh76kfS" />
+						<div class="div-center"></div>
+					</div>
+				</div>
+				<div class="item-name" en-class="{ 'reg-gradient' : project.selected }">{{project.name}}</div>
+			</div>
 		</div>
-
-		<div en-show="ctrl.user.isLoggedIn" class='details'>{{ctrl.user.userEntry.username}}</div>
-		<div en-show="ctrl.user.isLoggedIn" class='details'><div class='hyperlink logout-link' en-click="ctrl.logout()">Logout</div></div>
-
-		<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink login-link' en-click="ctrl.onButtonClick(e)">Login</span></div>
-		<div en-show="!ctrl.user.isLoggedIn" class='details'><span class='hyperlink register-link' en-click="ctrl.onButtonClick(e)">Register</span></div>
-
-		<div class='fix'></div>
+		<div class="project-info background" en-if="ctrl.$selectedProject" en-style="{ width: (ctrl.$selectedProject ? '25%' : '') }">
+			<div class="project-details">
+				<h2>{{ctrl.$selectedProject.name}}</h2>
+				<p>{{ctrl.$selectedProject.name}}</p>
+			</div>
+			<div class="buttons">
+				<div class="double-column">
+					<div class="button reg-gradient animate-all">Open</div>
+				</div>
+				<div class="double-column">
+					<div class="button reg-gradient animate-all">Remove</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="projects-footer">
+		<div class="navigation-column back">
+			<a>First</a>
+			<a>Prev</a>
+		</div>
+		<div class="navigation-column index">
+			1/1
+		</div>
+		<div class="navigation-column next">
+			<a>Next</a>
+			<a>Last</a>
+		</div>
+		<div class="fix"></div>
 	</div>
 </div>
 <!-- div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
