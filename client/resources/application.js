@@ -18574,6 +18574,8 @@ var Animate;
             this.$loginRed = true;
             this.$loading = false;
             this.$projects = [];
+            this.$selectedProjects = [];
+            this.$selectedProject = null;
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
                 this.$theme = { "welcome-blue": true };
@@ -18642,6 +18644,17 @@ var Animate;
                     Animate.Compiler.digest(that._welcomeElm, that);
                 });
             }
+        };
+        Splash.prototype.selectProject = function (project) {
+            project.selected = !project.selected;
+            if (this.$selectedProjects.indexOf(project) == -1)
+                this.$selectedProjects.push(project);
+            else
+                this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
+            if (this.$selectedProjects.length > 0)
+                this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
+            else
+                this.$selectedProject = null;
         };
         /*
         * Called by the app when everything needs to be reset

@@ -586,7 +586,7 @@ html, body, #stage {
     text-align:center;
     position:relative;
     margin:0 auto;
-    min-width: 400px;
+    min-width: 450px;
 }
 #splash-view.compact {
     width:25%;
@@ -659,14 +659,16 @@ html, body, #stage {
     text-align:left;
 }
 #splash-welcome .search {
-    float:right;
+    display: inline-block;
 }
 .projects-view {
-    min-height:300px;
-    min-height: 300px;
     overflow: auto;
-    max-height: 500px;
+    height: 450px;
     width: 100%;
+}
+.project-items {
+    overflow:auto;
+    height:398px;
 }
 #splash-welcome .navigation-column {
     padding:10px;
@@ -683,17 +685,23 @@ html, body, #stage {
 .project-info {
     width: 0%;
     position: absolute;
-    left: 75%;
+    left: 100%;
     top:0;
     height: 100%;
+    overflow: hidden;
 }
 .project-info .project-details {
-    height:85%;
-    overflow:auto;
-    padding:10px;
+    height: 398px;
+    overflow: auto;
+    padding: 10px;
+    box-sizing: border-box;
 }
 .project-info .buttons {
-    height:15%;
+    text-align:right;
+}
+.project-info .buttons .button {
+    height:100%;
+    
 }
 .project-item {
     width: 200px;
@@ -872,6 +880,36 @@ a:active, a:hover {
 }
 #splash .logo h2, #splash .logout a {
     color: #fff;
+}
+.button.green {
+	color: #fff;
+	background: #84D86C;
+}
+.button.green:hover {
+	background: #75c25f;
+}
+.button.green:active {
+	background: #609f4e;
+}
+.button.red {
+	color: #fff;
+	background: #ea6363;
+}
+.button.red:hover {
+	background: #d15c5c;
+}
+.button.red:active {
+	background: #b44848;
+}
+.button.gray {
+  background: #E0E0E0;
+  border: 1px solid #D5D5D5;
+}
+.button.gray:hover {
+  background: #d0d0d0;
+}
+.button.gray:active {
+  background: #bbbbbb;
 }
 .reg-gradient {
     background: #5EA4EA;

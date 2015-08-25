@@ -4,45 +4,45 @@
 		<div class="search"><input placeholder="Keywords" class="background-view-light" type="text" /></div>
 	</div>
 	<div style="position:relative;">
-		<div class="projects-view background-view" en-style="{ width: (ctrl.$selectedProject ? '75%' : '') }">
-			<div class="project-item unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.$selectedProject = project; project.selected = !project.selected">
-				<div class="welcome-preview">
-					<div class="background-tiles inner ng-scope">
-						<img src="https://storage.googleapis.com/webinate-bucket-qialuiuj/jbn24kqpyMh76kfS" />
-						<div class="div-center"></div>
+		<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedProject ? '75%' : '') }">
+			<div class="project-items">
+				<div class="project-item unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.selectProject(project)">
+					<div class="welcome-preview">
+						<div class="background-tiles inner ng-scope">
+							<img src="https://storage.googleapis.com/webinate-bucket-qialuiuj/jbn24kqpyMh76kfS" />
+							<div class="div-center"></div>
+						</div>
 					</div>
-				</div>
-				<div class="item-name" en-class="{ 'reg-gradient' : project.selected }">{{project.name}}</div>
-			</div>
-		</div>
-		<div class="project-info background" en-if="ctrl.$selectedProject" en-style="{ width: (ctrl.$selectedProject ? '25%' : '') }">
-			<div class="project-details">
-				<h2>{{ctrl.$selectedProject.name}}</h2>
-				<p>{{ctrl.$selectedProject.name}}</p>
-			</div>
-			<div class="buttons">
-				<div class="double-column">
-					<div class="button reg-gradient animate-all">Open</div>
-				</div>
-				<div class="double-column">
-					<div class="button reg-gradient animate-all">Remove</div>
+					<div class="item-name" en-class="{ 'reg-gradient' : project.selected }">{{project.name}}</div>
 				</div>
 			</div>
+			<div class="projects-footer background">
+				<div class="navigation-column back">
+					<a>First</a>
+					<a>Prev</a>
+				</div>
+				<div class="navigation-column index">
+					1/1
+				</div>
+				<div class="navigation-column next">
+					<a>Next</a>
+					<a>Last</a>
+				</div>
+				<div class="fix"></div>
+			</div>
 		</div>
-	</div>
-	<div class="projects-footer">
-		<div class="navigation-column back">
-			<a>First</a>
-			<a>Prev</a>
+		<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedProject ? '25%' : ''), left :  (ctrl.$selectedProject ? '75%' : '') }">
+			<div en-if="ctrl.$selectedProject" class="fade-in" style="height:100%;">
+				<div class="project-details">
+					<h2>{{ctrl.$selectedProject.name}}</h2>
+					<p>{{ctrl.$selectedProject.name}}</p>
+				</div>
+				<div class="buttons ">
+					<a>Remove</a>
+					<div class="button green animate-all">Open</div>
+				</div>
+			</div>
 		</div>
-		<div class="navigation-column index">
-			1/1
-		</div>
-		<div class="navigation-column next">
-			<a>Next</a>
-			<a>Last</a>
-		</div>
-		<div class="fix"></div>
 	</div>
 </div>
 <!-- div class='temp-splash-welcome splash-outer-container fade-in' en-show="ctrl.$activePane == 'welcome'">
