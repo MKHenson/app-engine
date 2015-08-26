@@ -287,7 +287,7 @@ module Animate
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
 		* it will return null.
 		*/
-        getProjectList(): JQueryPromise<ModepressEngine.IGetProjects>
+        getProjectList(index?: number, limit?: number): JQueryPromise<ModepressEngine.IGetProjects>
         {
             var d = jQuery.Deferred<ModepressEngine.IGetProjects>(),
                 that = this;

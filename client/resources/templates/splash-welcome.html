@@ -1,6 +1,6 @@
 ﻿<div id='splash-welcome' class="fade-in" en-show="ctrl.$activePane == 'welcome'">
 	<div class="projects-toolbar">
-		<div class="button reg-gradient"><div class="cross"></div>Add</div>
+		<div class="button reg-gradient" en-click="ctrl.goState('new-project')"><div class="cross"></div>New Appling</div>
 		<div class="search"><input placeholder="Keywords" class="background-view-light" type="text" /></div>
 	</div>
 	<div style="position:relative;">
@@ -18,15 +18,15 @@
 			</div>
 			<div class="projects-footer background">
 				<div class="navigation-column back">
-					<a>First</a>
-					<a>Prev</a>
+					<a en-show="ctrl.index" en-click="ctrl.$pager.goFirst()">First</a>
+					<a en-show="ctrl.index" en-click="ctrl.$pager.goPrev()">Prev</a>
 				</div>
 				<div class="navigation-column index">
-					1/1
+					{{ctrl.$pager.getPageNum()}} of {{ctrl.$pager.getTotalPages()}}
 				</div>
 				<div class="navigation-column next">
-					<a>Next</a>
-					<a>Last</a>
+					<a en-show="ctrl.index + ctrl.limit < ctrl.last" en-click="ctrl.$pager.goNext()">Next</a>
+					<a en-show="ctrl.index < ctrl.last - ctrl.limit" en-click="ctrl.$pager.goLast()">Last</a>
 				</div>
 				<div class="fix"></div>
 			</div>

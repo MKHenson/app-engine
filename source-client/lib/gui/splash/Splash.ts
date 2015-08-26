@@ -9,6 +9,7 @@
         private _splashElm: JQuery;
         private _loginElm: JQuery;
         private _welcomeElm: JQuery;
+        private _newProject: JQuery;
         private _app: Application;
         private _captureInitialized: boolean;
         private $user: User;
@@ -19,7 +20,8 @@
         private $loading: boolean;
         private $projects: Array<Engine.IProject>;
         private $selectedProjects: Array<Engine.IProject>;
-        private $selectedProject:Engine.IProject;
+        private $selectedProject: Engine.IProject;
+        private $pager: PageLoader;
 
         /**
 		* Creates an instance of the splash screen
@@ -31,6 +33,7 @@
             this._splashElm = jQuery("#splash").remove().clone();
             this._loginElm = jQuery("#log-reg").remove().clone();
             this._welcomeElm = jQuery("#splash-welcome").remove().clone();
+            this._newProject = jQuery("#splash-new-project").remove().clone();
             this.$user = User.get;
             this.$activePane = "loading";
             this.$loginError = "";
@@ -39,6 +42,7 @@
             this.$projects = [];
             this.$selectedProjects = [];
             this.$selectedProject = null;
+            this.$pager = new PageLoader(this.fetchProjects.bind(this));
 
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
@@ -49,6 +53,7 @@
             // Add the elements
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
             jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
+            jQuery("#splash-view", this._splashElm).prepend(this._newProject);
         }
 
         /*
@@ -94,7 +99,7 @@
         */
         splashDimensions(): any
         {
-            if (this.$activePane == "login")
+            if (this.$activePane == "login" || this.$activePane == "register")
                 return { "compact": true, "wide": false };
             else
                 return { "compact": false, "wide": true };
@@ -114,18 +119,31 @@
                 Animate.Compiler.digest(that._splashElm, that, true);
 
             if (state == "welcome")
-            {
-                that.$user.getProjectList().then(function (projects)
-                {
-                    that.$projects = projects.data;
-                    if (!that.$projects || that.$projects.length == 0)
-                        that.$projects = <any>[{ name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }];
+                this.fetchProjects(this.$pager.index, this.$pager.limit);
+        }
 
-                }).done(function()
-                {
-                    Animate.Compiler.digest(that._welcomeElm, that);
-                });
-            }
+        fetchProjects(index: number, limit: number)
+        {
+            var that = this;
+            that.$loading = true;
+            that.$loginError = "";
+            Animate.Compiler.digest(that._splashElm, that);
+
+            that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
+            {
+                that.$pager.last = projects.count;
+                that.$projects = projects.data;
+
+            }).fail(function (err: Error)
+            {
+                that.$loginError = err.message;
+
+            }).done(function ()
+            {
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that);
+                Animate.Compiler.digest(that._welcomeElm, that);
+            });
         }
 
         selectProject(project: any)

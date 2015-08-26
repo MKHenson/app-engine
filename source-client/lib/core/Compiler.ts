@@ -350,17 +350,11 @@
                 if (elem.nodeType == 3)
                 {
                     textNode = <AppNode><Node>elem;
-
-                    if (!textNode.$expression)
-                        textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val)
+                    textNode.nodeValue = textNode.nodeValue.replace(/\{\{(.*?)\}\}/g, function (sub, val)
                         {
                             var t = sub.match(/[^{}]+/);
-                            textNode.$expression = t[0];
-                            return t[0];
+                            return Compiler.parse(val, controller, null, <Element><Node>textNode);
                         })
-
-                    if (textNode.$expression)
-                        textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, <Element><Node>textNode);
 
                     return;
                 }

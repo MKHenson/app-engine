@@ -5,32 +5,21 @@
 	*/
     export class PageLoader
     {
-        protected error: boolean;
-        protected errorMsg: string;
-        protected loading: boolean;
-        protected index: number;
-        protected limit: number;
-        protected last: number;
+        public updateFunc: (index: number, limit: number) => void;
+        public index: number;
+        public limit: number;
+        public last: number;
         protected searchTerm: string;
 
-        constructor()
+        constructor(updateFunction: (index: number, limit: number) => void )
         {
-            this.loading = false;
-            this.error = false;
-            this.errorMsg = "";
+            this.updateFunc = updateFunction;
             this.index = 0;
             this.limit = 10;
             this.last = 1;
             this.searchTerm = "";
         }
-
-        /**
-        * Updates the content
-        */
-        updatePageContent()
-        {
-        }
-
+        
         /**
         * Gets the current page number
         * @returns {number}
@@ -55,7 +44,7 @@
         goFirst()
         {
             this.index = 0;
-            this.updatePageContent();
+            this.updateFunc(this.index, this.limit);
         }
 
         /**
@@ -64,7 +53,7 @@
         goLast()
         {
             this.index = this.last - (this.last % this.limit);
-            this.updatePageContent();
+            this.updateFunc(this.index, this.limit);
         }
 
         /**
@@ -73,7 +62,7 @@
         goNext()
         {
             this.index += this.limit;
-            this.updatePageContent();
+            this.updateFunc(this.index, this.limit);
         }
 
         /**
@@ -85,14 +74,7 @@
             if (this.index < 0)
                 this.index = 0;
 
-            this.updatePageContent();
-        }
-
-        /**
-        * Called when the controller is being destroyed
-        */
-        dispose()
-        {
+            this.updateFunc(this.index, this.limit);
         }
     }
 }

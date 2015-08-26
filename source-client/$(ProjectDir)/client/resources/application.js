@@ -231,14 +231,10 @@ var Animate;
                 // If a text node
                 if (elem.nodeType == 3) {
                     textNode = elem;
-                    if (!textNode.$expression)
-                        textNode.nodeValue.replace(/\{\{(.*?)\}\}/, function (sub, val) {
-                            var t = sub.match(/[^{}]+/);
-                            textNode.$expression = t[0];
-                            return t[0];
-                        });
-                    if (textNode.$expression)
-                        textNode.nodeValue = Compiler.parse(textNode.$expression, controller, null, textNode);
+                    textNode.nodeValue = textNode.nodeValue.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
+                        var t = sub.match(/[^{}]+/);
+                        return Compiler.parse(val, controller, null, textNode);
+                    });
                     return;
                 }
                 var appNode = elem;
@@ -3959,7 +3955,7 @@ var Animate;
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
         */
-        User.prototype.getProjectList = function () {
+        User.prototype.getProjectList = function (index, limit) {
             var d = jQuery.Deferred(), that = this;
             jQuery.getJSON(Animate.DB.API + "/projects").done(function (data) {
                 if (data.error)
@@ -4168,6 +4164,67 @@ var Animate;
         return User;
     })(Animate.EventDispatcher);
     Animate.User = User;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * Abstract class downloading content by pages
+    */
+    var PageLoader = (function () {
+        function PageLoader(updateFunction) {
+            this.updateFunc = updateFunction;
+            this.index = 0;
+            this.limit = 10;
+            this.last = 1;
+            this.searchTerm = "";
+        }
+        /**
+        * Gets the current page number
+        * @returns {number}
+        */
+        PageLoader.prototype.getPageNum = function () {
+            return (this.index / this.limit) + 1;
+        };
+        /**
+        * Gets the total number of pages
+        * @returns {number}
+        */
+        PageLoader.prototype.getTotalPages = function () {
+            return Math.ceil(this.last / this.limit);
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goFirst = function () {
+            this.index = 0;
+            this.updateFunc(this.index, this.limit);
+        };
+        /**
+        * Gets the last set of users
+        */
+        PageLoader.prototype.goLast = function () {
+            this.index = this.last - (this.last % this.limit);
+            this.updateFunc(this.index, this.limit);
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goNext = function () {
+            this.index += this.limit;
+            this.updateFunc(this.index, this.limit);
+        };
+        /**
+        * Sets the page search back to index = 0
+        */
+        PageLoader.prototype.goPrev = function () {
+            this.index -= this.limit;
+            if (this.index < 0)
+                this.index = 0;
+            this.updateFunc(this.index, this.limit);
+        };
+        return PageLoader;
+    })();
+    Animate.PageLoader = PageLoader;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -18568,6 +18625,7 @@ var Animate;
             this._splashElm = jQuery("#splash").remove().clone();
             this._loginElm = jQuery("#log-reg").remove().clone();
             this._welcomeElm = jQuery("#splash-welcome").remove().clone();
+            this._newProject = jQuery("#splash-new-project").remove().clone();
             this.$user = Animate.User.get;
             this.$activePane = "loading";
             this.$loginError = "";
@@ -18576,6 +18634,7 @@ var Animate;
             this.$projects = [];
             this.$selectedProjects = [];
             this.$selectedProject = null;
+            this.$pager = new Animate.PageLoader(this.fetchProjects.bind(this));
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
                 this.$theme = { "welcome-blue": true };
@@ -18584,6 +18643,7 @@ var Animate;
             // Add the elements
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
             jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
+            jQuery("#splash-view", this._splashElm).prepend(this._newProject);
         }
         /*
         * Shows the splash screen
@@ -18618,7 +18678,7 @@ var Animate;
         * Gets the dimensions of the splash screen based on the active pane
         */
         Splash.prototype.splashDimensions = function () {
-            if (this.$activePane == "login")
+            if (this.$activePane == "login" || this.$activePane == "register")
                 return { "compact": true, "wide": false };
             else
                 return { "compact": false, "wide": true };
@@ -18635,15 +18695,24 @@ var Animate;
             that.$loginError = "";
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
-            if (state == "welcome") {
-                that.$user.getProjectList().then(function (projects) {
-                    that.$projects = projects.data;
-                    if (!that.$projects || that.$projects.length == 0)
-                        that.$projects = [{ name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }, { name: "hello" }, { name: "little" }, { name: "bugger" }];
-                }).done(function () {
-                    Animate.Compiler.digest(that._welcomeElm, that);
-                });
-            }
+            if (state == "welcome")
+                this.fetchProjects(this.$pager.index, this.$pager.limit);
+        };
+        Splash.prototype.fetchProjects = function (index, limit) {
+            var that = this;
+            that.$loading = true;
+            that.$loginError = "";
+            Animate.Compiler.digest(that._splashElm, that);
+            that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects) {
+                that.$pager.last = projects.count;
+                that.$projects = projects.data;
+            }).fail(function (err) {
+                that.$loginError = err.message;
+            }).done(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that);
+                Animate.Compiler.digest(that._welcomeElm, that);
+            });
         };
         Splash.prototype.selectProject = function (project) {
             project.selected = !project.selected;
@@ -18974,6 +19043,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/TypeConverter.ts" />
 /// <reference path="lib/core/Utils.ts" />
 /// <reference path="lib/core/User.ts" />
+/// <reference path="lib/core/PageLoader.ts" />
 /// <reference path="lib/gui/layouts/ILayout.ts" />
 /// <reference path="lib/gui/layouts/Percentile.ts" />
 /// <reference path="lib/gui/layouts/Fill.ts" />
@@ -19060,76 +19130,3 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/splash/Splash.ts" />
 /// <reference path="lib/gui/Application.ts" />
 /// <reference path="lib/Main.ts" /> 
-var Animate;
-(function (Animate) {
-    /**
-    * Abstract class downloading content by pages
-    */
-    var PageLoader = (function () {
-        function PageLoader() {
-            this.loading = false;
-            this.error = false;
-            this.errorMsg = "";
-            this.index = 0;
-            this.limit = 10;
-            this.last = 1;
-            this.searchTerm = "";
-        }
-        /**
-        * Updates the content
-        */
-        PageLoader.prototype.updatePageContent = function () {
-        };
-        /**
-        * Gets the current page number
-        * @returns {number}
-        */
-        PageLoader.prototype.getPageNum = function () {
-            return (this.index / this.limit) + 1;
-        };
-        /**
-        * Gets the total number of pages
-        * @returns {number}
-        */
-        PageLoader.prototype.getTotalPages = function () {
-            return Math.ceil(this.last / this.limit);
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PageLoader.prototype.goFirst = function () {
-            this.index = 0;
-            this.updatePageContent();
-        };
-        /**
-        * Gets the last set of users
-        */
-        PageLoader.prototype.goLast = function () {
-            this.index = this.last - (this.last % this.limit);
-            this.updatePageContent();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PageLoader.prototype.goNext = function () {
-            this.index += this.limit;
-            this.updatePageContent();
-        };
-        /**
-        * Sets the page search back to index = 0
-        */
-        PageLoader.prototype.goPrev = function () {
-            this.index -= this.limit;
-            if (this.index < 0)
-                this.index = 0;
-            this.updatePageContent();
-        };
-        /**
-        * Called when the controller is being destroyed
-        */
-        PageLoader.prototype.dispose = function () {
-        };
-        return PageLoader;
-    })();
-    Animate.PageLoader = PageLoader;
-})(Animate || (Animate = {}));

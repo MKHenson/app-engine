@@ -48,6 +48,7 @@
 /// <reference path="lib/core/TypeConverter.ts" />
 /// <reference path="lib/core/Utils.ts" />
 /// <reference path="lib/core/User.ts" />
+/// <reference path="lib/core/PageLoader.ts" />
 
 /// <reference path="lib/gui/layouts/ILayout.ts" />
 /// <reference path="lib/gui/layouts/Percentile.ts" />
