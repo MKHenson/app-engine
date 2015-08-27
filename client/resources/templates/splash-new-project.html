@@ -1,27 +1,35 @@
 <div id="splash-new-project" class='new-project fade-in' en-show="ctrl.$activePane == 'new-project'">
-	<div class="double-column">
+	<div class="double-column" style="width:40%">
 		<form en-change="ctrl.reportError(elm)" >
-			<p><input name="name" class="background-view-light animate-all" type="text" placeholder="Name" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectName" /></p>
-			<p><textarea name="description" class="background-view-light animate-all" placeholder="Description" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectDesc"></textarea></p>
+			<p><input name="name" class="background-view-light animate-all" type="text" placeholder="Project Name" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectName" /></p>
+			<p><textarea name="description" class="background-view-light animate-all" placeholder="Project Description" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectDesc"></textarea></p>
 		</form>		
 	</div>
-	<div class="double-column">
+	<div class="double-column" style="width:60%">
 		<div class="double-column">
-			<h2>Appling Plugins</h2>
+			<div class="header">Choose Plugins</div>
 			<div class="plugins">
-				<div class="plugin" en-repeat="ctrl.$plugins as plugin" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'bad-input' : (ctrl.$activePlugin == plugin) }">
-					<img en-src="plugin.image" />{{plugin.name}}
+				<div class="plugin unselectable" en-repeat="ctrl.$plugins as plugin" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'background-view-light' : (ctrl.$activePlugin == plugin) }" en-click="plugin.selected = !plugin.selected">
+					<div class="checkbox">
+						<div class="tick-box">
+							<div class="tick" en-show="plugin.selected "></div>
+						</div>
+						<img en-src="plugin.image" />{{plugin.name}}
+					</div>
 				</div>
 			</div>
 		</div>
 		<div class="double-column">
-			<div class="plugin-info fade-in" en-if="ctrl.$activePlugin">
-				<h2>{{ctrl.$activePlugin.name}}</h2>
+			<div class="plugin-info fade-in background-view-light" en-if="ctrl.$activePlugin">
+				<div class="header">{{ctrl.$activePlugin.name}}</div>
 				{{ctrl.$activePlugin.description}}
 			</div>
 		</div>
 	</div>
 	<div class="fix"></div>
-	<div class='button reg-gradient curve-small' en-click="ctrl.goState('welcome', true)">Back</div>
-	<div class='button reg-gradient curve-small' en-click="ctrl.goState('start', true)">Next</div>
+	<div class="buttons">
+		<span class="info">Please select the appling plugins</span>
+		<div class='button reg-gradient curve-small' en-click="ctrl.goState('welcome', true)">Back</div>
+		<div class='button reg-gradient curve-small' en-click="ctrl.goState('start', true)">Next</div>
+	</div>
 </div>

@@ -1,7 +1,6 @@
 ﻿<div id="log-reg" en-show="ctrl.$activePane == 'login' || ctrl.$activePane == 'register'">
 	<div class='login animate-all fade-in' en-show="ctrl.$activePane == 'login'">
 		<form name="login" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) &&  ctrl.login(ctrl.$logUsername, ctrl.$logPassword, ctrl.$logRemember)">
-			<h2>Login</h2>
 			<div class="avatar"><img src="media/blank-user.png" /></div>
 			<div class='input-box'>
 				<input autocomplete="off" placeholder="Email or Username" autofocus="" type='text' name="username" id="en-login-username" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$logUsername" />
@@ -32,7 +31,6 @@
 	</div>
 	<div class='login animate-all fade-in' en-show="ctrl.$activePane == 'register'">
 		<form name="register" autocomplete="off" en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm, true) && ctrl.register(ctrl.$regUsername, ctrl.$regPassword, ctrl.$regEmail, ctrl.$regCaptcha, ctrl.$regChallenge )">
-			<h2>Register</h2>
 			<div class='input-box'>
 				<input type='text' placeholder="Username" autocomplete="off" name="username" en-model="ctrl.$regUsername" id="en-reg-username" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
 			</div>

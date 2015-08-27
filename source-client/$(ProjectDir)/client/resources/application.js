@@ -18768,7 +18768,9 @@ var Animate;
             this.$loginRed = true;
             this.$loading = false;
             this.$projects = [];
-            this.$plugins = [{ name: "test", image: "media/blank-user.png", description: "THIS IS A TEST" }, { name: "test2", image: "media/blank-user.png", description: "THIS IS A TEST2" }];
+            this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
+                { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" },
+                { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
             this.$selectedProjects = [];
             this.$selectedProject = null;
             this.$pager = new Animate.PageLoader(this.fetchProjects.bind(this));

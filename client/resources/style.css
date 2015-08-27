@@ -282,6 +282,13 @@ html body .error {
     clear:both; 
 }
 
+.header {
+    font-weight:bold;
+}
+.info {
+    font-style:italic;
+}
+
 .unselectable {
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -609,13 +616,13 @@ html, body, #stage {
 }
 /**
 *  SPLASH SCREEN - LOGIN + REGISTER
-*  =============
+*  ================================
 */
 #log-reg .input-box {
     position:relative;
 }
 #log-reg .avatar {
-    margin:0 0 15px 0;
+    margin:15px 0;
 }
 #log-reg input[type="text"], #splash-view input[type="password"] {
     padding:25px;
@@ -652,7 +659,7 @@ html, body, #stage {
 
 /**
 *  SPLASH SCREEN - WELCOME
-*  =============
+*  =========================
 */
 #splash-welcome {
     text-align:left;
@@ -669,6 +676,12 @@ html, body, #stage {
 .project-items {
     overflow:auto;
     height:398px;
+}
+.no-projects {
+    font-weight: bold;
+    margin-top: 140px;
+    text-align: center;
+    font-size: 40px;
 }
 #splash-welcome .navigation-column {
     padding:10px;
@@ -764,7 +777,7 @@ html, body, #stage {
 
 /**
 *  SPLASH SCREEN - NEW PROJECT
-*  =============
+*  ===============================
 */
 .new-project {
     text-align:left;
@@ -781,6 +794,40 @@ html, body, #stage {
 .new-project textarea {
     min-height:300px;
 }
+.new-project .info {
+    float:left;
+}
+.new-project .header {
+    margin-bottom:10px;
+}
+.plugins {
+    overflow:auto;
+    max-height: 330px;
+}
+.plugin .checkbox {
+    cursor: pointer;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    padding:0 10px;
+    box-sizing:border-box;
+}
+.plugin img {
+    width: 40px;
+    margin: 5px;
+}
+.new-project .buttons {
+    text-align:right;
+}
+.plugin-info {
+    overflow:auto;
+    min-height:370px;
+    padding:0px 10px 0 10px;
+    box-sizing:border-box;
+}
+
+
+
 
 .splash-user-box {
     margin-bottom: 10px;
@@ -875,6 +922,10 @@ Please only put css rules in here for generalized modules.
 }
 #splash.welcome-pink {
     background-image:url("media/aurora2.png");
+}
+.no-projects {
+    color: #bbb;
+    text-shadow: 1px 1px #FFFFFF;
 }
 .background {
     background:#fff;
