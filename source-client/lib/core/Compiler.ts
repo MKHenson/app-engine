@@ -4,6 +4,8 @@
     {
         $expression: string;
         $expressionType: string;
+        $clone: any;
+        $clonedElements: Array<Element>;
         $dynamic: boolean;
         $originalNode: AppNode;
         $ctx: string;
@@ -129,6 +131,112 @@
             }
         }
 
+        static clone(obj) : any
+        {
+            var copy;
+
+            // Handle the 3 simple types number, string, bool, null or undefined
+            if (null == obj || "object" != typeof obj)
+                return obj;
+
+            // Handle Date
+            if (obj instanceof Date)
+            {
+                copy = new Date();
+                copy.setTime(obj.getTime());
+                return copy;
+            }
+
+            // Handle Array
+            if (obj instanceof Array)
+            {
+                copy = [];
+                for (var i = 0, len = obj.length; i < len; i++)
+                {
+                    copy[i] = Compiler.clone(obj[i]);
+                }
+                return copy;
+            }
+
+            // Handle Object
+            if (obj instanceof Object)
+            {
+                copy = {};
+                for (var attr in obj)
+                {
+                    if (obj.hasOwnProperty(attr)) copy[attr] = Compiler.clone(obj[attr]);
+                }
+                return copy;
+            }
+
+            throw new Error("Unable to copy obj! Its type isn't supported.");
+        }
+
+        static isEquivalent(a: any, b: any): boolean
+        {
+            if ((null == a || "object" != typeof a) && (null == b || "object" != typeof b))
+                return a == b;
+            else if ((a == null && b == null) || (a == undefined && b == undefined))
+                return true;
+            else if (a == null || a == undefined)
+                return false;
+            else if (b == null || b == undefined)
+                return false;
+
+            // Create arrays of property names
+            var aProps = Object.getOwnPropertyNames(a);
+            var bProps = Object.getOwnPropertyNames(b);
+
+            // If number of properties is different,
+            // objects are not equivalent
+            if (aProps.length != bProps.length)
+                return false;
+
+            for (var i = 0; i < aProps.length; i++)
+            {
+                var aPropName = aProps[i];
+                var bPropName = bProps[i];
+
+                if (aPropName != bPropName)
+                    return false;
+
+                var aVal = a[aPropName];
+                var bVal = b[bPropName];
+
+                if (null == aVal || "object" != typeof aVal)
+                {
+                    if (aVal !== b[bPropName])
+                        return false;
+                }
+                else if (aVal instanceof Array)
+                {
+                    if (bVal instanceof Array == false)
+                        return false;
+
+                    for (var ai = 0, al = aVal.length; ai < al; ai++)
+                        if (!Compiler.isEquivalent(aVal, bVal))
+                            return false;
+                }
+                else if (aVal instanceof Date)
+                {
+                    if (bVal instanceof Date == false)
+                        return false;
+
+                    if (aVal.getTime() != bVal.getTime())
+                        return false;
+                }
+                else
+                {
+                    if (!Compiler.isEquivalent(aProps[i], bProps[i]))
+                        return false;
+                }
+            }
+
+            // If we made it this far, objects
+            // are considered equivalent
+            return true;
+        }
+
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
@@ -169,6 +277,24 @@
             search(elm);
         }
 
+        static removeClones(sourceNode: AppNode)
+        {
+            // Remove existing clones
+            for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++)
+            {
+                var appNode: AppNode = <AppNode><Node>sourceNode.$clonedElements[i];
+                appNode.$ctx = "";
+                appNode.$ctxValue = null;
+                if (appNode.$events)
+                    for (var ii = 0, il = appNode.$events.length; ii < il; ii++)
+                        appNode.removeEventListener(appNode.$events[ii].name, appNode.$events[ii].func);
+
+                jQuery(sourceNode.$clonedElements[i]).remove();
+            }
+
+            sourceNode.$clonedElements.splice(0, sourceNode.$clonedElements.length);
+        }
+
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
         * @param {Element} elm The root element to explore
@@ -191,10 +317,7 @@
                     return;
 
                 if ((<AppNode><Node>elem).$dynamic)
-                {
-                    toRemove.push(elem);
                     return;
-                }
 
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib)
@@ -223,23 +346,14 @@
 
             // Get the comments
             var comments: Array<Node> = Compiler.getCommentNodesIn(elm)
-
-            // Remove existing clones
-            for (var i = 0, l = toRemove.length; i < l; i++)
-            {
-                var appNode: AppNode = <AppNode><Node>toRemove[i];
-                appNode.$ctx = "";
-                appNode.$ctxValue = null;
-                jQuery(toRemove[i]).remove();
-            }
-
+            
             // Replace the potentials with comments that keep a reference to the original node
             for (var i = 0, l = potentials.length; i < l; i++)
             {
                 var comment = jQuery(`<!-- ${(<AppNode><Node>potentials[i]).$expressionType} -->`);
                 var commentElement: AppNode = <AppNode><Node>comment.get(0);
-                
-                
+
+                commentElement.$clonedElements = [];
                 commentElement.$originalNode = <AppNode><Node>potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
@@ -252,44 +366,81 @@
             for (var i = 0, l = comments.length; i < l; i++)
             {
                 var comment = jQuery(comments[i]);
-                var appNode = (<AppNode><Node>comments[i]);
+                var commentElement: AppNode = <AppNode><Node>comments[i];
                 
-                if (appNode.$expression)
+                if (commentElement.$expression)
                 {
-                    var $expression = appNode.$expression;
+                    var $expression = commentElement.$expression;
 
-                    if (appNode.$expressionType == "en-repeat")
+                    if (commentElement.$expressionType == "en-repeat")
                     {
                         var e = $expression.split("as");
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "")
                         {
                             var loopExpression = e[0];
                             var ctx = e[1];
-                            eval(`'use strict';
-                             for ( var i in ${loopExpression} ) {
-                                var clone = jQuery(appNode.$originalNode).clone();
-                                clone.get(0).$dynamic = true;
-                                clone.get(0).$ctx = ctx;
-                                clone.get(0).$ctxValue = ${loopExpression}[i];
-                                clone.insertAfter(comment);
-                            }`);
+                            //eval(`'use strict';
+                            // for ( var i in ${loopExpression} ) {
+                            //    var clone = jQuery(appNode.$originalNode).clone();
+                            //    clone.get(0).$dynamic = true;
+                            //    clone.get(0).$ctx = ctx;
+                            //    clone.get(0).$ctxValue = ${loopExpression}[i];
+                            //    clone.insertAfter(comment);
+                            //}`);
+
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, null);
+                            if (Compiler.isEquivalent(expressionValue, commentElement.$clone ) == false)
+                            {
+                                // Remove any existing nodes
+                                Compiler.removeClones(commentElement);
+
+                                if (expressionValue)
+                                {
+                                    for (var t in expressionValue)
+                                    {
+                                        var clone = jQuery(commentElement.$originalNode).clone();
+                                        var newNode: AppNode = <AppNode><Node>clone.get(0);
+                                        newNode.$dynamic = true;
+                                        newNode.$ctx = ctx;
+                                        newNode.$ctxValue = expressionValue[t];
+                                        clone.insertAfter(comment);
+
+                                        commentElement.$clonedElements.push(<Element><Node>newNode);
+
+                                    };
+                                }
+
+                                commentElement.$clone = Compiler.clone(expressionValue);
+                            }
                         }
                     }
-                    else if (appNode.$expressionType == "en-if")
+                    else if (commentElement.$expressionType == "en-if")
                     {
-                        if (Compiler.parse($expression, ctrl, null, <Element><Node>appNode))
+                        var expressionValue = Compiler.parse($expression, ctrl, null, <Element><Node>commentElement);
+                        if (Compiler.isEquivalent(expressionValue, commentElement.$clone) == false)
                         {
-                            var clone = jQuery(appNode.$originalNode).clone();
+                            // Remove any existing nodes
+                            Compiler.removeClones(commentElement);
+                            
+                            if (expressionValue)
+                            {
+                                var clone = jQuery(commentElement.$originalNode).clone();
+                                var newNode: AppNode = <AppNode><Node>clone.get(0);
+                                if (<Element><Node>commentElement.$originalNode == elm)
+                                    elm = <Element><Node>clone.get(0);
 
-                            if (<Element><Node>appNode.$originalNode == elm)
-                                elm = <Element><Node>clone.get(0);
+                                newNode.$dynamic = true;
+                                clone.insertAfter(comment);
+                                commentElement.$clonedElements.push(<Element><Node>newNode);
+                            }
 
-                            (<AppNode><Node>clone.get(0)).$dynamic = true;
-                            clone.insertAfter(comment);
+                            commentElement.$clone = Compiler.clone(expressionValue);
                         }
                     }
                 }
             }
+
+            
 
             return elm;
         }
@@ -328,7 +479,6 @@
             var textNode: AppNode;
             var expanded;
             
-
             expanded = Compiler.expand(elm, controller, includeSubTemplates);
             if (expanded != elm)
             {
@@ -350,8 +500,15 @@
                 if (elem.nodeType == 3)
                 {
                     textNode = <AppNode><Node>elem;
-                    textNode.nodeValue = textNode.nodeValue.replace(/\{\{(.*?)\}\}/g, function (sub, val)
+                    var origText = "";
+                    if (textNode.$expression)
+                        origText = textNode.$expression;
+                    else
+                        origText = textNode.nodeValue;
+
+                    textNode.nodeValue = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val)
                         {
+                            textNode.$expression = origText;
                             var t = sub.match(/[^{}]+/);
                             return Compiler.parse(val, controller, null, <Element><Node>textNode);
                         })
@@ -386,7 +543,7 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(`${value} = '${(<HTMLInputElement | HTMLTextAreaElement>elem).value}'`, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
                             Compiler.parse(`${value} = '${(<HTMLInputElement | HTMLTextAreaElement>elem).value}'`, controller, null, elem);
@@ -396,16 +553,25 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
                             Compiler.registerFunc(appNode, "click", "en-click", ev);
+                            break;
+                        case "en-mouse-over":
+                            var ev = function (e)
+                            {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
+                            };
+
+                            Compiler.registerFunc(appNode, "mouseover", "en-mouse-over", ev);
                             break;
                         case "en-dclick":
                             var ev = function (e)
                             {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
                             Compiler.registerFunc(appNode, "dblclick", "en-dclick", ev);
@@ -415,7 +581,7 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
@@ -451,7 +617,7 @@
                                 }
 
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
                             Compiler.registerFunc(appNode, "submit", "en-submit", ev);
@@ -464,21 +630,30 @@
 
                             var ev = function (e)
                             {
-                                Compiler.checkValidations(value, <HTMLInputElement>elem);
-
                                 // IF it has a form - check other elements for errors
                                 var form: EngineForm = <EngineForm>(<HTMLInputElement>elem).form;
                                 if (form)
                                 {
                                     form.$error = false;
+                                    form.$errorInput = "";
+                                }
+
+                                Compiler.checkValidations(value, <HTMLInputElement>elem);
+
+                                // IF it has a form - check other elements for errors
+                                if (form)
+                                {
                                     jQuery("[en-validate]", form).each(function (index, subElem)
                                     {
                                         if ((<EngineInput>subElem).$error)
+                                        {
                                             form.$error = true;
+                                            form.$errorInput = (<HTMLInputElement | HTMLTextAreaElement>subElem).name;
+                                        }
                                     });
                                 }
 
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
                             Compiler.registerFunc(appNode, "change", "en-validate", ev);

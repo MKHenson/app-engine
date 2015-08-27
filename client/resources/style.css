@@ -99,7 +99,7 @@ h1 {
 }
 
 h2 {
-  margin: 0.67em 0;
+  margin: 0 0 0.67em 0;
 }
 
 mark {
@@ -770,12 +770,17 @@ html, body, #stage {
     text-align:left;
     padding:15px;
 }
+.new-project p {
+    margin-right:15px;
+}
 .new-project input, .new-project textarea {
     width:100%;
     padding: 10px;
     margin-bottom:15px;
 }
-
+.new-project textarea {
+    min-height:300px;
+}
 
 .splash-user-box {
     margin-bottom: 10px;

@@ -70,6 +70,85 @@ var Animate;
                     elm.classList.remove(i);
             }
         };
+        Compiler.clone = function (obj) {
+            var copy;
+            // Handle the 3 simple types number, string, bool, null or undefined
+            if (null == obj || "object" != typeof obj)
+                return obj;
+            // Handle Date
+            if (obj instanceof Date) {
+                copy = new Date();
+                copy.setTime(obj.getTime());
+                return copy;
+            }
+            // Handle Array
+            if (obj instanceof Array) {
+                copy = [];
+                for (var i = 0, len = obj.length; i < len; i++) {
+                    copy[i] = Compiler.clone(obj[i]);
+                }
+                return copy;
+            }
+            // Handle Object
+            if (obj instanceof Object) {
+                copy = {};
+                for (var attr in obj) {
+                    if (obj.hasOwnProperty(attr))
+                        copy[attr] = Compiler.clone(obj[attr]);
+                }
+                return copy;
+            }
+            throw new Error("Unable to copy obj! Its type isn't supported.");
+        };
+        Compiler.isEquivalent = function (a, b) {
+            if ((null == a || "object" != typeof a) && (null == b || "object" != typeof b))
+                return a == b;
+            else if ((a == null && b == null) || (a == undefined && b == undefined))
+                return true;
+            else if (a == null || a == undefined)
+                return false;
+            else if (b == null || b == undefined)
+                return false;
+            // Create arrays of property names
+            var aProps = Object.getOwnPropertyNames(a);
+            var bProps = Object.getOwnPropertyNames(b);
+            // If number of properties is different,
+            // objects are not equivalent
+            if (aProps.length != bProps.length)
+                return false;
+            for (var i = 0; i < aProps.length; i++) {
+                var aPropName = aProps[i];
+                var bPropName = bProps[i];
+                if (aPropName != bPropName)
+                    return false;
+                var aVal = a[aPropName];
+                var bVal = b[bPropName];
+                if (null == aVal || "object" != typeof aVal) {
+                    if (aVal !== b[bPropName])
+                        return false;
+                }
+                else if (aVal instanceof Array) {
+                    if (bVal instanceof Array == false)
+                        return false;
+                    for (var ai = 0, al = aVal.length; ai < al; ai++)
+                        if (!Compiler.isEquivalent(aVal, bVal))
+                            return false;
+                }
+                else if (aVal instanceof Date) {
+                    if (bVal instanceof Date == false)
+                        return false;
+                    if (aVal.getTime() != bVal.getTime())
+                        return false;
+                }
+                else {
+                    if (!Compiler.isEquivalent(aProps[i], bProps[i]))
+                        return false;
+                }
+            }
+            // If we made it this far, objects
+            // are considered equivalent
+            return true;
+        };
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
@@ -100,6 +179,19 @@ var Animate;
             }
             search(elm);
         };
+        Compiler.removeClones = function (sourceNode) {
+            // Remove existing clones
+            for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++) {
+                var appNode = sourceNode.$clonedElements[i];
+                appNode.$ctx = "";
+                appNode.$ctxValue = null;
+                if (appNode.$events)
+                    for (var ii = 0, il = appNode.$events.length; ii < il; ii++)
+                        appNode.removeEventListener(appNode.$events[ii].name, appNode.$events[ii].func);
+                jQuery(sourceNode.$clonedElements[i]).remove();
+            }
+            sourceNode.$clonedElements.splice(0, sourceNode.$clonedElements.length);
+        };
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
         * @param {Element} elm The root element to explore
@@ -117,10 +209,8 @@ var Animate;
                 // Only allow element nodes
                 if (elem.nodeType != 1)
                     return;
-                if (elem.$dynamic) {
-                    toRemove.push(elem);
+                if (elem.$dynamic)
                     return;
-                }
                 // Go through each element's attributes
                 jQuery.each(this.attributes, function (i, attrib) {
                     if (!attrib)
@@ -143,17 +233,11 @@ var Animate;
             });
             // Get the comments
             var comments = Compiler.getCommentNodesIn(elm);
-            // Remove existing clones
-            for (var i = 0, l = toRemove.length; i < l; i++) {
-                var appNode = toRemove[i];
-                appNode.$ctx = "";
-                appNode.$ctxValue = null;
-                jQuery(toRemove[i]).remove();
-            }
             // Replace the potentials with comments that keep a reference to the original node
             for (var i = 0, l = potentials.length; i < l; i++) {
                 var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
                 var commentElement = comment.get(0);
+                commentElement.$clonedElements = [];
                 commentElement.$originalNode = potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
@@ -163,24 +247,57 @@ var Animate;
             // Go through each comment and expand it
             for (var i = 0, l = comments.length; i < l; i++) {
                 var comment = jQuery(comments[i]);
-                var appNode = comments[i];
-                if (appNode.$expression) {
-                    var $expression = appNode.$expression;
-                    if (appNode.$expressionType == "en-repeat") {
+                var commentElement = comments[i];
+                if (commentElement.$expression) {
+                    var $expression = commentElement.$expression;
+                    if (commentElement.$expressionType == "en-repeat") {
                         var e = $expression.split("as");
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
                             var loopExpression = e[0];
                             var ctx = e[1];
-                            eval("'use strict';\n                             for ( var i in " + loopExpression + " ) {\n                                var clone = jQuery(appNode.$originalNode).clone();\n                                clone.get(0).$dynamic = true;\n                                clone.get(0).$ctx = ctx;\n                                clone.get(0).$ctxValue = " + loopExpression + "[i];\n                                clone.insertAfter(comment);\n                            }");
+                            //eval(`'use strict';
+                            // for ( var i in ${loopExpression} ) {
+                            //    var clone = jQuery(appNode.$originalNode).clone();
+                            //    clone.get(0).$dynamic = true;
+                            //    clone.get(0).$ctx = ctx;
+                            //    clone.get(0).$ctxValue = ${loopExpression}[i];
+                            //    clone.insertAfter(comment);
+                            //}`);
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, null);
+                            if (Compiler.isEquivalent(expressionValue, commentElement.$clone) == false) {
+                                // Remove any existing nodes
+                                Compiler.removeClones(commentElement);
+                                if (expressionValue) {
+                                    for (var t in expressionValue) {
+                                        var clone = jQuery(commentElement.$originalNode).clone();
+                                        var newNode = clone.get(0);
+                                        newNode.$dynamic = true;
+                                        newNode.$ctx = ctx;
+                                        newNode.$ctxValue = expressionValue[t];
+                                        clone.insertAfter(comment);
+                                        commentElement.$clonedElements.push(newNode);
+                                    }
+                                    ;
+                                }
+                                commentElement.$clone = Compiler.clone(expressionValue);
+                            }
                         }
                     }
-                    else if (appNode.$expressionType == "en-if") {
-                        if (Compiler.parse($expression, ctrl, null, appNode)) {
-                            var clone = jQuery(appNode.$originalNode).clone();
-                            if (appNode.$originalNode == elm)
-                                elm = clone.get(0);
-                            clone.get(0).$dynamic = true;
-                            clone.insertAfter(comment);
+                    else if (commentElement.$expressionType == "en-if") {
+                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement);
+                        if (Compiler.isEquivalent(expressionValue, commentElement.$clone) == false) {
+                            // Remove any existing nodes
+                            Compiler.removeClones(commentElement);
+                            if (expressionValue) {
+                                var clone = jQuery(commentElement.$originalNode).clone();
+                                var newNode = clone.get(0);
+                                if (commentElement.$originalNode == elm)
+                                    elm = clone.get(0);
+                                newNode.$dynamic = true;
+                                clone.insertAfter(comment);
+                                commentElement.$clonedElements.push(newNode);
+                            }
+                            commentElement.$clone = Compiler.clone(expressionValue);
                         }
                     }
                 }
@@ -231,7 +348,13 @@ var Animate;
                 // If a text node
                 if (elem.nodeType == 3) {
                     textNode = elem;
-                    textNode.nodeValue = textNode.nodeValue.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
+                    var origText = "";
+                    if (textNode.$expression)
+                        origText = textNode.$expression;
+                    else
+                        origText = textNode.nodeValue;
+                    textNode.nodeValue = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
+                        textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
                         return Compiler.parse(val, controller, null, textNode);
                     });
@@ -260,7 +383,7 @@ var Animate;
                         case "en-model":
                             var ev = function (e) {
                                 Compiler.parse(value + " = '" + elem.value + "'", controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.parse(value + " = '" + elem.value + "'", controller, null, elem);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
@@ -268,21 +391,28 @@ var Animate;
                         case "en-click":
                             var ev = function (e) {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "click", "en-click", ev);
+                            break;
+                        case "en-mouse-over":
+                            var ev = function (e) {
+                                Compiler.parse(value, controller, e, elem);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
+                            };
+                            Compiler.registerFunc(appNode, "mouseover", "en-mouse-over", ev);
                             break;
                         case "en-dclick":
                             var ev = function (e) {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "dblclick", "en-dclick", ev);
                             break;
                         case "en-change":
                             var ev = function (e) {
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
@@ -307,7 +437,7 @@ var Animate;
                                     });
                                 }
                                 Compiler.parse(value, controller, e, elem);
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "submit", "en-submit", ev);
                             break;
@@ -316,17 +446,23 @@ var Animate;
                             if (elem.form)
                                 elem.form.$pristine = true;
                             var ev = function (e) {
-                                Compiler.checkValidations(value, elem);
                                 // IF it has a form - check other elements for errors
                                 var form = elem.form;
                                 if (form) {
                                     form.$error = false;
+                                    form.$errorInput = "";
+                                }
+                                Compiler.checkValidations(value, elem);
+                                // IF it has a form - check other elements for errors
+                                if (form) {
                                     jQuery("[en-validate]", form).each(function (index, subElem) {
-                                        if (subElem.$error)
+                                        if (subElem.$error) {
                                             form.$error = true;
+                                            form.$errorInput = subElem.name;
+                                        }
                                     });
                                 }
-                                Compiler.digest(jElem, controller);
+                                Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "change", "en-validate", ev);
                             break;
@@ -18632,6 +18768,7 @@ var Animate;
             this.$loginRed = true;
             this.$loading = false;
             this.$projects = [];
+            this.$plugins = [{ name: "test", image: "media/blank-user.png", description: "THIS IS A TEST" }, { name: "test2", image: "media/blank-user.png", description: "THIS IS A TEST2" }];
             this.$selectedProjects = [];
             this.$selectedProject = null;
             this.$pager = new Animate.PageLoader(this.fetchProjects.bind(this));
@@ -18656,9 +18793,10 @@ var Animate;
             that.$loading = true;
             if (!that._captureInitialized) {
                 // Build each of the templates
-                Animate.Compiler.build(this._splashElm, this);
                 Animate.Compiler.build(this._loginElm, this);
                 Animate.Compiler.build(this._welcomeElm, this);
+                Animate.Compiler.build(this._newProject, this);
+                Animate.Compiler.build(this._splashElm, this);
                 Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", document.getElementById("animate-captcha"), { theme: "white" });
             }
             else {
@@ -18747,6 +18885,9 @@ var Animate;
                 switch (form.$errorExpression) {
                     case "alpha-numeric":
                         this.$loginError = name + " must only contain alphanumeric characters";
+                        break;
+                    case "email-plus":
+                        this.$loginError = name + " must only contain alphanumeric characters or a valid email";
                         break;
                     case "non-empty":
                         this.$loginError = name + " cannot be empty";

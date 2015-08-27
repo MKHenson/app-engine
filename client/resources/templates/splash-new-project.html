@@ -1,12 +1,27 @@
 <div id="splash-new-project" class='new-project fade-in' en-show="ctrl.$activePane == 'new-project'">
 	<div class="double-column">
-		<p><input class="background-view-light" type="text" placeholder="Name" /></p>
-		<p><textarea class="background-view-light" placeholder="Description"></textarea></p>
+		<form en-change="ctrl.reportError(elm)" >
+			<p><input name="name" class="background-view-light animate-all" type="text" placeholder="Name" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectName" /></p>
+			<p><textarea name="description" class="background-view-light animate-all" placeholder="Description" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|email-plus" en-model="ctrl.$projectDesc"></textarea></p>
+		</form>		
 	</div>
 	<div class="double-column">
-		<h2>Appling Plugins</h2>
+		<div class="double-column">
+			<h2>Appling Plugins</h2>
+			<div class="plugins">
+				<div class="plugin" en-repeat="ctrl.$plugins as plugin" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'bad-input' : (ctrl.$activePlugin == plugin) }">
+					<img en-src="plugin.image" />{{plugin.name}}
+				</div>
+			</div>
+		</div>
+		<div class="double-column">
+			<div class="plugin-info fade-in" en-if="ctrl.$activePlugin">
+				<h2>{{ctrl.$activePlugin.name}}</h2>
+				{{ctrl.$activePlugin.description}}
+			</div>
+		</div>
 	</div>
 	<div class="fix"></div>
-	<div class='button reg-gradient curve-small' en-click="ctrl.goState('welcome')">Back</div>
-	<div class='button reg-gradient curve-small' en-click="ctrl.goState('start')">Next</div>
+	<div class='button reg-gradient curve-small' en-click="ctrl.goState('welcome', true)">Back</div>
+	<div class='button reg-gradient curve-small' en-click="ctrl.goState('start', true)">Next</div>
 </div>

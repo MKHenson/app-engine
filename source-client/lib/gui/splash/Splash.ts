@@ -19,6 +19,7 @@
         private $loginRed: boolean;
         private $loading: boolean;
         private $projects: Array<Engine.IProject>;
+        private $plugins: Array<Engine.IPlugin>;
         private $selectedProjects: Array<Engine.IProject>;
         private $selectedProject: Engine.IProject;
         private $pager: PageLoader;
@@ -40,6 +41,7 @@
             this.$loginRed = true;
             this.$loading = false;
             this.$projects = [];
+            this.$plugins = [{ name: "test", image: "media/blank-user.png", description: "THIS IS A TEST" }, { name: "test2", image: "media/blank-user.png", description: "THIS IS A TEST2" }];
             this.$selectedProjects = [];
             this.$selectedProject = null;
             this.$pager = new PageLoader(this.fetchProjects.bind(this));
@@ -70,9 +72,10 @@
             if (!that._captureInitialized)
             {
                 // Build each of the templates
-                Compiler.build(this._splashElm, this);
                 Compiler.build(this._loginElm, this);
                 Compiler.build(this._welcomeElm, this);
+                Compiler.build(this._newProject, this);
+                Compiler.build(this._splashElm, this);
                 Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
             }
             else
@@ -189,6 +192,9 @@
                 {
                     case "alpha-numeric":
                         this.$loginError = `${name} must only contain alphanumeric characters`;
+                        break;
+                    case "email-plus":
+                        this.$loginError = `${name} must only contain alphanumeric characters or a valid email`;
                         break;
                     case "non-empty":
                         this.$loginError = `${name} cannot be empty`;
