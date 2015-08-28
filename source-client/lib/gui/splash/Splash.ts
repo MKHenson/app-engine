@@ -15,13 +15,15 @@
         private $user: User;
         private $theme: any;
         private $activePane: string;
-        private $loginError: string;
-        private $loginRed: boolean;
+        private $errorMsg: string;
+        private $errorRed: boolean;
         private $loading: boolean;
         private $projects: Array<Engine.IProject>;
         private $plugins: Array<Engine.IPlugin>;
+        private $selectedPlugins: Array<Engine.IProject>;
         private $selectedProjects: Array<Engine.IProject>;
         private $selectedProject: Engine.IProject;
+        private $selectedPlugin: Engine.IPlugin;
         private $pager: PageLoader;
 
         /**
@@ -37,14 +39,15 @@
             this._newProject = jQuery("#splash-new-project").remove().clone();
             this.$user = User.get;
             this.$activePane = "loading";
-            this.$loginError = "";
-            this.$loginRed = true;
+            this.$errorMsg = "";
+            this.$errorRed = true;
             this.$loading = false;
             this.$projects = [];
             this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }
                 , { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
             this.$selectedProjects = [];
+            this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new PageLoader(this.fetchProjects.bind(this));
 
@@ -112,36 +115,48 @@
         
         /*
         * Goes to pane state
-        * @param {state} The name of the state
+        * @param {string} state The name of the state
+        * @param {boolean} digest If true, the page will revalidate
         */
         goState(state: string, digest: boolean = false)
         {
             var that = this;
             that.$loading = false;
             that.$activePane = state;
-            that.$loginError = "";
-            if (digest)
-                Animate.Compiler.digest(that._splashElm, that, true);
-
+            that.$errorMsg = "";
+           
             if (state == "welcome")
                 this.fetchProjects(this.$pager.index, this.$pager.limit);
+            else if (state == "new-project")
+            {
+                this.$errorMsg = "Give your project a name and select the plugins you woud like to use";
+                this.$errorRed = false;
+            }
+
+            if (digest)
+                Animate.Compiler.digest(that._splashElm, that, true);
         }
 
+        /*
+        * Fetches a list of user projects
+        * @param {number} index 
+        * @param {number} limit
+        */
         fetchProjects(index: number, limit: number)
         {
             var that = this;
             that.$loading = true;
-            that.$loginError = "";
+            that.$errorMsg = "";
             Animate.Compiler.digest(that._splashElm, that);
 
             that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
             {
-                that.$pager.last = projects.count;
+                that.$pager.last = projects.count || 1;
                 that.$projects = projects.data;
 
             }).fail(function (err: Error)
             {
-                that.$loginError = err.message;
+                that.$errorMsg = err.message;
 
             }).done(function ()
             {
@@ -151,9 +166,12 @@
             });
         }
 
-        selectProject(project: any)
+        /*
+        * Called when we select a project
+        */
+        private selectProject(project: Engine.IProject)
         {
-            project.selected = !project.selected;
+            (<any>project).selected = !(<any>project).selected;
 
             if (this.$selectedProjects.indexOf(project) == -1)
                 this.$selectedProjects.push(project);
@@ -168,6 +186,25 @@
         }
 
         /*
+        * Called when we select a project
+        */
+        private selectPlugin(plugin: Engine.IPlugin)
+        {
+            (<any>plugin).selected = !(<any>plugin).selected;
+
+            if (this.$selectedPlugins.indexOf(plugin) == -1)
+                this.$selectedPlugins.push(plugin);
+            else
+                this.$selectedPlugins.splice(this.$selectedPlugins.indexOf(plugin), 1);
+
+
+            if (this.$selectedPlugins.length > 0)
+                this.$selectedPlugin = this.$selectedPlugins[this.$selectedPlugins.length - 1];
+            else
+                this.$selectedPlugin = null;
+        }
+
+        /*
         * Called by the app when everything needs to be reset
         */
         reset()
@@ -178,13 +215,12 @@
 		* Given a form element, we look at if it has an error and based on the expression. If there is we set 
         * the login error message
         * @param {EngineForm} The form to check.
-        * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
 		*/
-        reportError(form: EngineForm, registerCheck: boolean = false): boolean
+        reportError(form: EngineForm): boolean
         {
             if (!form.$error)
-                this.$loginError = "";
+                this.$errorMsg = "";
             else
             {
                 var name = form.$errorInput;
@@ -193,45 +229,65 @@
                 switch (form.$errorExpression)
                 {
                     case "alpha-numeric":
-                        this.$loginError = `${name} must only contain alphanumeric characters`;
+                        this.$errorMsg = `${name} must only contain alphanumeric characters`;
                         break;
                     case "email-plus":
-                        this.$loginError = `${name} must only contain alphanumeric characters or a valid email`;
+                        this.$errorMsg = `${name} must only contain alphanumeric characters or a valid email`;
                         break;
                     case "non-empty":
-                        this.$loginError = `${name} cannot be empty`;
+                        this.$errorMsg = `${name} cannot be empty`;
                         break;
                     case "email":
-                        this.$loginError = `${name} must be a valid email`;
+                        this.$errorMsg = `${name} must be a valid email`;
                         break;
                     case "alpha-numeric-plus":
-                        this.$loginError = `${name} must only contain alphanumeric characters and '-', '!', or '_'`;
+                        this.$errorMsg = `${name} must only contain alphanumeric characters and '-', '!', or '_'`;
+                        break;
+                    case "no-html":
+                        this.$errorMsg = `${name} must not contain any html`;
                         break;
                     default:
-                        this.$loginError = "";
+                        this.$errorMsg = "";
                         break;
                 }
             }
 
-            if (registerCheck)
+            if (this.$activePane == "new-project" && this.$selectedPlugins.length == 0)
+                this.$errorMsg = "Please choose at least 1 plugin to work with";
+
+            if (this.$activePane == "register")
             {
                 (<any>this).$regCaptcha = jQuery("#recaptcha_response_field").val();
                 (<any>this).$regChallenge = jQuery("#recaptcha_challenge_field").val();
 
                 if ((<any>this).$regCaptcha == "")
-                    this.$loginError = "Please enter the capture code";
+                    this.$errorMsg = "Please enter the capture code";
             }
 
-            if (this.$loginError == "")
+            if (this.$errorMsg == "")
             {
-                this.$loginRed = false;
+                this.$errorRed = false;
                 return false;
             }
             else
             {
-                this.$loginRed = true;
+                this.$errorRed = true;
                 return true;
             }
+        }
+
+        /**
+		* Creates a new user project
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+		*/
+        newProject(name: string, description: string, plugins: Array<Engine.IPlugin>)
+        {
+            this.$loading = true;
+            this.$errorRed = false;
+            this.$errorMsg = "Just a moment while we hatch your appling...";
+            Compiler.digest(this._splashElm, this, false);
+            this.$user.newProject(name, description);
         }
 
         /*
@@ -240,8 +296,8 @@
         loginError(err: Error)
         {
             this.$loading = false;
-            this.$loginRed = true;
-            this.$loginError = err.message;
+            this.$errorRed = true;
+            this.$errorMsg = err.message;
             Compiler.digest(this._loginElm, this);
             Compiler.digest(this._splashElm, this);
         }
@@ -252,12 +308,12 @@
         loginSuccess(data: UsersInterface.IResponse)
         {
             if (data.error)
-                this.$loginRed = true;
+                this.$errorRed = true;
             else
-                this.$loginRed = false;
+                this.$errorRed = false;
 
             this.$loading = false;
-            this.$loginError = data.message;
+            this.$errorMsg = data.message;
             Compiler.digest(this._splashElm, this, true);
         }
 
@@ -275,11 +331,11 @@
                 .then(function (data)
                 {
                     if (data.error)
-                        that.$loginRed = true;
+                        that.$errorRed = true;
                     else
-                        that.$loginRed = false;
+                        that.$errorRed = false;
 
-                    that.$loginError = data.message;
+                    that.$errorMsg = data.message;
                     
                 })
                 .fail(this.loginError.bind(that))
@@ -309,8 +365,8 @@
                 .then(this.loginSuccess.bind(that))
                 .fail(function (err: Error)
                 {
-                    that.$loginRed = true;
-                    that.$loginError = err.message;
+                    that.$errorRed = true;
+                    that.$errorMsg = err.message;
                     that.$loading = false;
                     Recaptcha.reload();
                     Compiler.digest(that._loginElm, that);
@@ -328,7 +384,7 @@
 
             if (!user)
             {
-                this.$loginError = "Please specify a username or email to fetch";
+                this.$errorMsg = "Please specify a username or email to fetch";
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
                 {
                     this.$error = true;
@@ -355,7 +411,7 @@
 
             if (!user)
             {
-                this.$loginError = "Please specify a username or email to fetch";
+                this.$errorMsg = "Please specify a username or email to fetch";
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
                 {
                     this.$error = true;
@@ -382,7 +438,7 @@
             this.$user.logout().then(function ()
             {
                 that.$loading = false;
-                that.$loginError = "";
+                that.$errorMsg = "";
             })
             .fail(this.loginError.bind(that))
             .always(function ()

@@ -26,9 +26,42 @@ var ProjectController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/:id?", [this.getProjects.bind(this)]);
+        router.post("/create", [this.createProject.bind(this)]);
         // Register the path
         e.use("/app-engine/projects", router);
     }
+    /**
+    * Gets projects based on the format of the request
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    ProjectController.prototype.createProject = function (req, res, next) {
+        // Check logged in + has rights to do request
+        // Create a build
+        // Sanitize details
+        // Create a project
+        // Associate build with project and viceversa
+        res.setHeader('Content-Type', 'application/json');
+        var token = req.body;
+        var projects = this.getModel("en-projects");
+        // User is passed from the authentication function
+        //token.user = (<ModepressEngine.IUserEntry>req.params.user);
+        projects.createInstance(token).then(function (instance) {
+            var data = instance.schema.generateCleanData(true);
+            data._id = instance._id;
+            res.end(JSON.stringify({
+                error: false,
+                message: "Created project '" + token.name + "'",
+                data: data
+            }));
+        }).catch(function (error) {
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
     /**
     * Gets projects based on the format of the request
     * @param {express.Request} req

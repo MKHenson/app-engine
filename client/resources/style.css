@@ -257,6 +257,22 @@ th {
   padding: 0;
 }
 
+::-webkit-input-placeholder {
+   color: #aaa;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: #aaa;  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: #aaa;  
+}
+
+:-ms-input-placeholder {  
+   color: #aaa;  
+}
+
 
 input {
 	outline:none;
@@ -637,7 +653,7 @@ html, body, #stage {
 #log-reg .checkbox {
     margin:15px 0 10px 0
 }
-#log-reg form input[type="submit"], #splash-view form .button {
+#log-reg form input[type="submit"], #log-reg form .button {
     width: 100%;
     height: 80px;
     margin: 10px 0 0 0;
@@ -786,7 +802,7 @@ html, body, #stage {
 .new-project p {
     margin-right:15px;
 }
-.new-project input, .new-project textarea {
+.new-project .double-column input, .new-project .double-column textarea {
     width:100%;
     padding: 10px;
     margin-bottom:15px;

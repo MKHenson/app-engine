@@ -305,7 +305,36 @@ module Animate
             })
 
             return d.promise();
-		}
+        }
+
+        /**
+		* Creates a new user projects
+		*/
+        newProject( name : string, description : string ): JQueryPromise<ModepressEngine.IGetProjects>
+        {
+            var d = jQuery.Deferred<ModepressEngine.ICreateProject>(),
+                that = this,
+                token: Engine.IProject  = {
+                    name: name,
+                    description: description
+                };
+
+            jQuery.post(`${DB.API}/projects/create`, token).done(function (data: ModepressEngine.ICreateProject)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            })
+
+            return d.promise();
+        }
+
+
 
 		/**
 		* Use this function to rename a project
@@ -362,19 +391,19 @@ module Animate
 		}
 
 
-		/**
-		* This function is used to create a new project.
-		*/
-		createProject( name : string, description : string )
-		{
-			if ( this._isLoggedIn )
-			{
-				var loader = new AnimateLoader();
-				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-				loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-				loader.load( "/project/create", { name: name, description: description } );
-			}
-		}
+		///**
+		//* This function is used to create a new project.
+		//*/
+		//createProject( name : string, description : string )
+		//{
+		//	if ( this._isLoggedIn )
+		//	{
+		//		var loader = new AnimateLoader();
+		//		loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+		//		loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+		//		loader.load( "/project/create", { name: name, description: description } );
+		//	}
+		//}
 
 
 		/**
@@ -413,26 +442,7 @@ module Animate
 			}
 			else
 				return null;
-		}
-
-		///**
-		//* This function is used to log a user out. 
-		//*/
-		//logout()
-		//{
-		//	var loader = new AnimateLoader();
-		//	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-		//	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-		//	loader.load( "/user/log-out", {} );
-		//}
-
-		
-
-		
-
-		
-
-		
+		}		
 
 		/**
 		* This is the resonse from the server

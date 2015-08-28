@@ -1,51 +1,12 @@
 var Animate;
 (function (Animate) {
+    /**
+    * Defines a set of functions for compiling template commands and a controller object.
+    */
     var Compiler = (function () {
         function Compiler() {
         }
-        /**
-        * Given an HTML Element, this function returns all TextNodes
-        * @return {Array<Node>}
-        */
-        Compiler.getTextNodesIn = function (node) {
-            var textNodes = [], nonWhitespaceMatcher = /\S/;
-            function getTextNodes(node) {
-                if (node.nodeType == 3) {
-                    textNodes.push(node);
-                }
-                else {
-                    for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-                        getTextNodes(node.childNodes[i]);
-                    }
-                }
-            }
-            getTextNodes(node);
-            return textNodes;
-        };
-        /**
-        * Given an HTML Element, this function returns all comment nodes
-        * @return {Array<Node>}
-        */
-        Compiler.getCommentNodesIn = function (node) {
-            var textNodes = [], nonWhitespaceMatcher = /\S/;
-            function getTextNodes(node) {
-                if (node.nodeType == 8) {
-                    textNodes.push(node);
-                }
-                else {
-                    for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-                        getTextNodes(node.childNodes[i]);
-                    }
-                }
-            }
-            getTextNodes(node);
-            return textNodes;
-        };
-        /**
-        * Evaluates and returns an expression
-        * @return {any}
-        */
-        Compiler.parse = function (script, ctrl, e, elm) {
+        Compiler.compileEval = function (script, elm) {
             var contexts = {};
             var p = elm;
             while (p) {
@@ -56,7 +17,26 @@ var Animate;
             var ctx = "";
             for (var i in contexts)
                 ctx += "var " + i + " = contexts['" + i + "'];";
-            return eval("'use strict'; " + ctx + " var __ret = " + script + "; __ret;");
+            return new Function("ctrl", "event", "elm", "contexts", "'use strict'; " + ctx + " var __ret = " + script + "; return __ret;");
+        };
+        /**
+        * Evaluates and returns an expression
+        * @return {any}
+        */
+        Compiler.parse = function (script, ctrl, event, elm) {
+            var contexts = {};
+            var p = elm;
+            var appNode = elm;
+            while (p) {
+                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
+                    contexts[p.$ctx] = p.$ctxValue;
+                p = p.parentNode;
+            }
+            if (!appNode.$compliledEval)
+                appNode.$compliledEval = {};
+            if (!appNode.$compliledEval[script])
+                appNode.$compliledEval[script] = Compiler.compileEval(script, elm);
+            return appNode.$compliledEval[script](ctrl, event, elm, contexts);
         };
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
@@ -70,6 +50,11 @@ var Animate;
                     elm.classList.remove(i);
             }
         };
+        /**
+        * Clones an object and creates a new identical object. This does not return the same class - only a copy of each of its properties
+        * @param {any} obj The object to clone
+        * @returns {any}
+        */
         Compiler.clone = function (obj) {
             var copy;
             // Handle the 3 simple types number, string, bool, null or undefined
@@ -100,6 +85,12 @@ var Animate;
             }
             throw new Error("Unable to copy obj! Its type isn't supported.");
         };
+        /**
+        * Checks each  of the properties of an obejct to see if its the same as another
+        * @param {any} a The first object to check
+        * @param {any} b The target we are comparing against
+        * @returns {boolean}
+        */
         Compiler.isEquivalent = function (a, b) {
             if ((null == a || "object" != typeof a) && (null == b || "object" != typeof b))
                 return a == b;
@@ -179,15 +170,19 @@ var Animate;
             }
             search(elm);
         };
+        /**
+        * Called to remove and clean any dynamic nodes that were added to the node
+        * @param {AppNode} sourceNode The parent node from which we are removing clones from
+        */
         Compiler.removeClones = function (sourceNode) {
             // Remove existing clones
             for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++) {
                 var appNode = sourceNode.$clonedElements[i];
                 appNode.$ctx = "";
                 appNode.$ctxValue = null;
-                if (appNode.$events)
-                    for (var ii = 0, il = appNode.$events.length; ii < il; ii++)
-                        appNode.removeEventListener(appNode.$events[ii].name, appNode.$events[ii].func);
+                appNode.$compliledEval = null;
+                appNode.$ieTextNodes = null;
+                Compiler.removeEvents(sourceNode);
                 jQuery(sourceNode.$clonedElements[i]).remove();
             }
             sourceNode.$clonedElements.splice(0, sourceNode.$clonedElements.length);
@@ -202,17 +197,27 @@ var Animate;
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var potentials = [];
             var toRemove = [];
+            var comments = [];
             // Traverse each element
             Compiler.traverse(elm, function (elem) {
                 if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != ctrl)
                     return false;
+                if (elem.nodeType == 8) {
+                    comments.push(elem);
+                    return;
+                }
                 // Only allow element nodes
                 if (elem.nodeType != 1)
                     return;
                 if (elem.$dynamic)
                     return;
+                var attrs = Compiler.attrs;
+                attrs.splice(0, attrs.length);
+                for (var i = 0; i < elem.attributes.length; i++)
+                    attrs.push(elem.attributes[i]);
                 // Go through each element's attributes
-                jQuery.each(this.attributes, function (i, attrib) {
+                // Go through each element's attributes
+                jQuery.each(attrs, function (i, attrib) {
                     if (!attrib)
                         return;
                     var name = attrib.name;
@@ -231,8 +236,6 @@ var Animate;
                     }
                 });
             });
-            // Get the comments
-            var comments = Compiler.getCommentNodesIn(elm);
             // Replace the potentials with comments that keep a reference to the original node
             for (var i = 0, l = potentials.length; i < l; i++) {
                 var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
@@ -255,16 +258,8 @@ var Animate;
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
                             var loopExpression = e[0];
                             var ctx = e[1];
-                            //eval(`'use strict';
-                            // for ( var i in ${loopExpression} ) {
-                            //    var clone = jQuery(appNode.$originalNode).clone();
-                            //    clone.get(0).$dynamic = true;
-                            //    clone.get(0).$ctx = ctx;
-                            //    clone.get(0).$ctxValue = ${loopExpression}[i];
-                            //    clone.insertAfter(comment);
-                            //}`);
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, null);
-                            if (Compiler.isEquivalent(expressionValue, commentElement.$clone) == false) {
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement);
+                            if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
                                 // Remove any existing nodes
                                 Compiler.removeClones(commentElement);
                                 if (expressionValue) {
@@ -279,13 +274,13 @@ var Animate;
                                     }
                                     ;
                                 }
-                                commentElement.$clone = Compiler.clone(expressionValue);
+                                commentElement.$clonedData = Compiler.clone(expressionValue);
                             }
                         }
                     }
                     else if (commentElement.$expressionType == "en-if") {
                         var expressionValue = Compiler.parse($expression, ctrl, null, commentElement);
-                        if (Compiler.isEquivalent(expressionValue, commentElement.$clone) == false) {
+                        if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
                             // Remove any existing nodes
                             Compiler.removeClones(commentElement);
                             if (expressionValue) {
@@ -297,7 +292,7 @@ var Animate;
                                 clone.insertAfter(comment);
                                 commentElement.$clonedElements.push(newNode);
                             }
-                            commentElement.$clone = Compiler.clone(expressionValue);
+                            commentElement.$clonedData = Compiler.clone(expressionValue);
                         }
                     }
                 }
@@ -340,7 +335,7 @@ var Animate;
             }
             // Traverse each element
             Compiler.traverse(elm, function (elem) {
-                if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != controller)
+                if (!includeSubTemplates && elem.$ctrl && elm != elem)
                     return false;
                 // Do nothing for comment nodes
                 if (elem.nodeType == 8)
@@ -353,16 +348,29 @@ var Animate;
                         origText = textNode.$expression;
                     else
                         origText = textNode.nodeValue;
-                    textNode.nodeValue = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
+                    var parsedText = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
                         textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
                         return Compiler.parse(val, controller, null, textNode);
                     });
+                    if (parsedText != origText) {
+                        textNode.nodeValue = parsedText;
+                        if (textNode.$expression && textNode.nodeValue.trim() == "") {
+                            if (!textNode.parentNode.$ieTextNodes)
+                                textNode.parentNode.$ieTextNodes = [];
+                            if (textNode.parentNode.$ieTextNodes.indexOf(textNode) == -1)
+                                textNode.parentNode.$ieTextNodes.push(textNode);
+                        }
+                    }
                     return;
                 }
                 var appNode = elem;
+                var attrs = Compiler.attrs;
+                attrs.splice(0, attrs.length);
+                for (var i = 0; i < elem.attributes.length; i++)
+                    attrs.push(elem.attributes[i]);
                 // Go through each element's attributes
-                jQuery.each(this.attributes, function (i, attrib) {
+                jQuery.each(attrs, function (i, attrib) {
                     if (!attrib)
                         return;
                     var name = attrib.name;
@@ -382,10 +390,10 @@ var Animate;
                             break;
                         case "en-model":
                             var ev = function (e) {
-                                Compiler.parse(value + " = '" + elem.value + "'", controller, e, elem);
+                                Compiler.parse(value + " = elm.value", controller, e, elem);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            Compiler.parse(value + " = '" + elem.value + "'", controller, null, elem);
+                            Compiler.parse(value + " = elm.value", controller, null, elem);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
@@ -486,8 +494,14 @@ var Animate;
                 if (Compiler.validators[values[i]])
                     expressions.push(Compiler.validators[values[i]]);
             elem.$error = false;
-            for (var i = 0, l = expressions.length; i < l; i++)
-                if (!(elem.value.match(expressions[i].regex))) {
+            for (var i = 0, l = expressions.length; i < l; i++) {
+                var matches = elem.value.match(expressions[i].regex);
+                if (expressions[i].negate)
+                    if (matches)
+                        matches = null;
+                    else
+                        matches = true;
+                if (!matches) {
                     elem.$error = true;
                     if (form) {
                         form.$errorExpression = expressions[i].name;
@@ -495,6 +509,7 @@ var Animate;
                     }
                     break;
                 }
+            }
             return elem.$error;
         };
         /**
@@ -511,12 +526,14 @@ var Animate;
             elm.get(0).$ctrl = controller;
             return jQuery(Compiler.digest(elm, controller, includeSubTemplates));
         };
+        Compiler.attrs = [];
         Compiler.validators = {
-            "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric" },
-            "non-empty": { regex: /\S/, name: "non-empty" },
-            "alpha-numeric-plus": { regex: /^[a-zA-Z0-9_\-!]+$/, name: "alpha-numeric-plus" },
-            "email-plus": { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus" },
-            "email": { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email" }
+            "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric", negate: false },
+            "non-empty": { regex: /\S/, name: "non-empty", negate: false },
+            "alpha-numeric-plus": { regex: /^[a-zA-Z0-9_\-!]+$/, name: "alpha-numeric-plus", negate: false },
+            "email-plus": { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus", negate: false },
+            "email": { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email", negate: false },
+            "no-html": { regex: /(<([^>]+)>)/ig, name: "no-html", negate: true }
         };
         return Compiler;
     })();
@@ -4103,6 +4120,23 @@ var Animate;
             return d.promise();
         };
         /**
+        * Creates a new user projects
+        */
+        User.prototype.newProject = function (name, description) {
+            var d = jQuery.Deferred(), that = this, token = {
+                name: name,
+                description: description
+            };
+            jQuery.post(Animate.DB.API + "/projects/create", token).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
         * Use this function to rename a project
         * @param {number} id The project ID we are copying
         * @param {string} name The new name of the project
@@ -4150,17 +4184,19 @@ var Animate;
             loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/copy", { id: id });
         };
-        /**
-        * This function is used to create a new project.
-        */
-        User.prototype.createProject = function (name, description) {
-            if (this._isLoggedIn) {
-                var loader = new Animate.AnimateLoader();
-                loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-                loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-                loader.load("/project/create", { name: name, description: description });
-            }
-        };
+        ///**
+        //* This function is used to create a new project.
+        //*/
+        //createProject( name : string, description : string )
+        //{
+        //	if ( this._isLoggedIn )
+        //	{
+        //		var loader = new AnimateLoader();
+        //		loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+        //		loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+        //		loader.load( "/project/create", { name: name, description: description } );
+        //	}
+        //}
         /**
         * This function is used to open an existing project.
         */
@@ -4190,16 +4226,6 @@ var Animate;
             else
                 return null;
         };
-        ///**
-        //* This function is used to log a user out. 
-        //*/
-        //logout()
-        //{
-        //	var loader = new AnimateLoader();
-        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-        //	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-        //	loader.load( "/user/log-out", {} );
-        //}
         /**
         * This is the resonse from the server
         * @param {LoaderEvents} response The response from the server. The response will be either Loader.COMPLETE or Loader.FAILED
@@ -18500,7 +18526,7 @@ var Animate;
             Animate.Compiler.digest(this.loginBackground, this);
         };
         Splash2.prototype.newProject = function (name, description) {
-            this.user.createProject(name, description);
+            this.user.newProject(name, description);
         };
         /**
         * This is called when we click a button on the message box.
@@ -18764,14 +18790,15 @@ var Animate;
             this._newProject = jQuery("#splash-new-project").remove().clone();
             this.$user = Animate.User.get;
             this.$activePane = "loading";
-            this.$loginError = "";
-            this.$loginRed = true;
+            this.$errorMsg = "";
+            this.$errorRed = true;
             this.$loading = false;
             this.$projects = [];
             this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
             this.$selectedProjects = [];
+            this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new Animate.PageLoader(this.fetchProjects.bind(this));
             // Create a random theme for the splash screen
@@ -18825,35 +18852,48 @@ var Animate;
         };
         /*
         * Goes to pane state
-        * @param {state} The name of the state
+        * @param {string} state The name of the state
+        * @param {boolean} digest If true, the page will revalidate
         */
         Splash.prototype.goState = function (state, digest) {
             if (digest === void 0) { digest = false; }
             var that = this;
             that.$loading = false;
             that.$activePane = state;
-            that.$loginError = "";
-            if (digest)
-                Animate.Compiler.digest(that._splashElm, that, true);
+            that.$errorMsg = "";
             if (state == "welcome")
                 this.fetchProjects(this.$pager.index, this.$pager.limit);
+            else if (state == "new-project") {
+                this.$errorMsg = "Give your project a name and select the plugins you woud like to use";
+                this.$errorRed = false;
+            }
+            if (digest)
+                Animate.Compiler.digest(that._splashElm, that, true);
         };
+        /*
+        * Fetches a list of user projects
+        * @param {number} index
+        * @param {number} limit
+        */
         Splash.prototype.fetchProjects = function (index, limit) {
             var that = this;
             that.$loading = true;
-            that.$loginError = "";
+            that.$errorMsg = "";
             Animate.Compiler.digest(that._splashElm, that);
             that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects) {
-                that.$pager.last = projects.count;
+                that.$pager.last = projects.count || 1;
                 that.$projects = projects.data;
             }).fail(function (err) {
-                that.$loginError = err.message;
+                that.$errorMsg = err.message;
             }).done(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that);
                 Animate.Compiler.digest(that._welcomeElm, that);
             });
         };
+        /*
+        * Called when we select a project
+        */
         Splash.prototype.selectProject = function (project) {
             project.selected = !project.selected;
             if (this.$selectedProjects.indexOf(project) == -1)
@@ -18866,6 +18906,20 @@ var Animate;
                 this.$selectedProject = null;
         };
         /*
+        * Called when we select a project
+        */
+        Splash.prototype.selectPlugin = function (plugin) {
+            plugin.selected = !plugin.selected;
+            if (this.$selectedPlugins.indexOf(plugin) == -1)
+                this.$selectedPlugins.push(plugin);
+            else
+                this.$selectedPlugins.splice(this.$selectedPlugins.indexOf(plugin), 1);
+            if (this.$selectedPlugins.length > 0)
+                this.$selectedPlugin = this.$selectedPlugins[this.$selectedPlugins.length - 1];
+            else
+                this.$selectedPlugin = null;
+        };
+        /*
         * Called by the app when everything needs to be reset
         */
         Splash.prototype.reset = function () {
@@ -18874,59 +18928,74 @@ var Animate;
         * Given a form element, we look at if it has an error and based on the expression. If there is we set
         * the login error message
         * @param {EngineForm} The form to check.
-        * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
         */
-        Splash.prototype.reportError = function (form, registerCheck) {
-            if (registerCheck === void 0) { registerCheck = false; }
+        Splash.prototype.reportError = function (form) {
             if (!form.$error)
-                this.$loginError = "";
+                this.$errorMsg = "";
             else {
                 var name = form.$errorInput;
                 name = name.charAt(0).toUpperCase() + name.slice(1);
                 switch (form.$errorExpression) {
                     case "alpha-numeric":
-                        this.$loginError = name + " must only contain alphanumeric characters";
+                        this.$errorMsg = name + " must only contain alphanumeric characters";
                         break;
                     case "email-plus":
-                        this.$loginError = name + " must only contain alphanumeric characters or a valid email";
+                        this.$errorMsg = name + " must only contain alphanumeric characters or a valid email";
                         break;
                     case "non-empty":
-                        this.$loginError = name + " cannot be empty";
+                        this.$errorMsg = name + " cannot be empty";
                         break;
                     case "email":
-                        this.$loginError = name + " must be a valid email";
+                        this.$errorMsg = name + " must be a valid email";
                         break;
                     case "alpha-numeric-plus":
-                        this.$loginError = name + " must only contain alphanumeric characters and '-', '!', or '_'";
+                        this.$errorMsg = name + " must only contain alphanumeric characters and '-', '!', or '_'";
+                        break;
+                    case "no-html":
+                        this.$errorMsg = name + " must not contain any html";
                         break;
                     default:
-                        this.$loginError = "";
+                        this.$errorMsg = "";
                         break;
                 }
             }
-            if (registerCheck) {
+            if (this.$activePane == "new-project" && this.$selectedPlugins.length == 0)
+                this.$errorMsg = "Please choose at least 1 plugin to work with";
+            if (this.$activePane == "register") {
                 this.$regCaptcha = jQuery("#recaptcha_response_field").val();
                 this.$regChallenge = jQuery("#recaptcha_challenge_field").val();
                 if (this.$regCaptcha == "")
-                    this.$loginError = "Please enter the capture code";
+                    this.$errorMsg = "Please enter the capture code";
             }
-            if (this.$loginError == "") {
-                this.$loginRed = false;
+            if (this.$errorMsg == "") {
+                this.$errorRed = false;
                 return false;
             }
             else {
-                this.$loginRed = true;
+                this.$errorRed = true;
                 return true;
             }
+        };
+        /**
+        * Creates a new user project
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+        */
+        Splash.prototype.newProject = function (name, description, plugins) {
+            this.$loading = true;
+            this.$errorRed = false;
+            this.$errorMsg = "Just a moment while we hatch your appling...";
+            Animate.Compiler.digest(this._splashElm, this, false);
+            this.$user.newProject(name, description);
         };
         /*
         * General error handler
         */
         Splash.prototype.loginError = function (err) {
             this.$loading = false;
-            this.$loginRed = true;
-            this.$loginError = err.message;
+            this.$errorRed = true;
+            this.$errorMsg = err.message;
             Animate.Compiler.digest(this._loginElm, this);
             Animate.Compiler.digest(this._splashElm, this);
         };
@@ -18935,11 +19004,11 @@ var Animate;
         */
         Splash.prototype.loginSuccess = function (data) {
             if (data.error)
-                this.$loginRed = true;
+                this.$errorRed = true;
             else
-                this.$loginRed = false;
+                this.$errorRed = false;
             this.$loading = false;
-            this.$loginError = data.message;
+            this.$errorMsg = data.message;
             Animate.Compiler.digest(this._splashElm, this, true);
         };
         /**
@@ -18954,10 +19023,10 @@ var Animate;
             this.$user.login(user, password, remember)
                 .then(function (data) {
                 if (data.error)
-                    that.$loginRed = true;
+                    that.$errorRed = true;
                 else
-                    that.$loginRed = false;
-                that.$loginError = data.message;
+                    that.$errorRed = false;
+                that.$errorMsg = data.message;
             })
                 .fail(this.loginError.bind(that))
                 .done(function () {
@@ -18982,8 +19051,8 @@ var Animate;
             this.$user.register(user, password, email, captcha, challenge)
                 .then(this.loginSuccess.bind(that))
                 .fail(function (err) {
-                that.$loginRed = true;
-                that.$loginError = err.message;
+                that.$errorRed = true;
+                that.$errorMsg = err.message;
                 that.$loading = false;
                 Recaptcha.reload();
                 Animate.Compiler.digest(that._loginElm, that);
@@ -18997,7 +19066,7 @@ var Animate;
         Splash.prototype.resendActivation = function (user) {
             var that = this;
             if (!user) {
-                this.$loginError = "Please specify a username or email to fetch";
+                this.$errorMsg = "Please specify a username or email to fetch";
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
                     this.$error = true;
                 });
@@ -19017,7 +19086,7 @@ var Animate;
         Splash.prototype.resetPassword = function (user) {
             var that = this;
             if (!user) {
-                this.$loginError = "Please specify a username or email to fetch";
+                this.$errorMsg = "Please specify a username or email to fetch";
                 jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem) {
                     this.$error = true;
                 });
@@ -19038,7 +19107,7 @@ var Animate;
             that.$loading = true;
             this.$user.logout().then(function () {
                 that.$loading = false;
-                that.$loginError = "";
+                that.$errorMsg = "";
             })
                 .fail(this.loginError.bind(that))
                 .always(function () {

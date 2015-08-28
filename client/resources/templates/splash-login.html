@@ -9,8 +9,8 @@
 				<input autocomplete="off" placeholder="Password" autofocus="" type='password' en-auto-clear name="password" id="en-login-password" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" en-model="ctrl.$logPassword" />
 				<a id="forgot-pass" en-class="{ 'disabled' : ctrl.$loading }" en-click="ctrl.resetPassword(ctrl.$logUsername)">Forgot</a>
 			</div>
-			<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$loginRed }" en-style="{'max-height': (ctrl.$loginError != '' ? '150px' : ''), padding: (ctrl.$loginError != '' ? '10px' : '0') }">
-				{{ctrl.$loginError}}
+			<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$errorRed }" en-style="{'max-height': (ctrl.$errorMsg != '' ? '150px' : ''), padding: (ctrl.$errorMsg != '' ? '10px' : '0') }">
+				{{ctrl.$errorMsg}}
 			</div>
 			<div class="checkbox">
 				<div class="tick-box" en-click="ctrl.$logRemember = !ctrl.$logRemember">
@@ -40,8 +40,8 @@
 			<div class='input-box'>
 				<input type='password' placeholder="Password" autocomplete="off" en-auto-clear name="password" en-model="ctrl.$regPassword" id="en-reg-password" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|alpha-numeric-plus" />
 			</div>
-			<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$loginRed }" en-style="{ 'max-height': (ctrl.$loginError != '' ? '150px' : ''), padding: (ctrl.$loginError != '' ? '10px' : '0') }">
-				{{ctrl.$loginError}}
+			<div class='label login-msg fade-in animate-slow' en-class="{ 'error' : ctrl.$errorRed }" en-style="{ 'max-height': (ctrl.$errorMsg != '' ? '150px' : ''), padding: (ctrl.$errorMsg != '' ? '10px' : '0') }">
+				{{ctrl.$errorMsg}}
 			</div>
 			<div id='animate-captcha'></div>
 			<div class="double-column">
@@ -85,8 +85,8 @@
 				<input type='submit' en-class="{ 'disabled' : ctrl.$loading }" class="button reg-gradient curve-small en-login" value="Login" />
 			</form>
 
-			<div class='label en-login-msg' en-class="{ 'error' : ctrl.$loginRed }" en-show="ctrl.$loginError != ''">
-				{{ctrl.$loginError}}
+			<div class='label en-login-msg' en-class="{ 'error' : ctrl.$loginRed }" en-show="ctrl.$errorMsg != ''">
+				{{ctrl.$errorMsg}}
 			</div>
 
 			
