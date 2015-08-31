@@ -1,16 +1,3 @@
-//import http = require( "http" );
-//import BaseController = require( "./BaseController" );
-//import ErrorController = require( "./ErrorController" );
-//import viewJSON = require( "../views/JSONRenderer" );
-//import viewJade = require( "../views/JadeRenderer" );
-//import utils = require( "../Utils" );
-//import Model = require( "../models/Model" );
-//import modelUser = require( "../models/UserModel" );
-//import modelPlugin = require( "../models/PluginModel" );
-//import mongodb = require( "mongodb" );
-//import UserController = require( "./UserController" );
-//import logger = require( "../Logger" );
-//import validator = require( "../Validator" );
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }

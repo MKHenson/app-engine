@@ -36,9 +36,15 @@
 
         // A reference of all events attached with this node
         $events: Array< { name: string; tag: string; func: any; }>;
+    }
 
+    export interface RootNode extends AppNode
+    {
         // The controller associated with the element. Assigned on a build
         $ctrl: any;
+
+        // Stores an array of all nodes that are dynamic and can grow or shrink based on conditionality
+        $dynamicNodes: Array<Node>
     }
 
     export interface EngineInput extends HTMLInputElement
@@ -98,18 +104,19 @@
         * Evaluates and returns an expression 
         * @return {any}
         */
-        private static parse(script: string, ctrl: any, event: any, elm: Element): any
+        private static parse(script: string, ctrl: any, event: any, elm: Element ): any
         {
             var contexts = {};
             var p: AppNode = <AppNode><Node>elm;
             var appNode = <AppNode><Node>elm;
-            while (p)
+            if (p.$ctx && p.$ctx != "")
             {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue )
+                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
                     contexts[p.$ctx] = p.$ctxValue;
 
                 p = <AppNode>p.parentNode;
             }
+
             if (!appNode.$compliledEval)
                 appNode.$compliledEval = {};
             
@@ -277,6 +284,11 @@
             }
         }
 
+        /**
+        * Traverses an element down to its child nodes
+        * @param {Node} elm The element to traverse
+        * @param {Function} callback The callback is called for each child element
+        */
         static traverse(elm: Node, callback: Function)
         {
             var cont = true;
@@ -284,9 +296,11 @@
             {
                 cont = callback.call(e, e);
                 if (cont !== false)
-                    for (var i = 0, l = e.childNodes.length; i < l; i++)
-                        search(e.childNodes[i]);
+                    for (var c = e.childNodes, i = 0, l = c.length; i < l; i++)
+                        search(c[i]);
             }
+
+            
 
             search(elm);
         }
@@ -305,6 +319,21 @@
                 appNode.$ctxValue = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
+
+                // Go through each child and assign the context
+                if (appNode.$ctx.trim() != "")
+                {
+                    Compiler.traverse(appNode, function (child: AppNode)
+                    {
+                        // If comment node do nothing
+                        if (child.nodeType == 8)
+                            return;
+
+                        child.$ctx = "";
+                        child.$ctxValue = null;
+                    });
+                };
+
                 Compiler.removeEvents(<Element><Node>sourceNode);
                 jQuery(sourceNode.$clonedElements[i]).remove();
             }
@@ -314,80 +343,15 @@
 
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
-        * @param {Element} elm The root element to explore
+        * @param {RootNode} root The root element to explore
         * @param {any} ctrl The controller
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        static expand(elm: Element, ctrl: any, includeSubTemplates: boolean = false): Element
+        static expand(root: RootNode, ctrl: any, includeSubTemplates: boolean = false): Element
         {
-            var potentials: Array<Element> = [];
             var toRemove: Array<Element> = [];
-            var comments: Array<Node> = [];
-
-            // Traverse each element
-            Compiler.traverse(elm, function (elem: Element)
-            {
-                if (!includeSubTemplates && (<AppNode><Node>elem).$ctrl && (<AppNode><Node>elem).$ctrl != ctrl)
-                    return false;
-
-                if (elem.nodeType == 8)
-                {
-                    comments.push(elem);
-                    return;
-                }
-
-                // Only allow element nodes
-                if (elem.nodeType != 1)
-                    return;
-
-                if ((<AppNode><Node>elem).$dynamic)
-                    return;
-
-                var attrs: Array<Attr> = Compiler.attrs;
-                attrs.splice(0, attrs.length);
-                for (var i = 0; i < (<Element>elem).attributes.length; i++)
-                    attrs.push((<Element>elem).attributes[i]);
-
-                // Go through each element's attributes
-                // Go through each element's attributes
-                jQuery.each(attrs, function (i, attrib)
-                {
-                    if (!attrib) return;
-              
-                    var name = attrib.name;
-                    var value = attrib.value;
-
-                    switch (name)
-                    {
-                        case "en-repeat":
-                            (<AppNode><Node>elem).$expression = value;
-                            (<AppNode><Node>elem).$expressionType = "en-repeat";
-                            potentials.push(elem);
-                            break;
-                        case "en-if":
-                            (<AppNode><Node>elem).$expression = value;
-                            (<AppNode><Node>elem).$expressionType = "en-if";
-                            potentials.push(elem);
-                            break;
-                    }
-                });
-            });
-                        
-            // Replace the potentials with comments that keep a reference to the original node
-            for (var i = 0, l = potentials.length; i < l; i++)
-            {
-                var comment = jQuery(`<!-- ${(<AppNode><Node>potentials[i]).$expressionType} -->`);
-                var commentElement: AppNode = <AppNode><Node>comment.get(0);
-
-                commentElement.$clonedElements = [];
-                commentElement.$originalNode = <AppNode><Node>potentials[i];
-                commentElement.$expression = commentElement.$originalNode.$expression;
-                commentElement.$expressionType = commentElement.$originalNode.$expressionType;
-                
-                jQuery(potentials[i]).replaceWith(comment);
-                comments.push(commentElement);
-            }
-
+            var comments: Array<Node> = root.$dynamicNodes;
+        
             // Go through each comment and expand it
             for (var i = 0, l = comments.length; i < l; i++)
             {
@@ -421,6 +385,21 @@
                                         newNode.$dynamic = true;
                                         newNode.$ctx = ctx;
                                         newNode.$ctxValue = expressionValue[t];
+
+                                        // Go through each child and assign the context
+                                        if (ctx.trim() != "")
+                                        {
+                                            Compiler.traverse(newNode, function (child: AppNode)
+                                            {
+                                                // If comment node do nothing
+                                                if (child.nodeType == 8 )
+                                                    return;
+
+                                                child.$ctx = ctx;
+                                                child.$ctxValue = expressionValue[t];
+                                            });
+                                        };
+
                                         clone.insertAfter(comment);
 
                                         commentElement.$clonedElements.push(<Element><Node>newNode);
@@ -444,8 +423,8 @@
                             {
                                 var clone = jQuery(commentElement.$originalNode).clone();
                                 var newNode: AppNode = <AppNode><Node>clone.get(0);
-                                if (<Element><Node>commentElement.$originalNode == elm)
-                                    elm = <Element><Node>clone.get(0);
+                                if (<Element><Node>commentElement.$originalNode == <Element><Node>root)
+                                    root = <RootNode><Node>clone.get(0);
 
                                 newNode.$dynamic = true;
                                 clone.insertAfter(comment);
@@ -458,9 +437,7 @@
                 }
             }
 
-            
-
-            return elm;
+            return <Element><Node>root;
         }
 
         /**
@@ -496,18 +473,22 @@
             var matches: RegExpMatchArray;
             var textNode: AppNode;
             var expanded;
-            
-            expanded = Compiler.expand(elm, controller, includeSubTemplates);
-            if (expanded != elm)
+
+            var rootNode: RootNode = <RootNode><Node>elm;
+            if (rootNode.$dynamicNodes)
             {
-                elm = expanded;
-                jElem = jQuery(elm);
+                expanded = Compiler.expand(rootNode, controller, includeSubTemplates);
+                if (expanded != elm)
+                {
+                    elm = expanded;
+                    jElem = jQuery(elm);
+                }
             }
 
             // Traverse each element
             Compiler.traverse(elm, function (elem)
             {
-                if (!includeSubTemplates && (<AppNode><Node>elem).$ctrl && elm != elem )
+                if (!includeSubTemplates && (<RootNode><Node>elem).$ctrl && elm != elem)
                     return false;
 
                 // Do nothing for comment nodes
@@ -564,10 +545,17 @@
                     switch (name)
                     {
                         case "en-src":
-                            (<HTMLImageElement>elem).src = Compiler.parse(value, controller, null, elem);
+                            var src = Compiler.parse(value, controller, null, elem);
+                            if (src != (<any>elem).$prevSrc)
+                            {
+                                (<HTMLImageElement>elem).src = src;
+                                (<any>elem).$prevSrc = src;
+                            }
                             break;
                         case "en-show":
-                            (<HTMLImageElement>elem).style.display = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            if (disp != (<HTMLImageElement>elem).style.display )
+                                (<HTMLImageElement>elem).style.display = disp;
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
@@ -750,14 +738,78 @@
         * and manipulating the DOM. This should only really be called once per element. If you need to update the
         * element after compilation you can use the digest method
         * @param {JQuery} elm The element to traverse
-        * @param {any} controller The controller associated with the element
+        * @param {any} ctrl The controller associated with the element
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {JQuery}
         */
-        static build(elm: JQuery, controller: any, includeSubTemplates: boolean = false): JQuery
+        static build(elm: JQuery, ctrl: any, includeSubTemplates: boolean = false): JQuery
         {
-            (<AppNode><Node>elm.get(0)).$ctrl = controller;
-            return jQuery(Compiler.digest(elm, controller, includeSubTemplates));
+            var rootNode = <RootNode><Node>elm.get(0);
+            rootNode.$ctrl = ctrl;
+            rootNode.$dynamicNodes = [];
+
+            var potentials: Array<Element> = [];
+                
+            // First go through each of the nodes and find any elements that will potentially grow or shrink
+            // Traverse each element
+            Compiler.traverse(rootNode, function (elem: Element)
+            {
+                if (!includeSubTemplates && (<RootNode><Node>elem).$ctrl && (<RootNode><Node>elem).$ctrl != ctrl)
+                    return false;
+                
+                // Only allow element nodes
+                if (elem.nodeType != 1)
+                    return;
+
+                if ((<AppNode><Node>elem).$dynamic)
+                    return;
+
+                var attrs: Array<Attr> = Compiler.attrs;
+                attrs.splice(0, attrs.length);
+                for (var i = 0; i < (<Element>elem).attributes.length; i++)
+                    attrs.push((<Element>elem).attributes[i]);
+
+                // Go through each element's attributes
+                jQuery.each(attrs, function (i, attrib)
+                {
+                    if (!attrib) return;
+
+                    var name = attrib.name;
+                    var value = attrib.value;
+
+                    switch (name)
+                    {
+                        case "en-repeat":
+                            (<AppNode><Node>elem).$expression = value;
+                            (<AppNode><Node>elem).$expressionType = "en-repeat";
+                            potentials.push(elem);
+                            break;
+                        case "en-if":
+                            (<AppNode><Node>elem).$expression = value;
+                            (<AppNode><Node>elem).$expressionType = "en-if";
+                            potentials.push(elem);
+                            break;
+                    }
+                });
+            });
+
+            // Replace the potentials with comments that keep a reference to the original node
+            for (var i = 0, l = potentials.length; i < l; i++)
+            {
+                var comment = jQuery(`<!-- ${(<AppNode><Node>potentials[i]).$expressionType} -->`);
+                var commentElement: AppNode = <AppNode><Node>comment.get(0);
+
+                commentElement.$clonedElements = [];
+                commentElement.$originalNode = <AppNode><Node>potentials[i];
+                commentElement.$expression = commentElement.$originalNode.$expression;
+                commentElement.$expressionType = commentElement.$originalNode.$expressionType;
+
+                jQuery(potentials[i]).replaceWith(comment);
+                rootNode.$dynamicNodes.push(commentElement);
+            }
+
+
+            return jQuery(Compiler.digest(elm, ctrl, includeSubTemplates));
         }
     }
 }

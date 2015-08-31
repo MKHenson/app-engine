@@ -27,7 +27,7 @@ var Animate;
             var contexts = {};
             var p = elm;
             var appNode = elm;
-            while (p) {
+            if (p.$ctx && p.$ctx != "") {
                 if (p.$ctx && p.$ctx != "" && p.$ctxValue)
                     contexts[p.$ctx] = p.$ctxValue;
                 p = p.parentNode;
@@ -160,13 +160,18 @@ var Animate;
                 appNode.$events.splice(0, appNode.$events.length);
             }
         };
+        /**
+        * Traverses an element down to its child nodes
+        * @param {Node} elm The element to traverse
+        * @param {Function} callback The callback is called for each child element
+        */
         Compiler.traverse = function (elm, callback) {
             var cont = true;
             function search(e) {
                 cont = callback.call(e, e);
                 if (cont !== false)
-                    for (var i = 0, l = e.childNodes.length; i < l; i++)
-                        search(e.childNodes[i]);
+                    for (var c = e.childNodes, i = 0, l = c.length; i < l; i++)
+                        search(c[i]);
             }
             search(elm);
         };
@@ -182,6 +187,17 @@ var Animate;
                 appNode.$ctxValue = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
+                // Go through each child and assign the context
+                if (appNode.$ctx.trim() != "") {
+                    Compiler.traverse(appNode, function (child) {
+                        // If comment node do nothing
+                        if (child.nodeType == 8)
+                            return;
+                        child.$ctx = "";
+                        child.$ctxValue = null;
+                    });
+                }
+                ;
                 Compiler.removeEvents(sourceNode);
                 jQuery(sourceNode.$clonedElements[i]).remove();
             }
@@ -189,64 +205,14 @@ var Animate;
         };
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
-        * @param {Element} elm The root element to explore
+        * @param {RootNode} root The root element to explore
         * @param {any} ctrl The controller
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        Compiler.expand = function (elm, ctrl, includeSubTemplates) {
+        Compiler.expand = function (root, ctrl, includeSubTemplates) {
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
-            var potentials = [];
             var toRemove = [];
-            var comments = [];
-            // Traverse each element
-            Compiler.traverse(elm, function (elem) {
-                if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != ctrl)
-                    return false;
-                if (elem.nodeType == 8) {
-                    comments.push(elem);
-                    return;
-                }
-                // Only allow element nodes
-                if (elem.nodeType != 1)
-                    return;
-                if (elem.$dynamic)
-                    return;
-                var attrs = Compiler.attrs;
-                attrs.splice(0, attrs.length);
-                for (var i = 0; i < elem.attributes.length; i++)
-                    attrs.push(elem.attributes[i]);
-                // Go through each element's attributes
-                // Go through each element's attributes
-                jQuery.each(attrs, function (i, attrib) {
-                    if (!attrib)
-                        return;
-                    var name = attrib.name;
-                    var value = attrib.value;
-                    switch (name) {
-                        case "en-repeat":
-                            elem.$expression = value;
-                            elem.$expressionType = "en-repeat";
-                            potentials.push(elem);
-                            break;
-                        case "en-if":
-                            elem.$expression = value;
-                            elem.$expressionType = "en-if";
-                            potentials.push(elem);
-                            break;
-                    }
-                });
-            });
-            // Replace the potentials with comments that keep a reference to the original node
-            for (var i = 0, l = potentials.length; i < l; i++) {
-                var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
-                var commentElement = comment.get(0);
-                commentElement.$clonedElements = [];
-                commentElement.$originalNode = potentials[i];
-                commentElement.$expression = commentElement.$originalNode.$expression;
-                commentElement.$expressionType = commentElement.$originalNode.$expressionType;
-                jQuery(potentials[i]).replaceWith(comment);
-                comments.push(commentElement);
-            }
+            var comments = root.$dynamicNodes;
             // Go through each comment and expand it
             for (var i = 0, l = comments.length; i < l; i++) {
                 var comment = jQuery(comments[i]);
@@ -269,6 +235,17 @@ var Animate;
                                         newNode.$dynamic = true;
                                         newNode.$ctx = ctx;
                                         newNode.$ctxValue = expressionValue[t];
+                                        // Go through each child and assign the context
+                                        if (ctx.trim() != "") {
+                                            Compiler.traverse(newNode, function (child) {
+                                                // If comment node do nothing
+                                                if (child.nodeType == 8)
+                                                    return;
+                                                child.$ctx = ctx;
+                                                child.$ctxValue = expressionValue[t];
+                                            });
+                                        }
+                                        ;
                                         clone.insertAfter(comment);
                                         commentElement.$clonedElements.push(newNode);
                                     }
@@ -286,8 +263,8 @@ var Animate;
                             if (expressionValue) {
                                 var clone = jQuery(commentElement.$originalNode).clone();
                                 var newNode = clone.get(0);
-                                if (commentElement.$originalNode == elm)
-                                    elm = clone.get(0);
+                                if (commentElement.$originalNode == root)
+                                    root = clone.get(0);
                                 newNode.$dynamic = true;
                                 clone.insertAfter(comment);
                                 commentElement.$clonedElements.push(newNode);
@@ -297,7 +274,7 @@ var Animate;
                     }
                 }
             }
-            return elm;
+            return root;
         };
         /**
         * Registers an internal function reference for later cleanup
@@ -328,10 +305,13 @@ var Animate;
             var matches;
             var textNode;
             var expanded;
-            expanded = Compiler.expand(elm, controller, includeSubTemplates);
-            if (expanded != elm) {
-                elm = expanded;
-                jElem = jQuery(elm);
+            var rootNode = elm;
+            if (rootNode.$dynamicNodes) {
+                expanded = Compiler.expand(rootNode, controller, includeSubTemplates);
+                if (expanded != elm) {
+                    elm = expanded;
+                    jElem = jQuery(elm);
+                }
             }
             // Traverse each element
             Compiler.traverse(elm, function (elem) {
@@ -377,10 +357,16 @@ var Animate;
                     var value = attrib.value;
                     switch (name) {
                         case "en-src":
-                            elem.src = Compiler.parse(value, controller, null, elem);
+                            var src = Compiler.parse(value, controller, null, elem);
+                            if (src != elem.$prevSrc) {
+                                elem.src = src;
+                                elem.$prevSrc = src;
+                            }
                             break;
                         case "en-show":
-                            elem.style.display = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            if (disp != elem.style.display)
+                                elem.style.display = disp;
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
@@ -517,14 +503,62 @@ var Animate;
         * and manipulating the DOM. This should only really be called once per element. If you need to update the
         * element after compilation you can use the digest method
         * @param {JQuery} elm The element to traverse
-        * @param {any} controller The controller associated with the element
+        * @param {any} ctrl The controller associated with the element
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {JQuery}
         */
-        Compiler.build = function (elm, controller, includeSubTemplates) {
+        Compiler.build = function (elm, ctrl, includeSubTemplates) {
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
-            elm.get(0).$ctrl = controller;
-            return jQuery(Compiler.digest(elm, controller, includeSubTemplates));
+            var rootNode = elm.get(0);
+            rootNode.$ctrl = ctrl;
+            rootNode.$dynamicNodes = [];
+            var potentials = [];
+            // First go through each of the nodes and find any elements that will potentially grow or shrink
+            // Traverse each element
+            Compiler.traverse(rootNode, function (elem) {
+                if (!includeSubTemplates && elem.$ctrl && elem.$ctrl != ctrl)
+                    return false;
+                // Only allow element nodes
+                if (elem.nodeType != 1)
+                    return;
+                if (elem.$dynamic)
+                    return;
+                var attrs = Compiler.attrs;
+                attrs.splice(0, attrs.length);
+                for (var i = 0; i < elem.attributes.length; i++)
+                    attrs.push(elem.attributes[i]);
+                // Go through each element's attributes
+                jQuery.each(attrs, function (i, attrib) {
+                    if (!attrib)
+                        return;
+                    var name = attrib.name;
+                    var value = attrib.value;
+                    switch (name) {
+                        case "en-repeat":
+                            elem.$expression = value;
+                            elem.$expressionType = "en-repeat";
+                            potentials.push(elem);
+                            break;
+                        case "en-if":
+                            elem.$expression = value;
+                            elem.$expressionType = "en-if";
+                            potentials.push(elem);
+                            break;
+                    }
+                });
+            });
+            // Replace the potentials with comments that keep a reference to the original node
+            for (var i = 0, l = potentials.length; i < l; i++) {
+                var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
+                var commentElement = comment.get(0);
+                commentElement.$clonedElements = [];
+                commentElement.$originalNode = potentials[i];
+                commentElement.$expression = commentElement.$originalNode.$expression;
+                commentElement.$expressionType = commentElement.$originalNode.$expressionType;
+                jQuery(potentials[i]).replaceWith(comment);
+                rootNode.$dynamicNodes.push(commentElement);
+            }
+            return jQuery(Compiler.digest(elm, ctrl, includeSubTemplates));
         };
         Compiler.attrs = [];
         Compiler.validators = {

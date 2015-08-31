@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse} from "modepress-api";
 import {IGetProjects, ICreateProject} from "modepress-engine";
 import {ProjectModel} from "../new-models/ProjectModel";
+import {authenticated, IUserRequest} from "./PermissionController";
 import {IProject} from "engine";
 
 /**
@@ -27,7 +28,7 @@ export class ProjectController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/:id?", <any>[this.getProjects.bind(this)]);
-        router.post("/create", <any>[this.createProject.bind(this)]);
+        router.post("/create", <any>[authenticated, this.createProject.bind(this)]);
 
         // Register the path
         e.use("/app-engine/projects", router);
@@ -39,20 +40,25 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private createProject(req: express.Request, res: express.Response, next: Function)
+    private createProject(req: IUserRequest, res: express.Response, next: Function)
     {
         // Check logged in + has rights to do request
+        // Check if project limit was reached
         // Create a build
         // Sanitize details
         // Create a project
-        // Associate build with project and viceversa
+        // Associate build with project and vice-versa
 
         res.setHeader('Content-Type', 'application/json');
         var token: Engine.IProject = req.body;
         var projects = this.getModel("en-projects");
 
         // User is passed from the authentication function
-        //token.user = (<ModepressEngine.IUserEntry>req.params.user);
+        token.user = req._user.username;
+
+        projects.count(<Engine.IProject>{ user: req._user._id }).then(function (num)
+        {
+        })
 
         projects.createInstance(token).then(function(instance)
         {

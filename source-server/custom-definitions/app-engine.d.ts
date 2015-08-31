@@ -83,6 +83,21 @@ declare module Engine
         lastModified?: number;
         _id?: any;  
     }
+    
+    /**
+    * An interface that is used to describe the user's engine details
+    */
+    export interface IUserDetails
+    {
+        user?: string;
+        bio?: string;
+        image?: string;
+        plan?: string;
+        website?: string;
+        customerId?: string;
+        maxProjects?: number;
+        _id?: any;
+    }
 }
 
 declare module ModepressEngine
