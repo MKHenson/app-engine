@@ -4078,7 +4078,7 @@ var Animate;
                 if (data.error)
                     return d.reject(new Error(data.message));
                 if (data.authenticated) {
-                    that._isLoggedIn = true;
+                    that._isLoggedIn = false;
                     that.userEntry = data.user;
                 }
                 else
@@ -19242,6 +19242,7 @@ jQuery(document).ready(function () {
 //    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
 //    {
 //    }]); 
+/// <reference path="./definitions/node.d.ts" />
 /// <reference path="./definitions/jquery.d.ts" />
 /// <reference path="./definitions/jqueryui.d.ts" />
 /// <reference path="./definitions/jquery.scrollTo.d.ts" />

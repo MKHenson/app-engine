@@ -191,7 +191,7 @@ module Animate
 
                 if (data.authenticated)
                 {
-                    that._isLoggedIn = true;
+                    that._isLoggedIn = false;
                     that.userEntry = <UsersInterface.IEngineUser>data.user;
                 }
                 else

@@ -1,3 +1,5 @@
+/// <reference path="./definitions/node.d.ts" />
+/// <reference path="./definitions/express.d.ts" />
 /// <reference path="./definitions/jquery.d.ts" />
 /// <reference path="./definitions/jqueryui.d.ts" />
 /// <reference path="./definitions/jquery.scrollTo.d.ts" />

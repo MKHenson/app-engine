@@ -18,7 +18,7 @@ export class AssetModel extends Model
         this.defaultSchema.add(new SchemaFactory.id("project_id", "", true));
         this.defaultSchema.add(new SchemaFactory.id("createdBy", "", true));
         this.defaultSchema.add(new SchemaFactory.text("json", "", 1));
-        this.defaultSchema.add(new SchemaFactory.date("created_on")).indexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("last_modified")).indexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("created_on")).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("last_modified")).setIndexable(true);
     }
 }

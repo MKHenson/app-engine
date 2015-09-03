@@ -1,10 +1,9 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq} from "modepress-api";
 import {IGetProjects, ICreateProject} from "modepress-engine";
 import {ProjectModel} from "../new-models/ProjectModel";
-import {authenticated, IUserRequest} from "./PermissionController";
 import {IProject} from "engine";
 
 /**
@@ -26,9 +25,9 @@ export class ProjectController extends Controller
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
+        
         router.get("/:id?", <any>[this.getProjects.bind(this)]);
-        router.post("/create", <any>[authenticated, this.createProject.bind(this)]);
+        router.post("/create", <any>[isAuthenticated, this.createProject.bind(this)]);
 
         // Register the path
         e.use("/app-engine/projects", router);
@@ -40,7 +39,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private createProject(req: IUserRequest, res: express.Response, next: Function)
+    private createProject(req: IAuthReq, res: express.Response, next: Function)
     {
         // Check logged in + has rights to do request
         // Check if project limit was reached

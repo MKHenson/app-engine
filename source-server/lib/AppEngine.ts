@@ -1,9 +1,10 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import {Controller, IServer, IConfig} from "modepress-api";
+import {ProjectController} from "./new-controllers/ProjectController";
 import {PluginController} from "./new-controllers/PluginController";
 import {AssetController} from "./new-controllers/AssetController";
-import {ProjectController} from "./new-controllers/ProjectController";
+import {UserDetailsController} from "./new-controllers/UserDetailsController";
 
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -25,7 +26,8 @@ export default class AppEngine extends Controller
         this._controllers = [
             new PluginController(server, config, e),
             new AssetController(server, config, e),
-            new ProjectController(server, config, e)
+            new ProjectController(server, config, e),
+            new UserDetailsController(server, config, e)
         ];
     }
 

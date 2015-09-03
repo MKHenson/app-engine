@@ -247,6 +247,18 @@
         * An array of servers for each host / route that modepress is supporting
         */
         servers: Array<IServer>;
+
+        /**
+        * The URL to listen for events from a webinate users socket
+        * eg: 'ws://www.webinate.net:123'
+        */
+        usersSocketURL: string;
+
+        /**
+        * Specifies the header 'origin' when connecting to the user socket. This origin must be whitelisted on the users API config file.
+        * eg: 'webinate.net'
+        */
+        usersSocketOrigin: string;
     }
 
     /**
@@ -257,8 +269,6 @@
         public name: string;
         public value: T;
         public sensitive: boolean;
-        private _unique: boolean;
-        private _indexable: boolean;
 
         constructor(name: string, value: T, sensitive: boolean);
 
@@ -270,16 +280,28 @@
         public clone(copy?: SchemaItem<T>): SchemaItem<T>;
 
         /**
-        * Gets or sets if this item is indexable by mongodb
+        * Gets if this item is indexable by mongodb
         * @returns {boolean}
         */
-        public indexable(val?: boolean): boolean;
+        public getIndexable(): boolean;
 
         /**
-        * Gets or sets if this item represents a unique value in the database. An example might be a username
+        * Gets if this item represents a unique value in the database. An example might be a username
         * @returns {boolean}
         */
-        public unique(val?: boolean): boolean;
+        public getUnique(): boolean;
+
+        /**
+        * Sets if this item is indexable by mongodb
+        * @returns {SchemaItem}
+        */
+        public setIndexable(val?: boolean): SchemaItem<T>;
+
+        /**
+        * Sets if this item represents a unique value in the database. An example might be a username
+        * @returns {SchemaItem}
+        */
+        public setUnique(val?: boolean): SchemaItem<T>;
 
         /**
         * Checks the value stored to see if its correct in its current form
@@ -556,10 +578,26 @@
         hasPermission(user: UsersInterface.IUserEntry, level: UsersInterface.UserPrivileges, existingUser?: string): boolean;
 
         /**
+	    * Attempts to log a user in
+        * @param {string} user The email or username
+        * @param {string} password The users password
+        * @param {boolean} remember
+	    * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+	    */
+        login(user: string, password: string, remember: boolean): Promise<UsersInterface.IAuthenticationResponse>;
+
+        /**
+        * Attempts to get a user by username or email
+        * @param {string} user The username or email
+        * @param {Request} req
+        */
+        getUser(user: string, req: Express.Request): Promise<UsersInterface.IGetUser>;
+
+        /**
         * Gets the user singleton
         * @returns {UsersService}
         */
-        public static getSingleton(usersURL?: string);
+        public static getSingleton(usersURL?: string): UsersService;
     }
         
     /**
@@ -668,6 +706,9 @@
         constructor(name: string, val: string, sensitive?: boolean);
     }
 
+    /**
+    * A list of helper functions for creating schema items
+    */
     export module SchemaFactory
     {
         export var num: typeof SchemaNumber;
@@ -677,6 +718,75 @@
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
     }
+
+    /**
+    * The type of user event
+    */
+    export enum UserEventType
+    {
+        Login,
+        Logout,
+        Activated,
+        Removed
+    }
+
+    /**
+    * Describes the user event sent to plugins
+    */
+    export interface UserEvent
+    {
+        username: string;
+        eventType: UserEventType;
+    }
+
+    /**
+    * A class for handling events sent from a webinate user server
+    */
+    export class EventManager implements NodeJS.EventEmitter
+    {
+        static singleton: EventManager;
+
+        addListener(event: string, listener: Function): NodeJS.EventEmitter;
+        on(event: string, listener: Function): NodeJS.EventEmitter;
+        once(event: string, listener: Function): NodeJS.EventEmitter;
+        removeListener(event: string, listener: Function): NodeJS.EventEmitter;
+        removeAllListeners(event?: string): NodeJS.EventEmitter;
+        setMaxListeners(n: number): void;
+        listeners(event: string): Function[];
+        emit(event: string, ...args: any[]): boolean;
+    }
+
+    export interface IAuthReq extends Express.Request
+    {
+        _user: UsersInterface.IUserEntry;
+        body: any;
+        headers: any;
+    }
+    
+    /**
+    * This funciton checks if user is logged in
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    export function isAdmin(req: IAuthReq, res: Express.Response, next: Function);
+
+    /**
+    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
+    * if true it passes the scope onto the next function in the queue
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    export function getUser(req: IAuthReq, res: Express.Response, next: Function);
+
+    /**
+   * This funciton checks the logged in user is an admin. If not an error is thrown
+   * @param {express.Request} req 
+   * @param {express.Response} res
+   * @param {Function} next 
+   */
+    export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
 }
 
 declare module "modepress-api"

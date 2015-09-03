@@ -44,6 +44,7 @@
     <TypeScriptCompile Include="lib\new-controllers\AssetController.ts" />
     <TypeScriptCompile Include="lib\controllers\MiscController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\PermissionController.ts" />
+    <TypeScriptCompile Include="lib\new-controllers\UserDetailsController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\ProjectController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\PluginController.ts" />
     <TypeScriptCompile Include="lib\controllers\BuildController.ts" />

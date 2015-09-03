@@ -45,11 +45,13 @@
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
+    <TypeScriptCompile Include="definitions\express.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />
     <TypeScriptCompile Include="definitions\jquery.d.ts" />
     <TypeScriptCompile Include="definitions\jquery.scrollTo.d.ts" />
     <TypeScriptCompile Include="definitions\jqueryui.d.ts" />
     <TypeScriptCompile Include="definitions\JSColor.d.ts" />
+    <TypeScriptCompile Include="definitions\node.d.ts" />
     <TypeScriptCompile Include="lib\core\Asset.ts" />
     <TypeScriptCompile Include="lib\core\AssetClass.ts" />
     <TypeScriptCompile Include="lib\core\AssetTemplate.ts" />
