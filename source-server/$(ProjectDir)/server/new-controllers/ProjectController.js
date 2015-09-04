@@ -51,12 +51,10 @@ var ProjectController = (function (_super) {
         projects.count({ user: req._user._id }).then(function (num) {
         });
         projects.createInstance(token).then(function (instance) {
-            var data = instance.schema.generateCleanData(true);
-            data._id = instance._id;
             res.end(JSON.stringify({
                 error: false,
                 message: "Created project '" + token.name + "'",
-                data: data
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
         }).catch(function (error) {
             res.end(JSON.stringify({

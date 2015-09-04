@@ -59,11 +59,11 @@ export class PluginController extends Controller
         model.count(findToken).then(function (num)
         {
             count = num;
-            return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances<IPlugin>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<IPlugin> = that.getSanitizedData<IPlugin>(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetPlugins>{
                 error: false,
                 count: count,

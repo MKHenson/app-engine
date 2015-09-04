@@ -106,6 +106,7 @@ declare module ModepressEngine
     export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
+    export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
 }
 
 declare module "engine" {

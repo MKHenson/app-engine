@@ -61,13 +61,10 @@ export class ProjectController extends Controller
 
         projects.createInstance(token).then(function(instance)
         {
-            var data: Engine.IProject = instance.schema.generateCleanData(true);
-            data._id = instance._id;
-
             res.end(JSON.stringify(<ICreateProject>{
                 error: false,
                 message: `Created project '${token.name}'`,
-                data: data
+                data: instance.schema.generateCleanData(true, instance._id)
             }));
 
         }).catch(function (error: Error)
@@ -102,11 +99,11 @@ export class ProjectController extends Controller
         model.count(findToken).then(function (num)
         {
             count = num;
-            return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
+            return model.findInstances<IProject>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<IProject> = that.getSanitizedData<IProject>(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetProjects>{
                 error: false,
                 count: count,

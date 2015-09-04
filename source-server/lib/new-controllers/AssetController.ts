@@ -32,7 +32,7 @@ export class AssetController extends Controller
     }
 
     /**
-    * Returns an array of IPost items
+    * Returns an array of IAsset items
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -71,15 +71,15 @@ export class AssetController extends Controller
         model.count(findToken).then(function (num)
         {
             count = num;
-            return model.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances<IAsset>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
 
         }).then(function (instances)
         {
-            var sanitizedData: Array<IAsset> = that.getSanitizedData<IAsset>(instances, Boolean(req.query.verbose));
+            var sanitizedData = that.getSanitizedData<IAsset>(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify(<IGetAssets>{
                 error: false,
                 count: count,
-                message: `Found ${count} renders`,
+                message: `Found ${count} assets`,
                 data: sanitizedData
             }));
 

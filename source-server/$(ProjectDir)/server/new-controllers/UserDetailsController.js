@@ -26,11 +26,12 @@ var UserDetailsController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+        router.get("/:user", [modepress_api_1.canEdit, this.getDetails.bind(this)]);
         router.post("/create/:target", [modepress_api_1.isAdmin, this.createDetails.bind(this)]);
         // Register the path
         e.use("/app-engine/user-details", router);
         modepress_api_1.EventManager.singleton.on("Activated", this.onActivated.bind(this));
-        modepress_api_1.EventManager.singleton.on("Removed", this.onActivated.bind(this));
+        modepress_api_1.EventManager.singleton.on("Removed", this.onRemoved.bind(this));
     }
     /**
     * Called whenever a user has had their account removed
@@ -54,6 +55,36 @@ var UserDetailsController = (function (_super) {
             winston.info("Created user details for " + event.username, { process: process.pid });
         }).catch(function (err) {
             winston.error("An error occurred while creating creating user details for " + event.username + " : " + err.message, { process: process.pid });
+        });
+    };
+    /**
+   * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @param {Function} next
+   */
+    UserDetailsController.prototype.getDetails = function (req, res, next) {
+        var that = this;
+        res.setHeader('Content-Type', 'application/json');
+        var model = that.getModel("en-user-details");
+        var target = req.params.user;
+        model.findOne({ user: target }).then(function (instance) {
+            if (!instance)
+                return Promise.reject(new Error("User does not exist"));
+            // Check if this must be cleaned or not
+            var sanitize = (req.query.verbose ? false : true);
+            if ((!sanitize && !req._isAdmin) && (!sanitize && req._user.username != target))
+                sanitize = true;
+            return res.end(JSON.stringify({
+                error: false,
+                message: "Found details for user '" + target + "'",
+                data: instance.schema.generateCleanData(sanitize, instance._id)
+            }));
+        }).catch(function (err) {
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Could find details for target '" + target + "' : " + err.message
+            }));
         });
     };
     /**

@@ -30,7 +30,7 @@ var AssetController = (function (_super) {
         e.use("/app-engine/assets", router);
     }
     /**
-    * Returns an array of IPost items
+    * Returns an array of IAsset items
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
@@ -66,7 +66,7 @@ var AssetController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 count: count,
-                message: "Found " + count + " renders",
+                message: "Found " + count + " assets",
                 data: sanitizedData
             }));
         }).catch(function (error) {

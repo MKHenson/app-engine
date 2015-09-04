@@ -1,7 +1,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, isAdmin, getUser, UsersService} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, getUser, UsersService} from "modepress-api";
 import {IGetProjects, ICreateProject} from "modepress-engine";
 import {UserDetailsModel} from "../new-models/UserDetailsModel";
 import {IProject} from "engine";
@@ -27,20 +27,21 @@ export class UserDetailsController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
+        router.get("/:user", <any>[canEdit, this.getDetails.bind(this)]);
         router.post("/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
 
         // Register the path
         e.use("/app-engine/user-details", router);
 
         EventManager.singleton.on("Activated", this.onActivated.bind(this));
-        EventManager.singleton.on("Removed", this.onActivated.bind(this));
+        EventManager.singleton.on("Removed", this.onRemoved.bind(this));
     }
     
     /**
     * Called whenever a user has had their account removed
     * @param {UserEvent} event
     */
-    onRemoved(event: UserEvent)
+    private onRemoved(event: UserEvent)
     {
         var model = this.getModel("en-user-details");
         model.deleteInstances(<Engine.IUserDetails>{ user: event.username }).then(function()
@@ -57,7 +58,7 @@ export class UserDetailsController extends Controller
     * Called whenever a user has activated their account. We setup their app engine specific details
     * @param {UserEvent} event
     */
-    onActivated(event: UserEvent)
+    private onActivated(event: UserEvent)
     {
         var model = this.getModel("en-user-details");
         model.createInstance(<Engine.IUserDetails>{ user: event.username }).then(function (instance)
@@ -70,13 +71,52 @@ export class UserDetailsController extends Controller
         });
     }
 
+     /**
+    * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private getDetails(req: IAuthReq, res: express.Response, next: Function)
+    {
+        var that = this;
+        res.setHeader('Content-Type', 'application/json');
+
+        var model = that.getModel("en-user-details");
+        var target = req.params.user;
+
+        model.findOne<Engine.IUserDetails>(<Engine.IUserDetails>{ user: target }).then(function(instance)
+        {
+            if (!instance)
+                return Promise.reject(new Error("User does not exist"));
+            
+            // Check if this must be cleaned or not
+            var sanitize = (req.query.verbose ? false : true);
+            if ((!sanitize && !req._isAdmin) && (!sanitize && req._user.username != target))
+                sanitize = true;
+
+            return res.end(JSON.stringify(<ModepressEngine.IGetDetails>{
+                error: false,
+                message: `Found details for user '${target}'`,
+                data: instance.schema.generateCleanData(sanitize, instance._id)
+            }));
+
+        }).catch(function (err: Error)
+        {
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: `Could find details for target '${target}' : ${err.message}`
+            }));
+        });
+    }
+
     /**
     * Creates user details for a target user
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private createDetails(req: express.Request, res: express.Response, next: Function)
+    private createDetails(req: IAuthReq, res: express.Response, next: Function)
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
