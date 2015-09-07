@@ -98,6 +98,28 @@ declare module Engine
         maxProjects?: number;
         _id?: any;
     }
+
+    /**
+    * An interface that is used to describe a project build
+    */
+    export interface IBuild
+    {
+        name?: string;
+        projectId?: any;
+        user?: string;
+        notes?: string;
+        version?: string;
+        public?: boolean;
+        css?: string;
+        liveHTML?: string;
+        liveLink?: string;
+        liveToken?: string;
+        totalVotes?: number;
+        totalVoters?: number;
+        createdOn?: number;
+        lastModified?: number;
+        _id?: any;
+    }
 }
 
 declare module ModepressEngine
@@ -106,6 +128,7 @@ declare module ModepressEngine
     export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
+    export interface ICreateBuild extends Modepress.IGetResponse<Engine.IBuild> { }
     export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
 }
 

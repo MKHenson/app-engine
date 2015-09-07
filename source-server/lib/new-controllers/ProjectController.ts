@@ -1,8 +1,10 @@
-import * as mongodb from "mongodb";
+﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq} from "modepress-api";
 import {IGetProjects, ICreateProject} from "modepress-engine";
+import {PermissionController} from "./PermissionController";
+import {BuildController} from "./BuildController";
 import {ProjectModel} from "../new-models/ProjectModel";
 import {IProject} from "engine";
 
@@ -12,7 +14,7 @@ import {IProject} from "engine";
 export class ProjectController extends Controller
 {
 	/**
-	* Creates a new instance of the email controller
+	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
@@ -26,12 +28,16 @@ export class ProjectController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
+        var permissions = PermissionController.singleton;
+
         router.get("/:id?", <any>[this.getProjects.bind(this)]);
-        router.post("/create", <any>[isAuthenticated, this.createProject.bind(this)]);
+        router.post("/create", <any>[isAuthenticated, permissions.canCreateProject, this.createProject.bind(this)]);
 
         // Register the path
         e.use("/app-engine/projects", router);
     }
+
+    
 
     /**
     * Gets projects based on the format of the request
@@ -39,40 +45,58 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private createProject(req: IAuthReq, res: express.Response, next: Function)
+    createProject(req: IAuthReq, res: express.Response, next: Function)
     {
-        // Check logged in + has rights to do request
-        // Check if project limit was reached
-        // Create a build
-        // Sanitize details
+        // Check logged in + has rights to do request ✔
+        // Check if project limit was reached ✔
+        // Create a build  ✔
+        // Sanitize details 
         // Create a project
         // Associate build with project and vice-versa
 
         res.setHeader('Content-Type', 'application/json');
         var token: Engine.IProject = req.body;
         var projects = this.getModel("en-projects");
+        var buildCtrl = BuildController.singleton;
+        var newBuild: Modepress.ModelInstance<Engine.IBuild>;
+        var newProject: Modepress.ModelInstance<Engine.IProject>;
 
         // User is passed from the authentication function
         token.user = req._user.username;
 
-        projects.count(<Engine.IProject>{ user: req._user._id }).then(function (num)
+        // Create build
+        buildCtrl.createBuild(req._user.username).then(function (build)
         {
-        })
+            newBuild = build;
+            token.build = newBuild._id;
+            return projects.createInstance(token);
 
-        projects.createInstance(token).then(function(instance)
+        }).then(function(project)
         {
+            newProject = project;
+
+            // Link build with new project
+            return buildCtrl.linkProject(newBuild._id, newProject._id); 
+
+        }).then(function ()
+        {
+            // Finished
             res.end(JSON.stringify(<ICreateProject>{
                 error: false,
                 message: `Created project '${token.name}'`,
-                data: instance.schema.generateCleanData(true, instance._id)
+                data: newProject.schema.generateCleanData(true, newProject._id)
             }));
 
-        }).catch(function (error: Error)
+        }).catch(function (err: Error)
         {
-            res.end(JSON.stringify(<IResponse>{
-                error: true,
-                message: error.message
-            }));
+            // Make sure any builds were removed if an error occurred
+            if (newBuild)
+                buildCtrl.removeBuild(newBuild._id).then(function () {
+                    res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+                });
+            else
+                res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+
         });
     }
 
@@ -82,7 +106,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getProjects(req: express.Request, res: express.Response, next: Function)
+    getProjects(req: express.Request, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-projects");

@@ -208,6 +208,25 @@ describe('Testing the user-details API', function(){
 				done();
 			});
 	}).timeout(25000)
+	
+	it('george cannot access janes details with verbose', function(done){
+		apiAgent
+			.get('/app-engine/user-details/jane?verbose=true').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', georgeCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.string(res.body.message).is("Found details for user 'jane'")
+				test.string(res.body.data.user).is("jane")
+				test.string(res.body.data.bio).is("")
+				test.string(res.body.data.plan).is("")
+				test.string(res.body.data.website).is("")
+				test.string(res.body.data.customerId).is("")
+				test.number(res.body.data.maxProjects).is(5)
+				test.string(res.body.data._id).contains("00000000")				
+				done();
+			});
+	}).timeout(25000)
 })
 
 

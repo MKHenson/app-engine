@@ -9,6 +9,8 @@ var ProjectController_1 = require("./new-controllers/ProjectController");
 var PluginController_1 = require("./new-controllers/PluginController");
 var AssetController_1 = require("./new-controllers/AssetController");
 var UserDetailsController_1 = require("./new-controllers/UserDetailsController");
+var PermissionController_1 = require("./new-controllers/PermissionController");
+var BuildController_1 = require("./new-controllers/BuildController");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
 */
@@ -23,10 +25,12 @@ var AppEngine = (function (_super) {
     function AppEngine(server, config, e) {
         _super.call(this, null);
         this._controllers = [
+            new UserDetailsController_1.UserDetailsController(server, config, e),
             new PluginController_1.PluginController(server, config, e),
             new AssetController_1.AssetController(server, config, e),
             new ProjectController_1.ProjectController(server, config, e),
-            new UserDetailsController_1.UserDetailsController(server, config, e)
+            new PermissionController_1.PermissionController(server, config, e),
+            new BuildController_1.BuildController(server, config, e)
         ];
     }
     /**

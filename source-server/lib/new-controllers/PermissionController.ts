@@ -1,80 +1,74 @@
-﻿//import * as mongodb from "mongodb";
-//import * as express from "express";
-//import * as bodyParser from "body-parser";
-//import {Controller, IServer, IConfig, IResponse, UsersService} from "modepress-api";
-//import {IGetPlugins} from "modepress-engine";
-//import {UserDetailsModel} from "../new-models/UserDetailsModel";
-//import {IPlugin} from "engine";
+﻿import * as mongodb from "mongodb";
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq} from "modepress-api";
+import {UserDetailsModel} from "../new-models/UserDetailsModel";
+import {ProjectModel} from "../new-models/ProjectModel";
+import {IProject} from "engine";
 
+/**
+* A controller that deals with project models
+*/
+export class PermissionController extends Controller
+{
+    public static singleton: PermissionController;
 
-//export interface IUserRequest extends express.Request
-//{
-//    _user: UsersInterface.IUserEntry;
-//}
+	/**
+	* Creates a new instance of the controller
+	* @param {IServer} server The server configuration options
+    * @param {IConfig} config The configuration options
+    * @param {express.Express} e The express instance of this server	
+	*/
+    constructor(server: IServer, config: IConfig, e: express.Express)
+    {
+        super([new ProjectModel(), new UserDetailsModel()]);
+        PermissionController.singleton = this;
+    }
 
-///**
-//* A controller that deals with user permissions
-//*/
-//export class PermissionController extends Controller
-//{
-//    static singleton: PermissionController;
+    /**
+    * Checks if the logged in user has the allowance to create a new project. This assumes the user is already logged in.
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    canCreateProject(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var that = this;
+        var userModel = that.getModel("en-user-details");
+        var projModel = that.getModel("en-projects");
+        var username = req._user.username;
+        var maxProjects = 0;
 
-//	/**
-//	* Creates a new instance of the email controller
-//	* @param {IServer} server The server configuration options
-//    * @param {IConfig} config The configuration options
-//    * @param {express.Express} e The express instance of this server	
-//	*/
-//    constructor(server: IServer, config: IConfig, e: express.Express)
-//    {
-//        super([new UserDetailsModel()]);
-//        PermissionController.singleton = this;
-//    }
+        // If an admin - then the user can create a new projec regardless
+        if (req._user.privileges < 3)
+            return next();
 
-//    /**
-//    * This funciton checks if user is logged in and throws an error if not
-//    * @param {string} user The username of the user we want to get details for
-//    */
-//    getUserDetails(user: string): Promise<Engine.IUserDetails>
-//    {
-//        var model = this.getModel("en-user-details");
-//        return new Promise<Engine.IUserDetails>(function( resolve, reject )
-//        {
-            
-//        });
-//    }
+        // Get the details
+        userModel.findOne<Engine.IUserDetails>(<Engine.IUserDetails>{ user: username }).then(function (instance)
+        {
+            if (!instance)
+                return Promise.reject(new Error("Not found"));
 
-//    /**
-//    * This funciton checks if user is logged in and throws an error if not
-//    * @param {express.Request} req 
-//    * @param {express.Response} res
-//    * @param {Function} next 
-//    */
-//    authenticated(req: IUserRequest, res: express.Response, next: Function)
-//    {
-//        var users = UsersService.getSingleton();
-//        users.authenticated(req, res).then(function (auth: UsersInterface.IAuthenticationResponse)
-//        {
-//            if (!auth.authenticated)
-//            {
-//                res.setHeader('Content-Type', 'application/json');
-//                res.end(JSON.stringify(<IResponse>{
-//                    error: true,
-//                    message: auth.message
-//                }));
-//                return;
-//            }
+            maxProjects = instance.dbEntry.maxProjects;
 
-//            req._user = auth.user;
-//            next();
+            // get number of projects
+            return projModel.count(<Engine.IProject>{ user: username });
 
-//        }).catch(function (error: Error)
-//        {
-//            res.setHeader('Content-Type', 'application/json');
-//            res.end(JSON.stringify(<IResponse>{
-//                error: true,
-//                message: error.message
-//            }));
-//        });
-//    }
-//}
+        }).then(function (numProjects)
+        {
+            // If num projects + 1 more is less than max we are ok
+            if (numProjects + 1 < maxProjects)
+                return next();
+            else
+                return Promise.reject(new Error(`You cannot create more projects on this plan. Please consider upgrading your account.`));
+
+        }).catch(function (err: Error)
+        {
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: `Could not create new project : ${err.message}`
+            }));
+        });
+    }
+}

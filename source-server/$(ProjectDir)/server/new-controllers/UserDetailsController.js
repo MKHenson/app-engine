@@ -15,18 +15,19 @@ var winston = require("winston");
 var UserDetailsController = (function (_super) {
     __extends(UserDetailsController, _super);
     /**
-    * Creates a new instance of the email controller
+    * Creates a new instance of the controller
     * @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
     function UserDetailsController(server, config, e) {
         _super.call(this, [new UserDetailsModel_1.UserDetailsModel()]);
+        UserDetailsController.singleton = this;
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/:user", [modepress_api_1.canEdit, this.getDetails.bind(this)]);
+        router.get("/:user", [modepress_api_1.isAuthenticated, this.getDetails.bind(this)]);
         router.post("/create/:target", [modepress_api_1.isAdmin, this.createDetails.bind(this)]);
         // Register the path
         e.use("/app-engine/user-details", router);
@@ -58,11 +59,11 @@ var UserDetailsController = (function (_super) {
         });
     };
     /**
-   * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
-   * @param {express.Request} req
-   * @param {express.Response} res
-   * @param {Function} next
-   */
+    * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
     UserDetailsController.prototype.getDetails = function (req, res, next) {
         var that = this;
         res.setHeader('Content-Type', 'application/json');

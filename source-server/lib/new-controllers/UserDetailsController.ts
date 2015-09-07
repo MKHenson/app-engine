@@ -1,7 +1,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, getUser, UsersService} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, isAuthenticated, getUser, UsersService} from "modepress-api";
 import {IGetProjects, ICreateProject} from "modepress-engine";
 import {UserDetailsModel} from "../new-models/UserDetailsModel";
 import {IProject} from "engine";
@@ -12,8 +12,10 @@ import * as winston from "winston";
 */
 export class UserDetailsController extends Controller
 {
+    public static singleton: UserDetailsController;
+
 	/**
-	* Creates a new instance of the email controller
+	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
@@ -22,12 +24,14 @@ export class UserDetailsController extends Controller
     {
         super([new UserDetailsModel()]);
 
+        UserDetailsController.singleton = this;
+
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
-        router.get("/:user", <any>[canEdit, this.getDetails.bind(this)]);
+        router.get("/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
         router.post("/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
 
         // Register the path
@@ -70,14 +74,14 @@ export class UserDetailsController extends Controller
             winston.error(`An error occurred while creating creating user details for ${event.username} : ${err.message}`, { process: process.pid });
         });
     }
-
-     /**
+    
+    /**
     * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getDetails(req: IAuthReq, res: express.Response, next: Function)
+    getDetails(req: IAuthReq, res: express.Response, next: Function)
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
@@ -116,7 +120,7 @@ export class UserDetailsController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private createDetails(req: IAuthReq, res: express.Response, next: Function)
+    createDetails(req: IAuthReq, res: express.Response, next: Function)
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');

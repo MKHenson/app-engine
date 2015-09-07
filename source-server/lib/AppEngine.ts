@@ -5,6 +5,8 @@ import {ProjectController} from "./new-controllers/ProjectController";
 import {PluginController} from "./new-controllers/PluginController";
 import {AssetController} from "./new-controllers/AssetController";
 import {UserDetailsController} from "./new-controllers/UserDetailsController";
+import {PermissionController} from "./new-controllers/PermissionController";
+import {BuildController} from "./new-controllers/BuildController";
 
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -24,10 +26,12 @@ export default class AppEngine extends Controller
         super(null);
 
         this._controllers = [
+            new UserDetailsController(server, config, e),
             new PluginController(server, config, e),
             new AssetController(server, config, e),
             new ProjectController(server, config, e),
-            new UserDetailsController(server, config, e)
+            new PermissionController(server, config, e),
+            new BuildController(server, config, e)
         ];
     }
 

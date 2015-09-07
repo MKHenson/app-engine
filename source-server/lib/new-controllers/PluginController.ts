@@ -12,7 +12,7 @@ import {IPlugin} from "engine";
 export class PluginController extends Controller
 {
 	/**
-	* Creates a new instance of the email controller
+	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
