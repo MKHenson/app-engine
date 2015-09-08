@@ -27,10 +27,10 @@ export default class AppEngine extends Controller
 
         this._controllers = [
             new UserDetailsController(server, config, e),
+            new PermissionController(server, config, e),
             new PluginController(server, config, e),
             new AssetController(server, config, e),
             new ProjectController(server, config, e),
-            new PermissionController(server, config, e),
             new BuildController(server, config, e)
         ];
     }

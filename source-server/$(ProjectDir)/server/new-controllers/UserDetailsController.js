@@ -84,7 +84,7 @@ var UserDetailsController = (function (_super) {
         }).catch(function (err) {
             return res.end(JSON.stringify({
                 error: true,
-                message: "Could find details for target '" + target + "' : " + err.message
+                message: "Could not find details for target '" + target + "' : " + err.message
             }));
         });
     };

@@ -26,10 +26,10 @@ var AppEngine = (function (_super) {
         _super.call(this, null);
         this._controllers = [
             new UserDetailsController_1.UserDetailsController(server, config, e),
+            new PermissionController_1.PermissionController(server, config, e),
             new PluginController_1.PluginController(server, config, e),
             new AssetController_1.AssetController(server, config, e),
             new ProjectController_1.ProjectController(server, config, e),
-            new PermissionController_1.PermissionController(server, config, e),
             new BuildController_1.BuildController(server, config, e)
         ];
     }

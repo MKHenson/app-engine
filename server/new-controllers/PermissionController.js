@@ -19,8 +19,8 @@ var PermissionController = (function (_super) {
     * @param {express.Express} e The express instance of this server
     */
     function PermissionController(server, config, e) {
-        _super.call(this, [new ProjectModel_1.ProjectModel(), new UserDetailsModel_1.UserDetailsModel()]);
         PermissionController.singleton = this;
+        _super.call(this, [new ProjectModel_1.ProjectModel(), new UserDetailsModel_1.UserDetailsModel()]);
     }
     /**
     * Checks if the logged in user has the allowance to create a new project. This assumes the user is already logged in.

@@ -16,7 +16,7 @@ var ProjectModel = (function (_super) {
     function ProjectModel() {
         _super.call(this, "en-projects");
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1)).setIndexable(true);
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("description", ""));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.html("description", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("image", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("category", "")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("subCategory", "basic")).setIndexable(true);

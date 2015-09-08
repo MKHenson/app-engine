@@ -175,8 +175,6 @@ describe('Testing the user-details API', function(){
 			.get('/app-engine/user-details/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
-				if (err) return done(err);
-				test.bool(res.body.error).isFalse()
 				test.string(res.body.message).is("Found details for user 'george'")
 				test.string(res.body.data.user).is("george")
 				test.string(res.body.data.bio).is("")
@@ -196,7 +194,6 @@ describe('Testing the user-details API', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.bool(res.body.error).isFalse()
 				test.string(res.body.message).is("Found details for user 'george'")
 				test.string(res.body.data.user).is("george")
 				test.string(res.body.data.bio).is("")
@@ -215,7 +212,24 @@ describe('Testing the user-details API', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.bool(res.body.error).isFalse()
+				test.string(res.body.message).is("Found details for user 'jane'")
+				test.string(res.body.data.user).is("jane")
+				test.string(res.body.data.bio).is("")
+				test.string(res.body.data.plan).is("")
+				test.string(res.body.data.website).is("")
+				test.string(res.body.data.customerId).is("")
+				test.number(res.body.data.maxProjects).is(5)
+				test.string(res.body.data._id).contains("00000000")				
+				done();
+			});
+	}).timeout(25000)
+	
+	it('should not create project with script in description', function(done){
+		apiAgent
+			.get('/app-engine/project/create').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', georgeCookie)
+			.end(function(err, res){
+				if (err) return done(err);
 				test.string(res.body.message).is("Found details for user 'jane'")
 				test.string(res.body.data.user).is("jane")
 				test.string(res.body.data.bio).is("")

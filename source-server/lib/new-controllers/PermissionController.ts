@@ -21,8 +21,8 @@ export class PermissionController extends Controller
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new ProjectModel(), new UserDetailsModel()]);
         PermissionController.singleton = this;
+        super([new ProjectModel(), new UserDetailsModel()]);
     }
 
     /**

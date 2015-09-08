@@ -109,7 +109,7 @@ export class UserDetailsController extends Controller
         {
             return res.end(JSON.stringify(<IResponse>{
                 error: true,
-                message: `Could find details for target '${target}' : ${err.message}`
+                message: `Could not find details for target '${target}' : ${err.message}`
             }));
         });
     }
