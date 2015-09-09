@@ -10,6 +10,7 @@ var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
 var PermissionController_1 = require("./PermissionController");
 var BuildModel_1 = require("../new-models/BuildModel");
+var winston = require("winston");
 /**
 * A controller that deals with build models
 */
@@ -30,10 +31,37 @@ var BuildController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         // Define the routes
+        router.get("/:user", [modepress_api_1.canEdit, this.getBuilds.bind(this)]);
         router.post("/create", [modepress_api_1.isAuthenticated, permissions.canCreateProject, this.create.bind(this)]);
         // Register the path
-        e.use("/app-engine/projects", router);
+        e.use("/app-engine/builds", router);
     }
+    /**
+    * Gets all builds associated with a particular user
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    BuildController.prototype.getBuilds = function (req, res, next) {
+        var that = this;
+        res.setHeader('Content-Type', 'application/json');
+        var target = req.params.user;
+        var model = that.getModel("en-builds");
+        model.findInstances({ user: target }).then(function (instances) {
+            return res.end(JSON.stringify({
+                error: false,
+                message: "Found [" + instances.length + "] builds for user '" + target + "'",
+                count: instances.length,
+                data: that.getSanitizedData(instances, !req._verbose)
+            }));
+        }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Could not get builds for '" + target + "' : " + err.message
+            }));
+        });
+    };
     /**
     * Creates a new build
     * @returns {Promise<Modepress.ModelInstance<Engine.IBuild>>}
@@ -43,23 +71,68 @@ var BuildController = (function (_super) {
         var model = that.getModel("en-builds");
         return new Promise(function (resolve, reject) {
             model.createInstance({ user: username, projectId: project }).then(function (instance) {
-                return instance;
+                return resolve(instance);
             }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
     };
     /**
     * Removes a build by its id
+    * @param {Array<string>} ids
+    * @param {string} user The username of the user
     * @returns {Promise<number>}
     */
-    BuildController.prototype.removeBuild = function (id) {
+    BuildController.prototype.removeByIds = function (ids, user) {
+        var that = this;
+        var model = that.getModel("en-builds");
+        var findToken = { user: user };
+        var $or = [];
+        for (var i = 0, l = ids.length; i < l; i++)
+            $or.push({ _id: new mongodb.ObjectID(ids[i]) });
+        if ($or.length > 0)
+            findToken["$or"] = $or;
+        return new Promise(function (resolve, reject) {
+            model.deleteInstances(findToken).then(function (numDeleted) {
+                return resolve(numDeleted);
+            }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
+                return reject(err);
+            });
+        });
+    };
+    /**
+    * Removes a build by its user
+    * @param {string} user The username of the user
+    * @returns {Promise<number>}
+    */
+    BuildController.prototype.removeByUser = function (user) {
         var that = this;
         var model = that.getModel("en-builds");
         return new Promise(function (resolve, reject) {
-            model.deleteInstances({ _id: new mongodb.ObjectID(id) }).then(function (instance) {
-                return instance;
+            model.deleteInstances({ user: user }).then(function (instance) {
+                return resolve(instance);
             }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
+                return reject(err);
+            });
+        });
+    };
+    /**
+    * Removes a build by its project ID
+    * @param {ObjectID} project The id of the project
+    * @param {string} user The username of the user
+    * @returns {Promise<number>}
+    */
+    BuildController.prototype.removeByProject = function (project, user) {
+        var that = this;
+        var model = that.getModel("en-builds");
+        return new Promise(function (resolve, reject) {
+            model.deleteInstances({ projectId: project, user: user }).then(function (instance) {
+                return resolve(instance);
+            }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
@@ -77,6 +150,7 @@ var BuildController = (function (_super) {
                     return Promise.reject(new Error("An error has occurred while linking the build with a project"));
                 return resolve();
             }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
@@ -92,18 +166,17 @@ var BuildController = (function (_super) {
         res.setHeader('Content-Type', 'application/json');
         var username = req._user.username;
         var model = that.getModel("en-builds");
-        return new Promise(function (resolve, reject) {
-            that.createBuild(username).then(function (instance) {
-                return res.end(JSON.stringify({
-                    error: false,
-                    message: "Created new build for user '" + username + "'"
-                }));
-            }).catch(function (err) {
-                return res.end(JSON.stringify({
-                    error: true,
-                    message: "Could not create build for '" + username + "' : " + err.message
-                }));
-            });
+        that.createBuild(username).then(function (instance) {
+            return res.end(JSON.stringify({
+                error: false,
+                message: "Created new build for user '" + username + "'"
+            }));
+        }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify({
+                error: true,
+                message: "Could not create build for '" + username + "' : " + err.message
+            }));
         });
     };
     return BuildController;

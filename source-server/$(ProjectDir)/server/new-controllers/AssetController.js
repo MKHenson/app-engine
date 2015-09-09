@@ -8,6 +8,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
 var AssetModel_1 = require("../new-models/AssetModel");
+var winston = require("winston");
 /**
 * A controller that deals with asset models
 */
@@ -62,14 +63,14 @@ var AssetController = (function (_super) {
             count = num;
             return model.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
         }).then(function (instances) {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify({
                 error: false,
                 count: count,
                 message: "Found " + count + " assets",
-                data: sanitizedData
+                data: that.getSanitizedData(instances, !req._verbose)
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message

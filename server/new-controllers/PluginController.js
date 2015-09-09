@@ -8,6 +8,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
 var PluginModel_1 = require("../new-models/PluginModel");
+var winston = require("winston");
 /**
 * A controller that deals with plugin models
 */
@@ -52,14 +53,14 @@ var PluginController = (function (_super) {
             count = num;
             return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
         }).then(function (instances) {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
             res.end(JSON.stringify({
                 error: false,
                 count: count,
                 message: "Found " + count + " plugins",
-                data: sanitizedData
+                data: that.getSanitizedData(instances, false)
             }));
         }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: error.message

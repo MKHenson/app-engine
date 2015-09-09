@@ -50,7 +50,10 @@ var PermissionController = (function (_super) {
             if (numProjects + 1 < maxProjects)
                 return next();
             else
-                return Promise.reject(new Error("You cannot create more projects on this plan. Please consider upgrading your account."));
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: "You cannot create more projects on this plan. Please consider upgrading your account"
+                }));
         }).catch(function (err) {
             return res.end(JSON.stringify({
                 error: true,

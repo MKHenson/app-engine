@@ -12,7 +12,7 @@ export class BuildModel extends Model
     {
         super("en-builds");
               
-        this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
+        this.defaultSchema.add(new SchemaFactory.text("name", "New Build", 1));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
         this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new SchemaFactory.text("notes", ""));

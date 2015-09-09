@@ -72,16 +72,13 @@ var UserDetailsController = (function (_super) {
         model.findOne({ user: target }).then(function (instance) {
             if (!instance)
                 return Promise.reject(new Error("User does not exist"));
-            // Check if this must be cleaned or not
-            var sanitize = (req.query.verbose ? false : true);
-            if ((!sanitize && !req._isAdmin) && (!sanitize && req._user.username != target))
-                sanitize = true;
             return res.end(JSON.stringify({
                 error: false,
                 message: "Found details for user '" + target + "'",
-                data: instance.schema.generateCleanData(sanitize, instance._id)
+                data: instance.schema.generateCleanData(!req._verbose, instance._id)
             }));
         }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify({
                 error: true,
                 message: "Could not find details for target '" + target + "' : " + err.message
@@ -111,12 +108,14 @@ var UserDetailsController = (function (_super) {
                     message: "Created user details for target " + user.username
                 }));
             }).catch(function (err) {
+                winston.error(err.message, { process: process.pid });
                 return res.end(JSON.stringify({
                     error: true,
                     message: "Could not create user details for target " + user.username + " : " + err.message
                 }));
             });
         }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
             res.end(JSON.stringify({
                 error: true,
                 message: err.message

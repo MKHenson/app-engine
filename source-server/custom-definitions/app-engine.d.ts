@@ -70,7 +70,7 @@ declare module Engine
         suspicious?: boolean;
         deleted?: boolean;
         numRaters?: number;
-        user?: any;
+        user?: string;
         build?: any;
         type?: number;
         tags?: Array<string>;
@@ -122,8 +122,9 @@ declare module Engine
     }
 }
 
-declare module ModepressEngine
+declare module ModepressAddons
 {
+    export interface IGetBuilds extends Modepress.IGetArrayResponse<Engine.IBuild> { }
     export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }
     export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
@@ -136,7 +137,7 @@ declare module "engine" {
     export = Engine;
 }
 
-declare module "modepress-engine"
+declare module "modepress-addons"
 {
-    export = ModepressEngine;
+    export = ModepressAddons;
 }

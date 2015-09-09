@@ -1,7 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq, Model} from "modepress-api";
 import {UserDetailsModel} from "../new-models/UserDetailsModel";
 import {ProjectModel} from "../new-models/ProjectModel";
 import {IProject} from "engine";
@@ -35,15 +35,15 @@ export class PermissionController extends Controller
     {
         res.setHeader('Content-Type', 'application/json');
         var that = this;
-        var userModel = that.getModel("en-user-details");
-        var projModel = that.getModel("en-projects");
+        var userModel =that.getModel("en-user-details");
+        var projModel =that.getModel("en-projects");
         var username = req._user.username;
         var maxProjects = 0;
 
         // If an admin - then the user can create a new projec regardless
         if (req._user.privileges < 3)
             return next();
-
+        
         // Get the details
         userModel.findOne<Engine.IUserDetails>(<Engine.IUserDetails>{ user: username }).then(function (instance)
         {
@@ -61,7 +61,10 @@ export class PermissionController extends Controller
             if (numProjects + 1 < maxProjects)
                 return next();
             else
-                return Promise.reject(new Error(`You cannot create more projects on this plan. Please consider upgrading your account.`));
+                return res.end(JSON.stringify(<IResponse>{
+                    error: true,
+                    message: `You cannot create more projects on this plan. Please consider upgrading your account`
+                }));
 
         }).catch(function (err: Error)
         {

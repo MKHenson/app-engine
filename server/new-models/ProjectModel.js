@@ -19,7 +19,7 @@ var ProjectModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.html("description", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("image", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("category", "")).setIndexable(true);
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("subCategory", "basic")).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("subCategory", "")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("public", false)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("curFile", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("rating", 0)).setIndexable(true);
@@ -27,14 +27,14 @@ var ProjectModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("numRaters", 0));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("suspicious", false));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("deleted", false));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("user", "", true)).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("build", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("type", 0));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("tags", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("readPrivileges", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("writePrivileges", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("adminPrivileges", []));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("plugins", []));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("plugins", [], 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("files", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified")).setIndexable(true);

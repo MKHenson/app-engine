@@ -22,7 +22,7 @@ var mongodb = require("mongodb");
 var UserController = require("./UserController");
 var BuildController = require("./BuildController");
 var logger = require("../Logger");
-var sanitize_html_1 = require("sanitize-html");
+var sanitizeHtml = require("sanitize-html");
 var fs = require("fs");
 /**
 * Controlls all project related functions
@@ -1101,8 +1101,8 @@ var ProjectController = (function (_super) {
                                 return new ErrorController(utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'").processRequest(request, response, "");
                         }
                         var updateToken = { $set: {} };
-                        updateToken.$set.name = (name === undefined ? proj.name : sanitize_html_1.default(name, { allowedTags: [] }));
-                        updateToken.$set.description = (description === undefined ? proj.description : sanitize_html_1.default(description, { allowedTags: ["b", "strong", "ul", "ol", "li", "i", "pre"] }));
+                        updateToken.$set.name = (name === undefined ? proj.name : sanitizeHtml(name, { allowedTags: [] }));
+                        updateToken.$set.description = (description === undefined ? proj.description : sanitizeHtml(description, { allowedTags: ["b", "strong", "ul", "ol", "li", "i", "pre"] }));
                         updateToken.$set.tags = (tags === undefined ? proj.tags : tags);
                         updateToken.$set.category = (category === undefined ? proj.category : category);
                         updateToken.$set.sub_category = (sub_category === undefined ? proj.sub_category : sub_category);
@@ -2110,8 +2110,8 @@ var ProjectController = (function (_super) {
                                 else
                                     return new ErrorController(utils.ErrorCodes.INVALID_INPUT, "No build found").processRequest(request, response, "");
                             }
-                            html = sanitize_html_1.default(html, {
-                                allowedTags: sanitize_html_1.defaults.allowedTags.concat(["img", "h2"]),
+                            html = sanitizeHtml(html, {
+                                allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "h2"]),
                                 allowedAttributes: { div: ["class"], img: ["class", "src"], span: ["class"], p: ["class"], a: ["class"], ul: ["class"], ol: ["class"], li: ["class"], table: ["class"], pre: ["class"], code: ["class"], h1: ["class"], h2: ["class"], h3: ["class"], h4: ["class"], h5: ["class"], h6: ["class"], b: ["class"], i: ["class"], em: ["class"], strong: ["class"] }
                             });
                             Model.collections("builds").update({ _id: build._id }, { $set: { html: html } }, function (err, result) {
@@ -2183,7 +2183,7 @@ var ProjectController = (function (_super) {
                                 else
                                     return new ErrorController(utils.ErrorCodes.INVALID_INPUT, "No build found").processRequest(request, response, "");
                             }
-                            css = sanitize_html_1.default(css, { allowedTags: sanitize_html_1.defaults.allowedTags });
+                            css = sanitizeHtml(css, { allowedTags: sanitizeHtml.defaults.allowedTags });
                             Model.collections("builds").update({ _id: build._id }, { $set: { css: css } }, function (err, result) {
                                 if (err) {
                                     if (callback)
@@ -2363,9 +2363,9 @@ var ProjectController = (function (_super) {
                                     return new ErrorController(utils.ErrorCodes.INVALID_INPUT, "Could not find a build with that ID").processRequest(request, response, "");
                             }
                             logger.log("Build exists, updating...");
-                            html = sanitize_html_1.default(html);
+                            html = sanitizeHtml(html);
                             var updateToken = { $set: {} };
-                            updateToken.$set.build_notes = (notes === undefined ? build.build_notes : sanitize_html_1.default(notes, { allowedTags: [] }));
+                            updateToken.$set.build_notes = (notes === undefined ? build.build_notes : sanitizeHtml(notes, { allowedTags: [] }));
                             updateToken.$set.css = (css === undefined ? build.css : css);
                             updateToken.$set.html = (html === undefined ? build.html : html);
                             updateToken.$set.visibility = (visibility === undefined ? build.visibility : visibility);
@@ -2445,7 +2445,7 @@ var ProjectController = (function (_super) {
                             }
                             logger.log("File exists, update...");
                             var updateToken = { $set: {} };
-                            updateToken.$set.name = (name === undefined ? file.name : sanitize_html_1.default(name, { allowedTags: [] }));
+                            updateToken.$set.name = (name === undefined ? file.name : sanitizeHtml(name, { allowedTags: [] }));
                             updateToken.$set.tags = (tags === undefined ? file.tags : tags);
                             updateToken.$set.favourite = (favourite === undefined ? file.favourite : favourite);
                             updateToken.$set.global = (global === undefined ? file.global : global);
@@ -3032,8 +3032,8 @@ var ProjectController = (function (_super) {
         // Once the build has been created		
         function onBuildCreated(build, user) {
             // Sanitize the fields
-            var sanitizedName = sanitize_html_1.default(name, { allowedTags: [] });
-            var sanitizedDescription = sanitize_html_1.default(description, { allowedTags: ["b", "strong", "ul", "ol", "li", "i", "pre"] });
+            var sanitizedName = sanitizeHtml(name, { allowedTags: [] });
+            var sanitizedDescription = sanitizeHtml(description, { allowedTags: ["b", "strong", "ul", "ol", "li", "i", "pre"] });
             if (sanitizedName != name) {
                 if (callback)
                     return callback(null, null);

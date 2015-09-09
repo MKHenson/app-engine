@@ -15,7 +15,7 @@ import recaptcha = require( "../Captcha" );
 import bcrypt = require( "../bcrypt" );
 import Mailer = require( "../models/Mailer" );
 import logger = require( "../Logger" );
-import { default as sanitizeHtml } from "sanitize-html";
+import sanitizeHtml = require("sanitize-html");
 
 /**
 * Controlls all user related functions

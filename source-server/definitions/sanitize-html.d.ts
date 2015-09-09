@@ -23,35 +23,12 @@ declare module "sanitize-html"
         allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])
     });
     */
-    export default function sanitizeHtml(html: string, options?: {
+    function sanitizeHtml(html: string, options?: {
         allowedTags?: Array<string>;
         allowedAttributes?: { [name: string]: Array<string> };
         selfClosing?: Array<string>;
         allowedSchemes?: Array<string>;
     }): string;
 
-    export var defaults: {
-
-        /*[ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 
-        'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 
-        'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ]*/
-        allowedTags: Array<string>;
-
-        /*{
-            a: [ 'href', 'name', 'target' ],
-            // We don't currently allow img itself by default, but this
-            // would make sense if we did
-            img: [ 'src' ]
-        }*/
-        allowedAttributes: Array<string>;
-
-        /*[ 'img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta' ]*/
-        selfClosing: Array<string>;
-
-        /*[ 'http', 'https', 'ftp', 'mailto' ]*/
-        allowedSchemes: Array<string>;
-
-        /*empty*/
-        allowedSchemesByTag: {};
-    }
+    export = sanitizeHtml;
 }

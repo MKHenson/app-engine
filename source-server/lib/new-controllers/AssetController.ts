@@ -1,9 +1,9 @@
 ﻿import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse} from "modepress-api";
-import {IGetAssets} from "modepress-engine";
+import {Controller, IServer, IConfig, IResponse, IAuthReq} from "modepress-api";
 import {AssetModel} from "../new-models/AssetModel";
 import {IAsset} from "engine";
+import * as winston from "winston";
 
 /**
 * A controller that deals with asset models
@@ -37,7 +37,7 @@ export class AssetController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getRenders(req: express.Request, res: express.Response, next: Function)
+    private getRenders(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-assets");
@@ -75,16 +75,16 @@ export class AssetController extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData = that.getSanitizedData<IAsset>(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<IGetAssets>{
+            res.end(JSON.stringify(<ModepressAddons.IGetAssets>{
                 error: false,
                 count: count,
                 message: `Found ${count} assets`,
-                data: sanitizedData
+                data: that.getSanitizedData<IAsset>(instances, !req._verbose)
             }));
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message

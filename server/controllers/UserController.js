@@ -19,7 +19,7 @@ var recaptcha = require("../Captcha");
 var bcrypt = require("../bcrypt");
 var Mailer = require("../models/Mailer");
 var logger = require("../Logger");
-var sanitize_html_1 = require("sanitize-html");
+var sanitizeHtml = require("sanitize-html");
 /**
 * Controlls all user related functions
 */
@@ -794,7 +794,7 @@ var UserController = (function (_super) {
                     return new ErrorController(utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Authentication is required to call this function").processRequest(request, response, "");
             }
             // Clean bio
-            bio = sanitize_html_1.default(bio, { allowedTags: [] });
+            bio = sanitizeHtml(bio, { allowedTags: [] });
             Model.collections("users").update({ _id: user._id }, { $set: { bio: bio } }, function (err, numAffected) {
                 // If not logged in then do nothing
                 if (err) {

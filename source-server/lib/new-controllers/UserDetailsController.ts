@@ -2,7 +2,6 @@ import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, isAuthenticated, getUser, UsersService} from "modepress-api";
-import {IGetProjects, ICreateProject} from "modepress-engine";
 import {UserDetailsModel} from "../new-models/UserDetailsModel";
 import {IProject} from "engine";
 import * as winston from "winston";
@@ -94,19 +93,15 @@ export class UserDetailsController extends Controller
             if (!instance)
                 return Promise.reject(new Error("User does not exist"));
             
-            // Check if this must be cleaned or not
-            var sanitize = (req.query.verbose ? false : true);
-            if ((!sanitize && !req._isAdmin) && (!sanitize && req._user.username != target))
-                sanitize = true;
-
-            return res.end(JSON.stringify(<ModepressEngine.IGetDetails>{
+            return res.end(JSON.stringify(<ModepressAddons.IGetDetails>{
                 error: false,
                 message: `Found details for user '${target}'`,
-                data: instance.schema.generateCleanData(sanitize, instance._id)
+                data: instance.schema.generateCleanData(!req._verbose, instance._id)
             }));
 
         }).catch(function (err: Error)
         {
+            winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: `Could not find details for target '${target}' : ${err.message}`
@@ -147,6 +142,7 @@ export class UserDetailsController extends Controller
 
             }).catch(function (err: Error)
             {
+                winston.error(err.message, { process: process.pid });
                 return res.end(JSON.stringify(<IResponse>{
                     error: true,
                     message: `Could not create user details for target ${user.username} : ${err.message}`
@@ -155,6 +151,7 @@ export class UserDetailsController extends Controller
 
         }).catch(function (err: Error)
         {
+            winston.error(err.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: err.message

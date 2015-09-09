@@ -2,9 +2,9 @@ import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse} from "modepress-api";
-import {IGetPlugins} from "modepress-engine";
 import {PluginModel} from "../new-models/PluginModel";
 import {IPlugin} from "engine";
+import * as winston from "winston";
 
 /**
 * A controller that deals with plugin models
@@ -63,16 +63,16 @@ export class PluginController extends Controller
 
         }).then(function (instances)
         {
-            var sanitizedData = that.getSanitizedData(instances, Boolean(req.query.verbose));
-            res.end(JSON.stringify(<IGetPlugins>{
+            res.end(JSON.stringify(<ModepressAddons.IGetPlugins>{
                 error: false,
                 count: count,
                 message: `Found ${count} plugins`,
-                data: sanitizedData
+                data: that.getSanitizedData(instances, false)
             }));
 
         }).catch(function (error: Error)
         {
+            winston.error(error.message, { process: process.pid });
             res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message

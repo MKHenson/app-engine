@@ -1,11 +1,11 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq} from "modepress-api";
-import {ICreateBuild} from "modepress-engine";
+import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq} from "modepress-api";
 import {PermissionController} from "./PermissionController";
 import {BuildModel} from "../new-models/BuildModel";
 import {IProject} from "engine";
+import * as winston from "winston"
 
 /**
 * A controller that deals with build models
@@ -32,10 +32,43 @@ export class BuildController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));        
         
         // Define the routes
+        router.get("/:user", <any>[canEdit, this.getBuilds.bind(this)]);
         router.post("/create", <any>[isAuthenticated, permissions.canCreateProject, this.create.bind(this)]);
 
         // Register the path
-        e.use("/app-engine/projects", router);
+        e.use("/app-engine/builds", router);
+    }
+
+    /**
+    * Gets all builds associated with a particular user
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    getBuilds(req: IAuthReq, res: express.Response, next: Function)
+    {
+        var that = this;
+        res.setHeader('Content-Type', 'application/json');
+        var target = req.params.user;
+        var model = that.getModel("en-builds");
+                
+        model.findInstances(<Engine.IBuild>{ user: target }).then(function (instances)
+        {
+            return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
+                error: false,
+                message: `Found [${instances.length}] builds for user '${target}'`,
+                count: instances.length,
+                data: that.getSanitizedData(instances, !req._verbose)
+            }));
+
+        }).catch(function (err: Error)
+        {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: `Could not get builds for '${target}' : ${err.message}`
+            }));
+        });
     }
 
     /**
@@ -51,10 +84,11 @@ export class BuildController extends Controller
         {
             model.createInstance(<Engine.IBuild>{ user: username, projectId: project }).then(function (instance)
             {
-                return instance;
+                return resolve(instance);
 
             }).catch(function (err: Error)
             {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
@@ -62,21 +96,81 @@ export class BuildController extends Controller
 
     /**
     * Removes a build by its id
+    * @param {Array<string>} ids
+    * @param {string} user The username of the user
     * @returns {Promise<number>}
     */
-    removeBuild(id: string): Promise<number>
+    removeByIds(ids: Array<string>, user: string): Promise<number>
+    {
+        var that = this;
+        var model = that.getModel("en-builds");
+
+        var findToken: Engine.IBuild = { user: user };
+        var $or: Array<Engine.IBuild> = [];
+        for (var i = 0, l = ids.length; i < l; i++)
+            $or.push({ _id: new mongodb.ObjectID(ids[i]) });
+
+        if ($or.length > 0)
+            findToken["$or"] = $or;
+
+        return new Promise<number>(function (resolve, reject)
+        {
+            model.deleteInstances(findToken).then(function (numDeleted)
+            {
+                return resolve(numDeleted);
+
+            }).catch(function (err: Error)
+            {
+                winston.error(err.message, { process: process.pid });
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+    * Removes a build by its user
+    * @param {string} user The username of the user
+    * @returns {Promise<number>}
+    */
+    removeByUser(user: string): Promise<number>
     {
         var that = this;
         var model = that.getModel("en-builds");
 
         return new Promise<number>(function (resolve, reject)
         {
-            model.deleteInstances(<Engine.IBuild>{ _id: new mongodb.ObjectID(id) }).then(function (instance)
+            model.deleteInstances(<Engine.IBuild>{ user: user }).then(function (instance)
             {
-                return instance;
+                return resolve(instance);
 
             }).catch(function (err: Error)
             {
+                winston.error(err.message, { process: process.pid });
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+    * Removes a build by its project ID
+    * @param {ObjectID} project The id of the project
+    * @param {string} user The username of the user
+    * @returns {Promise<number>}
+    */
+    removeByProject(project: mongodb.ObjectID, user: string): Promise<number>
+    {
+        var that = this;
+        var model = that.getModel("en-builds");
+
+        return new Promise<number>(function (resolve, reject)
+        {
+            model.deleteInstances(<Engine.IBuild>{ projectId: project, user: user }).then(function (instance)
+            {
+                return resolve(instance);
+
+            }).catch(function (err: Error)
+            {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
@@ -102,6 +196,7 @@ export class BuildController extends Controller
 
             }).catch(function (err: Error)
             {
+                winston.error(err.message, { process: process.pid });
                 return reject(err);
             });
         });
@@ -119,23 +214,21 @@ export class BuildController extends Controller
         res.setHeader('Content-Type', 'application/json');
         var username = req._user.username;
         var model = that.getModel("en-builds");
-
-        return new Promise<Engine.IBuild>(function (resolve, reject)
+        
+        that.createBuild( username ).then(function (instance)
         {
-            that.createBuild( username ).then(function (instance)
-            {
-                return res.end(JSON.stringify(<IResponse>{
-                    error: false,
-                    message: `Created new build for user '${username}'`
-                }));
+            return res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: `Created new build for user '${username}'`
+            }));
 
-            }).catch(function (err: Error)
-            {
-                return res.end(JSON.stringify(<IResponse>{
-                    error: true,
-                    message: `Could not create build for '${username}' : ${err.message}`
-                }));
-            });
+        }).catch(function (err: Error)
+        {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: `Could not create build for '${username}' : ${err.message}`
+            }));
         });
     }
 }

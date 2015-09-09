@@ -15,7 +15,7 @@ var BuildModel = (function (_super) {
     */
     function BuildModel() {
         _super.call(this, "en-builds");
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "New Build", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("notes", ""));
