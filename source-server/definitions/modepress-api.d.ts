@@ -1,6 +1,14 @@
 ﻿declare module Modepress
 {
     /*
+    * The interface to describe the modepress admin plugins
+    */
+    export interface IAdminPlugin
+    {
+        dashboardLinks: Array<string>;
+    }
+
+    /*
     * Base interface for all models
     */
     export interface IModelEntry
@@ -215,6 +223,12 @@
         * e.g. "index"
         */
         index: string;
+
+        /**
+        * An array of javascript file paths for modepress plugins
+        * e.g. ["./plugins/my-plugin/index.js"]
+        */
+        plugins: Array<string>;
     }
 
     /** 
@@ -262,6 +276,11 @@
         * The path to use for accessing the admin panel
         */
         adminURL: string;
+
+        /**
+        * An array of admin javascript plugin paths
+        */
+        adminPlugins: Array<string>;
     
         /**
         * An array of servers for each host / route that modepress is supporting
@@ -733,8 +752,8 @@
     }
 
     /**
-     * An html scheme item for use in Models
-     */
+    * An html scheme item for use in Models
+    */
     export class SchemaHtml extends SchemaItem<string>
     {
         /**
@@ -826,8 +845,7 @@
     }
     
     /**
-    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
-    * if true it passes the scope onto the next function in the queue
+    * This funciton checks if user is logged in
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -843,7 +861,8 @@
     export function canEdit(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
-    * This funciton checks if user is logged in
+    * This funciton checks the logged in user is an admin. If not an admin it returns an error, 
+    * if true it passes the scope onto the next function in the queue
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -851,11 +870,11 @@
     export function getUser(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
-    * This funciton checks if user is logged in and throws an error if not
-    * @param {express.Request} req 
-    * @param {express.Response} res
-    * @param {Function} next 
-    */
+   * This funciton checks the logged in user is an admin. If not an error is thrown
+   * @param {express.Request} req 
+   * @param {express.Response} res
+   * @param {Function} next 
+   */
     export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
 
     /**

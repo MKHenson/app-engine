@@ -179,12 +179,12 @@ describe('Testing the user-details API', function(){
 				test.string(res.body.message).is("Found details for user 'george'")
 				test.string(res.body.data.user).is("george")
 				test.string(res.body.data.bio).is("")
-				test.string(res.body.data.image).contains("00000000")
+				test.value(res.body.data.image).isNull()
 				test.string(res.body.data.plan).is("")
 				test.string(res.body.data.website).is("")
 				test.string(res.body.data.customerId).is("")
 				test.number(res.body.data.maxProjects).is(5)
-				test.string(res.body.data._id).contains("00000000")				
+				test.value(res.body.data._id).isNull()		
 				done();
 			});
 	}).timeout(25000)
@@ -220,7 +220,7 @@ describe('Testing the user-details API', function(){
 				test.string(res.body.data.website).is("")
 				test.string(res.body.data.customerId).is("")
 				test.number(res.body.data.maxProjects).is(5)
-				test.string(res.body.data._id).contains("00000000")				
+				test.value(res.body.data._id).isNull()		
 				done();
 			});
 	}).timeout(25000)
@@ -317,11 +317,11 @@ describe('Testing project related functions', function(){
 				test.bool(res.body.error).isFalse()
 				test.string(res.body.data.name).is("Test project")
 				test.string(res.body.data.description).is("<b>Hello world!</b>")
-				test.string(res.body.data.image).contains("00000000")
+				test.value(res.body.data.image).isNull()
 				test.string(res.body.data.category).is("")
 				test.string(res.body.data.subCategory).is("")
 				test.bool(res.body.data.public).isFalse()
-				test.string(res.body.data.curFile).contains("00000000")
+				test.value(res.body.data.curFile).isNull()
 				test.number(res.body.data.rating).is(0)
 				test.bool(res.body.data.suspicious).isFalse()
 				test.bool(res.body.data.deleted).isFalse()
@@ -377,7 +377,7 @@ describe('Testing project related functions', function(){
 				test.string(res.body.message).is("Found 1 projects")
 				test.bool(res.body.error).isFalse()
 				test.number(res.body.count).is(1)
-				test.string(res.body.data[0]._id).contains("00000000")	
+				test.value(res.body.data[0]._id).isNull()
 				done();
 			});
 	}).timeout(25000)
@@ -405,7 +405,7 @@ describe('Testing project related functions', function(){
 				test.string(res.body.message).is("Found 1 projects")
 				test.bool(res.body.error).isFalse()
 				test.number(res.body.count).is(1)
-				test.string(res.body.data[0]._id).contains("00000000")
+				test.value(res.body.data[0]._id).isNull()
 				done();
 			});
 	}).timeout(25000)
@@ -418,7 +418,7 @@ describe('Testing project related functions', function(){
 				test.string(res.body.message).is("Found 1 projects")
 				test.bool(res.body.error).isFalse()
 				test.number(res.body.count).is(1)
-				test.string(res.body.data[0]._id).contains("00000000")
+				test.value(res.body.data[0]._id).isNull()
 				done();
 			});
 	}).timeout(25000)
@@ -487,7 +487,7 @@ describe('Testing project related functions', function(){
 	}).timeout(25000)
 	
 	
-	it('should allow george to create 5 projects', function(done){
+	it('should not allow george to create 6 projects', function(done){
 		apiAgent
 			.post('/app-engine/projects/create').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({name: "Test project 1", description: "<b>Hello world!</b>", plugins:["plugin 1"] })
@@ -516,11 +516,8 @@ describe('Testing project related functions', function(){
 			.post('/app-engine/projects/create').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({name: "Test project 5", description: "<b>Hello world!</b>", plugins:["plugin 1"] })
 			.set('Cookie', georgeCookie)
-			.end(function(err, res){ if (err) return done(err); done(); });
+			.end(function(err, res){ if (err) return done(err);  });
 			
-	}).timeout(25000)
-	
-	it('should not allow george to create 6 projects', function(done){ 
 		apiAgent
 			.post('/app-engine/projects/create').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({name: "Test project 6", description: "<b>Hello world!</b>", plugins:["plugin 1"] })
@@ -533,4 +530,5 @@ describe('Testing project related functions', function(){
 			});
 			
 	}).timeout(25000)
+
 })

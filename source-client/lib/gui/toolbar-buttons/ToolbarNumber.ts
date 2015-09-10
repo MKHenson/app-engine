@@ -75,8 +75,7 @@
 
 			this.startPos = 0;
 
-			// TODO
-			// Must find a way that ensures the mouse move events are not lost when we move over an iframe...
+			// TODO: Must find a way that ensures the mouse move events are not lost when we move over an iframe...
 
 			//Events
 			this.stageUpPoxy = jQuery.proxy( this.onStageUp, this );

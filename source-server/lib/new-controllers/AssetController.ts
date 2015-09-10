@@ -1,9 +1,10 @@
 ﻿import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, IAuthReq} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, IAuthReq, isValidID, canEdit} from "modepress-api";
 import {AssetModel} from "../new-models/AssetModel";
 import {IAsset} from "engine";
 import * as winston from "winston";
+import * as mongodb from "mongodb";
 
 /**
 * A controller that deals with asset models
@@ -25,7 +26,8 @@ export class AssetController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/get/:id?", <any>[this.getRenders.bind(this)]);
+        router.get("/get/:user/:project/:id?", <any>[canEdit, this.getAssets.bind(this)]);
+        router.post("/create/:user/:project/", <any>[canEdit, this.createAsset.bind(this)]);
 
         // Register the path
         e.use("/app-engine/assets", router);
@@ -37,45 +39,77 @@ export class AssetController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getRenders(req: IAuthReq, res: express.Response, next: Function)
+    private createAsset(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-assets");
+        var that = this;
+
+        var newAsset: Engine.IAsset = req.body;
+        newAsset.user = req.params.user;
+
+        var project = req.params.project;
+        if (!isValidID(project))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+
+        newAsset.projectId = new mongodb.ObjectID(project);
+
+        model.createInstance<Engine.IAsset>(newAsset).then(function (instance)
+        {
+            return res.end(JSON.stringify(<ModepressAddons.ICreateAsset>{
+                error: true,
+                message: `New asset created`,
+                data: instance.schema.generateCleanData(false, instance._id)
+            }));
+
+        }).catch(function (err: Error)
+        {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: `An error occurred while creating the asset : ${err.message}`
+            }));
+        });
+    }
+
+    /**
+    * Returns an array of IAsset items
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private getAssets(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-assets");
         var that = this;
         var count = 0;
 
-        var findToken = {};       
+        var findToken: Engine.IAsset = {};
+        var project = req.params.project;
+        var id = req.params.id;
 
-        // Set the default sort order to ascending
-        var sortOrder = -1;
-        if (req.query.sortOrder)
-        {
-            if ((<string>req.query.sortOrder).toLowerCase() == "asc")
-                sortOrder = 1;
-            else
-                sortOrder = -1;
-        }
+        if (!isValidID(project))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+
+        if (id && isValidID(id))
+            findToken._id = new mongodb.ObjectID(id);
+
+        findToken.projectId = new mongodb.ObjectID(project);
         
-        // Sort by the date created
-        var sort: IAsset = { created_on: sortOrder };
-
-        var getContent: boolean = true;
-        if (req.query.minimal)
-            getContent = false;
-
         // Check for keywords
         if (req.query.search)
-            (<IAsset>findToken).name = <any>new RegExp(req.query.search, "i");
+            findToken.name = <any>new RegExp(req.query.search, "i");
         
         // First get the count
         model.count(findToken).then(function (num)
         {
             count = num;
-            return model.findInstances<IAsset>(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances<IAsset>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
 
         }).then(function (instances)
         {
-            res.end(JSON.stringify(<ModepressAddons.IGetAssets>{
+            return res.end(JSON.stringify(<ModepressAddons.IGetAssets>{
                 error: false,
                 count: count,
                 message: `Found ${count} assets`,
@@ -85,7 +119,7 @@ export class AssetController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<IResponse>{
                 error: true,
                 message: error.message
             }));

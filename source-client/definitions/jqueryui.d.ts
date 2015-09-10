@@ -290,7 +290,7 @@ declare module JQueryUI {
         /**
          * If using one of the jQuery UI effects for the showAnim option, you can provide additional settings for that animation via this option.
          */
-        showOptions?: any; // TODO
+        showOptions?: any; 
         /**
          * Whether to display dates in other months (non-selectable) at the start or end of the current month. To make these days selectable use the selectOtherMonths option.
          */
@@ -481,7 +481,7 @@ declare module JQueryUI {
         disabled?: boolean;
         icons?: any;
         menus?: string;
-        position?: any; // TODO
+        position?: any; 
         role?: string;
     }
 
@@ -771,7 +771,7 @@ declare module JQueryUI {
         disabled?: boolean;
         hide?: any; // boolean, number, string or object
         items?: string;
-        position?: any; // TODO
+        position?: any;
         show?: any; // boolean, number, string or object
         tooltipClass?: string;
         track?: boolean;

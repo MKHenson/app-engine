@@ -10,7 +10,6 @@ declare module "form-data" {
     {
         append(key: string, value: any): FormData;
         getHeaders(): Object;
-        // TODO expand pipe
         pipe(to: any): any;
     }
 }

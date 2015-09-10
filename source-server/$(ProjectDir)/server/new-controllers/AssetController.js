@@ -9,6 +9,7 @@ var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
 var AssetModel_1 = require("../new-models/AssetModel");
 var winston = require("winston");
+var mongodb = require("mongodb");
 /**
 * A controller that deals with asset models
 */
@@ -26,7 +27,8 @@ var AssetController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/get/:id?", [this.getRenders.bind(this)]);
+        router.get("/get/:user/:project/:id?", [modepress_api_1.canEdit, this.getAssets.bind(this)]);
+        router.post("/create/:user/:project/", [modepress_api_1.canEdit, this.createAsset.bind(this)]);
         // Register the path
         e.use("/app-engine/assets", router);
     }
@@ -36,34 +38,58 @@ var AssetController = (function (_super) {
     * @param {express.Response} res
     * @param {Function} next
     */
-    AssetController.prototype.getRenders = function (req, res, next) {
+    AssetController.prototype.createAsset = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-assets");
+        var that = this;
+        var newAsset = req.body;
+        newAsset.user = req.params.user;
+        var project = req.params.project;
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        newAsset.projectId = new mongodb.ObjectID(project);
+        model.createInstance(newAsset).then(function (instance) {
+            return res.end(JSON.stringify({
+                error: true,
+                message: "New asset created",
+                data: instance.schema.generateCleanData(false, instance._id)
+            }));
+        }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify({
+                error: true,
+                message: "An error occurred while creating the asset : " + err.message
+            }));
+        });
+    };
+    /**
+    * Returns an array of IAsset items
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    AssetController.prototype.getAssets = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-assets");
         var that = this;
         var count = 0;
         var findToken = {};
-        // Set the default sort order to ascending
-        var sortOrder = -1;
-        if (req.query.sortOrder) {
-            if (req.query.sortOrder.toLowerCase() == "asc")
-                sortOrder = 1;
-            else
-                sortOrder = -1;
-        }
-        // Sort by the date created
-        var sort = { created_on: sortOrder };
-        var getContent = true;
-        if (req.query.minimal)
-            getContent = false;
+        var project = req.params.project;
+        var id = req.params.id;
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        if (id && modepress_api_1.isValidID(id))
+            findToken._id = new mongodb.ObjectID(id);
+        findToken.projectId = new mongodb.ObjectID(project);
         // Check for keywords
         if (req.query.search)
             findToken.name = new RegExp(req.query.search, "i");
         // First get the count
         model.count(findToken).then(function (num) {
             count = num;
-            return model.findInstances(findToken, [sort], parseInt(req.query.index), parseInt(req.query.limit), (getContent == false ? { html: 0 } : undefined));
+            return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
         }).then(function (instances) {
-            res.end(JSON.stringify({
+            return res.end(JSON.stringify({
                 error: false,
                 count: count,
                 message: "Found " + count + " assets",
@@ -71,7 +97,7 @@ var AssetController = (function (_super) {
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify({
+            return res.end(JSON.stringify({
                 error: true,
                 message: error.message
             }));

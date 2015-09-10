@@ -286,13 +286,15 @@ module Animate
 		/**
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
 		* it will return null.
+        * @param {number} index The index to  fetching projects for
+        * @param {number} limit The limit of how many items to fetch
 		*/
-        getProjectList(index?: number, limit?: number): JQueryPromise<ModepressEngine.IGetProjects>
+        getProjectList(index?: number, limit?: number): JQueryPromise<ModepressAddons.IGetProjects>
         {
-            var d = jQuery.Deferred<ModepressEngine.IGetProjects>(),
+            var d = jQuery.Deferred<ModepressAddons.IGetProjects>(),
                 that = this;
 
-            jQuery.getJSON(`${DB.API}/projects`).done(function (data: ModepressEngine.IGetProjects)
+            jQuery.getJSON(`${DB.API}/projects/${this.userEntry.username}`).done(function (data: ModepressAddons.IGetProjects)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -309,17 +311,19 @@ module Animate
 
         /**
 		* Creates a new user projects
+        * @param {string} name The name of the project
+        * @param {string} description [Optional] A short description
 		*/
-        newProject( name : string, description : string ): JQueryPromise<ModepressEngine.IGetProjects>
+        newProject(name: string, description: string = ""): JQueryPromise<ModepressAddons.IGetProjects>
         {
-            var d = jQuery.Deferred<ModepressEngine.ICreateProject>(),
+            var d = jQuery.Deferred<ModepressAddons.ICreateProject>(),
                 that = this,
                 token: Engine.IProject  = {
                     name: name,
                     description: description
                 };
 
-            jQuery.post(`${DB.API}/projects/create`, token).done(function (data: ModepressEngine.ICreateProject)
+            jQuery.post(`${DB.API}/projects/create`, token).done(function (data: ModepressAddons.ICreateProject)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -333,6 +337,9 @@ module Animate
 
             return d.promise();
         }
+        
+
+
 
 
 

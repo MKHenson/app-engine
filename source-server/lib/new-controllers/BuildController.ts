@@ -1,8 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq} from "modepress-api";
-import {PermissionController} from "./PermissionController";
+import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
 import {BuildModel} from "../new-models/BuildModel";
 import {IProject} from "engine";
 import * as winston from "winston"
@@ -26,21 +25,20 @@ export class BuildController extends Controller
         BuildController.singleton = this;
 
         var router = express.Router();
-        var permissions = PermissionController.singleton;
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));        
         
         // Define the routes
-        router.get("/:user", <any>[canEdit, this.getBuilds.bind(this)]);
-        router.post("/create", <any>[isAuthenticated, permissions.canCreateProject, this.create.bind(this)]);
+        router.get("/:user/:project/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
+        router.post("/create/:user/:project", <any>[canEdit, this.create.bind(this)]);
 
         // Register the path
         e.use("/app-engine/builds", router);
     }
 
     /**
-    * Gets all builds associated with a particular user
+    * Gets all builds associated with a particular user & project
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -50,14 +48,29 @@ export class BuildController extends Controller
         var that = this;
         res.setHeader('Content-Type', 'application/json');
         var target = req.params.user;
+        var project = req.params.project;
         var model = that.getModel("en-builds");
-                
-        model.findInstances(<Engine.IBuild>{ user: target }).then(function (instances)
+        var totalMatches = 0;
+
+        if (!isValidID(project))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: `Please use a valid project ID` }));
+
+        var findToken: Engine.IBuild = { user: target, projectId: new mongodb.ObjectID(project) };
+        
+        if (req.params.id && isValidID(req.params.id))
+            findToken._id = new mongodb.ObjectID(req.params.id);
+
+        model.count(findToken).then(function(total)
+        {
+            totalMatches = total;
+            return model.findInstances<Engine.IBuild>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
+
+        }).then(function (instances)
         {
             return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
                 error: false,
-                message: `Found [${instances.length}] builds for user '${target}'`,
-                count: instances.length,
+                message: `Found [${totalMatches}] builds for user '${target}'`,
+                count: totalMatches,
                 data: that.getSanitizedData(instances, !req._verbose)
             }));
 
@@ -75,14 +88,14 @@ export class BuildController extends Controller
     * Creates a new build
     * @returns {Promise<Modepress.ModelInstance<Engine.IBuild>>}
     */
-    createBuild(username: string, project?: string): Promise<Modepress.ModelInstance<Engine.IBuild>>
+    createBuild(username: string, project?: mongodb.ObjectID): Promise<Modepress.ModelInstance<Engine.IBuild>>
     {
         var that = this;
         var model = that.getModel("en-builds");
 
         return new Promise<Modepress.ModelInstance<Engine.IBuild>>(function (resolve, reject)
         {
-            model.createInstance(<Engine.IBuild>{ user: username, projectId: project }).then(function (instance)
+            model.createInstance(<Engine.IBuild>{ user: username, projectId:project }).then(function (instance)
             {
                 return resolve(instance);
 
@@ -203,7 +216,7 @@ export class BuildController extends Controller
     }
 
     /**
-    * Creates a new build instance for the logged in user
+    * Creates a new build for a user in a specific project.
     * @param {express.Request} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -212,14 +225,18 @@ export class BuildController extends Controller
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
-        var username = req._user.username;
+        var target = req.params.user;
+        var project = req.params.project;
         var model = that.getModel("en-builds");
+
+        if (!isValidID(project))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: `Please use a valid project ID` }));
         
-        that.createBuild( username ).then(function (instance)
+        that.createBuild(target, new mongodb.ObjectID(project) ).then(function (instance)
         {
             return res.end(JSON.stringify(<IResponse>{
                 error: false,
-                message: `Created new build for user '${username}'`
+                message: `Created new build for user '${target}'`
             }));
 
         }).catch(function (err: Error)
@@ -227,7 +244,7 @@ export class BuildController extends Controller
             winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify(<IResponse>{
                 error: true,
-                message: `Could not create build for '${username}' : ${err.message}`
+                message: `Could not create build for '${target}' : ${err.message}`
             }));
         });
     }

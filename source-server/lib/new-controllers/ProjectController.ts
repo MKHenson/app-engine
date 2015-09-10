@@ -28,11 +28,9 @@ export class ProjectController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
-        var permissions = PermissionController.singleton;
-
         router.get("/:user/:id?", <any>[getUser, this.getProjects.bind(this)]);
         router.delete("/:user/:ids", <any>[canEdit, this.remove.bind(this)]);
-        router.post("/create", <any>[isAuthenticated, permissions.canCreateProject.bind(permissions), this.createProject.bind(this)]);
+        router.post("/create", <any>[isAuthenticated, this.createProject.bind(this)]);
 
         // Register the path
         e.use("/app-engine/projects", router);
@@ -172,11 +170,11 @@ export class ProjectController extends Controller
     createProject(req: IAuthReq, res: express.Response, next: Function)
     {
         // ✔ Check logged in + has rights to do request
-        // ✔ Check if project limit was reached
         // ✔ Create a build 
         // ✔ Sanitize details 
         // ✔ Create a project
         // ✔ Associate build with project and vice-versa
+        // ✔ Check if project limit was reached - if over then remove project
 
         res.setHeader('Content-Type', 'application/json');
         var token: Engine.IProject = req.body;
@@ -184,6 +182,7 @@ export class ProjectController extends Controller
         var buildCtrl = BuildController.singleton;
         var newBuild: Modepress.ModelInstance<Engine.IBuild>;
         var newProject: Modepress.ModelInstance<Engine.IProject>;
+        var that = this;
 
         // User is passed from the authentication function
         token.user = req._user.username;
@@ -204,12 +203,22 @@ export class ProjectController extends Controller
 
         }).then(function ()
         {
-            // Finished
-            res.end(JSON.stringify(<ModepressAddons.ICreateProject>{
-                error: false,
-                message: `Created project '${token.name}'`,
-                data: newProject.schema.generateCleanData(false, newProject._id)
-            }));
+            // Make sure we're still in the limit
+            PermissionController.singleton.projectsWithinLimits(req._user).then(function ()
+            {
+                // Finished
+                res.end(JSON.stringify(<ModepressAddons.ICreateProject>{
+                    error: false,
+                    message: `Created project '${token.name}'`,
+                    data: newProject.schema.generateCleanData(false, newProject._id)
+                }));
+
+            }).catch(function (err: Error)
+            {
+                // Not in the limit - so remove the project and tell the user to upgrade 
+                that.removeByIds([newProject._id], req._user.username);
+                res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+            });           
 
         }).catch(function (err: Error)
         {
@@ -234,7 +243,7 @@ export class ProjectController extends Controller
     }
 
     /**
-    * Gets projects based on the format of the request
+    * Gets projects based on the format of the request. You can optionally pass a 'search', 'index' and 'limit' query parameter.
     * @param {IAuthReq} req 
     * @param {express.Response} res
     * @param {Function} next 
@@ -249,6 +258,7 @@ export class ProjectController extends Controller
         var findToken: IProject = {};
         findToken.user = req.params.user;
 
+        // Check for valid ID
         if (req.params.id)
             if (isValidID(req.params.id))
                 findToken._id = new mongodb.ObjectID(req.params.id);

@@ -23,42 +23,36 @@ var PermissionController = (function (_super) {
         _super.call(this, [new ProjectModel_1.ProjectModel(), new UserDetailsModel_1.UserDetailsModel()]);
     }
     /**
-    * Checks if the logged in user has the allowance to create a new project. This assumes the user is already logged in.
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
+    * Checks if the logged in user has the allowance to create a new project
+    * @param {IUserEntry} user
     */
-    PermissionController.prototype.canCreateProject = function (req, res, next) {
-        res.setHeader('Content-Type', 'application/json');
-        var that = this;
-        var userModel = that.getModel("en-user-details");
-        var projModel = that.getModel("en-projects");
-        var username = req._user.username;
-        var maxProjects = 0;
+    PermissionController.prototype.projectsWithinLimits = function (user) {
         // If an admin - then the user can create a new projec regardless
-        if (req._user.privileges < 3)
-            return next();
+        if (user.privileges < 3)
+            return Promise.resolve(true);
+        var that = this;
         // Get the details
-        userModel.findOne({ user: username }).then(function (instance) {
-            if (!instance)
-                return Promise.reject(new Error("Not found"));
-            maxProjects = instance.dbEntry.maxProjects;
-            // get number of projects
-            return projModel.count({ user: username });
-        }).then(function (numProjects) {
-            // If num projects + 1 more is less than max we are ok
-            if (numProjects + 1 < maxProjects)
-                return next();
-            else
-                return res.end(JSON.stringify({
-                    error: true,
-                    message: "You cannot create more projects on this plan. Please consider upgrading your account"
-                }));
-        }).catch(function (err) {
-            return res.end(JSON.stringify({
-                error: true,
-                message: "Could not create new project : " + err.message
-            }));
+        return new Promise(function (resolve, reject) {
+            var userModel = that.getModel("en-user-details");
+            var projModel = that.getModel("en-projects");
+            var username = user.username;
+            var maxProjects = 0;
+            userModel.findOne({ user: username }).then(function (instance) {
+                if (!instance)
+                    return Promise.reject(new Error("Not found"));
+                maxProjects = instance.dbEntry.maxProjects;
+                // get number of projects
+                return projModel.count({ user: username });
+            }).then(function (numProjects) {
+                // TODO: Check if project is allowed certain plugins?
+                // If num projects + 1 more is less than max we are ok
+                if (numProjects < maxProjects)
+                    return resolve(true);
+                else
+                    return Promise.reject(new Error("You cannot create more projects on this plan. Please consider upgrading your account"));
+            }).catch(function (err) {
+                return reject(err);
+            });
         });
     };
     return PermissionController;

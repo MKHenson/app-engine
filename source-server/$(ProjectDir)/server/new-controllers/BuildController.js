@@ -8,7 +8,6 @@ var mongodb = require("mongodb");
 var express = require("express");
 var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
-var PermissionController_1 = require("./PermissionController");
 var BuildModel_1 = require("../new-models/BuildModel");
 var winston = require("winston");
 /**
@@ -26,18 +25,17 @@ var BuildController = (function (_super) {
         _super.call(this, [new BuildModel_1.BuildModel()]);
         BuildController.singleton = this;
         var router = express.Router();
-        var permissions = PermissionController_1.PermissionController.singleton;
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         // Define the routes
-        router.get("/:user", [modepress_api_1.canEdit, this.getBuilds.bind(this)]);
-        router.post("/create", [modepress_api_1.isAuthenticated, permissions.canCreateProject, this.create.bind(this)]);
+        router.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getBuilds.bind(this)]);
+        router.post("/create/:user/:project", [modepress_api_1.canEdit, this.create.bind(this)]);
         // Register the path
         e.use("/app-engine/builds", router);
     }
     /**
-    * Gets all builds associated with a particular user
+    * Gets all builds associated with a particular user & project
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
@@ -46,12 +44,22 @@ var BuildController = (function (_super) {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
         var target = req.params.user;
+        var project = req.params.project;
         var model = that.getModel("en-builds");
-        model.findInstances({ user: target }).then(function (instances) {
+        var totalMatches = 0;
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        var findToken = { user: target, projectId: new mongodb.ObjectID(project) };
+        if (req.params.id && modepress_api_1.isValidID(req.params.id))
+            findToken._id = new mongodb.ObjectID(req.params.id);
+        model.count(findToken).then(function (total) {
+            totalMatches = total;
+            return model.findInstances(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
+        }).then(function (instances) {
             return res.end(JSON.stringify({
                 error: false,
-                message: "Found [" + instances.length + "] builds for user '" + target + "'",
-                count: instances.length,
+                message: "Found [" + totalMatches + "] builds for user '" + target + "'",
+                count: totalMatches,
                 data: that.getSanitizedData(instances, !req._verbose)
             }));
         }).catch(function (err) {
@@ -156,7 +164,7 @@ var BuildController = (function (_super) {
         });
     };
     /**
-    * Creates a new build instance for the logged in user
+    * Creates a new build for a user in a specific project.
     * @param {express.Request} req
     * @param {express.Response} res
     * @param {Function} next
@@ -164,18 +172,21 @@ var BuildController = (function (_super) {
     BuildController.prototype.create = function (req, res, next) {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
-        var username = req._user.username;
+        var target = req.params.user;
+        var project = req.params.project;
         var model = that.getModel("en-builds");
-        that.createBuild(username).then(function (instance) {
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        that.createBuild(target, new mongodb.ObjectID(project)).then(function (instance) {
             return res.end(JSON.stringify({
                 error: false,
-                message: "Created new build for user '" + username + "'"
+                message: "Created new build for user '" + target + "'"
             }));
         }).catch(function (err) {
             winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify({
                 error: true,
-                message: "Could not create build for '" + username + "' : " + err.message
+                message: "Could not create build for '" + target + "' : " + err.message
             }));
         });
     };

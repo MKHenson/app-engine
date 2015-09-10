@@ -25,11 +25,11 @@ declare module Engine
         name?: string;
         shallowId?: number;
         className?: string;
-        project_id?: string;
-        createdBy?: string;
+        projectId?: any;
+        user?: string;
         json?: Array<{ name: string; category: string; value: any; type: string; }>;
-        created_on?: number;
-        last_modified?: number;
+        createdOn?: number;
+        lastModified?: number;
         _id?: any;
     }
 
@@ -129,6 +129,7 @@ declare module ModepressAddons
     export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
+    export interface ICreateAsset extends Modepress.IGetResponse<Engine.IAsset> { }
     export interface ICreateBuild extends Modepress.IGetResponse<Engine.IBuild> { }
     export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
 }

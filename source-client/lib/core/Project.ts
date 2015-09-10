@@ -352,8 +352,7 @@ module Animate
 				if ( !groups[i].saved )
 					ids.push( groups[i].groupID );
 			this.saveGroups( ids );
-
-			// TODO - save 
+            
 			Animate.CanvasTab.getSingleton().saveAll();
 			this.saveHTML();
 			this.saveCSS();

@@ -56,7 +56,7 @@ jQuery(document).ready(function ()
 
     var that = this;
     Animate.LoaderBase.showLoader();
-    jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressEngine.IGetProjects)
+    jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressAddons.IGetProjects)
     {
         onPluginsLoaded(response.data);
 

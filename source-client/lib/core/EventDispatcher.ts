@@ -3,7 +3,6 @@ module Animate
 	export type EventCallback = (response: ENUM, event: Event, sender?: EventDispatcher) => void;
 
 	/**
-	* TODO: Do we need this as a class anymore?
 	* Base class for all custom enums
 	*/
 	export class ENUM
