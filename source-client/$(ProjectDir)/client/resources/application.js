@@ -9045,8 +9045,9 @@ var Animate;
             var len = __plugins.length;
             for (var i = 0; i < len; i++) {
                 //Only allow plugins based on your plan.
-                if (userPlan != Animate.UserPlan.Gold && userPlan != Animate.UserPlan.Platinum && __plugins[i].plan <= userPlan)
-                    continue;
+                // TODO: Only show plugins that are allowed
+                //if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan == userPlan )
+                //	continue;
                 var alreadyAdded = false;
                 var ii = (userPlugins ? userPlugins.length : 0);
                 while (ii--)
@@ -9062,7 +9063,8 @@ var Animate;
                     "<div class='name'>" + __plugins[i].name + "</div>" +
                     "<div class='owner'>Created by " + __plugins[i].author + "</div>" +
                     "<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
-                    "<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    "<div class='desc'>" + __plugins[i].description + "</div>" +
                     "</div>" +
                     "<div class='fix'></div></div><div class='fix'></div>");
                 item.element.on("mouseover", jQuery.proxy(this.onOverProject, this));
@@ -9231,7 +9233,7 @@ var Animate;
                 var comp = new Animate.Component("<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this);
                 this._buildEntries[componentCounter] = comp;
                 comp.element.data("url", plugins[i].path);
-                comp.element.data("css", plugins[i].css);
+                //comp.element.data( "css", plugins[i].css );
                 var reloadButton = new Animate.Button("Reload", comp);
                 reloadButton.css({ "margin": "5px 10px 0 0", "width": "50px", "height": "18px", "float": "right" });
                 reloadButton.element.hide();

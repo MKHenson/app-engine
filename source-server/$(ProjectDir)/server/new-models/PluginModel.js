@@ -16,18 +16,15 @@ var PluginModel = (function (_super) {
     function PluginModel() {
         _super.call(this, "en-plugins");
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("folderName", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("description", ""));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("shortDescription", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("plan", "basic", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("path", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("header", ""));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("body", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("deployables", []));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("css", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("image", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("author", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "0.0.1", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }
     return PluginModel;
 })(modepress_api_1.Model);

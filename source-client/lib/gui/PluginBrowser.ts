@@ -205,14 +205,15 @@ module Animate
 				return 0; 
 			});
 
-            var userPlan: UserPlan = User.get.userEntry.meta.plan;
+            var userPlan: string = User.get.userEntry.meta.plan;
 
 			var len : number = __plugins.length;
 			for ( var i = 0; i < len; i++ )
 			{
                 //Only allow plugins based on your plan.
-                if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan <= userPlan )
-					continue;
+                // TODO: Only show plugins that are allowed
+                //if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan == userPlan )
+				//	continue;
 
 				var alreadyAdded : boolean = false;
 				var ii : number = ( userPlugins ? userPlugins.length : 0 );
@@ -232,7 +233,8 @@ module Animate
 					"<div class='name'>" + __plugins[i].name + "</div>" +
 					"<div class='owner'>Created by " + __plugins[i].author + "</div>" +
 					"<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
-					"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    "<div class='desc'>" + __plugins[i].description + "</div>" +
 					"</div>" +
 					"<div class='fix'></div></div><div class='fix'></div>" );
 

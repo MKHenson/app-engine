@@ -48,7 +48,7 @@
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <TypeScriptOutDir>
     </TypeScriptOutDir>
@@ -71,9 +71,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)../server" "$(ProjectDir)..\..\modepress\server\plugins\app-engine" /e /y /i /r</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)/resources" "$(ProjectDir)..\..\modepress\server\resources\admin\plugins\app-engine\resources" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
-  <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="definitions\angular.d.ts" />
@@ -81,7 +80,12 @@
     <TypeScriptCompile Include="definitions\express.d.ts" />
     <TypeScriptCompile Include="definitions\jquery.d.ts" />
     <TypeScriptCompile Include="definitions\node.d.ts" />
+    <TypeScriptCompile Include="lib\PagedContent.ts" />
     <TypeScriptCompile Include="lib\Plugin.ts" />
+    <TypeScriptCompile Include="lib\PluginCtrl.ts" />
     <TypeScriptCompile Include="_references.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\templates\hatchery-plugins.html" />
   </ItemGroup>
 </Project>

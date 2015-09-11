@@ -24,10 +24,13 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="custom-definitions\app-engine.d.ts" />
+    <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
+    <TypeScriptCompile Include="definitions\angular.d.ts" />
     <TypeScriptCompile Include="definitions\body-parser.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\express.d.ts" />
     <TypeScriptCompile Include="definitions\form-data.d.ts" />
+    <TypeScriptCompile Include="definitions\jquery.d.ts" />
     <TypeScriptCompile Include="definitions\method-override.d.ts" />
     <TypeScriptCompile Include="definitions\modepress-api.d.ts" />
     <TypeScriptCompile Include="definitions\mongodb.d.ts" />

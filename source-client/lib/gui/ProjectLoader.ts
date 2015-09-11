@@ -70,7 +70,7 @@ module Animate
 				var comp : Component = new Component( "<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this );
 				this._buildEntries[componentCounter] = comp;
 				comp.element.data( "url", plugins[i].path );
-				comp.element.data( "css", plugins[i].css );
+				//comp.element.data( "css", plugins[i].css );
 
 
 				var reloadButton = new Button( "Reload", comp );

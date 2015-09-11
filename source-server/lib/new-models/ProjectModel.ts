@@ -34,6 +34,6 @@ export class ProjectModel extends Model
         this.defaultSchema.add(new SchemaFactory.textArray("plugins", [], 1));
         this.defaultSchema.add(new SchemaFactory.textArray("files", []));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified")).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }
 }

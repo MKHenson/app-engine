@@ -26,6 +26,6 @@ export class BuildModel extends Model
         this.defaultSchema.add(new SchemaFactory.num("totalVotes", 0));
         this.defaultSchema.add(new SchemaFactory.num("totalVoters", 0));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified")).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }
 }

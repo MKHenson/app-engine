@@ -4139,6 +4139,8 @@ var Animate;
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
+        * @param {number} index The index to  fetching projects for
+        * @param {number} limit The limit of how many items to fetch
         */
         User.prototype.getProjectList = function (index, limit) {
             var d = jQuery.Deferred(), that = this;
@@ -4153,8 +4155,11 @@ var Animate;
         };
         /**
         * Creates a new user projects
+        * @param {string} name The name of the project
+        * @param {string} description [Optional] A short description
         */
         User.prototype.newProject = function (name, description) {
+            if (description === void 0) { description = ""; }
             var d = jQuery.Deferred(), that = this, token = {
                 name: name,
                 description: description
@@ -9057,7 +9062,8 @@ var Animate;
                     "<div class='name'>" + __plugins[i].name + "</div>" +
                     "<div class='owner'>Created by " + __plugins[i].author + "</div>" +
                     "<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
-                    "<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+                    "<div class='desc'>" + __plugins[i].description + "</div>" +
                     "</div>" +
                     "<div class='fix'></div></div><div class='fix'></div>");
                 item.element.on("mouseover", jQuery.proxy(this.onOverProject, this));
@@ -9226,7 +9232,7 @@ var Animate;
                 var comp = new Animate.Component("<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this);
                 this._buildEntries[componentCounter] = comp;
                 comp.element.data("url", plugins[i].path);
-                comp.element.data("css", plugins[i].css);
+                //comp.element.data( "css", plugins[i].css );
                 var reloadButton = new Animate.Button("Reload", comp);
                 reloadButton.css({ "margin": "5px 10px 0 0", "width": "50px", "height": "18px", "float": "right" });
                 reloadButton.element.hide();

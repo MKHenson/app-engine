@@ -7,7 +7,7 @@
     {
         meta?: {
             bio: string;
-            plan: number;
+            plan: string;
             maxNumProjects: number;
             createdOn: number;
             imgURL: string;
@@ -39,18 +39,15 @@ declare module Engine
     export interface IPlugin
     {
         name?: string;
-        folderName?: string;
         description?: string;
-        shortDescription?: string;
-        plan?: number;
+        plan?: string;
         path?: string;
-        header?: string;
-        body?: string;
         deployables?: Array<string>;
-        css?: string;	
         image?: string;
         author?: string;
         version?: string;
+        createdOn?: number;
+        lastModified?: number;
         _id?: any;
     }
 
@@ -130,6 +127,7 @@ declare module ModepressAddons
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
     export interface ICreateAsset extends Modepress.IGetResponse<Engine.IAsset> { }
+    export interface ICreatePlugin extends Modepress.IGetResponse<Engine.IPlugin> { }
     export interface ICreateBuild extends Modepress.IGetResponse<Engine.IBuild> { }
     export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
 }
