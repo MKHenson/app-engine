@@ -1,6 +1,22 @@
 declare var _users: string;
 declare var _cache: string;
-var __plugins: Array<Engine.IPlugin> = [];
+var __plugins: { [name: string]: Array<{ version: string; plugin: Engine.IPlugin }> } = {};
+
+/**
+* Goes through each of the plugins and returns the one with the matching ID
+* @param {string} id The ID of the plugin to fetch
+*/
+function getPluginByID(id : string): Engine.IPlugin
+{
+    for (var pluginName in __plugins)
+    {
+        for (var i = 0, l = __plugins[pluginName].length; i < l; i++)
+            if (__plugins[pluginName][i].plugin._id == id)
+                return __plugins[pluginName][i].plugin;
+    }
+
+    return null;
+}
 
 function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
 {
@@ -13,8 +29,23 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
 	//	return;
 	//}
 
-	//__plugins = event.tag.plugins;
-    __plugins = plugins;
+    //__plugins = event.tag.plugins;
+    for (var i = 0, l = plugins.length; i < l; i++)
+    {
+        if (!__plugins[plugins[i].name])
+            __plugins[plugins[i].name] = [];
+        else
+            continue;
+
+        var versionArray = __plugins[plugins[i].name];
+        
+        for (var ii = 0; ii < l; ii++)
+            if (plugins[ii].name == plugins[i].name)
+            {
+                var versionObj = { version: plugins[ii].version, plugin: plugins[ii] };
+                versionArray.push(versionObj);
+            }       
+    }
 
 	
     var app = new Animate.Application("#application");

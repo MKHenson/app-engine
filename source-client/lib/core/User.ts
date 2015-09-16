@@ -24,19 +24,11 @@ module Animate
 		{
 			super(eventName, message, return_type, data);
 		}
-	}
-
-   /*
-   * The payment type of the user
-   */
-    export enum UserPlan
-    {
-        Free,
-        Bronze,
-        Silver,
-        Gold,
-        Platinum
     }
+
+    
+
+  
     
 	/**
 	* This class is used to represent the user who is logged into Animate.

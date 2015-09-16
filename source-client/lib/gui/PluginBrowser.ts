@@ -174,75 +174,80 @@ module Animate
 			this.newPlugsLower.clear();
 			var selectedFilter : JQuery = this.selectedFilter;
 
-			//Sort based on the filter
-            __plugins.sort(function (a: Engine.IPlugin, b: Engine.IPlugin )
-			{
-				var nameA = a.name.toLowerCase();
-				var nameB = b.name.toLowerCase();
+            // TODO : Figure out if we're keeping this
 
-				if ( selectedFilter.text() == "Name" )
-				{
-					nameA = a.name.toLowerCase();
-					nameB = b.name.toLowerCase();
-				}
-				else if ( selectedFilter.text() == "Version" )
-				{
-					nameA = a.version.toLowerCase();
-					nameB = b.version.toLowerCase();
-				}
-				else if ( selectedFilter.text() == "Author" )
-				{
-					nameA = a.author.toLowerCase();
-					nameB = b.author.toLowerCase();
-				}
 
-				if ( nameA < nameB ) //sort string ascending
-					return -1;
 
-				if ( nameA > nameB )
-					return 1;
+			////Sort based on the filter
+   //         __plugins.sort(function (a: Engine.IPlugin, b: Engine.IPlugin )
+			//{
+			//	var nameA = a.name.toLowerCase();
+			//	var nameB = b.name.toLowerCase();
 
-				return 0; 
-			});
+			//	if ( selectedFilter.text() == "Name" )
+			//	{
+			//		nameA = a.name.toLowerCase();
+			//		nameB = b.name.toLowerCase();
+			//	}
+			//	else if ( selectedFilter.text() == "Version" )
+			//	{
+			//		nameA = a.version.toLowerCase();
+			//		nameB = b.version.toLowerCase();
+			//	}
+			//	else if ( selectedFilter.text() == "Author" )
+			//	{
+			//		nameA = a.author.toLowerCase();
+			//		nameB = b.author.toLowerCase();
+			//	}
 
-            var userPlan: string = User.get.userEntry.meta.plan;
+			//	if ( nameA < nameB ) //sort string ascending
+			//		return -1;
 
-			var len : number = __plugins.length;
-			for ( var i = 0; i < len; i++ )
-			{
-                //Only allow plugins based on your plan.
-                // TODO: Only show plugins that are allowed
-                //if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan == userPlan )
-				//	continue;
+			//	if ( nameA > nameB )
+			//		return 1;
 
-				var alreadyAdded : boolean = false;
-				var ii : number = ( userPlugins ? userPlugins.length : 0 );
-				while ( ii-- )
-					if ( userPlugins[ii].name == __plugins[i].name )
-					{
-						alreadyAdded = true;
-						break;
-					}
+			//	return 0; 
+			//});
 
-				if ( alreadyAdded )
-					continue;
+   //         var userPlan: UserPlan = User.get.userEntry.meta.plan;
+            
+			//var len : number = __plugins.length;
+			//for ( var i = 0; i < len; i++ )
+			//{
+   //             //Only allow plugins based on your plan.
+   //             // TODO: Only show plugins that are allowed
+   //             //if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan == userPlan )
+			//	//	continue;
 
-				var item : Component = <Component>this.newPlugsLower.addChild( "<div class='plugin-item'>" +
-					"<div class='inner'><div class='left'><img src='" + __plugins[i].image + "' /></div>" +
-					"<div class='right'>" +
-					"<div class='name'>" + __plugins[i].name + "</div>" +
-					"<div class='owner'>Created by " + __plugins[i].author + "</div>" +
-					"<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
-                    //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
-                    "<div class='desc'>" + __plugins[i].description + "</div>" +
-					"</div>" +
-					"<div class='fix'></div></div><div class='fix'></div>" );
+			//	var alreadyAdded : boolean = false;
+			//	var ii : number = ( userPlugins ? userPlugins.length : 0 );
+			//	while ( ii-- )
+			//		if ( userPlugins[ii].name == __plugins[i].name )
+			//		{
+			//			alreadyAdded = true;
+			//			break;
+			//		}
 
-				item.element.on( "mouseover", jQuery.proxy( this.onOverProject, this ) );
-				item.element.on( "click", jQuery.proxy( this.onClickProject, this ) );
-				item.element.data( "plugin", __plugins[i] );
+			//	if ( alreadyAdded )
+			//		continue;
+
+  
+				//var item : Component = <Component>this.newPlugsLower.addChild( "<div class='plugin-item'>" +
+				//	"<div class='inner'><div class='left'><img src='" + __plugins[i].image + "' /></div>" +
+				//	"<div class='right'>" +
+				//	"<div class='name'>" + __plugins[i].name + "</div>" +
+				//	"<div class='owner'>Created by " + __plugins[i].author + "</div>" +
+				//	"<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
+    //                //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+    //                "<div class='desc'>" + __plugins[i].description + "</div>" +
+				//	"</div>" +
+				//	"<div class='fix'></div></div><div class='fix'></div>" );
+
+				// item.element.on( "mouseover", jQuery.proxy( this.onOverProject, this ) );
+				// item.element.on( "click", jQuery.proxy( this.onClickProject, this ) );
+				// item.element.data( "plugin", __plugins[i] );
 				//item.element.disableSelection( true );
-			}
+			// }
 		}
 
 		/**

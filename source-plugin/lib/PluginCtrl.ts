@@ -1,5 +1,8 @@
 ﻿module HatcheryPlugin
 {
+    /**
+    * A Class for managing the plugins screen
+    */
     export class PluginCtrl
     {
         public plugins: Array<Engine.IPlugin>;
@@ -9,17 +12,16 @@
         public pluginToken: Engine.IPlugin;
         public showNewPluginForm: boolean;
         public editMode: boolean;
-        public apiURL: string;
         public scope: any;
         public successMessage: string;
         public pager: Pager;
         public http: ng.IHttpService;
-
         public showMediaBrowser: boolean;
         public targetImgReciever: string;
+        public searchKeyword: string;
 
-        public static $inject = ["$scope", "$http", "apiURL"];
-        constructor(scope, http: ng.IHttpService, apiUrl: string)
+        public static $inject = ["$scope", "$http"];
+        constructor(scope, http: ng.IHttpService)
         {
             this.plugins = [];
             this.error = false;
@@ -27,12 +29,35 @@
             this.loading = false;
             this.http = http;
             this.scope = scope;
-            this.apiURL = apiUrl;
             this.successMessage = "";
+            this.searchKeyword = "";
             this.editMode = false;
             this.pluginToken = {};
             this.pager = new Pager(this.fetchPlugins.bind(this));
             this.pager.goFirst();
+
+            scope.planEnum = Animate.UserPlan;
+            scope.plans = [];
+            for (var i in Animate.UserPlan)
+                if (!isNaN(parseInt(i)))
+                    scope.plans.push({ value: parseInt(i), name: Animate.UserPlan[i], selected : false });
+                else
+                    break;
+        }
+
+        editPluginMode(plugin: Engine.IPlugin)
+        {
+            this.newPluginMode();
+            this.editMode = true;
+            this.loading = true;
+            this.showNewPluginForm = true;
+
+            var that = this;
+            that.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins/${plugin._id}`).then(function (response)
+            {
+                that.pluginToken = response.data.data[0];
+                that.loading = false;
+            });
         }
 
         /**
@@ -45,7 +70,9 @@
             that.error = false;
             that.errorMsg = "";
 
-            var toRet = this.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins?index=${index}&limit=${limit}`);
+            
+
+            var toRet = this.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins?index=${index}&limit=${limit}&search=${that.searchKeyword}`);
             toRet.then(function (response)
             {
                 that.plugins = response.data.data;
@@ -81,7 +108,7 @@
 
             if (this.editMode)
             {
-                that.http.put<Modepress.IGetPost>(`${appEngineURL}/plugins/update/${pluginToken._id}`, pluginToken).then(function (token)
+                that.http.put<Modepress.IGetPost>(`${appEngineURL}/app-engine/plugins/update/${pluginToken._id}`, pluginToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -91,6 +118,12 @@
                     else
                     {
                         that.successMessage = token.data.message;
+                        for (var i = 0, l = that.plugins.length; i < l; i++)
+                            if (that.plugins[i]._id == that.pluginToken._id)
+                            {
+                                that.plugins.splice(i, 1, that.pluginToken);
+                                break;
+                            }
                         pluginToken.lastModified = Date.now();
                     }
 
@@ -99,7 +132,7 @@
             }
             else
             {
-                that.http.post<ModepressAddons.ICreatePlugin>(`${appEngineURL}/plugins/create`, pluginToken).then(function (response)
+                that.http.post<ModepressAddons.ICreatePlugin>(`${appEngineURL}/app-engine/plugins/create`, pluginToken).then(function (response)
                 {
                     if (response.data.error)
                     {
@@ -152,8 +185,7 @@
             this.pluginToken = {
                 name: "",
                 description: "",
-                plan: "Basic",
-                path: "",
+                plan: Animate.UserPlan.Free,
                 deployables: [],                
                 image: "",
                 author: "Mathew Henson",

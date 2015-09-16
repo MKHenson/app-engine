@@ -16,8 +16,8 @@
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 
 /// <reference path="lib/core/Compiler.ts" />
-
 /// <reference path="lib/core/EventDispatcher.ts" />
+/// <reference path="lib/core/UserPlan.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />
 /// <reference path="lib/core/Utils.ts" />

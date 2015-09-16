@@ -46,6 +46,17 @@
             this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }
                 , { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
+
+            //for (var projectName in __plugins)
+            //{
+            //    this.$pluginsNames.push(projectName);
+            //    var versionObj: { [version: string]: Engine.IProject } = {};
+            //    for (var i = 0, l = __plugins[projectName].length; i < l; i++)
+            //        versionObj[__plugins[projectName][i].version] = __plugins[projectName][i].plugin;
+
+            //    this.$pluginVersions.push(versionObj);
+            //}
+
             this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;

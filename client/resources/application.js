@@ -704,6 +704,21 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /*
+    * The payment type of the user
+    */
+    (function (UserPlan) {
+        UserPlan[UserPlan["Free"] = 1] = "Free";
+        UserPlan[UserPlan["Bronze"] = 2] = "Bronze";
+        UserPlan[UserPlan["Silver"] = 3] = "Silver";
+        UserPlan[UserPlan["Gold"] = 4] = "Gold";
+        UserPlan[UserPlan["Platinum"] = 5] = "Platinum";
+        UserPlan[UserPlan["Custom"] = 6] = "Custom";
+    })(Animate.UserPlan || (Animate.UserPlan = {}));
+    var UserPlan = Animate.UserPlan;
+})(Animate || (Animate = {}));
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -3524,15 +3539,8 @@ var Animate;
                 this._plugins = [];
             else {
                 this._plugins = [];
-                var i = __plugins.length;
-                while (i--) {
-                    var ii = pluginIds.length;
-                    while (ii--)
-                        if (pluginIds[ii] == __plugins[i]._id) {
-                            this._plugins.push(__plugins[i]);
-                            break;
-                        }
-                }
+                for (var i = 0, l = pluginIds.length; i < l; i++)
+                    this._plugins.push(getPluginByID[pluginIds[i]]);
             }
             this.mCurBuild = data.build;
             this.mDescription = data.project.description;
@@ -3961,17 +3969,6 @@ var Animate;
         return UserEvent;
     })(Animate.AnimateLoaderEvent);
     Animate.UserEvent = UserEvent;
-    /*
-    * The payment type of the user
-    */
-    (function (UserPlan) {
-        UserPlan[UserPlan["Free"] = 0] = "Free";
-        UserPlan[UserPlan["Bronze"] = 1] = "Bronze";
-        UserPlan[UserPlan["Silver"] = 2] = "Silver";
-        UserPlan[UserPlan["Gold"] = 3] = "Gold";
-        UserPlan[UserPlan["Platinum"] = 4] = "Platinum";
-    })(Animate.UserPlan || (Animate.UserPlan = {}));
-    var UserPlan = Animate.UserPlan;
     /**
     * This class is used to represent the user who is logged into Animate.
     */
@@ -3997,7 +3994,7 @@ var Animate;
                 meta: {
                     bio: "",
                     createdOn: 0,
-                    plan: UserPlan.Free,
+                    plan: Animate.UserPlan.Free,
                     imgURL: "media/blank-user.png",
                     maxNumProjects: 0
                 }
@@ -9019,57 +9016,66 @@ var Animate;
             this.projectNext.enabled = true;
             this.newPlugsLower.clear();
             var selectedFilter = this.selectedFilter;
-            //Sort based on the filter
-            __plugins.sort(function (a, b) {
-                var nameA = a.name.toLowerCase();
-                var nameB = b.name.toLowerCase();
-                if (selectedFilter.text() == "Name") {
-                    nameA = a.name.toLowerCase();
-                    nameB = b.name.toLowerCase();
-                }
-                else if (selectedFilter.text() == "Version") {
-                    nameA = a.version.toLowerCase();
-                    nameB = b.version.toLowerCase();
-                }
-                else if (selectedFilter.text() == "Author") {
-                    nameA = a.author.toLowerCase();
-                    nameB = b.author.toLowerCase();
-                }
-                if (nameA < nameB)
-                    return -1;
-                if (nameA > nameB)
-                    return 1;
-                return 0;
-            });
-            var userPlan = Animate.User.get.userEntry.meta.plan;
-            var len = __plugins.length;
-            for (var i = 0; i < len; i++) {
-                //Only allow plugins based on your plan.
-                if (userPlan != Animate.UserPlan.Gold && userPlan != Animate.UserPlan.Platinum && __plugins[i].plan <= userPlan)
-                    continue;
-                var alreadyAdded = false;
-                var ii = (userPlugins ? userPlugins.length : 0);
-                while (ii--)
-                    if (userPlugins[ii].name == __plugins[i].name) {
-                        alreadyAdded = true;
-                        break;
-                    }
-                if (alreadyAdded)
-                    continue;
-                var item = this.newPlugsLower.addChild("<div class='plugin-item'>" +
-                    "<div class='inner'><div class='left'><img src='" + __plugins[i].image + "' /></div>" +
-                    "<div class='right'>" +
-                    "<div class='name'>" + __plugins[i].name + "</div>" +
-                    "<div class='owner'>Created by " + __plugins[i].author + "</div>" +
-                    "<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
-                    //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
-                    "<div class='desc'>" + __plugins[i].description + "</div>" +
-                    "</div>" +
-                    "<div class='fix'></div></div><div class='fix'></div>");
-                item.element.on("mouseover", jQuery.proxy(this.onOverProject, this));
-                item.element.on("click", jQuery.proxy(this.onClickProject, this));
-                item.element.data("plugin", __plugins[i]);
-            }
+            // TODO : Figure out if we're keeping this
+            ////Sort based on the filter
+            //         __plugins.sort(function (a: Engine.IPlugin, b: Engine.IPlugin )
+            //{
+            //	var nameA = a.name.toLowerCase();
+            //	var nameB = b.name.toLowerCase();
+            //	if ( selectedFilter.text() == "Name" )
+            //	{
+            //		nameA = a.name.toLowerCase();
+            //		nameB = b.name.toLowerCase();
+            //	}
+            //	else if ( selectedFilter.text() == "Version" )
+            //	{
+            //		nameA = a.version.toLowerCase();
+            //		nameB = b.version.toLowerCase();
+            //	}
+            //	else if ( selectedFilter.text() == "Author" )
+            //	{
+            //		nameA = a.author.toLowerCase();
+            //		nameB = b.author.toLowerCase();
+            //	}
+            //	if ( nameA < nameB ) //sort string ascending
+            //		return -1;
+            //	if ( nameA > nameB )
+            //		return 1;
+            //	return 0; 
+            //});
+            //         var userPlan: UserPlan = User.get.userEntry.meta.plan;
+            //var len : number = __plugins.length;
+            //for ( var i = 0; i < len; i++ )
+            //{
+            //             //Only allow plugins based on your plan.
+            //             // TODO: Only show plugins that are allowed
+            //             //if (userPlan != UserPlan.Gold && userPlan != UserPlan.Platinum && __plugins[i].plan == userPlan )
+            //	//	continue;
+            //	var alreadyAdded : boolean = false;
+            //	var ii : number = ( userPlugins ? userPlugins.length : 0 );
+            //	while ( ii-- )
+            //		if ( userPlugins[ii].name == __plugins[i].name )
+            //		{
+            //			alreadyAdded = true;
+            //			break;
+            //		}
+            //	if ( alreadyAdded )
+            //		continue;
+            //var item : Component = <Component>this.newPlugsLower.addChild( "<div class='plugin-item'>" +
+            //	"<div class='inner'><div class='left'><img src='" + __plugins[i].image + "' /></div>" +
+            //	"<div class='right'>" +
+            //	"<div class='name'>" + __plugins[i].name + "</div>" +
+            //	"<div class='owner'>Created by " + __plugins[i].author + "</div>" +
+            //	"<div class='created-by'>Version: " + __plugins[i].version + "</div>" +
+            //                //"<div class='desc'>" + __plugins[i].shortDescription + "</div>" +
+            //                "<div class='desc'>" + __plugins[i].description + "</div>" +
+            //	"</div>" +
+            //	"<div class='fix'></div></div><div class='fix'></div>" );
+            // item.element.on( "mouseover", jQuery.proxy( this.onOverProject, this ) );
+            // item.element.on( "click", jQuery.proxy( this.onClickProject, this ) );
+            // item.element.data( "plugin", __plugins[i] );
+            //item.element.disableSelection( true );
+            // }
         };
         /**
         * When we hover over a project
@@ -9231,7 +9237,8 @@ var Animate;
             for (var i = 0; i < plugins.length; i++) {
                 var comp = new Animate.Component("<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this);
                 this._buildEntries[componentCounter] = comp;
-                comp.element.data("url", plugins[i].path);
+                // TODO: Figure out how to load a plugin?
+                // comp.element.data("url", plugins[i].path);
                 //comp.element.data( "css", plugins[i].css );
                 var reloadButton = new Animate.Button("Reload", comp);
                 reloadButton.css({ "margin": "5px 10px 0 0", "width": "50px", "height": "18px", "float": "right" });
@@ -18794,6 +18801,14 @@ var Animate;
             this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" },
                 { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
+            //for (var projectName in __plugins)
+            //{
+            //    this.$pluginsNames.push(projectName);
+            //    var versionObj: { [version: string]: Engine.IProject } = {};
+            //    for (var i = 0, l = __plugins[projectName].length; i < l; i++)
+            //        versionObj[__plugins[projectName][i].version] = __plugins[projectName][i].plugin;
+            //    this.$pluginVersions.push(versionObj);
+            //}
             this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;
@@ -19135,7 +19150,19 @@ var Animate;
     })();
     Animate.Splash = Splash;
 })(Animate || (Animate = {}));
-var __plugins = [];
+var __plugins = {};
+/**
+* Goes through each of the plugins and returns the one with the matching ID
+* @param {string} id The ID of the plugin to fetch
+*/
+function getPluginByID(id) {
+    for (var pluginName in __plugins) {
+        for (var i = 0, l = __plugins[pluginName].length; i < l; i++)
+            if (__plugins[pluginName][i].plugin._id == id)
+                return __plugins[pluginName][i].plugin;
+    }
+    return null;
+}
 function onPluginsLoaded(plugins) {
     //sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
     //sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
@@ -19145,7 +19172,18 @@ function onPluginsLoaded(plugins) {
     //	return;
     //}
     //__plugins = event.tag.plugins;
-    __plugins = plugins;
+    for (var i = 0, l = plugins.length; i < l; i++) {
+        if (!__plugins[plugins[i].name])
+            __plugins[plugins[i].name] = [];
+        else
+            continue;
+        var versionArray = __plugins[plugins[i].name];
+        for (var ii = 0; ii < l; ii++)
+            if (plugins[ii].name == plugins[i].name) {
+                var versionObj = { version: plugins[ii].version, plugin: plugins[ii] };
+                versionArray.push(versionObj);
+            }
+    }
     var app = new Animate.Application("#application");
     Animate.Splash.init(app);
     //Start Splash screen
@@ -19222,6 +19260,7 @@ jQuery(document).ready(function () {
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 /// <reference path="lib/core/Compiler.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
+/// <reference path="lib/core/UserPlan.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />
 /// <reference path="lib/core/Utils.ts" />
