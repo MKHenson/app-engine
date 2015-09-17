@@ -19,7 +19,7 @@
         private $errorRed: boolean;
         private $loading: boolean;
         private $projects: Array<Engine.IProject>;
-        private $plugins: Array<Engine.IPlugin>;
+        private $plugins: { [name:string] : Array<Engine.IPlugin> };
         private $selectedPlugins: Array<Engine.IProject>;
         private $selectedProjects: Array<Engine.IProject>;
         private $selectedProject: Engine.IProject;
@@ -43,10 +43,7 @@
             this.$errorRed = true;
             this.$loading = false;
             this.$projects = [];
-            this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
-                { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }
-                , { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
-
+            this.$plugins = __plugins;
             //for (var projectName in __plugins)
             //{
             //    this.$pluginsNames.push(projectName);

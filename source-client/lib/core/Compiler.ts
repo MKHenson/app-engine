@@ -29,10 +29,12 @@
         $compliledEval: { [name: number]: CompiledEval };
 
         // A context variable name. If nodes are dynamically created, any context variables are assign to the node. (eg en-repeate="plugins as plugin")
-        $ctx: string; // "plugin"
+        //$ctx: string; // "plugin"
 
         // A context variable value. If nodes are dynamically created, any context variables are assign to the node (eg en-repeate="plugins as plugin")
-        $ctxValue: any; // The actual plugin objecy
+        //$ctxValue: any; // The actual plugin objecy
+
+        $ctxValues: Array<{ name: string; value: any;}>
 
         // A reference of all events attached with this node
         $events: Array< { name: string; tag: string; func: any; }>;
@@ -84,13 +86,9 @@
         {
             var contexts = {};
             var p: AppNode = <AppNode><Node>elm;
-            while (p)
-            {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
-
-                p = <AppNode>p.parentNode;
-            }
+            if (p.$ctxValues)
+                for (var i in p.$ctxValues)
+                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
 
             var ctx = "";
             for (var i in contexts)
@@ -109,12 +107,12 @@
             var contexts = {};
             var p: AppNode = <AppNode><Node>elm;
             var appNode = <AppNode><Node>elm;
-            if (p.$ctx && p.$ctx != "")
+            if (p.$ctxValues)
             {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
+                for (var i in p.$ctxValues)
+                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
 
-                p = <AppNode>p.parentNode;
+               // p = <AppNode>p.parentNode;
             }
 
             if (!appNode.$compliledEval)
@@ -315,22 +313,22 @@
             for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++)
             {
                 var appNode: AppNode = <AppNode><Node>sourceNode.$clonedElements[i];
-                appNode.$ctx = "";
-                appNode.$ctxValue = null;
+                //appNode.$ctx = "";
+                //appNode.$ctxValue = null;
+                appNode.$ctxValues = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
 
                 // Go through each child and assign the context
-                if (appNode.$ctx.trim() != "")
+                if (appNode.$ctxValues)
                 {
                     Compiler.traverse(appNode, function (child: AppNode)
                     {
                         // If comment node do nothing
                         if (child.nodeType == 8)
                             return;
-
-                        child.$ctx = "";
-                        child.$ctxValue = null;
+                        
+                        child.$ctxValues = null;
                     });
                 };
 
@@ -383,8 +381,13 @@
                                         var clone = jQuery(commentElement.$originalNode).clone();
                                         var newNode: AppNode = <AppNode><Node>clone.get(0);
                                         newNode.$dynamic = true;
-                                        newNode.$ctx = ctx;
-                                        newNode.$ctxValue = expressionValue[t];
+
+                                        if (!newNode.$ctxValues)
+                                            newNode.$ctxValues = [];
+
+                                        newNode.$ctxValues.push({ name: ctx, value: expressionValue[t] })
+                                        //newNode.$ctx = ctx;
+                                        //newNode.$ctxValue = expressionValue[t];
 
                                         // Go through each child and assign the context
                                         if (ctx.trim() != "")
@@ -395,8 +398,12 @@
                                                 if (child.nodeType == 8 )
                                                     return;
 
-                                                child.$ctx = ctx;
-                                                child.$ctxValue = expressionValue[t];
+                                                if (!child.$ctxValues)
+                                                    child.$ctxValues = [];
+                                                
+                                                child.$ctxValues.push({ name: ctx, value: expressionValue[t] })
+                                                //child.$ctx = ctx;
+                                                //child.$ctxValue = expressionValue[t];
                                             });
                                         };
 

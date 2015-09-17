@@ -1,6 +1,6 @@
 declare var _users: string;
 declare var _cache: string;
-var __plugins: { [name: string]: Array<{ version: string; plugin: Engine.IPlugin }> } = {};
+var __plugins: { [name: string]: Array<Engine.IPlugin> } = {};
 
 /**
 * Goes through each of the plugins and returns the one with the matching ID
@@ -11,8 +11,8 @@ function getPluginByID(id : string): Engine.IPlugin
     for (var pluginName in __plugins)
     {
         for (var i = 0, l = __plugins[pluginName].length; i < l; i++)
-            if (__plugins[pluginName][i].plugin._id == id)
-                return __plugins[pluginName][i].plugin;
+            if (__plugins[pluginName][i]._id == id)
+                return __plugins[pluginName][i];
     }
 
     return null;
@@ -37,14 +37,53 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
         else
             continue;
 
-        var versionArray = __plugins[plugins[i].name];
+        var pluginArray = __plugins[plugins[i].name];
         
         for (var ii = 0; ii < l; ii++)
             if (plugins[ii].name == plugins[i].name)
+                pluginArray.push(plugins[ii]);
+
+        // Sort the plugins based on their versions
+        pluginArray = pluginArray.sort(function compare(a, b)
+        {
+            if (a === b)
+                return 0;
+
+            var a_components = a.version.split(".");
+            var b_components = b.version.split(".");
+
+            var len = Math.min(a_components.length, b_components.length);
+
+            // loop while the components are equal
+            for (var i = 0; i < len; i++)
             {
-                var versionObj = { version: plugins[ii].version, plugin: plugins[ii] };
-                versionArray.push(versionObj);
-            }       
+                // A bigger than B
+                if (parseInt(a_components[i]) > parseInt(b_components[i]))
+                {
+                    return 1;
+                }
+
+                // B bigger than A
+                if (parseInt(a_components[i]) < parseInt(b_components[i]))
+                {
+                    return -1;
+                }
+            }
+
+            // If one's a prefix of the other, the longer one is greater.
+            if (a_components.length > b_components.length)
+            {
+                return 1;
+            }
+
+            if (a_components.length < b_components.length)
+            {
+                return -1;
+            }
+
+            // Otherwise they are the same.
+            return 0;
+        });
     }
 
 	

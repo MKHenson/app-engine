@@ -9,11 +9,9 @@ var Animate;
         Compiler.compileEval = function (script, elm) {
             var contexts = {};
             var p = elm;
-            while (p) {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
-                p = p.parentNode;
-            }
+            if (p.$ctxValues)
+                for (var i in p.$ctxValues)
+                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
             var ctx = "";
             for (var i in contexts)
                 ctx += "var " + i + " = contexts['" + i + "'];";
@@ -27,10 +25,9 @@ var Animate;
             var contexts = {};
             var p = elm;
             var appNode = elm;
-            if (p.$ctx && p.$ctx != "") {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
-                p = p.parentNode;
+            if (p.$ctxValues) {
+                for (var i in p.$ctxValues)
+                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
             }
             if (!appNode.$compliledEval)
                 appNode.$compliledEval = {};
@@ -183,18 +180,18 @@ var Animate;
             // Remove existing clones
             for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++) {
                 var appNode = sourceNode.$clonedElements[i];
-                appNode.$ctx = "";
-                appNode.$ctxValue = null;
+                //appNode.$ctx = "";
+                //appNode.$ctxValue = null;
+                appNode.$ctxValues = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
                 // Go through each child and assign the context
-                if (appNode.$ctx.trim() != "") {
+                if (appNode.$ctxValues) {
                     Compiler.traverse(appNode, function (child) {
                         // If comment node do nothing
                         if (child.nodeType == 8)
                             return;
-                        child.$ctx = "";
-                        child.$ctxValue = null;
+                        child.$ctxValues = null;
                     });
                 }
                 ;
@@ -233,16 +230,22 @@ var Animate;
                                         var clone = jQuery(commentElement.$originalNode).clone();
                                         var newNode = clone.get(0);
                                         newNode.$dynamic = true;
-                                        newNode.$ctx = ctx;
-                                        newNode.$ctxValue = expressionValue[t];
+                                        if (!newNode.$ctxValues)
+                                            newNode.$ctxValues = [];
+                                        newNode.$ctxValues.push({ name: ctx, value: expressionValue[t] });
+                                        //newNode.$ctx = ctx;
+                                        //newNode.$ctxValue = expressionValue[t];
                                         // Go through each child and assign the context
                                         if (ctx.trim() != "") {
                                             Compiler.traverse(newNode, function (child) {
                                                 // If comment node do nothing
                                                 if (child.nodeType == 8)
                                                     return;
-                                                child.$ctx = ctx;
-                                                child.$ctxValue = expressionValue[t];
+                                                if (!child.$ctxValues)
+                                                    child.$ctxValues = [];
+                                                child.$ctxValues.push({ name: ctx, value: expressionValue[t] });
+                                                //child.$ctx = ctx;
+                                                //child.$ctxValue = expressionValue[t];
                                             });
                                         }
                                         ;
@@ -18798,9 +18801,7 @@ var Animate;
             this.$errorRed = true;
             this.$loading = false;
             this.$projects = [];
-            this.$plugins = [{ name: "test hat a wonderful dayhat a wonderful day", image: "media/blank-user.png", description: "What a wonderful day. sdf sdf sdf sdfhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day  sdf sdf sd" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes  hat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful dayhat a wonderful day" },
-                { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" },
-                { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }, { name: "test2", image: "media/blank-user.png", description: "This is a tes wonderful day" }];
+            this.$plugins = __plugins;
             //for (var projectName in __plugins)
             //{
             //    this.$pluginsNames.push(projectName);
@@ -19158,8 +19159,8 @@ var __plugins = {};
 function getPluginByID(id) {
     for (var pluginName in __plugins) {
         for (var i = 0, l = __plugins[pluginName].length; i < l; i++)
-            if (__plugins[pluginName][i].plugin._id == id)
-                return __plugins[pluginName][i].plugin;
+            if (__plugins[pluginName][i]._id == id)
+                return __plugins[pluginName][i];
     }
     return null;
 }
@@ -19177,12 +19178,38 @@ function onPluginsLoaded(plugins) {
             __plugins[plugins[i].name] = [];
         else
             continue;
-        var versionArray = __plugins[plugins[i].name];
+        var pluginArray = __plugins[plugins[i].name];
         for (var ii = 0; ii < l; ii++)
-            if (plugins[ii].name == plugins[i].name) {
-                var versionObj = { version: plugins[ii].version, plugin: plugins[ii] };
-                versionArray.push(versionObj);
+            if (plugins[ii].name == plugins[i].name)
+                pluginArray.push(plugins[ii]);
+        // Sort the plugins based on their versions
+        pluginArray = pluginArray.sort(function compare(a, b) {
+            if (a === b)
+                return 0;
+            var a_components = a.version.split(".");
+            var b_components = b.version.split(".");
+            var len = Math.min(a_components.length, b_components.length);
+            // loop while the components are equal
+            for (var i = 0; i < len; i++) {
+                // A bigger than B
+                if (parseInt(a_components[i]) > parseInt(b_components[i])) {
+                    return 1;
+                }
+                // B bigger than A
+                if (parseInt(a_components[i]) < parseInt(b_components[i])) {
+                    return -1;
+                }
             }
+            // If one's a prefix of the other, the longer one is greater.
+            if (a_components.length > b_components.length) {
+                return 1;
+            }
+            if (a_components.length < b_components.length) {
+                return -1;
+            }
+            // Otherwise they are the same.
+            return 0;
+        });
     }
     var app = new Animate.Application("#application");
     Animate.Splash.init(app);
