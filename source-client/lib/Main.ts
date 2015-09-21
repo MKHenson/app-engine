@@ -20,15 +20,6 @@ function getPluginByID(id : string): Engine.IPlugin
 
 function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
 {
-	//sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
-	//sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
-
-	//if ( !event.tag )
-	//{
-	//	Animate.MessageBox.show( "Could not connect to server", [], null, null );
-	//	return;
-	//}
-
     //__plugins = event.tag.plugins;
     for (var i = 0, l = plugins.length; i < l; i++)
     {
@@ -84,6 +75,8 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
             // Otherwise they are the same.
             return 0;
         });
+
+        pluginArray = pluginArray.reverse();
     }
 
 	

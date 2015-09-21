@@ -10,13 +10,13 @@
 			<div class="double-column">
 				<div class="header">Choose Plugins</div>
 				<div class="plugins">
-					<div en-repeat="ctrl.$plugins as pluginName">
-						<div class="plugin unselectable" en-repeat="ctrl.$plugins[pluginName] as plugin" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'background-view-light' : (ctrl.$activePlugin == plugin) }" en-click="ctrl.selectPlugin(plugin)">
+					<div en-repeat="ctrl.$plugins as pluginArray, pluginName">
+						<div class="plugin unselectable" en-repeat="pluginArray as plugin, index" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'background-view-light' : (ctrl.$activePlugin == plugin) }" en-click="ctrl.selectPlugin(plugin)">
 							<div class="checkbox">
 								<div class="tick-box">
 									<div class="tick" en-show="plugin.selected "></div>
 								</div>
-								<img en-src="plugin.image" />{{plugin.name}}
+								<img en-src="plugin.image" />The Value is {{index; debugger;}} - {{(index == "0" ? pluginName: plugin.version)}}
 							</div>
 						</div>
 					</div>

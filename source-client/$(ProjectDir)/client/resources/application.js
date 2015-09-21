@@ -6,12 +6,21 @@ var Animate;
     var Compiler = (function () {
         function Compiler() {
         }
-        Compiler.compileEval = function (script, elm) {
+        Compiler.cloneNode = function (node) {
+            var clone = node.cloneNode(false);
+            for (var i = 0, l = node.childNodes.length; i < l; i++) {
+                var childClone = node.childNodes[i].cloneNode();
+                clone.appendChild();
+            }
+        };
+        Compiler.compileEval = function (script, elm, $ctxValues) {
             var contexts = {};
             var p = elm;
-            if (p.$ctxValues)
-                for (var i in p.$ctxValues)
-                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
+            var ctxValues = $ctxValues || p.$ctxValues;
+            if (ctxValues) {
+                for (var i in ctxValues)
+                    contexts[ctxValues[i].name] = ctxValues[i].value;
+            }
             var ctx = "";
             for (var i in contexts)
                 ctx += "var " + i + " = contexts['" + i + "'];";
@@ -21,18 +30,19 @@ var Animate;
         * Evaluates and returns an expression
         * @return {any}
         */
-        Compiler.parse = function (script, ctrl, event, elm) {
+        Compiler.parse = function (script, ctrl, event, elm, $ctxValues) {
             var contexts = {};
             var p = elm;
             var appNode = elm;
-            if (p.$ctxValues) {
-                for (var i in p.$ctxValues)
-                    contexts[p.$ctxValues[i].name] = p.$ctxValues[i].value;
+            var ctxValues = $ctxValues || p.$ctxValues;
+            if (ctxValues) {
+                for (var i in ctxValues)
+                    contexts[ctxValues[i].name] = ctxValues[i].value;
             }
             if (!appNode.$compliledEval)
                 appNode.$compliledEval = {};
             if (!appNode.$compliledEval[script])
-                appNode.$compliledEval[script] = Compiler.compileEval(script, elm);
+                appNode.$compliledEval[script] = Compiler.compileEval(script, elm, $ctxValues);
             return appNode.$compliledEval[script](ctrl, event, elm, contexts);
         };
         /**
@@ -166,9 +176,15 @@ var Animate;
             var cont = true;
             function search(e) {
                 cont = callback.call(e, e);
-                if (cont !== false)
-                    for (var c = e.childNodes, i = 0, l = c.length; i < l; i++)
-                        search(c[i]);
+                if (cont !== false) {
+                    var prevL = e.childNodes.length;
+                    for (var i = 0; i < e.childNodes.length; i++) {
+                        prevL = e.childNodes.length;
+                        search(e.childNodes[i]);
+                        if (e.childNodes.length < prevL)
+                            i = i - (e.childNodes.length - prevL);
+                    }
+                }
             }
             search(elm);
         };
@@ -180,17 +196,12 @@ var Animate;
             // Remove existing clones
             for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++) {
                 var appNode = sourceNode.$clonedElements[i];
-                //appNode.$ctx = "";
-                //appNode.$ctxValue = null;
                 appNode.$ctxValues = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
                 // Go through each child and assign the context
                 if (appNode.$ctxValues) {
                     Compiler.traverse(appNode, function (child) {
-                        // If comment node do nothing
-                        if (child.nodeType == 8)
-                            return;
                         child.$ctxValues = null;
                     });
                 }
@@ -209,47 +220,57 @@ var Animate;
         Compiler.expand = function (root, ctrl, includeSubTemplates) {
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var toRemove = [];
-            var comments = root.$dynamicNodes;
-            // Go through each comment and expand it
-            for (var i = 0, l = comments.length; i < l; i++) {
-                var comment = jQuery(comments[i]);
-                var commentElement = comments[i];
-                if (commentElement.$expression) {
-                    var $expression = commentElement.$expression;
-                    if (commentElement.$expressionType == "en-repeat") {
+            Compiler.traverse(root, function (child) {
+                if (child.nodeType != 8)
+                    return;
+                var comment; // = jQuery(child);
+                var commentElement; // = <AppNode>child;
+                var commentReferenceNumbers = child.nodeValue.match(/\d+/gi);
+                // Get the comment reference number - and look it up in the root node registered comments
+                if (child.nodeType == 8 && commentReferenceNumbers) {
+                    var id = commentReferenceNumbers[0]; //.match(/([0-9])*/gi);
+                    commentElement = root.$commentReferences[id[0]];
+                    comment = jQuery(commentElement);
+                }
+                // If the comment matches a root node flagged comment
+                if (commentElement && commentElement.$originalNode.$expression) {
+                    var $expression = commentElement.$originalNode.$expression;
+                    var $expressionType = commentElement.$originalNode.$expressionType;
+                    if ($expressionType == "en-repeat") {
                         var e = $expression.split("as");
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
                             var loopExpression = e[0];
-                            var ctx = e[1];
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement);
+                            var ctxParts = e[1].split(",");
+                            var ctxValueName = ctxParts[0];
+                            var ctxIndexName = ctxParts[1];
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, child.$ctxValues);
                             if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
                                 // Remove any existing nodes
                                 Compiler.removeClones(commentElement);
                                 if (expressionValue) {
                                     for (var t in expressionValue) {
-                                        var clone = jQuery(commentElement.$originalNode).clone();
+                                        var clone = jQuery(commentElement.$originalNode).clone(true, true);
                                         var newNode = clone.get(0);
-                                        newNode.$dynamic = true;
-                                        if (!newNode.$ctxValues)
-                                            newNode.$ctxValues = [];
-                                        newNode.$ctxValues.push({ name: ctx, value: expressionValue[t] });
-                                        //newNode.$ctx = ctx;
-                                        //newNode.$ctxValue = expressionValue[t];
+                                        newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
+                                        if (ctxIndexName && ctxIndexName.trim() != "")
+                                            newNode.$ctxValues.push({ name: ctxIndexName, value: t });
+                                        // If the parent element has context values - then add those to the clone
+                                        if (child.parentElement && child.parentElement.$ctxValues)
+                                            newNode.$ctxValues = newNode.$ctxValues.concat(child.parentElement.$ctxValues);
                                         // Go through each child and assign the context
-                                        if (ctx.trim() != "") {
-                                            Compiler.traverse(newNode, function (child) {
-                                                // If comment node do nothing
-                                                if (child.nodeType == 8)
+                                        if (newNode.$ctxValues.length > 0) {
+                                            Compiler.traverse(newNode, function (c) {
+                                                if (c == newNode)
                                                     return;
-                                                if (!child.$ctxValues)
-                                                    child.$ctxValues = [];
-                                                child.$ctxValues.push({ name: ctx, value: expressionValue[t] });
-                                                //child.$ctx = ctx;
-                                                //child.$ctxValue = expressionValue[t];
+                                                c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
+                                                //c.$ctxValues.push({ name: ctxValueName, value: expressionValue[t] });
+                                                //if (ctxIndexName && ctxIndexName.trim() != "")
+                                                //    c.$ctxValues.push({ name: ctxIndexName, value: t });
                                             });
                                         }
                                         ;
-                                        clone.insertAfter(comment);
+                                        // Add the new elements after this child comment
+                                        clone.insertAfter(jQuery(child));
                                         commentElement.$clonedElements.push(newNode);
                                     }
                                     ;
@@ -258,25 +279,24 @@ var Animate;
                             }
                         }
                     }
-                    else if (commentElement.$expressionType == "en-if") {
-                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement);
+                    else if ($expressionType == "en-if") {
+                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, child.$ctxValues);
                         if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
                             // Remove any existing nodes
                             Compiler.removeClones(commentElement);
                             if (expressionValue) {
-                                var clone = jQuery(commentElement.$originalNode).clone();
+                                var clone = jQuery(commentElement.$originalNode).clone(true, true);
                                 var newNode = clone.get(0);
                                 if (commentElement.$originalNode == root)
                                     root = clone.get(0);
-                                newNode.$dynamic = true;
-                                clone.insertAfter(comment);
+                                clone.insertAfter(jQuery(child));
                                 commentElement.$clonedElements.push(newNode);
                             }
                             commentElement.$clonedData = Compiler.clone(expressionValue);
                         }
                     }
                 }
-            }
+            });
             return root;
         };
         /**
@@ -309,7 +329,7 @@ var Animate;
             var textNode;
             var expanded;
             var rootNode = elm;
-            if (rootNode.$dynamicNodes) {
+            if (rootNode.$commentReferences) {
                 expanded = Compiler.expand(rootNode, controller, includeSubTemplates);
                 if (expanded != elm) {
                     elm = expanded;
@@ -323,22 +343,25 @@ var Animate;
                 // Do nothing for comment nodes
                 if (elem.nodeType == 8)
                     return;
+                var jElemWrapper = jQuery(elem);
                 // If a text node
                 if (elem.nodeType == 3) {
                     textNode = elem;
                     var origText = "";
-                    if (textNode.$expression)
-                        origText = textNode.$expression;
+                    var dataExpression = jElemWrapper.data("$expression");
+                    if (dataExpression)
+                        origText = dataExpression;
                     else
                         origText = textNode.nodeValue;
                     var parsedText = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
-                        textNode.$expression = origText;
+                        jElemWrapper.data("$expression", origText);
+                        //textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
                         return Compiler.parse(val, controller, null, textNode);
                     });
                     if (parsedText != origText) {
                         textNode.nodeValue = parsedText;
-                        if (textNode.$expression && textNode.nodeValue.trim() == "") {
+                        if (jElemWrapper.data("$expression") && textNode.nodeValue.trim() == "") {
                             if (!textNode.parentNode.$ieTextNodes)
                                 textNode.parentNode.$ieTextNodes = [];
                             if (textNode.parentNode.$ieTextNodes.indexOf(textNode) == -1)
@@ -514,7 +537,7 @@ var Animate;
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var rootNode = elm.get(0);
             rootNode.$ctrl = ctrl;
-            rootNode.$dynamicNodes = [];
+            rootNode.$commentReferences = {};
             var potentials = [];
             // First go through each of the nodes and find any elements that will potentially grow or shrink
             // Traverse each element
@@ -552,18 +575,21 @@ var Animate;
             });
             // Replace the potentials with comments that keep a reference to the original node
             for (var i = 0, l = potentials.length; i < l; i++) {
-                var comment = jQuery("<!-- " + potentials[i].$expressionType + " -->");
+                Compiler.$commentRefIDCounter++;
+                var comment = jQuery("<!-- " + potentials[i].$expressionType + "[" + Compiler.$commentRefIDCounter + "] -->");
                 var commentElement = comment.get(0);
                 commentElement.$clonedElements = [];
                 commentElement.$originalNode = potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
+                commentElement.$dynamic = true;
                 jQuery(potentials[i]).replaceWith(comment);
-                rootNode.$dynamicNodes.push(commentElement);
+                rootNode.$commentReferences[Compiler.$commentRefIDCounter.toString()] = commentElement;
             }
             return jQuery(Compiler.digest(elm, ctrl, includeSubTemplates));
         };
         Compiler.attrs = [];
+        Compiler.$commentRefIDCounter = 0;
         Compiler.validators = {
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric", negate: false },
             "non-empty": { regex: /\S/, name: "non-empty", negate: false },
@@ -19165,13 +19191,6 @@ function getPluginByID(id) {
     return null;
 }
 function onPluginsLoaded(plugins) {
-    //sender.removeEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
-    //sender.removeEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
-    //if ( !event.tag )
-    //{
-    //	Animate.MessageBox.show( "Could not connect to server", [], null, null );
-    //	return;
-    //}
     //__plugins = event.tag.plugins;
     for (var i = 0, l = plugins.length; i < l; i++) {
         if (!__plugins[plugins[i].name])
@@ -19210,6 +19229,7 @@ function onPluginsLoaded(plugins) {
             // Otherwise they are the same.
             return 0;
         });
+        pluginArray = pluginArray.reverse();
     }
     var app = new Animate.Application("#application");
     Animate.Splash.init(app);
