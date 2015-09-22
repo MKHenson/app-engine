@@ -29,7 +29,7 @@ var BuildModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("totalVotes", 0));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("totalVoters", 0));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified")).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }
     return BuildModel;
 })(modepress_api_1.Model);

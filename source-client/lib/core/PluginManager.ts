@@ -439,6 +439,7 @@ module Animate
 		{
 			this.dispatchEvent( new Event( EditorEvents.EDITOR_READY, null ) );
 
+            // TODO: Determine what to do with user plans
             if (User.get.userEntry.meta.plan == UserPlan.Free)
 			{
 				if ( this.behaviourTemplates.indexOf( this.scriptTemplate ) != -1 )
@@ -497,7 +498,6 @@ module Animate
 		get assetTemplates(): Array<AssetTemplate> { return this._assetTemplates; }
 		get loadedPlugins(): Array<IPlugin> { return this._loadedPlugins; }
 		
-
 		/**
 		* Gets the singleton instance.
 		*/

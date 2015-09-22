@@ -1492,6 +1492,7 @@ var Animate;
         */
         PluginManager.prototype.callReady = function () {
             this.dispatchEvent(new Animate.Event(Animate.EditorEvents.EDITOR_READY, null));
+            // TODO: Determine what to do with user plans
             if (Animate.User.get.userEntry.meta.plan == Animate.UserPlan.Free) {
                 if (this.behaviourTemplates.indexOf(this.scriptTemplate) != -1) {
                     this.behaviourTemplates.splice(this.behaviourTemplates.indexOf(this.scriptTemplate), 1);

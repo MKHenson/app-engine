@@ -22,7 +22,9 @@ var PluginModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("deployables", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("image", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("author", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "0.0.1", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }
     return PluginModel;
 })(modepress_api_1.Model);
