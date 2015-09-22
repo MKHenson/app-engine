@@ -82,6 +82,7 @@
     <TypeScriptCompile Include="lib\core\PortalTemplate.ts" />
     <TypeScriptCompile Include="lib\core\Project.ts" />
     <TypeScriptCompile Include="lib\core\TypeConverter.ts" />
+    <TypeScriptCompile Include="lib\core\UserPlan.ts" />
     <TypeScriptCompile Include="lib\core\Utils.ts" />
     <TypeScriptCompile Include="lib\gui\Application.ts" />
     <TypeScriptCompile Include="lib\core\EventDispatcher.ts" />

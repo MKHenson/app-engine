@@ -734,18 +734,21 @@ module Animate
 				this._plugins = [];
 			else
 			{
-				this._plugins = [];
-				var i = __plugins.length;
-				while ( i-- )
-				{
-					var ii: number = pluginIds.length;
-					while ( ii-- )
-						if ( pluginIds[ii] == __plugins[i]._id )
-						{
-							this._plugins.push( __plugins[i] );
-							break;
-						}
-				}
+                this._plugins = [];
+                for (var i = 0, l = pluginIds.length; i < l; i++)
+                    this._plugins.push(getPluginByID[pluginIds[i]]);
+
+				//var i = __plugins.length;
+				//while ( i-- )
+				//{
+				//	var ii: number = pluginIds.length;
+				//	while ( ii-- )
+				//		if ( pluginIds[ii] == __plugins[i]._id )
+				//		{
+				//			this._plugins.push( __plugins[i] );
+				//			break;
+				//		}
+				//}
 			}
 
 			this.mCurBuild = data.build;

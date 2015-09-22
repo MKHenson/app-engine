@@ -9,4 +9,6 @@
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 
+/// <reference path="../source-client/lib/core/UserPlan.ts" />
+
 /// <reference path="lib/Plugin.ts" />

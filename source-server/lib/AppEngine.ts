@@ -14,7 +14,7 @@ import {BuildController} from "./new-controllers/BuildController";
 export default class AppEngine extends Controller
 {
     private _controllers: Array<Controller>;
-
+    
 	/**
 	* Creates a new instance of the email controller
 	* @param {IServer} server The server configuration options

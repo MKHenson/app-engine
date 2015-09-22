@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var mongodb = require("mongodb");
 var express = require("express");
 var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
@@ -27,9 +28,61 @@ var PluginController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/:id?", [this.getPlugins.bind(this)]);
+        router.post("/create", [modepress_api_1.isAdmin, this.create.bind(this)]);
+        router.put("/update/:id", [modepress_api_1.isAdmin, this.update.bind(this)]);
         // Register the path
         e.use("/app-engine/plugins", router);
     }
+    /**
+    * Updates a plugin with new details
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    PluginController.prototype.update = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-plugins");
+        var that = this;
+        var pluginToken = req.body;
+        model.update({ _id: new mongodb.ObjectID(req.params.id) }, pluginToken).then(function (data) {
+            res.end(JSON.stringify({
+                error: false,
+                message: "Plugin Updated"
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
+    /**
+    * Gets plugins based on the format of the request
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    PluginController.prototype.create = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-plugins");
+        var that = this;
+        var pluginToken = req.body;
+        // Create the new plugin
+        model.createInstance(pluginToken).then(function (instance) {
+            res.end(JSON.stringify({
+                error: false,
+                message: "Created new plugin '" + pluginToken.name + "'",
+                data: that.getSanitizedData(instance.schema.generateCleanData(false, instance._id), false)
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
     /**
     * Gets plugins based on the format of the request
     * @param {express.Request} req
@@ -57,7 +110,7 @@ var PluginController = (function (_super) {
                 error: false,
                 count: count,
                 message: "Found " + count + " plugins",
-                data: that.getSanitizedData(instances, false)
+                data: that.getSanitizedData(instances, true)
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });

@@ -7,7 +7,7 @@
     {
         meta?: {
             bio: string;
-            plan: string;
+            plan: number;
             maxNumProjects: number;
             createdOn: number;
             imgURL: string;
@@ -40,8 +40,7 @@ declare module Engine
     {
         name?: string;
         description?: string;
-        plan?: string;
-        path?: string;
+        plan?: number;
         deployables?: Array<string>;
         image?: string;
         author?: string;

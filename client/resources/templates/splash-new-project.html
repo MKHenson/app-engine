@@ -10,12 +10,14 @@
 			<div class="double-column">
 				<div class="header">Choose Plugins</div>
 				<div class="plugins">
-					<div class="plugin unselectable" en-repeat="ctrl.$plugins as plugin" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'background-view-light' : (ctrl.$activePlugin == plugin) }" en-click="ctrl.selectPlugin(plugin)">
-						<div class="checkbox">
-							<div class="tick-box">
-								<div class="tick" en-show="plugin.selected "></div>
+					<div en-repeat="ctrl.$plugins as pluginArray, pluginName">
+						<div class="plugin unselectable" en-repeat="pluginArray as plugin, index" en-mouse-over="ctrl.$activePlugin = plugin;" en-class="{ 'background-view-light' : (ctrl.$activePlugin == plugin) }" en-click="ctrl.selectPlugin(plugin)">
+							<div class="checkbox">
+								<div class="tick-box">
+									<div class="tick" en-show="plugin.selected "></div>
+								</div>
+								<img en-src="plugin.image" />{{(index == "0" ? pluginName: plugin.version)}}
 							</div>
-							<img en-src="plugin.image" />{{plugin.name}}
 						</div>
 					</div>
 				</div>

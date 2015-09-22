@@ -4,47 +4,46 @@
 
     export interface AppNode extends Node
     {
-        // Bug in IE  means that blank text nodes are removed - we need them to stay
-        // So parents of text nodes keep a reference of the node to stop it from being removed.
+        /* Bug in IE  means that blank text nodes are removed - we need them to stay
+        * So parents of text nodes keep a reference of the node to stop it from being removed.*/
         $ieTextNodes: Array<AppNode>;
 
-        // An optional expression associated with the node
+        /* An optional expression associated with the node */
         $expression: string;
 
-        // The type of expression stored
+        /* The type of expression stored */
         $expressionType: string;
+        
+        /* The compiled eval function of the engine attribute */
+        $compliledEval: { [name: number]: CompiledEval };
+        
+        /* A context variable value. If nodes are dynamically created, any context variables are assign to the node (eg en-repeate="plugins as plugin") */
+        $ctxValues: Array<{ name: string; value: any;}>
 
-        // When nodes are expanded, the object that describes the expansion is cloned. Any updates are then examined against this clone.
-        // If the object is different to the clone, then the dyanmic nodes are re-created
+        /* A reference of all events attached with this node */
+        $events: Array< { name: string; tag: string; func: any; }>;
+
+        /* A tag to help identify nodes already compiled */
+        $dynamic: boolean;
+    }
+    export interface DescriptorNode extends AppNode
+    {
+        /* When nodes are expanded, the object that describes the expansion is cloned. Any updates are then examined against this clone.
+          If the object is different to the clone, then the dyanmic nodes are re-created */
         $clonedData: any;
         $clonedElements: Array<Element>;
 
-        // True when the node is added by expansion attributes (eg: en-if / en-repeat)
-        $dynamic: boolean;
-
-        // Referene of origin node if cloned
+        /* Referene of origin node if cloned */
         $originalNode: AppNode;
-
-        // The compiled eval function of the engine attribute
-        $compliledEval: { [name: number]: CompiledEval };
-
-        // A context variable name. If nodes are dynamically created, any context variables are assign to the node. (eg en-repeate="plugins as plugin")
-        $ctx: string; // "plugin"
-
-        // A context variable value. If nodes are dynamically created, any context variables are assign to the node (eg en-repeate="plugins as plugin")
-        $ctxValue: any; // The actual plugin objecy
-
-        // A reference of all events attached with this node
-        $events: Array< { name: string; tag: string; func: any; }>;
     }
 
     export interface RootNode extends AppNode
     {
         // The controller associated with the element. Assigned on a build
         $ctrl: any;
-
-        // Stores an array of all nodes that are dynamic and can grow or shrink based on conditionality
-        $dynamicNodes: Array<Node>
+        
+        // Each root node holds a list of references that are used in expansions with attributes like en-repeat
+        $commentReferences: { [id: string]: DescriptorNode };
     }
 
     export interface EngineInput extends HTMLInputElement
@@ -62,13 +61,15 @@
         $autoClear: boolean;
     }
 
+    
+
     /**
     * Defines a set of functions for compiling template commands and a controller object. 
     */
     export class Compiler
     {
         private static attrs: Array<Attr> = [];
-
+        private static $commentRefIDCounter: number = 0;
 
         static validators = {
             "alpha-numeric": { regex: /^[a-z0-9]+$/i, name: "alpha-numeric", negate: false },
@@ -79,17 +80,55 @@
             "no-html": { regex: /(<([^>]+)>)/ig, name: "no-html", negate: true }
         };
         
+        /**
+        * Clones each of the nodes and their custom attributes
+        * @param {Node} node The node to clone
+        * @returns {Node}
+        */
+        private static cloneNode(node: AppNode): Node
+        {
+            var clone: AppNode = <AppNode>node.cloneNode(false);
 
-        private static compileEval(script: string, elm: Element): CompiledEval
+            // All custom properties are copied here
+            clone.$compliledEval = node.$compliledEval;
+            clone.$ctxValues = node.$ctxValues;
+            clone.$dynamic = node.$dynamic;
+            clone.$events = node.$events;
+            clone.$expression = node.$expression;
+            clone.$expressionType = node.$expressionType;
+            clone.$ieTextNodes = node.$ieTextNodes;
+
+            // If a descriptor node
+            if (node.hasOwnProperty("$originalNode"))
+            {
+                (<DescriptorNode>clone).$clonedData = (<DescriptorNode>node).$clonedData;
+                (<DescriptorNode>clone).$clonedElements = (<DescriptorNode>node).$clonedElements;
+                (<DescriptorNode>clone).$originalNode = (<DescriptorNode>node).$originalNode;
+            }
+
+            // Clone and add all children
+            for (var i = 0, l = node.childNodes.length; i < l; i++)
+                clone.appendChild(Compiler.cloneNode(<AppNode>node.childNodes[i]));
+
+            return clone;
+        }
+
+        /**
+        * Given a string, this function will compile it into machine code that can be stored and run
+        * @param {string} script The script to compile
+        * @param {AppNode} elm The element whose attributes require the compilation
+        * @param {Array<any>} $ctxValues [Optional] Context values passed down from any dynamically generated HTML. The array consists
+        * of key object pairs that are translated into variables for use in the script.
+        * @returns {CompiledEval}
+        */
+        private static compileEval(script: string, elm: AppNode, $ctxValues?: Array<any>): CompiledEval
         {
             var contexts = {};
-            var p: AppNode = <AppNode><Node>elm;
-            while (p)
+            var ctxValues = $ctxValues || elm.$ctxValues;
+            if (ctxValues)
             {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
-
-                p = <AppNode>p.parentNode;
+                for (var i in ctxValues)
+                    contexts[ctxValues[i].name] = ctxValues[i].value;
             }
 
             var ctx = "";
@@ -101,43 +140,47 @@
         }
 
         /**
-        * Evaluates and returns an expression 
+        * Compilers and runs a script which then should return a value
+        * @param {string} script The script to compile
+        * @param {any} ctrl The controller associated with the compile evaluation
+        * @param {AppNode} elm The element whose attributes require the compilation
+        * @param {Array<any>} $ctxValues [Optional] Context values passed down from any dynamically generated HTML. The array consists
+        * of key object pairs that are translated into variables for use in the script.
+        * @returns {CompiledEval}
         * @return {any}
         */
-        private static parse(script: string, ctrl: any, event: any, elm: Element ): any
+        private static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues? : Array<any> ): any
         {
             var contexts = {};
-            var p: AppNode = <AppNode><Node>elm;
-            var appNode = <AppNode><Node>elm;
-            if (p.$ctx && p.$ctx != "")
+            var ctxValues = $ctxValues || elm.$ctxValues;
+            if (ctxValues)
             {
-                if (p.$ctx && p.$ctx != "" && p.$ctxValue)
-                    contexts[p.$ctx] = p.$ctxValue;
-
-                p = <AppNode>p.parentNode;
+                for (var i in ctxValues)
+                    contexts[ctxValues[i].name] = ctxValues[i].value;
             }
 
-            if (!appNode.$compliledEval)
-                appNode.$compliledEval = {};
+            if (!elm.$compliledEval)
+                elm.$compliledEval = {};
             
-            if (!appNode.$compliledEval[script])
-                appNode.$compliledEval[script] = Compiler.compileEval(script, elm);
+            if (!elm.$compliledEval[script])
+                elm.$compliledEval[script] = Compiler.compileEval(script, elm, $ctxValues);
   
-            return appNode.$compliledEval[script](ctrl, event, elm, contexts);
+            return elm.$compliledEval[script](ctrl, event, elm, contexts);
         }
 
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
-        static digestCSS(elm: Element, controller: any, value: string)
+        static digestCSS(elm: AppNode, controller: any, value: string)
         {
             var object = Compiler.parse(value, controller, null, elm);
+            var htmlElem = <HTMLElement><Node>elm;
             for (var i in object)
             {
                 if (object[i])
-                    elm.classList.add(i);
-                else if (elm.classList.contains(i))
-                    elm.classList.remove(i);
+                    htmlElem.classList.add(i);
+                else if (htmlElem.classList.contains(i))
+                    htmlElem.classList.remove(i);
             }
         }
 
@@ -261,11 +304,11 @@
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
-        static digestStyle(elm: HTMLElement, controller: any, value: string)
+        static digestStyle(elm: AppNode, controller: any, value: string)
         {
             var object = Compiler.parse(value, controller, null, elm);
             for (var i in object)
-                elm.style[i] = object[i];
+                (<HTMLElement><Node>elm).style[i] = object[i];
         }
 
         /**
@@ -295,42 +338,44 @@
             function search(e: Node)
             {
                 cont = callback.call(e, e);
+                
                 if (cont !== false)
-                    for (var c = e.childNodes, i = 0, l = c.length; i < l; i++)
-                        search(c[i]);
+                {
+                    var prevL = e.childNodes.length;
+                    for (var i = 0; i < e.childNodes.length; i++)
+                    {
+                        prevL = e.childNodes.length; 
+                        search(e.childNodes[i]); 
+                       
+                        if (e.childNodes.length < prevL)
+                            i = i - (e.childNodes.length - prevL);
+                    }
+                }
             }
-
-            
 
             search(elm);
         }
 
         /**
         * Called to remove and clean any dynamic nodes that were added to the node
-        * @param {AppNode} sourceNode The parent node from which we are removing clones from
+        * @param {DescriptorNode} sourceNode The parent node from which we are removing clones from
         */
-        static removeClones(sourceNode: AppNode)
+        static removeClones(sourceNode: DescriptorNode)
         {
             // Remove existing clones
             for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++)
             {
                 var appNode: AppNode = <AppNode><Node>sourceNode.$clonedElements[i];
-                appNode.$ctx = "";
-                appNode.$ctxValue = null;
+                appNode.$ctxValues = null;
                 appNode.$compliledEval = null;
                 appNode.$ieTextNodes = null;
 
                 // Go through each child and assign the context
-                if (appNode.$ctx.trim() != "")
+                if (appNode.$ctxValues)
                 {
                     Compiler.traverse(appNode, function (child: AppNode)
                     {
-                        // If comment node do nothing
-                        if (child.nodeType == 8)
-                            return;
-
-                        child.$ctx = "";
-                        child.$ctxValue = null;
+                        child.$ctxValues = null;
                     });
                 };
 
@@ -350,28 +395,43 @@
         static expand(root: RootNode, ctrl: any, includeSubTemplates: boolean = false): Element
         {
             var toRemove: Array<Element> = [];
-            var comments: Array<Node> = root.$dynamicNodes;
-        
-            // Go through each comment and expand it
-            for (var i = 0, l = comments.length; i < l; i++)
-            {
-                var comment = jQuery(comments[i]);
-                var commentElement: AppNode = <AppNode><Node>comments[i];
-                
-                if (commentElement.$expression)
-                {
-                    var $expression = commentElement.$expression;
 
-                    if (commentElement.$expressionType == "en-repeat")
+            Compiler.traverse(root, function (child: Node)
+            {
+                if (child.nodeType != 8)
+                    return;
+
+                var comment: JQuery;
+                var commentElement: DescriptorNode; 
+                var commentReferenceNumbers = child.nodeValue.match(/\d+/gi);
+
+                // Get the comment reference number - and look it up in the root node registered comments
+                if (child.nodeType == 8 && commentReferenceNumbers)
+                {
+                    var id = commentReferenceNumbers[0];
+                    commentElement = root.$commentReferences[id[0]];
+                    comment = jQuery(commentElement);
+                }
+                
+                // If the comment matches a root node flagged comment
+                if (commentElement && commentElement.$originalNode.$expression)
+                {
+                    var $expression = commentElement.$originalNode.$expression;
+                    var $expressionType = commentElement.$originalNode.$expressionType;
+
+                    if ($expressionType == "en-repeat")
                     {
                         var e = $expression.split("as");
                         if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "")
                         {
                             var loopExpression = e[0];
-                            var ctx = e[1];
 
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, <Element><Node>commentElement);
-                            if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData ) == false)
+                            var ctxParts = e[1].split(",");
+                            var ctxValueName = ctxParts[0];
+                            var ctxIndexName = ctxParts[1];
+
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, (<AppNode>child).$ctxValues );
+                            if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false)
                             {
                                 // Remove any existing nodes
                                 Compiler.removeClones(commentElement);
@@ -380,30 +440,32 @@
                                 {
                                     for (var t in expressionValue)
                                     {
-                                        var clone = jQuery(commentElement.$originalNode).clone();
+                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); // jQuery(commentElement.$originalNode).clone(true, true);
                                         var newNode: AppNode = <AppNode><Node>clone.get(0);
-                                        newNode.$dynamic = true;
-                                        newNode.$ctx = ctx;
-                                        newNode.$ctxValue = expressionValue[t];
+                                        newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
 
+                                        if (ctxIndexName && ctxIndexName.trim() != "")
+                                            newNode.$ctxValues.push({ name: ctxIndexName, value: t });
+
+                                        // If the parent element has context values - then add those to the clone
+                                        if (child.parentElement && (<AppNode><Node>child.parentElement).$ctxValues)
+                                            newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentElement).$ctxValues);
+                                        
                                         // Go through each child and assign the context
-                                        if (ctx.trim() != "")
+                                        if (newNode.$ctxValues.length > 0)
                                         {
-                                            Compiler.traverse(newNode, function (child: AppNode)
+                                            Compiler.traverse(newNode, function (c: AppNode)
                                             {
-                                                // If comment node do nothing
-                                                if (child.nodeType == 8 )
+                                                if (c == newNode)
                                                     return;
-
-                                                child.$ctx = ctx;
-                                                child.$ctxValue = expressionValue[t];
+                                                
+                                                c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
                                             });
                                         };
 
-                                        clone.insertAfter(comment);
-
+                                        // Add the new elements after this child comment
+                                        clone.insertAfter(jQuery(child));
                                         commentElement.$clonedElements.push(<Element><Node>newNode);
-
                                     };
                                 }
 
@@ -411,23 +473,22 @@
                             }
                         }
                     }
-                    else if (commentElement.$expressionType == "en-if")
+                    else if ($expressionType == "en-if")
                     {
-                        var expressionValue = Compiler.parse($expression, ctrl, null, <Element><Node>commentElement);
+                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, (<AppNode>child).$ctxValues);
                         if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false)
                         {
                             // Remove any existing nodes
                             Compiler.removeClones(commentElement);
-                            
+
                             if (expressionValue)
                             {
-                                var clone = jQuery(commentElement.$originalNode).clone();
+                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); //jQuery(commentElement.$originalNode).clone(true, true);
                                 var newNode: AppNode = <AppNode><Node>clone.get(0);
                                 if (<Element><Node>commentElement.$originalNode == <Element><Node>root)
                                     root = <RootNode><Node>clone.get(0);
-
-                                newNode.$dynamic = true;
-                                clone.insertAfter(comment);
+                                
+                                clone.insertAfter(jQuery(child));
                                 commentElement.$clonedElements.push(<Element><Node>newNode);
                             }
 
@@ -435,7 +496,7 @@
                         }
                     }
                 }
-            }
+            });
 
             return <Element><Node>root;
         }
@@ -475,7 +536,7 @@
             var expanded;
 
             var rootNode: RootNode = <RootNode><Node>elm;
-            if (rootNode.$dynamicNodes)
+            if (rootNode.$commentReferences)
             {
                 expanded = Compiler.expand(rootNode, controller, includeSubTemplates);
                 if (expanded != elm)
@@ -494,14 +555,18 @@
                 // Do nothing for comment nodes
                 if (elem.nodeType == 8)
                     return;
+
+                var jElemWrapper = jQuery(elem);
                 
                 // If a text node
                 if (elem.nodeType == 3)
                 {
                     textNode = <AppNode><Node>elem;
                     var origText = "";
-                    if (textNode.$expression)
-                        origText = textNode.$expression;
+                    var dataExpression = textNode.$expression;
+
+                    if (dataExpression)
+                        origText = dataExpression;
                     else
                         origText = textNode.nodeValue;
 
@@ -509,7 +574,7 @@
                     {
                         textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
-                        return Compiler.parse(val, controller, null, <Element><Node>textNode);
+                        return Compiler.parse(val, controller, null, textNode);
                     });
 
                     if (parsedText != origText)
@@ -746,7 +811,8 @@
         {
             var rootNode = <RootNode><Node>elm.get(0);
             rootNode.$ctrl = ctrl;
-            rootNode.$dynamicNodes = [];
+            
+            rootNode.$commentReferences = {};
 
             var potentials: Array<Element> = [];
                 
@@ -763,7 +829,7 @@
 
                 if ((<AppNode><Node>elem).$dynamic)
                     return;
-
+                
                 var attrs: Array<Attr> = Compiler.attrs;
                 attrs.splice(0, attrs.length);
                 for (var i = 0; i < (<Element>elem).attributes.length; i++)
@@ -796,16 +862,18 @@
             // Replace the potentials with comments that keep a reference to the original node
             for (var i = 0, l = potentials.length; i < l; i++)
             {
-                var comment = jQuery(`<!-- ${(<AppNode><Node>potentials[i]).$expressionType} -->`);
-                var commentElement: AppNode = <AppNode><Node>comment.get(0);
+                Compiler.$commentRefIDCounter++;
+                var comment = jQuery(`<!-- ${(<AppNode><Node>potentials[i]).$expressionType}[${Compiler.$commentRefIDCounter}] -->`);
+                var commentElement: DescriptorNode = <DescriptorNode><Node>comment.get(0);
 
                 commentElement.$clonedElements = [];
                 commentElement.$originalNode = <AppNode><Node>potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
+                commentElement.$dynamic = true;
 
                 jQuery(potentials[i]).replaceWith(comment);
-                rootNode.$dynamicNodes.push(commentElement);
+                rootNode.$commentReferences[Compiler.$commentRefIDCounter.toString()] = commentElement;
             }
 
 

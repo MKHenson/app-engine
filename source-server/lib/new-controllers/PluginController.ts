@@ -1,7 +1,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, isAdmin, IAuthReq} from "modepress-api";
 import {PluginModel} from "../new-models/PluginModel";
 import {IPlugin} from "engine";
 import * as winston from "winston";
@@ -27,9 +27,72 @@ export class PluginController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/:id?", <any>[this.getPlugins.bind(this)]);
+        router.post("/create", <any>[isAdmin, this.create.bind(this)]);
+        router.put("/update/:id", <any>[isAdmin, this.update.bind(this)]);
 
         // Register the path
         e.use("/app-engine/plugins", router);
+    }
+
+    /**
+    * Updates a plugin with new details
+    * @param {IAuthReq} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private update(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-plugins");
+        var that = this;
+        var pluginToken = <IPlugin>req.body;
+        model.update<IPlugin>(<IPlugin>{ _id: new mongodb.ObjectID(req.params.id) }, pluginToken).then(function (data)
+        {
+            res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: "Plugin Updated"
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
+    }
+
+    /**
+    * Gets plugins based on the format of the request
+    * @param {IAuthReq} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private create(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-plugins");
+        var that = this;
+        var pluginToken = <IPlugin>req.body;
+
+        // Create the new plugin
+        model.createInstance<IPlugin>(pluginToken).then(function(instance)
+        {
+            res.end(JSON.stringify(<ModepressAddons.ICreatePlugin>{
+                error: false,
+                message: `Created new plugin '${pluginToken.name}'`,
+                data: that.getSanitizedData(instance.schema.generateCleanData(false, instance._id), false)
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
     }
 
     /**
@@ -67,7 +130,7 @@ export class PluginController extends Controller
                 error: false,
                 count: count,
                 message: `Found ${count} plugins`,
-                data: that.getSanitizedData(instances, false)
+                data: that.getSanitizedData(instances, true)
             }));
 
         }).catch(function (error: Error)
