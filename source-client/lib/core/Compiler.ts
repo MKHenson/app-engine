@@ -25,13 +25,14 @@
 
         /* A tag to help identify nodes already compiled */
         $dynamic: boolean;
+
+        /* When nodes are expanded, the object that describes the expansion is cloned. Any updates are then examined against this clone.
+         If the object is different to the clone, then the dyanmic nodes are re-created */
+        $clonedData: any;
     }
     export interface DescriptorNode extends AppNode
     {
-        /* When nodes are expanded, the object that describes the expansion is cloned. Any updates are then examined against this clone.
-          If the object is different to the clone, then the dyanmic nodes are re-created */
-        $clonedData: any;
-        $clonedElements: Array<Element>;
+        $clonedElements: Array<AppNode>;
 
         /* Referene of origin node if cloned */
         $originalNode: AppNode;
@@ -42,7 +43,7 @@
         // The controller associated with the element. Assigned on a build
         $ctrl: any;
         
-        // Each root node holds a list of references that are used in expansions with attributes like en-repeat
+        /* Each root node holds a list of references that are used in expansions with attributes like en-repeat */
         $commentReferences: { [id: string]: DescriptorNode };
     }
 
@@ -92,8 +93,7 @@
             // All custom properties are copied here
             clone.$compliledEval = node.$compliledEval;
             clone.$ctxValues = node.$ctxValues;
-            clone.$dynamic = node.$dynamic;
-            clone.$events = node.$events;
+            clone.$dynamic = true;
             clone.$expression = node.$expression;
             clone.$expressionType = node.$expressionType;
             clone.$ieTextNodes = node.$ieTextNodes;
@@ -101,8 +101,7 @@
             // If a descriptor node
             if (node.hasOwnProperty("$originalNode"))
             {
-                (<DescriptorNode>clone).$clonedData = (<DescriptorNode>node).$clonedData;
-                (<DescriptorNode>clone).$clonedElements = (<DescriptorNode>node).$clonedElements;
+                (<DescriptorNode>clone).$clonedElements = [];
                 (<DescriptorNode>clone).$originalNode = (<DescriptorNode>node).$originalNode;
             }
 
@@ -360,30 +359,29 @@
         * Called to remove and clean any dynamic nodes that were added to the node
         * @param {DescriptorNode} sourceNode The parent node from which we are removing clones from
         */
-        static removeClones(sourceNode: DescriptorNode)
+        static cleanupNode(appNode: AppNode)
         {
-            // Remove existing clones
-            for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++)
+            appNode.$ctxValues = null;
+            appNode.$compliledEval = null;
+            appNode.$ieTextNodes = null;
+            (<DescriptorNode>appNode).$clonedElements = null;
+            (<DescriptorNode>appNode).$originalNode = null;
+            appNode.$clonedData = null;
+            appNode.$ctxValues = null;
+            Compiler.removeEvents(<Element><Node>appNode);
+            appNode.$events = null;
+
+            // Cleanup kids
+            Compiler.traverse(appNode, function (child: AppNode)
             {
-                var appNode: AppNode = <AppNode><Node>sourceNode.$clonedElements[i];
-                appNode.$ctxValues = null;
-                appNode.$compliledEval = null;
-                appNode.$ieTextNodes = null;
+                if (appNode == child)
+                    return;
 
-                // Go through each child and assign the context
-                if (appNode.$ctxValues)
-                {
-                    Compiler.traverse(appNode, function (child: AppNode)
-                    {
-                        child.$ctxValues = null;
-                    });
-                };
+                Compiler.cleanupNode(child);
+            });
 
-                Compiler.removeEvents(<Element><Node>sourceNode);
-                jQuery(sourceNode.$clonedElements[i]).remove();
-            }
-
-            sourceNode.$clonedElements.splice(0, sourceNode.$clonedElements.length);
+            // Remove from dom
+            jQuery(appNode).remove();
         }
 
         /**
@@ -395,11 +393,25 @@
         static expand(root: RootNode, ctrl: any, includeSubTemplates: boolean = false): Element
         {
             var toRemove: Array<Element> = [];
+            var mostRecentRoot: RootNode = root;
+
+            var references = {};
+            for (var i in root.$commentReferences)
+                references[i] = root.$commentReferences[i];
 
             Compiler.traverse(root, function (child: Node)
             {
+                // Join any comment references
+                if ((<RootNode><Node>child).$ctrl)
+                {
+                    var subRoot = <RootNode><Node>child;
+                    for (var i in subRoot.$commentReferences)
+                        references[i] = subRoot.$commentReferences[i];
+                }
+
                 if (child.nodeType != 8)
                     return;
+
 
                 var comment: JQuery;
                 var commentElement: DescriptorNode; 
@@ -409,7 +421,7 @@
                 if (child.nodeType == 8 && commentReferenceNumbers)
                 {
                     var id = commentReferenceNumbers[0];
-                    commentElement = root.$commentReferences[id[0]];
+                    commentElement = references[id[0]];
                     comment = jQuery(commentElement);
                 }
                 
@@ -430,17 +442,18 @@
                             var ctxValueName = ctxParts[0];
                             var ctxIndexName = ctxParts[1];
 
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, (<AppNode>child).$ctxValues );
-                            if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false)
+                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, (<AppNode>child).$ctxValues);
+                            if (Compiler.isEquivalent(expressionValue, (<AppNode>child).$clonedData) == false)
                             {
                                 // Remove any existing nodes
-                                Compiler.removeClones(commentElement);
+                                for (var c = 0, k = (<DescriptorNode>child).$clonedElements.length; c < k; c++)
+                                    Compiler.cleanupNode((<DescriptorNode>child).$clonedElements[c]);
 
                                 if (expressionValue)
                                 {
                                     for (var t in expressionValue)
                                     {
-                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); // jQuery(commentElement.$originalNode).clone(true, true);
+                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
                                         var newNode: AppNode = <AppNode><Node>clone.get(0);
                                         newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
 
@@ -448,8 +461,8 @@
                                             newNode.$ctxValues.push({ name: ctxIndexName, value: t });
 
                                         // If the parent element has context values - then add those to the clone
-                                        if (child.parentElement && (<AppNode><Node>child.parentElement).$ctxValues)
-                                            newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentElement).$ctxValues);
+                                        if (child.parentNode && (<AppNode><Node>child.parentNode).$ctxValues)
+                                            newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentNode).$ctxValues);
                                         
                                         // Go through each child and assign the context
                                         if (newNode.$ctxValues.length > 0)
@@ -465,34 +478,53 @@
 
                                         // Add the new elements after this child comment
                                         clone.insertAfter(jQuery(child));
-                                        commentElement.$clonedElements.push(<Element><Node>newNode);
+                                        (<DescriptorNode>child).$clonedElements.push(newNode);
                                     };
                                 }
 
-                                commentElement.$clonedData = Compiler.clone(expressionValue);
+                                (<AppNode>child).$clonedData = Compiler.clone(expressionValue);
                             }
                         }
                     }
                     else if ($expressionType == "en-if")
                     {
                         var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, (<AppNode>child).$ctxValues);
-                        if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false)
+                        if (Compiler.isEquivalent(expressionValue, (<AppNode>child).$clonedData) == false)
                         {
                             // Remove any existing nodes
-                            Compiler.removeClones(commentElement);
+                            for (var c = 0, k = (<DescriptorNode>child).$clonedElements.length; c < k; c++)
+                                Compiler.cleanupNode((<DescriptorNode>child).$clonedElements[c]);
 
                             if (expressionValue)
                             {
-                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); //jQuery(commentElement.$originalNode).clone(true, true);
+                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
                                 var newNode: AppNode = <AppNode><Node>clone.get(0);
                                 if (<Element><Node>commentElement.$originalNode == <Element><Node>root)
                                     root = <RootNode><Node>clone.get(0);
+
+                                newNode.$ctxValues = [];
                                 
+                                // If the parent element has context values - then add those to the clone
+                                if (child.parentNode && (<AppNode><Node>child.parentNode).$ctxValues)
+                                    newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentNode).$ctxValues);
+                                        
+                                // Go through each child and assign the context
+                                if (newNode.$ctxValues.length > 0)
+                                {
+                                    Compiler.traverse(newNode, function (c: AppNode)
+                                    {
+                                        if (c == newNode)
+                                            return;
+
+                                        c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
+                                    });
+                                };
+
                                 clone.insertAfter(jQuery(child));
-                                commentElement.$clonedElements.push(<Element><Node>newNode);
+                                (<DescriptorNode>child).$clonedElements.push(newNode);
                             }
 
-                            commentElement.$clonedData = Compiler.clone(expressionValue);
+                            (<AppNode>child).$clonedData = Compiler.clone(expressionValue);
                         }
                     }
                 }
@@ -827,7 +859,7 @@
                 if (elem.nodeType != 1)
                     return;
 
-                if ((<AppNode><Node>elem).$dynamic)
+                if ((<AppNode><Node>elem).$dynamic || (<DescriptorNode><Node>elem).$clonedElements)
                     return;
                 
                 var attrs: Array<Attr> = Compiler.attrs;
@@ -870,8 +902,7 @@
                 commentElement.$originalNode = <AppNode><Node>potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
-                commentElement.$dynamic = true;
-
+           
                 jQuery(potentials[i]).replaceWith(comment);
                 rootNode.$commentReferences[Compiler.$commentRefIDCounter.toString()] = commentElement;
             }

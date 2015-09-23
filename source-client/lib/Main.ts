@@ -76,7 +76,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
             return 0;
         });
 
-        pluginArray = pluginArray.reverse();
+        //pluginArray = pluginArray.reverse();
     }
 
 	

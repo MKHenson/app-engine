@@ -841,6 +841,11 @@ html, body, #stage {
     padding:0px 10px 0 10px;
     box-sizing:border-box;
 }
+.more {
+    float:right;
+    cursor:pointer;
+}
+
 
 
 
@@ -967,6 +972,7 @@ a:active, a:hover {
 .tick-box:active {
     background: #ccc;
 }
+
 #splash .logo h2, #splash .logout a {
     color: #fff;
 }
@@ -1000,11 +1006,11 @@ a:active, a:hover {
 .button.gray:active {
   background: #bbbbbb;
 }
-.reg-gradient {
+.reg-gradient, .plugin .cross:before, .plugin .cross:after {
     background: #5EA4EA;
     color: #FFF !important;
 }
-.reg-gradient:hover {
+.reg-gradient:hover{
     background: #5893cf;
     color: #FFF;
 }

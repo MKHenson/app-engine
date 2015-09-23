@@ -44,16 +44,6 @@
             this.$loading = false;
             this.$projects = [];
             this.$plugins = __plugins;
-            //for (var projectName in __plugins)
-            //{
-            //    this.$pluginsNames.push(projectName);
-            //    var versionObj: { [version: string]: Engine.IProject } = {};
-            //    for (var i = 0, l = __plugins[projectName].length; i < l; i++)
-            //        versionObj[__plugins[projectName][i].version] = __plugins[projectName][i].plugin;
-
-            //    this.$pluginVersions.push(versionObj);
-            //}
-
             this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;
@@ -177,7 +167,7 @@
         /*
         * Called when we select a project
         */
-        private selectProject(project: Engine.IProject)
+        selectProject(project: Engine.IProject)
         {
             (<any>project).selected = !(<any>project).selected;
 
@@ -196,20 +186,52 @@
         /*
         * Called when we select a project
         */
-        private selectPlugin(plugin: Engine.IPlugin)
+        selectPlugin(plugin: Engine.IPlugin)
         {
-            (<any>plugin).selected = !(<any>plugin).selected;
-
+            // If this plugin is not selected
             if (this.$selectedPlugins.indexOf(plugin) == -1)
+            {
+                // Make sure if another version is selected, that its de-selected
+                for (var i = 0, l = this.$selectedPlugins.length; i < l; i++)
+                    if (this.$selectedPlugins[i].name == plugin.name)
+                    {
+                        this.$selectedPlugins.splice(i, 1);
+                        break;
+                    }
+
                 this.$selectedPlugins.push(plugin);
+            }
             else
                 this.$selectedPlugins.splice(this.$selectedPlugins.indexOf(plugin), 1);
-
-
+            
+            // Set the active selected plugin
             if (this.$selectedPlugins.length > 0)
                 this.$selectedPlugin = this.$selectedPlugins[this.$selectedPlugins.length - 1];
             else
                 this.$selectedPlugin = null;
+        }
+
+        showVersions(plugin: IPlugin)
+        {
+            for (var n in this.$plugins)
+                for (var i = 0, l = this.$plugins[n].length; i < l; i++)
+                {
+                    if (this.$plugins[n][i].name == plugin.name)
+                    {
+                        (<any>this.$plugins[n][i]).$showVersions = !(<any>this.$plugins[n][i]).$showVersions;
+                    }
+                }
+        }
+
+        /*
+        * Checks if a plugin is selected
+        */
+        isPluginSelected(plugin): boolean
+        {
+            if (this.$selectedPlugins.indexOf(plugin) != -1)
+                return true;
+            else
+                return false;
         }
 
         /*

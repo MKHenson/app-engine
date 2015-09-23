@@ -16,15 +16,13 @@ var Animate;
             // All custom properties are copied here
             clone.$compliledEval = node.$compliledEval;
             clone.$ctxValues = node.$ctxValues;
-            clone.$dynamic = node.$dynamic;
-            clone.$events = node.$events;
+            clone.$dynamic = true;
             clone.$expression = node.$expression;
             clone.$expressionType = node.$expressionType;
             clone.$ieTextNodes = node.$ieTextNodes;
             // If a descriptor node
             if (node.hasOwnProperty("$originalNode")) {
-                clone.$clonedData = node.$clonedData;
-                clone.$clonedElements = node.$clonedElements;
+                clone.$clonedElements = [];
                 clone.$originalNode = node.$originalNode;
             }
             // Clone and add all children
@@ -223,24 +221,24 @@ var Animate;
         * Called to remove and clean any dynamic nodes that were added to the node
         * @param {DescriptorNode} sourceNode The parent node from which we are removing clones from
         */
-        Compiler.removeClones = function (sourceNode) {
-            // Remove existing clones
-            for (var i = 0, l = sourceNode.$clonedElements.length; i < l; i++) {
-                var appNode = sourceNode.$clonedElements[i];
-                appNode.$ctxValues = null;
-                appNode.$compliledEval = null;
-                appNode.$ieTextNodes = null;
-                // Go through each child and assign the context
-                if (appNode.$ctxValues) {
-                    Compiler.traverse(appNode, function (child) {
-                        child.$ctxValues = null;
-                    });
-                }
-                ;
-                Compiler.removeEvents(sourceNode);
-                jQuery(sourceNode.$clonedElements[i]).remove();
-            }
-            sourceNode.$clonedElements.splice(0, sourceNode.$clonedElements.length);
+        Compiler.cleanupNode = function (appNode) {
+            appNode.$ctxValues = null;
+            appNode.$compliledEval = null;
+            appNode.$ieTextNodes = null;
+            appNode.$clonedElements = null;
+            appNode.$originalNode = null;
+            appNode.$clonedData = null;
+            appNode.$ctxValues = null;
+            Compiler.removeEvents(appNode);
+            appNode.$events = null;
+            // Cleanup kids
+            Compiler.traverse(appNode, function (child) {
+                if (appNode == child)
+                    return;
+                Compiler.cleanupNode(child);
+            });
+            // Remove from dom
+            jQuery(appNode).remove();
         };
         /**
         * Explores and enflates the html nodes with enflatable expressions present (eg: en-repeat)
@@ -251,7 +249,17 @@ var Animate;
         Compiler.expand = function (root, ctrl, includeSubTemplates) {
             if (includeSubTemplates === void 0) { includeSubTemplates = false; }
             var toRemove = [];
+            var mostRecentRoot = root;
+            var references = {};
+            for (var i in root.$commentReferences)
+                references[i] = root.$commentReferences[i];
             Compiler.traverse(root, function (child) {
+                // Join any comment references
+                if (child.$ctrl) {
+                    var subRoot = child;
+                    for (var i in subRoot.$commentReferences)
+                        references[i] = subRoot.$commentReferences[i];
+                }
                 if (child.nodeType != 8)
                     return;
                 var comment;
@@ -260,7 +268,7 @@ var Animate;
                 // Get the comment reference number - and look it up in the root node registered comments
                 if (child.nodeType == 8 && commentReferenceNumbers) {
                     var id = commentReferenceNumbers[0];
-                    commentElement = root.$commentReferences[id[0]];
+                    commentElement = references[id[0]];
                     comment = jQuery(commentElement);
                 }
                 // If the comment matches a root node flagged comment
@@ -275,19 +283,20 @@ var Animate;
                             var ctxValueName = ctxParts[0];
                             var ctxIndexName = ctxParts[1];
                             var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, child.$ctxValues);
-                            if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
+                            if (Compiler.isEquivalent(expressionValue, child.$clonedData) == false) {
                                 // Remove any existing nodes
-                                Compiler.removeClones(commentElement);
+                                for (var c = 0, k = child.$clonedElements.length; c < k; c++)
+                                    Compiler.cleanupNode(child.$clonedElements[c]);
                                 if (expressionValue) {
                                     for (var t in expressionValue) {
-                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); // jQuery(commentElement.$originalNode).clone(true, true);
+                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
                                         var newNode = clone.get(0);
                                         newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
                                         if (ctxIndexName && ctxIndexName.trim() != "")
                                             newNode.$ctxValues.push({ name: ctxIndexName, value: t });
                                         // If the parent element has context values - then add those to the clone
-                                        if (child.parentElement && child.parentElement.$ctxValues)
-                                            newNode.$ctxValues = newNode.$ctxValues.concat(child.parentElement.$ctxValues);
+                                        if (child.parentNode && child.parentNode.$ctxValues)
+                                            newNode.$ctxValues = newNode.$ctxValues.concat(child.parentNode.$ctxValues);
                                         // Go through each child and assign the context
                                         if (newNode.$ctxValues.length > 0) {
                                             Compiler.traverse(newNode, function (c) {
@@ -299,28 +308,42 @@ var Animate;
                                         ;
                                         // Add the new elements after this child comment
                                         clone.insertAfter(jQuery(child));
-                                        commentElement.$clonedElements.push(newNode);
+                                        child.$clonedElements.push(newNode);
                                     }
                                     ;
                                 }
-                                commentElement.$clonedData = Compiler.clone(expressionValue);
+                                child.$clonedData = Compiler.clone(expressionValue);
                             }
                         }
                     }
                     else if ($expressionType == "en-if") {
                         var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, child.$ctxValues);
-                        if (Compiler.isEquivalent(expressionValue, commentElement.$clonedData) == false) {
+                        if (Compiler.isEquivalent(expressionValue, child.$clonedData) == false) {
                             // Remove any existing nodes
-                            Compiler.removeClones(commentElement);
+                            for (var c = 0, k = child.$clonedElements.length; c < k; c++)
+                                Compiler.cleanupNode(child.$clonedElements[c]);
                             if (expressionValue) {
-                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode)); //jQuery(commentElement.$originalNode).clone(true, true);
+                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
                                 var newNode = clone.get(0);
                                 if (commentElement.$originalNode == root)
                                     root = clone.get(0);
+                                newNode.$ctxValues = [];
+                                // If the parent element has context values - then add those to the clone
+                                if (child.parentNode && child.parentNode.$ctxValues)
+                                    newNode.$ctxValues = newNode.$ctxValues.concat(child.parentNode.$ctxValues);
+                                // Go through each child and assign the context
+                                if (newNode.$ctxValues.length > 0) {
+                                    Compiler.traverse(newNode, function (c) {
+                                        if (c == newNode)
+                                            return;
+                                        c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
+                                    });
+                                }
+                                ;
                                 clone.insertAfter(jQuery(child));
-                                commentElement.$clonedElements.push(newNode);
+                                child.$clonedElements.push(newNode);
                             }
-                            commentElement.$clonedData = Compiler.clone(expressionValue);
+                            child.$clonedData = Compiler.clone(expressionValue);
                         }
                     }
                 }
@@ -574,7 +597,7 @@ var Animate;
                 // Only allow element nodes
                 if (elem.nodeType != 1)
                     return;
-                if (elem.$dynamic)
+                if (elem.$dynamic || elem.$clonedElements)
                     return;
                 var attrs = Compiler.attrs;
                 attrs.splice(0, attrs.length);
@@ -609,7 +632,6 @@ var Animate;
                 commentElement.$originalNode = potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
-                commentElement.$dynamic = true;
                 jQuery(potentials[i]).replaceWith(comment);
                 rootNode.$commentReferences[Compiler.$commentRefIDCounter.toString()] = commentElement;
             }
@@ -18856,14 +18878,6 @@ var Animate;
             this.$loading = false;
             this.$projects = [];
             this.$plugins = __plugins;
-            //for (var projectName in __plugins)
-            //{
-            //    this.$pluginsNames.push(projectName);
-            //    var versionObj: { [version: string]: Engine.IProject } = {};
-            //    for (var i = 0, l = __plugins[projectName].length; i < l; i++)
-            //        versionObj[__plugins[projectName][i].version] = __plugins[projectName][i].plugin;
-            //    this.$pluginVersions.push(versionObj);
-            //}
             this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;
@@ -18976,15 +18990,40 @@ var Animate;
         * Called when we select a project
         */
         Splash.prototype.selectPlugin = function (plugin) {
-            plugin.selected = !plugin.selected;
-            if (this.$selectedPlugins.indexOf(plugin) == -1)
+            // If this plugin is not selected
+            if (this.$selectedPlugins.indexOf(plugin) == -1) {
+                // Make sure if another version is selected, that its de-selected
+                for (var i = 0, l = this.$selectedPlugins.length; i < l; i++)
+                    if (this.$selectedPlugins[i].name == plugin.name) {
+                        this.$selectedPlugins.splice(i, 1);
+                        break;
+                    }
                 this.$selectedPlugins.push(plugin);
+            }
             else
                 this.$selectedPlugins.splice(this.$selectedPlugins.indexOf(plugin), 1);
+            // Set the active selected plugin
             if (this.$selectedPlugins.length > 0)
                 this.$selectedPlugin = this.$selectedPlugins[this.$selectedPlugins.length - 1];
             else
                 this.$selectedPlugin = null;
+        };
+        Splash.prototype.showVersions = function (plugin) {
+            for (var n in this.$plugins)
+                for (var i = 0, l = this.$plugins[n].length; i < l; i++) {
+                    if (this.$plugins[n][i].name == plugin.name) {
+                        this.$plugins[n][i].$showVersions = !this.$plugins[n][i].$showVersions;
+                    }
+                }
+        };
+        /*
+        * Checks if a plugin is selected
+        */
+        Splash.prototype.isPluginSelected = function (plugin) {
+            if (this.$selectedPlugins.indexOf(plugin) != -1)
+                return true;
+            else
+                return false;
         };
         /*
         * Called by the app when everything needs to be reset
@@ -19257,7 +19296,6 @@ function onPluginsLoaded(plugins) {
             // Otherwise they are the same.
             return 0;
         });
-        pluginArray = pluginArray.reverse();
     }
     var app = new Animate.Application("#application");
     Animate.Splash.init(app);
