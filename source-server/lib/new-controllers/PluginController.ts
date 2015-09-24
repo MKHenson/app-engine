@@ -27,11 +27,43 @@ export class PluginController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         router.get("/:id?", <any>[this.getPlugins.bind(this)]);
+        router.delete("/:id", <any>[isAdmin, this.remove.bind(this)]);
         router.post("/create", <any>[isAdmin, this.create.bind(this)]);
         router.put("/update/:id", <any>[isAdmin, this.update.bind(this)]);
 
         // Register the path
         e.use("/app-engine/plugins", router);
+    }
+
+    /**
+    * Attempts to remove a plugin by ID
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private remove(req: express.Request, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var plugins = this.getModel("en-plugins");
+
+        plugins.deleteInstances(<IPlugin>{ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved)
+        {
+            if (numRemoved == 0)
+                return Promise.reject(new Error("Could not find a plugin with that ID"));
+
+            res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: "Plugin has been successfully removed"
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
     }
 
     /**
@@ -77,12 +109,12 @@ export class PluginController extends Controller
         var pluginToken = <IPlugin>req.body;
 
         // Create the new plugin
-        model.createInstance<IPlugin>(pluginToken).then(function(instance)
+        model.createInstance<ModepressAddons.ICreatePlugin>(pluginToken).then(function (instance)
         {
             res.end(JSON.stringify(<ModepressAddons.ICreatePlugin>{
                 error: false,
                 message: `Created new plugin '${pluginToken.name}'`,
-                data: that.getSanitizedData(instance.schema.generateCleanData(false, instance._id), false)
+                data: instance.schema.generateCleanData(false, instance._id)
             }));
 
         }).catch(function (error: Error)

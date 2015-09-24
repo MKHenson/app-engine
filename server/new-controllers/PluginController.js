@@ -28,11 +28,36 @@ var PluginController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/:id?", [this.getPlugins.bind(this)]);
+        router.delete("/:id", [modepress_api_1.isAdmin, this.remove.bind(this)]);
         router.post("/create", [modepress_api_1.isAdmin, this.create.bind(this)]);
         router.put("/update/:id", [modepress_api_1.isAdmin, this.update.bind(this)]);
         // Register the path
         e.use("/app-engine/plugins", router);
     }
+    /**
+    * Attempts to remove a plugin by ID
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    PluginController.prototype.remove = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var plugins = this.getModel("en-plugins");
+        plugins.deleteInstances({ _id: new mongodb.ObjectID(req.params.id) }).then(function (numRemoved) {
+            if (numRemoved == 0)
+                return Promise.reject(new Error("Could not find a plugin with that ID"));
+            res.end(JSON.stringify({
+                error: false,
+                message: "Plugin has been successfully removed"
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
     /**
     * Updates a plugin with new details
     * @param {IAuthReq} req
@@ -73,7 +98,7 @@ var PluginController = (function (_super) {
             res.end(JSON.stringify({
                 error: false,
                 message: "Created new plugin '" + pluginToken.name + "'",
-                data: that.getSanitizedData(instance.schema.generateCleanData(false, instance._id), false)
+                data: instance.schema.generateCleanData(false, instance._id)
             }));
         }).catch(function (error) {
             winston.error(error.message, { process: process.pid });

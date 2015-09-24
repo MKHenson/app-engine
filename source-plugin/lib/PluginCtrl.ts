@@ -61,6 +61,32 @@
         }
 
         /**
+        * Removes a plugin
+        */
+        removePlugin(plugin: Engine.IPlugin)
+        {
+            this.loading = true;
+            var that = this;
+            that.error = false;
+            that.errorMsg = "";
+
+            that.http.delete<Modepress.IResponse>(`${appEngineURL}/app-engine/plugins/${plugin._id}`).then(function (response)
+            {
+                that.loading = false;
+                (<any>plugin).confirmDelete = false;
+
+                if (that.pluginToken = response.data.error)
+                {
+                    that.error = true;
+                    that.errorMsg = response.data.message;
+                    return;
+                }
+
+                that.plugins.splice(that.plugins.indexOf(plugin), 1);
+            });
+        }
+
+        /**
         * Gets a list of plugins
         */
         fetchPlugins(index: number, limit: number): ng.IHttpPromise<ModepressAddons.IGetPlugins>
