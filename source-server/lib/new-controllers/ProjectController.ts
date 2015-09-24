@@ -281,7 +281,7 @@ export class ProjectController extends Controller
                 error: false,
                 count: count,
                 message: `Found ${count} projects`,
-                data: that.getSanitizedData(instances, !req._verbose)
+                data: that.getSanitizedData(instances, req._verbose)
             }));
 
         }).catch(function (error: Error)

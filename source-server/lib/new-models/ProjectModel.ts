@@ -14,7 +14,7 @@ export class ProjectModel extends Model
 
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.html("description", ""));
-        this.defaultSchema.add(new SchemaFactory.id("image", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("image", ""));
         this.defaultSchema.add(new SchemaFactory.text("category", "")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.text("subCategory", "")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.bool("public", false)).setIndexable(true);
@@ -22,17 +22,17 @@ export class ProjectModel extends Model
         this.defaultSchema.add(new SchemaFactory.num("rating", 0)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.num("score", 0));
         this.defaultSchema.add(new SchemaFactory.num("numRaters", 0));
-        this.defaultSchema.add(new SchemaFactory.bool("suspicious", false));
+        this.defaultSchema.add(new SchemaFactory.bool("suspicious", false, true));
         this.defaultSchema.add(new SchemaFactory.bool("deleted", false));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.id("build", "", true));
         this.defaultSchema.add(new SchemaFactory.num("type", 0));
         this.defaultSchema.add(new SchemaFactory.textArray("tags", []));
-        this.defaultSchema.add(new SchemaFactory.textArray("readPrivileges", []));
-        this.defaultSchema.add(new SchemaFactory.textArray("writePrivileges", []));
-        this.defaultSchema.add(new SchemaFactory.textArray("adminPrivileges", []));
-        this.defaultSchema.add(new SchemaFactory.textArray("plugins", [], 1));
-        this.defaultSchema.add(new SchemaFactory.textArray("files", []));
+        this.defaultSchema.add(new SchemaFactory.textArray("readPrivileges", [])).setSensitive(true);
+        this.defaultSchema.add(new SchemaFactory.textArray("writePrivileges", [])).setSensitive(true);
+        this.defaultSchema.add(new SchemaFactory.textArray("adminPrivileges", [])).setSensitive(true);
+        this.defaultSchema.add(new SchemaFactory.idArray("plugins", [], 1));
+        this.defaultSchema.add(new SchemaFactory.textArray("files", [])).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }

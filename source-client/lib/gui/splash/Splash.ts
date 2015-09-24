@@ -10,6 +10,7 @@
         private _loginElm: JQuery;
         private _welcomeElm: JQuery;
         private _newProject: JQuery;
+        private _loadingProject: JQuery;
         private _app: Application;
         private _captureInitialized: boolean;
         private $user: User;
@@ -37,6 +38,8 @@
             this._loginElm = jQuery("#log-reg").remove().clone();
             this._welcomeElm = jQuery("#splash-welcome").remove().clone();
             this._newProject = jQuery("#splash-new-project").remove().clone();
+            this._loadingProject = jQuery("#splash-loading-project").remove().clone();
+
             this.$user = User.get;
             this.$activePane = "loading";
             this.$errorMsg = "";
@@ -59,6 +62,7 @@
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
             jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
             jQuery("#splash-view", this._splashElm).prepend(this._newProject);
+            jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
         }
 
         /*
@@ -78,7 +82,8 @@
                 Compiler.build(this._loginElm, this);
                 Compiler.build(this._welcomeElm, this);
                 Compiler.build(this._newProject, this);
-                Compiler.build(this._splashElm, this);
+                Compiler.build(this._loadingProject, this);
+                Compiler.build(this._splashElm, this);                
                 Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
             }
             else
@@ -135,6 +140,14 @@
                 Animate.Compiler.digest(that._splashElm, that, true);
         }
 
+        removeProject( messageBoxAnswer : string )
+        {
+            if (messageBoxAnswer == "No")
+                return;
+
+
+        }
+
         /*
         * Fetches a list of user projects
         * @param {number} index 
@@ -166,25 +179,38 @@
 
         /*
         * Called when we select a project
+        * @param {IProject} The project to select
         */
         selectProject(project: Engine.IProject)
         {
-            (<any>project).selected = !(<any>project).selected;
+            if (this.$selectedProject)
+                (<any>this.$selectedProject).selected = false;
 
-            if (this.$selectedProjects.indexOf(project) == -1)
-                this.$selectedProjects.push(project);
+            (<any>project).selected = true;
+
+            if (this.$selectedProject != project)
+                this.$selectedProject = project;
             else
-                this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
-
-
-            if (this.$selectedProjects.length > 0)
-                this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
-            else
+            {
+                (<any>this.$selectedProject).selected = false;
                 this.$selectedProject = null;
+            }
+
+            //if (this.$selectedProjects.indexOf(project) == -1)
+            //    this.$selectedProjects.push(project);
+            //else
+            //    this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
+
+
+            //if (this.$selectedProjects.length > 0)
+            //    this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
+            //else
+            //    this.$selectedProject = null;
         }
 
         /*
         * Called when we select a project
+        * @param {IPlugin} The plugin to select
         */
         selectPlugin(plugin: Engine.IPlugin)
         {
@@ -211,6 +237,10 @@
                 this.$selectedPlugin = null;
         }
 
+        /*
+        * Toggles if a plugin should show all its versions or not
+        * @param {IPlugin} The plugin to toggle
+        */
         showVersions(plugin: IPlugin)
         {
             for (var n in this.$plugins)
@@ -225,6 +255,7 @@
 
         /*
         * Checks if a plugin is selected
+        * @param {IPlugin} The plugin to check
         */
         isPluginSelected(plugin): boolean
         {
@@ -313,11 +344,30 @@
 		*/
         newProject(name: string, description: string, plugins: Array<Engine.IPlugin>)
         {
-            this.$loading = true;
-            this.$errorRed = false;
-            this.$errorMsg = "Just a moment while we hatch your appling...";
+            var that = this;
+            that.$loading = true;
+            that.$errorRed = false;
+            that.$errorMsg = "Just a moment while we hatch your appling...";
             Compiler.digest(this._splashElm, this, false);
-            this.$user.newProject(name, description);
+            var ids = plugins.map<string>(function (value) { return value._id; });
+
+            this.$user.newProject(name, ids, description).then(function ()
+            {
+                that.$errorRed = false;
+                that.$errorMsg = "";
+
+                // Start Loading the plugins
+                that.goState("loading-project", false);
+
+            }).fail(function (err: Error) {
+                that.$errorRed = true;
+                that.$errorMsg = err.message;
+
+            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that, true);
+            });
+
         }
 
         /*

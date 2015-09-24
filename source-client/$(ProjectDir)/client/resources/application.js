@@ -268,7 +268,7 @@ var Animate;
                 // Get the comment reference number - and look it up in the root node registered comments
                 if (child.nodeType == 8 && commentReferenceNumbers) {
                     var id = commentReferenceNumbers[0];
-                    commentElement = references[id[0]];
+                    commentElement = references[id];
                     comment = jQuery(commentElement);
                 }
                 // If the comment matches a root node flagged comment
@@ -443,6 +443,10 @@ var Animate;
                             var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
                             if (disp != elem.style.display)
                                 elem.style.display = disp;
+                            break;
+                        case "en-html":
+                            var html = Compiler.parse(value, controller, null, elem);
+                            elem.innerHTML = html;
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
@@ -4232,13 +4236,16 @@ var Animate;
         /**
         * Creates a new user projects
         * @param {string} name The name of the project
+        * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
+
         */
-        User.prototype.newProject = function (name, description) {
+        User.prototype.newProject = function (name, plugins, description) {
             if (description === void 0) { description = ""; }
             var d = jQuery.Deferred(), that = this, token = {
                 name: name,
-                description: description
+                description: description,
+                plugins: plugins
             };
             jQuery.post(Animate.DB.API + "/projects/create", token).done(function (data) {
                 if (data.error)
@@ -5618,7 +5625,7 @@ var Animate;
             if (controlBox === void 0) { controlBox = false; }
             if (title === void 0) { title = ""; }
             // Call super-class constructor
-            _super.call(this, "<div class='window shadow-med' style='width:" + width + "px; height:" + height + "px;'></div>", null);
+            _super.call(this, "<div class='window shadow-med background' style='width:" + width + "px; height:" + height + "px;'></div>", null);
             this._autoCenter = autoCenter;
             this._controlBox = controlBox;
             //If we have a control box we add the title and close button
@@ -7703,6 +7710,7 @@ var Animate;
             _super.call(this, domElement, null);
             if (Application._singleton != null)
                 throw new Error("The Application class is a singleton. You need to call the Application.getSingleton() function.");
+            Application.bodyComponent = new Animate.Component("body");
             Application._singleton = this;
             this._canvasContext = new Animate.CanvasContext(200);
             this._focusObj = null;
@@ -15894,7 +15902,7 @@ var Animate;
             box.$buttons = buttons;
             Animate.Compiler.digest(box._handle, box);
             //Center and show the box
-            box.show(Animate.Application.getInstance(), NaN, NaN, true);
+            box.show(Animate.Application.bodyComponent, NaN, NaN, true);
         };
         /**
         * Gets the message box singleton
@@ -18609,7 +18617,7 @@ var Animate;
             Animate.Compiler.digest(this.loginBackground, this);
         };
         Splash2.prototype.newProject = function (name, description) {
-            this.user.newProject(name, description);
+            //this.user.newProject(name, description);
         };
         /**
         * This is called when we click a button on the message box.
@@ -18871,6 +18879,7 @@ var Animate;
             this._loginElm = jQuery("#log-reg").remove().clone();
             this._welcomeElm = jQuery("#splash-welcome").remove().clone();
             this._newProject = jQuery("#splash-new-project").remove().clone();
+            this._loadingProject = jQuery("#splash-loading-project").remove().clone();
             this.$user = Animate.User.get;
             this.$activePane = "loading";
             this.$errorMsg = "";
@@ -18891,6 +18900,7 @@ var Animate;
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
             jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
             jQuery("#splash-view", this._splashElm).prepend(this._newProject);
+            jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
         }
         /*
         * Shows the splash screen
@@ -18906,6 +18916,7 @@ var Animate;
                 Animate.Compiler.build(this._loginElm, this);
                 Animate.Compiler.build(this._welcomeElm, this);
                 Animate.Compiler.build(this._newProject, this);
+                Animate.Compiler.build(this._loadingProject, this);
                 Animate.Compiler.build(this._splashElm, this);
                 Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", document.getElementById("animate-captcha"), { theme: "white" });
             }
@@ -18951,6 +18962,10 @@ var Animate;
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
         };
+        Splash.prototype.removeProject = function (messageBoxAnswer) {
+            if (messageBoxAnswer == "No")
+                return;
+        };
         /*
         * Fetches a list of user projects
         * @param {number} index
@@ -18974,20 +18989,30 @@ var Animate;
         };
         /*
         * Called when we select a project
+        * @param {IProject} The project to select
         */
         Splash.prototype.selectProject = function (project) {
-            project.selected = !project.selected;
-            if (this.$selectedProjects.indexOf(project) == -1)
-                this.$selectedProjects.push(project);
-            else
-                this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
-            if (this.$selectedProjects.length > 0)
-                this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
-            else
+            if (this.$selectedProject)
+                this.$selectedProject.selected = false;
+            project.selected = true;
+            if (this.$selectedProject != project)
+                this.$selectedProject = project;
+            else {
+                this.$selectedProject.selected = false;
                 this.$selectedProject = null;
+            }
+            //if (this.$selectedProjects.indexOf(project) == -1)
+            //    this.$selectedProjects.push(project);
+            //else
+            //    this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
+            //if (this.$selectedProjects.length > 0)
+            //    this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
+            //else
+            //    this.$selectedProject = null;
         };
         /*
         * Called when we select a project
+        * @param {IPlugin} The plugin to select
         */
         Splash.prototype.selectPlugin = function (plugin) {
             // If this plugin is not selected
@@ -19008,6 +19033,10 @@ var Animate;
             else
                 this.$selectedPlugin = null;
         };
+        /*
+        * Toggles if a plugin should show all its versions or not
+        * @param {IPlugin} The plugin to toggle
+        */
         Splash.prototype.showVersions = function (plugin) {
             for (var n in this.$plugins)
                 for (var i = 0, l = this.$plugins[n].length; i < l; i++) {
@@ -19018,6 +19047,7 @@ var Animate;
         };
         /*
         * Checks if a plugin is selected
+        * @param {IPlugin} The plugin to check
         */
         Splash.prototype.isPluginSelected = function (plugin) {
             if (this.$selectedPlugins.indexOf(plugin) != -1)
@@ -19089,11 +19119,24 @@ var Animate;
         * @param {boolean} True if there is an error
         */
         Splash.prototype.newProject = function (name, description, plugins) {
-            this.$loading = true;
-            this.$errorRed = false;
-            this.$errorMsg = "Just a moment while we hatch your appling...";
+            var that = this;
+            that.$loading = true;
+            that.$errorRed = false;
+            that.$errorMsg = "Just a moment while we hatch your appling...";
             Animate.Compiler.digest(this._splashElm, this, false);
-            this.$user.newProject(name, description);
+            var ids = plugins.map(function (value) { return value._id; });
+            this.$user.newProject(name, ids, description).then(function () {
+                that.$errorRed = false;
+                that.$errorMsg = "";
+                // Start Loading the plugins
+                that.goState("loading-project", false);
+            }).fail(function (err) {
+                that.$errorRed = true;
+                that.$errorMsg = err.message;
+            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that, true);
+            });
         };
         /*
         * General error handler

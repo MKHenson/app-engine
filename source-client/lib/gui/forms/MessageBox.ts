@@ -73,7 +73,7 @@ module Animate
             Compiler.digest(box._handle, box);
 
             //Center and show the box
-            box.show(Application.getInstance(), NaN, NaN, true);
+            box.show(Application.bodyComponent, NaN, NaN, true);
 		}
 
 		/**

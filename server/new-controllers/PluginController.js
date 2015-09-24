@@ -27,10 +27,10 @@ var PluginController = (function (_super) {
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        router.get("/:id?", [this.getPlugins.bind(this)]);
+        router.get("/:id?", [modepress_api_1.getUser, this.getPlugins.bind(this)]);
         router.delete("/:id", [modepress_api_1.isAdmin, this.remove.bind(this)]);
         router.post("/create", [modepress_api_1.isAdmin, this.create.bind(this)]);
-        router.put("/update/:id", [modepress_api_1.isAdmin, this.update.bind(this)]);
+        router.put("/:id", [modepress_api_1.isAdmin, this.update.bind(this)]);
         // Register the path
         e.use("/app-engine/plugins", router);
     }
@@ -93,6 +93,7 @@ var PluginController = (function (_super) {
         var model = this.getModel("en-plugins");
         var that = this;
         var pluginToken = req.body;
+        pluginToken.author = req._user.username;
         // Create the new plugin
         model.createInstance(pluginToken).then(function (instance) {
             res.end(JSON.stringify({
@@ -120,9 +121,16 @@ var PluginController = (function (_super) {
         var that = this;
         var count = 0;
         var findToken = {};
+        if (!req._isAdmin)
+            findToken.isPublic = true;
         var getContent = true;
         if (req.query.minimal)
             getContent = false;
+        if (req.params.id) {
+            if (!modepress_api_1.isValidID(req.params.id))
+                return res.end(JSON.stringify({ error: true, message: "Please use a valid object ID" }));
+            findToken._id = new mongodb.ObjectID(req.params.id);
+        }
         // Check for keywords
         if (req.query.search)
             findToken.name = new RegExp(req.query.search, "i");

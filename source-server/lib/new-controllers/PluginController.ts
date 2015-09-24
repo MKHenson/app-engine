@@ -1,7 +1,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, isAdmin, IAuthReq} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, isAdmin, getUser, IAuthReq, isValidID} from "modepress-api";
 import {PluginModel} from "../new-models/PluginModel";
 import {IPlugin} from "engine";
 import * as winston from "winston";
@@ -26,10 +26,10 @@ export class PluginController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/:id?", <any>[this.getPlugins.bind(this)]);
+        router.get("/:id?", <any>[getUser, this.getPlugins.bind(this)]);
         router.delete("/:id", <any>[isAdmin, this.remove.bind(this)]);
         router.post("/create", <any>[isAdmin, this.create.bind(this)]);
-        router.put("/update/:id", <any>[isAdmin, this.update.bind(this)]);
+        router.put("/:id", <any>[isAdmin, this.update.bind(this)]);
 
         // Register the path
         e.use("/app-engine/plugins", router);
@@ -108,6 +108,8 @@ export class PluginController extends Controller
         var that = this;
         var pluginToken = <IPlugin>req.body;
 
+        pluginToken.author = req._user.username;
+
         // Create the new plugin
         model.createInstance<ModepressAddons.ICreatePlugin>(pluginToken).then(function (instance)
         {
@@ -133,18 +135,30 @@ export class PluginController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getPlugins(req: express.Request, res: express.Response, next: Function)
+    private getPlugins(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-plugins");
         var that = this;
         var count = 0;
 
-        var findToken = {};
+        var findToken: IPlugin = {};
+
+        if (!req._isAdmin)
+            findToken.isPublic = true;
 
         var getContent: boolean = true;
         if (req.query.minimal)
             getContent = false;
+
+
+        if (req.params.id)
+        {
+            if (!isValidID(req.params.id))
+                return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid object ID" }));
+
+            findToken._id = new mongodb.ObjectID(req.params.id);
+        }
 
         // Check for keywords
         if (req.query.search)

@@ -94,9 +94,7 @@
             var that = this;
             that.loading = true;
             that.error = false;
-            that.errorMsg = "";
-
-            
+            that.errorMsg = "";            
 
             var toRet = this.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins?index=${index}&limit=${limit}&search=${that.searchKeyword}`);
             toRet.then(function (response)
@@ -134,7 +132,7 @@
 
             if (this.editMode)
             {
-                that.http.put<Modepress.IGetPost>(`${appEngineURL}/app-engine/plugins/update/${pluginToken._id}`, pluginToken).then(function (token)
+                that.http.put<Modepress.IGetPost>(`${appEngineURL}/app-engine/plugins/${pluginToken._id}`, pluginToken).then(function (token)
                 {
                     if (token.data.error)
                     {

@@ -4,7 +4,7 @@
 		<div class="search"><input placeholder="Keywords" class="background-view-light" type="text" /></div>
 	</div>
 	<div style="position:relative;">
-		<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedProject ? '75%' : '') }">
+		<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedProject ? '70%' : '') }">
 			<div class="project-items">
 				<div class="project-item unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.selectProject(project)">
 					<div class="welcome-preview">
@@ -32,15 +32,19 @@
 				<div class="fix"></div>
 			</div>
 		</div>
-		<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedProject ? '25%' : ''), left :  (ctrl.$selectedProject ? '75%' : '') }">
+		<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedProject ? '30%' : ''), left :  (ctrl.$selectedProject ? '70%' : '') }">
 			<div en-if="ctrl.$selectedProject" class="fade-in" style="height:100%;">
 				<div class="project-details">
 					<h2>{{ctrl.$selectedProject.name}}</h2>
-					<p>{{ctrl.$selectedProject.name}}</p>
+					<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedProject.user}}</b></span></p>
+					<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.createdOn).toLocaleDateString()}}</span></p>
+					<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.lastModified).toLocaleDateString()}}</span></p>					
+					<div class="fix"></div>
+					<p en-html="ctrl.$selectedProject.description"></p>
 				</div>
 				<div class="buttons ">
-					<a>Remove</a>
-					<div class="button green animate-all">Open</div>
+					<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + ctrl.$selectedProject.name + '`?', ['Yes Delete It', 'No'], ctrl.removeProject, ctrl)">REMOVE</a></div>
+					<div class="button green animate-all">OPEN &nbsp; &#10148;</div>
 				</div>
 			</div>
 		</div>

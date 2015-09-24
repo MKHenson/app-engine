@@ -6,6 +6,7 @@ module Animate
 	export class Application extends Component
 	{
         private static _singleton: Application;
+        public static bodyComponent: Component;
 		private _focusObj: Component;
 
 		private _resizeProxy: any;
@@ -22,6 +23,8 @@ module Animate
 
             if (Application._singleton != null)
 				throw new Error("The Application class is a singleton. You need to call the Application.getSingleton() function.");
+
+            Application.bodyComponent = new Component("body");
 
 			Application._singleton = this;		
 			this._canvasContext = new CanvasContext( 200 );

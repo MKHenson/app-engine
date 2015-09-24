@@ -304,15 +304,18 @@ module Animate
         /**
 		* Creates a new user projects
         * @param {string} name The name of the project
+        * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
+
 		*/
-        newProject(name: string, description: string = ""): JQueryPromise<ModepressAddons.IGetProjects>
+        newProject(name: string, plugins: Array<string>, description: string = ""): JQueryPromise<ModepressAddons.IGetProjects>
         {
             var d = jQuery.Deferred<ModepressAddons.ICreateProject>(),
                 that = this,
                 token: Engine.IProject  = {
                     name: name,
-                    description: description
+                    description: description,
+                    plugins: plugins
                 };
 
             jQuery.post(`${DB.API}/projects/create`, token).done(function (data: ModepressAddons.ICreateProject)

@@ -946,7 +946,7 @@ module Animate
 
         newProject(name: string, description: string)
         {
-            this.user.newProject(name, description);
+            //this.user.newProject(name, description);
         }
 
 

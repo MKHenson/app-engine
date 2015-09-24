@@ -421,7 +421,7 @@
                 if (child.nodeType == 8 && commentReferenceNumbers)
                 {
                     var id = commentReferenceNumbers[0];
-                    commentElement = references[id[0]];
+                    commentElement = references[id];
                     comment = jQuery(commentElement);
                 }
                 
@@ -653,6 +653,10 @@
                             var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
                             if (disp != (<HTMLImageElement>elem).style.display )
                                 (<HTMLImageElement>elem).style.display = disp;
+                            break;
+                        case "en-html":
+                            var html = Compiler.parse(value, controller, null, elem);
+                            (<HTMLElement>elem).innerHTML = html;
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);

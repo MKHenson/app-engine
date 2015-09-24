@@ -386,6 +386,7 @@ Please only put css rules in here for layout related requirements.
     display:inline-block;
     position: relative;
     text-align: left;
+    vertical-align: middle;
 }
 
 /**
@@ -393,7 +394,6 @@ Please only put css rules in here for layout related requirements.
 */
 .window {
     position: absolute;
-    background-color: #eee;
     z-index: 9998;
 }
 .window-content {
@@ -592,7 +592,7 @@ html, body, #stage {
     height:100%;
     background-size:100% 100%;
     overflow:auto;
-    font-size:25px;
+    font-size:20px;
 }
 
 #splash .logo {
@@ -603,7 +603,7 @@ html, body, #stage {
 }
 #splash .logo h2 {
     font-weight: 100;
-    margin: 40px 0;
+    margin: 15px 0 40px 0;
 }
 #splash-view {
     overflow:auto;
@@ -624,7 +624,7 @@ html, body, #stage {
     height: 100px;
 }
 #splash .logout {
-    font-size: 30px;
+    font-size: 20px;
     position: absolute;
     top: 0;
     padding: 10px;
@@ -691,7 +691,7 @@ html, body, #stage {
 
 .project-items {
     overflow:auto;
-    height:398px;
+    height:405px;
 }
 .no-projects {
     font-weight: bold;
@@ -724,17 +724,25 @@ html, body, #stage {
     margin-top: 0;
 }
 .project-info .project-details {
-    height: 398px;
+    height: 406px;
     overflow: auto;
     padding: 10px;
     box-sizing: border-box;
+}
+.project-details p:last-child{
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+    padding: 10px 0;
+}
+.project-details .detail {
+    float:right;
 }
 .project-info .buttons {
     text-align:right;
 }
 .project-info .buttons .button {
-    height:100%;
-    
+    float:left;
+    width:50%;
 }
 .project-item {
     width: 200px;
@@ -773,7 +781,6 @@ html, body, #stage {
     text-overflow: ellipsis;
     white-space: nowrap;
     padding: 10px 5px;
-    font-size: 16px;
     box-sizing: border-box;
     overflow: hidden;
 }
@@ -813,6 +820,9 @@ html, body, #stage {
 .new-project .info {
     float:left;
 }
+.new-project .info:first-letter {
+    text-transform: capitalize;
+}
 .new-project .header {
     margin-bottom:10px;
 }
@@ -821,7 +831,6 @@ html, body, #stage {
     max-height: 330px;
 }
 .plugin .checkbox {
-    cursor: pointer;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -844,6 +853,7 @@ html, body, #stage {
 .more {
     float:right;
     cursor:pointer;
+    margin: 3px 0 0 0;
 }
 
 
@@ -964,13 +974,13 @@ a:active, a:hover {
   border-bottom:1px solid #ccc;
 }
 .tick-box {
-    background: #F0F0F0;
+    background: #e0d9d9;
 }
 .tick-box:hover {
-    background: #dbdbdb;
+    background: #c8c3c3;
 }
 .tick-box:active {
-    background: #ccc;
+    background: #b5afaf;
 }
 
 #splash .logo h2, #splash .logout a {
@@ -1006,7 +1016,7 @@ a:active, a:hover {
 .button.gray:active {
   background: #bbbbbb;
 }
-.reg-gradient, .plugin .cross:before, .plugin .cross:after {
+.reg-gradient {
     background: #5EA4EA;
     color: #FFF !important;
 }
@@ -1018,10 +1028,15 @@ a:active, a:hover {
     background: #04508C;
 }
 
-.reg-gradient .cross:before, .reg-gradient .cross:after, .reg-gradient .tick:before, .reg-gradient .tick:after, .reg-gradient .minus:before, .reg-gradient .minus:after {
+.reg-gradient .cross:before, .reg-gradient .cross:after {
     background-color:#fff;
 }
-
+.plugin .tick:before, .plugin  .tick:after, .plugin .minus:before, .plugin .minus:after, .plugin .cross:before, .plugin .cross:after {
+  background: #ccc;
+}
+.tick-box .tick:before, .tick-box .tick:after {
+  background: #5ABB08;
+}
 .list-view-field {
     border-bottom: 1px solid #ccc;
     padding-left: 4px;
@@ -1072,12 +1087,7 @@ html .bad-input {
     width: 20px;
     height: 20px;
     margin: 0px 5px 0 5px;
-}
-
-.cross:before, .cross:after {
-    content: "";
-    position: absolute;
-    background: #eae9e9;
+    vertical-align: middle;
 }
 
 .cross:before {
@@ -1104,10 +1114,10 @@ html .bad-input {
     transform: rotate(45deg);
 }
 
-.tick:before, .tick:after {
+.tick:before, .tick:after, .minus:before, .minus:after, .cross:before, .cross:after {
   content: "";
   position: absolute;
-  background: #84D86C;
+  background: #eae9e9;
 }
 
 .tick:before {
@@ -1131,11 +1141,7 @@ html .bad-input {
     position: relative;
     display:inline-block;
 }
-.minus:before, .minus:after {
-    content: "";
-    position: absolute;
-    background: #d0d0f0;
-}
+
 .minus:after {
     top: 50%;
     left: 0;

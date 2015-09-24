@@ -25,6 +25,7 @@ var PluginModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "0.0.1", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("isPublic", false, true));
     }
     return PluginModel;
 })(modepress_api_1.Model);

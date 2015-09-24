@@ -243,7 +243,7 @@ var HatcheryPlugin;
             this.loading = true;
             var pluginToken = this.pluginToken;
             if (this.editMode) {
-                that.http.put(appEngineURL + "/app-engine/plugins/update/" + pluginToken._id, pluginToken).then(function (token) {
+                that.http.put(appEngineURL + "/app-engine/plugins/" + pluginToken._id, pluginToken).then(function (token) {
                     if (token.data.error) {
                         that.error = true;
                         that.errorMsg = token.data.message;

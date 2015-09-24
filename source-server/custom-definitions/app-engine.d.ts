@@ -47,6 +47,7 @@ declare module Engine
         version?: string;
         createdOn?: number;
         lastModified?: number;
+        isPublic?: boolean;
         _id?: any;
     }
 
