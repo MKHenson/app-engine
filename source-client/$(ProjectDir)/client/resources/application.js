@@ -168,7 +168,7 @@ var Animate;
                         return false;
                 }
                 else {
-                    if (!Compiler.isEquivalent(aProps[i], bProps[i]))
+                    if (!Compiler.isEquivalent(aVal, bVal))
                         return false;
                 }
             }
@@ -1319,53 +1319,33 @@ var Animate;
                 this.assetEdited(asset, propName, propValue, oldVal, pVar.type);
         };
         /**
-        * Gets a plugin by its class name.
-        * @param {string} name The name of the plugin
-        * @returns {IPlugin}
+        * Attempts to download a plugin by its URL and insert it onto the page.
+        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable
+        * @param {IPlugin} pluginDefinition The plugin to load
+        * @returns {JQueryPromise<Engine.IPlugin>}
         */
-        PluginManager.prototype.getPluginByName = function (name) {
-            var i = this._plugins.length;
-            while (i--)
-                if (this._plugins[i].name == name)
-                    return this._plugins[i];
-            return null;
-        };
-        /**
-        * This will create an object from a constructor
-        * @param {any} Constructor The constructor we are instansiating
-        * @returns {any} The created instance
-        */
-        PluginManager.prototype.createInstance = function (Constructor) {
-            var Temp = function () { }, inst, ret; // other vars
-            // Give the Temp constructor the Constructor's prototype
-            Temp.prototype = Constructor.prototype;
-            // Create a new instance
-            inst = new Temp;
-            // Call the original Constructor with the temp
-            // instance as its context (i.e. its 'this' value)
-            ret = Constructor.apply(inst, []);
-            Temp.prototype = null;
-            Temp = null;
-            // If an object has been returned then return it otherwise
-            // return the original instance.
-            // (consistent with behaviour of the new operator)
-            return Object(ret) === ret ? ret : inst;
+        PluginManager.prototype.loadPlugin = function (pluginDefinition) {
+            var d = jQuery.Deferred();
+            if (pluginDefinition.$loaded)
+                return d.resolve();
+            jQuery.ajax({ dataType: "script", url: pluginDefinition.url }).done(function () {
+                pluginDefinition.$loaded = true;
+                pluginDefinition.$instance = __newPlugin;
+                return d.resolve(pluginDefinition);
+            }).fail(function (err) {
+                pluginDefinition.$loaded = false;
+                d.reject(new Error("An error occurred while downloading a plugin. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
         };
         /**
         * This funtcion is used to load a plugin.
-        * @param {IPlugin} plugin The IPlugin constructor that is to be created
+        * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
         * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
         */
-        PluginManager.prototype.loadPlugin = function (plugin, createPluginReference) {
+        PluginManager.prototype.preparePlugin = function (pluginDefinition, createPluginReference) {
             if (createPluginReference === void 0) { createPluginReference = true; }
-            if (createPluginReference)
-                this._loadedPlugins.push(plugin);
-            plugin = this.createInstance(plugin);
-            //Load external script
-            var i = this._plugins.length;
-            while (i--)
-                if (this._plugins[i].name == plugin.name)
-                    Animate.Logger.getSingleton().logMessage("A plugin with the name '" + plugin.name + "' already exists - this may cause conflicts in the application.", null, Animate.LogType.MESSAGE);
+            var plugin = pluginDefinition.$instance;
             this._plugins.push(plugin);
             //Get behaviour definitions
             var btemplates = plugin.getBehaviourDefinitions();
@@ -1381,17 +1361,15 @@ var Animate;
             var converters = plugin.getTypeConverters();
             if (converters) {
                 var i = converters.length;
-                while (i--) {
+                while (i--)
                     this._converters.push(converters[i]);
-                }
             }
             //Get asset templates
             var atemplates = plugin.getAssetsTemplate();
             if (atemplates) {
                 var i = atemplates.length;
-                while (i--) {
+                while (i--)
                     this._assetTemplates.push(atemplates[i]);
-                }
             }
             return;
         };
@@ -4201,7 +4179,7 @@ var Animate;
         };
         /**
         * Attempts to log the user out
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @return {JQueryPromise<UsersInterface.IResponse>}
         */
         User.prototype.logout = function () {
             var d = jQuery.Deferred(), that = this;
@@ -4221,12 +4199,21 @@ var Animate;
         * it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
+        * @return {JQueryPromise<ModepressAddons.IGetProjects>}
         */
         User.prototype.getProjectList = function (index, limit) {
             var d = jQuery.Deferred(), that = this;
-            jQuery.getJSON(Animate.DB.API + "/projects/" + this.userEntry.username).done(function (data) {
+            jQuery.getJSON(Animate.DB.API + "/projects/" + this.userEntry.username + "?verbose=true&index=" + index + "&limit=" + limit).done(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
+                // Assign the actual plugins
+                for (var i = 0, l = data.data.length; i < l; i++) {
+                    var project = data.data[i];
+                    var plugins = [];
+                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                        plugins.push(getPluginByID(project.plugins[ii]));
+                    project.$plugins = plugins;
+                }
                 return d.resolve(data);
             }).fail(function (err) {
                 d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
@@ -4238,7 +4225,7 @@ var Animate;
         * @param {string} name The name of the project
         * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
-
+        * @return {JQueryPromise<ModepressAddons.ICreateProject>}
         */
         User.prototype.newProject = function (name, plugins, description) {
             if (description === void 0) { description = ""; }
@@ -4248,6 +4235,28 @@ var Animate;
                 plugins: plugins
             };
             jQuery.post(Animate.DB.API + "/projects/create", token).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                // Assign the actual plugins
+                var project = data.data;
+                var plugins = [];
+                for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                    plugins.push(getPluginByID(project.plugins[ii]));
+                project.$plugins = plugins;
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
+        /**
+        * Removes a project by its id
+        * @param {string} pid The id of the project to remove
+        * @return {JQueryPromise<Modepress.IResponse>}
+        */
+        User.prototype.removeProject = function (pid) {
+            var d = jQuery.Deferred(), that = this;
+            jQuery.ajax({ url: Animate.DB.API + "/projects/" + that.userEntry.username + "/" + pid, type: 'DELETE', dataType: "json" }).done(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
                 return d.resolve(data);
@@ -4485,7 +4494,9 @@ var Animate;
         * Gets the last set of users
         */
         PageLoader.prototype.goLast = function () {
-            this.index = this.last - (this.last % this.limit);
+            this.index = this.last - this.limit;
+            if (this.index < 0)
+                this.index = 0;
             this.updateFunc(this.index, this.limit);
         };
         /**
@@ -9360,11 +9371,12 @@ var Animate;
                 //Check if we have already loaded this script before
                 var ii = manager.loadedPlugins.length;
                 var loadedScript = null;
-                while (ii--)
-                    if (manager.loadedPlugins[ii].url == url) {
-                        loadedScript = manager.loadedPlugins[ii];
-                        break;
-                    }
+                //while ( ii-- )
+                //	if ( manager.loadedPlugins[ii].url == url )
+                //	{
+                //		loadedScript = manager.loadedPlugins[ii];
+                //		break;
+                //	}
                 //If already loaded - just re-instanciate the plugin
                 if (loadedScript) {
                     var button = this._buildEntries[i].element.data("button");
@@ -9374,7 +9386,7 @@ var Animate;
                     //Make the row image a tick
                     jQuery("img", this._buildEntries[i].element).attr("src", "media/tick-20.png");
                     jQuery("img", this._buildEntries[i].element).removeClass("loader-cog-slow");
-                    manager.loadPlugin(loadedScript.plugin, false);
+                    manager.preparePlugin(loadedScript.plugin, false);
                     this._loadedCount++;
                     if (this._loadedCount >= this._buildEntries.length)
                         this.dispatchEvent(new ProjectLoaderEvent(ProjectLoaderEvents.READY, "Plugins loaded."));
@@ -9409,7 +9421,6 @@ var Animate;
                         jQuery("img", this._buildEntries[i].element).attr("src", "media/tick-20.png");
                         jQuery("img", this._buildEntries[i].element).removeClass("loader-cog-slow");
                         var manager = Animate.PluginManager.getSingleton();
-                        manager.loadedPlugins[manager.loadedPlugins.length - 1].url = sender.url;
                     }
                 }
             }
@@ -18158,11 +18169,6 @@ var Animate;
         Splash2.prototype.refreshProjects = function () {
             var that = this;
             if (that.user.isLoggedIn) {
-                this.user.getProjectList().then(function (respose) {
-                    that.projectBrowser.fill(respose.data);
-                }).fail(function (err) {
-                    Animate.MessageBox.show(err.message, ["Ok"], null, null);
-                });
             }
             else
                 that.projectBrowser.clearItems();
@@ -18887,7 +18893,6 @@ var Animate;
             this.$loading = false;
             this.$projects = [];
             this.$plugins = __plugins;
-            this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new Animate.PageLoader(this.fetchProjects.bind(this));
@@ -18925,11 +18930,13 @@ var Animate;
                 Recaptcha.reload();
             }
             that.$user.authenticated().done(function (val) {
+                that.$loading = false;
                 if (!val)
                     that.goState("login", true);
                 else
                     that.goState("welcome", true);
             }).fail(function (err) {
+                that.$loading = false;
                 that.goState("login", true);
             });
         };
@@ -18937,7 +18944,7 @@ var Animate;
         * Gets the dimensions of the splash screen based on the active pane
         */
         Splash.prototype.splashDimensions = function () {
-            if (this.$activePane == "login" || this.$activePane == "register")
+            if (this.$activePane == "login" || this.$activePane == "register" || this.$activePane == "loading-project")
                 return { "compact": true, "wide": false };
             else
                 return { "compact": false, "wide": true };
@@ -18950,7 +18957,6 @@ var Animate;
         Splash.prototype.goState = function (state, digest) {
             if (digest === void 0) { digest = false; }
             var that = this;
-            that.$loading = false;
             that.$activePane = state;
             that.$errorMsg = "";
             if (state == "welcome")
@@ -18962,9 +18968,46 @@ var Animate;
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
         };
+        /*
+        * Removes the selected project if confirmed by the user
+        * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
+        */
         Splash.prototype.removeProject = function (messageBoxAnswer) {
             if (messageBoxAnswer == "No")
                 return;
+            var that = this;
+            this.$user.removeProject(this.$selectedProject._id).done(function () {
+                that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
+                that.$selectedProject = null;
+                Animate.Compiler.digest(that._welcomeElm, that);
+            }).fail(function (err) {
+                Animate.MessageBox.show(err.message);
+            });
+        };
+        /*
+        * Loads the selected project
+        * @param {IProject} project The project to load
+        */
+        Splash.prototype.openProject = function (project) {
+            var that = this;
+            var numLoaded = 0;
+            that.$loading = true;
+            //Notif of the reset
+            Animate.Application.getInstance().projectReset();
+            // Start Loading the plugins            
+            that.goState("loading-project", true);
+            for (var i = 0, l = project.$plugins.length; i < l; i++)
+                Animate.PluginManager.getSingleton().loadPlugin(project.$plugins[i]).fail(function (err) {
+                    that.$errorMsg = err.message;
+                }).always(function () {
+                    numLoaded++;
+                    if (numLoaded >= project.$plugins.length) {
+                        that.$loading = false;
+                        for (var t = 0, tl = project.$plugins.length; t < tl; t++)
+                            Animate.PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
+                    }
+                    Animate.Compiler.digest(that._splashElm, that, true);
+                });
         };
         /*
         * Fetches a list of user projects
@@ -18975,6 +19018,7 @@ var Animate;
             var that = this;
             that.$loading = true;
             that.$errorMsg = "";
+            that.$selectedProject = null;
             Animate.Compiler.digest(that._splashElm, that);
             that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects) {
                 that.$pager.last = projects.count || 1;
@@ -19001,14 +19045,6 @@ var Animate;
                 this.$selectedProject.selected = false;
                 this.$selectedProject = null;
             }
-            //if (this.$selectedProjects.indexOf(project) == -1)
-            //    this.$selectedProjects.push(project);
-            //else
-            //    this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
-            //if (this.$selectedProjects.length > 0)
-            //    this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
-            //else
-            //    this.$selectedProject = null;
         };
         /*
         * Called when we select a project
@@ -19125,15 +19161,16 @@ var Animate;
             that.$errorMsg = "Just a moment while we hatch your appling...";
             Animate.Compiler.digest(this._splashElm, this, false);
             var ids = plugins.map(function (value) { return value._id; });
-            this.$user.newProject(name, ids, description).then(function () {
+            this.$user.newProject(name, ids, description).then(function (data) {
+                that.$loading = false;
                 that.$errorRed = false;
                 that.$errorMsg = "";
+                that.$selectedProject = data.data;
                 // Start Loading the plugins
-                that.goState("loading-project", false);
+                that.openProject(that.$selectedProject);
             }).fail(function (err) {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
-            }).always(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that, true);
             });
@@ -19261,6 +19298,7 @@ var Animate;
                 .fail(this.loginError.bind(that))
                 .always(function () {
                 Animate.Application.getInstance().projectReset();
+                that.$loading = false;
                 that.goState("login", true);
             });
         };
@@ -19288,6 +19326,7 @@ var Animate;
     Animate.Splash = Splash;
 })(Animate || (Animate = {}));
 var __plugins = {};
+var __newPlugin = null;
 /**
 * Goes through each of the plugins and returns the one with the matching ID
 * @param {string} id The ID of the plugin to fetch
@@ -19301,7 +19340,6 @@ function getPluginByID(id) {
     return null;
 }
 function onPluginsLoaded(plugins) {
-    //__plugins = event.tag.plugins;
     for (var i = 0, l = plugins.length; i < l; i++) {
         if (!__plugins[plugins[i].name])
             __plugins[plugins[i].name] = [];
@@ -19321,21 +19359,17 @@ function onPluginsLoaded(plugins) {
             // loop while the components are equal
             for (var i = 0; i < len; i++) {
                 // A bigger than B
-                if (parseInt(a_components[i]) > parseInt(b_components[i])) {
+                if (parseInt(a_components[i]) > parseInt(b_components[i]))
                     return 1;
-                }
                 // B bigger than A
-                if (parseInt(a_components[i]) < parseInt(b_components[i])) {
+                if (parseInt(a_components[i]) < parseInt(b_components[i]))
                     return -1;
-                }
             }
             // If one's a prefix of the other, the longer one is greater.
-            if (a_components.length > b_components.length) {
+            if (a_components.length > b_components.length)
                 return 1;
-            }
-            if (a_components.length < b_components.length) {
+            if (a_components.length < b_components.length)
                 return -1;
-            }
             // Otherwise they are the same.
             return 0;
         });
@@ -19434,7 +19468,6 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/DB.ts" />
 /// <reference path="lib/core/File.ts" />
 /// <reference path="lib/core/interfaces/IComponent.ts" />
-/// <reference path="lib/core/interfaces/IPluginManager.ts" />
 /// <reference path="lib/core/interfaces/IPlugin.ts" />
 /// <reference path="lib/core/interfaces/ICanvasItem.ts" />
 /// <reference path="lib/core/interfaces/IComponent.ts" />

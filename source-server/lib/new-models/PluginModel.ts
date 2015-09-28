@@ -16,6 +16,7 @@ export class PluginModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("description", ""));
         this.defaultSchema.add(new SchemaFactory.num("plan", Plan.Free, 1));
+        this.defaultSchema.add(new SchemaFactory.text("url", ""));
         this.defaultSchema.add(new SchemaFactory.textArray("deployables", []));
         this.defaultSchema.add(new SchemaFactory.text("image", ""));
         this.defaultSchema.add(new SchemaFactory.text("author", "", 1));

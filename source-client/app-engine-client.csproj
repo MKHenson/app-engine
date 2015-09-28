@@ -45,6 +45,7 @@
     <Content Include="lib\html\style-trike.css" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="custom-definitions\engine-definitions.d.ts" />
     <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
     <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="definitions\angular.d.ts" />
@@ -69,7 +70,6 @@
     <TypeScriptCompile Include="lib\core\DB.ts" />
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
     <TypeScriptCompile Include="lib\core\File.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\IPluginManager.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ISettingsPage.ts" />
     <TypeScriptCompile Include="lib\core\loaders\LoaderBase.ts" />
@@ -215,7 +215,13 @@
     <TypeScriptSourceMap>False</TypeScriptSourceMap>
     <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
     <TypeScriptOutFile>$(ProjectDir)..\client\resources\application.js</TypeScriptOutFile>
-    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptOutDir />
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
@@ -229,7 +235,7 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)..\client\resources\application.d.ts" "$(ProjectDir)\custom-definitions\generated" /y /i /r
+del "$(ProjectDir)..\client\resources\application.d.ts"</PostBuildEvent>
   </PropertyGroup>
 </Project>

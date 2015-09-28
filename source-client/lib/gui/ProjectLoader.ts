@@ -120,12 +120,12 @@ module Animate
 				//Check if we have already loaded this script before
 				var ii = manager.loadedPlugins.length;
 				var loadedScript = null;
-				while ( ii-- )
-					if ( manager.loadedPlugins[ii].url == url )
-					{
-						loadedScript = manager.loadedPlugins[ii];
-						break;
-					}
+				//while ( ii-- )
+				//	if ( manager.loadedPlugins[ii].url == url )
+				//	{
+				//		loadedScript = manager.loadedPlugins[ii];
+				//		break;
+				//	}
 
 				//If already loaded - just re-instanciate the plugin
 				if ( loadedScript )
@@ -140,7 +140,7 @@ module Animate
 					jQuery( "img", this._buildEntries[i].element ).attr( "src", "media/tick-20.png" );
 					jQuery( "img", this._buildEntries[i].element ).removeClass( "loader-cog-slow" );
 
-					manager.loadPlugin( loadedScript.plugin, false );
+					manager.preparePlugin( loadedScript.plugin, false );
 
 					this._loadedCount++;
 					if ( this._loadedCount >= this._buildEntries.length )
@@ -190,7 +190,7 @@ module Animate
 
 
 						var manager: PluginManager = PluginManager.getSingleton();
-						manager.loadedPlugins[manager.loadedPlugins.length - 1].url = ( <AnimateLoader>sender).url;
+						//manager.loadedPlugins[manager.loadedPlugins.length - 1].url = ( <AnimateLoader>sender).url;
 
 						////Now we have some text loaded - lets add it to the DOM and run it.
 						//jQuery( "body" ).append( "<script type='text/javascript'>" + event.tag + "</script>" )

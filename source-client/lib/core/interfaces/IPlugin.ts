@@ -21,8 +21,7 @@ module Animate
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
 		onDisplayPreview(file: File, previewComponent: Component) : boolean;
-
-
+        
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
 		*/
@@ -53,15 +52,5 @@ module Animate
 		* @returns {Array<string>} An array of allowed file extensions.
 		*/
 		getFileUploadExtensions(extArray: Array<string>): Array<string>;
-
-		/**
-		* Gets the URL of the plugin
-		*/
-		url: string;
-
-		/**
-		* Gets the name of the plugin
-		*/
-		name: string;
 	}
 }

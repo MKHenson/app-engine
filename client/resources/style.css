@@ -724,7 +724,7 @@ html, body, #stage {
     margin-top: 0;
 }
 .project-info .project-details {
-    height: 406px;
+    height: 400px;
     overflow: auto;
     padding: 10px;
     box-sizing: border-box;
@@ -743,6 +743,7 @@ html, body, #stage {
 .project-info .buttons .button {
     float:left;
     width:50%;
+    line-height: 36px;
 }
 .project-item {
     width: 200px;
@@ -855,6 +856,43 @@ html, body, #stage {
     cursor:pointer;
     margin: 3px 0 0 0;
 }
+
+/**
+*  SPLASH SCREEN - LOADING PROJECT
+*  ===============================
+*/
+#splash-loading-project h2 {
+    margin:20px auto;
+}
+#splash-loading-project .button {
+    width:100%;    
+}
+.loading-panel {
+    text-align:left;
+    overflow: auto;
+    max-height: 300px;
+}
+.loading-panel .plugin{
+    display:inline-block;
+    max-width:75%;
+    overflow:hidden;
+    white-space:nowrap;
+    vertical-align: middle;
+}
+.loading-panel .plugin:after {
+    content:" . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
+    color:#ccc;
+}
+.load-item {
+    margin:20px;
+}
+.plugin-loading {
+    float:right;
+}
+
+
+
+
 
 
 
@@ -1059,6 +1097,9 @@ a:active, a:hover {
 }
 .light-color {
     background-color: #ADC0DB;
+}
+.light {
+    color:#ccc;
 }
 .green-glow {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);

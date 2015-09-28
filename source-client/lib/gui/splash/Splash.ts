@@ -22,7 +22,6 @@
         private $projects: Array<Engine.IProject>;
         private $plugins: { [name:string] : Array<Engine.IPlugin> };
         private $selectedPlugins: Array<Engine.IProject>;
-        private $selectedProjects: Array<Engine.IProject>;
         private $selectedProject: Engine.IProject;
         private $selectedPlugin: Engine.IPlugin;
         private $pager: PageLoader;
@@ -47,7 +46,6 @@
             this.$loading = false;
             this.$projects = [];
             this.$plugins = __plugins;
-            this.$selectedProjects = [];
             this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new PageLoader(this.fetchProjects.bind(this));
@@ -94,6 +92,7 @@
            
             that.$user.authenticated().done(function( val )
             {
+                that.$loading = false;
                 if (!val)
                     that.goState("login", true);
                 else
@@ -101,6 +100,7 @@
 
             }).fail(function (err)
             {
+                that.$loading = false;
                 that.goState("login", true);
             });
         }
@@ -110,7 +110,7 @@
         */
         splashDimensions(): any
         {
-            if (this.$activePane == "login" || this.$activePane == "register")
+            if (this.$activePane == "login" || this.$activePane == "register" || this.$activePane == "loading-project")
                 return { "compact": true, "wide": false };
             else
                 return { "compact": false, "wide": true };
@@ -124,7 +124,6 @@
         goState(state: string, digest: boolean = false)
         {
             var that = this;
-            that.$loading = false;
             that.$activePane = state;
             that.$errorMsg = "";
            
@@ -140,12 +139,61 @@
                 Animate.Compiler.digest(that._splashElm, that, true);
         }
 
+        /*
+        * Removes the selected project if confirmed by the user
+        * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
+        */
         removeProject( messageBoxAnswer : string )
         {
             if (messageBoxAnswer == "No")
                 return;
+            
+            var that = this;
+            this.$user.removeProject(this.$selectedProject._id).done(function ()
+            {
+                that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
+                that.$selectedProject = null;
+                Animate.Compiler.digest(that._welcomeElm, that);
 
+            }).fail(function (err: Error)
+            {
+                MessageBox.show(err.message);
+            });
+        }
 
+        /*
+        * Loads the selected project
+        * @param {IProject} project The project to load
+        */
+        openProject(project: Engine.IProject)
+        {
+            var that = this;
+            var numLoaded = 0;
+            that.$loading = true;
+
+            //Notif of the reset
+            Application.getInstance().projectReset();
+            
+            // Start Loading the plugins            
+            that.goState("loading-project", true);
+
+            for (var i = 0, l = project.$plugins.length; i < l; i++)
+                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).fail(function (err: Error)
+                {
+                    that.$errorMsg = err.message;
+
+                }).always(function ()
+                {
+                    numLoaded++;
+                    if (numLoaded >= project.$plugins.length)
+                    {
+                        that.$loading = false;
+                        for (var t = 0, tl = project.$plugins.length; t < tl; t++)
+                            PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
+                    }
+
+                    Animate.Compiler.digest(that._splashElm, that, true);
+                });
         }
 
         /*
@@ -158,6 +206,7 @@
             var that = this;
             that.$loading = true;
             that.$errorMsg = "";
+            that.$selectedProject = null;
             Animate.Compiler.digest(that._splashElm, that);
 
             that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
@@ -195,17 +244,6 @@
                 (<any>this.$selectedProject).selected = false;
                 this.$selectedProject = null;
             }
-
-            //if (this.$selectedProjects.indexOf(project) == -1)
-            //    this.$selectedProjects.push(project);
-            //else
-            //    this.$selectedProjects.splice(this.$selectedProjects.indexOf(project), 1);
-
-
-            //if (this.$selectedProjects.length > 0)
-            //    this.$selectedProject = this.$selectedProjects[this.$selectedProjects.length - 1];
-            //else
-            //    this.$selectedProject = null;
         }
 
         /*
@@ -241,7 +279,7 @@
         * Toggles if a plugin should show all its versions or not
         * @param {IPlugin} The plugin to toggle
         */
-        showVersions(plugin: IPlugin)
+        showVersions(plugin: Engine.IPlugin)
         {
             for (var n in this.$plugins)
                 for (var i = 0, l = this.$plugins[n].length; i < l; i++)
@@ -351,19 +389,20 @@
             Compiler.digest(this._splashElm, this, false);
             var ids = plugins.map<string>(function (value) { return value._id; });
 
-            this.$user.newProject(name, ids, description).then(function ()
+            this.$user.newProject(name, ids, description).then(function (data)
             {
+                that.$loading = false;
                 that.$errorRed = false;
                 that.$errorMsg = "";
+                that.$selectedProject = data.data;
 
                 // Start Loading the plugins
-                that.goState("loading-project", false);
+                that.openProject(that.$selectedProject);
 
-            }).fail(function (err: Error) {
+            }).fail(function (err: Error)
+            {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
-
-            }).always(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that, true);
             });
@@ -524,6 +563,7 @@
             .always(function ()
             {
                 Application.getInstance().projectReset();
+                that.$loading = false;
                 that.goState("login", true);
             });
         }

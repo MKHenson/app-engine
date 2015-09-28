@@ -311,14 +311,14 @@ module Animate
             var that = this;
             if (that.user.isLoggedIn)
             {
-                this.user.getProjectList().then(function (respose)
-                {
-                    that.projectBrowser.fill(respose.data);
+                //this.user.getProjectList().then(function (respose)
+                //{
+                //    that.projectBrowser.fill(respose.data);
 
-                }).fail(function (err)
-                {
-                    MessageBox.show(err.message, ["Ok"], null, null);
-                });
+                //}).fail(function (err)
+                //{
+                //    MessageBox.show(err.message, ["Ok"], null, null);
+                //});
             }
             else
                 that.projectBrowser.clearItems();

@@ -19,6 +19,7 @@ var PluginModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("description", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("plan", UserDetailsModel_1.Plan.Free, 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("url", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("deployables", []));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("image", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("author", "", 1));

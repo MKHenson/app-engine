@@ -52,7 +52,10 @@
 		*/
         goLast()
         {
-            this.index = this.last - (this.last % this.limit);
+            this.index = this.last - this.limit;
+            if (this.index < 0)
+                this.index = 0;
+
             this.updateFunc(this.index, this.limit);
         }
 

@@ -19,15 +19,15 @@
 			</div>
 			<div class="projects-footer background">
 				<div class="navigation-column back">
-					<a en-show="ctrl.index" en-click="ctrl.$pager.goFirst()">First</a>
-					<a en-show="ctrl.index" en-click="ctrl.$pager.goPrev()">Prev</a>
+					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
+					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goPrev()">Prev</a>
 				</div>
 				<div class="navigation-column index">
 					{{ctrl.$pager.getPageNum()}} of {{ctrl.$pager.getTotalPages()}}
 				</div>
 				<div class="navigation-column next">
-					<a en-show="ctrl.index + ctrl.limit < ctrl.last" en-click="ctrl.$pager.goNext()">Next</a>
-					<a en-show="ctrl.index < ctrl.last - ctrl.limit" en-click="ctrl.$pager.goLast()">Last</a>
+					<a en-show="ctrl.$pager.index + ctrl.$pager.limit < ctrl.$pager.last" en-click="ctrl.$pager.goNext()">Next</a>
+					<a en-show="ctrl.$pager.index < ctrl.$pager.last - ctrl.$pager.limit" en-click="ctrl.$pager.goLast()">Last</a>
 				</div>
 				<div class="fix"></div>
 			</div>
@@ -38,13 +38,14 @@
 					<h2>{{ctrl.$selectedProject.name}}</h2>
 					<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedProject.user}}</b></span></p>
 					<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.createdOn).toLocaleDateString()}}</span></p>
-					<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.lastModified).toLocaleDateString()}}</span></p>					
+					<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.lastModified).toLocaleDateString()}}</span></p>
+					<p><span class="info">No. Plugins</span>: <span class="detail">{{ctrl.$selectedProject.plugins.length}}</span></p>
 					<div class="fix"></div>
 					<p en-html="ctrl.$selectedProject.description"></p>
 				</div>
 				<div class="buttons ">
 					<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + ctrl.$selectedProject.name + '`?', ['Yes Delete It', 'No'], ctrl.removeProject, ctrl)">REMOVE</a></div>
-					<div class="button green animate-all">OPEN &nbsp; &#10148;</div>
+					<div class="button green animate-all" en-click="ctrl.openProject(ctrl.$selectedProject)">OPEN &nbsp; &#10148;</div>
 				</div>
 			</div>
 		</div>

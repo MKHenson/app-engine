@@ -35,7 +35,6 @@
 /// <reference path="lib/core/DB.ts" />
 /// <reference path="lib/core/File.ts" />
 /// <reference path="lib/core/interfaces/IComponent.ts" />
-/// <reference path="lib/core/interfaces/IPluginManager.ts" />
 /// <reference path="lib/core/interfaces/IPlugin.ts" />
 /// <reference path="lib/core/interfaces/ICanvasItem.ts" />
 /// <reference path="lib/core/interfaces/IComponent.ts" />

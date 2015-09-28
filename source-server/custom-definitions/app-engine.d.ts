@@ -40,6 +40,7 @@ declare module Engine
     {
         name?: string;
         description?: string;
+        url?: string;
         plan?: number;
         deployables?: Array<string>;
         image?: string;
@@ -74,7 +75,7 @@ declare module Engine
         readPrivileges?: Array<string>;
         writePrivileges?: Array<string>;
         adminPrivileges?: Array<string>;
-        plugins?: Array<string>;
+        plugins?: Array<any>;
         files?: Array<string>;
         createdOn?: number;
         lastModified?: number;

@@ -1,3 +1,17 @@
-<div id="splash-loading-project" class='loading-project fade-in' en-show="ctrl.$activePane == 'loading-project'">
-
+﻿<div id="splash-loading-project" class='loading-project fade-in background' en-show="ctrl.$activePane == 'loading-project'">
+	<div en-if="ctrl.$selectedProject">
+		<h2>Loading '{{ctrl.$selectedProject.name}}'</h2>
+		<div class="error" en-show="ctrl.$errorMsg != ''">An error has occurred: {{ctrl.$errorMsg}}</div>
+		<div class="loading-panel">
+			<div en-repeat="ctrl.$selectedProject.$plugins as plugin" class="load-item">
+				<div class="tick-box">
+					<div class="tick" en-show="plugin.$loaded"></div>
+				</div>
+				<div class="info light plugin-loading fade-animation" en-show="!plugin.$loaded">Loading</div>
+				<div class="success plugin-loading" en-show="plugin.$loaded">Complete</div>
+				<div class="plugin">{{plugin.name}}</div>
+			</div>
+		</div>
+	</div>
+	<div class="button reg-gradient en-register animate-all" en-click="ctrl.goState('welcome')">❮ Back</div>
 </div>

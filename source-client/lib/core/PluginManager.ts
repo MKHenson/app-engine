@@ -3,11 +3,11 @@ module Animate
 	/** 
 	* The plugin manager is used to load and manage external Animate plugins.
 	*/
-	export class PluginManager extends EventDispatcher implements IPluginManager
+	export class PluginManager extends EventDispatcher
 	{
 		private static _singleton: PluginManager;
 
-		private _plugins: Array<IPlugin>;
+		private _plugins: Array<Animate.IPlugin>;
 		private _loadedPlugins: Array<IPlugin>;
 		private behaviourTemplates: Array<BehaviourDefinition>;
 		private _assetTemplates: Array<AssetTemplate>;
@@ -82,69 +82,42 @@ module Animate
 				this.assetEdited( asset, propName, propValue, oldVal, pVar.type )
 		}
 
-		/**
-		* Gets a plugin by its class name.
-		* @param {string} name The name of the plugin
-		* @returns {IPlugin}
+        /**
+		* Attempts to download a plugin by its URL and insert it onto the page. 
+        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable
+		* @param {IPlugin} pluginDefinition The plugin to load
+        * @returns {JQueryPromise<Engine.IPlugin>} 
 		*/
-		getPluginByName( name )
-		{
-			var i = this._plugins.length;
-			while ( i-- )
-				if ( this._plugins[i].name == name )
-					return this._plugins[i];
+        loadPlugin(pluginDefinition: Engine.IPlugin): JQueryPromise<Engine.IPlugin>
+        {
+            var d = jQuery.Deferred<Engine.IPlugin>();
 
-			return null;
-		}
+            if (pluginDefinition.$loaded)
+                return d.resolve();
+                
+            jQuery.ajax({ dataType: "script", url: pluginDefinition.url }).done(function()
+            {
+                pluginDefinition.$loaded = true;
+                pluginDefinition.$instance = __newPlugin;
+                return d.resolve(pluginDefinition);
 
-		/**
-		* This will create an object from a constructor
-		* @param {any} Constructor The constructor we are instansiating
-		* @returns {any} The created instance
-		*/
-		createInstance( Constructor )
-		{
-			var Temp = function () { }, // temporary constructor
-				inst, ret; // other vars
+            }).fail(function (err: JQueryXHR)
+            {
+                pluginDefinition.$loaded = false;
+                d.reject(new Error(`An error occurred while downloading a plugin. ${err.status}: ${err.responseText}`));
+            })
 
-			// Give the Temp constructor the Constructor's prototype
-			Temp.prototype = Constructor.prototype;
-
-			// Create a new instance
-			inst = new Temp;
-
-			// Call the original Constructor with the temp
-			// instance as its context (i.e. its 'this' value)
-			ret = Constructor.apply( inst, [] );
-
-			Temp.prototype = null;
-			Temp = null;
-
-			// If an object has been returned then return it otherwise
-			// return the original instance.
-			// (consistent with behaviour of the new operator)
-			return Object( ret ) === ret ? ret : inst;
-		}
-
-
+            return d.promise();
+        }
+        
 		/**
 		* This funtcion is used to load a plugin.
-		* @param {IPlugin} plugin The IPlugin constructor that is to be created
+		* @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
 		* @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
 		*/
-		loadPlugin( plugin : IPlugin, createPluginReference : boolean = true )
-		{
-			if ( createPluginReference )
-				this._loadedPlugins.push( plugin );
-
-			plugin = this.createInstance( plugin );
-
-			//Load external script
-			var i = this._plugins.length;
-			while ( i-- )
-				if ( this._plugins[i].name == plugin.name )
-					Logger.getSingleton().logMessage( "A plugin with the name '" + plugin.name + "' already exists - this may cause conflicts in the application.", null, LogType.MESSAGE );
-
+		preparePlugin( pluginDefinition : Engine.IPlugin, createPluginReference : boolean = true )
+        {
+            var plugin: Animate.IPlugin = pluginDefinition.$instance;
 			this._plugins.push( plugin );
 
 			//Get behaviour definitions
@@ -156,7 +129,6 @@ module Animate
 				{
 					this.behaviourTemplates.push( btemplates[i] );
 					BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
-
 					TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
 				}
 			}
@@ -167,21 +139,16 @@ module Animate
 			{
 				var i = converters.length;
 				while ( i-- )
-				{
 					this._converters.push( converters[i] );
-				}
 			}
 
 			//Get asset templates
 			var atemplates :Array<AssetTemplate> = plugin.getAssetsTemplate();
-
 			if ( atemplates )
 			{
 				var i = atemplates.length;
 				while ( i-- )
-				{
 					this._assetTemplates.push( atemplates[i] );
-				}
 			}
 
 			return;
@@ -238,8 +205,6 @@ module Animate
 
 			plugin.unload();
 		}
-
-
 
 		/**
 		* Loops through each of the converters to see if a conversion is possible. If it is
@@ -306,7 +271,6 @@ module Animate
 
 			return null
 		}
-
 
 		/**
 		* This is called when the scene is built. The object passed to this function represents
@@ -386,7 +350,6 @@ module Animate
 				var assetClass: AssetClass = assetTemplates[i].findClass( name );
 				if ( assetClass )
 					return assetClass;
-
 			}
 
 			return null;
@@ -457,7 +420,6 @@ module Animate
 				}
 			}
 		}
-
 
 		/**
 		* This function is called when we need to create a preview for a file that is associated with a project

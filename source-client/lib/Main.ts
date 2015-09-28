@@ -1,6 +1,7 @@
 declare var _users: string;
 declare var _cache: string;
 var __plugins: { [name: string]: Array<Engine.IPlugin> } = {};
+var __newPlugin: Animate.IPlugin = null;
 
 /**
 * Goes through each of the plugins and returns the one with the matching ID
@@ -18,9 +19,8 @@ function getPluginByID(id : string): Engine.IPlugin
     return null;
 }
 
-function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.ENUM, event: Animate.AnimateLoaderEvent, sender?: Animate.AnimateLoader )
+function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
 {
-    //__plugins = event.tag.plugins;
     for (var i = 0, l = plugins.length; i < l; i++)
     {
         if (!__plugins[plugins[i].name])
@@ -50,27 +50,19 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)// eventType: Animate.EN
             {
                 // A bigger than B
                 if (parseInt(a_components[i]) > parseInt(b_components[i]))
-                {
                     return 1;
-                }
 
                 // B bigger than A
                 if (parseInt(a_components[i]) < parseInt(b_components[i]))
-                {
                     return -1;
-                }
             }
 
             // If one's a prefix of the other, the longer one is greater.
             if (a_components.length > b_components.length)
-            {
                 return 1;
-            }
 
             if (a_components.length < b_components.length)
-            {
                 return -1;
-            }
 
             // Otherwise they are the same.
             return 0;

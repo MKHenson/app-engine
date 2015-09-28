@@ -1,6 +1,6 @@
 ﻿module Animate
 {
-    type CompiledEval = (ctrl, event, elm, contexts) => any;
+    export type CompiledEval = (ctrl, event, elm, contexts) => any;
 
     export interface AppNode extends Node
     {
@@ -290,7 +290,7 @@
                 }
                 else
                 {
-                    if (!Compiler.isEquivalent(aProps[i], bProps[i]))
+                    if (!Compiler.isEquivalent(aVal, bVal))
                         return false;
                 }
             }

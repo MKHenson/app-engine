@@ -37,14 +37,6 @@ module Animate
 	{
         private static _singleton = null;
         public userEntry: UsersInterface.IEngineUser;
-		//public username: string;
-		//public bio: string;
-  //      public createdOn: number;
-  //      public plan: UsersInterface.UserPlan;
-		//public maxNumProjects: number;
-		//public planLevel: number;
-		//public imgURL: string;
-
 		private _project: Project;
 		private _isLoggedIn: boolean;
         
@@ -251,7 +243,7 @@ module Animate
 
         /**
 		* Attempts to log the user out
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @return {JQueryPromise<UsersInterface.IResponse>}
 		*/
         logout(): JQueryPromise<UsersInterface.IResponse>
         {
@@ -280,17 +272,29 @@ module Animate
 		* it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
+        * @return {JQueryPromise<ModepressAddons.IGetProjects>}
 		*/
-        getProjectList(index?: number, limit?: number): JQueryPromise<ModepressAddons.IGetProjects>
+        getProjectList(index: number, limit: number): JQueryPromise<ModepressAddons.IGetProjects>
         {
             var d = jQuery.Deferred<ModepressAddons.IGetProjects>(),
                 that = this;
 
-            jQuery.getJSON(`${DB.API}/projects/${this.userEntry.username}`).done(function (data: ModepressAddons.IGetProjects)
+            jQuery.getJSON(`${DB.API}/projects/${this.userEntry.username}?verbose=true&index=${index}&limit=${limit}`).done(function (data: ModepressAddons.IGetProjects)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
-                
+
+                // Assign the actual plugins
+                for (var i = 0, l = data.data.length; i < l; i++)
+                {
+                    var project = data.data[i];
+                    var plugins: Array<Engine.IPlugin> = [];
+                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                        plugins.push(getPluginByID(project.plugins[ii]));
+
+                    project.$plugins = plugins;
+                }
+
                 return d.resolve(data);
 
             }).fail(function (err: JQueryXHR)
@@ -306,9 +310,9 @@ module Animate
         * @param {string} name The name of the project
         * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
-
+        * @return {JQueryPromise<ModepressAddons.ICreateProject>}
 		*/
-        newProject(name: string, plugins: Array<string>, description: string = ""): JQueryPromise<ModepressAddons.IGetProjects>
+        newProject(name: string, plugins: Array<string>, description: string = ""): JQueryPromise<ModepressAddons.ICreateProject>
         {
             var d = jQuery.Deferred<ModepressAddons.ICreateProject>(),
                 that = this,
@@ -322,6 +326,14 @@ module Animate
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
+
+                // Assign the actual plugins
+                var project = data.data;
+                var plugins: Array<Engine.IPlugin> = [];
+                for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                    plugins.push(getPluginByID(project.plugins[ii]));
+
+                project.$plugins = plugins;
                 
                 return d.resolve(data);
 
@@ -329,6 +341,31 @@ module Animate
             {
                 d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
             })
+
+            return d.promise();
+        }
+
+        /**
+		* Removes a project by its id
+        * @param {string} pid The id of the project to remove
+        * @return {JQueryPromise<Modepress.IResponse>}
+		*/
+        removeProject(pid: string): JQueryPromise<Modepress.IResponse>
+        {
+            var d = jQuery.Deferred<Modepress.IResponse>(),
+                that = this;
+
+            jQuery.ajax({ url: `${DB.API}/projects/${that.userEntry.username}/${pid}`, type: 'DELETE', dataType: "json" }).done(function (data: Modepress.IResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
 
             return d.promise();
         }
