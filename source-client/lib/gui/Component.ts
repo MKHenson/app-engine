@@ -54,7 +54,8 @@ module Animate
 			this._parent = parent;
 
 			//Associate the id and component
-			this._element.attr("id", this._id);
+            if ( !this._element.attr("id"))
+			    this._element.attr("id", this._id);
 			this._element.data("component", this);
 
 			if ( parent )

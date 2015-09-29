@@ -112,9 +112,9 @@ module Animate
 			this.leftTop.clear();
 			this.leftTop.addChild( "<div><div class='proj-info-left'><img src='media/project-item.png'/></div>" +
 				"<div class='proj-info-right'>" +
-				"<div class='name'>Name: " + User.get.project.mName + "</div>" +
+                "<div class='name'>Name: " + User.get.project.entry.name + "</div>" +
                 "<div class='owner'>User: " + User.get.userEntry.username + "</div>" +
-				"<div class='created-by'>Last Updated: " + new Date( User.get.project.lastModified ).toDateString() + "</div>" +
+                "<div class='created-by'>Last Updated: " + new Date(User.get.project.entry.lastModified ).toDateString() + "</div>" +
 				"</div></div><div class='fix'></div>" );
 
 			this.pluginList.clear();
@@ -336,7 +336,7 @@ module Animate
 			//Implement changes into DB
 			var projectStr = "";
 			var data = {};
-			data["projectId"] = User.get.project._id;
+            data["projectId"] = User.get.project.entry._id;
 
 			var plugins = [];
 

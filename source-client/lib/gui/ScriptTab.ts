@@ -153,7 +153,7 @@ module Animate
 					mac: "Command-S",
 					sender: "editor|cli"
 				},
-				exec: function () { Toolbar.getSingleton().save.element.trigger( "click" ); }
+                exec: function () { Animate.User.get.project.saveAll() }
 			});
 
 
@@ -203,7 +203,7 @@ module Animate
 			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
 			loader.addEventListener( LoaderEvents.FAILED, onServer );
 
-			loader.load( "/project/get-behaviour-scripts", { projectId: User.get.project._id, shallowId: shallowId });
+            loader.load("/project/get-behaviour-scripts", { projectId: User.get.project.entry._id, shallowId: shallowId });
 
 			this.onSelected();
 		}
@@ -403,7 +403,7 @@ module Animate
 			loader.addEventListener( LoaderEvents.COMPLETE, onSave );
 			loader.addEventListener( LoaderEvents.FAILED, onSave );
 			loader.load( "/project/save-behaviour-script", {
-				projectId: User.get.project._id,
+                projectId: User.get.project.entry._id,
 				onEnter: this.onEnter,
 				onInitialize: this.onInitialize,
 				onDispose: this.onDispose,

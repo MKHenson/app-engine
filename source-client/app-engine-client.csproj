@@ -42,6 +42,9 @@
     <Content Include="..\client\resources\templates\splash.html">
       <Link>html\templates\splash.html</Link>
     </Content>
+    <Content Include="..\client\resources\templates\toolbar-main.html">
+      <Link>html\templates\toolbar-main.html</Link>
+    </Content>
     <Content Include="lib\html\style-trike.css" />
   </ItemGroup>
   <ItemGroup>

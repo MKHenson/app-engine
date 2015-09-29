@@ -66,8 +66,8 @@ module Animate
 
 			var data = {};
 			data["category"] = "builds";
-			data["command"] = "build";
-			data["projectID"] = project._id;
+            data["command"] = "build";
+            data["projectID"] = project.entry._id;
 
 			var dataToken: ExportToken = <ExportToken>{};
 			dataToken.assets = [];
@@ -281,7 +281,7 @@ module Animate
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
 			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/export/compile", { projectId: project._id, json: sceneStr });
+            loader.load("/export/compile", { projectId: project.entry._id, json: sceneStr });
 		}
 
 		/**

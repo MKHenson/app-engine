@@ -1,114 +1,48 @@
 module Animate
 {
+    /**
+	* The main toolbar that sits at the top of the application
+	*/
 	export class Toolbar extends Component
 	{
 		private static _singleton: Toolbar;
 
+        private _mainElm: JQuery;
+        private $itemSelected: boolean;
 		private _topMenu : Component;
 		private _bottomMenu: Component;
 		private _tabHomeContainer: Component;
-		private _home: Component;
-
-		private _save: Component;
-		private _copy: Component;
-		private _paste: Component;
-		private _cut: Component;
-		private _deleteBut: Component;
-
-		private _snapping: Component;
-		private _run: Component;
-		private _build: Component;
-		private _htmlBut: Component;
-		private _cssBut: Component;
-		private _addBehaviour: Component;
-
 		private _currentContainer: Component;
 		private _currentTab: Component;
 		private _copyPasteToken: CanvasToken;
 
-		private _privileges: Component;
-		private _files: Component;
-
 		constructor( parent? : Component )
-		{
-			if ( Toolbar._singleton != null )
-				throw new Error( "The Toolbar class is a singleton. You need to call the TooltipManager.getSingleton() function." );
-
+        {
+            super("<div class='toolbar'></div>", parent);
 			Toolbar._singleton = this;
-
-			super( "<div class='toolbar'></div>", parent );
 
 			this._topMenu = <Component>this.addChild( "<div class='tool-bar-top'></div>" );
 			this._bottomMenu = <Component>this.addChild( "<div class='tool-bar-bottom'></div>" );
 
-			//Create the containers
-			this._tabHomeContainer = this.createTab( "Animate", true );// bottomMenu.addChild("<div class='tab-container'></div>");
+			// Create main tab
+            this._tabHomeContainer = this.createTab("Animate", true);
+            this._mainElm = jQuery("#toolbar-main").remove().clone();
+            this._tabHomeContainer.element.append(this._mainElm);
+            Compiler.build(this._mainElm, this);
 
-			//Create buttons
-			var group = this.createGroup( this._tabHomeContainer );
-			this._home = this.createGroupButton( "Home", "media/animate-home.png", group );
-
-			//group = this.createGroup( this.tabHomeContainer );
-			this._save = this.createGroupButton( "Save", "media/save.png", group );
-			//this.open = this.createGroupButton( "Open", "media/open.png", group );
-
-			group = this.createGroup( this._tabHomeContainer );
-			this._copy = this.createGroupButton( "Copy", "media/copy.png", group );
-			this._cut = this.createGroupButton( "Cut", "media/cut.png", group );
-			this._paste = this.createGroupButton( "Paste", "media/paste.png", group );
-			this._deleteBut = this.createGroupButton( "Delete", "media/delete.png", group );
-
-			//Grid related
-			group = this.createGroup( this._tabHomeContainer );
-			this._snapping = this.createGroupButton( "Snapping", "media/snap.png", group );
-
-			group = this.createGroup( this._tabHomeContainer );
-			this._run = this.createGroupButton( "Run", "media/play.png", group );
-			this._build = this.createGroupButton( "Settings", "media/build.png", group );
-			this._htmlBut = this.createGroupButton( "HTML", "media/html.png", group );
-			this._cssBut = this.createGroupButton( "CSS", "media/css.png", group );
-
-			group = this.createGroup( this._tabHomeContainer );
-			this._addBehaviour = this.createGroupButton( "New Behaviour", "media/add-behaviour.png", group );
-
-			//Create plugin button
-			group = this.createGroup( this._tabHomeContainer );
-			this._privileges = this.createGroupButton( "Privileges", "media/privaledges.png", group );
-
-			group = this.createGroup( this._tabHomeContainer );
-			this._files = this.createGroupButton( "File Manager", "media/plug-detailed.png", group );
-
-
-			this._copy.enabled = false;
-			this._cut.enabled = false;
-			this._paste.enabled = false;
-			this._deleteBut.enabled = false;
-			this._save.enabled = false;
-			this._addBehaviour.enabled = false;
-			this._run.enabled = false;
-			this._htmlBut.enabled = false;
-			this._cssBut.enabled = false;
-			this._build.enabled = false;
-			this._privileges.enabled = false;
-			this._files.enabled = false;
-
+            // Set a few defaults
+            this.$itemSelected = false;
 			this._copyPasteToken = null;
-
-
-			this.element.on( "click", jQuery.proxy( this.onClick, this ) );
-			//this.element.disableSelection( true );
-
 			this._currentContainer = this._tabHomeContainer;
-			this._currentTab = this._tabHomeContainer.element.data( "tab" ).element.data( "component" );// this.tabHome;
-			this._topMenu.element.on( "click", jQuery.proxy( this.onMajorTab, this ) );
-
-			//This plugin does not yet work with 'on' so we have to still use bind
+			this._currentTab = this._tabHomeContainer.element.data( "tab" ).element.data( "component" );
+			
+            // Set events
+			// This plugin does not yet work with 'on' so we have to still use bind
 			jQuery( document ).bind( 'keydown', 'Ctrl+s', this.onKeyDown.bind( this ) );
 			jQuery( document ).bind( 'keydown', 'Ctrl+c', this.onKeyDown.bind( this ) );
 			jQuery( document ).bind( 'keydown', 'Ctrl+x', this.onKeyDown.bind( this ) );
-			jQuery( document ).bind( 'keydown', 'Ctrl+v', this.onKeyDown.bind( this ) );
-
-			//this.element.disableSelection( true );
+            jQuery(document).bind('keydown', 'Ctrl+v', this.onKeyDown.bind(this));
+            this._topMenu.element.on("click", jQuery.proxy(this.onMajorTab, this));
 		}
 
 		/**
@@ -116,39 +50,23 @@ module Animate
 		* @param {Component} item 
 		*/
 		itemSelected(item : Component)
-		{
-			if (this._copyPasteToken)
-				this._paste.enabled = true;
+        {
+            if (item instanceof Behaviour || item instanceof Link)
+                this.$itemSelected = true;
 			else
-				this._paste.enabled = false;
+                this.$itemSelected = false;
 
-			if (item instanceof Behaviour || item instanceof Link)
-			{
-				this._copy.enabled = true;
-				this._cut.enabled = true;
-				this._deleteBut.enabled = true;
-			}
-			else
-			{
-				this._copy.enabled = false;
-				this._cut.enabled = false;
-				this._deleteBut.enabled = false;
-			}
+            Compiler.digest(this._mainElm, this);
 		}
 
 		/**
 		* This is called when we have loaded and initialized a new project.
 		*/
 		newProject()
-		{
-			this._addBehaviour.enabled = true;
-			this._save.enabled = true;
-			this._run.enabled = true;
-			this._files.enabled = true;
-			this._htmlBut.enabled = true;
-			this._cssBut.enabled = true;
-			this._build.enabled = true;
-			this._privileges.enabled = true;
+        {
+            this.$itemSelected = false;
+            this._copyPasteToken = null;
+            Compiler.digest(this._mainElm, this);
 		}
 
 		/**
@@ -178,108 +96,95 @@ module Animate
 				jQuery( e.target ).addClass( "tool-tab-selected" );
 				this._currentTab = jQuery( e.target ).data( "component" );
 			}
-		}
+        }
+        
+        /**
+        * Opens the splash window
+        */
+        onHome()
+        {
+            Splash.get.reset();
+            Splash.get.show();
+        }
 
-		/**
-		* Called when the tool bar is clicked.
-		* @param {any} e The jQuery event object
-		*/
-		onClick( e ) : void
-		{
-			var comp = jQuery( e.target ).data( "component" );
+        /**
+        * Opens the user privileges window
+        */
+        onShowPrivileges()
+        {
+            Splash.get.reset();
+            Splash.get.show();
+        }
+       
+        /**
+        * Notifys the app that its about to launch a test run
+        */
+        onRun()
+        {
+            PluginManager.getSingleton().dispatchEvent(new Event(EditorEvents.EDITOR_RUN, null));
+            ImportExport.getSingleton().run();
+        }
 
-			if ( comp == this._addBehaviour )
-				NewBehaviourForm.getSingleton().show();
-			//Splash screen
-			else if ( comp == this._home )
-			{
-				Splash.get.reset();
-				Splash.get.show();
-			}
-			else if ( comp == this._snapping )
-			{
-				if ( this._snapping.element.hasClass( "selected" ) )
-				{
-					this._snapping.element.removeClass( "selected" );
-					Canvas.snapping = false;
-				}
-				else
-				{
-					this._snapping.element.addClass( "selected" );
-					Canvas.snapping = true;
-				}
-			}
-			else if ( comp == this._privileges )
-				UserPrivilegesForm.getSingleton().show();
-			else if ( comp == this._save )
-				User.get.project.saveAll();
-			else if ( comp == this._build )
-				BuildOptionsForm.getSingleton().show();
-			else if ( comp == this._run )
-			{
-				//PluginManager.getSingleton().callRun();
-				PluginManager.getSingleton().dispatchEvent( new Event( EditorEvents.EDITOR_RUN, null ) );
-				ImportExport.getSingleton().run();
-			}
-			else if ( comp == this._files )
-			{
-				FileViewerForm.getSingleton().showForm( null, null );
-			}
-			else if ( comp == this._htmlBut )
-				CanvasTab.getSingleton().addSpecialTab("HTML", CanvasTabType.HTML );
-			else if ( comp == this._cssBut )
-				CanvasTab.getSingleton().addSpecialTab( "CSS", CanvasTabType.CSS );
+        /**
+        * When we click the paste button
+        */
+        onPaste()
+        {
+            if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
+                return;
+            
+            if (this._copyPasteToken)
+            {
+                var canvas = CanvasTab.getSingleton().currentCanvas;
+                canvas.openFromDataObject(this._copyPasteToken, false, true);
+                canvas.dispatchEvent(new CanvasEvent(CanvasEvents.MODIFIED, canvas));
+            }
+        }
 
-			//Any of the cut / paste / copy buttons
-			if ( CanvasTab.getSingleton().currentCanvas instanceof Canvas )
-			{
-				var canvas = CanvasTab.getSingleton().currentCanvas;
-				if ( this._copyPasteToken && comp == this._paste )
-				{
-					canvas.openFromDataObject( this._copyPasteToken, false, true );
-					canvas.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, canvas ) );
-				}
-				else if ( Canvas.lastSelectedItem != null && comp == this._copy )
-				{
-					var toCopy = [];
+        /**
+        * When we click the copy button
+        */
+        onDuplicate(cut: boolean = false)
+        {
+            if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
+                return;
+            
+            if (!Canvas.lastSelectedItem)
+                return;
 
-					var i = canvas.children.length;
-					while ( i-- )
-						if ( canvas.children[i].selected )
-							toCopy.push( canvas.children[i] );
+            var canvas = CanvasTab.getSingleton().currentCanvas;
+            var toCopy = [];
+            var i = canvas.children.length;
+            while (i--)
+                if (canvas.children[i].selected)
+                    toCopy.push(canvas.children[i]);
 
-					this._copyPasteToken = canvas.buildDataObject(toCopy);
-					canvas.buildDataObject( toCopy ); //[Canvas.lastSelectedItem]
-					this._paste.enabled = true;
-				}
-				else if ( Canvas.lastSelectedItem != null && comp == this._cut )
-				{
-					var toCopy = [];
+            this._copyPasteToken = canvas.buildDataObject(toCopy);
 
-					var i = canvas.children.length;
-					while ( i-- )
-						if ( canvas.children[i].selected )
-							toCopy.push( canvas.children[i] );
+            // If a cut operation then remove the selected item
+            if (cut)
+                Canvas.lastSelectedItem.dispose();
 
-					this._copyPasteToken = canvas.buildDataObject( toCopy ); //[Canvas.lastSelectedItem]
-					Canvas.lastSelectedItem.dispose();
+            canvas.dispatchEvent(CanvasEvents.MODIFIED, canvas);
+        }
 
-					canvas.dispatchEvent( CanvasEvents.MODIFIED, canvas );
+       
+        /**
+        * When we click the delete button
+        */
+        onDelete()
+        {
+            if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
+                return;
 
-					this._paste.enabled = true;
-				}
-				else if ( comp == this._deleteBut )
-				{
-					var i = canvas.children.length;
-					while ( i-- )
-						if ( canvas.children[i].disposed != null && canvas.children[i].selected )
-							canvas.children[i].onDelete();
+            var canvas = CanvasTab.getSingleton().currentCanvas;
+            var i = canvas.children.length;
+            while (i--)
+                if (canvas.children[i].disposed != null && canvas.children[i].selected)
+                    canvas.children[i].onDelete();
 
-					canvas.removeItems();
-				}
-			}
-
-		}
+            canvas.removeItems();
+        }
 
 		/**
 		* This function is used to create a new group on the toolbar
@@ -290,7 +195,6 @@ module Animate
 		createTab( text : string, isSelected : boolean = false ) : Component
 		{
 			var topTab = this._topMenu.addChild( "<div class='tool-tab " + ( isSelected ? "tool-tab-selected" : "" ) + "'>" + text + "</div>" );
-
 			var btmContainer: Component = <Component>this._bottomMenu.addChild( "<div class='tab-container'></div>" );
 
 			if ( !isSelected )
@@ -308,14 +212,14 @@ module Animate
 		*/
 		onKeyDown( event : any )
 		{
-			if ( event.data == 'Ctrl+s' )
-				this._save.element.trigger( "click" );
-			else if ( event.data == 'Ctrl+c' )
-				this._copy.element.trigger( "click" );
+            if (event.data == 'Ctrl+s')
+                Animate.User.get.project.saveAll()
+            else if (event.data == 'Ctrl+c')
+                this.onDuplicate(false);
 			if ( event.data == 'Ctrl+x' )
-				this._cut.element.trigger( "click" );
-			if ( event.data == 'Ctrl+v' )
-				this._paste.element.trigger( "click" );
+                this.onDuplicate(true);
+            if (event.data == 'Ctrl+v')
+                this.onPaste();
 
 			return false;
 		}
@@ -404,24 +308,12 @@ module Animate
 		/**
 		* Gets the singleton instance
 		*/
-		public static getSingleton( parent?: Component): Toolbar
+		public static getSingleton(parent?: Component): Toolbar
 		{
 			if ( Toolbar._singleton === undefined )
 				Toolbar._singleton = new Toolbar( parent );
 
 			return Toolbar._singleton;
 		}
-
-		get save(): Component { return this._save; }
-		get copy(): Component { return this._copy; }
-		get paste(): Component { return this._paste; }
-		get cut(): Component { return this._cut; }
-		get deleteBut(): Component { return this._deleteBut; }
-		get snapping(): Component { return this._snapping; }
-		get run(): Component { return this._run; }
-		get build(): Component { return this._build; }
-		get htmlBut(): Component { return this._htmlBut; }
-		get cssBut(): Component { return this._cssBut; }
-		get addBehaviour(): Component { return this._addBehaviour; }
 	}
 }

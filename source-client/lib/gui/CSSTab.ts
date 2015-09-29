@@ -150,7 +150,7 @@ module Animate
 					mac: "Command-S",
 					sender: "editor|cli"
 				},
-				exec: function () { Toolbar.getSingleton().save.element.trigger("click"); }
+                exec: function () { Animate.User.get.project.saveAll() }
 			});
 
 			editor.on("change", this.proxyChange);

@@ -1,0 +1,92 @@
+﻿<div id='toolbar-main'>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="ctrl.onHome()">
+			<div>
+				<img src="media/animate-home.png">
+			</div>
+			<div class="tool-bar-text">Home</div>
+		</div>
+		<div class="tab-button" en-click="Animate.User.get.project.saveAll()">
+			<div><img src="media/save.png"></div>
+			<div class="tool-bar-text">Save</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="ctrl.onDuplicate()" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/copy.png">
+			</div>
+			<div class="tool-bar-text">Copy</div>
+		</div>
+		<div class="tab-button" en-click="ctrl.onDuplicate(true)" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/cut.png">
+			</div>
+			<div class="tool-bar-text">Cut</div>
+		</div>
+		<div class="tab-button" en-click="ctrl.onPaste()" en-class="{ disabled : !ctrl._copyPasteToken }">
+			<div>
+				<img src="media/paste.png">
+			</div><div class="tool-bar-text">Paste</div>
+		</div>
+		<div class="tab-button" en-click="ctrl.onDelete()" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/delete.png">
+			</div>
+			<div class="tool-bar-text">Delete</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="Animate.Canvas.snapping = !Animate.Canvas.snapping" en-class="{ selected : Animate.Canvas.snapping }">
+			<div>
+				<img src="media/snap.png">
+			</div>
+			<div class="tool-bar-text">Snapping</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="ctrl.onRun()">
+			<div>
+				<img src="media/play.png">
+			</div>
+			<div class="tool-bar-text">Run</div>
+		</div><div class="tab-button" en-click="Animate.BuildOptionsForm.getSingleton().show()">
+			<div>
+				<img src="media/build.png">
+			</div><div class="tool-bar-text">Settings</div>
+		</div>
+		<div class="tab-button" en-click="Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML )">
+			<div>
+				<img src="media/html.png">
+			</div>
+			<div class="tool-bar-text">HTML</div>
+		</div><div class="tab-button" en-click="Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS )">
+			<div>
+				<img src="media/css.png">
+			</div><div class="tool-bar-text">CSS</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="Animate.NewBehaviourForm.getSingleton().show()">
+			<div>
+				<img src="media/add-behaviour.png">
+			</div><div class="tool-bar-text">New Behaviour</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="Animate.UserPrivilegesForm.getSingleton().show()">
+			<div>
+				<img src="media/privaledges.png">
+			</div>
+			<div class="tool-bar-text">Privileges</div>
+		</div>
+	</div>
+	<div class="tool-bar-group">
+		<div class="tab-button" en-click="Animate.FileViewerForm.getSingleton().showForm( null, null )">
+			<div>
+				<img src="media/plug-detailed.png">
+			</div>
+			<div class="tool-bar-text">File Manager</div>
+		</div>
+	</div>
+</div>

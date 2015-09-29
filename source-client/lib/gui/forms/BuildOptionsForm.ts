@@ -216,7 +216,7 @@ module Animate
 
 				user.addEventListener( UserEvents.FAILED, this._renameProxy );
 				user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
-				user.renameProject( project._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
+                user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
 			}
 			else if ( target == this._saveBuild )
 			{
@@ -419,9 +419,9 @@ module Animate
             this._warning.text = "";
 
             //Set project vars
-            (<Label>this._name.val).text = project.mName;
-            (<Label>this._description.val).text = project.mDescription;
-            (<Label>this._tags.val).text = project.mTags;
+            (<Label>this._name.val).text = project.entry.name;
+            (<Label>this._description.val).text = project.entry.description;
+            (<Label>this._tags.val).text = project.entry.tags.join(", ");
 
 			(<Label>this._name.val).textfield.element.removeClass( "red-border" );
 			(<Label>this._description.val).textfield.element.removeClass( "red-border" );
@@ -433,11 +433,11 @@ module Animate
 			( <Label>this._buildVerMid.val ).text = versionParts[1];
 			( <Label>this._buildVerMin.val ).text = versionParts[2];
             (<Label>this._notes.val).text = project.mCurBuild.build_notes;
-			this._imgPreview.element.html( ( project.mImgPath != "" ? "<img src='" + project.mImgPath + "'/>" : "" ) );
+            this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
 
-			(<ComboBox>this._visibility.val).selectedItem = ( project.mCurBuild.visibility == "Public" ? "Public" : "Private" );
-			(<ComboBox>this._projVisibility.val).selectedItem = ( project.mVisibility == "Public" ? "Public" : "Private" );
-			(<ComboBox>this._category.val).selectedItem = project.mCategory;
+            (<ComboBox>this._visibility.val).selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
+            (<ComboBox>this._projVisibility.val).selectedItem = (project.entry.public ? "Public" : "Private");
+            (<ComboBox>this._category.val).selectedItem = project.entry.category;
 
             (<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
 			(<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
@@ -475,7 +475,7 @@ module Animate
 				this._uploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
 			}
 
-			this._uploader.setParams( { projectId: User.get.project._id });
+            this._uploader.setParams({ projectId: User.get.project.entry._id });
 		}
 
 		/**
@@ -506,8 +506,8 @@ module Animate
 				if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
 				{
 					this._warning.textfield.element.css( "color", "#5DB526" );
-					var project = User.get.project;
-					project.mImgPath = response.imageUrl;
+                    var project = User.get.project;
+                    project.entry.image = response.imageUrl;
 					this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
 				}
 				else

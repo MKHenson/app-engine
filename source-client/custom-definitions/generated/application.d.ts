@@ -1,3 +1,17 @@
+/// <reference path="../../source-client/definitions/node.d.ts" />
+/// <reference path="../../source-client/definitions/express.d.ts" />
+/// <reference path="../../source-client/definitions/jquery.d.ts" />
+/// <reference path="../../source-client/definitions/jqueryui.d.ts" />
+/// <reference path="../../source-client/definitions/jquery.scrollTo.d.ts" />
+/// <reference path="../../source-client/definitions/JSColor.d.ts" />
+/// <reference path="../../source-client/definitions/AceEditor.d.ts" />
+/// <reference path="../../source-client/definitions/es6-promise.d.ts" />
+/// <reference path="../../source-client/definitions/FileUploader.d.ts" />
+/// <reference path="../../source-client/definitions/Recaptcha.d.ts" />
+/// <reference path="../../source-client/definitions/ExportToken.d.ts" />
+/// <reference path="../../source-server/definitions/webinate-users.d.ts" />
+/// <reference path="../../source-server/definitions/modepress-api.d.ts" />
+/// <reference path="../../source-server/custom-definitions/app-engine.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface AppNode extends Node {
@@ -1451,7 +1465,6 @@ declare module Animate {
         toString(): string;
         static SAVED: ProjectEvents;
         static SAVED_ALL: ProjectEvents;
-        static OPENED: ProjectEvents;
         static FAILED: ProjectEvents;
         static BUILD_SELECTED: ProjectEvents;
         static HTML_SAVED: ProjectEvents;
@@ -1521,28 +1534,16 @@ declare module Animate {
     * loading and saving data in the scene.
     */
     class Project extends EventDispatcher {
-        _id: string;
-        buildId: string;
+        entry: Engine.IProject;
         mSaved: boolean;
-        mName: string;
-        mDescription: string;
-        mTags: string;
         mCurBuild: Build;
-        private _plugins;
-        created: number;
-        lastModified: number;
-        mCategory: string;
-        mSubCategory: string;
-        mRating: number;
-        mImgPath: string;
-        mVisibility: string;
         private _behaviours;
         private _assets;
         private _files;
         /**
         * @param{string} id The database id of this project
         */
-        constructor(id: string, name: string, build: Build);
+        constructor();
         /**
         * Gets an asset by its ID
         * @param {string} id The ID of the asset id
@@ -1739,7 +1740,7 @@ declare module Animate {
         /**
         * This will cleanup the project and remove all data associated with it.
         */
-        dispose(): void;
+        reset(): void;
         plugins: Array<Engine.IPlugin>;
     }
 }
@@ -1774,7 +1775,7 @@ declare module Animate {
     class User extends EventDispatcher {
         private static _singleton;
         userEntry: UsersInterface.IEngineUser;
-        private _project;
+        project: Project;
         private _isLoggedIn;
         constructor();
         /**
@@ -1885,7 +1886,6 @@ declare module Animate {
         * @param {Event} data The data sent from the server.
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-        project: Project;
         isLoggedIn: boolean;
         /**
         * Gets the singleton instance.
@@ -5955,28 +5955,19 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+    * The main toolbar that sits at the top of the application
+    */
     class Toolbar extends Component {
         private static _singleton;
+        private _mainElm;
+        private $itemSelected;
         private _topMenu;
         private _bottomMenu;
         private _tabHomeContainer;
-        private _home;
-        private _save;
-        private _copy;
-        private _paste;
-        private _cut;
-        private _deleteBut;
-        private _snapping;
-        private _run;
-        private _build;
-        private _htmlBut;
-        private _cssBut;
-        private _addBehaviour;
         private _currentContainer;
         private _currentTab;
         private _copyPasteToken;
-        private _privileges;
-        private _files;
         constructor(parent?: Component);
         /**
         * This is called when an item on the canvas has been selected
@@ -5993,10 +5984,29 @@ declare module Animate {
         */
         onMajorTab(e: any): void;
         /**
-        * Called when the tool bar is clicked.
-        * @param {any} e The jQuery event object
+        * Opens the splash window
         */
-        onClick(e: any): void;
+        onHome(): void;
+        /**
+        * Opens the user privileges window
+        */
+        onShowPrivileges(): void;
+        /**
+        * Notifys the app that its about to launch a test run
+        */
+        onRun(): void;
+        /**
+        * When we click the paste button
+        */
+        onPaste(): void;
+        /**
+        * When we click the copy button
+        */
+        onDuplicate(cut?: boolean): void;
+        /**
+        * When we click the delete button
+        */
+        onDelete(): void;
         /**
         * This function is used to create a new group on the toolbar
         * @param {string} text The text of the new tab
@@ -6058,17 +6068,6 @@ declare module Animate {
         * Gets the singleton instance
         */
         static getSingleton(parent?: Component): Toolbar;
-        save: Component;
-        copy: Component;
-        paste: Component;
-        cut: Component;
-        deleteBut: Component;
-        snapping: Component;
-        run: Component;
-        build: Component;
-        htmlBut: Component;
-        cssBut: Component;
-        addBehaviour: Component;
     }
 }
 declare module Animate {
@@ -6428,6 +6427,7 @@ declare module Animate {
         goState(state: string, digest?: boolean): void;
         removeProject(messageBoxAnswer: string): void;
         openProject(project: Engine.IProject): void;
+        loadScene(): void;
         fetchProjects(index: number, limit: number): void;
         selectProject(project: Engine.IProject): void;
         selectPlugin(plugin: Engine.IPlugin): void;
@@ -6502,5 +6502,13 @@ declare var __newPlugin: Animate.IPlugin;
 * @param {string} id The ID of the plugin to fetch
 */
 declare function getPluginByID(id: string): Engine.IPlugin;
+/**
+* Once the plugins are loaded from the DB
+* @param {Array<Engine.IPlugin>} plugins
+*/
 declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
-declare function byteFilter(): (bytes: any, precision: any) => string;
+/**
+* Returns a formatted byte string
+* @returns {string}
+*/
+declare function byteFilter(bytes: any, precision: any): string;

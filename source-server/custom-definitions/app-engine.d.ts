@@ -17,20 +17,24 @@
 
 declare module Engine
 {
-    /**
-    * An interface that is used to describe the assets model
-    */
-    export interface IAsset
+    export interface IResource
     {
         name?: string;
-        shallowId?: number;
-        className?: string;
         projectId?: any;
         user?: string;
-        json?: Array<{ name: string; category: string; value: any; type: string; }>;
         createdOn?: number;
         lastModified?: number;
         _id?: any;
+    }
+
+    /**
+    * An interface that is used to describe the assets model
+    */
+    export interface IAsset extends IResource
+    {
+        shallowId?: number;
+        className?: string;
+        json?: Array<{ name: string; category: string; value: any; type: string; }>;
     }
 
     /**
@@ -100,11 +104,8 @@ declare module Engine
     /**
     * An interface that is used to describe a project build
     */
-    export interface IBuild
+    export interface IBuild extends IResource
     {
-        name?: string;
-        projectId?: any;
-        user?: string;
         notes?: string;
         version?: string;
         public?: boolean;
@@ -114,23 +115,62 @@ declare module Engine
         liveToken?: string;
         totalVotes?: number;
         totalVoters?: number;
-        createdOn?: number;
-        lastModified?: number;
-        _id?: any;
+    }
+
+    /**
+    * An interface that is used to describe project behaviours
+    */
+    export interface IBehaviour extends IResource
+    {
+        shallowId?: number;
+        json?: string;
+    }
+
+    /**
+    * An interface that is used to describe project groups
+    */
+    export interface IGroup extends IResource
+    {
+        shallowId ?: number;
+        items ?: Array<number>;
+    }
+
+    /**
+    * An interface that is used to describe users files
+    */
+    export interface IFile extends IResource
+    {
+        url ?: string;
+        tags ?: Array<string>;
+        previewPath ?: string;
+        previewUrl ?: string;
+        global ?: boolean;
+        favourite ?: boolean;
+        size ?: number;
+        shallowId ?: number;
     }
 }
 
 declare module ModepressAddons
 {
-    export interface IGetBuilds extends Modepress.IGetArrayResponse<Engine.IBuild> { }
-    export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }
-    export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
-    export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
+    export interface ICreateResource extends Modepress.IGetResponse<Engine.IResource> { }
     export interface ICreateAsset extends Modepress.IGetResponse<Engine.IAsset> { }
+    export interface ICreateBehaviour extends Modepress.IGetResponse<Engine.IBehaviour> { }
+    export interface ICreateFile extends Modepress.IGetResponse<Engine.IFile> { }
+    export interface ICreateGroup extends Modepress.IGetResponse<Engine.IGroup> { }
     export interface ICreatePlugin extends Modepress.IGetResponse<Engine.IPlugin> { }
     export interface ICreateBuild extends Modepress.IGetResponse<Engine.IBuild> { }
+
+    export interface IGetBuilds extends Modepress.IGetArrayResponse<Engine.IBuild> { }
+    export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
+    export interface IGetBehaviours extends Modepress.IGetArrayResponse<Engine.IBehaviour> { }
+    export interface IGetFiles extends Modepress.IGetArrayResponse<Engine.IFile> { }
+    export interface IGetGroups extends Modepress.IGetArrayResponse<Engine.IGroup> { }
+    export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }
+    export interface IGetPlugins extends Modepress.IGetArrayResponse<Engine.IPlugin> { }
+    export interface IGetResources extends Modepress.IGetArrayResponse<Engine.IResource> { }
 }
 
 declare module "engine" {

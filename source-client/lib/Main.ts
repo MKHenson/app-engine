@@ -19,6 +19,10 @@ function getPluginByID(id : string): Engine.IPlugin
     return null;
 }
 
+/**
+* Once the plugins are loaded from the DB
+* @param {Array<Engine.IPlugin>} plugins
+*/
 function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
 {
     for (var i = 0, l = plugins.length; i < l; i++)
@@ -67,50 +71,43 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
             // Otherwise they are the same.
             return 0;
         });
-
-        //pluginArray = pluginArray.reverse();
     }
-
 	
+    // Create the application element
     var app = new Animate.Application("#application");
+
+    // Initialize the splash instance
     Animate.Splash.init(app);
 
-    //Start Splash screen
+    // Show Splash screen
 	Animate.Splash.get.show();
 }
 
-function byteFilter()
+/**
+* Returns a formatted byte string
+* @returns {string}
+*/
+function byteFilter(bytes, precision) : string
 {
-    return function (bytes, precision)
-    {
-        if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
-        if (typeof precision === 'undefined') precision = 1;
-        var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
-            number = Math.floor(Math.log(bytes) / Math.log(1024));
-        return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
-    }
+    if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
+    if (typeof precision === 'undefined') precision = 1;
+    var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
+        number = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
 }
 
+// Once the document is ready we begin
 jQuery(document).ready(function ()
 {
-    // Make sur we call ajax with credentials on
-    jQuery.ajaxSetup({
-        crossDomain: true,
-        
-        xhrFields: {
-            withCredentials: true
-        }
-    });
-
-   
-
-	//var loader = new Animate.AnimateLoader();	
-	//loader.addEventListener( Animate.LoaderEvents.COMPLETE, onPluginsLoaded );
-	//loader.addEventListener( Animate.LoaderEvents.FAILED, onPluginsLoaded );
-    //loader.load(`${Animate.DB.API}/plugins`, {}, 3, "GET");
+    // Make sure we call ajax with credentials on
+    jQuery.ajaxSetup({ crossDomain: true, xhrFields: { withCredentials: true } });
 
     var that = this;
+
+    // Show the loading animation
     Animate.LoaderBase.showLoader();
+
+    // Donwload the plugins available to this user
     jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressAddons.IGetProjects)
     {
         onPluginsLoaded(response.data);
@@ -122,30 +119,5 @@ jQuery(document).ready(function ()
     }).always(function ()
     {
         Animate.LoaderBase.hideLoader();
-    });
-
-    //var stage = jQuery("#stage");
-    //var splash = jQuery(jQuery("#en-splash").addBack().html());
-    //stage.append(splash);
-    //Animate.Compiler.build(splash, {
-    //    name: "Mathew", buttonText: "Click Here",
-    //    sayHello: function (e) { alert("Hello!") },
-    //    sayHello2: function (e) { alert("You doubled me!") }
-    //});
-    
+    });    
 });
-
-//angular.module("app-engine", ["ui.router", "ngAnimate", "ngSanitize", 'angular-loading-bar', "ngFileUpload"])
-//    .constant("$usersUrl", _users + "/users")
-//    .constant("mediaURL", _users + "/media")
-//    .constant("apiURL", "./api")
-//    .constant("capthaPublicKey", "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT")
-//    .service("User", Animate.User)
-//    .filter('bytes', byteFilter)
-//    .config(Animate.Config)
-//    .directive("enWindow", Engine.windowDirective)
-//    .directive("enListView", Engine.ListViewDirective)
-//    .directive("enListViewColumn", Engine.ListViewColumnDirective)
-//    .run(["$rootScope", "$location", "$state", "User", function ($rootScope, $location, $state: ng.ui.IStateService, users: Animate.User)
-//    {
-//    }]);

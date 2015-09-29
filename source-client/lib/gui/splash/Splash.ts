@@ -76,6 +76,8 @@
             
             if (!that._captureInitialized)
             {
+                that._captureInitialized = true;
+
                 // Build each of the templates
                 Compiler.build(this._loginElm, this);
                 Compiler.build(this._welcomeElm, this);
@@ -134,9 +136,11 @@
                 this.$errorMsg = "Give your project a name and select the plugins you woud like to use";
                 this.$errorRed = false;
             }
-
+            
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
+
+
         }
 
         /*
@@ -177,6 +181,7 @@
             // Start Loading the plugins            
             that.goState("loading-project", true);
 
+            // Go through each plugin and load it
             for (var i = 0, l = project.$plugins.length; i < l; i++)
                 PluginManager.getSingleton().loadPlugin(project.$plugins[i]).fail(function (err: Error)
                 {
@@ -184,16 +189,42 @@
 
                 }).always(function ()
                 {
+                    Animate.Compiler.digest(that._splashElm, that, true);
+
+                    // Check if all plugins are loaded
                     numLoaded++;
                     if (numLoaded >= project.$plugins.length)
                     {
-                        that.$loading = false;
+                        // Everything loaded - so prepare the plugins
                         for (var t = 0, tl = project.$plugins.length; t < tl; t++)
                             PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
-                    }
 
-                    Animate.Compiler.digest(that._splashElm, that, true);
+                        // Load the scene in and get everything ready
+                        that.loadScene(); 
+                    }
                 });
+        }
+
+        loadScene()
+        {
+            var project = this.$user.project;
+            project.entry = this.$selectedProject;
+
+            Toolbar.getSingleton().newProject();
+            CanvasTab.getSingleton().projectReady();
+            TreeViewScene.getSingleton().projectReady();
+            
+
+            //project.load();
+
+            // Make sure the title tells us which project is open
+            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
+            
+            Logger.getSingleton().logMessage(`Project '${this.$selectedProject.name}' has been opened`, null, LogType.MESSAGE);
+
+            // Attach the DOM
+            this._splashElm.detach();
+            Application.bodyComponent.addChild(Application.getInstance());
         }
 
         /*
@@ -395,6 +426,7 @@
                 that.$errorRed = false;
                 that.$errorMsg = "";
                 that.$selectedProject = data.data;
+                that.$projects.push(data.data);
 
                 // Start Loading the plugins
                 that.openProject(that.$selectedProject);

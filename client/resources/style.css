@@ -187,7 +187,6 @@ input[type="reset"],
 input[type="submit"] {
   -webkit-appearance: button; /* 2 */
   cursor: pointer; /* 3 */
-  border-radius:unset;
 }
 
 button[disabled],
@@ -691,7 +690,7 @@ html, body, #stage {
 
 .project-items {
     overflow:auto;
-    height:405px;
+    height:404px;
 }
 .no-projects {
     font-weight: bold;
@@ -890,8 +889,13 @@ html, body, #stage {
     float:right;
 }
 
-
-
+/**
+*  APPLICATION
+*  ===============================
+*/
+#application {
+    height:100%;
+}
 
 
 

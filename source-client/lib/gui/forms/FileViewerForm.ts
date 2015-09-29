@@ -892,7 +892,7 @@ module Animate
 			var f : File = <File>selectedItems[0].tag;
 
 			//Update the thumbuploader
-			this.thumbUploader.setParams( { projectId: User.get.project._id, "fileId": f.id });
+            this.thumbUploader.setParams({ projectId: User.get.project.entry._id, "fileId": f.id });
 
 			jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
 			this.addButton.enabled = false;
@@ -937,7 +937,7 @@ module Animate
 			//this.uploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "upload" });
 			//this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
 
-			var projId: string = User.get.project._id;
+            var projId: string = User.get.project.entry._id;
 			this.uploader.setParams( { projectId: projId,  });
 			this.thumbUploader.setParams( { projectId: projId, fileId: "" });
 

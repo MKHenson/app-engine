@@ -357,22 +357,22 @@ module Animate
 			if ( event.item.text == "Delete" )
 			{
 				//Delete portal
-				if ( this.mContextNode instanceof Portal )
-				{
-					var behaviour: Behaviour = ( <Portal>this.mContextNode ).behaviour;
-					behaviour.removePortal( <Portal>this.mContextNode );
+                if (this.mContextNode instanceof Portal)
+                {
+                    var behaviour: Behaviour = (<Portal>this.mContextNode).behaviour;
+                    behaviour.removePortal(<Portal>this.mContextNode);
 
-					var toEdit: EditableSet = new EditableSet();
-					var i = behaviour.parameters.length;
-					while ( i-- )
-						if ( behaviour.parameters[i].links.length <= 0 )
-							toEdit.addVar( behaviour.parameters[i].name, behaviour.parameters[i].value, ParameterType.fromString( behaviour.parameters[i].dataType.toString() ), behaviour.element.text(), null );
+                    var toEdit: EditableSet = new EditableSet();
+                    var i = behaviour.parameters.length;
+                    while (i--)
+                        if (behaviour.parameters[i].links.length <= 0)
+                            toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, ParameterType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
 
-					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, behaviour.id, null );
-					return;
-				}
-				else
-					Toolbar.getSingleton().deleteBut.element.trigger( "click" );
+                    PropertyGrid.getSingleton().editableObject(toEdit, behaviour.text + " - " + behaviour.id, behaviour.id, null);
+                    return;
+                }
+                else
+                    Toolbar.getSingleton().onDelete();
 			}
 			else if ( event.item.text == "Remove Empty Assets" )
 			{
@@ -975,8 +975,8 @@ module Animate
 				//If delete pressed
 				else if ( e.keyCode == 46 )
 				{
-					//Remove all selected
-					Toolbar.getSingleton().deleteBut.element.trigger( "click" );
+                    //Remove all selected
+                    Toolbar.getSingleton().onDelete();
 				}
 			}
 		}

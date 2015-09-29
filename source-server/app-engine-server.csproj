@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="lib\Captcha.ts" />
     <TypeScriptCompile Include="lib\controllers\PermissionController.ts" />
     <TypeScriptCompile Include="lib\controllers\PluginController.ts" />
+    <TypeScriptCompile Include="lib\new-controllers\ResourceController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\AssetController.ts" />
     <TypeScriptCompile Include="lib\controllers\MiscController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\PermissionController.ts" />
@@ -78,6 +79,9 @@
     <TypeScriptCompile Include="lib\models\PluginModel.ts" />
     <TypeScriptCompile Include="lib\models\ProjectModel.ts" />
     <TypeScriptCompile Include="lib\models\UserModel.ts" />
+    <TypeScriptCompile Include="lib\new-models\FileModel.ts" />
+    <TypeScriptCompile Include="lib\new-models\GroupModel.ts" />
+    <TypeScriptCompile Include="lib\new-models\BehaviourModel.ts" />
     <TypeScriptCompile Include="lib\new-models\BuildModel.ts" />
     <TypeScriptCompile Include="lib\new-models\UserDetailsModel.ts" />
     <TypeScriptCompile Include="lib\new-models\ProjectModel.ts" />

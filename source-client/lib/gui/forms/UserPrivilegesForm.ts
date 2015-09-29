@@ -149,7 +149,7 @@ module Animate
 				var loader = new AnimateLoader();
 				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
 				loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-				loader.load( "/project/set-users-access", { projectId: project._id, ids: ids, access: access });
+                loader.load("/project/set-users-access", { projectId: project.entry._id, ids: ids, access: access });
 			}
 		}
 
@@ -176,7 +176,7 @@ module Animate
 			var loader = new AnimateLoader();
 			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
 			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/project/get-user-privileges", { projectId: project._id, index : 0, limit : 20 } );
+            loader.load("/project/get-user-privileges", { projectId: project.entry._id, index : 0, limit : 20 } );
 		}
 
 		/**

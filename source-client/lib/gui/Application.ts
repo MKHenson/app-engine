@@ -24,6 +24,7 @@ module Animate
             if (Application._singleton != null)
 				throw new Error("The Application class is a singleton. You need to call the Application.getSingleton() function.");
 
+            // Creates a common body element
             Application.bodyComponent = new Component("body");
 
 			Application._singleton = this;		
@@ -37,7 +38,7 @@ module Animate
 			this._resizeProxy = this.onWindowResized.bind( this );
 			this._downProxy = this.onMouseDown.bind( this );
 
-			var comp = jQuery( document.activeElement ).data( "component" );
+			//var comp = jQuery( document.activeElement ).data( "component" );
 
 			//Create each of the main components for the application.
 			var stage: Component = new Component( "#stage" );
@@ -155,8 +156,8 @@ module Animate
             var user = User.get;
 			if ( user.project )
 			{
-				user.project.dispose();
-				user.project = null;
+                user.project.reset();
+				//user.project = null;
 			}
 
 			//Unload all the plugins
@@ -178,7 +179,7 @@ module Animate
 			project.loadBehaviours();
 
 			//Create the page title
-			document.title = 'Animate: p' + project._id + " - " + project.mName;
+            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
 
 			TreeViewScene.getSingleton().projectReady();
 

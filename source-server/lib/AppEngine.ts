@@ -3,10 +3,14 @@ import * as express from "express";
 import {Controller, IServer, IConfig} from "modepress-api";
 import {ProjectController} from "./new-controllers/ProjectController";
 import {PluginController} from "./new-controllers/PluginController";
-import {AssetController} from "./new-controllers/AssetController";
+import {ResourceController} from "./new-controllers/ResourceController";
 import {UserDetailsController} from "./new-controllers/UserDetailsController";
 import {PermissionController} from "./new-controllers/PermissionController";
 import {BuildController} from "./new-controllers/BuildController";
+import {AssetModel} from "./new-models/AssetModel";
+import {FileModel} from "./new-models/FileModel";
+import {BehaviourModel} from "./new-models/BehaviourModel";
+import {GroupModel} from "./new-models/GroupModel";
 
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -29,7 +33,10 @@ export default class AppEngine extends Controller
             new UserDetailsController(server, config, e),
             new PermissionController(server, config, e),
             new PluginController(server, config, e),
-            new AssetController(server, config, e),
+            new ResourceController("/app-engine/assets", "en-assets", new AssetModel(), server, config, e),
+            new ResourceController("/app-engine/files", "en-files", new AssetModel(), server, config, e),
+            new ResourceController("/app-engine/groups", "en-groups", new AssetModel(), server, config, e),
+            new ResourceController("/app-engine/behaviours", "en-behaviours", new AssetModel(), server, config, e),
             new ProjectController(server, config, e),
             new BuildController(server, config, e)
         ];

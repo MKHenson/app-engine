@@ -37,7 +37,7 @@ module Animate
 	{
         private static _singleton = null;
         public userEntry: UsersInterface.IEngineUser;
-		private _project: Project;
+        public project: Project;
 		private _isLoggedIn: boolean;
         
         constructor()
@@ -50,7 +50,7 @@ module Animate
 
             // Create the default entry
             this.userEntry = this.createEmptyUer();
-            this._project = null;
+            this.project = new Project();
             this._isLoggedIn = false;
             
         }
@@ -468,11 +468,13 @@ module Animate
 		{
 			if ( this._isLoggedIn )
 			{
-				if ( this.project != null )
-				{
-					this.project.dispose();
-					this.project = null;
-				}
+				//if ( this.project != null )
+				//{
+				//	this.project.dispose();
+				//	this.project = null;
+				//}
+
+                this.project.entry = null;
 
 				var loader = new AnimateLoader();
 				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
@@ -541,12 +543,12 @@ module Animate
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, "", event.return_type, data ) );
 				else if ( loader.url == "/project/create" )
 				{
-					this.project = new Project( data.project._id, data.project.name, data.build );
+                    //this.project = new Project(data.project.entry._id, data.project.name, data.build );
 					this.dispatchEvent( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
 				}
 				else if ( loader.url == "/project/open" )
 				{
-					this.project = new Project( data.project._id, data.project.name, null );
+                    //this.project = new Project(data.project.entry._id, data.project.name, null );
 					this.project.loadFromData( data );
 					this.dispatchEvent( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
 				}
@@ -556,14 +558,14 @@ module Animate
 				//	this.dispatchEvent(new UserEvent(UserEvents.PROJECT_COPIED, event.message, event.return_type, data));
 				else if ( loader.url == "/project/rename" )
 				{
-					this.project.mName = data.name;
-					this.project.mDescription = data.description;
-					this.project.mTags = data.tags;
-					this.project.mRating = data.rating;
-					this.project.mCategory = data.category;
-					this.project.mImgPath = data.image;
-					this.project.mVisibility = data.visibility;
-					this.project.mSubCategory = data.sub_category;
+					//this.project.mName = data.name;
+					//this.project.mDescription = data.description;
+					//this.project.mTags = data.tags;
+					//this.project.mRating = data.rating;
+					//this.project.mCategory = data.category;
+					//this.project.mImgPath = data.image;
+					//this.project.mVisibility = data.visibility;
+					//this.project.mSubCategory = data.sub_category;
 
 					this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
 				}				
@@ -598,8 +600,8 @@ module Animate
 				this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 		}
 
-		get project(): Project { return this._project; }
-		set project( val: Project ) { this._project = val; }
+		//get project(): Project { return this._project; }
+		//set project( val: Project ) { this._project = val; }
 
 		get isLoggedIn(): boolean { return this._isLoggedIn; }
 
