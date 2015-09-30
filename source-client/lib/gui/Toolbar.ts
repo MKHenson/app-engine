@@ -21,7 +21,7 @@ module Animate
             super("<div class='toolbar'></div>", parent);
 			Toolbar._singleton = this;
 
-			this._topMenu = <Component>this.addChild( "<div class='tool-bar-top'></div>" );
+            this._topMenu = <Component>this.addChild( "<div class='tool-bar-top background-dark'></div>" );
 			this._bottomMenu = <Component>this.addChild( "<div class='tool-bar-bottom'></div>" );
 
 			// Create main tab
@@ -92,8 +92,8 @@ module Animate
 				this._currentContainer.element.show();
 				this._currentContainer.element.css( { left: "0px", top: "0px" });
 
-				this._currentTab.element.removeClass( "tool-tab-selected" );
-				jQuery( e.target ).addClass( "tool-tab-selected" );
+                this._currentTab.element.removeClass( "toolbar-tab-selected" );
+                jQuery(e.target).addClass( "toolbar-tab-selected" );
 				this._currentTab = jQuery( e.target ).data( "component" );
 			}
         }
@@ -194,7 +194,7 @@ module Animate
 		*/
 		createTab( text : string, isSelected : boolean = false ) : Component
 		{
-			var topTab = this._topMenu.addChild( "<div class='tool-tab " + ( isSelected ? "tool-tab-selected" : "" ) + "'>" + text + "</div>" );
+            var topTab = this._topMenu.addChild("<div class='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>" + text + "</div>" );
 			var btmContainer: Component = <Component>this._bottomMenu.addChild( "<div class='tab-container'></div>" );
 
 			if ( !isSelected )
@@ -247,7 +247,7 @@ module Animate
 		* @param {Component} tab The {Component} tab object which represents the parent of this group.
 		* @returns {Component} Returns the {Component} object representing the group
 		*/
-		createGroup(tab: Component): Component { return <Component>tab.addChild( "<div class='tool-bar-group'></div>" ); }
+        createGroup(tab: Component): Component { return <Component>tab.addChild( "<div class='tool-bar-group background-view'></div>" ); }
 
 		/**
 		* Use this function to create a group button for the toolbar

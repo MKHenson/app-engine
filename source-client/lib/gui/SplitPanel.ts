@@ -46,7 +46,7 @@ module Animate
 			this.mPercent = ratio;
 			this.mDividerSize = dividerSize;
 			this.mPanel1 = <Component>this.addChild( "<div class='panel1'></div>" );
-			this.mDivider = <Component>this.addChild( "<div class='split-panel-divider reg-color' style='width:" + this.mDividerSize + "px;'></div>" );
+            this.mDivider = <Component>this.addChild( "<div class='split-panel-divider background-dark' style='width:" + this.mDividerSize + "px;'></div>" );
 			this.mDividerDragging = new Component( "<div class='split-panel-divider-dragging' style='width:" + this.mDividerSize + "px;'></div>" );
 			this.mPanel2 = <Component>this.addChild( "<div class='panel2'></div>" );
 			this.addChild( "<div class='fix'></div>" );

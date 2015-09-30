@@ -897,91 +897,96 @@ html, body, #stage {
     height:100%;
 }
 
-
-
-
-
-
-.splash-user-box {
-    margin-bottom: 10px;
-    color: #777;
+/**
+*  TOOLBAR
+*  ===============================
+*/
+.toolbar {
+    height: 98px;
     position: relative;
+    border-bottom: 1px solid #AAA;
 }
-.splash-user-box img {
+.tool-bar-group {
     float: left;
-    width: 32px;
-    height: 32px;
+    -webkit-border-radius: 5px;
+    margin: 5px 0 5px 5px;
 }
-.en-login-resend {
-    margin: 20px 0 0 0;
-}
-.temp-splash-login .loading {
-    width: 50px;
-    margin: 0 20px;
-}
-.temp-splash-login .button {
-    position: absolute;
-    top: 460px;
-    width: 230px;
-}
-.en-login-msg {
-    padding: 10px;
-    margin: 30px 15px;
-}
-.temp-splash-login .double-column:nth-child(2) {
-     border-left: 1px solid #ddd;
-}
-.news {
-    font-size: 20px;
-}
-.news a {
-    color: #666;
-    text-decoration: none;
-}
-.splash-window .heading {
+.tab-button div {
+    pointer-events: none;
     text-align: center;
-    margin-top: 5px;
-    color:#504E50; 
-    font-size:35px;
 }
-.splash-window .double-column {
-    padding: 10px 20px 0 20px;
+.tab-button img {
+    width: 40px;
+    height: 40px;
+}
+.tab-button, .tab-button-drop-down {
+    float: left;
+}
+.tab-button .tool-icon-upper img {
+    margin: 0 8px 0 8px;
+}
+.tab-button {
+    cursor: pointer;
+    height: 100%;
+    padding: 4px 0 4px 0;
+}
+.tab-button .tool-bar-text, .tool-icon-upper, .tab-button img {
+    pointer-events: none;
+    text-align: center;
+    font-size: 10px;
+    margin: 0 6px;
+}
+.tool-bar-text {
+    margin: 0 3px 0 3px;
+}
+.toolbar-color {
+    width: 45px;
+    text-align: center;
+    padding: 3px 0 3px 0px;
+    height: 30px;
+    font-size: 10px;
+    margin: 5px 5px 0 5px;
+}
+.tool-bar-top {
+    width: 100%;
+    height: 25px;
+}
+.tool-bar-bottom {
+    width: 100%;
+    font-size: 10px;
+    text-shadow: 1px 1px 0px #ffffff;
+    filter: dropshadow(color=#ffffff, offx=1, offy=1);
+}
+.toolbar-tab {
+    text-align: center;
+    padding: 0px 10px 0px 10px;
+    float: left;
+    cursor: pointer;
+    height: 25px;
+    z-index: 1;
+    height: 20px;
+    margin: 5px 1px 0 0;
+    -webkit-border-radius: 0px 5px 0px 0px;
+    border-radius: 0px 5px 0px 0px;
+}
+.toolbar-tab-selected {
+    font-weight: bold;
+    height: 25px !important;
+    margin: 0 !important;
+    line-height: 25px;
+}
+.tool-bar-dropdown {
+    -webkit-border-radius: 5px;
+    margin: 5px 0 5px 5px;
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    z-index: 999;
+}
+.tool-bar-bottom .number-holder, .tool-bar-bottom .scrolling-number {
+    pointer-events: all;
 }
 
-.splash-outer-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-.temp-splash-new-project .button {
-    float: left;
-    margin: 5px 5px 0 0;
-}
-.splash-new-project-sub {
-    padding-left: 10px;
-    padding-right: 20px;
-}
-.splash-new-project-sub textarea {
-    height: 300px;
-}
-.temp-splash-login .close-but {
-    margin: 10px 10px 0 0;
-}
-.temp-splash-login .hyperlink {
-    margin-top: 20px;
-}
-.temp-splash-login .checkbox .text {
-    margin-left: 5px;
-}
-.temp-splash-login .checkbox {
-    margin-top: 5px;
-}
-.temp-splash-login .input-box {
-    margin: 5px 0 10px 0;
-}
 /**
 ======================================================
 				COLORS
@@ -1024,7 +1029,6 @@ a:active, a:hover {
 .tick-box:active {
     background: #b5afaf;
 }
-
 #splash .logo h2, #splash .logout a {
     color: #fff;
 }
@@ -1067,9 +1071,8 @@ a:active, a:hover {
     color: #FFF;
 }
 .reg-gradient:active {
-    background: #04508C;
+    background: #00589e;
 }
-
 .reg-gradient .cross:before, .reg-gradient .cross:after {
     background-color:#fff;
 }
@@ -1093,9 +1096,6 @@ a:active, a:hover {
     border: none;
     position: absolute;
 }
-.reg-color {
-    background-color: #04508C;
-}
 .dark-color {
     background-color: #292E38;
 }
@@ -1104,6 +1104,10 @@ a:active, a:hover {
 }
 .light {
     color:#ccc;
+}
+.green-highlight:hover {
+    background:#88CF0E;
+    color:white;
 }
 .green-glow {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
@@ -1120,7 +1124,29 @@ a:active, a:hover {
 html .bad-input {
     background: #ffe9e9 !important;
 }
-
+.background-dark {
+    background: #04508C;
+    color: #FFF;
+}
+/**
+======================================================
+ TODO: Specific colors that need to be generalized!
+======================================================
+**/
+.toolbar-tab {
+    background-color: #5988BD;
+    color: #fff;
+}
+.toolbar-tab-selected, .tab-selected {
+    background-color: #FFF !important;
+    color: #04508C;
+}
+.toolbar-tab:hover {
+    background-color: #44464D;
+}
+.toolbar-tab-selected:hover {
+    background-color: #FFF;
+}
 /**
 ======================================================
 				CSS SHAPES
@@ -1149,7 +1175,6 @@ html .bad-input {
     margin-top: -15%;
     width: 100%;
 }
-
 
 .tick {
     position: absolute;
@@ -1195,8 +1220,6 @@ html .bad-input {
     width: 100%;
 }
 
-
-
 .arrow {
     width: 0;
     height: 0;
@@ -1213,6 +1236,37 @@ html .bad-input {
     -webkit-transform: rotate(90deg);
     transform: rotate(90deg);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /**
@@ -1309,7 +1363,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .prop-options-content{padding: 5px;}
 .logger-warning{ position:absolute; cursor:pointer;  }
 
-.property-grid-header{ color:#FFF; padding:5px; background:#04508C; }
+.property-grid-header{ padding:5px; }
 .property-grid-group-header{ color:#000; margin:3px 3px 8px 3px; text-shadow:1px 1px 0px white; }
 .property-grid-group .content{ padding:0 10px 10px 10px; }
 .property-grid-label{ width:40%; float:left; font-size:10px; min-width: 50px; white-space: nowrap; overflow: hidden; }
@@ -1323,7 +1377,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .file-viewer .split-panel .label{ height:30px; line-height: 30px; }
 .file-button-comp{ height: 40px; min-width:170px; position:relative; }
 .file-viewer .split-panel .file-button-comp .file-button{ font-weight: bold; border-bottom:1px solid #AAA; color: #999; height: 100%; cursor:pointer; width:50%; line-height: 40px; float:left; text-align:center; }
-.file-viewer .split-panel .file-button-comp .file-button:hover{color:#04508C; }
+/* .file-viewer .split-panel .file-button-comp .file-button:hover{color:#04508C; } */
 .file-viewer .split-panel .file-button-comp .file-button:active{color:#2C4A6B; }
 .file-button img{ width:22px; margin-left:-5px; margin-right:5px; }
 .file-group { margin-top:5px; }
@@ -1337,7 +1391,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .header-name{ float:left; }
 .info-section{ border: 1px solid #ccc; padding:5px; overflow: auto; margin: 5px 0 0 0; height: 190px; }
 .viewer-toolbar{ height:40px; }
-.viewer-toolbar .tool-bar-group{ margin-top:0px; }
+.viewer-toolbar { margin-top:0px; }
 .selected-asset{ color:red; margin-right:10px; }
 
 .asset-search { width:210px; margin: 7px 0 10px 0; }
@@ -1349,7 +1403,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .prop-colour{ height:20px; width:100%; }
 .prop-colour input { width:auto;}
 
-.tool-bar-bottom .number-holder, .tool-bar-bottom .scrolling-number{  pointer-events:all; }
+
 
 .scrolling-number input{ height:100%; pointer-events:all; width:30px; }
 .number-holder{ height: 40px; }
@@ -1395,7 +1449,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .script-helper .name{ font-weight:bold; }
 .script-helper .type{ color:#04508C; }
 
-.tool-bar-dropdown{ left:0px; top:0px; position:absolute; float:left; z-index:999; }
+
 
 .plugin-item { cursor:pointer; margin:0 0 5px 0; padding-top: 5px; }
 .plugin-item img { width:35px; margin: 5px 5px 0 0; }
@@ -1458,14 +1512,14 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 /**
 * Splash window
 * ================================== 
-*/
+
 
 .splash-window .instruction-text {
     font-weight: normal;
     font-style: italic;
     margin-bottom: 10px;
 }
-
+*/
 .close-but{ float:right; font-size:16px; color:#bbb; margin-left:10px; cursor:pointer; }
 .close-but:hover{ color:#777; }
 
@@ -1581,19 +1635,14 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .output{ top:-10px; }
 .input{ left:-10px; }
 
-.toolbar{ height:98px; position:relative; border-bottom:1px solid #AAA; }
-.tool-bar-top{ width:100%; height:25px; }
-.tool-bar-bottom{ width:100%; font-size:10px; text-shadow: 1px 1px 0px #ffffff; filter: dropshadow(color=#ffffff, offx=1, offy=1);}
-.tool-tab{ text-align:center; padding: 0px 10px 0px 10px; float:left; cursor:pointer; height:25px; z-index:1; height:20px; margin:5px 1px 0 0;
--webkit-border-radius: 0px 5px 0px 0px;
-border-radius: 0px 5px 0px 0px; 
-}
-.tool-bar-group, .tool-bar-dropdown{ float:left; -webkit-border-radius:5px; margin:5px 0 5px 5px; }
-.tab-button div { pointer-events: none; text-align:center; } 
+
+
+
+
 .tab-container{ position:relative; }
-.tab-button img{ width:40px; height:40px; }
-.window-content .tab-button img{ width:auto; height:auto; }
-.toolbar-color{ width: 45px; text-align:center; padding:3px 0 3px 0px; height: 30px; font-size: 10px; margin:5px 5px 0 5px;  }
+
+/* .window-content .tab-button img{ width:auto; height:auto; } */
+
 
 .link{ position:absolute; top:0px; left:0px; z-index:0; min-width:4px; min-height:4px; }
 .list-box{ width:100px; height:100px; margin:0; padding:0; border:0; }
@@ -1614,16 +1663,13 @@ border-radius: 0px 5px 0px 0px;
 .menu-list-item{ width:100%; cursor:pointer; overflow:hidden; }
 
 
-.tab-button, .tab-button-drop-down{ float:left; }
 
-.tab-button .tool-bar-text, .tool-icon-upper, .tab-button img{ pointer-events: none; text-align:center; font-size:10px; margin: 0 6px; }
 
 .tooltip{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
 .tool-icon-lower{ text-align:center; }
 .tool-icon-upper{}
-.tab-button .tool-icon-upper img{ margin:0 8px 0 8px;}
-.tab-button{ cursor:pointer; height:100%; padding: 4px 0 4px 0; }
-.tool-bar-text{ margin: 0 3px 0 3px; }
+
+
 
 .context-item img { margin: 0 10px 5px 5px; pointer-events: none; display:inline-block; width:16px; pointer-events:none; }
 .context-item .text{ display:inline-block; pointer-events:none; }
@@ -1644,24 +1690,26 @@ border-radius: 0px 5px 0px 0px;
 
 
 
-/**COLOR THEMES (#04508C)
+/**COLOR THEMES
 ============================================*/
 
 
-.tool-bar-top{ background: #04508C; color:#FFF; }
-.tool-bar-group, .tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
-.tool-tab, .tab-selector {
+
+.tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
+.tab-selector {
     background-color: #5988BD;
     color: #fff;
     -webkit-border-radius: 0px 5px 0px 0px;
     border-radius: 0px 5px 0px 0px;
 }
-.tool-tab:hover{ background-color: #44464D !important; }
+.tab-selected {
+    font-weight: bold;
+    height: 25px !important;
+    margin: 0 !important;
+    line-height: 25px;
+}
 
-.tool-tab-selected, .tab-selected{ background-color:#FFF !important; color: #04508C; font-weight:bold;
-height:25px !important; margin:0 !important; color: #04508C; line-height:25px; }
 
-.tool-tab-selected:hover{ background-color:#FFF !important; }
 
 /*.input-box input:focus, .input-box textarea:focus, .combo-box select:focus{ border: 1px solid #04508C; }*/
 
@@ -1687,7 +1735,11 @@ div .selected:hover{ text-shadow: 0px 0px 5px #c4ff00 !important; }
     text-shadow: none !important;
 }
 
-.context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .menu-list-item:hover, .preview .project:hover, .tab-button:hover, .tabs-drop-button:hover, .tree-node-selected, .menu-item-selected, .project-selected, .drag-targets{ background: #88CF0E; color:#fff !important; text-shadow:none !important; }
+.context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .menu-list-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .menu-item-selected, .project-selected, .drag-targets {
+    background: #88CF0E;
+    color: #fff !important;
+    text-shadow: none !important;
+}
 .pushed, .context-item:active, .plugin-item:active, .logger-item:active, .project-browser-item:active, .tab-button:active, .tabs-drop-button:active {
     background: rgb(118,160,12); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(118,160,12,1) 1%, rgba(64,106,8,1) 100%); /* FF3.6+ */

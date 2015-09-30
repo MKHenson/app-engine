@@ -5366,7 +5366,7 @@ var Animate;
             this.mPercent = ratio;
             this.mDividerSize = dividerSize;
             this.mPanel1 = this.addChild("<div class='panel1'></div>");
-            this.mDivider = this.addChild("<div class='split-panel-divider reg-color' style='width:" + this.mDividerSize + "px;'></div>");
+            this.mDivider = this.addChild("<div class='split-panel-divider background-dark' style='width:" + this.mDividerSize + "px;'></div>");
             this.mDividerDragging = new Animate.Component("<div class='split-panel-divider-dragging' style='width:" + this.mDividerSize + "px;'></div>");
             this.mPanel2 = this.addChild("<div class='panel2'></div>");
             this.addChild("<div class='fix'></div>");
@@ -13751,7 +13751,7 @@ var Animate;
             PropertyGrid._singleton = this;
             // Call super-class constructor
             _super.call(this, "<div class='property-grid'></div>", parent);
-            this._header = jQuery("<div class='property-grid-header'>Select an Object</div>");
+            this._header = jQuery("<div class='property-grid-header background-dark'>Select an Object</div>");
             this.element.append(this._header);
             //Private vars
             this._editors = [];
@@ -16949,7 +16949,7 @@ var Animate;
         function Toolbar(parent) {
             _super.call(this, "<div class='toolbar'></div>", parent);
             Toolbar._singleton = this;
-            this._topMenu = this.addChild("<div class='tool-bar-top'></div>");
+            this._topMenu = this.addChild("<div class='tool-bar-top background-dark'></div>");
             this._bottomMenu = this.addChild("<div class='tool-bar-bottom'></div>");
             // Create main tab
             this._tabHomeContainer = this.createTab("Animate", true);
@@ -17005,8 +17005,8 @@ var Animate;
                 this._currentContainer = container;
                 this._currentContainer.element.show();
                 this._currentContainer.element.css({ left: "0px", top: "0px" });
-                this._currentTab.element.removeClass("tool-tab-selected");
-                jQuery(e.target).addClass("tool-tab-selected");
+                this._currentTab.element.removeClass("toolbar-tab-selected");
+                jQuery(e.target).addClass("toolbar-tab-selected");
                 this._currentTab = jQuery(e.target).data("component");
             }
         };
@@ -17085,7 +17085,7 @@ var Animate;
         */
         Toolbar.prototype.createTab = function (text, isSelected) {
             if (isSelected === void 0) { isSelected = false; }
-            var topTab = this._topMenu.addChild("<div class='tool-tab " + (isSelected ? "tool-tab-selected" : "") + "'>" + text + "</div>");
+            var topTab = this._topMenu.addChild("<div class='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "") + "'>" + text + "</div>");
             var btmContainer = this._bottomMenu.addChild("<div class='tab-container'></div>");
             if (!isSelected)
                 btmContainer.element.hide();
@@ -17127,7 +17127,7 @@ var Animate;
         * @param {Component} tab The {Component} tab object which represents the parent of this group.
         * @returns {Component} Returns the {Component} object representing the group
         */
-        Toolbar.prototype.createGroup = function (tab) { return tab.addChild("<div class='tool-bar-group'></div>"); };
+        Toolbar.prototype.createGroup = function (tab) { return tab.addChild("<div class='tool-bar-group background-view'></div>"); };
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button

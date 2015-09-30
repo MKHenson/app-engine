@@ -27,6 +27,9 @@
     <Content Include="..\client\resources\templates\message-box.html">
       <Link>html\templates\message-box.html</Link>
     </Content>
+    <Content Include="..\client\resources\templates\options-project.html">
+      <Link>html\templates\options-project.html</Link>
+    </Content>
     <Content Include="..\client\resources\templates\splash-loading.html">
       <Link>html\templates\splash-loading.html</Link>
     </Content>
