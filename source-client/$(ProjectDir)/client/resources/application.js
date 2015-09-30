@@ -6378,7 +6378,7 @@ var Animate;
         __extends(Tab, _super);
         function Tab(parent) {
             // Call super-class constructor
-            _super.call(this, "<div class='tab'></div>", parent);
+            _super.call(this, "<div class='tab background-view'></div>", parent);
             this._tabsDiv = new Animate.Component("<div class='tabs-div'></div>", this);
             this.pagesDiv = new Animate.Component("<div class='pages-div'></div>", this);
             this.pagesDiv.addLayout(new Animate.Fill(0, 0, 0, -25));
@@ -6511,7 +6511,7 @@ var Animate;
                 this.selectedTab.tabSelector.element.removeClass("tab-selected");
                 this.selectedTab.page.element.detach();
             }
-            var page = new Animate.Component("<div class='tab-page'></div>", this.pagesDiv);
+            var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
             var tab = new Animate.Component("<div class='tab-selector tab-selected'><span class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div>", this._tabsDiv);
             if (canClose) {
                 new Animate.Component("<div class='tab-close'>X</div>", tab);
@@ -7766,8 +7766,6 @@ var Animate;
             var toolbar = Animate.Toolbar.getSingleton(new Animate.Component("#toolbar"));
             this.addChild(toolbar);
             this.addChild(stage);
-            toolbar.addLayout(new Animate.Fill(0, 0, 0, 0, false, true));
-            stage.addLayout(new Animate.Fill(0, 0, 0, -100));
             //Create each of the main split panels
             var mainSplit = new Animate.SplitPanel(stage, Animate.SplitOrientation.VERTICAL, 0.75);
             mainSplit.element.css({ width: "100%", height: "100%" });
@@ -16949,7 +16947,7 @@ var Animate;
         function Toolbar(parent) {
             _super.call(this, "<div class='toolbar'></div>", parent);
             Toolbar._singleton = this;
-            this._topMenu = this.addChild("<div class='tool-bar-top background-dark'></div>");
+            this._topMenu = this.addChild("<div class='tool-bar-top background-haze'></div>");
             this._bottomMenu = this.addChild("<div class='tool-bar-bottom'></div>");
             // Create main tab
             this._tabHomeContainer = this.createTab("Animate", true);
@@ -17127,7 +17125,7 @@ var Animate;
         * @param {Component} tab The {Component} tab object which represents the parent of this group.
         * @returns {Component} Returns the {Component} object representing the group
         */
-        Toolbar.prototype.createGroup = function (tab) { return tab.addChild("<div class='tool-bar-group background-view'></div>"); };
+        Toolbar.prototype.createGroup = function (tab) { return tab.addChild("<div class='tool-bar-group background-view-light'></div>"); };
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button

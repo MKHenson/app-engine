@@ -39,7 +39,7 @@ module Animate
 		constructor( parent : Component )
 		{
 			// Call super-class constructor
-			super( "<div class='tab'></div>", parent );
+			super( "<div class='tab background-view'></div>", parent );
 
 			this._tabsDiv = new Component( "<div class='tabs-div'></div>", this );
 			this.pagesDiv = new Component( "<div class='pages-div'></div>", this );
@@ -229,7 +229,7 @@ module Animate
 				this.selectedTab.page.element.detach();
 			}
 
-			var page : Component = new Component( "<div class='tab-page'></div>", this.pagesDiv );
+			var page : Component = new Component( "<div class='tab-page background'></div>", this.pagesDiv );
 			var tab : Component = new Component( "<div class='tab-selector tab-selected'><span class='text'>" + ( val instanceof TabPair ? val.name : val ) + "</span></div>", this._tabsDiv );
 			if ( canClose )
 			{

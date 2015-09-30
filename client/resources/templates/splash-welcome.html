@@ -18,14 +18,14 @@
 				<div class="no-projects unselectable" en-if="ctrl.$projects.length == 0">Welcome {{ctrl.$user.userEntry.username}}, click New Appling to start</div>
 			</div>
 			<div class="projects-footer background">
-				<div class="navigation-column back">
+				<div class="navigation-column back soft-text">
 					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
 					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goPrev()">Prev</a>
 				</div>
-				<div class="navigation-column index">
+				<div class="navigation-column index soft-text">
 					{{ctrl.$pager.getPageNum()}} of {{ctrl.$pager.getTotalPages()}}
 				</div>
-				<div class="navigation-column next">
+				<div class="navigation-column next soft-text">
 					<a en-show="ctrl.$pager.index + ctrl.$pager.limit < ctrl.$pager.last" en-click="ctrl.$pager.goNext()">Next</a>
 					<a en-show="ctrl.$pager.index < ctrl.$pager.last - ctrl.$pager.limit" en-click="ctrl.$pager.goLast()">Last</a>
 				</div>

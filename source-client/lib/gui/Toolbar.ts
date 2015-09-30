@@ -21,7 +21,7 @@ module Animate
             super("<div class='toolbar'></div>", parent);
 			Toolbar._singleton = this;
 
-            this._topMenu = <Component>this.addChild( "<div class='tool-bar-top background-dark'></div>" );
+            this._topMenu = <Component>this.addChild( "<div class='tool-bar-top background-haze'></div>" );
 			this._bottomMenu = <Component>this.addChild( "<div class='tool-bar-bottom'></div>" );
 
 			// Create main tab
@@ -247,7 +247,7 @@ module Animate
 		* @param {Component} tab The {Component} tab object which represents the parent of this group.
 		* @returns {Component} Returns the {Component} object representing the group
 		*/
-        createGroup(tab: Component): Component { return <Component>tab.addChild( "<div class='tool-bar-group background-view'></div>" ); }
+        createGroup(tab: Component): Component { return <Component>tab.addChild( "<div class='tool-bar-group background-view-light'></div>" ); }
 
 		/**
 		* Use this function to create a group button for the toolbar

@@ -46,10 +46,7 @@ module Animate
 
 			this.addChild( toolbar );
 			this.addChild( stage );
-
-			toolbar.addLayout( new Fill( 0, 0, 0, 0, false, true ) );
-			stage.addLayout( new Fill( 0, 0, 0, -100 ) );
-
+            
 			//Create each of the main split panels
 			var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
 			mainSplit.element.css( { width: "100%", height: "100%" });
