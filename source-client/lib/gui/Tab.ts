@@ -230,7 +230,7 @@ module Animate
 			}
 
 			var page : Component = new Component( "<div class='tab-page background'></div>", this.pagesDiv );
-			var tab : Component = new Component( "<div class='tab-selector tab-selected'><span class='text'>" + ( val instanceof TabPair ? val.name : val ) + "</span></div>", this._tabsDiv );
+            var tab: Component = new Component( "<div class='tab-selector background-dark tab-selected'><span class='text'>" + ( val instanceof TabPair ? val.name : val ) + "</span></div>", this._tabsDiv );
 			if ( canClose )
 			{
 				new Component( "<div class='tab-close'>X</div>", tab );

@@ -3,26 +3,28 @@ module Animate
 	/**
 	* Use this form to set the project meta and update build versions.
 	*/
-	export class BuildOptionsForm extends OkCancelForm
+    export class BuildOptionsForm extends Window
 	{
 		public static _singleton: BuildOptionsForm;
 
+        private _projectElm: JQuery;
+
 		private _tab: Tab;
-		private _projectTab: Component;
-		private _name: LabelVal;
-		private _tags: LabelVal;
-		private _description: LabelVal;
-		private _projVisibility: LabelVal;
-		private _category: LabelVal;
+		//private _projectTab: Component;
+		//private _name: LabelVal;
+		//private _tags: LabelVal;
+		//private _description: LabelVal;
+		//private _projVisibility: LabelVal;
+		//private _category: LabelVal;
 		private _buildVerMaj: LabelVal;
 		private _buildVerMid: LabelVal;
 		private _buildVerMin: LabelVal;		
-		private _warning: Label;
+		//private _warning: Label;
 		private _visibility: LabelVal;
 		private _notes: LabelVal;
-		private _imgPreview: Component;
-		private _addButton: Component;
-		private _saveProject: Button;
+		//private _imgPreview: Component;
+		//private _addButton: Component;
+		//private _saveProject: Button;
 		private _selectBuild: Button;
         private _saveBuild: Button;
         private _uploader: FileUploaderBasic;
@@ -38,63 +40,66 @@ module Animate
 
 		constructor()
 		{
-			super(600, 500, true, true, "Settings", true);
-
-			if ( BuildOptionsForm._singleton != null )
-				throw new Error( "The BuildOptionsForm class is a singleton. You need to call the BuildOptionsForm.getSingleton() function." );
-
+			super(600, 500, true, true, "Settings");
 			BuildOptionsForm._singleton = this;
 			
 			this.element.addClass( "build-options-form" );
-			this.okCancelContent.element.css( { height: "500px" });
+			//this.okCancelContent.element.css( { height: "500px" });
 
-			this._tab = new Tab( this.okCancelContent );
-			var tabPage = this._tab.addTab( "Project", false ).page;
-			var projectGroup = new Group( "Project Options", tabPage );
-			var imgGroup = new Group( "Image", tabPage );
-			this._projectTab = tabPage;
+            this._tab = new Tab(this.content);
+            var tabPage = this._tab.addTab("Project", false).page;
+
+            this._projectElm = jQuery("#options-project").remove().clone();
+            tabPage.element.append(this._projectElm);
+
+            // Compile the HTML
+            Compiler.build(this._projectElm, this); 
+
+			//var projectGroup = new Group( "Project Options", tabPage );
+			//var imgGroup = new Group( "Image", tabPage );
+			//this._projectTab = tabPage;
 
 			tabPage = this._tab.addTab( "Build Options", false ).page;
 			var buildGroup = new Group( "Build", tabPage );
 			var notesGroup = new Group( "Properties", tabPage );
 
 			//Project fields
-			this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
-			this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
-			this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
-			(<Label>this._description.val).textfield.element.css( { height: "180px" });
+			//this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
+			//this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
+			//this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
+			//(<Label>this._description.val).textfield.element.css( { height: "180px" });
 
 
-			var combo : ComboBox = new ComboBox();
-			combo.addItem( "Private" );
-			combo.addItem( "Public" );
-			this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
-			info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
-			info.element.addClass( "info" );
+			//var combo : ComboBox = new ComboBox();
+			//combo.addItem( "Private" );
+			//combo.addItem( "Public" );
+			//this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
+			//info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
+			//info.element.addClass( "info" );
 
-			combo = new ComboBox();
-			combo.addItem( "Other" );
-			combo.addItem( "Artistic" );
-			combo.addItem( "Gaming" );
-			combo.addItem( "Informative" );
-			combo.addItem( "Musical" );
-			combo.addItem( "Fun" );
-			combo.addItem( "Technical" );
-			this._category = new LabelVal( projectGroup.content, "Category", combo );
-			info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
-			info.element.addClass( "info" );
+			//combo = new ComboBox();
+			//combo.addItem( "Other" );
+			//combo.addItem( "Artistic" );
+			//combo.addItem( "Gaming" );
+			//combo.addItem( "Informative" );
+			//combo.addItem( "Musical" );
+			//combo.addItem( "Fun" );
+			//combo.addItem( "Technical" );
+			//this._category = new LabelVal( projectGroup.content, "Category", combo );
+			//info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
+			//info.element.addClass( "info" );
 
-			this._saveProject = new Button( "Save", projectGroup.content );
-			this._saveProject.css( { width: "85px" });
+			//this._saveProject = new Button( "Save", projectGroup.content );
+			//this._saveProject.css( { width: "85px" });
 
 			//Image
-			this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
-			var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
-			info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
-			info.element.addClass( "info" );
+			//this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
+			//var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
+			//info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
+			//info.element.addClass( "info" );
 
-			this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='tab-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
-			imgGroup.content.addChild( "<div class='fix'></div>" );
+			//this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
+			//imgGroup.content.addChild( "<div class='fix'></div>" );
 
 			//Build options	
 			this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
@@ -118,7 +123,7 @@ module Animate
 			info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
 			info.element.addClass( "info" );
 
-			combo = new ComboBox();
+			var combo = new ComboBox();
 			combo.addItem( "Private" );
 			combo.addItem( "Public" );
 			this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
@@ -128,8 +133,8 @@ module Animate
 			this._saveBuild = new Button( "Save", notesGroup.content );
 			this._saveBuild.css( { width: "85px" });
 
-			this._warning = new Label( "", this.content );
-			this._warning.element.addClass( "server-message" );
+			//this._warning = new Label( "", this.content );
+			//this._warning.element.addClass( "server-message" );
 
 			//Create the proxies
 			this._renameProxy = jQuery.proxy( this.onRenamed, this );
@@ -140,7 +145,7 @@ module Animate
 			this._errorProxy = jQuery.proxy( this.onError, this );
 			this._clickProxy = jQuery.proxy( this.onClick, this );
 
-			this._saveProject.element.on( "click", this._clickProxy );
+			//this._saveProject.element.on( "click", this._clickProxy );
 			this._selectBuild.element.on( "click", this._clickProxy );
 			this._saveBuild.element.on( "click", this._clickProxy );
 
@@ -182,55 +187,55 @@ module Animate
 		{
 			var target : Component = jQuery( e.currentTarget ).data( "component" );
 
-			if ( target == this._saveProject )
+			if ( target == null)//this._saveProject )
 			{
 				//Check if the values are valid
-				(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "" );
+				//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "" );
 
-				//Check for special chars
-				var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
-				if ( message != null )
-				{
-					( <Label>this._name.val ).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-					this._warning.text = message;
-					return;
-				}
+				////Check for special chars
+				////var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
+				//if ( message != null )
+				//{
+				//	//( <Label>this._name.val ).textfield.element.addClass( "red-border" );
+				//	this._warning.textfield.element.css( "color", "#FF0000" );
+				//	this._warning.text = message;
+				//	return;
+				//}
 
-				//Check for special chars
-				message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
-				if ( message != null )
-				{
-					( <Label>this._tags.val).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-                    this._warning.text = message;
-					return;
-				}
+				////Check for special chars
+				//message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
+				//if ( message != null )
+				//{
+				//	( <Label>this._tags.val).textfield.element.addClass( "red-border" );
+				//	this._warning.textfield.element.css( "color", "#FF0000" );
+    //                this._warning.text = message;
+				//	return;
+				//}
 
-				var name = ( <Label>this._name.val ).text;
-				var description = ( <Label>this._description.val ).text;
-				var tags = ( <Label>this._tags.val ).text;
+				//var name = ( <Label>this._name.val ).text;
+				//var description = ( <Label>this._description.val ).text;
+				//var tags = ( <Label>this._tags.val ).text;
 				var user = User.get;
 				var project : Project = User.get.project;
 
 				user.addEventListener( UserEvents.FAILED, this._renameProxy );
 				user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
-                user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
+                //user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
 			}
 			else if ( target == this._saveBuild )
 			{
 				//Check if the values are valid
-				(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "" );
+				//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "" );
 
 				//Check for special chars
 				var message : string = Utils.checkForSpecialChars( (<Label>this._notes.val).text, true );
 				if ( message != null )
 				{
 					(<Label>this._notes.val).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-					this._warning.text = message;
+					//this._warning.textfield.element.css( "color", "#FF0000" );
+					//this._warning.text = message;
 					return;
 				}
 
@@ -244,37 +249,37 @@ module Animate
 			}
 			else if ( target == this._selectBuild )
 			{
-				//Check if the values are valid
-				(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "" );
+				////Check if the values are valid
+				////(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "" );
 
-				//Check for special chars
-				var number = parseInt( (<Label>this._buildVerMaj.val).text );
-				if ( isNaN( number ) )
-				{
-					( <Label>this._buildVerMaj.val).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-					this._warning.text = "Please only use numbers";
-					return;
-				}
+				////Check for special chars
+				//var number = parseInt( (<Label>this._buildVerMaj.val).text );
+				//if ( isNaN( number ) )
+				//{
+				//	( <Label>this._buildVerMaj.val).textfield.element.addClass( "red-border" );
+				//	this._warning.textfield.element.css( "color", "#FF0000" );
+				//	this._warning.text = "Please only use numbers";
+				//	return;
+				//}
 
-				number = parseInt( (<Label>this._buildVerMid.val).text );
-				if ( isNaN( number ) )
-				{
-					( <Label>this._buildVerMid.val).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-					this._warning.text = "Please only use numbers";
-					return;
-				}
+				//number = parseInt( (<Label>this._buildVerMid.val).text );
+				//if ( isNaN( number ) )
+				//{
+				//	( <Label>this._buildVerMid.val).textfield.element.addClass( "red-border" );
+				//	this._warning.textfield.element.css( "color", "#FF0000" );
+				//	this._warning.text = "Please only use numbers";
+				//	return;
+				//}
 
-                number = parseInt((<Label>this._buildVerMin.val).text );
-				if ( isNaN( number ) )
-				{
-					( <Label>this._buildVerMin.val).textfield.element.addClass( "red-border" );
-					this._warning.textfield.element.css( "color", "#FF0000" );
-					this._warning.text = "Please only use numbers";
-					return;
-				}
+    //            number = parseInt((<Label>this._buildVerMin.val).text );
+				//if ( isNaN( number ) )
+				//{
+				//	( <Label>this._buildVerMin.val).textfield.element.addClass( "red-border" );
+				//	this._warning.textfield.element.css( "color", "#FF0000" );
+				//	this._warning.text = "Please only use numbers";
+				//	return;
+				//}
 
 
 				var user : User = User.get;
@@ -311,9 +316,9 @@ module Animate
 
 			if (event.return_type == AnimateLoaderResponses.ERROR )
 			{
-				(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "#FF0000" );
-                this._warning.text = event.message;
+				//(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+    //            this._warning.text = event.message;
 				return;
 			}
 
@@ -325,26 +330,26 @@ module Animate
                 (<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
 				(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
 
-				this._warning.textfield.element.css( "color", "#5DB526" );
-                this._warning.text = event.message;
+				//this._warning.textfield.element.css( "color", "#5DB526" );
+    //            this._warning.text = event.message;
 
 				//Update fields
 				this.updateFields( event.tag );
 			}
             else if (response == ProjectEvents.BUILD_SAVED )
 			{
-				//Check if the values are valid
-                (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "#5DB526" );
-				this._warning.text = "Build saved";
+				////Check if the values are valid
+    //            (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "#5DB526" );
+				//this._warning.text = "Build saved";
 
 				//Update fields
                 this.updateFields( event.tag );
 			}
 			else
 			{
-				this._warning.textfield.element.css( "color", "#FF0000" );
-                this._warning.text = event.message;
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+    //            this._warning.text = event.message;
 			}
 		}
 
@@ -376,23 +381,23 @@ module Animate
 
 			if ( event.return_type == AnimateLoaderResponses.ERROR )
 			{
-				this._warning.textfield.element.css( "color", "#FF0000" );
-				this._warning.text = event.message;
-				return;
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+				//this._warning.text = event.message;
+				//return;
 			}
 
             if (response == UserEvents.PROJECT_RENAMED )
 			{
 				//Check if the values are valid
-                (<Label>this._name.val).textfield.element.removeClass( "red-border" );                
-				(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
-				this._warning.textfield.element.css( "color", "#5DB526" );
-				this._warning.text = "Project updated.";
+                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );                
+				//(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
+				//this._warning.textfield.element.css( "color", "#5DB526" );
+				//this._warning.text = "Project updated.";
 			}
 			else
 			{
-				this._warning.textfield.element.css( "color", "#FF0000" );
-                this._warning.text = event.message;
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+               // this._warning.text = event.message;
 			}
 
 			user.removeEventListener( UserEvents.FAILED, this._renameProxy );
@@ -411,45 +416,45 @@ module Animate
 			var user = User.get;
 			var project = user.project;
 
-			//Start the image uploader
-			this.initializeLoader();
+			////Start the image uploader
+			//this.initializeLoader();
 
 
-			this._warning.textfield.element.css( "color", "" );
-            this._warning.text = "";
+			//this._warning.textfield.element.css( "color", "" );
+   //         this._warning.text = "";
 
-            //Set project vars
-            (<Label>this._name.val).text = project.entry.name;
-            (<Label>this._description.val).text = project.entry.description;
-            (<Label>this._tags.val).text = project.entry.tags.join(", ");
+   //         //Set project vars
+   //         (<Label>this._name.val).text = project.entry.name;
+   //         (<Label>this._description.val).text = project.entry.description;
+   //         (<Label>this._tags.val).text = project.entry.tags.join(", ");
 
-			(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-			(<Label>this._description.val).textfield.element.removeClass( "red-border" );
-			(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._description.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
 
-			//Set current build vars
-			var versionParts = project.mCurBuild.version.split( "." );
-			( <Label>this._buildVerMaj.val ).text = versionParts[0];
-			( <Label>this._buildVerMid.val ).text = versionParts[1];
-			( <Label>this._buildVerMin.val ).text = versionParts[2];
-            (<Label>this._notes.val).text = project.mCurBuild.build_notes;
-            this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
+			////Set current build vars
+			//var versionParts = project.mCurBuild.version.split( "." );
+			//( <Label>this._buildVerMaj.val ).text = versionParts[0];
+			//( <Label>this._buildVerMid.val ).text = versionParts[1];
+			//( <Label>this._buildVerMin.val ).text = versionParts[2];
+   //         (<Label>this._notes.val).text = project.mCurBuild.build_notes;
+   //         this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
 
-            (<ComboBox>this._visibility.val).selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
-            (<ComboBox>this._projVisibility.val).selectedItem = (project.entry.public ? "Public" : "Private");
-            (<ComboBox>this._category.val).selectedItem = project.entry.category;
+   //         (<ComboBox>this._visibility.val).selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
+   //         (<ComboBox>this._projVisibility.val).selectedItem = (project.entry.public ? "Public" : "Private");
+   //         (<ComboBox>this._category.val).selectedItem = project.entry.category;
 
-            (<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
-			(<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
-			(<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
-			(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+   //         (<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
+			//(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
 
-            (<Label>this._name.val).textfield.element.focus();
-            (<Label>this._name.val).textfield.element.select();
+   //         (<Label>this._name.val).textfield.element.focus();
+   //         (<Label>this._name.val).textfield.element.select();
 
-			var i = this._settingPages.length;
-			while ( i-- )
-				this._settingPages[i].onShow( project, user );
+			//var i = this._settingPages.length;
+			//while ( i-- )
+			//	this._settingPages[i].onShow( project, user );
 
 			this.update();
 		}
@@ -462,7 +467,7 @@ module Animate
 			if ( !this._uploader )
 			{
 				this._uploader = new qq.FileUploaderBasic( {
-					button: document.getElementById( this._addButton.id ),
+                    button: document.getElementById( "upload-projet-img" ),
 					action: DB.HOST + "/file/upload-project-image",
 
 					onSubmit: this._submitProxy,
@@ -485,12 +490,12 @@ module Animate
 		*/
 		message( message, isError )
 		{
-			if ( isError )
-				this._warning.textfield.element.css( "color", "#FF0000" );
-			else
-				this._warning.textfield.element.css( "color", "#5DB526" );
+			//if ( isError )
+			//	this._warning.textfield.element.css( "color", "#FF0000" );
+			//else
+			//	this._warning.textfield.element.css( "color", "#5DB526" );
 
-			this._warning.text = message;
+			//this._warning.text = message;
 		}
 
 		/**
@@ -500,28 +505,28 @@ module Animate
 		{
 			if ( response.message )
 			{
-				this._warning.text = response.message;
-                this._addButton.enabled = true;
+				//this._warning.text = response.message;
+                //this._addButton.enabled = true;
 
 				if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
 				{
-					this._warning.textfield.element.css( "color", "#5DB526" );
+					//this._warning.textfield.element.css( "color", "#5DB526" );
                     var project = User.get.project;
                     project.entry.image = response.imageUrl;
-					this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
+					//this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
 				}
 				else
 				{
-					this._warning.textfield.element.css( "color", "#FF0000" );
-                    this._warning.text = response.message;
+					//this._warning.textfield.element.css( "color", "#FF0000" );
+                   // this._warning.text = response.message;
 					return;
 				}
 			}
 			else
 			{
-				this._warning.textfield.element.css( "color", "#FF0000" );
-				this._warning.text = 'Error Uploading File.';
-				this._addButton.enabled = true;
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+				//this._warning.text = 'Error Uploading File.';
+				//this._addButton.enabled = true;
 			}
 		}
 
@@ -530,9 +535,9 @@ module Animate
 		*/
 		onError( id, fileName, reason )
 		{
-			this._warning.textfield.element.css( "color", "#FF0000" );
-			this._warning.text = 'Error Uploading File.';
-			this._addButton.enabled = true;
+			//this._warning.textfield.element.css( "color", "#FF0000" );
+			//this._warning.text = 'Error Uploading File.';
+			//this._addButton.enabled = true;
 		}
 
 
@@ -541,7 +546,7 @@ module Animate
 		*/
 		onProgress( id, fileName, loaded, total )
 		{
-			this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
+			//this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
 		}
 
 		/**
@@ -556,14 +561,14 @@ module Animate
 			if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
 			{
 				// check for valid file extension
-				this._warning.textfield.element.css( "color", "#FF0000" );
-				this._warning.text = 'Only png, jpg and jpeg files are allowed';
+				//this._warning.textfield.element.css( "color", "#FF0000" );
+				//this._warning.text = 'Only png, jpg and jpeg files are allowed';
 				return false;
 			}
 
-			this._warning.textfield.element.css( "color", "" );
-			this._warning.text =  'Uploading...';
-			this._addButton.enabled = false;
+			//this._warning.textfield.element.css( "color", "" );
+			//this._warning.text =  'Uploading...';
+			//this._addButton.enabled = false;
 
 		}
 

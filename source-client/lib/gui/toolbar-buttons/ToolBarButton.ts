@@ -9,7 +9,7 @@ module Animate
 
 		constructor( text : string, image : string, pushButton : boolean = false, parent?: Component )
 		{
-			super( "<div class='tab-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent );
+			super( "<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent );
 
 			this._pushButton = pushButton;
 			this._radioMode = false;

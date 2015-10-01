@@ -353,7 +353,7 @@ Please only put css rules in here for layout related requirements.
     border: 0px solid #ccc;
     border-radius: 3px;
     overflow: hidden;
-    background: #F0F0F0 url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat 90% 50%;
+    background: #F0F0F0 url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat 95% 50%;
 }
 
 .dropdown select {
@@ -369,7 +369,10 @@ Please only put css rules in here for layout related requirements.
 .dropdown select:focus {
     outline: none;
 }
-.tick-box {
+.tick-outer {
+    margin:0 10px 0 0;
+}
+.tick-box, .tick-outer {
     width:20px;
     height:20px;
     cursor:pointer;
@@ -378,10 +381,10 @@ Please only put css rules in here for layout related requirements.
     width:120%;
     height:120%;
 }
-.tick-box .tick {
+.tick-box .tick, .tick-outer .tick {
     top: -25%;
 }
-.tick-box{
+.tick-box, .tick-outer {
     display:inline-block;
     position: relative;
     text-align: left;
@@ -398,15 +401,14 @@ Please only put css rules in here for layout related requirements.
 .window-content {
     position:relative;
     overflow:auto;
-    height:calc(100% - 25px);
+    height:calc(100% - 30px);
     width:100%;
 }
 .window-content.no-control {
     height:100%;
 }
 .window-control-box {
-    height: 25px;
-    background: #ddd;
+    height: 30px;
     cursor: pointer;
     margin: 0px 0 5px 0;
 }
@@ -416,8 +418,14 @@ Please only put css rules in here for layout related requirements.
 .window-header {
     float: left;
     margin: 5px 0 0 5px;
-    font-size: 14px;
-    color: #666;
+    font-size: 20px;
+    line-height: 20px;
+}
+.close-but {
+    float: right;
+    font-size: 16px;
+    margin-left: 10px;
+    cursor: pointer;
 }
 
 /**
@@ -527,6 +535,30 @@ Please only put css rules in here for layout related requirements.
 }
 .message-box .button {
     margin:5px;
+}
+
+/**
+* GROUP
+*/
+.group {
+    position: relative;
+    margin: 20px 10px 10px 10px;
+    padding: 10px;
+}
+.group-header {
+    position: absolute;
+    top: -15px;
+    padding: 3px 10px 0 10px;
+    left: 8px;
+    font-weight: bold;
+}
+
+/**
+* Tabs
+*/
+.tab-selector .text {
+    pointer-events: none;
+    padding: 0 10px;
 }
 
 /**
@@ -752,13 +784,13 @@ html, body, #stage {
     margin: 10px;
     cursor: pointer;
 }
-.project-item .welcome-preview {
+.img-preview .welcome-preview {
     background: #fff;
     box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
     padding-top: 75%;
     position: relative;
 }
-.project-item .welcome-preview .inner {
+.img-preview .welcome-preview .inner {
     top: 0;
     left: 0;
     overflow: hidden;
@@ -768,7 +800,7 @@ html, body, #stage {
     text-align: center;
     white-space: nowrap;
 }
-.project-item .background-tiles {
+.img-preview .background-tiles {
     background-color: white;
     background-image: -webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),-webkit-linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
     background-image: linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef),linear-gradient(45deg,#efefef 25%,transparent 25%,transparent 75%,#efefef 75%,#efefef);
@@ -776,7 +808,7 @@ html, body, #stage {
     -webkit-background-size: 21px 21px;
     background-size: 21px 21px;
 }
-.project-item .item-name {
+.img-preview .item-name {
     color: inherit;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -785,18 +817,17 @@ html, body, #stage {
     overflow: hidden;
 }
 
-.project-item .inner .div-center {
+.img-preview .inner .div-center {
     display: inline-block;
     height: 100%;
     vertical-align: middle;
 }
-.project-item .inner img {
+.img-preview .inner img {
     display: inline-block;
     max-height: 100%;
     max-width: 100%;
     vertical-align: middle;
 }
-
 
 /**
 *  SPLASH SCREEN - NEW PROJECT
@@ -898,45 +929,45 @@ html, body, #stage {
     height:100%;
 }
 #stage {
-    height:calc(100% - 100px);
+    height:calc(100% - 85px);
 }
+
 /**
 *  TOOLBAR
 *  ===============================
 */
 .toolbar {
-    height: 100px;
+    height: 85px;
     position: relative;
-    overflow: hidden;
     box-shadow: 0px 0px 20px 2px rgba(0,0,0,0.2);
     z-index: 1;
 }
 .tool-bar-group {
     float: left;
     -webkit-border-radius: 5px;
-    margin: 7px 0 0 5px;
-    overflow: hidden;
+    margin: 5px 0 0 5px;
 }
-.tab-button div {
+.toolbar-button div {
     pointer-events: none;
     text-align: center;
 }
-.tab-button img {
+.toolbar-button img {
     width: 40px;
     height: 40px;
 }
-.tab-button, .tab-button-drop-down {
+.toolbar-button, .toolbar-button-drop-down {
     float: left;
 }
-.tab-button .tool-icon-upper img {
+.toolbar-button .tool-icon-upper img {
     margin: 0 8px 0 8px;
 }
-.tab-button {
+.toolbar-button {
     cursor: pointer;
     height: 100%;
     padding: 4px 0 4px 0;
+    position: relative;
 }
-.tab-button .tool-bar-text, .tool-icon-upper, .tab-button img {
+.toolbar-button .tool-bar-text, .tool-icon-upper, .toolbar-button img {
     pointer-events: none;
     text-align: center;
     font-size: 10px;
@@ -952,6 +983,32 @@ html, body, #stage {
     height: 30px;
     font-size: 10px;
     margin: 5px 5px 0 5px;
+}
+.toolbar-button:hover .tool-bar-text {
+    display:inherit;
+}
+.disabled.toolbar-button:hover .tool-bar-text {
+    display:none;
+}
+.tool-bar-text {
+    display:none;
+    position: absolute;
+    font-size: 16px !important;
+    background: #607DA0;
+    color: white;
+    padding: 10px;
+    text-shadow: none;
+    top: 60px;
+    left: 0;
+}
+.tool-bar-text:before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 7px;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #607DA0;
 }
 .tool-bar-top {
     width: 100%;
@@ -992,6 +1049,52 @@ html, body, #stage {
 }
 
 /**
+*  Logger
+*  ===============================
+*/
+span.date {
+    margin: 0 20px 0 0;
+}
+.logger-warning {
+    position: absolute;
+    cursor: pointer;
+}
+
+/**
+*  OPTIONS WINDOW
+*  =========================
+*/
+.field-option {
+    margin:10px 0px 20px 0px;
+}
+.field-option input, .field-option textarea {
+    display:block;
+    padding:10px;
+    box-sizing:border-box;
+    width:100%;
+}
+#options-project .cross {
+    width:30px;
+    height:30px;
+    margin: 0 10px;
+}
+#options-project .img-preview {
+    position:relative;
+    overflow:hidden;
+    width: 200px;
+    height: 200px;
+    float: left;
+}
+#upload-projet-img {
+    cursor:pointer;
+}
+.build-options-form .img-data {
+    float: right;
+    width: 335px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+/**
 ======================================================
 				COLORS
 ======================================================
@@ -1000,10 +1103,10 @@ Please only put css rules in here for generalized modules.
 	eg: classes for highlighting text on certain pages
 **/
 .background-haze {
-  background: -webkit-linear-gradient(left, #D8A2A2 , #4B4877); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right, #D8A2A2, #4B4877); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right, #D8A2A2, #4B4877); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to right, #D8A2A2, #4B4877); /* Standard syntax */
+  background: -webkit-linear-gradient(left, #D8A2A2 , #8F8DA9); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(right, #D8A2A2, #8F8DA9); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(right, #D8A2A2, #8F8DA9); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to right, #D8A2A2, #8F8DA9); /* Standard syntax */
 }
 #splash.welcome-blue {
     background-image:url("media/aurora.png");
@@ -1023,6 +1126,9 @@ Please only put css rules in here for generalized modules.
 }
 .background-view {
     background:#ddd;
+}
+.background-view {
+    background:#D2DBE8;
 }
 .background-view-light {
     background:#eee;
@@ -1083,11 +1189,14 @@ a:active, a:hover {
 .reg-gradient:active {
     background: #00589e;
 }
-.reg-gradient .cross:before, .reg-gradient .cross:after {
+.reg-gradient .cross:before, .reg-gradient .cross:after, .reg-gradient .tick:before, .reg-gradient .tick:after {
     background-color:#fff;
 }
 .plugin .tick:before, .plugin  .tick:after, .plugin .minus:before, .plugin .minus:after, .plugin .cross:before, .plugin .cross:after {
   background: #ccc;
+}
+.green.cross:before, .green.cross:after {
+  background: #75c25f;
 }
 .tick-box .tick:before, .tick-box .tick:after {
   background: #5ABB08;
@@ -1119,6 +1228,9 @@ a:active, a:hover {
     background:#88CF0E;
     color:white;
 }
+.toolbar-button:hover {
+    background:#fff;
+}
 .green-glow {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
     box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
@@ -1135,11 +1247,37 @@ html .bad-input {
     background: #ffe9e9 !important;
 }
 .background-dark {
-    background: #607DA0;
+    background: #86A1C3;
     color: #FFF;
 }
 .soft-text {
     color:#aaa;
+}
+.light-hover:hover {
+    background:#eee;
+}
+.group {
+    border: 1px solid #ddd;
+}
+.window-header {
+    color: #fff;
+}
+.build-options-form .tab-selected {
+    background-color: #fff !important;
+}
+
+
+.tab-selector .text {
+    color: #fff;
+}
+.tab-selector.tab-selected .text {
+    color: #86A1C3;
+}
+.close-but {
+    color: #bbb;
+}
+.close-but:hover {
+    color: #fff;
 }
 /**
 ======================================================
@@ -1315,8 +1453,7 @@ html .bad-input {
 .behaviour-comment textarea{ width:100%; height:100%; border:none;  }
 .behaviour-shortcut{ opacity:0.7; }
 
-.group { position: relative; margin: 20px 10px 10px 10px; border: 1px solid #ddd; padding: 10px; }
-.group-header { background:#eee; position: absolute; top: -10px; padding: 3px; left: 8px; font-weight:bold; }
+
 iframe{ z-index:0; }
 .split-panel{ position:relative; }
 .panel-input{ position:absolute; width:100%; height:100%; z-index:98; }
@@ -1336,19 +1473,20 @@ iframe{ z-index:0; }
 
 
 
-.build-options-form .preview{ float:left; background:#aaa; width:200px; height:200px; margin: 5px 0 0 0; overflow: hidden; background: url(media/map-opacity.png); }
-.build-options-form .img-data{ float:right; width:335px; }
+
+
+
 .img-data .info .nb{ font-weight:bold; color:#000; }
 
-.build-options-form .preview img{ width:100%; }
+
 .build-options-form .content{ overflow: auto; }
 .build-options-form .tool-bar-group{ height:43px; }
 .build-options-form .pages-div{ background: #EEE; }
 .build-options-form .tab{ background: #ddd; }
 .build-options-form .server-message{ margin:10px 0 0 0; }
 
-.build-options-form .tab-selected{ background-color: #eee !important; }
-.build-options-form .tab-selector{ background-color: #aaa }
+
+
 
 
 
@@ -1374,7 +1512,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .options-button:hover{ background: #ddd; color:#444; }
 .options-button:active{ background: #ccc; color:#fff; text-shadow:none; }
 .prop-options-content{padding: 5px;}
-.logger-warning{ position:absolute; cursor:pointer;  }
+
 
 .property-grid-header{ padding:5px; }
 .property-grid-group-header{ color:#000; margin:3px 3px 8px 3px; text-shadow:1px 1px 0px white; }
@@ -1533,8 +1671,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
     margin-bottom: 10px;
 }
 */
-.close-but{ float:right; font-size:16px; color:#bbb; margin-left:10px; cursor:pointer; }
-.close-but:hover{ color:#777; }
+
 
 
 
@@ -1631,7 +1768,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .top-node{}
 .tree-node-top{ margin-left:0px !important; }
 .tree-node-topp:first-child { background:#444; margin: 0 -5px 0 5px; }
-.first-selectable, .property-grid-group{ background:#ddd; display:block !important; border:1px solid #CCC; margin:10px 5px 0px 5px; color:#000; padding:3px; float:none !important;
+.first-selectable, .property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:3px; float:none !important;
 -webkit-border-radius: 5px; border-radius: 5px; pointer-events:all !important; }
 
 
@@ -1673,7 +1810,14 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .menu-list{width: 100%; height: 100%; overflow:auto; }
 .menu-list-text{ pointer-events:none; }
 .menu-list-item img { margin-right: 10px; margin:5px; pointer-events: none;}
-.menu-list-item{ width:100%; cursor:pointer; overflow:hidden; }
+.menu-list-item {
+    width: 100%;
+    cursor: pointer;
+    overflow: hidden;
+    height: 25px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 
 
@@ -1693,13 +1837,12 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .tabs-div{ width:100%; height:25px; position:relative; overflow:hidden; }
 .pages-div{ position:relative; }
 .tab-selector{ cursor:pointer; float:left; height:20px; margin:5px 1px 0 0; position:relative; padding-left: 5px; padding-right:5px; }
-.tab-selector .text{ pointer-events:none; }
+
 .tab-page{ width:100%; height:100%; overflow:auto; position:relative; }
 .tab-selected { position:relative; -webkit-border-radius: 0px 0px 0px 0px !important; border-radius: 0px 0px 0px 0px !important; }
 .tabs-drop-button{ cursor:pointer; position:absolute; height:100%; width:14px; text-align:center; }
 
 .tab-close{ float:right; margin-top:1px;width:13px; height:13px; margin-left:10px; text-align:center; border:none !important; }
-
 
 
 
@@ -1710,8 +1853,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
 .tab-selector {
-    background-color: #5988BD;
-    color: #fff;
     -webkit-border-radius: 0px 5px 0px 0px;
     border-radius: 0px 5px 0px 0px;
 }
@@ -1748,12 +1889,12 @@ div .selected:hover{ text-shadow: 0px 0px 5px #c4ff00 !important; }
     text-shadow: none !important;
 }
 
-.context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .menu-list-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .menu-item-selected, .project-selected, .drag-targets {
+.context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .menu-item-selected, .project-selected, .drag-targets {
     background: #88CF0E;
     color: #fff !important;
     text-shadow: none !important;
 }
-.pushed, .context-item:active, .plugin-item:active, .logger-item:active, .project-browser-item:active, .tab-button:active, .tabs-drop-button:active {
+.pushed, .context-item:active, .plugin-item:active, .project-browser-item:active, .tabs-drop-button:active {
     background: rgb(118,160,12); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(118,160,12,1) 1%, rgba(64,106,8,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(118,160,12,1)), color-stop(100%,rgba(64,106,8,1))); /* Chrome,Safari4+ */

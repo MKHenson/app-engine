@@ -10,10 +10,11 @@ module Animate
 
 		constructor( text, parent  )
 		{
-			super( "<div class='group'></div>", parent );
+            super( "<div class='group'><div class='group-header background'></div><div class='group-content'></div></div>", parent );
 
 			this.heading = new Label( text, this );
-			this.heading.element.addClass( "group-header" );
+            this.heading.element.addClass("group-header");
+            this.heading.element.addClass("background");
 			this.content = <Component>this.addChild( "<div class='group-content'></div>" );
 		}
 

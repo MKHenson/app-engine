@@ -10,7 +10,7 @@ module Animate
 
 		constructor( parent: Component, text: string, color: string )
 		{
-			super( "<div class='tab-button'></div>", parent );
+			super( "<div class='toolbar-button'></div>", parent );
 			
 			this.numberInput = <Component>this.addChild( "<input class='toolbar-color' value='#ff0000'></input>" );
 			this.addChild( "<div class='tool-bar-text'>" + text + "</div>" );

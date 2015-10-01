@@ -3,7 +3,6 @@ module Animate
 	export class ComponentEvents extends ENUM
 	{
 		constructor(v: string) { super(v); }
-
 		static UPDATED: ComponentEvents = new ComponentEvents("component_updated");
 	}
 
@@ -31,21 +30,23 @@ module Animate
 
 		public savedID: string;
 
-		constructor(html: string = "<div class='Component'><div>", parent : Component = null )
+        constructor(html: string | JQuery, parent: Component = null)
 		{
 			super();
 
-			if ( html == null )
-				html = "<div class='Component'><div>";
+			if ( !html )
+                this._element = jQuery("<div class='Component'><div>");
+            else if (typeof html == "string")
+                this._element = jQuery(html);
+            else
+                this._element = <JQuery>html;
 
-			//Increment the ID's
+			// Increment the ID's
 			Component.idCounter++;
 
-			//Create the jQuery wrapper
-			this._element = jQuery(html);
+			// Create the jQuery wrapper
 			this._children = [];
 			this._layouts = [];
-			this._id = "i" + Component.idCounter;
 			
 			this.savedID = null;
 			this._tooltip = null;
@@ -53,9 +54,13 @@ module Animate
 			this.tag = null;
 			this._parent = parent;
 
-			//Associate the id and component
-            if ( !this._element.attr("id"))
-			    this._element.attr("id", this._id);
+			// Associate the id and component
+            if (!this._element.attr("id"))
+            {
+                this._id = "i" + Component.idCounter;
+                this._element.attr("id", this._id);
+            }
+
 			this._element.data("component", this);
 
 			if ( parent )
@@ -69,10 +74,8 @@ module Animate
 		{
 			if ( this.disposed )
 				return;
-
-			
+            
 			this._tooltip = null;
-
 			var children: Array<IComponent> = this._children;
 			
 			// Dispose method will remove child from parent and also the array
@@ -93,7 +96,7 @@ module Animate
 
 			this.element = null;
 			
-			//Call super
+			// Call super
 			EventDispatcher.prototype.dispose.call(this);
 		}
 
@@ -155,32 +158,45 @@ module Animate
 		* Use this function to add a child to this component. 
 		* This has the same effect of adding some HTML as a child of another piece of HTML.
 		* It uses the jQuery append function to achieve this functionality.
-		* @param {string | IComponent} child The child component we want to add
+		* @param {string | IComponent | JQuery} child The child component we want to add
 		* @returns {IComponent} The added component
 		*/
-		addChild(child: string | IComponent): IComponent
+        addChild(child: string | IComponent | JQuery): IComponent
 		{
-			//Remove from previous parent
-			var parent: Component = <Component>(<IComponent>child).parent;
+			// Remove from previous parent
+            var parent: Component;
+            var toAdd: Component = null;
 
-			if ( parent )
-				parent.removeChild((<IComponent>child));
+            if (child instanceof Component)
+            {
+                toAdd = child;
+                parent = child.parent;
+            }
+            else
+            {
+                if (typeof child === "string")
+                    toAdd = new Component(child);
+                else if ((<JQuery>child).length != 0)
+                {
+                    var jq = <JQuery>child;
+                    if (jq.parent() && jq.parent().data("component"))
+                        parent = jq.parent().data("component");
 
-			var toAdd: Component = null;
+                    toAdd = new Component(<JQuery>child);
+                }
+                else
+                    throw new Error("You can only add HTML strings or Component classes");
+            }
 
-			//Determine if the child is pure html or a component
-			if (jQuery.inArray(child, this._children) != -1)
-				return (<IComponent>child);
-			else if (typeof child === "string")
-				toAdd = new Component(child);
-			else if (child instanceof Component === false)
-			{
-				throw new Error("You can only add HTML strings or Component classes");
-				return null;
-			}
-			else
-				toAdd = <Component>(<IComponent>child);
+            // If already in this component then do nothing
+            if (jQuery.inArray(child, this._children) != -1)
+                return (<IComponent>child);
 
+            // If it had an existing parent - then remove it
+            if (parent)
+                parent.removeChild((<IComponent>toAdd));
+            
+			
 			toAdd._parent = this;
 			this._children.push(toAdd);
 			this._element.append(toAdd._element);

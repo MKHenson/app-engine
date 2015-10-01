@@ -31,7 +31,7 @@ module Animate
 		*/
 		addItem( img : string, val : string ) : JQuery
 		{
-			var toRet = jQuery( "<div class='menu-list-item'>" + ( img ? "<img src='" + img + "' />" : "" ) + "<span class='menu-list-text'>" + val + "</span></div>" );
+            var toRet = jQuery( "<div class='menu-list-item light-hover'>" + ( img ? "<img src='" + img + "' />" : "" ) + "<span class='menu-list-text'>" + val + "</span></div>" );
 			this._items.push( toRet );
 			this.element.append( toRet );
 			return toRet;

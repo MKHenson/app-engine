@@ -4696,30 +4696,33 @@ var Animate;
     var Component = (function (_super) {
         __extends(Component, _super);
         function Component(html, parent) {
-            if (html === void 0) { html = "<div class='Component'><div>"; }
             if (parent === void 0) { parent = null; }
             _super.call(this);
             //This is used in the saving process. Leave alone.
             //private _savedID : string = null;
             this._tooltip = null;
             this._enabled = true;
-            if (html == null)
-                html = "<div class='Component'><div>";
-            //Increment the ID's
+            if (!html)
+                this._element = jQuery("<div class='Component'><div>");
+            else if (typeof html == "string")
+                this._element = jQuery(html);
+            else
+                this._element = html;
+            // Increment the ID's
             Component.idCounter++;
-            //Create the jQuery wrapper
-            this._element = jQuery(html);
+            // Create the jQuery wrapper
             this._children = [];
             this._layouts = [];
-            this._id = "i" + Component.idCounter;
             this.savedID = null;
             this._tooltip = null;
             this._enabled = true;
             this.tag = null;
             this._parent = parent;
-            //Associate the id and component
-            if (!this._element.attr("id"))
+            // Associate the id and component
+            if (!this._element.attr("id")) {
+                this._id = "i" + Component.idCounter;
                 this._element.attr("id", this._id);
+            }
             this._element.data("component", this);
             if (parent)
                 parent.addChild(this);
@@ -4746,7 +4749,7 @@ var Animate;
                 .data("component", null)
                 .remove();
             this.element = null;
-            //Call super
+            // Call super
             Animate.EventDispatcher.prototype.dispose.call(this);
         };
         /**
@@ -4801,26 +4804,35 @@ var Animate;
         * Use this function to add a child to this component.
         * This has the same effect of adding some HTML as a child of another piece of HTML.
         * It uses the jQuery append function to achieve this functionality.
-        * @param {string | IComponent} child The child component we want to add
+        * @param {string | IComponent | JQuery} child The child component we want to add
         * @returns {IComponent} The added component
         */
         Component.prototype.addChild = function (child) {
-            //Remove from previous parent
-            var parent = child.parent;
-            if (parent)
-                parent.removeChild(child);
+            // Remove from previous parent
+            var parent;
             var toAdd = null;
-            //Determine if the child is pure html or a component
+            if (child instanceof Component) {
+                toAdd = child;
+                parent = child.parent;
+            }
+            else {
+                if (typeof child === "string")
+                    toAdd = new Component(child);
+                else if (child.length != 0) {
+                    var jq = child;
+                    if (jq.parent() && jq.parent().data("component"))
+                        parent = jq.parent().data("component");
+                    toAdd = new Component(child);
+                }
+                else
+                    throw new Error("You can only add HTML strings or Component classes");
+            }
+            // If already in this component then do nothing
             if (jQuery.inArray(child, this._children) != -1)
                 return child;
-            else if (typeof child === "string")
-                toAdd = new Component(child);
-            else if (child instanceof Component === false) {
-                throw new Error("You can only add HTML strings or Component classes");
-                return null;
-            }
-            else
-                toAdd = child;
+            // If it had an existing parent - then remove it
+            if (parent)
+                parent.removeChild(toAdd);
             toAdd._parent = this;
             this._children.push(toAdd);
             this._element.append(toAdd._element);
@@ -4971,7 +4983,7 @@ var Animate;
         * @returns {JQuery} A jQuery object containing the HTML.
         */
         MenuList.prototype.addItem = function (img, val) {
-            var toRet = jQuery("<div class='menu-list-item'>" + (img ? "<img src='" + img + "' />" : "") + "<span class='menu-list-text'>" + val + "</span></div>");
+            var toRet = jQuery("<div class='menu-list-item light-hover'>" + (img ? "<img src='" + img + "' />" : "") + "<span class='menu-list-text'>" + val + "</span></div>");
             this._items.push(toRet);
             this.element.append(toRet);
             return toRet;
@@ -5148,6 +5160,7 @@ var Animate;
                 this.warningFlagger.css({ left: offset.left, top: offset.top - this.warningFlagger.height() });
                 this.element.data("preview").addClass("fade-animation");
             }
+            val = ("<span class='date'>" + new Date(Date.now()).toLocaleDateString() + "</span>") + val;
             var toAdd = this.addItem(img, val);
             toAdd.data("tag", tag);
             return toAdd;
@@ -5670,7 +5683,7 @@ var Animate;
             this._controlBox = controlBox;
             //If we have a control box we add the title and close button
             if (this._controlBox) {
-                this._header = this.addChild("<div class='window-control-box'></div>");
+                this._header = this.addChild("<div class='window-control-box background-haze'></div>");
                 this._headerText = this._header.addChild("<div class='window-header'>" + title + "</div>");
                 this._headerCloseBut = this._header.addChild("<div class='close-but'>X</div>");
                 this.addChild("<div class='fix'></div>");
@@ -6512,7 +6525,7 @@ var Animate;
                 this.selectedTab.page.element.detach();
             }
             var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
-            var tab = new Animate.Component("<div class='tab-selector tab-selected'><span class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div>", this._tabsDiv);
+            var tab = new Animate.Component("<div class='tab-selector background-dark tab-selected'><span class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div>", this._tabsDiv);
             if (canClose) {
                 new Animate.Component("<div class='tab-close'>X</div>", tab);
                 tab.element.data("canClose", true);
@@ -6840,9 +6853,10 @@ var Animate;
     var Group = (function (_super) {
         __extends(Group, _super);
         function Group(text, parent) {
-            _super.call(this, "<div class='group'></div>", parent);
+            _super.call(this, "<div class='group'><div class='group-header background'></div><div class='group-content'></div></div>", parent);
             this.heading = new Animate.Label(text, this);
             this.heading.element.addClass("group-header");
+            this.heading.element.addClass("background");
             this.content = this.addChild("<div class='group-content'></div>");
         }
         /**
@@ -8868,7 +8882,7 @@ var Animate;
             //Image
             group = new Animate.Group("Avatar", this);
             this.imgPreview = group.content.addChild("<div class='preview'></div>");
-            this.userImgButton = group.content.addChild("<div class='tool-bar-group'><div class='tab-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>");
+            this.userImgButton = group.content.addChild("<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>");
             group.content.addChild("<div class='fix'></div>");
             var info = new Animate.Label("Use this button to upload your avatar picture.", group.content);
             info.element.addClass("info");
@@ -14016,7 +14030,7 @@ var Animate;
         __extends(ToolBarButton, _super);
         function ToolBarButton(text, image, pushButton, parent) {
             if (pushButton === void 0) { pushButton = false; }
-            _super.call(this, "<div class='tab-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent);
+            _super.call(this, "<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent);
             this._pushButton = pushButton;
             this._radioMode = false;
             this._proxyDown = this.onClick.bind(this);
@@ -14105,7 +14119,7 @@ var Animate;
         */
         function ToolbarNumber(parent, text, defaultVal, minValue, maxValue, delta) {
             if (delta === void 0) { delta = 1; }
-            _super.call(this, "<div class='tab-button scrolling-number'></div>", parent);
+            _super.call(this, "<div class='toolbar-button scrolling-number'></div>", parent);
             var container = this.addChild("<div class='number-holder'></div>");
             this.addChild("<div class='tool-bar-text'>" + text + "</div>");
             this.defaultVal = defaultVal;
@@ -14311,7 +14325,7 @@ var Animate;
     var ToolbarColorPicker = (function (_super) {
         __extends(ToolbarColorPicker, _super);
         function ToolbarColorPicker(parent, text, color) {
-            _super.call(this, "<div class='tab-button'></div>", parent);
+            _super.call(this, "<div class='toolbar-button'></div>", parent);
             this.numberInput = this.addChild("<input class='toolbar-color' value='#ff0000'></input>");
             this.addChild("<div class='tool-bar-text'>" + text + "</div>");
             this.picker = new jscolor.color(document.getElementById(this.numberInput.id));
@@ -14356,7 +14370,7 @@ var Animate;
         * @param {string} text The text to use in the item.
         */
         function ToolbarItem(img, text, parent) {
-            _super.call(this, "<div class='tab-button'><div><img src='" + img + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent);
+            _super.call(this, "<div class='toolbar-button'><div><img src='" + img + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent);
             this.img = img;
             this.text = text;
         }
@@ -14394,7 +14408,7 @@ var Animate;
         * @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:"./img1.png", text:"option 1"}, {img:"./img2.png", text:"option 2"}]
         */
         function ToolbarDropDown(parent, items) {
-            _super.call(this, "<div class='tab-button-drop-down'></div>", parent);
+            _super.call(this, "<div class='toolbar-button-drop-down'></div>", parent);
             /**
             * Called when the mouse is down on the DOM
             * @param {any} e The jQuery event
@@ -14418,7 +14432,7 @@ var Animate;
             this.popupContainer = new Animate.Component("<div class='tool-bar-dropdown shadow-med'></div>");
             var i = items.length;
             while (i--) {
-                //var comp: Component = <ToolbarItem>this.popupContainer.addChild( "<div class='tab-button'><div><img src='" + items[i].img + "' /></div><div class='tool-bar-text'>" + items[i].text + "</div></div>" );
+                //var comp: Component = <ToolbarItem>this.popupContainer.addChild( "<div class='toolbar-button'><div><img src='" + items[i].img + "' /></div><div class='tool-bar-text'>" + items[i].text + "</div></div>" );
                 //comp.element.data( "item", items[i] );
                 //items[i].comp = comp;
                 this.popupContainer.addChild(items[i]);
@@ -14680,51 +14694,53 @@ var Animate;
     var BuildOptionsForm = (function (_super) {
         __extends(BuildOptionsForm, _super);
         function BuildOptionsForm() {
-            _super.call(this, 600, 500, true, true, "Settings", true);
-            if (BuildOptionsForm._singleton != null)
-                throw new Error("The BuildOptionsForm class is a singleton. You need to call the BuildOptionsForm.getSingleton() function.");
+            _super.call(this, 600, 500, true, true, "Settings");
             BuildOptionsForm._singleton = this;
             this.element.addClass("build-options-form");
-            this.okCancelContent.element.css({ height: "500px" });
-            this._tab = new Animate.Tab(this.okCancelContent);
+            //this.okCancelContent.element.css( { height: "500px" });
+            this._tab = new Animate.Tab(this.content);
             var tabPage = this._tab.addTab("Project", false).page;
-            var projectGroup = new Animate.Group("Project Options", tabPage);
-            var imgGroup = new Animate.Group("Image", tabPage);
-            this._projectTab = tabPage;
+            this._projectElm = jQuery("#options-project").remove().clone();
+            tabPage.element.append(this._projectElm);
+            // Compile the HTML
+            Animate.Compiler.build(this._projectElm, this);
+            //var projectGroup = new Group( "Project Options", tabPage );
+            //var imgGroup = new Group( "Image", tabPage );
+            //this._projectTab = tabPage;
             tabPage = this._tab.addTab("Build Options", false).page;
             var buildGroup = new Animate.Group("Build", tabPage);
             var notesGroup = new Animate.Group("Properties", tabPage);
             //Project fields
-            this._name = new Animate.LabelVal(projectGroup.content, "Name", new Animate.InputBox(null, ""));
-            this._tags = new Animate.LabelVal(projectGroup.content, "Tags", new Animate.InputBox(null, ""));
-            this._description = new Animate.LabelVal(projectGroup.content, "Description", new Animate.InputBox(null, "", true));
-            this._description.val.textfield.element.css({ height: "180px" });
-            var combo = new Animate.ComboBox();
-            combo.addItem("Private");
-            combo.addItem("Public");
-            this._projVisibility = new Animate.LabelVal(projectGroup.content, "Visibility", combo);
-            info = new Animate.Label("If public, your project will be searchable on the Webinate gallery.", projectGroup.content);
-            info.element.addClass("info");
-            combo = new Animate.ComboBox();
-            combo.addItem("Other");
-            combo.addItem("Artistic");
-            combo.addItem("Gaming");
-            combo.addItem("Informative");
-            combo.addItem("Musical");
-            combo.addItem("Fun");
-            combo.addItem("Technical");
-            this._category = new Animate.LabelVal(projectGroup.content, "Category", combo);
-            info = new Animate.Label("Optionally provide a project category. The default is 'Other'", projectGroup.content);
-            info.element.addClass("info");
-            this._saveProject = new Animate.Button("Save", projectGroup.content);
-            this._saveProject.css({ width: "85px" });
+            //this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
+            //this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
+            //this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
+            //(<Label>this._description.val).textfield.element.css( { height: "180px" });
+            //var combo : ComboBox = new ComboBox();
+            //combo.addItem( "Private" );
+            //combo.addItem( "Public" );
+            //this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
+            //info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
+            //info.element.addClass( "info" );
+            //combo = new ComboBox();
+            //combo.addItem( "Other" );
+            //combo.addItem( "Artistic" );
+            //combo.addItem( "Gaming" );
+            //combo.addItem( "Informative" );
+            //combo.addItem( "Musical" );
+            //combo.addItem( "Fun" );
+            //combo.addItem( "Technical" );
+            //this._category = new LabelVal( projectGroup.content, "Category", combo );
+            //info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
+            //info.element.addClass( "info" );
+            //this._saveProject = new Button( "Save", projectGroup.content );
+            //this._saveProject.css( { width: "85px" });
             //Image
-            this._imgPreview = imgGroup.content.addChild("<div class='preview'></div>");
-            var imgData = imgGroup.content.addChild("<div class='img-data'></div>");
-            info = new Animate.Label("Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData);
-            info.element.addClass("info");
-            this._addButton = imgData.addChild("<div class='tool-bar-group'><div class='tab-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>");
-            imgGroup.content.addChild("<div class='fix'></div>");
+            //this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
+            //var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
+            //info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
+            //info.element.addClass( "info" );
+            //this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
+            //imgGroup.content.addChild( "<div class='fix'></div>" );
             //Build options	
             this._buildVerMaj = new Animate.LabelVal(buildGroup.content, "Major Version: ", new Animate.InputBox(null, "1"), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
             this._buildVerMid = new Animate.LabelVal(buildGroup.content, "Mid Version: ", new Animate.InputBox(null, "0"), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
@@ -14742,7 +14758,7 @@ var Animate;
             this._notes.val.textfield.element.css({ height: "80px" });
             info = new Animate.Label("Use the above pad to store some build notes for the selected build.", notesGroup.content);
             info.element.addClass("info");
-            combo = new Animate.ComboBox();
+            var combo = new Animate.ComboBox();
             combo.addItem("Private");
             combo.addItem("Public");
             this._visibility = new Animate.LabelVal(notesGroup.content, "Visibility", combo);
@@ -14750,8 +14766,8 @@ var Animate;
             info.element.addClass("info");
             this._saveBuild = new Animate.Button("Save", notesGroup.content);
             this._saveBuild.css({ width: "85px" });
-            this._warning = new Animate.Label("", this.content);
-            this._warning.element.addClass("server-message");
+            //this._warning = new Label( "", this.content );
+            //this._warning.element.addClass( "server-message" );
             //Create the proxies
             this._renameProxy = jQuery.proxy(this.onRenamed, this);
             this._buildProxy = jQuery.proxy(this.onBuildResponse, this);
@@ -14760,7 +14776,7 @@ var Animate;
             this._completeProxy = jQuery.proxy(this.onUploadComplete, this);
             this._errorProxy = jQuery.proxy(this.onError, this);
             this._clickProxy = jQuery.proxy(this.onClick, this);
-            this._saveProject.element.on("click", this._clickProxy);
+            //this._saveProject.element.on( "click", this._clickProxy );
             this._selectBuild.element.on("click", this._clickProxy);
             this._saveBuild.element.on("click", this._clickProxy);
             this._settingPages = [];
@@ -14793,45 +14809,46 @@ var Animate;
         */
         BuildOptionsForm.prototype.onClick = function (e) {
             var target = jQuery(e.currentTarget).data("component");
-            if (target == this._saveProject) {
+            if (target == null) {
                 //Check if the values are valid
-                this._name.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "");
-                //Check for special chars
-                var message = Animate.Utils.checkForSpecialChars(this._name.val.text);
-                if (message != null) {
-                    this._name.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = message;
-                    return;
-                }
-                //Check for special chars
-                message = Animate.Utils.checkForSpecialChars(this._tags.val.text, true);
-                if (message != null) {
-                    this._tags.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = message;
-                    return;
-                }
-                var name = this._name.val.text;
-                var description = this._description.val.text;
-                var tags = this._tags.val.text;
+                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+                //this._warning.textfield.element.css( "color", "" );
+                ////Check for special chars
+                ////var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
+                //if ( message != null )
+                //{
+                //	//( <Label>this._name.val ).textfield.element.addClass( "red-border" );
+                //	this._warning.textfield.element.css( "color", "#FF0000" );
+                //	this._warning.text = message;
+                //	return;
+                //}
+                ////Check for special chars
+                //message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
+                //if ( message != null )
+                //{
+                //	( <Label>this._tags.val).textfield.element.addClass( "red-border" );
+                //	this._warning.textfield.element.css( "color", "#FF0000" );
+                //                this._warning.text = message;
+                //	return;
+                //}
+                //var name = ( <Label>this._name.val ).text;
+                //var description = ( <Label>this._description.val ).text;
+                //var tags = ( <Label>this._tags.val ).text;
                 var user = Animate.User.get;
                 var project = Animate.User.get.project;
                 user.addEventListener(Animate.UserEvents.FAILED, this._renameProxy);
                 user.addEventListener(Animate.UserEvents.PROJECT_RENAMED, this._renameProxy);
-                user.renameProject(project.entry._id, name, description, tags.split(","), this._category.val.selectedItem, "", this._projVisibility.val.selectedItem);
             }
             else if (target == this._saveBuild) {
                 //Check if the values are valid
-                this._name.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "");
+                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+                //this._warning.textfield.element.css( "color", "" );
                 //Check for special chars
                 var message = Animate.Utils.checkForSpecialChars(this._notes.val.text, true);
                 if (message != null) {
                     this._notes.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = message;
+                    //this._warning.textfield.element.css( "color", "#FF0000" );
+                    //this._warning.text = message;
                     return;
                 }
                 var user = Animate.User.get;
@@ -14842,31 +14859,34 @@ var Animate;
                 project.saveBuild(this._notes.val.text, this._visibility.val.selectedItem, build.html, build.css);
             }
             else if (target == this._selectBuild) {
-                //Check if the values are valid
-                this._name.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "");
-                //Check for special chars
-                var number = parseInt(this._buildVerMaj.val.text);
-                if (isNaN(number)) {
-                    this._buildVerMaj.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = "Please only use numbers";
-                    return;
-                }
-                number = parseInt(this._buildVerMid.val.text);
-                if (isNaN(number)) {
-                    this._buildVerMid.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = "Please only use numbers";
-                    return;
-                }
-                number = parseInt(this._buildVerMin.val.text);
-                if (isNaN(number)) {
-                    this._buildVerMin.val.textfield.element.addClass("red-border");
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = "Please only use numbers";
-                    return;
-                }
+                ////Check if the values are valid
+                ////(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+                //this._warning.textfield.element.css( "color", "" );
+                ////Check for special chars
+                //var number = parseInt( (<Label>this._buildVerMaj.val).text );
+                //if ( isNaN( number ) )
+                //{
+                //	( <Label>this._buildVerMaj.val).textfield.element.addClass( "red-border" );
+                //	this._warning.textfield.element.css( "color", "#FF0000" );
+                //	this._warning.text = "Please only use numbers";
+                //	return;
+                //}
+                //number = parseInt( (<Label>this._buildVerMid.val).text );
+                //if ( isNaN( number ) )
+                //{
+                //	( <Label>this._buildVerMid.val).textfield.element.addClass( "red-border" );
+                //	this._warning.textfield.element.css( "color", "#FF0000" );
+                //	this._warning.text = "Please only use numbers";
+                //	return;
+                //}
+                //            number = parseInt((<Label>this._buildVerMin.val).text );
+                //if ( isNaN( number ) )
+                //{
+                //	( <Label>this._buildVerMin.val).textfield.element.addClass( "red-border" );
+                //	this._warning.textfield.element.css( "color", "#FF0000" );
+                //	this._warning.text = "Please only use numbers";
+                //	return;
+                //}
                 var user = Animate.User.get;
                 var project = Animate.User.get.project;
                 project.addEventListener(Animate.ProjectEvents.FAILED, this._buildProxy, this);
@@ -14893,9 +14913,9 @@ var Animate;
             project.removeEventListener(Animate.ProjectEvents.BUILD_SAVED, this._buildProxy, this);
             project.removeEventListener(Animate.ProjectEvents.BUILD_SELECTED, this._buildProxy, this);
             if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
-                this._notes.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = event.message;
+                //(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+                //this._warning.textfield.element.css( "color", "#FF0000" );
+                //            this._warning.text = event.message;
                 return;
             }
             if (response == Animate.ProjectEvents.BUILD_SELECTED) {
@@ -14904,22 +14924,20 @@ var Animate;
                 this._buildVerMid.val.textfield.element.removeClass("red-border");
                 this._buildVerMin.val.textfield.element.removeClass("red-border");
                 this._notes.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "#5DB526");
-                this._warning.text = event.message;
+                //this._warning.textfield.element.css( "color", "#5DB526" );
+                //            this._warning.text = event.message;
                 //Update fields
                 this.updateFields(event.tag);
             }
             else if (response == Animate.ProjectEvents.BUILD_SAVED) {
-                //Check if the values are valid
-                this._notes.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "#5DB526");
-                this._warning.text = "Build saved";
+                ////Check if the values are valid
+                //            (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+                //this._warning.textfield.element.css( "color", "#5DB526" );
+                //this._warning.text = "Build saved";
                 //Update fields
                 this.updateFields(event.tag);
             }
             else {
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = event.message;
             }
         };
         /**
@@ -14944,20 +14962,10 @@ var Animate;
             var user = Animate.User.get;
             var project = Animate.User.get.project;
             if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = event.message;
-                return;
             }
             if (response == Animate.UserEvents.PROJECT_RENAMED) {
-                //Check if the values are valid
-                this._name.val.textfield.element.removeClass("red-border");
-                this._tags.val.textfield.element.removeClass("red-border");
-                this._warning.textfield.element.css("color", "#5DB526");
-                this._warning.text = "Project updated.";
             }
             else {
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = event.message;
             }
             user.removeEventListener(Animate.UserEvents.FAILED, this._renameProxy);
             user.removeEventListener(Animate.UserEvents.PROJECT_RENAMED, this._renameProxy);
@@ -14971,36 +14979,36 @@ var Animate;
             this._tab.selectTab(this._tab.getTab("Project"));
             var user = Animate.User.get;
             var project = user.project;
-            //Start the image uploader
-            this.initializeLoader();
-            this._warning.textfield.element.css("color", "");
-            this._warning.text = "";
-            //Set project vars
-            this._name.val.text = project.entry.name;
-            this._description.val.text = project.entry.description;
-            this._tags.val.text = project.entry.tags.join(", ");
-            this._name.val.textfield.element.removeClass("red-border");
-            this._description.val.textfield.element.removeClass("red-border");
-            this._tags.val.textfield.element.removeClass("red-border");
-            //Set current build vars
-            var versionParts = project.mCurBuild.version.split(".");
-            this._buildVerMaj.val.text = versionParts[0];
-            this._buildVerMid.val.text = versionParts[1];
-            this._buildVerMin.val.text = versionParts[2];
-            this._notes.val.text = project.mCurBuild.build_notes;
-            this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
-            this._visibility.val.selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
-            this._projVisibility.val.selectedItem = (project.entry.public ? "Public" : "Private");
-            this._category.val.selectedItem = project.entry.category;
-            this._buildVerMaj.val.textfield.element.removeClass("red-border");
-            this._buildVerMid.val.textfield.element.removeClass("red-border");
-            this._buildVerMin.val.textfield.element.removeClass("red-border");
-            this._notes.val.textfield.element.removeClass("red-border");
-            this._name.val.textfield.element.focus();
-            this._name.val.textfield.element.select();
-            var i = this._settingPages.length;
-            while (i--)
-                this._settingPages[i].onShow(project, user);
+            ////Start the image uploader
+            //this.initializeLoader();
+            //this._warning.textfield.element.css( "color", "" );
+            //         this._warning.text = "";
+            //         //Set project vars
+            //         (<Label>this._name.val).text = project.entry.name;
+            //         (<Label>this._description.val).text = project.entry.description;
+            //         (<Label>this._tags.val).text = project.entry.tags.join(", ");
+            //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+            //(<Label>this._description.val).textfield.element.removeClass( "red-border" );
+            //(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
+            ////Set current build vars
+            //var versionParts = project.mCurBuild.version.split( "." );
+            //( <Label>this._buildVerMaj.val ).text = versionParts[0];
+            //( <Label>this._buildVerMid.val ).text = versionParts[1];
+            //( <Label>this._buildVerMin.val ).text = versionParts[2];
+            //         (<Label>this._notes.val).text = project.mCurBuild.build_notes;
+            //         this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
+            //         (<ComboBox>this._visibility.val).selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
+            //         (<ComboBox>this._projVisibility.val).selectedItem = (project.entry.public ? "Public" : "Private");
+            //         (<ComboBox>this._category.val).selectedItem = project.entry.category;
+            //         (<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
+            //(<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
+            //(<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
+            //(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+            //         (<Label>this._name.val).textfield.element.focus();
+            //         (<Label>this._name.val).textfield.element.select();
+            //var i = this._settingPages.length;
+            //while ( i-- )
+            //	this._settingPages[i].onShow( project, user );
             this.update();
         };
         /**
@@ -15009,7 +15017,7 @@ var Animate;
         BuildOptionsForm.prototype.initializeLoader = function () {
             if (!this._uploader) {
                 this._uploader = new qq.FileUploaderBasic({
-                    button: document.getElementById(this._addButton.id),
+                    button: document.getElementById("upload-projet-img"),
                     action: Animate.DB.HOST + "/file/upload-project-image",
                     onSubmit: this._submitProxy,
                     onComplete: this._completeProxy,
@@ -15027,50 +15035,46 @@ var Animate;
         * @param <bool> isError Should this be styled to an error or not
         */
         BuildOptionsForm.prototype.message = function (message, isError) {
-            if (isError)
-                this._warning.textfield.element.css("color", "#FF0000");
-            else
-                this._warning.textfield.element.css("color", "#5DB526");
-            this._warning.text = message;
+            //if ( isError )
+            //	this._warning.textfield.element.css( "color", "#FF0000" );
+            //else
+            //	this._warning.textfield.element.css( "color", "#5DB526" );
+            //this._warning.text = message;
         };
         /**
         * Fired when the upload is complete
         */
         BuildOptionsForm.prototype.onUploadComplete = function (id, fileName, response) {
             if (response.message) {
-                this._warning.text = response.message;
-                this._addButton.enabled = true;
+                //this._warning.text = response.message;
+                //this._addButton.enabled = true;
                 if (Animate.AnimateLoaderResponses.fromString(response.return_type) == Animate.AnimateLoaderResponses.SUCCESS) {
-                    this._warning.textfield.element.css("color", "#5DB526");
+                    //this._warning.textfield.element.css( "color", "#5DB526" );
                     var project = Animate.User.get.project;
                     project.entry.image = response.imageUrl;
-                    this._imgPreview.element.html((response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : ""));
                 }
                 else {
-                    this._warning.textfield.element.css("color", "#FF0000");
-                    this._warning.text = response.message;
+                    //this._warning.textfield.element.css( "color", "#FF0000" );
+                    // this._warning.text = response.message;
                     return;
                 }
             }
             else {
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = 'Error Uploading File.';
-                this._addButton.enabled = true;
             }
         };
         /**
         * Fired when the upload is cancelled due to an error
         */
         BuildOptionsForm.prototype.onError = function (id, fileName, reason) {
-            this._warning.textfield.element.css("color", "#FF0000");
-            this._warning.text = 'Error Uploading File.';
-            this._addButton.enabled = true;
+            //this._warning.textfield.element.css( "color", "#FF0000" );
+            //this._warning.text = 'Error Uploading File.';
+            //this._addButton.enabled = true;
         };
         /**
         * When we receive a progress event
         */
         BuildOptionsForm.prototype.onProgress = function (id, fileName, loaded, total) {
-            this._warning.text = 'Uploading...' + ((loaded / total) * 100);
+            //this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
         };
         /**
         * When we click submit on the upload button
@@ -15081,13 +15085,13 @@ var Animate;
             fExt.toLowerCase();
             if (fExt != "png" && fExt != "jpeg" && fExt != "jpg") {
                 // check for valid file extension
-                this._warning.textfield.element.css("color", "#FF0000");
-                this._warning.text = 'Only png, jpg and jpeg files are allowed';
+                //this._warning.textfield.element.css( "color", "#FF0000" );
+                //this._warning.text = 'Only png, jpg and jpeg files are allowed';
                 return false;
             }
-            this._warning.textfield.element.css("color", "");
-            this._warning.text = 'Uploading...';
-            this._addButton.enabled = false;
+            //this._warning.textfield.element.css( "color", "" );
+            //this._warning.text =  'Uploading...';
+            //this._addButton.enabled = false;
         };
         /**
         * Gets the singleton instance.
@@ -15099,7 +15103,7 @@ var Animate;
             return BuildOptionsForm._singleton;
         };
         return BuildOptionsForm;
-    })(Animate.OkCancelForm);
+    })(Animate.Window);
     Animate.BuildOptionsForm = BuildOptionsForm;
 })(Animate || (Animate = {}));
 var Animate;
@@ -15336,7 +15340,7 @@ var Animate;
         * @returns {Component} Returns the Component object representing the button
         */
         FileViewerForm.prototype.createGroupButton = function (text, image, group) {
-            return group.addChild("<div class='tab-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>");
+            return group.addChild("<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>");
         };
         /**
         * Shows the window.

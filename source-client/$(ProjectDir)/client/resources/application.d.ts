@@ -1,17 +1,17 @@
-/// <reference path="X:/projects/app-engine/source-client/definitions/node.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/express.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/node.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/express.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface AppNode extends Node {
@@ -2020,7 +2020,7 @@ declare module Animate {
         private _enabled;
         tag: any;
         savedID: string;
-        constructor(html?: string, parent?: Component);
+        constructor(html: string | JQuery, parent?: Component);
         /**
         * Diposes and cleans up this component and all its child {Component}s
         */
@@ -2052,10 +2052,10 @@ declare module Animate {
         * Use this function to add a child to this component.
         * This has the same effect of adding some HTML as a child of another piece of HTML.
         * It uses the jQuery append function to achieve this functionality.
-        * @param {string | IComponent} child The child component we want to add
+        * @param {string | IComponent | JQuery} child The child component we want to add
         * @returns {IComponent} The added component
         */
-        addChild(child: string | IComponent): IComponent;
+        addChild(child: string | IComponent | JQuery): IComponent;
         /**
         * Use this function to remove a child from this component.
         * It uses the {JQuery} detach function to achieve this functionality.
@@ -5318,24 +5318,15 @@ declare module Animate {
     /**
     * Use this form to set the project meta and update build versions.
     */
-    class BuildOptionsForm extends OkCancelForm {
+    class BuildOptionsForm extends Window {
         static _singleton: BuildOptionsForm;
+        private _projectElm;
         private _tab;
-        private _projectTab;
-        private _name;
-        private _tags;
-        private _description;
-        private _projVisibility;
-        private _category;
         private _buildVerMaj;
         private _buildVerMid;
         private _buildVerMin;
-        private _warning;
         private _visibility;
         private _notes;
-        private _imgPreview;
-        private _addButton;
-        private _saveProject;
         private _selectBuild;
         private _saveBuild;
         private _uploader;

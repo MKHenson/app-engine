@@ -53,7 +53,7 @@ module Animate
 			//If we have a control box we add the title and close button
 			if ( this._controlBox )
 			{
-				this._header = <Component>this.addChild( "<div class='window-control-box'></div>" );
+                this._header = <Component>this.addChild( "<div class='window-control-box background-haze'></div>" );
 				this._headerText = <Component>this._header.addChild( "<div class='window-header'>" + title + "</div>" );
 				this._headerCloseBut = <Component>this._header.addChild( "<div class='close-but'>X</div>" );
 				this.addChild( "<div class='fix'></div>" );

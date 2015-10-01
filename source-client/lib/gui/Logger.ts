@@ -155,8 +155,8 @@ module Animate
 				this.warningFlagger.css( { left: offset.left, top: offset.top - this.warningFlagger.height() });
 
 				this.element.data( "preview" ).addClass( "fade-animation" );
-			}
-
+            }
+            val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() }</span>` + val;
 			var toAdd = this.addItem( img, val );
 			toAdd.data( "tag", tag );
 			return toAdd;

@@ -14,7 +14,7 @@ module Animate
 		*/
 		constructor( img: string, text: string, parent?: Component )
 		{
-			super( "<div class='tab-button'><div><img src='" + img + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent );
+			super( "<div class='toolbar-button'><div><img src='" + img + "' /></div><div class='tool-bar-text'>" + text + "</div></div>", parent );
 			this.img = img;
 			this.text = text;
 		}
@@ -61,7 +61,7 @@ module Animate
 		*/
 		constructor( parent: Component, items: Array<ToolbarItem> )
 		{
-			super( "<div class='tab-button-drop-down'></div>", parent );
+			super( "<div class='toolbar-button-drop-down'></div>", parent );
 
 			this.items = items;
 			this.popupContainer = new Component( "<div class='tool-bar-dropdown shadow-med'></div>" );
@@ -69,7 +69,7 @@ module Animate
 			var i = items.length;
 			while ( i-- )
 			{
-				//var comp: Component = <ToolbarItem>this.popupContainer.addChild( "<div class='tab-button'><div><img src='" + items[i].img + "' /></div><div class='tool-bar-text'>" + items[i].text + "</div></div>" );
+				//var comp: Component = <ToolbarItem>this.popupContainer.addChild( "<div class='toolbar-button'><div><img src='" + items[i].img + "' /></div><div class='tool-bar-text'>" + items[i].text + "</div></div>" );
 				//comp.element.data( "item", items[i] );
 				//items[i].comp = comp;
 				this.popupContainer.addChild( items[i] );

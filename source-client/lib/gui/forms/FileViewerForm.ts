@@ -336,7 +336,7 @@ module Animate
 		*/
 		createGroupButton( text: string, image : string, group : Component )  : Component
 		{
-			return <Component>group.addChild( "<div class='tab-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>" );
+			return <Component>group.addChild( "<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>" );
 		}
 
 
