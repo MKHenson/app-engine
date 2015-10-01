@@ -5,21 +5,21 @@
 		</div>
 		<div class="group-content">
 			<div class="field-option">
-				<input class="background-view-light" type="text" placeholder="Project Name">
+				<input class="background-view-light" type="text" placeholder="Project Name" en-model="ctrl.$projectToken.name" en-value="ctrl.$project && ctrl.$project.entry.name" />
 			</div>
 			<div class="field-option">
-				<input class="background-view-light" type="text" placeholder="Keywords">
+				<input class="background-view-light" type="text" placeholder="Keywords" en-model="ctrl.$projectToken.tags" en-value="ctrl.$project && ctrl.$project.entry.tags" />
 			</div>
 			<div class="field-option">
-				<textarea class="background-view-light" style="height: 180px;" placeholder="Project Description"></textarea>
+				<textarea class="background-view-light" style="height: 180px;" en-model="ctrl.$projectToken.description" placeholder="Project Description">{{ctrl.$project && ctrl.$project.entry.description}}</textarea>
 			</div>
 		</div>
 		<div class="field-option">
 			<div class="label">Visibility</div>
 			<div class="dropdown">
-				<select>
-					<option value="0">Private</option>
-					<option value="1">Public</option>
+				<select en-change="ctrl.$projectToken.public = (elm.value == '0' ? false : true )">
+					<option value="0" en-selected="ctrl.$project && !ctrl.$project.entry.public">Private</option>
+					<option value="1" en-selected="ctrl.$project && ctrl.$project.entry.public">Public</option>
 				</select>
 			</div>
 			<div class="info soft-text">If public, your project will be searchable on the Webinate gallery.</div>
@@ -40,7 +40,7 @@
 			</div>
 			<div class="info soft-text">Optionally provide a project category. The default is 'Other'</div>
 		</div>
-		<div class="button reg-gradient curve-small"><div class="tick-outer"><div class="tick"></div></div>Update Project Details</div>
+		<div class="button reg-gradient curve-small" en-click="ctrl.updateDetails()"><div class="tick-outer"><div class="tick"></div></div>Update Project Details</div>
 	</div>
 	<div class="group" >
 		<div class="label group-header background">

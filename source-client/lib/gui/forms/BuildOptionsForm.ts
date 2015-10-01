@@ -8,6 +8,8 @@ module Animate
 		public static _singleton: BuildOptionsForm;
 
         private _projectElm: JQuery;
+        private $project: Project;
+        private $projectToken: Engine.IProject;
 
 		private _tab: Tab;
 		//private _projectTab: Component;
@@ -52,8 +54,11 @@ module Animate
             this._projectElm = jQuery("#options-project").remove().clone();
             tabPage.element.append(this._projectElm);
 
+            this.$project = null;
+            this.$projectToken = {};
+
             // Compile the HTML
-            Compiler.build(this._projectElm, this); 
+            Compiler.build(this._projectElm, this, false); 
 
 			//var projectGroup = new Group( "Project Options", tabPage );
 			//var imgGroup = new Group( "Image", tabPage );
@@ -153,6 +158,11 @@ module Animate
 
 			this._tab.addEventListener( TabEvents.SELECTED, this.onTab, this );
 		}
+
+        updateDetails()
+        {
+            // Todo: Fill out the details on the server
+        }
 
 		/**
 		* Called when we click on the settings tab
@@ -416,9 +426,11 @@ module Animate
 			var user = User.get;
 			var project = user.project;
 
-			////Start the image uploader
-			//this.initializeLoader();
+			//Start the image uploader
+            this.initializeLoader();
+            this.$project = project;
 
+            Compiler.digest(this._projectElm, this, false);
 
 			//this._warning.textfield.element.css( "color", "" );
    //         this._warning.text = "";

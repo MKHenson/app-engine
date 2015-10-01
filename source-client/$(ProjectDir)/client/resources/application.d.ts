@@ -1,17 +1,17 @@
-/// <reference path="D:/projects/app-engine/source-client/definitions/node.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/express.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
-/// <reference path="D:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
-/// <reference path="D:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
-/// <reference path="D:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
-/// <reference path="D:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/node.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/express.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
+/// <reference path="X:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
+/// <reference path="X:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
+/// <reference path="X:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
+/// <reference path="X:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface AppNode extends Node {
@@ -5321,6 +5321,8 @@ declare module Animate {
     class BuildOptionsForm extends Window {
         static _singleton: BuildOptionsForm;
         private _projectElm;
+        private $project;
+        private $projectToken;
         private _tab;
         private _buildVerMaj;
         private _buildVerMid;
@@ -5339,6 +5341,7 @@ declare module Animate {
         private _clickProxy;
         private _settingPages;
         constructor();
+        updateDetails(): void;
         /**
         * Called when we click on the settings tab
         * @param {any} event

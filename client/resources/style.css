@@ -971,7 +971,7 @@ html, body, #stage {
     pointer-events: none;
     text-align: center;
     font-size: 10px;
-    margin: 0 6px;
+    margin: 0 3px;
 }
 .tool-bar-text {
     margin: 0 3px 0 3px;
@@ -1103,10 +1103,10 @@ Please only put css rules in here for generalized modules.
 	eg: classes for highlighting text on certain pages
 **/
 .background-haze {
-  background: -webkit-linear-gradient(left, #D8A2A2 , #8F8DA9); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right, #D8A2A2, #8F8DA9); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right, #D8A2A2, #8F8DA9); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to right, #D8A2A2, #8F8DA9); /* Standard syntax */
+  background: -webkit-linear-gradient(left, #D8A2A2 , #6F6C98); /* For Safari 5.1 to 6.0 */
+  background: -o-linear-gradient(right, #D8A2A2, #6F6C98); /* For Opera 11.1 to 12.0 */
+  background: -moz-linear-gradient(right, #D8A2A2, #6F6C98); /* For Firefox 3.6 to 15 */
+  background: linear-gradient(to right, #D8A2A2, #6F6C98); /* Standard syntax */
 }
 #splash.welcome-blue {
     background-image:url("media/aurora.png");
@@ -1768,7 +1768,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .top-node{}
 .tree-node-top{ margin-left:0px !important; }
 .tree-node-topp:first-child { background:#444; margin: 0 -5px 0 5px; }
-.first-selectable, .property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:3px; float:none !important;
+.first-selectable, .property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:6px 3px; float:none !important;
 -webkit-border-radius: 5px; border-radius: 5px; pointer-events:all !important; }
 
 

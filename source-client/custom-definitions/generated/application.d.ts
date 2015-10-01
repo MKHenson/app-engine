@@ -5321,6 +5321,8 @@ declare module Animate {
     class BuildOptionsForm extends Window {
         static _singleton: BuildOptionsForm;
         private _projectElm;
+        private $project;
+        private $projectToken;
         private _tab;
         private _buildVerMaj;
         private _buildVerMid;
@@ -5339,6 +5341,7 @@ declare module Animate {
         private _clickProxy;
         private _settingPages;
         constructor();
+        updateDetails(): void;
         /**
         * Called when we click on the settings tab
         * @param {any} event

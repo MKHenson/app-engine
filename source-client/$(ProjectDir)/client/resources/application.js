@@ -77,7 +77,7 @@ var Animate;
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
         Compiler.digestCSS = function (elm, controller, value) {
-            var object = Compiler.parse(value, controller, null, elm);
+            var object = Compiler.parse(value, controller, null, elm, null);
             var htmlElem = elm;
             for (var i in object) {
                 if (object[i])
@@ -180,7 +180,7 @@ var Animate;
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
         Compiler.digestStyle = function (elm, controller, value) {
-            var object = Compiler.parse(value, controller, null, elm);
+            var object = Compiler.parse(value, controller, null, elm, null);
             for (var i in object)
                 elm.style[i] = object[i];
         };
@@ -407,7 +407,7 @@ var Animate;
                     var parsedText = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val) {
                         textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
-                        return Compiler.parse(val, controller, null, textNode);
+                        return Compiler.parse(val, controller, null, textNode, null);
                     });
                     if (parsedText != origText) {
                         textNode.nodeValue = parsedText;
@@ -433,20 +433,31 @@ var Animate;
                     var value = attrib.value;
                     switch (name) {
                         case "en-src":
-                            var src = Compiler.parse(value, controller, null, elem);
+                            var src = Compiler.parse(value, controller, null, elem, null);
                             if (src != elem.$prevSrc) {
                                 elem.src = src;
                                 elem.$prevSrc = src;
                             }
                             break;
                         case "en-show":
-                            var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            var disp = (Compiler.parse(value, controller, null, elem, null) ? "" : "none");
                             if (disp != elem.style.display)
                                 elem.style.display = disp;
                             break;
                         case "en-html":
-                            var html = Compiler.parse(value, controller, null, elem);
+                            var html = Compiler.parse(value, controller, null, elem, null);
                             elem.innerHTML = html;
+                            break;
+                        case "en-value":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            elem.value = val;
+                            break;
+                        case "en-selected":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val)
+                                elem.setAttribute("selected", "selected");
+                            else
+                                elem.removeAttribute("selected");
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
@@ -456,39 +467,39 @@ var Animate;
                             break;
                         case "en-model":
                             var ev = function (e) {
-                                Compiler.parse(value + " = elm.value", controller, e, elem);
+                                Compiler.parse(value + " = elm.value", controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            Compiler.parse(value + " = elm.value", controller, null, elem);
+                            Compiler.parse(value + " = elm.value", controller, null, elem, null);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
                             var ev = function (e) {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "click", "en-click", ev);
                             break;
                         case "en-mouse-over":
                             var ev = function (e) {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "mouseover", "en-mouse-over", ev);
                             break;
                         case "en-dclick":
                             var ev = function (e) {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "dblclick", "en-dclick", ev);
                             break;
                         case "en-change":
                             var ev = function (e) {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            Compiler.registerFunc(appNode, "change", "en-model", ev);
+                            Compiler.registerFunc(appNode, "change", "en-change", ev);
                             break;
                         case "en-submit":
                             var ev = function (e) {
@@ -510,7 +521,7 @@ var Animate;
                                         this.value = "";
                                     });
                                 }
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "submit", "en-submit", ev);
@@ -14702,8 +14713,10 @@ var Animate;
             var tabPage = this._tab.addTab("Project", false).page;
             this._projectElm = jQuery("#options-project").remove().clone();
             tabPage.element.append(this._projectElm);
+            this.$project = null;
+            this.$projectToken = {};
             // Compile the HTML
-            Animate.Compiler.build(this._projectElm, this);
+            Animate.Compiler.build(this._projectElm, this, false);
             //var projectGroup = new Group( "Project Options", tabPage );
             //var imgGroup = new Group( "Image", tabPage );
             //this._projectTab = tabPage;
@@ -14782,6 +14795,9 @@ var Animate;
             this._settingPages = [];
             this._tab.addEventListener(Animate.TabEvents.SELECTED, this.onTab, this);
         }
+        BuildOptionsForm.prototype.updateDetails = function () {
+            // Todo: Fill out the details on the server
+        };
         /**
         * Called when we click on the settings tab
         * @param {any} event
@@ -14979,8 +14995,10 @@ var Animate;
             this._tab.selectTab(this._tab.getTab("Project"));
             var user = Animate.User.get;
             var project = user.project;
-            ////Start the image uploader
-            //this.initializeLoader();
+            //Start the image uploader
+            this.initializeLoader();
+            this.$project = project;
+            Animate.Compiler.digest(this._projectElm, this, false);
             //this._warning.textfield.element.css( "color", "" );
             //         this._warning.text = "";
             //         //Set project vars

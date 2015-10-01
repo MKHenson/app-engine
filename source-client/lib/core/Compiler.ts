@@ -129,7 +129,7 @@
                 for (var i in ctxValues)
                     contexts[ctxValues[i].name] = ctxValues[i].value;
             }
-
+            
             var ctx = "";
             for (var i in contexts)
                 ctx += `var ${i} = contexts['${i}'];`;
@@ -148,7 +148,7 @@
         * @returns {CompiledEval}
         * @return {any}
         */
-        private static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues? : Array<any> ): any
+        private static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any>): any
         {
             var contexts = {};
             var ctxValues = $ctxValues || elm.$ctxValues;
@@ -157,7 +157,7 @@
                 for (var i in ctxValues)
                     contexts[ctxValues[i].name] = ctxValues[i].value;
             }
-
+            
             if (!elm.$compliledEval)
                 elm.$compliledEval = {};
             
@@ -172,7 +172,7 @@
         */
         static digestCSS(elm: AppNode, controller: any, value: string)
         {
-            var object = Compiler.parse(value, controller, null, elm);
+            var object = Compiler.parse(value, controller, null, elm, null);
             var htmlElem = <HTMLElement><Node>elm;
             for (var i in object)
             {
@@ -305,7 +305,7 @@
         */
         static digestStyle(elm: AppNode, controller: any, value: string)
         {
-            var object = Compiler.parse(value, controller, null, elm);
+            var object = Compiler.parse(value, controller, null, elm, null);
             for (var i in object)
                 (<HTMLElement><Node>elm).style[i] = object[i];
         }
@@ -606,7 +606,7 @@
                     {
                         textNode.$expression = origText;
                         var t = sub.match(/[^{}]+/);
-                        return Compiler.parse(val, controller, null, textNode);
+                        return Compiler.parse(val, controller, null, textNode, null);
                     });
 
                     if (parsedText != origText)
@@ -642,7 +642,7 @@
                     switch (name)
                     {
                         case "en-src":
-                            var src = Compiler.parse(value, controller, null, elem);
+                            var src = Compiler.parse(value, controller, null, elem, null);
                             if (src != (<any>elem).$prevSrc)
                             {
                                 (<HTMLImageElement>elem).src = src;
@@ -650,13 +650,24 @@
                             }
                             break;
                         case "en-show":
-                            var disp = (Compiler.parse(value, controller, null, elem) ? "" : "none");
+                            var disp = (Compiler.parse(value, controller, null, elem, null) ? "" : "none");
                             if (disp != (<HTMLImageElement>elem).style.display )
                                 (<HTMLImageElement>elem).style.display = disp;
                             break;
                         case "en-html":
-                            var html = Compiler.parse(value, controller, null, elem);
+                            var html = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLElement>elem).innerHTML = html;
+                            break;
+                        case "en-value":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            (<HTMLInputElement>elem).value = val;
+                            break;
+                        case "en-selected":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val )
+                                (<HTMLOptionElement>elem).setAttribute("selected","selected");
+                            else
+                                (<HTMLOptionElement>elem).removeAttribute("selected");
                             break;
                         case "en-class":
                             Compiler.digestCSS(elem, controller, value);
@@ -667,17 +678,17 @@
                         case "en-model":
                             var ev = function (e)
                             {
-                                Compiler.parse(`${value} = elm.value`, controller, e, elem);
+                                Compiler.parse(`${value} = elm.value`, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
-                            Compiler.parse(`${value} = elm.value`, controller, null, elem);
+                            Compiler.parse(`${value} = elm.value`, controller, null, elem, null);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
                             var ev = function (e)
                             {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
@@ -686,7 +697,7 @@
                         case "en-mouse-over":
                             var ev = function (e)
                             {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
@@ -695,7 +706,7 @@
                         case "en-dclick":
                             var ev = function (e)
                             {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
@@ -705,11 +716,11 @@
 
                             var ev = function (e)
                             {
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
-                            Compiler.registerFunc(appNode, "change", "en-model", ev);
+                            Compiler.registerFunc(appNode, "change", "en-change", ev);
                             break;
                         case "en-submit":
 
@@ -741,7 +752,7 @@
                                     });
                                 }
 
-                                Compiler.parse(value, controller, e, elem);
+                                Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
