@@ -29,6 +29,7 @@ export class ProjectController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         
         router.get("/:user/:id?", <any>[getUser, this.getProjects.bind(this)]);
+        router.put("/:user/:id", <any>[canEdit, this.updateProject.bind(this)]);
         router.delete("/:user/:ids", <any>[canEdit, this.remove.bind(this)]);
         router.post("/create", <any>[isAuthenticated, this.createProject.bind(this)]);
 
@@ -128,6 +129,54 @@ export class ProjectController extends Controller
             findToken["$or"] = $or;
 
         return this.removeByQuery(findToken);
+    }
+
+    /**
+    * Attempts to update a project
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private updateProject(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-projects");
+        var that = this;
+        var project: string = req.params.id;
+        var updateToken: Engine.IProject = {};
+        var token: Engine.IProject = req.body;
+        
+        // Verify the project ID
+        if (!isValidID(project))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+
+        updateToken._id = new mongodb.ObjectID(project);
+        updateToken.user = req._user.username;
+
+        model.update(updateToken, token).then(function (instance)
+        {
+            if (instance.error)
+            {
+                winston.error(<string>instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify(<IResponse>{
+                    error: true,
+                    message: <string>instance.tokens[0].error
+                }));
+            }
+
+            res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: `[${instance.tokens.length}] Projects updated`
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
     }
 
     /**

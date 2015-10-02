@@ -147,7 +147,7 @@ module Animate
 		{
 			var user : User = User.get;
 
-			user.removeEventListener( UserEvents.PROJECT_RENAMED, this.onRenamed, this );
+			//user.removeEventListener( UserEvents.PROJECT_RENAMED, this.onRenamed, this );
 
 			if ( user.project )
 			{

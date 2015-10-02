@@ -100,7 +100,10 @@ function byteFilter(bytes, precision) : string
 jQuery(document).ready(function ()
 {
     // Make sure we call ajax with credentials on
-    jQuery.ajaxSetup({ crossDomain: true, xhrFields: { withCredentials: true } });
+    jQuery.ajaxSetup({
+        crossDomain: true,
+        xhrFields: { withCredentials: true }
+    });
 
     var that = this;
 

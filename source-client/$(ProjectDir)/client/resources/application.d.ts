@@ -1,17 +1,17 @@
-/// <reference path="X:/projects/app-engine/source-client/definitions/node.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/express.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
-/// <reference path="X:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
-/// <reference path="X:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/node.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/express.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jqueryui.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/jquery.scrollTo.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/JSColor.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/AceEditor.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/es6-promise.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/FileUploader.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/Recaptcha.d.ts" />
+/// <reference path="D:/projects/app-engine/source-client/definitions/ExportToken.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/definitions/webinate-users.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/definitions/modepress-api.d.ts" />
+/// <reference path="D:/projects/app-engine/source-server/custom-definitions/app-engine.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface AppNode extends Node {
@@ -127,7 +127,7 @@ declare module Animate {
         * @param {any} obj The object to clone
         * @returns {any}
         */
-        static clone(obj: any): any;
+        static clone(obj: any, deepCopy?: boolean): any;
         /**
         * Checks each  of the properties of an obejct to see if its the same as another
         * @param {any} a The first object to check
@@ -184,6 +184,12 @@ declare module Animate {
         */
         static checkValidations(value: string, elem: HTMLInputElement | HTMLTextAreaElement): boolean;
         /**
+        * Given an model directive, any transform commands will change the model's object into something else
+        * @param {string} value The list of expression names separated by |
+        * @param {HTMLInputElement| HTMLTextAreaElement} elem The element to traverse
+        */
+        static transform(script: string, elem: HTMLInputElement | HTMLTextAreaElement, controller: any): any;
+        /**
         * Goes through an element and prepares it for the compiler. This usually involves adding event listeners
         * and manipulating the DOM. This should only really be called once per element. If you need to update the
         * element after compilation you can use the digest method
@@ -193,6 +199,29 @@ declare module Animate {
         * @returns {JQuery}
         */
         static build(elm: JQuery, ctrl: any, includeSubTemplates?: boolean): JQuery;
+    }
+}
+declare module Animate {
+    /**
+    * Describes the type of access users have to a project
+    */
+    enum PrivilegeType {
+        NONE = 0,
+        READ = 1,
+        WRITE = 2,
+        ADMIN = 3,
+    }
+    /**
+    * Describes the category of a project
+    */
+    enum Category {
+        Other = 1,
+        Artistic = 2,
+        Gaming = 3,
+        Informative = 4,
+        Musical = 5,
+        Technical = 6,
+        Promotional = 7,
     }
 }
 declare module Animate {
@@ -1522,12 +1551,6 @@ declare module Animate {
         lastModified: number;
         _id: string;
     }
-    enum PrivilegeType {
-        NONE = 0,
-        READ = 1,
-        WRITE = 2,
-        ADMIN = 3,
-    }
     /**
     * A project class is an object that is owned by a user.
     * The project has functions which are useful for comunicating data to the server when
@@ -1574,6 +1597,12 @@ declare module Animate {
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
         */
         getBehaviourByShallowId(id: number): BehaviourContainer;
+        /**
+        * Attempts to update the project details base on the token provided
+        * @returns {Engine.IProject} The project token
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        */
+        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
         /**
         * Use this to rename a behaviour, group or asset.
         * @param {string} name The new name of the object
@@ -1763,7 +1792,6 @@ declare module Animate {
         static FAILED: UserEvents;
         static PROJECT_CREATED: UserEvents;
         static PROJECT_OPENED: UserEvents;
-        static PROJECT_RENAMED: UserEvents;
         static DETAILS_SAVED: UserEvents;
     }
     class UserEvent extends AnimateLoaderEvent {
@@ -1846,17 +1874,6 @@ declare module Animate {
         * @return {JQueryPromise<Modepress.IResponse>}
         */
         removeProject(pid: string): JQueryPromise<Modepress.IResponse>;
-        /**
-        * Use this function to rename a project
-        * @param {number} id The project ID we are copying
-        * @param {string} name The new name of the project
-        * @param {string} description The new description of the project
-        * @param {Array<string>} tags The new tags of the project
-        * @param {string} category The new category of the project
-        * @param {string} subCat The new subCat of the project
-        * @param {string} visibility The new visibility of the project. Either public or private
-        */
-        renameProject(id: string, name: string, description: string, tags: Array<string>, category: string, subCat: string, visibility: string): void;
         /**
         * @type public mfunc updateDetails
         * Use this function to update user details
@@ -5321,8 +5338,14 @@ declare module Animate {
     class BuildOptionsForm extends Window {
         static _singleton: BuildOptionsForm;
         private _projectElm;
+        private _buildElm;
+        private _userElm;
         private $project;
         private $projectToken;
+        private $errorMsg;
+        private $errorMsgImg;
+        private $loading;
+        private $loadingPercent;
         private _tab;
         private _buildVerMaj;
         private _buildVerMid;
@@ -5334,14 +5357,19 @@ declare module Animate {
         private _uploader;
         private _renameProxy;
         private _buildProxy;
-        private _submitProxy;
-        private _progressProxy;
-        private _completeProxy;
-        private _errorProxy;
         private _clickProxy;
         private _settingPages;
         constructor();
-        updateDetails(): void;
+        /**
+        * Attempts to update the peroject
+        */
+        updateDetails(token: Engine.IPlugin): void;
+        /**
+        * Given a form element, we look at if it has an error and based on the expression. If there is we set the error message
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+        */
+        reportError(form: EngineForm): boolean;
         /**
         * Called when we click on the settings tab
         * @param {any} event
@@ -5395,23 +5423,6 @@ declare module Animate {
         * @param {string} message The message to print
         * @param <bool> isError Should this be styled to an error or not
         */
-        message(message: any, isError: any): void;
-        /**
-        * Fired when the upload is complete
-        */
-        onUploadComplete(id: any, fileName: any, response: any): void;
-        /**
-        * Fired when the upload is cancelled due to an error
-        */
-        onError(id: any, fileName: any, reason: any): void;
-        /**
-        * When we receive a progress event
-        */
-        onProgress(id: any, fileName: any, loaded: any, total: any): void;
-        /**
-        * When we click submit on the upload button
-        */
-        onSubmit(file: any, ext: any): boolean;
         /**
         * Gets the singleton instance.
         * @returns {BuildOptionsForm}
@@ -5436,6 +5447,7 @@ declare module Animate {
     */
     class FileViewerForm extends Window {
         private static _singleton;
+        private _browserElm;
         private toolbar;
         private selectedID;
         private modeGrid;

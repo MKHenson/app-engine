@@ -30,6 +30,7 @@ var ProjectController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/:user/:id?", [modepress_api_1.getUser, this.getProjects.bind(this)]);
+        router.put("/:user/:id", [modepress_api_1.canEdit, this.updateProject.bind(this)]);
         router.delete("/:user/:ids", [modepress_api_1.canEdit, this.remove.bind(this)]);
         router.post("/create", [modepress_api_1.isAuthenticated, this.createProject.bind(this)]);
         // Register the path
@@ -103,6 +104,44 @@ var ProjectController = (function (_super) {
         if ($or.length > 0)
             findToken["$or"] = $or;
         return this.removeByQuery(findToken);
+    };
+    /**
+    * Attempts to update a project
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    ProjectController.prototype.updateProject = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-projects");
+        var that = this;
+        var project = req.params.id;
+        var updateToken = {};
+        var token = req.body;
+        // Verify the project ID
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        updateToken._id = new mongodb.ObjectID(project);
+        updateToken.user = req._user.username;
+        model.update(updateToken, token).then(function (instance) {
+            if (instance.error) {
+                winston.error(instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: instance.tokens[0].error
+                }));
+            }
+            res.end(JSON.stringify({
+                error: false,
+                message: "[" + instance.tokens.length + "] Projects updated"
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
     };
     /**
     * Removes all projects by ID

@@ -104,15 +104,6 @@ module Animate
 		public _id: string;
 	}
 
-
-	export enum PrivilegeType
-	{
-		NONE = 0,
-		READ,
-		WRITE,
-		ADMIN,
-	}
-
 	/**
 	* A project class is an object that is owned by a user. 
 	* The project has functions which are useful for comunicating data to the server when 
@@ -265,6 +256,37 @@ module Animate
   //          return d.promise();
   //      }
 
+
+        /**
+		* Attempts to update the project details base on the token provided
+        * @returns {Engine.IProject} The project token 
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+		*/
+        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
+        {
+            var d = jQuery.Deferred<UsersInterface.IResponse>();
+            
+            // Attempts to update the model
+            jQuery.ajax(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, {
+                type: "put",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                data: JSON.stringify(token)
+
+            }).done(function (data: UsersInterface.IResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
+
+            return d.promise();
+        }
 
 
 

@@ -91,7 +91,8 @@ var Animate;
         * @param {any} obj The object to clone
         * @returns {any}
         */
-        Compiler.clone = function (obj) {
+        Compiler.clone = function (obj, deepCopy) {
+            if (deepCopy === void 0) { deepCopy = true; }
             var copy;
             // Handle the 3 simple types number, string, bool, null or undefined
             if (null == obj || "object" != typeof obj)
@@ -114,8 +115,14 @@ var Animate;
             if (obj instanceof Object) {
                 copy = {};
                 for (var attr in obj) {
-                    if (obj.hasOwnProperty(attr))
-                        copy[attr] = Compiler.clone(obj[attr]);
+                    if (deepCopy) {
+                        if (obj.hasOwnProperty(attr))
+                            copy[attr] = Compiler.clone(obj[attr], true);
+                    }
+                    else {
+                        if (obj.hasOwnProperty(attr))
+                            copy[attr] = obj[attr];
+                    }
                 }
                 return copy;
             }
@@ -448,6 +455,9 @@ var Animate;
                             var html = Compiler.parse(value, controller, null, elem, null);
                             elem.innerHTML = html;
                             break;
+                        case "en-init":
+                            Compiler.parse(value, controller, null, elem, null);
+                            break;
                         case "en-value":
                             var val = Compiler.parse(value, controller, null, elem, null);
                             elem.value = val;
@@ -468,9 +478,11 @@ var Animate;
                         case "en-model":
                             var ev = function (e) {
                                 Compiler.parse(value + " = elm.value", controller, e, elem, null);
+                                Compiler.transform("" + value, elem, controller);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.parse(value + " = elm.value", controller, null, elem, null);
+                            Compiler.transform("" + value, elem, controller);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
@@ -590,6 +602,19 @@ var Animate;
             return elem.$error;
         };
         /**
+        * Given an model directive, any transform commands will change the model's object into something else
+        * @param {string} value The list of expression names separated by |
+        * @param {HTMLInputElement| HTMLTextAreaElement} elem The element to traverse
+        */
+        Compiler.transform = function (script, elem, controller) {
+            var expressions = [];
+            var form = elem.form;
+            for (var i = 0, l = elem.attributes.length; i < l; i++) {
+                if (elem.attributes[i].name == "en-transform")
+                    return Compiler.parse(script + " = " + elem.attributes[i].value, controller, null, elem, null);
+            }
+        };
+        /**
         * Goes through an element and prepares it for the compiler. This usually involves adding event listeners
         * and manipulating the DOM. This should only really be called once per element. If you need to update the
         * element after compilation you can use the digest method
@@ -665,6 +690,32 @@ var Animate;
         return Compiler;
     })();
     Animate.Compiler = Compiler;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * Describes the type of access users have to a project
+    */
+    (function (PrivilegeType) {
+        PrivilegeType[PrivilegeType["NONE"] = 0] = "NONE";
+        PrivilegeType[PrivilegeType["READ"] = 1] = "READ";
+        PrivilegeType[PrivilegeType["WRITE"] = 2] = "WRITE";
+        PrivilegeType[PrivilegeType["ADMIN"] = 3] = "ADMIN";
+    })(Animate.PrivilegeType || (Animate.PrivilegeType = {}));
+    var PrivilegeType = Animate.PrivilegeType;
+    /**
+    * Describes the category of a project
+    */
+    (function (Category) {
+        Category[Category["Other"] = 1] = "Other";
+        Category[Category["Artistic"] = 2] = "Artistic";
+        Category[Category["Gaming"] = 3] = "Gaming";
+        Category[Category["Informative"] = 4] = "Informative";
+        Category[Category["Musical"] = 5] = "Musical";
+        Category[Category["Technical"] = 6] = "Technical";
+        Category[Category["Promotional"] = 7] = "Promotional";
+    })(Animate.Category || (Animate.Category = {}));
+    var Category = Animate.Category;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -3115,13 +3166,6 @@ var Animate;
         return ProjectEvent;
     })(Animate.AnimateLoaderEvent);
     Animate.ProjectEvent = ProjectEvent;
-    (function (PrivilegeType) {
-        PrivilegeType[PrivilegeType["NONE"] = 0] = "NONE";
-        PrivilegeType[PrivilegeType["READ"] = 1] = "READ";
-        PrivilegeType[PrivilegeType["WRITE"] = 2] = "WRITE";
-        PrivilegeType[PrivilegeType["ADMIN"] = 3] = "ADMIN";
-    })(Animate.PrivilegeType || (Animate.PrivilegeType = {}));
-    var PrivilegeType = Animate.PrivilegeType;
     /**
     * A project class is an object that is owned by a user.
     * The project has functions which are useful for comunicating data to the server when
@@ -3229,6 +3273,28 @@ var Animate;
         //          })
         //          return d.promise();
         //      }
+        /**
+        * Attempts to update the project details base on the token provided
+        * @returns {Engine.IProject} The project token
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        */
+        Project.prototype.updateDetails = function (token) {
+            var d = jQuery.Deferred();
+            // Attempts to update the model
+            jQuery.ajax(Animate.DB.API + "/projects/" + this.entry.user + "/" + this.entry._id, {
+                type: "put",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                data: JSON.stringify(token)
+            }).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            });
+            return d.promise();
+        };
         /**
         * Use this to rename a behaviour, group or asset.
         * @param {string} name The new name of the object
@@ -4058,7 +4124,7 @@ var Animate;
         //static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
         //static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
         //static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
-        UserEvents.PROJECT_RENAMED = new UserEvents("user_project_rename");
+        //static PROJECT_RENAMED: UserEvents = new UserEvents( "user_project_rename" );
         UserEvents.DETAILS_SAVED = new UserEvents("user_details_saved");
         return UserEvents;
     })(Animate.ENUM);
@@ -4306,30 +4372,31 @@ var Animate;
             });
             return d.promise();
         };
-        /**
-        * Use this function to rename a project
-        * @param {number} id The project ID we are copying
-        * @param {string} name The new name of the project
-        * @param {string} description The new description of the project
-        * @param {Array<string>} tags The new tags of the project
-        * @param {string} category The new category of the project
-        * @param {string} subCat The new subCat of the project
-        * @param {string} visibility The new visibility of the project. Either public or private
-        */
-        User.prototype.renameProject = function (id, name, description, tags, category, subCat, visibility) {
-            var loader = new Animate.AnimateLoader();
-            loader.addEventListener(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.addEventListener(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/rename", {
-                projectId: id,
-                name: name,
-                description: description,
-                tags: tags,
-                cat: category,
-                subCat: subCat,
-                visibility: visibility
-            });
-        };
+        ///**
+        //* Use this function to rename a project
+        //* @param {number} id The project ID we are copying
+        //* @param {string} name The new name of the project
+        //* @param {string} description The new description of the project
+        //* @param {Array<string>} tags The new tags of the project
+        //* @param {string} category The new category of the project
+        //* @param {string} subCat The new subCat of the project
+        //* @param {string} visibility The new visibility of the project. Either public or private
+        //*/
+        //renameProject( id: string, name: string, description: string, tags: Array<string>, category: string, subCat: string, visibility: string )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+        //	loader.load( "/project/rename", {
+        //		projectId: id,
+        //		name: name,
+        //		description: description,
+        //		tags: tags,
+        //		cat: category,
+        //		subCat: subCat,
+        //		visibility: visibility
+        //	} );
+        //}
         /**
         * @type public mfunc updateDetails
         * Use this function to update user details
@@ -4443,15 +4510,6 @@ var Animate;
                     this.dispatchEvent(new Animate.ProjectEvent(UserEvents.PROJECT_OPENED, event.message, data));
                 }
                 else if (loader.url == "/project/rename") {
-                    //this.project.mName = data.name;
-                    //this.project.mDescription = data.description;
-                    //this.project.mTags = data.tags;
-                    //this.project.mRating = data.rating;
-                    //this.project.mCategory = data.category;
-                    //this.project.mImgPath = data.image;
-                    //this.project.mVisibility = data.visibility;
-                    //this.project.mSubCategory = data.sub_category;
-                    this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
                 }
                 else if (loader.url.match(/authenticated/)) {
                     if (data.loggedIn) {
@@ -7812,7 +7870,6 @@ var Animate;
             this._dockerrightbottom.addComponent(scenetab, false);
             this._dockerrighttop = new Animate.Docker(rightSplit.top);
             this._dockerrighttop.addComponent(grid, false);
-            Animate.BuildOptionsForm.getSingleton().addSettingPage(new Animate.UserPreferences("User Options"));
             this.update();
             //Hook the resize event
             jQuery(window).on('resize', this._resizeProxy);
@@ -8926,7 +8983,7 @@ var Animate;
                 var message = Animate.Utils.checkForSpecialChars(this.bio.val.text);
                 if (message != null) {
                     this.bio.val.textfield.element.addClass("red-border");
-                    Animate.BuildOptionsForm.getSingleton().message(message, true);
+                    //BuildOptionsForm.getSingleton().message( message, true );
                     return;
                 }
                 user.addEventListener(Animate.UserEvents.DETAILS_SAVED, this.onServer, this);
@@ -8941,16 +8998,16 @@ var Animate;
             var user = Animate.User.get;
             user.removeEventListener(Animate.UserEvents.FAILED, this.onServer, this);
             if (e.return_type == Animate.AnimateLoaderResponses.ERROR) {
-                Animate.BuildOptionsForm.getSingleton().message(e.tag.message, true);
+                //BuildOptionsForm.getSingleton().message( e.tag.message, true );
                 return;
             }
             if (event == Animate.UserEvents.DETAILS_SAVED) {
                 user.removeEventListener(Animate.UserEvents.DETAILS_SAVED, this.onServer, this);
-                Animate.BuildOptionsForm.getSingleton().message(e.tag.message, false);
+                //BuildOptionsForm.getSingleton().message(e.tag.message, false);
                 user.userEntry.meta.bio = e.tag.bio;
             }
-            else
-                Animate.BuildOptionsForm.getSingleton().message(e.tag.message, true);
+            //else
+            //BuildOptionsForm.getSingleton().message( e.tag.message, true );
         };
         /**
         * Called when the tab page is clicked
@@ -8989,12 +9046,12 @@ var Animate;
         UserPreferences.prototype.onUploadComplete = function (id, fileName, response) {
             if (Animate.AnimateLoaderResponses.fromString(response.return_type) == Animate.AnimateLoaderResponses.SUCCESS) {
                 this.userImgButton.enabled = true;
-                Animate.BuildOptionsForm.getSingleton().message(response.message, false);
+                //BuildOptionsForm.getSingleton().message( response.message, false );
                 Animate.User.get.userEntry.meta.imgURL = response.imageUrl;
                 this.imgPreview.element.html((response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : ""));
             }
             else {
-                Animate.BuildOptionsForm.getSingleton().message(response.message, true);
+                //BuildOptionsForm.getSingleton().message( response.message, true );
                 this.userImgButton.enabled = true;
             }
         };
@@ -9002,14 +9059,14 @@ var Animate;
         * Fired when the upload is cancelled due to an error
         */
         UserPreferences.prototype.onError = function (id, fileName, reason) {
-            Animate.BuildOptionsForm.getSingleton().message("Error Uploading File.", true);
+            //BuildOptionsForm.getSingleton().message( "Error Uploading File.", true );
             this.userImgButton.enabled = true;
         };
         /**
         * When we receive a progress event
         */
         UserPreferences.prototype.onProgress = function (id, fileName, loaded, total) {
-            Animate.BuildOptionsForm.getSingleton().message('Uploading...' + ((loaded / total) * 100), false);
+            //BuildOptionsForm.getSingleton().message( 'Uploading...' + ( ( loaded / total ) * 100 ), false );
         };
         /**
         * When we click submit on the upload button
@@ -9020,10 +9077,10 @@ var Animate;
             fExt.toLowerCase();
             if (fExt != "png" && fExt != "jpeg" && fExt != "jpg") {
                 // check for valid file extension
-                Animate.BuildOptionsForm.getSingleton().message('Only png, jpg and jpeg files are allowed', true);
+                //BuildOptionsForm.getSingleton().message( 'Only png, jpg and jpeg files are allowed', true );
                 return false;
             }
-            Animate.BuildOptionsForm.getSingleton().message('Uploading...', false);
+            //BuildOptionsForm.getSingleton().message( 'Uploading...', false );
             this.userImgButton.enabled = false;
         };
         Object.defineProperty(UserPreferences.prototype, "name", {
@@ -14712,17 +14769,24 @@ var Animate;
             this._tab = new Animate.Tab(this.content);
             var tabPage = this._tab.addTab("Project", false).page;
             this._projectElm = jQuery("#options-project").remove().clone();
+            this._buildElm = jQuery("#options-build").remove().clone();
+            this._userElm = jQuery("#options-user").remove().clone();
             tabPage.element.append(this._projectElm);
             this.$project = null;
-            this.$projectToken = {};
+            this.$errorMsg = "";
+            this.$errorMsgImg = "";
+            this.$loading = false;
+            this.$projectToken = { tags: [] };
+            this.$loadingPercent = "";
             // Compile the HTML
             Animate.Compiler.build(this._projectElm, this, false);
             //var projectGroup = new Group( "Project Options", tabPage );
             //var imgGroup = new Group( "Image", tabPage );
             //this._projectTab = tabPage;
             tabPage = this._tab.addTab("Build Options", false).page;
-            var buildGroup = new Animate.Group("Build", tabPage);
-            var notesGroup = new Animate.Group("Properties", tabPage);
+            tabPage.element.append(this._buildElm);
+            //var buildGroup = new Group( "Build", null );
+            //var notesGroup = new Group( "Properties", null );
             //Project fields
             //this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
             //this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
@@ -14755,48 +14819,106 @@ var Animate;
             //this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
             //imgGroup.content.addChild( "<div class='fix'></div>" );
             //Build options	
-            this._buildVerMaj = new Animate.LabelVal(buildGroup.content, "Major Version: ", new Animate.InputBox(null, "1"), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            this._buildVerMid = new Animate.LabelVal(buildGroup.content, "Mid Version: ", new Animate.InputBox(null, "0"), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            this._buildVerMin = new Animate.LabelVal(buildGroup.content, "Minor Version: ", new Animate.InputBox(null, "0"), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            buildGroup.content.element.append("<div class='fix'></div>");
-            var info = new Animate.Label("When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
-            info.element.addClass("info");
-            this._selectBuild = new Animate.Button("Select Build", buildGroup.content);
-            this._selectBuild.css({ width: "85px" });
-            this._buildVerMaj.element.css({ "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-            this._buildVerMid.element.css({ "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-            this._buildVerMin.element.css({ "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+            //this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+            //this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+            //this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+            //buildGroup.content.element.append( "<div class='fix'></div>" );
+            //var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
+            //info.element.addClass( "info" );
+            //this._selectBuild = new Button( "Select Build", buildGroup.content );
+            //this._selectBuild.css( { width: "85px" });
+            //this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+            //this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+            //this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
             //Notes
-            this._notes = new Animate.LabelVal(notesGroup.content, "Notes", new Animate.InputBox(null, "Some notes", true));
-            this._notes.val.textfield.element.css({ height: "80px" });
-            info = new Animate.Label("Use the above pad to store some build notes for the selected build.", notesGroup.content);
-            info.element.addClass("info");
-            var combo = new Animate.ComboBox();
-            combo.addItem("Private");
-            combo.addItem("Public");
-            this._visibility = new Animate.LabelVal(notesGroup.content, "Visibility", combo);
-            info = new Animate.Label("by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content);
-            info.element.addClass("info");
-            this._saveBuild = new Animate.Button("Save", notesGroup.content);
-            this._saveBuild.css({ width: "85px" });
+            //this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
+            //(<Label>this._notes.val).textfield.element.css( { height: "80px" });
+            //info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
+            //info.element.addClass( "info" );
+            //var combo = new ComboBox();
+            ///combo.addItem( "Private" );
+            ////combo.addItem( "Public" );
+            //this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
+            //info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
+            //info.element.addClass( "info" );
+            //this._saveBuild = new Button( "Save", notesGroup.content );
+            //this._saveBuild.css( { width: "85px" });
             //this._warning = new Label( "", this.content );
             //this._warning.element.addClass( "server-message" );
             //Create the proxies
-            this._renameProxy = jQuery.proxy(this.onRenamed, this);
-            this._buildProxy = jQuery.proxy(this.onBuildResponse, this);
-            this._submitProxy = jQuery.proxy(this.onSubmit, this);
-            this._progressProxy = jQuery.proxy(this.onProgress, this);
-            this._completeProxy = jQuery.proxy(this.onUploadComplete, this);
-            this._errorProxy = jQuery.proxy(this.onError, this);
-            this._clickProxy = jQuery.proxy(this.onClick, this);
+            //this._renameProxy = jQuery.proxy( this.onRenamed, this );
+            //this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
+            //this._submitProxy = jQuery.proxy( this.onSubmit, this );
+            //this._progressProxy = jQuery.proxy( this.onProgress, this );
+            //this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
+            //this._errorProxy = jQuery.proxy( this.onError, this );
+            //this._clickProxy = jQuery.proxy( this.onClick, this );
             //this._saveProject.element.on( "click", this._clickProxy );
-            this._selectBuild.element.on("click", this._clickProxy);
-            this._saveBuild.element.on("click", this._clickProxy);
+            //this._selectBuild.element.on( "click", this._clickProxy );
+            //this._saveBuild.element.on( "click", this._clickProxy );
             this._settingPages = [];
             this._tab.addEventListener(Animate.TabEvents.SELECTED, this.onTab, this);
+            //this.addSettingPage(new UserPreferences("User Options"));
+            tabPage = this._tab.addTab("User Options", false).page;
+            tabPage.element.append(this._userElm);
         }
-        BuildOptionsForm.prototype.updateDetails = function () {
-            // Todo: Fill out the details on the server
+        /**
+        * Attempts to update the peroject
+        */
+        BuildOptionsForm.prototype.updateDetails = function (token) {
+            var that = this, project = Animate.User.get.project;
+            this.$loading = true;
+            this.$errorMsg = "";
+            project.updateDetails(token).fail(function (err) {
+                that.$errorMsg = err.message;
+            }).done(function () {
+                // Update the project object
+                for (var i in token)
+                    project.entry[i] = token[i];
+            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._projectElm, that, false);
+            });
+        };
+        /**
+        * Given a form element, we look at if it has an error and based on the expression. If there is we set the error message
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+        */
+        BuildOptionsForm.prototype.reportError = function (form) {
+            if (!form.$error)
+                this.$errorMsg = "";
+            else {
+                var name = form.$errorInput;
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+                switch (form.$errorExpression) {
+                    case "alpha-numeric":
+                        this.$errorMsg = name + " must only contain alphanumeric characters";
+                        break;
+                    case "email-plus":
+                        this.$errorMsg = name + " must only contain alphanumeric characters or a valid email";
+                        break;
+                    case "non-empty":
+                        this.$errorMsg = name + " cannot be empty";
+                        break;
+                    case "email":
+                        this.$errorMsg = name + " must be a valid email";
+                        break;
+                    case "alpha-numeric-plus":
+                        this.$errorMsg = name + " must only contain alphanumeric characters and '-', '!', or '_'";
+                        break;
+                    case "no-html":
+                        this.$errorMsg = name + " must not contain any html";
+                        break;
+                    default:
+                        this.$errorMsg = "";
+                        break;
+                }
+            }
+            if (this.$errorMsg == "")
+                return false;
+            else
+                return true;
         };
         /**
         * Called when we click on the settings tab
@@ -14808,6 +14930,9 @@ var Animate;
             while (i--)
                 if (this._settingPages[i].name == event.pair.text)
                     this._settingPages[i].onTab();
+            Animate.Compiler.digest(this._projectElm, this, false);
+            Animate.Compiler.digest(this._buildElm, this, false);
+            Animate.Compiler.digest(this._userElm, this, false);
         };
         /**
         * Use this function to add a new settings page to the settings menu
@@ -14826,34 +14951,6 @@ var Animate;
         BuildOptionsForm.prototype.onClick = function (e) {
             var target = jQuery(e.currentTarget).data("component");
             if (target == null) {
-                //Check if the values are valid
-                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-                //this._warning.textfield.element.css( "color", "" );
-                ////Check for special chars
-                ////var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
-                //if ( message != null )
-                //{
-                //	//( <Label>this._name.val ).textfield.element.addClass( "red-border" );
-                //	this._warning.textfield.element.css( "color", "#FF0000" );
-                //	this._warning.text = message;
-                //	return;
-                //}
-                ////Check for special chars
-                //message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
-                //if ( message != null )
-                //{
-                //	( <Label>this._tags.val).textfield.element.addClass( "red-border" );
-                //	this._warning.textfield.element.css( "color", "#FF0000" );
-                //                this._warning.text = message;
-                //	return;
-                //}
-                //var name = ( <Label>this._name.val ).text;
-                //var description = ( <Label>this._description.val ).text;
-                //var tags = ( <Label>this._tags.val ).text;
-                var user = Animate.User.get;
-                var project = Animate.User.get.project;
-                user.addEventListener(Animate.UserEvents.FAILED, this._renameProxy);
-                user.addEventListener(Animate.UserEvents.PROJECT_RENAMED, this._renameProxy);
             }
             else if (target == this._saveBuild) {
                 //Check if the values are valid
@@ -14979,12 +15076,21 @@ var Animate;
             var project = Animate.User.get.project;
             if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
             }
-            if (response == Animate.UserEvents.PROJECT_RENAMED) {
-            }
-            else {
-            }
-            user.removeEventListener(Animate.UserEvents.FAILED, this._renameProxy);
-            user.removeEventListener(Animate.UserEvents.PROJECT_RENAMED, this._renameProxy);
+            //if (response == UserEvents.PROJECT_RENAMED )
+            //{
+            //Check if the values are valid
+            //(<Label>this._name.val).textfield.element.removeClass( "red-border" );                
+            //(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
+            //this._warning.textfield.element.css( "color", "#5DB526" );
+            //this._warning.text = "Project updated.";
+            //}
+            //else
+            //{
+            //this._warning.textfield.element.css( "color", "#FF0000" );
+            // this._warning.text = event.message;
+            //}
+            //user.removeEventListener( UserEvents.FAILED, this._renameProxy );
+            //user.removeEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
         };
         /**
         * Shows the build options form
@@ -14995,10 +15101,14 @@ var Animate;
             this._tab.selectTab(this._tab.getTab("Project"));
             var user = Animate.User.get;
             var project = user.project;
+            var e = project.entry;
             //Start the image uploader
             this.initializeLoader();
             this.$project = project;
+            this.$projectToken = { name: e.name, description: e.description, tags: e.tags, category: e.category, public: e.public };
             Animate.Compiler.digest(this._projectElm, this, false);
+            Animate.Compiler.digest(this._buildElm, this, false);
+            Animate.Compiler.digest(this._userElm, this, false);
             //this._warning.textfield.element.css( "color", "" );
             //         this._warning.text = "";
             //         //Set project vars
@@ -15033,14 +15143,36 @@ var Animate;
         * This is called to initialize the one click loader
         */
         BuildOptionsForm.prototype.initializeLoader = function () {
+            var that = this;
+            that.$loadingPercent = "";
+            that.$errorMsgImg = "";
             if (!this._uploader) {
                 this._uploader = new qq.FileUploaderBasic({
                     button: document.getElementById("upload-projet-img"),
                     action: Animate.DB.HOST + "/file/upload-project-image",
-                    onSubmit: this._submitProxy,
-                    onComplete: this._completeProxy,
-                    onProgress: this._progressProxy,
-                    onError: this._errorProxy,
+                    onSubmit: function (file, ext) {
+                        ext = ext.split(".");
+                        ext = ext[ext.length - 1];
+                        ext.toLowerCase();
+                        if (ext != "png" && ext != "jpeg" && ext != "jpg") {
+                            that.$errorMsgImg = 'Only png, jpg and jpeg files are allowed';
+                            Animate.Compiler.digest(that._projectElm, that, false);
+                            return false;
+                        }
+                    },
+                    onComplete: function (id, fileName, response) {
+                        that.$project.entry.image = "";
+                        that.$loadingPercent = "";
+                        Animate.Compiler.digest(that._projectElm, that, false);
+                    },
+                    onProgress: function (id, fileName, loaded, total) {
+                        that.$loadingPercent = ((loaded / total) * 100) + "%";
+                        Animate.Compiler.digest(that._projectElm, that, false);
+                    },
+                    onError: function (id, fileName, reason) {
+                        that.$errorMsgImg = "An Error occurred uploading the file: " + reason;
+                        Animate.Compiler.digest(that._projectElm, that, false);
+                    },
                     demoMode: false
                 });
                 this._uploader._options.allowedExtensions.push("jpg", "png", "jpeg");
@@ -15052,65 +15184,79 @@ var Animate;
         * @param {string} message The message to print
         * @param <bool> isError Should this be styled to an error or not
         */
-        BuildOptionsForm.prototype.message = function (message, isError) {
-            //if ( isError )
-            //	this._warning.textfield.element.css( "color", "#FF0000" );
-            //else
-            //	this._warning.textfield.element.css( "color", "#5DB526" );
-            //this._warning.text = message;
-        };
-        /**
-        * Fired when the upload is complete
-        */
-        BuildOptionsForm.prototype.onUploadComplete = function (id, fileName, response) {
-            if (response.message) {
-                //this._warning.text = response.message;
-                //this._addButton.enabled = true;
-                if (Animate.AnimateLoaderResponses.fromString(response.return_type) == Animate.AnimateLoaderResponses.SUCCESS) {
-                    //this._warning.textfield.element.css( "color", "#5DB526" );
-                    var project = Animate.User.get.project;
-                    project.entry.image = response.imageUrl;
-                }
-                else {
-                    //this._warning.textfield.element.css( "color", "#FF0000" );
-                    // this._warning.text = response.message;
-                    return;
-                }
-            }
-            else {
-            }
-        };
-        /**
-        * Fired when the upload is cancelled due to an error
-        */
-        BuildOptionsForm.prototype.onError = function (id, fileName, reason) {
-            //this._warning.textfield.element.css( "color", "#FF0000" );
-            //this._warning.text = 'Error Uploading File.';
-            //this._addButton.enabled = true;
-        };
-        /**
-        * When we receive a progress event
-        */
-        BuildOptionsForm.prototype.onProgress = function (id, fileName, loaded, total) {
-            //this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
-        };
-        /**
-        * When we click submit on the upload button
-        */
-        BuildOptionsForm.prototype.onSubmit = function (file, ext) {
-            var fExt = ext.split(".");
-            fExt = fExt[fExt.length - 1];
-            fExt.toLowerCase();
-            if (fExt != "png" && fExt != "jpeg" && fExt != "jpg") {
-                // check for valid file extension
-                //this._warning.textfield.element.css( "color", "#FF0000" );
-                //this._warning.text = 'Only png, jpg and jpeg files are allowed';
-                return false;
-            }
-            //this._warning.textfield.element.css( "color", "" );
-            //this._warning.text =  'Uploading...';
-            //this._addButton.enabled = false;
-        };
+        //message( message, isError )
+        //{
+        //if ( isError )
+        //	this._warning.textfield.element.css( "color", "#FF0000" );
+        //else
+        //	this._warning.textfield.element.css( "color", "#5DB526" );
+        //this._warning.text = message;
+        //}
+        ///**
+        //* Fired when the upload is complete
+        //*/
+        //onUploadComplete( id, fileName, response )
+        //{
+        //	if ( response.message )
+        //	{
+        //		//this._warning.text = response.message;
+        //              //this._addButton.enabled = true;
+        //		if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
+        //		{
+        //			//this._warning.textfield.element.css( "color", "#5DB526" );
+        //                  var project = User.get.project;
+        //                  project.entry.image = response.imageUrl;
+        //			//this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
+        //		}
+        //		else
+        //		{
+        //			//this._warning.textfield.element.css( "color", "#FF0000" );
+        //                 // this._warning.text = response.message;
+        //			return;
+        //		}
+        //	}
+        //	else
+        //	{
+        //		//this._warning.textfield.element.css( "color", "#FF0000" );
+        //		//this._warning.text = 'Error Uploading File.';
+        //		//this._addButton.enabled = true;
+        //	}
+        //}
+        ///**
+        //* Fired when the upload is cancelled due to an error
+        //*/
+        //onError( id, fileName, reason )
+        //{
+        //	//this._warning.textfield.element.css( "color", "#FF0000" );
+        //	//this._warning.text = 'Error Uploading File.';
+        //	//this._addButton.enabled = true;
+        //}
+        ///**
+        //* When we receive a progress event
+        //*/
+        //onProgress( id, fileName, loaded, total )
+        //{
+        //	//this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
+        //}
+        ///**
+        //* When we click submit on the upload button
+        //*/
+        //onSubmit( file, ext )
+        //{
+        //	var fExt = ext.split( "." );
+        //	fExt = fExt[fExt.length - 1];
+        //	fExt.toLowerCase();
+        //	if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
+        //	{
+        //		// check for valid file extension
+        //		//this._warning.textfield.element.css( "color", "#FF0000" );
+        //		//this._warning.text = 'Only png, jpg and jpeg files are allowed';
+        //		return false;
+        //	}
+        //	//this._warning.textfield.element.css( "color", "" );
+        //	//this._warning.text =  'Uploading...';
+        //	//this._addButton.enabled = false;
+        //}
         /**
         * Gets the singleton instance.
         * @returns {BuildOptionsForm}
@@ -15160,6 +15306,7 @@ var Animate;
             _super.call(this, 1000, 600, true, true, "Asset Browser");
             this.toolbar = this.content.addChild("<div class='viewer-toolbar'></div>");
             this.selectedID = null;
+            this._browserElm = jQuery("#file-viewer").remove().clone();
             //Create buttons and groups
             var group = this.createGroup();
             this.modeGrid = this.createGroupButton("Grid", "media/asset-grid.png", group);
@@ -16349,7 +16496,7 @@ var Animate;
         */
         RenameForm.prototype.onRenamed = function (response, data) {
             var user = Animate.User.get;
-            user.removeEventListener(Animate.UserEvents.PROJECT_RENAMED, this.onRenamed, this);
+            //user.removeEventListener( UserEvents.PROJECT_RENAMED, this.onRenamed, this );
             if (user.project) {
                 user.project.removeEventListener(Animate.ProjectEvents.FAILED, this.onRenamed, this);
                 user.project.removeEventListener(Animate.ProjectEvents.OBJECT_RENAMED, this.onRenamed, this);
@@ -19356,7 +19503,10 @@ function byteFilter(bytes, precision) {
 // Once the document is ready we begin
 jQuery(document).ready(function () {
     // Make sure we call ajax with credentials on
-    jQuery.ajaxSetup({ crossDomain: true, xhrFields: { withCredentials: true } });
+    jQuery.ajaxSetup({
+        crossDomain: true,
+        xhrFields: { withCredentials: true }
+    });
     var that = this;
     // Show the loading animation
     Animate.LoaderBase.showLoader();
@@ -19385,6 +19535,7 @@ jQuery(document).ready(function () {
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 /// <reference path="lib/core/Compiler.ts" />
+/// <reference path="lib/core/Enums.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/UserPlan.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />

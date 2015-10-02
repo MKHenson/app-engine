@@ -72,7 +72,7 @@ module Animate
 			this._dockerrighttop = new Docker( rightSplit.top );
 			this._dockerrighttop.addComponent( grid, false );
 
-			BuildOptionsForm.getSingleton().addSettingPage( new UserPreferences( "User Options" ) );
+			
 
 			this.update();
 

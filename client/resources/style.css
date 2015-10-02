@@ -1067,6 +1067,13 @@ span.date {
 .field-option {
     margin:10px 0px 20px 0px;
 }
+.field-option .label {
+    font-weight: bold;
+    margin: 0 0 5px 5px;
+}
+.field-option .dropdown {
+    line-height: 26px;
+}
 .field-option input, .field-option textarea {
     display:block;
     padding:10px;
@@ -1091,8 +1098,12 @@ span.date {
 .build-options-form .img-data {
     float: right;
     width: 335px;
-    padding: 20px;
+    padding: 0px 10px 10px 10px;
     box-sizing: border-box;
+}
+#options-project .error {
+    margin: 10px 0;
+    font-weight: bold;
 }
 /**
 ======================================================

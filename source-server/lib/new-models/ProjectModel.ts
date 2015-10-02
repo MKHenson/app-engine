@@ -15,7 +15,7 @@ export class ProjectModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.html("description", ""));
         this.defaultSchema.add(new SchemaFactory.id("image", ""));
-        this.defaultSchema.add(new SchemaFactory.text("category", "")).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.num("category", 1, 1)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.text("subCategory", "")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.bool("public", false)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.id("curFile", "", true));

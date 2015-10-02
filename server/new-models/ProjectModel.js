@@ -18,7 +18,7 @@ var ProjectModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.html("description", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("image", ""));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("category", "")).setIndexable(true);
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("category", 1, 1)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("subCategory", "")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("public", false)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("curFile", "", true));

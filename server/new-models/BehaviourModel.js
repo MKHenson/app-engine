@@ -15,7 +15,7 @@ var BehaviourModel = (function (_super) {
     */
     function BehaviourModel() {
         _super.call(this, "en-behaviours");
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1)).setUnique(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("shallowId", -1, -1, Infinity, modepress_api_1.NumberType.Integer));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1));

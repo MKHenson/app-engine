@@ -24,11 +24,20 @@
     <Content Include="..\client\resources\style.css">
       <Link>html\style.css</Link>
     </Content>
+    <Content Include="..\client\resources\templates\file-viewer.html">
+      <Link>html\templates\file-viewer.html</Link>
+    </Content>
     <Content Include="..\client\resources\templates\message-box.html">
       <Link>html\templates\message-box.html</Link>
     </Content>
+    <Content Include="..\client\resources\templates\options-build.html">
+      <Link>html\templates\options-build.html</Link>
+    </Content>
     <Content Include="..\client\resources\templates\options-project.html">
       <Link>html\templates\options-project.html</Link>
+    </Content>
+    <Content Include="..\client\resources\templates\options-user.html">
+      <Link>html\templates\options-user.html</Link>
     </Content>
     <Content Include="..\client\resources\templates\splash-loading.html">
       <Link>html\templates\splash-loading.html</Link>
@@ -75,6 +84,7 @@
     <TypeScriptCompile Include="lib\core\DataToken.ts" />
     <TypeScriptCompile Include="lib\core\DB.ts" />
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
+    <TypeScriptCompile Include="lib\core\Enums.ts" />
     <TypeScriptCompile Include="lib\core\File.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ISettingsPage.ts" />

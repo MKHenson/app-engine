@@ -8,8 +8,14 @@ module Animate
 		public static _singleton: BuildOptionsForm;
 
         private _projectElm: JQuery;
+        private _buildElm: JQuery;
+        private _userElm: JQuery;
         private $project: Project;
         private $projectToken: Engine.IProject;
+        private $errorMsg: string;
+        private $errorMsgImg: string;
+        private $loading: boolean;
+        private $loadingPercent;
 
 		private _tab: Tab;
 		//private _projectTab: Component;
@@ -33,10 +39,10 @@ module Animate
 
 		private _renameProxy: any;
 		private _buildProxy: any;
-		private _submitProxy: any;
-		private _progressProxy: any;
-		private _completeProxy: any;
-		private _errorProxy: any;
+		//private _submitProxy: any;
+		//private _progressProxy: any;
+		//private _completeProxy: any;
+		//private _errorProxy: any;
 		private _clickProxy: any;
 		private _settingPages: Array<ISettingsPage>;
 
@@ -52,10 +58,17 @@ module Animate
             var tabPage = this._tab.addTab("Project", false).page;
 
             this._projectElm = jQuery("#options-project").remove().clone();
-            tabPage.element.append(this._projectElm);
+            this._buildElm = jQuery("#options-build").remove().clone();
+            this._userElm = jQuery("#options-user").remove().clone();
 
+            tabPage.element.append(this._projectElm);
+            
             this.$project = null;
-            this.$projectToken = {};
+            this.$errorMsg = "";
+            this.$errorMsgImg = "";
+            this.$loading = false;
+            this.$projectToken = { tags: [] };
+            this.$loadingPercent = "";
 
             // Compile the HTML
             Compiler.build(this._projectElm, this, false); 
@@ -64,9 +77,11 @@ module Animate
 			//var imgGroup = new Group( "Image", tabPage );
 			//this._projectTab = tabPage;
 
-			tabPage = this._tab.addTab( "Build Options", false ).page;
-			var buildGroup = new Group( "Build", tabPage );
-			var notesGroup = new Group( "Properties", tabPage );
+            tabPage = this._tab.addTab("Build Options", false).page;
+            tabPage.element.append(this._buildElm);
+
+			//var buildGroup = new Group( "Build", null );
+			//var notesGroup = new Group( "Properties", null );
 
 			//Project fields
 			//this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
@@ -107,61 +122,133 @@ module Animate
 			//imgGroup.content.addChild( "<div class='fix'></div>" );
 
 			//Build options	
-			this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-			this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-			this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+			//this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+			//this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+			//this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
 
-			buildGroup.content.element.append( "<div class='fix'></div>" );
-			var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
-			info.element.addClass( "info" );
+			//buildGroup.content.element.append( "<div class='fix'></div>" );
+			//var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
+			//info.element.addClass( "info" );
 
 
-			this._selectBuild = new Button( "Select Build", buildGroup.content );
-			this._selectBuild.css( { width: "85px" });
-			this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-			this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-			this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			//this._selectBuild = new Button( "Select Build", buildGroup.content );
+			//this._selectBuild.css( { width: "85px" });
+			//this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			//this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			//this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
 
 			//Notes
-			this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
-			(<Label>this._notes.val).textfield.element.css( { height: "80px" });
-			info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
-			info.element.addClass( "info" );
+			//this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
+			//(<Label>this._notes.val).textfield.element.css( { height: "80px" });
+			//info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
+			//info.element.addClass( "info" );
 
-			var combo = new ComboBox();
-			combo.addItem( "Private" );
-			combo.addItem( "Public" );
-			this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
-			info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
-			info.element.addClass( "info" );
+			//var combo = new ComboBox();
+			///combo.addItem( "Private" );
+			////combo.addItem( "Public" );
+			//this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
+			//info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
+			//info.element.addClass( "info" );
 
-			this._saveBuild = new Button( "Save", notesGroup.content );
-			this._saveBuild.css( { width: "85px" });
+			//this._saveBuild = new Button( "Save", notesGroup.content );
+			//this._saveBuild.css( { width: "85px" });
 
 			//this._warning = new Label( "", this.content );
 			//this._warning.element.addClass( "server-message" );
 
 			//Create the proxies
-			this._renameProxy = jQuery.proxy( this.onRenamed, this );
-			this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
-			this._submitProxy = jQuery.proxy( this.onSubmit, this );
-			this._progressProxy = jQuery.proxy( this.onProgress, this );
-			this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
-			this._errorProxy = jQuery.proxy( this.onError, this );
-			this._clickProxy = jQuery.proxy( this.onClick, this );
+			//this._renameProxy = jQuery.proxy( this.onRenamed, this );
+			//this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
+			//this._submitProxy = jQuery.proxy( this.onSubmit, this );
+			//this._progressProxy = jQuery.proxy( this.onProgress, this );
+			//this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
+			//this._errorProxy = jQuery.proxy( this.onError, this );
+			//this._clickProxy = jQuery.proxy( this.onClick, this );
 
 			//this._saveProject.element.on( "click", this._clickProxy );
-			this._selectBuild.element.on( "click", this._clickProxy );
-			this._saveBuild.element.on( "click", this._clickProxy );
+			//this._selectBuild.element.on( "click", this._clickProxy );
+			//this._saveBuild.element.on( "click", this._clickProxy );
 
 			this._settingPages = [];
 
-			this._tab.addEventListener( TabEvents.SELECTED, this.onTab, this );
+            this._tab.addEventListener(TabEvents.SELECTED, this.onTab, this);
+
+            //this.addSettingPage(new UserPreferences("User Options"));
+            tabPage = this._tab.addTab("User Options", false).page;
+            tabPage.element.append(this._userElm);
 		}
 
-        updateDetails()
+        /** 
+        * Attempts to update the peroject
+        */
+        updateDetails(token: Engine.IPlugin)
         {
-            // Todo: Fill out the details on the server
+            var that = this,
+                project = User.get.project;
+            this.$loading = true;
+            this.$errorMsg = "";
+            
+            project.updateDetails(token).fail(function (err: Error)
+            {
+                that.$errorMsg = err.message;
+
+            }).done(function ()
+            {
+                // Update the project object
+                for (var i in token)
+                    project.entry[i] = token[i];
+
+            }).always(function ()
+            {
+                that.$loading = false;
+                Compiler.digest(that._projectElm, that, false);
+            });
+        }
+
+        /**
+		* Given a form element, we look at if it has an error and based on the expression. If there is we set the error message
+        * @param {EngineForm} The form to check.
+        * @param {boolean} True if there is an error
+		*/
+        reportError(form: EngineForm): boolean
+        {
+            if (!form.$error)
+                this.$errorMsg = "";
+            else
+            {
+                var name = form.$errorInput;
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+
+                switch (form.$errorExpression)
+                {
+                    case "alpha-numeric":
+                        this.$errorMsg = `${name} must only contain alphanumeric characters`;
+                        break;
+                    case "email-plus":
+                        this.$errorMsg = `${name} must only contain alphanumeric characters or a valid email`;
+                        break;
+                    case "non-empty":
+                        this.$errorMsg = `${name} cannot be empty`;
+                        break;
+                    case "email":
+                        this.$errorMsg = `${name} must be a valid email`;
+                        break;
+                    case "alpha-numeric-plus":
+                        this.$errorMsg = `${name} must only contain alphanumeric characters and '-', '!', or '_'`;
+                        break;
+                    case "no-html":
+                        this.$errorMsg = `${name} must not contain any html`;
+                        break;
+                    default:
+                        this.$errorMsg = "";
+                        break;
+                }
+            }
+
+            if (this.$errorMsg == "")
+                return false;
+            else
+                return true;
         }
 
 		/**
@@ -174,7 +261,11 @@ module Animate
 			var i = this._settingPages.length;
 			while ( i-- )
 				if ( this._settingPages[i].name == event.pair.text )
-					this._settingPages[i].onTab();
+                    this._settingPages[i].onTab();
+
+            Compiler.digest(this._projectElm, this, false);
+            Compiler.digest(this._buildElm, this, false);
+            Compiler.digest(this._userElm, this, false);
 		}
 
 		/**
@@ -226,11 +317,11 @@ module Animate
 				//var name = ( <Label>this._name.val ).text;
 				//var description = ( <Label>this._description.val ).text;
 				//var tags = ( <Label>this._tags.val ).text;
-				var user = User.get;
-				var project : Project = User.get.project;
+				//var user = User.get;
+				//var project : Project = User.get.project;
 
-				user.addEventListener( UserEvents.FAILED, this._renameProxy );
-				user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
+				//user.addEventListener( UserEvents.FAILED, this._renameProxy );
+				//user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
                 //user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
 			}
 			else if ( target == this._saveBuild )
@@ -396,22 +487,22 @@ module Animate
 				//return;
 			}
 
-            if (response == UserEvents.PROJECT_RENAMED )
-			{
+            //if (response == UserEvents.PROJECT_RENAMED )
+			//{
 				//Check if the values are valid
                 //(<Label>this._name.val).textfield.element.removeClass( "red-border" );                
 				//(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
 				//this._warning.textfield.element.css( "color", "#5DB526" );
 				//this._warning.text = "Project updated.";
-			}
-			else
-			{
+			//}
+			//else
+			//{
 				//this._warning.textfield.element.css( "color", "#FF0000" );
                // this._warning.text = event.message;
-			}
+			//}
 
-			user.removeEventListener( UserEvents.FAILED, this._renameProxy );
-            user.removeEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
+			//user.removeEventListener( UserEvents.FAILED, this._renameProxy );
+            //user.removeEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
 		}
 
 		/**
@@ -424,13 +515,17 @@ module Animate
             this._tab.selectTab( this._tab.getTab( "Project" ) );
 
 			var user = User.get;
-			var project = user.project;
+            var project = user.project;
+            var e = project.entry;
 
 			//Start the image uploader
             this.initializeLoader();
             this.$project = project;
+            this.$projectToken = { name: e.name, description: e.description, tags: e.tags, category: e.category, public: e.public };
 
             Compiler.digest(this._projectElm, this, false);
+            Compiler.digest(this._buildElm, this, false);
+            Compiler.digest(this._userElm, this, false);
 
 			//this._warning.textfield.element.css( "color", "" );
    //         this._warning.text = "";
@@ -475,17 +570,46 @@ module Animate
 		* This is called to initialize the one click loader
 		*/
 		initializeLoader()
-		{
+        {
+            var that = this;
+            that.$loadingPercent = "";
+            that.$errorMsgImg = "";
+
 			if ( !this._uploader )
 			{
 				this._uploader = new qq.FileUploaderBasic( {
                     button: document.getElementById( "upload-projet-img" ),
 					action: DB.HOST + "/file/upload-project-image",
 
-					onSubmit: this._submitProxy,
-					onComplete: this._completeProxy,
-					onProgress: this._progressProxy,
-					onError: this._errorProxy,
+                    onSubmit: function (file, ext )
+                    {
+                        ext = ext.split(".");
+                        ext = ext[ext.length - 1];
+                        ext.toLowerCase();
+
+                        if (ext != "png" && ext != "jpeg" && ext != "jpg")
+                        {
+                            that.$errorMsgImg = 'Only png, jpg and jpeg files are allowed';
+                            Compiler.digest(that._projectElm, that, false);
+                            return false;
+                        }
+                    },
+                    onComplete: function( id, fileName, response )
+                    {
+                        that.$project.entry.image = "";
+                        that.$loadingPercent = "";
+                        Compiler.digest(that._projectElm, that, false);
+                    },
+                    onProgress: function (id, fileName, loaded, total)
+                    {
+                        that.$loadingPercent = `${((loaded / total) * 100) }%`;
+                        Compiler.digest(that._projectElm, that, false);
+                    },
+                    onError: function (id, fileName, reason)
+                    {
+                        that.$errorMsgImg = "An Error occurred uploading the file: " + reason;
+                        Compiler.digest(that._projectElm, that, false);
+                    },
 					demoMode: false
 				});
 
@@ -500,89 +624,89 @@ module Animate
 		* @param {string} message The message to print
 		* @param <bool> isError Should this be styled to an error or not
 		*/
-		message( message, isError )
-		{
+		//message( message, isError )
+		//{
 			//if ( isError )
 			//	this._warning.textfield.element.css( "color", "#FF0000" );
 			//else
 			//	this._warning.textfield.element.css( "color", "#5DB526" );
 
 			//this._warning.text = message;
-		}
+		//}
 
-		/**
-		* Fired when the upload is complete
-		*/
-		onUploadComplete( id, fileName, response )
-		{
-			if ( response.message )
-			{
-				//this._warning.text = response.message;
-                //this._addButton.enabled = true;
+		///**
+		//* Fired when the upload is complete
+		//*/
+		//onUploadComplete( id, fileName, response )
+		//{
+		//	if ( response.message )
+		//	{
+		//		//this._warning.text = response.message;
+  //              //this._addButton.enabled = true;
 
-				if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
-				{
-					//this._warning.textfield.element.css( "color", "#5DB526" );
-                    var project = User.get.project;
-                    project.entry.image = response.imageUrl;
-					//this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
-				}
-				else
-				{
-					//this._warning.textfield.element.css( "color", "#FF0000" );
-                   // this._warning.text = response.message;
-					return;
-				}
-			}
-			else
-			{
-				//this._warning.textfield.element.css( "color", "#FF0000" );
-				//this._warning.text = 'Error Uploading File.';
-				//this._addButton.enabled = true;
-			}
-		}
+		//		if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
+		//		{
+		//			//this._warning.textfield.element.css( "color", "#5DB526" );
+  //                  var project = User.get.project;
+  //                  project.entry.image = response.imageUrl;
+		//			//this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
+		//		}
+		//		else
+		//		{
+		//			//this._warning.textfield.element.css( "color", "#FF0000" );
+  //                 // this._warning.text = response.message;
+		//			return;
+		//		}
+		//	}
+		//	else
+		//	{
+		//		//this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//this._warning.text = 'Error Uploading File.';
+		//		//this._addButton.enabled = true;
+		//	}
+		//}
 
-		/**
-		* Fired when the upload is cancelled due to an error
-		*/
-		onError( id, fileName, reason )
-		{
-			//this._warning.textfield.element.css( "color", "#FF0000" );
-			//this._warning.text = 'Error Uploading File.';
-			//this._addButton.enabled = true;
-		}
+		///**
+		//* Fired when the upload is cancelled due to an error
+		//*/
+		//onError( id, fileName, reason )
+		//{
+		//	//this._warning.textfield.element.css( "color", "#FF0000" );
+		//	//this._warning.text = 'Error Uploading File.';
+		//	//this._addButton.enabled = true;
+		//}
 
 
-		/**
-		* When we receive a progress event
-		*/
-		onProgress( id, fileName, loaded, total )
-		{
-			//this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
-		}
+		///**
+		//* When we receive a progress event
+		//*/
+		//onProgress( id, fileName, loaded, total )
+		//{
+		//	//this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
+		//}
 
-		/**
-		* When we click submit on the upload button
-		*/
-		onSubmit( file, ext )
-		{
-			var fExt = ext.split( "." );
-			fExt = fExt[fExt.length - 1];
-			fExt.toLowerCase();
+		///**
+		//* When we click submit on the upload button
+		//*/
+		//onSubmit( file, ext )
+		//{
+		//	var fExt = ext.split( "." );
+		//	fExt = fExt[fExt.length - 1];
+		//	fExt.toLowerCase();
 
-			if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
-			{
-				// check for valid file extension
-				//this._warning.textfield.element.css( "color", "#FF0000" );
-				//this._warning.text = 'Only png, jpg and jpeg files are allowed';
-				return false;
-			}
+		//	if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
+		//	{
+		//		// check for valid file extension
+		//		//this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//this._warning.text = 'Only png, jpg and jpeg files are allowed';
+		//		return false;
+		//	}
 
-			//this._warning.textfield.element.css( "color", "" );
-			//this._warning.text =  'Uploading...';
-			//this._addButton.enabled = false;
+		//	//this._warning.textfield.element.css( "color", "" );
+		//	//this._warning.text =  'Uploading...';
+		//	//this._addButton.enabled = false;
 
-		}
+		//}
 
 
 		/**

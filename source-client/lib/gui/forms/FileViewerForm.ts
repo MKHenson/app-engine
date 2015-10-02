@@ -27,6 +27,9 @@ module Animate
 	{
 		private static _singleton: FileViewerForm;
 
+        // New variables
+        private _browserElm: JQuery;
+
 		private toolbar: Component;
 		private selectedID: string;
 		private modeGrid: Component;
@@ -81,7 +84,8 @@ module Animate
 
 			this.toolbar = <Component>this.content.addChild( "<div class='viewer-toolbar'></div>" );
 
-			this.selectedID = null;
+            this.selectedID = null;
+            this._browserElm = jQuery("#file-viewer").remove().clone();
 
 			//Create buttons and groups
 			var group : Component = this.createGroup();

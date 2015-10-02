@@ -188,7 +188,7 @@
         * @param {any} obj The object to clone
         * @returns {any}
         */
-        static clone(obj) : any
+        static clone(obj, deepCopy: boolean = true): any
         {
             var copy;
 
@@ -221,7 +221,14 @@
                 copy = {};
                 for (var attr in obj)
                 {
-                    if (obj.hasOwnProperty(attr)) copy[attr] = Compiler.clone(obj[attr]);
+                    if (deepCopy)
+                    {
+                        if (obj.hasOwnProperty(attr)) copy[attr] = Compiler.clone(obj[attr], true);
+                    }
+                    else
+                    {
+                        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+                    }
                 }
                 return copy;
             }
@@ -658,6 +665,9 @@
                             var html = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLElement>elem).innerHTML = html;
                             break;
+                        case "en-init":
+                            Compiler.parse(value, controller, null, elem, null);
+                            break;
                         case "en-value":
                             var val = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLInputElement>elem).value = val;
@@ -679,10 +689,12 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(`${value} = elm.value`, controller, e, elem, null);
+                                Compiler.transform(`${value}`, elem, controller);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
                             Compiler.parse(`${value} = elm.value`, controller, null, elem, null);
+                            Compiler.transform(`${value}`, elem, controller);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
@@ -843,6 +855,23 @@
             }
 
             return (<EngineInput>elem).$error;
+        }
+
+        /**
+        * Given an model directive, any transform commands will change the model's object into something else
+        * @param {string} value The list of expression names separated by |
+        * @param {HTMLInputElement| HTMLTextAreaElement} elem The element to traverse
+        */
+        static transform(script: string, elem: HTMLInputElement | HTMLTextAreaElement, controller: any)
+        {
+            var expressions: Array<{ name: string; regex: RegExp; negate: boolean; }> = [];
+            var form: EngineForm = <EngineForm>elem.form;
+
+            for (var i = 0, l = elem.attributes.length; i < l; i++)
+            {
+                if (elem.attributes[i].name == "en-transform")
+                    return Compiler.parse(`${script} = ${elem.attributes[i].value}`, controller, null, <AppNode><Node>elem, null);
+            }
         }
 
         /**

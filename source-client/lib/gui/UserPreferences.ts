@@ -80,7 +80,7 @@ module Animate
 				if ( message != null )
 				{
 					( <InputBox>this.bio.val ).textfield.element.addClass( "red-border" );
-					BuildOptionsForm.getSingleton().message( message, true );
+					//BuildOptionsForm.getSingleton().message( message, true );
 					return;
 				}
 
@@ -100,18 +100,18 @@ module Animate
 
 			if ( e.return_type == AnimateLoaderResponses.ERROR )
 			{
-				BuildOptionsForm.getSingleton().message( e.tag.message, true );
+				//BuildOptionsForm.getSingleton().message( e.tag.message, true );
 				return;
 			}
 
 			if ( event == UserEvents.DETAILS_SAVED )
 			{
 				user.removeEventListener( UserEvents.DETAILS_SAVED, this.onServer, this );
-                BuildOptionsForm.getSingleton().message(e.tag.message, false);
+                //BuildOptionsForm.getSingleton().message(e.tag.message, false);
                 user.userEntry.meta.bio = e.tag.bio;
 			}
-			else
-				BuildOptionsForm.getSingleton().message( e.tag.message, true );
+			//else
+				//BuildOptionsForm.getSingleton().message( e.tag.message, true );
 		}
 
 		/**
@@ -162,13 +162,13 @@ module Animate
 			{
 				this.userImgButton.enabled = true;
 
-				BuildOptionsForm.getSingleton().message( response.message, false );
+				//BuildOptionsForm.getSingleton().message( response.message, false );
                 User.get.userEntry.meta.imgURL = response.imageUrl;
 				this.imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );				
 			}
 			else
 			{
-				BuildOptionsForm.getSingleton().message( response.message, true );
+				//BuildOptionsForm.getSingleton().message( response.message, true );
 				this.userImgButton.enabled = true;
 			}
 		}
@@ -178,7 +178,7 @@ module Animate
 		*/
 		onError( id, fileName, reason )
 		{
-			BuildOptionsForm.getSingleton().message( "Error Uploading File.", true );
+			//BuildOptionsForm.getSingleton().message( "Error Uploading File.", true );
 			this.userImgButton.enabled = true;
 		}
 
@@ -188,7 +188,7 @@ module Animate
 		*/
 		onProgress( id, fileName, loaded, total )
 		{
-			BuildOptionsForm.getSingleton().message( 'Uploading...' + ( ( loaded / total ) * 100 ), false );
+			//BuildOptionsForm.getSingleton().message( 'Uploading...' + ( ( loaded / total ) * 100 ), false );
 		}
 
 		/**
@@ -203,11 +203,11 @@ module Animate
 			if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
 			{
 				// check for valid file extension
-				BuildOptionsForm.getSingleton().message( 'Only png, jpg and jpeg files are allowed', true );
+				//BuildOptionsForm.getSingleton().message( 'Only png, jpg and jpeg files are allowed', true );
 				return false;
 			}
 
-			BuildOptionsForm.getSingleton().message( 'Uploading...', false );
+			//BuildOptionsForm.getSingleton().message( 'Uploading...', false );
 			this.userImgButton.enabled = false;
 		}
 

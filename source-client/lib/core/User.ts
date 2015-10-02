@@ -14,7 +14,7 @@ module Animate
 		//static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
 		//static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
 		//static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
-		static PROJECT_RENAMED: UserEvents = new UserEvents( "user_project_rename" );
+		//static PROJECT_RENAMED: UserEvents = new UserEvents( "user_project_rename" );
 		static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
 	}
 
@@ -375,31 +375,31 @@ module Animate
 
 
 
-		/**
-		* Use this function to rename a project
-		* @param {number} id The project ID we are copying
-		* @param {string} name The new name of the project
-		* @param {string} description The new description of the project
-		* @param {Array<string>} tags The new tags of the project
-		* @param {string} category The new category of the project
-		* @param {string} subCat The new subCat of the project
-		* @param {string} visibility The new visibility of the project. Either public or private
-		*/
-		renameProject( id: string, name: string, description: string, tags: Array<string>, category: string, subCat: string, visibility: string )
-		{
-			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/project/rename", {
-				projectId: id,
-				name: name,
-				description: description,
-				tags: tags,
-				cat: category,
-				subCat: subCat,
-				visibility: visibility
-			} );
-		}
+		///**
+		//* Use this function to rename a project
+		//* @param {number} id The project ID we are copying
+		//* @param {string} name The new name of the project
+		//* @param {string} description The new description of the project
+		//* @param {Array<string>} tags The new tags of the project
+		//* @param {string} category The new category of the project
+		//* @param {string} subCat The new subCat of the project
+		//* @param {string} visibility The new visibility of the project. Either public or private
+		//*/
+		//renameProject( id: string, name: string, description: string, tags: Array<string>, category: string, subCat: string, visibility: string )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+		//	loader.load( "/project/rename", {
+		//		projectId: id,
+		//		name: name,
+		//		description: description,
+		//		tags: tags,
+		//		cat: category,
+		//		subCat: subCat,
+		//		visibility: visibility
+		//	} );
+		//}
 
 		/**
 		* @type public mfunc updateDetails
@@ -567,7 +567,7 @@ module Animate
 					//this.project.mVisibility = data.visibility;
 					//this.project.mSubCategory = data.sub_category;
 
-					this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
+					//this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
 				}				
                 else if (loader.url.match(/authenticated/) )
 				{
