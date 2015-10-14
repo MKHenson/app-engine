@@ -190,7 +190,7 @@ describe('Testing the user-details API', function(){
 			});
 	}).timeout(25000)
 	
-	it('george can access his user details with verbose', function(done){
+	it('should allow george access his user details with verbose', function(done){
 		apiAgent
 			.get('/app-engine/user-details/george?verbose=true').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', georgeCookie)
@@ -222,6 +222,17 @@ describe('Testing the user-details API', function(){
 				test.string(res.body.data.customerId).is("")
 				test.number(res.body.data.maxProjects).is(0)
 				test.value(res.body.data._id).isNull()		
+				done();
+			});
+	}).timeout(25000)
+	
+	it('should allow george update his user details', function(done){
+		apiAgent
+			.put('/app-engine/user-details/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', georgeCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.string(res.body.message).is("Details updated")
 				done();
 			});
 	}).timeout(25000)
