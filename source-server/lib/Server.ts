@@ -3,7 +3,6 @@ import https = require( 'https' );
 import querystring = require( "querystring" );
 import util = require( "util" );
 import mongodb = require( "mongodb" );
-//import url = require( "url" );
 import homeCtrl = require( "./controllers/HomeController" );
 import utils = require( "./Utils" );
 import Model = require( "./models/Model" );
@@ -18,16 +17,13 @@ import HTMLRenderer = require( "./views/HTMLRenderer" );
 */
 export class Server
 {
-	private _server: any; // http.Server or https.Server
-
+	private _server: any;
 	private _mongoServer: mongodb.Server;
 	private _mongoDB: mongodb.Db;
-
 	private _port: number;
 	private _host: string;
 	private _dbport: number;
 	
-
 	/**
 	* Creates an instance of the server
 	*/

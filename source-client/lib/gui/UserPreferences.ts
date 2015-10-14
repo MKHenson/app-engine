@@ -108,7 +108,7 @@ module Animate
 			{
 				user.removeEventListener( UserEvents.DETAILS_SAVED, this.onServer, this );
                 //BuildOptionsForm.getSingleton().message(e.tag.message, false);
-                user.userEntry.meta.bio = e.tag.bio;
+                user.meta.bio = e.tag.bio;
 			}
 			//else
 				//BuildOptionsForm.getSingleton().message( e.tag.message, true );
@@ -163,7 +163,7 @@ module Animate
 				this.userImgButton.enabled = true;
 
 				//BuildOptionsForm.getSingleton().message( response.message, false );
-                User.get.userEntry.meta.imgURL = response.imageUrl;
+                User.get.meta.image = response.imageUrl;
 				this.imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );				
 			}
 			else

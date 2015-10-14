@@ -1,33 +1,18 @@
 <div id='options-build'>
 	<div class="group">
-		<div class="label group-header background">
-			Build
-		</div><div class="group-content">
-			<div class="label-val">
-				<div class="label">Major Version:</div>
-		
+		<div class="label group-header background">Build</div>
+		<div class="group-content">
+			<div class="field-option">
+				<div class="label">Version:</div>
+				<div class="build-version">
+					V
+					<input type="text" class="background-view-light"> -
+					<input type="text" class="background-view-light"> -
 					<input type="text" class="background-view-light">
-
-				<div class="fix">
 				</div>
-			</div>
-			<div class="label-val">
-				<div class="label">
-					Mid Version:
-				</div>
-			
-					<input type="text" class="background-view-light">
 				<div class="fix"></div>
 			</div>
-			<div class="label-val">
-				<div class="label">Minor Version:</div>
-			
-					<input type="text" class="background-view-light">
-
-				<div class="fix"></div>
-			</div>
-			<div class="fix"></div>
-			<div class="label info">
+			<div class="soft-text info field-option">
 				When you build a project it saves the data according to its version number.
 				This helps you differenciate your builds and release incremental versions. You can switch between the different
 				builds by specifying which version to use. Use the above fields to select,
@@ -39,32 +24,22 @@
 	<div class="group">
 		<div class="label group-header background">Properties</div>
 		<div class="group-content">
-			<div class="label-val">
-				<div class="label">
-					Notes
-				</div>
-		
-					<textarea class="background-view-light"></textarea>
-		
-				<div class="fix"></div>
+			<div class="field-option">
+				<div class="label">Notes</div>
+				<textarea class="background-view-light"></textarea>
+				<div class="info soft-text">Use the above pad to store some build notes for the selected build.</div>
 			</div>
-			<div class="label info">Use the above pad to store some build notes for the selected build.</div>
-			<div class="label-val">
-				<div class="label">
-					Visibility
-				</div>
-				<div class="combo-box">
-					<select class="combo">
+			<div class="field-option">
+				<div class="label">Visibility</div>
+				<div class="dropdown">
+					<select>
 						<option value="0">Private</option>
 						<option value="1">Public</option>
 					</select>
 				</div>
-				<div class="fix"></div>
+				<div class="info soft-text">By default all builds are public. If you want to make your project private, then please upgrade your account.</div>
 			</div>
-			<div class="label info">
-				by default all builds are public. If you want to make your project private, then please upgrade your account.
-			</div>
-			<div class="button reg-gradient curve-small">Save</div>
+			<div class="button reg-gradient curve-small">Update Build Properties</div>
 		</div>
 	</div>
 </div>

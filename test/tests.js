@@ -401,12 +401,13 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
+				project = res.body.data;
 				test.string(res.body.message).is("Created project 'Test project'")
 				test.bool(res.body.error).isFalse()
 				test.string(res.body.data.name).is("Test project")
 				test.string(res.body.data.description).is("<b>Hello world!</b>")
 				test.value(res.body.data.image).isNull()
-				test.string(res.body.data.category).is("")
+				test.number(res.body.data.category).is(1)
 				test.string(res.body.data.subCategory).is("")
 				test.bool(res.body.data.public).isFalse()
 				test.value(res.body.data.curFile).isNull()
@@ -426,7 +427,7 @@ describe('Testing project related functions', function(){
 				test.number(res.body.data.createdOn).isNot(0)
 				test.number(res.body.data.lastModified).isNot(0)
 				test.string(res.body.data._id).notContains("00000000")	
-				project = res.body.data;
+				
 				done();
 			});
 	}).timeout(25000)
@@ -631,4 +632,27 @@ describe('Testing project related functions', function(){
 			
 	}).timeout(25000)
 
+})
+
+describe('Cleaning up', function(){
+	
+	it('did remove any users called george', function(done){
+		usersAgent
+			.delete('/users/remove-user/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				done();
+			});
+	}).timeout(25000)
+	
+	it('did remove any users called jane', function(done){
+		usersAgent
+			.delete('/users/remove-user/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				done();
+			});
+	}).timeout(25000)
 })

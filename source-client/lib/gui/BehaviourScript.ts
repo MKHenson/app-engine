@@ -17,7 +17,7 @@ module Animate
 			
 			var behaviour: BehaviourScript = this;
 			var element = this.element;
-            var plan: UserPlan = User.get.userEntry.meta.plan;
+            var plan: UserPlan = User.get.meta.plan;
 			this.scriptTab = null;
 			this.shallowId = shallowId;
 

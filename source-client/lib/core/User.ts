@@ -36,7 +36,8 @@ module Animate
     export class User extends EventDispatcher
 	{
         private static _singleton = null;
-        public userEntry: UsersInterface.IEngineUser;
+        public userEntry: UsersInterface.IUserEntry;
+        public meta: Engine.IUserMeta;
         public project: Project;
 		private _isLoggedIn: boolean;
         
@@ -49,30 +50,27 @@ module Animate
             EventDispatcher.call(this);
 
             // Create the default entry
-            this.userEntry = this.createEmptyUer();
+            this.userEntry = { username : "" };
+            this.resetMeta();
+
             this.project = new Project();
             this._isLoggedIn = false;
             
         }
-
+        
         /**
-		* Creates an empty user with default values
-		* @returns {IEngineUser}
+		* Resets the meta data
 		*/
-        private createEmptyUer(): UsersInterface.IEngineUser
+        resetMeta()
         {
-            return {
-                username: "",
-                meta: {
-                    bio: "",
-                    createdOn: 0,
-                    plan: UserPlan.Free,
-                    imgURL: "media/blank-user.png",
-                    maxNumProjects: 0
-                }
+            this.meta = <Engine.IUserMeta>{
+                bio: "",
+                plan: UserPlan.Free,
+                imgURL: "media/blank-user.png",
+                maxNumProjects: 0
             };
         }
-                
+             
         /**
 		* Checks if a user is logged in or not. This checks the server using 
 		* cookie and session data from the browser.
@@ -82,22 +80,38 @@ module Animate
         {
             var d = jQuery.Deferred<boolean>();
             var that = this;
+            var response: UsersInterface.IAuthenticationResponse;
             that._isLoggedIn = false;
 
-            jQuery.getJSON(`${DB.USERS}/users/authenticated`).done(function (data: UsersInterface.IAuthenticationResponse)
+            jQuery.getJSON(`${DB.USERS}/users/authenticated`).then(function (data: UsersInterface.IAuthenticationResponse)
             {
+                response = data;
+
                 if (data.error)
                     return d.reject(new Error(data.message));
 
                 if (data.authenticated)
                 {
-                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                    that.userEntry = <UsersInterface.IUserEntry>data.user;
                     that._isLoggedIn = true;
+                    return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                 }
                 else
+                {
                     that._isLoggedIn = false;
+                    that.resetMeta();
+                    return d.resolve(false);
+                }
 
                 return d.resolve(data.authenticated);
+
+            }).then(function (data: ModepressAddons.IGetDetails)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                that.meta = data.data;
+                return d.resolve(true);
 
             }).fail(function (err: JQueryXHR)
             {
@@ -122,25 +136,40 @@ module Animate
                     username: user,
                     password: password,
                     rememberMe: rememberMe
-                };
+                },
+                response: UsersInterface.IAuthenticationResponse;
 
-            jQuery.post(`${DB.USERS}/users/login`, token).done(function (data: UsersInterface.IAuthenticationResponse)
+            jQuery.post(`${DB.USERS}/users/login`, token).then(function (data: UsersInterface.IAuthenticationResponse)
             {
+                response = data;
+
                 if (data.error)
                     return d.reject(new Error(data.message));
 
                 if (data.authenticated)
                 {
                     that._isLoggedIn = true;
-                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                    that.userEntry = <UsersInterface.IUserEntry>data.user;
+                    return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                 }
                 else
+                {
                     that._isLoggedIn = false;
+                    that.resetMeta();
+                    return d.resolve(response);
+                }
 
-                return d.resolve(data);
+            }).then(function (data: ModepressAddons.IGetDetails)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                that.meta = data.data;
+                return d.resolve(response);
 
             }).fail(function (err: JQueryXHR)
             {
+                that._isLoggedIn = false;
                 d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
             })
 
@@ -176,7 +205,7 @@ module Animate
                 if (data.authenticated)
                 {
                     that._isLoggedIn = false;
-                    that.userEntry = <UsersInterface.IEngineUser>data.user;
+                    that.userEntry = <UsersInterface.IUserEntry>data.user;
                 }
                 else
                     that._isLoggedIn = false;
@@ -255,7 +284,14 @@ module Animate
                 if (data.error)
                     return d.reject(new Error(data.message));
 
-                that.userEntry = that.createEmptyUer();
+                that.userEntry = { username: "" };
+                that.meta = <Engine.IUserMeta>{
+                    bio: "",
+                    plan: UserPlan.Free,
+                    imgURL: "media/blank-user.png",
+                    maxNumProjects: 0
+                };
+
                 that._isLoggedIn = false;
                 return d.resolve(data);
 
@@ -370,6 +406,61 @@ module Animate
             return d.promise();
         }
         
+        /**
+		* Attempts to update the user's details base on the token provided
+        * @returns {Engine.IProject} The project token 
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
+		*/
+        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
+        {
+            var d = jQuery.Deferred<UsersInterface.IResponse>();
+            var meta = this.meta;
+
+            // Attempts to update the model
+            jQuery.ajax(`${DB.API}/user-details/${this.userEntry.username}`, {
+                type: "put",
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json",
+                data: JSON.stringify(token)
+
+            }).done(function (data: UsersInterface.IResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                else
+                {
+                    for (var i in token)
+                        if (meta.hasOwnProperty(i))
+                            meta[i] = token[i];
+                }
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
+
+            return d.promise();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -401,19 +492,19 @@ module Animate
 		//	} );
 		//}
 
-		/**
-		* @type public mfunc updateDetails
-		* Use this function to update user details
-		* @param {string} bio The bio of the user
-		* @extends {User} 
-		*/
-		updateDetails( bio )
-		{
-			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-			loader.load( "/user/update-details", { bio: bio } );
-		}
+		///**
+		//* @type public mfunc updateDetails
+		//* Use this function to update user details
+		//* @param {string} bio The bio of the user
+		//* @extends {User} 
+		//*/
+		//updateDetails( bio )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+		//	loader.load( "/user/update-details", { bio: bio } );
+		//}
 
 		/**
 		* @type public mfunc copyProject
@@ -507,11 +598,11 @@ module Animate
 
                 if (loader.url == "/user/log-in")
 				{
-                    this.userEntry.meta.bio = data.bio;
-                    this.userEntry.meta.plan = data.plan;
-                    this.userEntry.meta.maxNumProjects = data.maxProjects;
-                    this.userEntry.meta.createdOn = data.createdOn;
-                    this.userEntry.meta.imgURL = data.image;
+                    //this.userEntry.meta.bio = data.bio;
+                    //this.userEntry.meta.plan = data.plan;
+                    //this.userEntry.meta.maxNumProjects = data.maxProjects;
+                    //this.userEntry.meta.createdOn = data.createdOn;
+                    //this.userEntry.meta.imgURL = data.image;
 
 					//this.planLevel = 0;
 					//if ( data.plan == DB.PLAN_SILVER || data.plan == DB.PLAN_BRONZE )

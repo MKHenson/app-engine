@@ -1802,15 +1802,15 @@ declare module Animate {
     */
     class User extends EventDispatcher {
         private static _singleton;
-        userEntry: UsersInterface.IEngineUser;
+        userEntry: UsersInterface.IUserEntry;
+        meta: Engine.IUserMeta;
         project: Project;
         private _isLoggedIn;
         constructor();
         /**
-        * Creates an empty user with default values
-        * @returns {IEngineUser}
+        * Resets the meta data
         */
-        private createEmptyUer();
+        resetMeta(): void;
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
@@ -1875,12 +1875,11 @@ declare module Animate {
         */
         removeProject(pid: string): JQueryPromise<Modepress.IResponse>;
         /**
-        * @type public mfunc updateDetails
-        * Use this function to update user details
-        * @param {string} bio The bio of the user
-        * @extends {User}
+        * Attempts to update the user's details base on the token provided
+        * @returns {Engine.IProject} The project token
+        * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
-        updateDetails(bio: any): void;
+        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
         /**
         * @type public mfunc copyProject
         * Use this function to duplicate a project
@@ -5340,6 +5339,7 @@ declare module Animate {
         private _projectElm;
         private _buildElm;
         private _userElm;
+        private $user;
         private $project;
         private $projectToken;
         private $errorMsg;
@@ -5361,7 +5361,7 @@ declare module Animate {
         private _settingPages;
         constructor();
         /**
-        * Attempts to update the peroject
+        * Attempts to update the project
         */
         updateDetails(token: Engine.IPlugin): void;
         /**
@@ -5370,6 +5370,11 @@ declare module Animate {
         * @param {boolean} True if there is an error
         */
         reportError(form: EngineForm): boolean;
+        /**
+        * Updates the user bio information
+        * @param {string} bio The new bio data
+        */
+        updateBio(bio: string): void;
         /**
         * Called when we click on the settings tab
         * @param {any} event

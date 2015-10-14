@@ -4,22 +4,22 @@
 			Details
 		</div>
 		<div class="group-content">
-			<div class="label-val">
-				<div class="label">
-					Username:
-				</div>
+			<div class="field-option">
+				<div class="label">Username: <span class="soft-text">{{ctrl.$user.userEntry.username}}</span></div>
 			</div>
-			<div class="label-val">
-				<div class="label">
-					Joined On:
-				</div>
+			<div class="field-option">
+				<div class="label">Email: <span class="soft-text">{{ctrl.$user.userEntry.email}}</span></div>
+			</div>
+			<div class="field-option">
+				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.userEntry.createdOn).toLocaleDateString()}} {{new Date(ctrl.$user.userEntry.createdOn).toLocaleTimeString()}}</span></div>
+			</div>
+			<div class="field-option">
+				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.userEntry.lastLoggedIn).toLocaleDateString()}} {{new Date(ctrl.$user.userEntry.lastLoggedIn).toLocaleTimeString()}}</span></div>
 			</div>
 		</div>
 	</div>
 	<div class="group">		
-		<div class="label group-header background">
-			Avatar
-		</div>
+		<div class="label group-header background">Avatar</div>
 		<div class="group-content">
 			<div class="img-preview unselectable">
 				<div class="welcome-preview">
@@ -30,7 +30,10 @@
 				</div>
 				<div class="item-name reg-gradient" id="upload-projet-img" en-click="Animate.FileViewerForm.getSingleton().showForm( null, null )"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
 			</div>
-			<div class="label info">Use this button to upload your avatar picture.</div>
+			<div class="img-data">
+				<div class="info">Your avatar is the image others see you as. Use the upload button to change your profile picture.</div>
+			</div>
+			<div class="fix"></div>
 		</div>
 	</div>
 	<div class="group">
@@ -38,20 +41,13 @@
 			User information
 		</div>
 		<div class="group-content">
-			<div class="label-val">
-				<div class="label">
-					Bio
-				</div>
-				<div class="input-box">
-					<textarea class="background-view-light"></textarea>
-				</div>
+			<div class="field-option">
+				<div class="label">Bio</div>
+				<textarea id="meta-bio" class="background-view-light">{{ctrl.$user.meta.bio}}</textarea>
+				<div class="soft-text info">Use the above pad to write about yourself. This will show up on Webinate next to your projects.</div>
 			</div>
-			<div class="label info">
-				Use the above pad to write about yourself. This will show up on Webinate next to your projects.
-			</div>
-			<div class="button reg-gradient curve-small">
-				Save
-			</div>
+			<div class="error" en-show="ctrl.$errorMsgImg != ''">{{ctrl.$errorMsgImg}}</div>
+			<div class="button reg-gradient curve-small"  en-click="ctrl.updateBio(jQuery('#meta-bio').val());" en-class="{ disabled : ctrl.$loading }">Update Information</div>
 		</div>
 	</div>
 </div>

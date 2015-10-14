@@ -130,7 +130,7 @@ module Animate
 			//Create each of the plugin items that the user has set
 			for ( var i = 0, l = plugins.length; i < l; i++ )
             {
-                if (plugins[i].plan <= user.userEntry.meta.plan)
+                if (plugins[i].plan <= user.meta.plan)
 					this.addProjectPluginComp( plugins[i] );
             }
 
@@ -209,7 +209,7 @@ module Animate
 			//	return 0; 
 			//});
 
-   //         var userPlan: UserPlan = User.get.userEntry.meta.plan;
+   //         var userPlan: UserPlan = User.get.meta.plan;
             
 			//var len : number = __plugins.length;
 			//for ( var i = 0; i < len; i++ )

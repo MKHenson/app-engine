@@ -170,6 +170,7 @@ textarea {
   font: inherit; /* 2 */
   margin: 0; /* 3 */
   border: 1px solid #ddd;
+  resize:vertical;
 }
 
 button {
@@ -1080,6 +1081,15 @@ span.date {
     box-sizing:border-box;
     width:100%;
 }
+.build-options-form .button{
+    min-width:150px;
+    padding: 10px 15px;
+}
+
+/**
+*  OPTIONS WINDOW - PROJECT
+*  =========================
+*/
 #options-project .cross {
     width:30px;
     height:30px;
@@ -1105,6 +1115,27 @@ span.date {
     margin: 10px 0;
     font-weight: bold;
 }
+
+/**
+*  OPTIONS WINDOW - BUILD
+*  =========================
+*/
+#options-build .build-version input {
+    margin: 5px;
+    box-sizing: border-box;
+    width: 25%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#options-user .img-preview {
+    position:relative;
+    overflow:hidden;
+    width: 200px;
+    height: 200px;
+    float: left;
+}
+
 /**
 ======================================================
 				COLORS
@@ -1490,11 +1521,6 @@ iframe{ z-index:0; }
 .img-data .info .nb{ font-weight:bold; color:#000; }
 
 
-.build-options-form .content{ overflow: auto; }
-.build-options-form .tool-bar-group{ height:43px; }
-.build-options-form .pages-div{ background: #EEE; }
-.build-options-form .tab{ background: #ddd; }
-.build-options-form .server-message{ margin:10px 0 0 0; }
 
 
 

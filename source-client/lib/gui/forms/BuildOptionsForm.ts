@@ -10,6 +10,7 @@ module Animate
         private _projectElm: JQuery;
         private _buildElm: JQuery;
         private _userElm: JQuery;
+        private $user: User;
         private $project: Project;
         private $projectToken: Engine.IProject;
         private $errorMsg: string;
@@ -62,7 +63,9 @@ module Animate
             this._userElm = jQuery("#options-user").remove().clone();
 
             tabPage.element.append(this._projectElm);
+
             
+            this.$user = User.get;
             this.$project = null;
             this.$errorMsg = "";
             this.$errorMsgImg = "";
@@ -179,7 +182,7 @@ module Animate
 		}
 
         /** 
-        * Attempts to update the peroject
+        * Attempts to update the project
         */
         updateDetails(token: Engine.IPlugin)
         {
@@ -249,6 +252,28 @@ module Animate
                 return false;
             else
                 return true;
+        }
+
+        /**
+		* Updates the user bio information
+		* @param {string} bio The new bio data
+		*/
+        updateBio(bio:string)
+        {
+            var that = this,
+                user = this.$user;
+            this.$loading = true;
+            this.$errorMsg = "";
+
+            user.updateDetails(<Engine.IUserMeta>{ bio : bio }).fail(function (err: Error)
+            {
+                that.$errorMsg = err.message;
+
+            }).always(function ()
+            {
+                that.$loading = false;
+                Compiler.digest(that._userElm, that, false);
+            });
         }
 
 		/**

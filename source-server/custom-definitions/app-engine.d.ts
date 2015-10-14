@@ -1,21 +1,4 @@
-﻿declare module UsersInterface
-{
-    /*
-    * An interface to describe the data stored in the database for users
-    */
-    export interface IEngineUser extends IUserEntry
-    {
-        meta?: {
-            bio: string;
-            plan: number;
-            maxNumProjects: number;
-            createdOn: number;
-            imgURL: string;
-        };
-    }
-}
-
-declare module Engine
+﻿declare module Engine
 {
     export interface IResource
     {
@@ -89,12 +72,12 @@ declare module Engine
     /**
     * An interface that is used to describe the user's engine details
     */
-    export interface IUserDetails
+    export interface IUserMeta
     {
         user?: string;
         bio?: string;
-        image?: string;
-        plan?: string;
+        image?: any;
+        plan?: number;
         website?: string;
         customerId?: string;
         maxProjects?: number;
@@ -164,7 +147,7 @@ declare module ModepressAddons
 
     export interface IGetBuilds extends Modepress.IGetArrayResponse<Engine.IBuild> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
-    export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserDetails> { }
+    export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserMeta> { }
     export interface IGetBehaviours extends Modepress.IGetArrayResponse<Engine.IBehaviour> { }
     export interface IGetFiles extends Modepress.IGetArrayResponse<Engine.IFile> { }
     export interface IGetGroups extends Modepress.IGetArrayResponse<Engine.IGroup> { }

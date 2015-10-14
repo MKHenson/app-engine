@@ -47,7 +47,7 @@ export class PermissionController extends Controller
             var username = user.username;
             var maxProjects = 0;
 
-            userModel.findOne<Engine.IUserDetails>(<Engine.IUserDetails>{ user: username }).then(function (instance)
+            userModel.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: username }).then(function (instance)
             {
                 if (!instance)
                     return Promise.reject(new Error("Not found"));

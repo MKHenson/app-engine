@@ -15,8 +15,6 @@ module Animate
 
 			// Call super-class constructor
 			super( parent, text );
-
-			//this.element.removeClass("behaviour");
 			this.element.addClass( "behaviour-instance" );
 
 			if ( createPotrals )

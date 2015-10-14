@@ -1,7 +1,6 @@
 var http = require("http");
 var https = require('https');
 var mongodb = require("mongodb");
-//import url = require( "url" );
 var homeCtrl = require("./controllers/HomeController");
 var utils = require("./Utils");
 var Model = require("./models/Model");

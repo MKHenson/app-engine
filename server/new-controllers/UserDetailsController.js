@@ -28,6 +28,7 @@ var UserDetailsController = (function (_super) {
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         router.get("/:user", [modepress_api_1.isAuthenticated, this.getDetails.bind(this)]);
         router.post("/create/:target", [modepress_api_1.isAdmin, this.createDetails.bind(this)]);
+        router.put("/:user", [modepress_api_1.canEdit, this.updateDetails.bind(this)]);
         // Register the path
         e.use("/app-engine/user-details", router);
         modepress_api_1.EventManager.singleton.on("Activated", this.onActivated.bind(this));
@@ -43,6 +44,39 @@ var UserDetailsController = (function (_super) {
             winston.info("User details for " + event.username + " have been deleted", { process: process.pid });
         }).catch(function (err) {
             winston.error("An error occurred while deleteing user details for " + event.username + " : " + err.message, { process: process.pid });
+        });
+    };
+    /**
+    * Attempts to update users details
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    UserDetailsController.prototype.updateDetails = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-user-details");
+        var that = this;
+        var user = req.params.user;
+        var updateToken = { user: user };
+        var token = req.body;
+        model.update(updateToken, token).then(function (instance) {
+            if (instance.error) {
+                winston.error(instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: instance.tokens[0].error
+                }));
+            }
+            res.end(JSON.stringify({
+                error: false,
+                message: "Details updated"
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
         });
     };
     /**
@@ -100,7 +134,7 @@ var UserDetailsController = (function (_super) {
             if (!user)
                 return res.end(JSON.stringify({ error: true, message: "No user exists with the name '" + req.params.target + "'" }));
             var model = that.getModel("en-user-details");
-            // User exists and is ok - so lets create their details
+            // User exists and is ok - so lets create their details            
             model.createInstance({ user: user.username }).then(function (instance) {
                 return res.end(JSON.stringify({
                     error: false,

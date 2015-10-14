@@ -40,7 +40,7 @@ module Animate
 			this.clickPreview = this.onClick.bind( this );
 			this.dropProxy = this.onObjectDropped.bind( this );
 
-			this.element.droppable( { drop: this.dropProxy, hoverClass: "hover-over" });	
+            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.dropProxy, hoverClass: "hover-over" });	
 		}
 
 		/** When we click on a preview.*/

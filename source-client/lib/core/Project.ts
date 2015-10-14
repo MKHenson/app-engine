@@ -277,7 +277,7 @@ module Animate
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
-
+           
                 return d.resolve(data);
 
             }).fail(function (err: JQueryXHR)

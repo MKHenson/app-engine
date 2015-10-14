@@ -1,7 +1,7 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, isAuthenticated, getUser, UsersService} from "modepress-api";
+import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, isAuthenticated, getUser, UsersService} from "modepress-api";
 import {UserDetailsModel} from "../new-models/UserDetailsModel";
 import {IProject} from "engine";
 import * as winston from "winston";
@@ -32,6 +32,7 @@ export class UserDetailsController extends Controller
         
         router.get("/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
         router.post("/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
+        router.put("/:user", <any>[canEdit, this.updateDetails.bind(this)]);
 
         // Register the path
         e.use("/app-engine/user-details", router);
@@ -47,7 +48,7 @@ export class UserDetailsController extends Controller
     private onRemoved(event: UserEvent)
     {
         var model = this.getModel("en-user-details");
-        model.deleteInstances(<Engine.IUserDetails>{ user: event.username }).then(function()
+        model.deleteInstances(<Engine.IUserMeta>{ user: event.username }).then(function ()
         {
             winston.info(`User details for ${event.username} have been deleted`, { process: process.pid });
 
@@ -58,13 +59,54 @@ export class UserDetailsController extends Controller
     }
 
     /**
+    * Attempts to update users details
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    private updateDetails(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-user-details");
+        var that = this;
+        var user: string = req.params.user;
+        var updateToken: Engine.IUserMeta = { user: user };
+        var token: Engine.IUserMeta = req.body;
+        
+        model.update(updateToken, token).then(function (instance)
+        {
+            if (instance.error)
+            {
+                winston.error(<string>instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify(<IResponse>{
+                    error: true,
+                    message: <string>instance.tokens[0].error
+                }));
+            }
+
+            res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: `Details updated`
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{
+                error: true,
+                message: error.message
+            }));
+        });
+    }
+
+    /**
     * Called whenever a user has activated their account. We setup their app engine specific details
     * @param {UserEvent} event
     */
     private onActivated(event: UserEvent)
     {
         var model = this.getModel("en-user-details");
-        model.createInstance(<Engine.IUserDetails>{ user: event.username }).then(function (instance)
+        model.createInstance(<Engine.IUserMeta>{ user: event.username }).then(function (instance)
         {
             winston.info(`Created user details for ${event.username}`, { process: process.pid });
 
@@ -88,7 +130,7 @@ export class UserDetailsController extends Controller
         var model = that.getModel("en-user-details");
         var target = req.params.user;
 
-        model.findOne<Engine.IUserDetails>(<Engine.IUserDetails>{ user: target }).then(function(instance)
+        model.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: target }).then(function(instance)
         {
             if (!instance)
                 return Promise.reject(new Error("User does not exist"));
@@ -131,9 +173,8 @@ export class UserDetailsController extends Controller
 
             var model = that.getModel("en-user-details");
             
-            // User exists and is ok - so lets create their details
-            
-            model.createInstance(<Engine.IUserDetails>{ user: user.username }).then(function (instance)
+            // User exists and is ok - so lets create their details            
+            model.createInstance(<Engine.IUserMeta>{ user: user.username }).then(function (instance)
             {
                 return res.end(JSON.stringify(<IResponse>{
                     error: false,

@@ -1233,8 +1233,8 @@ module Animate
                     MessageBox.show(err.message, ["Ok"], null, null);
                 });
 			}
-			else
-                jQuery("img", this.userImg.element).attr("src", User.get.userEntry.meta.imgURL );
+            else
+                jQuery("img", this.userImg.element).attr("src", User.get.meta.image);
         }
 
 		/**
