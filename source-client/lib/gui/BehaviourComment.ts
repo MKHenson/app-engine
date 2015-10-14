@@ -36,8 +36,8 @@ module Animate
 
 			this.element.on( "mousedown", jQuery.proxy( this.onResizeStart, this ) );
 			this.mStartX = null;
-			this.mStartY = null;
-			this.element.resizable( {
+            this.mStartY = null;
+            this.element.resizable(<JQueryUI.ResizableOptions>{
 				minHeight: 50,
 				minWidth: 50,
 				helper: "ui-resizable-helper",

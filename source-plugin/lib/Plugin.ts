@@ -40,7 +40,7 @@ module HatcheryPlugin
         onStatesInit(stateProvider: angular.ui.IStateProvider): void
         {
             stateProvider
-                .state('default.hatchery-plugins', {
+                .state('default.hatchery-plugins', <ng.ui.IState>{
                     templateUrl: 'admin/plugins/app-engine/resources/templates/hatchery-plugins.html',
                     authenticate: true,
                     controller: "pluginCtrl",

@@ -88,7 +88,7 @@ module Animate
 		onMouseDown( e ) : void
 		{
 			var elem : JQuery = jQuery( e.target );
-			var comp : Component = elem.data( "component" );
+            var comp: Component = <Component>elem.data( "component" );
 
 			while ( !comp && elem.length != 0 )
 			{

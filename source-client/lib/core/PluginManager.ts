@@ -428,8 +428,8 @@ module Animate
 		*/
 		displayPreview( file: File, previewComponent: Component )
 		{
-			var firstChild = previewComponent.element.children( ":first" );
-			var firstComp = firstChild.data( "component" );
+            var firstChild = previewComponent.element.children(":first");
+            var firstComp = <Component>firstChild.data("component");
 
 			if ( firstComp )
 				firstComp.dispose();

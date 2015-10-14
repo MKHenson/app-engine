@@ -612,7 +612,6 @@
                     var parsedText = origText.replace(/\{\{(.*?)\}\}/g, function (sub, val)
                     {
                         textNode.$expression = origText;
-                        var t = sub.match(/[^{}]+/);
                         return Compiler.parse(val, controller, null, textNode, null);
                     });
 
