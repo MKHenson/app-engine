@@ -33,8 +33,8 @@ module Animate
 				this.addNode( new TreeNodeGroupInstance( this.json.assets[i].id, this.json.assets[i].name ) );
 		
 			this.dropProxy = this.onObjectDropped.bind( this );
-			this.element.draggable( { opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-			this.element.droppable( { drop: this.dropProxy, accept: ".tree-node-asset,.tree-node-group" });	
+            this.element.draggable(<JQueryUI.DroppableOptions>{ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
+            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.dropProxy, accept: ".tree-node-asset,.tree-node-group" });	
 		}
 
 		/** 

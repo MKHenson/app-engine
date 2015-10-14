@@ -1537,13 +1537,13 @@ interface JQuery
      * @param key A string naming the piece of data to set.
      * @param value The new data value; it can be any Javascript type including Array or Object.
      */
-    data(key: string, value: any): JQuery;
+    data(key: string, value: any): any;
     /**
      * Store arbitrary data associated with the matched elements.
      *
      * @param obj An object of key-value pairs of data to update.
      */
-    data(obj: { [key: string]: any; }): JQuery;
+    data(obj: { [key: string]: any; }): any;
     /**
      * Return the value at the named data store for the first element in the jQuery collection, as set by data(name, value) or by an HTML5 data-* attribute.
      *

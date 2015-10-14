@@ -90,8 +90,8 @@ module Animate
 			PortalForm.getSingleton().addEventListener( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 
 			new BehaviourPortal( this, "Start" );
-			PropertyGrid.getSingleton().addEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
-			this.element.droppable( { drop: this.onObjectDropped.bind( this ), accept: ".behaviour-to-canvas" });
+            PropertyGrid.getSingleton().addEventListener(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
+            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
 			this._containerReferences = { groups: [], assets: [] };
 
 			PluginManager.getSingleton().addEventListener(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
@@ -1196,8 +1196,8 @@ module Animate
 			//if ( toRet )
 			//	DragManager.getSingleton().setDraggable( toRet, true, this, null );
 
-			if ( toRet instanceof Behaviour )
-				toRet.element.draggable( { drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 });
+            if (toRet instanceof Behaviour)
+                toRet.element.draggable(<JQueryUI.DraggableOptions>{ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 });
 
 			toRet.element.on( "mouseup", this.mUpProxy );
 
