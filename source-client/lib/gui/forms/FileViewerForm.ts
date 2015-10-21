@@ -29,6 +29,11 @@ module Animate
 
         // New variables
         private _browserElm: JQuery;
+        private $pager: PageLoader;
+        private $selectedFile: Engine.IFile;
+        private $files: Array<Engine.IFile>;
+        private $loading: boolean;
+        private $errorMsg: string;
 
 		private toolbar: Component;
 		private selectedID: string;
@@ -44,7 +49,6 @@ module Animate
 		private catGlobal: Component;
 		private search: Component;
 		private menu: ListView;
-
 		private listInfo: Component;
 		private previewHeader: Component;
 		private okButton: Button;
@@ -56,12 +60,9 @@ module Animate
 		private tags: InputBox;
 		private thumbnail: InputBox;
 		private path: InputBox;
-
 		private uploader: FileUploaderBasic;
-
 		private updateButton: Button;
 		private extensions: Array<string>;
-
 		private submitProxy: any;
 		private thumbUploader: any;
 		private thumbSubmitProxy: any;
@@ -74,165 +75,204 @@ module Animate
 		
 		constructor()
 		{
-			if ( FileViewerForm._singleton != null )
-				throw new Error( "The FileViewerForm class is a singleton. You need to call the FileViewerForm.getSingleton() function." );
-
 			FileViewerForm._singleton = this;
 
 			// Call super-class constructor
-			super( 1000, 600, true, true, "Asset Browser" );
-
-			this.toolbar = <Component>this.content.addChild( "<div class='viewer-toolbar'></div>" );
-
-            this.selectedID = null;
+            super(1000, 600, true, true, "Asset Browser");
+            this.element.attr("id", "file-viewer-window");
+            
             this._browserElm = jQuery("#file-viewer").remove().clone();
+            this.content.element.append(this._browserElm);
+            this.$files = [];
+            this.$selectedFile = null;
+            this.$errorMsg = "";
+            this.$pager = new PageLoader(this.fetchFiles.bind(this));
+            Compiler.build(this._browserElm, this);
 
-			//Create buttons and groups
-			var group : Component = this.createGroup();
-			this.modeGrid = this.createGroupButton( "Grid", "media/asset-grid.png", group );
-			this.modeList = this.createGroupButton( "List", "media/asset-list.png", group );
-			this.modeList.element.addClass( "selected" );
+            
 
-			group = this.createGroup();
-			this.favouriteGroup = group;
-			this.favourite = this.createGroupButton( "Favourite", "media/star.png", group );
-			this.favourite.enabled = false;
+   //         //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
+   //         this.toolbar = new Component(null);
 
-			group = this.createGroup();
-			this.addRemoveGroup = group;
-			this.addButton = this.createGroupButton( "Add", "media/add-asset.png", group );
-			this.removeButton = this.createGroupButton( "Remove", "media/remove-asset.png", group );
-			this.content.element.append( "<div class='fix'></div>" );
+   //         this.selectedID = null;
 
-			group = this.createGroup();
-			this.catProject = this.createGroupButton( "Project", "media/assets-project.png", group );
-			this.catUser = this.createGroupButton( "My Assets", "media/assets-user.png", group );
-			this.catGlobal = this.createGroupButton( "Global Assets", "media/assets-global.png", group );
-			this.catProject.element.addClass( "selected" );
+			////Create buttons and groups
+			//var group : Component = this.createGroup();
+			//this.modeGrid = this.createGroupButton( "Grid", "media/asset-grid.png", group );
+			//this.modeList = this.createGroupButton( "List", "media/asset-list.png", group );
+			//this.modeList.element.addClass( "selected" );
 
-			group = this.createGroup();
-			this.search = <Component>group.addChild( "<div class='asset-search'><input type='text'></input><img src='media/search.png' /></div>" );
-			group.element.css( { "float": "right", "margin": "0 15px 0 0" });
+			//group = this.createGroup();
+			//this.favouriteGroup = group;
+			//this.favourite = this.createGroupButton( "Favourite", "media/star.png", group );
+			//this.favourite.enabled = false;
 
+			//group = this.createGroup();
+			//this.addRemoveGroup = group;
+			//this.addButton = this.createGroupButton( "Add", "media/add-asset.png", group );
+			//this.removeButton = this.createGroupButton( "Remove", "media/remove-asset.png", group );
+			//this.content.element.append( "<div class='fix'></div>" );
 
+			//group = this.createGroup();
+			//this.catProject = this.createGroupButton( "Project", "media/assets-project.png", group );
+			//this.catUser = this.createGroupButton( "My Assets", "media/assets-user.png", group );
+			//this.catGlobal = this.createGroupButton( "Global Assets", "media/assets-global.png", group );
+			//this.catProject.element.addClass( "selected" );
 
-			//Bottom panels
-			var btmLeft : Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
-			var btmRight: Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
-
-			var listBlock : Component = <Component>btmLeft.addChild( "<div class='list-block'></div>" );
-			this.menu = new ListView( listBlock );
-			this.menu.addColumn( "ID" );
-			this.menu.addColumn( "Name" );
-			this.menu.addColumn( "Tags" );
-			this.menu.addColumn( "Size" );
-			this.menu.addColumn( "URL" );
-			this.menu.addColumn( "Favourite" );
-			this.menu.addColumn( "Created On" );
-			this.menu.addColumn( "Last Modified" );
-			this.menu.addColumn( "Extension" );
-
-			this.listInfo = <Component>btmLeft.addChild( "<div class='selection-info'><span class='selected-asset'>Selected: </span><span class='assets'>All your base!</span></div>" );
-
-			//Preview section
-			this.previewHeader = new Component( "<div class='file-preview-header'><div class='header-name'>Preview</div></div>", btmRight );
-			this.okButton = new Button( "Use this File", this.previewHeader );
-			this.okButton.css( { "float": "right", width: "100px", height: "25px", margin: "0 0 5px 0" });
-			this.previewHeader.element.append( "<div class='fix'></div>" );
+			//group = this.createGroup();
+			//this.search = <Component>group.addChild( "<div class='asset-search'><input type='text'></input><img src='media/search.png' /></div>" );
+			//group.element.css( { "float": "right", "margin": "0 15px 0 0" });
 
 
-			this.preview = new Component( "<div class='file-preview'></div>", btmRight );
 
-			//Create info section
-			var infoSection : Component = new Component( "<div class='info-section'></div>", btmRight );
+			////Bottom panels
+			//var btmLeft : Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
+			//var btmRight: Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
 
-			this.statusBar = new Component( "<div class='upload-status'><img src='media/close.png' /><span class='upload-text'>Uploading</span></div>", infoSection );
-			this.statusBar.element.hide();
+			//var listBlock : Component = <Component>btmLeft.addChild( "<div class='list-block'></div>" );
+			//this.menu = new ListView( listBlock );
+			//this.menu.addColumn( "ID" );
+			//this.menu.addColumn( "Name" );
+			//this.menu.addColumn( "Tags" );
+			//this.menu.addColumn( "Size" );
+			//this.menu.addColumn( "URL" );
+			//this.menu.addColumn( "Favourite" );
+			//this.menu.addColumn( "Created On" );
+			//this.menu.addColumn( "Last Modified" );
+			//this.menu.addColumn( "Extension" );
 
-			//Name
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			var label: Label = new Label( "Name: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.name = new InputBox( group, "" );
-			group.element.append( "<div class='fix'></div>" );
+			//this.listInfo = <Component>btmLeft.addChild( "<div class='selection-info'><span class='selected-asset'>Selected: </span><span class='assets'>All your base!</span></div>" );
 
-			//Tags
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			label = new Label( "Tags: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.tags = new InputBox( group, "" );
-			group.element.append( "<div class='fix'></div>" );
+			////Preview section
+			//this.previewHeader = new Component( "<div class='file-preview-header'><div class='header-name'>Preview</div></div>", btmRight );
+			//this.okButton = new Button( "Use this File", this.previewHeader );
+			//this.okButton.css( { "float": "right", width: "100px", height: "25px", margin: "0 0 5px 0" });
+			//this.previewHeader.element.append( "<div class='fix'></div>" );
 
-			//Global
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			label = new Label( "Share: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.global = new Checkbox( group, "Share your file with all Animate users", false );
-			group.element.append( "<div class='fix'></div>" );
 
-			//Thumbnail
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			label = new Label( "Thumbnail: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.thumbnail = new InputBox( group, "" );
-			group.element.append( "<div class='info'>Click here to upload a thumbnail image (100px, 100px)</div><div class='fix'></div>" );
+			//this.preview = new Component( "<div class='file-preview'></div>", btmRight );
 
-			//Size
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			label = new Label( "Filesize: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.size = new InputBox( group, "" );
-			group.element.append( "<div class='fix'></div>" );
-			group.enabled = false;
+			////Create info section
+			//var infoSection : Component = new Component( "<div class='info-section'></div>", btmRight );
 
-			//Path
-			group = new Component( "<div class='file-group'><div>", infoSection );
-			label = new Label( "Path: ", group );
-			label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
-			this.path = new InputBox( group, "" );
-			group.element.append( "<div class='fix'></div>" );
-			group.enabled = false;
+			//this.statusBar = new Component( "<div class='upload-status'><img src='media/close.png' /><span class='upload-text'>Uploading</span></div>", infoSection );
+			//this.statusBar.element.hide();
 
-			//Create the update button
-			this.updateButton = new Button( "Update", infoSection );
-			this.updateButton.css( { width: "70px", height: "20px", "margin": "5px 3px 0 0", "float": "right" });
-			infoSection.element.append( "<div class='fix'></div>" );
+			////Name
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//var label: Label = new Label( "Name: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.name = new InputBox( group, "" );
+			//group.element.append( "<div class='fix'></div>" );
 
-			this.thumbUploader = null;
-			this.uploader = null;
+			////Tags
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//label = new Label( "Tags: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.tags = new InputBox( group, "" );
+			//group.element.append( "<div class='fix'></div>" );
 
-			//Event Listeners
-			this.buttonProxy = jQuery.proxy( this.onButtonClick, this );
-			this.submitProxy = jQuery.proxy( this.onSubmit, this );
-			this.thumbSubmitProxy = jQuery.proxy( this.onThumbSubmit, this );
-			this.progressProxy = jQuery.proxy( this.onProgress, this );
-			this.cancelProxy = jQuery.proxy( this.onCancel, this );
-			this.completeProxy = jQuery.proxy( this.onUploadComplete, this );
-			this.errorProxy = jQuery.proxy( this.onError, this );
-			this.keyDownProxy = jQuery.proxy( this.onInputKey, this );			
+			////Global
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//label = new Label( "Share: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.global = new Checkbox( group, "Share your file with all Animate users", false );
+			//group.element.append( "<div class='fix'></div>" );
 
-			jQuery( "input", this.search.element ).on( "keydown", this.keyDownProxy );
-			jQuery( "img", this.search.element ).on( "click", this.buttonProxy );
-			this.modeGrid.element.on( "click", this.buttonProxy );
-			this.modeList.element.on( "click", this.buttonProxy );
-			this.favourite.element.on( "click", this.buttonProxy );
-			this.updateButton.element.on( "click", this.buttonProxy );
-			this.removeButton.element.on( "click", this.buttonProxy );
-			this.okButton.element.on( "click", this.buttonProxy );
-			this.catProject.element.on( "click", this.buttonProxy  );
-			this.catUser.element.on( "click", this.buttonProxy );
-			this.catGlobal.element.on( "click", this.buttonProxy );
+			////Thumbnail
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//label = new Label( "Thumbnail: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.thumbnail = new InputBox( group, "" );
+			//group.element.append( "<div class='info'>Click here to upload a thumbnail image (100px, 100px)</div><div class='fix'></div>" );
 
-			this.extensions = [];
-			jQuery( "img", this.statusBar.element ).on( "click", jQuery.proxy( this.onStatusCloseClick, this ) );
+			////Size
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//label = new Label( "Filesize: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.size = new InputBox( group, "" );
+			//group.element.append( "<div class='fix'></div>" );
+			//group.enabled = false;
 
-			this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
+			////Path
+			//group = new Component( "<div class='file-group'><div>", infoSection );
+			//label = new Label( "Path: ", group );
+			//label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+			//this.path = new InputBox( group, "" );
+			//group.element.append( "<div class='fix'></div>" );
+			//group.enabled = false;
 
-			jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
-			jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
-		}
+			////Create the update button
+			//this.updateButton = new Button( "Update", infoSection );
+			//this.updateButton.css( { width: "70px", height: "20px", "margin": "5px 3px 0 0", "float": "right" });
+			//infoSection.element.append( "<div class='fix'></div>" );
+
+			//this.thumbUploader = null;
+			//this.uploader = null;
+
+			////Event Listeners
+			//this.buttonProxy = jQuery.proxy( this.onButtonClick, this );
+			//this.submitProxy = jQuery.proxy( this.onSubmit, this );
+			//this.thumbSubmitProxy = jQuery.proxy( this.onThumbSubmit, this );
+			//this.progressProxy = jQuery.proxy( this.onProgress, this );
+			//this.cancelProxy = jQuery.proxy( this.onCancel, this );
+			//this.completeProxy = jQuery.proxy( this.onUploadComplete, this );
+			//this.errorProxy = jQuery.proxy( this.onError, this );
+			//this.keyDownProxy = jQuery.proxy( this.onInputKey, this );			
+
+			//jQuery( "input", this.search.element ).on( "keydown", this.keyDownProxy );
+			//jQuery( "img", this.search.element ).on( "click", this.buttonProxy );
+			//this.modeGrid.element.on( "click", this.buttonProxy );
+			//this.modeList.element.on( "click", this.buttonProxy );
+			//this.favourite.element.on( "click", this.buttonProxy );
+			//this.updateButton.element.on( "click", this.buttonProxy );
+			//this.removeButton.element.on( "click", this.buttonProxy );
+			//this.okButton.element.on( "click", this.buttonProxy );
+			//this.catProject.element.on( "click", this.buttonProxy  );
+			//this.catUser.element.on( "click", this.buttonProxy );
+			//this.catGlobal.element.on( "click", this.buttonProxy );
+
+			//this.extensions = [];
+			//jQuery( "img", this.statusBar.element ).on( "click", jQuery.proxy( this.onStatusCloseClick, this ) );
+
+			//this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
+
+			//jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
+			//jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
+			//jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
+			//jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
+        }
+
+        /*
+        * Fetches a list of user projects
+        * @param {number} index 
+        * @param {number} limit
+        */
+        fetchFiles(index: number, limit: number)
+        {
+            var that = this;
+            that.$loading = true;
+            that.$errorMsg = "";
+            that.$selectedFile = null;
+            Animate.Compiler.digest(that._browserElm, that);
+            //var project: Project = User.get.project;
+            //project.loadFiles("project");
+
+            //that.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
+            //{
+            //    that.$pager.last = projects.count || 1;
+            //    that.$files = projects.data;
+
+            //}).fail(function (err: Error)
+            //{
+            //    that.$errorMsg = err.message;
+
+            //}).done(function ()
+            //{
+            //    that.$loading = false;
+            //    Animate.Compiler.digest(that._browserElm, that);
+            //});
+        }
 
 		/**
 		* Called when we are dragging over the item
@@ -340,7 +380,7 @@ module Animate
 		*/
 		createGroupButton( text: string, image : string, group : Component )  : Component
 		{
-			return <Component>group.addChild( "<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>" );
+            return <Component>group.addChild( "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>" );
 		}
 
 
@@ -351,24 +391,26 @@ module Animate
 		{
 			super.show(null, undefined, undefined, true);
 
-			this.selectedID = id;
-			this.extensions = extensions;
-			this.initializeLoader();
-			this.update();
+			//this.selectedID = id;
+			//this.extensions = extensions;
+			//this.initializeLoader();
+			//this.update();
 
-			this.onItemClicked( null, null );
+			//this.onItemClicked( null, null );
 
-			//Only show the OK button if we have an ID of an object 
-			if ( id != null )
-				this.okButton.element.show();
-			else
-				this.okButton.element.hide();
+			////Only show the OK button if we have an ID of an object 
+			//if ( id != null )
+			//	this.okButton.element.show();
+			//else
+			//	this.okButton.element.hide();
 
-			this.catUser.element.removeClass( "selected" );
-			this.catGlobal.element.removeClass( "selected" );
-			this.catProject.element.removeClass( "selected" );
-			this.catProject.element.addClass( "selected" ); //Must be on to begin with
-			this.catProject.element.trigger( "click" );
+			//this.catUser.element.removeClass( "selected" );
+			//this.catGlobal.element.removeClass( "selected" );
+			//this.catProject.element.removeClass( "selected" );
+			//this.catProject.element.addClass( "selected" ); //Must be on to begin with
+			//this.catProject.element.trigger( "click" );
+
+            Compiler.digest(this._browserElm, this);
 		}
 
 		/**

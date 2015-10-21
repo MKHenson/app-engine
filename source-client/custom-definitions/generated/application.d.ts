@@ -5453,6 +5453,11 @@ declare module Animate {
     class FileViewerForm extends Window {
         private static _singleton;
         private _browserElm;
+        private $pager;
+        private $selectedFile;
+        private $files;
+        private $loading;
+        private $errorMsg;
         private toolbar;
         private selectedID;
         private modeGrid;
@@ -5491,6 +5496,7 @@ declare module Animate {
         private keyDownProxy;
         private buttonProxy;
         constructor();
+        fetchFiles(index: number, limit: number): void;
         /**
         * Called when we are dragging over the item
         */

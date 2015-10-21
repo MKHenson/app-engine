@@ -563,6 +563,47 @@ Please only put css rules in here for layout related requirements.
 }
 
 /**
+* Tooltips
+*/
+.tooltip .tooltip-text {
+    pointer-events: none;
+    text-align: center;
+    font-size: 10px;
+    margin: 0 3px;
+}
+.tooltip-text {
+    margin: 0 3px 0 3px;
+}
+
+.tooltip:hover .tooltip-text {
+    display:inherit;
+}
+.disabled.tooltip:hover .tooltip-text {
+    display:none;
+}
+.tooltip-text {
+    display:none;
+    position: absolute;
+    font-size: 16px !important;
+    background: #607DA0;
+    color: white;
+    padding: 10px;
+    text-shadow: none;
+    top: 60px;
+    left: 0;
+    z-index: 1;
+}
+.tooltip-text:before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 7px;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #607DA0;
+}
+
+/**
 ======================================================
 				CSS LAYOUT DEFINITIONS
 ======================================================
@@ -937,6 +978,9 @@ html, body, #stage {
 *  TOOLBAR
 *  ===============================
 */
+#toolbar-main {
+    padding-top:5px;
+}
 .toolbar {
     height: 85px;
     position: relative;
@@ -946,7 +990,8 @@ html, body, #stage {
 .tool-bar-group {
     float: left;
     -webkit-border-radius: 5px;
-    margin: 5px 0 0 5px;
+    margin: 0 0 0 5px;
+    position: relative;
 }
 .toolbar-button div {
     pointer-events: none;
@@ -957,25 +1002,21 @@ html, body, #stage {
     height: 40px;
 }
 .toolbar-button, .toolbar-button-drop-down {
-    float: left;
+    display: inline-block;
 }
 .toolbar-button .tool-icon-upper img {
     margin: 0 8px 0 8px;
 }
 .toolbar-button {
     cursor: pointer;
-    height: 100%;
     padding: 4px 0 4px 0;
     position: relative;
 }
-.toolbar-button .tool-bar-text, .tool-icon-upper, .toolbar-button img {
+.tool-icon-upper, .toolbar-button img {
     pointer-events: none;
     text-align: center;
     font-size: 10px;
     margin: 0 3px;
-}
-.tool-bar-text {
-    margin: 0 3px 0 3px;
 }
 .toolbar-color {
     width: 45px;
@@ -985,32 +1026,8 @@ html, body, #stage {
     font-size: 10px;
     margin: 5px 5px 0 5px;
 }
-.toolbar-button:hover .tool-bar-text {
-    display:inherit;
-}
-.disabled.toolbar-button:hover .tool-bar-text {
-    display:none;
-}
-.tool-bar-text {
-    display:none;
-    position: absolute;
-    font-size: 16px !important;
-    background: #607DA0;
-    color: white;
-    padding: 10px;
-    text-shadow: none;
-    top: 60px;
-    left: 0;
-}
-.tool-bar-text:before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 7px;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-bottom: 15px solid #607DA0;
-}
+
+
 .tool-bar-top {
     width: 100%;
     height: 25px;
@@ -1134,6 +1151,24 @@ span.date {
     width: 200px;
     height: 200px;
     float: left;
+}
+
+/**
+*  FILE VIEWER
+*  =========================
+*/
+#file-viewer-window .window-control-box{
+    margin:0;
+}
+.file-search {
+    display:inline-block;
+}
+.file-search input {
+   padding:10px;
+   box-sizing:border-box;
+}
+.file-search img {
+    vertical-align:middle;
 }
 
 /**
@@ -1578,13 +1613,10 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .viewer-block{ float:left; width:48%; overflow:auto; margin: 0 12px 0 6px; height: 515px; }
 .header-name{ float:left; }
 .info-section{ border: 1px solid #ccc; padding:5px; overflow: auto; margin: 5px 0 0 0; height: 190px; }
-.viewer-toolbar{ height:40px; }
-.viewer-toolbar { margin-top:0px; }
+
 .selected-asset{ color:red; margin-right:10px; }
 
-.asset-search { width:210px; margin: 7px 0 10px 0; }
-.asset-search input{ margin: 0 0 0 5px; }
-.asset-search img { float:right; margin: 3px 3px 0 0; cursor:pointer; }
+
 
 .upload-status{ overflow:hidden; text-align:center; margin:5px 0 0 0; background-color:#F5F589; border-top: 2px dotted #F5CE33; border-bottom: 2px dotted #F5CE33;}
 .upload-status img{ float:right; margin: 3px 3px 0 0; cursor:pointer; }
@@ -1859,7 +1891,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tooltip{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
+.tooltip.label{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
 .tool-icon-lower{ text-align:center; }
 .tool-icon-upper{}
 

@@ -36,7 +36,7 @@ module Animate
 			//Image
 			group = new Group( "Avatar", this );
 			this.imgPreview = <Component>group.content.addChild( "<div class='preview'></div>" );
-			this.userImgButton = <Component>group.content.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
+            this.userImgButton = <Component>group.content.addChild( "<div class='tool-bar-group'><div class='toolbar-button tooltip'><div><img src='media/add-asset.png' /></div><div class='tooltip-text'>Add</div></div></div>" );
 			group.content.addChild( "<div class='fix'></div>" );
 
 			var info: Label = new Label( "Use this button to upload your avatar picture.", group.content );
