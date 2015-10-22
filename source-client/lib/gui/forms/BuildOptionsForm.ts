@@ -174,7 +174,7 @@ module Animate
 
 			this._settingPages = [];
 
-            this._tab.addEventListener(TabEvents.SELECTED, this.onTab, this);
+            this._tab.on(TabEvents.SELECTED, this.onTab, this);
 
             //this.addSettingPage(new UserPreferences("User Options"));
             tabPage = this._tab.addTab("User Options", false).page;
@@ -369,8 +369,8 @@ module Animate
                 var project: Project = User.get.project;
 				var build = project.mCurBuild;
 
-				project.addEventListener( ProjectEvents.FAILED, this._buildProxy, this );
-				project.addEventListener( ProjectEvents.BUILD_SAVED, this._buildProxy, this );
+				project.on( ProjectEvents.FAILED, this._buildProxy, this );
+				project.on( ProjectEvents.BUILD_SAVED, this._buildProxy, this );
 				project.saveBuild( (<Label>this._notes.val).text, (<ComboBox>this._visibility.val).selectedItem, build.html, build.css );
 			}
 			else if ( target == this._selectBuild )
@@ -410,8 +410,8 @@ module Animate
 
 				var user : User = User.get;
 				var project : Project = User.get.project;
-				project.addEventListener( ProjectEvents.FAILED, this._buildProxy, this );
-				project.addEventListener( ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
+				project.on( ProjectEvents.FAILED, this._buildProxy, this );
+				project.on( ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
 				project.selectBuild( (<Label>this._buildVerMaj.val).text, (<Label>this._buildVerMid.val).text, (<Label>this._buildVerMin.val).text );
 			}
 
@@ -436,9 +436,9 @@ module Animate
 			var user = User.get;
 			var project = User.get.project;
 
-            project.removeEventListener(ProjectEvents.FAILED, this._buildProxy, this );
-            project.removeEventListener(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
-            project.removeEventListener(ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
+            project.off(ProjectEvents.FAILED, this._buildProxy, this );
+            project.off(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
+            project.off(ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
 
 			if (event.return_type == AnimateLoaderResponses.ERROR )
 			{

@@ -20,19 +20,11 @@ module Animate
 		}
 	}
 
-	
-	export class ToolbarDropDownEvents extends ENUM
-	{
-		constructor( v: string ) { super( v ); }
-
-		static ITEM_CLICKED: ToolbarDropDownEvents = new ToolbarDropDownEvents( "toolbar_dropdown_item_clicked" );
-	}
-
 	export class ToolbarDropDownEvent extends Event
 	{
 		public item: ToolbarItem;
 
-		constructor( item: ToolbarItem, e: ToolbarDropDownEvents )
+        constructor(item: ToolbarItem, e: EventType )
 		{
 			this.item = item;
 			super( e, null );
@@ -50,10 +42,10 @@ module Animate
 	export class ToolbarDropDown extends Component
 	{
 		public items: Array<ToolbarItem>;
-		private popupContainer: Component;
-		private selectedItem: ToolbarItem;
-		private clickProxy: any;
-		private stageDownProxy: any;
+		private _popupContainer: Component;
+		private _selectedItem: ToolbarItem;
+		private _clickProxy: any;
+		private _stageDownProxy: any;
 
 		/**
 		* @param {Component} parent The parent of this toolbar
@@ -64,28 +56,22 @@ module Animate
             super( "<div class='toolbar-button-drop-down tooltip'></div>", parent );
 
 			this.items = items;
-			this.popupContainer = new Component( "<div class='tool-bar-dropdown shadow-med'></div>" );
+            this._popupContainer = new Component( "<div class='tool-bar-dropdown background shadow-small'></div>" );
 
 			var i = items.length;
 			while ( i-- )
-			{
-				//var comp: Component = <ToolbarItem>this.popupContainer.addChild( "<div class='toolbar-button tooltip'><div><img src='" + items[i].img + "' /></div><div class='tooltip-text'>" + items[i].text + "</div></div>" );
-				//comp.element.data( "item", items[i] );
-				//items[i].comp = comp;
-				this.popupContainer.addChild( items[i] );
-			}
-
+				this._popupContainer.addChild( items[i] );
 
 			if ( items.length > 0 )
-				this.selectedItem = <ToolbarItem>this.addChild( items[0] );
+				this._selectedItem = <ToolbarItem>this.addChild( items[0] );
 			else
-				this.selectedItem = null;
+				this._selectedItem = null;
 
 	
-			this.stageDownProxy = this.onStageUp.bind( this );
-			this.clickProxy = this.onClick.bind( this );
+			this._stageDownProxy = this.onStageUp.bind( this );
+			this._clickProxy = this.onClick.bind( this );
 
-			this.element.on( "click", this.clickProxy );
+			this.element.on( "click", this._clickProxy );
 		}
 
 		/**
@@ -95,10 +81,7 @@ module Animate
 		*/
 		addItem( item: ToolbarItem )
 		{
-			var comp = this.popupContainer.addChild( item );
-			//comp.element.data( "item", item );
-			//item.comp = comp;
-
+			var comp = this._popupContainer.addChild( item );
 			this.items.push( item );
 			return comp;
 		}
@@ -144,7 +127,7 @@ module Animate
 					items[i].element.detach();
 			}
 
-			this.selectedItem = null;
+			this._selectedItem = null;
 			items.splice( 0, items.length );
 		}
 
@@ -152,37 +135,43 @@ module Animate
 		* Sets the selected item
 		* @param {any} item 
 		*/
-		setItem( item : ToolbarItem )
+        set selectedItem( item : ToolbarItem )
 		{
-			if ( this.selectedItem === item )
+			if ( this._selectedItem === item )
 				return;
 
-			if ( this.selectedItem )
-			{
-				//this.selectedItem.element.detach();
-				this.popupContainer.addChild( this.selectedItem );
-			}
-
+			if ( this._selectedItem )
+				this._popupContainer.addChild( this._selectedItem );
+		
 			this.addChild( item );
-			//this.element.html( "<div><img src='" + item.img + "' /></div><div class='tooltip-text'>" + item.text + "</div>" );
-			var e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, ToolbarDropDownEvents.ITEM_CLICKED );
+			var e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, "clicked" );
 			this.dispatchEvent( e );
 			e.dispose();
-			this.selectedItem = item;
+			this._selectedItem = item;
 			return;
-		}
+        }
 
+        /**
+		* Gets the selected item
+		* @returns {ToolbarItem}
+		*/
+        get selectedItem(): ToolbarItem
+        {
+            return this._selectedItem;
+        }
+        
 		/**
 		* Called when the mouse is down on the DOM
 		* @param {any} e The jQuery event
 		*/
-		onStageUp = function ( e: any )
+		onStageUp( e: any )
 		{
 			var body = jQuery( "body" );
-			body.off( "mousedown", this.stageDownProxy );
+			body.off( "mousedown", this._stageDownProxy );
 
 			var comp : Component = jQuery( e.target ).data( "component" );
-			this.popupContainer.element.detach();
+            this._popupContainer.element.detach();
+            this.element.removeClass("active");
 
 			if ( comp )
 			{
@@ -190,8 +179,8 @@ module Animate
 				while ( i-- )
 				{
 					if ( comp == this.items[i] )
-					{
-						this.setItem( comp );
+                    {
+                        this.selectedItem = <ToolbarItem>comp;
 						return;
 					}
 				}
@@ -206,13 +195,14 @@ module Animate
 		{
 			//var comp = jQuery( e.target ).data( "component" );
 			var offset = this.element.offset();
+            this.element.addClass("active");
 
 			var body = jQuery( "body" );
-			body.off( "mousedown", this.stageDownProxy );
-			body.on( "mousedown", this.stageDownProxy );
+			body.off( "mousedown", this._stageDownProxy );
+			body.on( "mousedown", this._stageDownProxy );
 
-			this.popupContainer.element.css( { top: offset.top + this.element.height(), left: offset.left });
-			body.append( this.popupContainer.element );
+			this._popupContainer.element.css( { top: offset.top + this.element.height(), left: offset.left });
+			body.append( this._popupContainer.element );
 		}
 
 		/**
@@ -224,12 +214,12 @@ module Animate
 			while ( i-- )
 				this.items[i].dispose();
 
-			this.popupContainer.dispose();
-			this.element.off( "click", this.clickProxy );
-			this.clickProxy = null;
+			this._popupContainer.dispose();
+			this.element.off( "click", this._clickProxy );
+			this._clickProxy = null;
 			this.items = null;
-			this.popupContainer = null;
-			this.selectedItem = null;
+			this._popupContainer = null;
+			this._selectedItem = null;
 
 			//Call super
 			super.dispose();

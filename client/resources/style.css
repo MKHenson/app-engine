@@ -331,6 +331,91 @@ textarea, input, select {
 }
 
 /**
+* ==================================
+*     JQuery UI CSS for resizable
+* ================================== 
+*/
+.ui-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/images/ui-icons_222222_256x240.png) /*{iconsContent}*/;
+}
+.ui-resizable {
+    position: relative;
+}
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    z-index: 99999;
+    display: block;
+}
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
+    display: none;
+}
+.ui-resizable-n {
+    cursor: n-resize;
+    height: 7px;
+    width: 100%;
+    top: -5px;
+    left: 0px;
+}
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0px;
+}
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0px;
+    height: 100%;
+}
+.ui-resizable-w {
+    cursor: w-resize;
+    width: 7px;
+    left: -5px;
+    top: 0px;
+    height: 100%;
+}
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 1px;
+    bottom: 1px;
+}
+.ui-resizable-sw {
+    cursor: sw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    bottom: -5px;
+}
+.ui-resizable-nw {
+    cursor: nw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    top: -5px;
+}
+.ui-resizable-ne {
+    cursor: ne-resize;
+    width: 9px;
+    height: 9px;
+    right: -5px;
+    top: -5px;
+}
+.ui-icon-gripsmall-diagonal-se {
+    background-position: -64px -224px;
+}
+.ui-resizable-helper {
+    border: 2px dotted #00F;
+}
+
+/**
 ======================================================
 				DIRECTIVES
 ======================================================
@@ -577,10 +662,12 @@ Please only put css rules in here for layout related requirements.
 
 .tooltip:hover .tooltip-text {
     display:inherit;
+    white-space: nowrap;
 }
-.disabled.tooltip:hover .tooltip-text {
+.active.tooltip .tooltip-text, .disabled.tooltip:hover .tooltip-text {
     display:none;
 }
+
 .tooltip-text {
     display:none;
     position: absolute;
@@ -639,6 +726,7 @@ html, body, #stage {
     width:33.333333333%;
     box-sizing:border-box;
     float:left;
+    padding: 10px;
 }
 .navigation-column.back {
     text-align: left;
@@ -766,14 +854,11 @@ html, body, #stage {
     overflow:auto;
     height:404px;
 }
-.no-projects {
+.no-items {
     font-weight: bold;
     margin-top: 140px;
     text-align: center;
     font-size: 40px;
-}
-#splash-welcome .navigation-column {
-    padding:10px;
 }
 .projects-toolbar .button {
     padding:20px;
@@ -988,7 +1073,7 @@ html, body, #stage {
     z-index: 1;
 }
 .tool-bar-group {
-    float: left;
+    display: inline-block;
     -webkit-border-radius: 5px;
     margin: 0 0 0 5px;
     position: relative;
@@ -1060,7 +1145,7 @@ html, body, #stage {
     left: 0px;
     top: 0px;
     position: absolute;
-    z-index: 999;
+    z-index: 9999;
 }
 .tool-bar-bottom .number-holder, .tool-bar-bottom .scrolling-number {
     pointer-events: all;
@@ -1157,11 +1242,20 @@ span.date {
 *  FILE VIEWER
 *  =========================
 */
+#file-viewer {
+    height:100%;
+}
+#file-viewer .files-view {
+    overflow: auto;
+    height: calc(100% - 57px);
+    width: 100%;
+}
 #file-viewer-window .window-control-box{
     margin:0;
 }
 .file-search {
     display:inline-block;
+    margin: 0px 5px;
 }
 .file-search input {
    padding:10px;
@@ -1169,8 +1263,32 @@ span.date {
 }
 .file-search img {
     vertical-align:middle;
+    cursor:pointer;
+    margin:0 0 0 5px;
 }
-
+.file-viewer-toolbar {
+    height:57px;
+    box-shadow: 0px 0px 20px 2px rgba(0,0,0,0.2);
+    position: relative;
+}
+.file-viewer-toolbar .button {
+    padding:18px;
+}
+.file-items {
+    overflow:auto;
+    height:calc(100% - 39px);
+}
+.file-item {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    float: left;
+    margin: 10px;
+    cursor: pointer;
+}
+.files-footer {
+    height:39px;
+}
 /**
 ======================================================
 				COLORS
@@ -1191,8 +1309,8 @@ Please only put css rules in here for generalized modules.
 #splash.welcome-pink {
     background-image:url("media/aurora2.png");
 }
-.no-projects {
-    color: #bbb;
+.no-items {
+    color: #BBC4D0;
     text-shadow: 1px 1px #FFFFFF;
 }
 .background {
@@ -1773,23 +1891,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .screen-manager-preview:hover{ transform: scale(1.2, 1.2); -moz-transform: scale(1.2, 1.2); -webkit-transform: scale(1.2, 1.2); -o-transform: scale( 1.2, 1.2 ); }
 
-/**JQuery UI CSS for resizable
-================================== */
-.ui-icon { width: 16px; height: 16px; background-image: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/images/ui-icons_222222_256x240.png)/*{iconsContent}*/; }
-.ui-resizable { position: relative;}
-.ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 99999; display: block;}
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
-.ui-resizable-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0px; }
-.ui-resizable-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0px; }
-.ui-resizable-e { cursor: e-resize; width: 7px; right: -5px; top: 0px; height: 100%; }
-.ui-resizable-w { cursor: w-resize; width: 7px; left: -5px; top: 0px; height: 100%; }
-.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
-.ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
-.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
-.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
-.ui-icon-gripsmall-diagonal-se { background-position: -64px -224px; }
-.ui-resizable-helper { border: 2px dotted #00F; }
-/**================================== */
+
 
 .project-explorer{ width:100%; overflow:auto; }
 .project-explorer-section{ float:left; width:50%; }
@@ -1920,7 +2022,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
+
 .tab-selector {
     -webkit-border-radius: 0px 5px 0px 0px;
     border-radius: 0px 5px 0px 0px;

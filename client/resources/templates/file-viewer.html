@@ -1,34 +1,22 @@
 ﻿<div id="file-viewer">
 	<div class="file-viewer-toolbar">
-		<div class="button reg-gradient tooltip">
+		<div class="button reg-gradient">
 			<div class="cross"></div>Add File
-			<div class="tooltip-text">Upload a file</div>
 		</div>
 
 		<div class="tool-bar-group background-view-light">
 			<div class="toolbar-button tooltip disabled">
-				<div><img src="media/star.png"></div><div class="tooltip-text">Favourite</div>
+				<div><img src="media/star.png" /></div>
+				<div class="tooltip-text">Favourite</div>
 			</div>
 		</div>
 		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button tooltip">
-				<div><img src="media/add-asset.png"></div>
-				<div class="tooltip-text">Add</div>
-			</div><div class="toolbar-button tooltip disabled" >
-				<div><img src="media/remove-asset.png"></div><div class="tooltip-text">Remove</div>
+			<div class="toolbar-button tooltip disabled" >
+				<div><img src="media/remove-asset.png" /></div>
+				<div class="tooltip-text">Remove</div>
 			</div>
 		</div>
-		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button tooltip selected">
-				<div><img src="media/assets-project.png"></div><div class="tooltip-text">Project</div>
-			</div>
-			<div class="toolbar-button tooltip">
-				<div><img src="media/assets-user.png"></div>
-				<div class="tooltip-text">My Assets</div>
-			</div><div class="toolbar-button tooltip">
-				<div><img src="media/assets-global.png"></div><div class="tooltip-text">Global Assets</div>
-			</div>
-		</div>
+		<div id="file-search-mode" class="tool-bar-group background-view-light"></div>
 		<div class="file-search">
 			<input class="background-view-light" type="text">
 			<img src="media/search.png">
@@ -38,9 +26,9 @@
 	
 
 	<!-- File view -->
-	<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
-		<div class="project-items">
-			<div class="project-item img-preview unselectable" en-repeat="ctrl.$files as file" en-click="ctrl.selectProject(project)">
+	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
+		<div class="file-items">
+			<div class="file-item img-preview unselectable" en-repeat="ctrl.$files as file" en-click="ctrl.selectFile(project)">
 				<div class="welcome-preview">
 					<div class="background-tiles inner ng-scope">
 						<img src="./media/appling.png" />
@@ -49,9 +37,9 @@
 				</div>
 				<div class="item-name" en-class="{ 'reg-gradient' : file.selected }">{{file.name}}</div>
 			</div>
-			<div class="no-projects unselectable" en-if="ctrl.$files.length == 0">You do not have any files uploaded</div>
+			<div class="no-items unselectable" en-if="ctrl.$files.length == 0">You do not have any files uploaded</div>
 		</div>
-		<div class="projects-footer background">
+		<div class="files-footer background">
 			<div class="navigation-column back soft-text">
 				<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
 				<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goPrev()">Prev</a>

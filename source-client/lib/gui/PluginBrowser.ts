@@ -347,8 +347,8 @@ module Animate
 			data["plugins"] = plugins;
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
 			loader.load( "/project/implement-plugins", data );
 		}
 

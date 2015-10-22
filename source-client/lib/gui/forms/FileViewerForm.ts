@@ -18,7 +18,14 @@ module Animate
 			super( eventType, file );
 			this.file = file;
 		}
-	}
+    }
+
+    export enum FileSearchType
+    {
+        Global,
+        User,
+        Project
+    }
 
 	/**
 	* This form is used to load and select assets.
@@ -90,6 +97,36 @@ module Animate
             Compiler.build(this._browserElm, this);
 
             
+
+            var that = this;
+            var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
+                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
+                new ToolbarItem("media/assets-user.png", "Filter by My Files"),
+                new ToolbarItem("media/assets-global.png", "Filter by Global Files")
+            ]);
+            searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown)
+            {
+                if (sender.selectedItem.text == "Filter by Project Files")
+                    that.selectMode(FileSearchType.Project);
+                else if (sender.selectedItem.text == "Filter by My Files")
+                    that.selectMode(FileSearchType.User);
+                else
+                    that.selectMode(FileSearchType.Global);
+            });
+
+            jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
+
+
+            // Make the form resizable
+            this.element.resizable(<JQueryUI.ResizableOptions>{
+                minHeight: 50,
+                minWidth: 50,
+                helper: "ui-resizable-helper",
+                stop: function ()
+                {
+                //    that.center();
+                }
+            });
 
    //         //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
    //         this.toolbar = new Component(null);
@@ -241,6 +278,11 @@ module Animate
 			//jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
 			//jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
 			//jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
+        }
+
+        selectMode(type: FileSearchType)
+        {
+            
         }
 
         /*
@@ -421,7 +463,7 @@ module Animate
 		onFilesLoaded( response: ProjectEvents, data : ProjectEvent )
 		{
 			var project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+			project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 			this.populateFiles( project.files );
 		}
 
@@ -468,7 +510,7 @@ module Animate
 		{
 			//Not a project file - so we have to import it.
 			var project : Project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+			project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
 			var file: File = null;
@@ -516,8 +558,8 @@ module Animate
 					//Not a project file - so we have to import it.
 					var project = User.get.project;
 					project.importFile( [file.id] );
-					project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
-					project.addEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+					project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+					project.on( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 				}
 			}
 			//Select Grid 
@@ -553,8 +595,8 @@ module Animate
 					this.onItemClicked( null, null );
                     var project: Project = User.get.project;
 					project.loadFiles( "project" );
-					project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
-					project.addEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+					project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+					project.on( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 
 					this.okButton.text = "Use this File";
 				}
@@ -568,8 +610,8 @@ module Animate
                     var project: Project = User.get.project;
 					
 
-					project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-					project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+					project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+					project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 					if ( target.is( this.catUser.element ) )
 						project.loadFiles( "user" );
@@ -595,8 +637,8 @@ module Animate
 
 					if ( file )
 					{
-						project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.addEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
 						project.deleteFiles( [file.id] );
 					}
 				}
@@ -605,7 +647,7 @@ module Animate
 			else if ( target.is( this.updateButton.element ) )
 			{
 				var project : Project = User.get.project;
-				project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
+				project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
 				var items: Array<ListViewItem> = this.menu.getSelectedItems();
 				if ( items.length > 0 )
 				{
@@ -616,8 +658,8 @@ module Animate
 
 					if ( file )
 					{
-						project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.addEventListener( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
 						project.saveFile( file.id, this.name.text, this.tags.text.split(","), file.favourite, this.global.checked );
 					}
 				}
@@ -820,8 +862,8 @@ module Animate
 				jQuery( ".upload-text", this.statusBar.element ).text( response.message );
 				this.addButton.enabled = true;
 				var project: Project = User.get.project;
-				project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-				project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+				project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+				project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 				if ( this.catUser.selected )
 					project.loadFiles( "user" );
@@ -1005,9 +1047,9 @@ module Animate
 			var data = event.tag;
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
 			var project : Project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
-			project.removeEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
-			project.removeEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
 
 			if ( items.length > 0 )
 			{
@@ -1061,8 +1103,8 @@ module Animate
 				jQuery( ".upload-text", this.statusBar.element ).text( event.message );
 			}
 
-			project.removeEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-			project.removeEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
 		}
 
 		/**

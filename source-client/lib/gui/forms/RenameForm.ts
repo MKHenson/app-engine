@@ -121,8 +121,8 @@ module Animate
 				//Create the Behaviour in the DB
 				if ( user.project )
 				{
-					user.project.addEventListener(ProjectEvents.FAILED, this.onRenamed, this );
-					user.project.addEventListener(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
+					user.project.on(ProjectEvents.FAILED, this.onRenamed, this );
+					user.project.on(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
 
 					if ( this.object instanceof TreeNodeGroup )
 						user.project.renameObject(name, (<TreeNodeGroup>this.object).groupID, ProjectAssetTypes.GROUP );
@@ -151,8 +151,8 @@ module Animate
 
 			if ( user.project )
 			{
-				user.project.removeEventListener(ProjectEvents.FAILED, this.onRenamed, this );
-				user.project.removeEventListener(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
+				user.project.off(ProjectEvents.FAILED, this.onRenamed, this );
+				user.project.off(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
 			}
 
 			if ( response == ProjectEvents.FAILED )

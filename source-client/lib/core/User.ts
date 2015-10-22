@@ -515,8 +515,8 @@ module Animate
 		copyProject( id : string )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
 			loader.load( "/project/copy", { id: id });
 		}
 
@@ -544,8 +544,8 @@ module Animate
 			if ( this._isLoggedIn )
 			{
 				var loader = new AnimateLoader();
-				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-				loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+				loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+				loader.on( LoaderEvents.FAILED, this.onServer, this );
 				loader.load( "/project/open", { id: id } );
 			}
 		}
@@ -568,8 +568,8 @@ module Animate
                 this.project.entry = null;
 
 				var loader = new AnimateLoader();
-				loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-				loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+				loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+				loader.on( LoaderEvents.FAILED, this.onServer, this );
 				loader.load( "/project/delete", { id: id } );
 			}
 			else

@@ -93,8 +93,8 @@ module Animate
 			var comp = jQuery( e.currentTarget ).data( "component" );
 			var url = comp.element.parent().data( "url" );
 		   var loader = new AnimateLoader( "" )
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onData, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onData, this );
+			loader.on( LoaderEvents.COMPLETE, this.onData, this );
+			loader.on( LoaderEvents.FAILED, this.onData, this );
 
 			loader.dataType = "text";
 			comp.element.parent().data( "loader", loader );
@@ -150,8 +150,8 @@ module Animate
 				else if ( jQuery.trim( url ) != "" )
 				{
 					loader.dataType = "script";
-					loader.addEventListener( LoaderEvents.COMPLETE, this.onData, this );
-					loader.addEventListener( LoaderEvents.FAILED, this.onData, this );
+					loader.on( LoaderEvents.COMPLETE, this.onData, this );
+					loader.on( LoaderEvents.FAILED, this.onData, this );
 					loader.load( url, null, 1 );
 
 					var css = this._buildEntries[i].element.data( "css" );

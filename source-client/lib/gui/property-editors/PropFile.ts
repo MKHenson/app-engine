@@ -45,8 +45,8 @@ module Animate
 			//Functions to deal with user interactions with JQuery
 			var onFileChosen: ( response: FileViewerFormEvents, event: FileViewerFormEvent ) => void = function ( response: FileViewerFormEvents, event: FileViewerFormEvent ) 
 			{
-				FileViewerForm.getSingleton().removeEventListener( FileViewerFormEvents.CANCELLED, onFileChosen );
-				FileViewerForm.getSingleton().removeEventListener( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
+				FileViewerForm.getSingleton().off( FileViewerFormEvents.CANCELLED, onFileChosen );
+				FileViewerForm.getSingleton().off( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
 
 				if ( response == FileViewerFormEvents.CANCELLED )
 					return;
@@ -65,10 +65,10 @@ module Animate
 				}
 
 				//Remove any previous references
-				FileViewerForm.getSingleton().removeEventListener( FileViewerFormEvents.CANCELLED, onFileChosen );
-				FileViewerForm.getSingleton().removeEventListener( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
-				FileViewerForm.getSingleton().addEventListener( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
-				FileViewerForm.getSingleton().addEventListener( FileViewerFormEvents.CANCELLED, onFileChosen );
+				FileViewerForm.getSingleton().off( FileViewerFormEvents.CANCELLED, onFileChosen );
+				FileViewerForm.getSingleton().off( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
+				FileViewerForm.getSingleton().on( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
+				FileViewerForm.getSingleton().on( FileViewerFormEvents.CANCELLED, onFileChosen );
 				FileViewerForm.getSingleton().showForm( fileID, fileExtensions );
 			};
 

@@ -37,8 +37,8 @@ module Animate
 		*/
 		onServer(response: ProjectEvents, event: ProjectEvent)
 		{
-            User.get.project.removeEventListener(ProjectEvents.FAILED, this.onServer, this);
-            User.get.project.removeEventListener(ProjectEvents.CSS_SAVED, this.onServer, this);
+            User.get.project.off(ProjectEvents.FAILED, this.onServer, this);
+            User.get.project.off(ProjectEvents.CSS_SAVED, this.onServer, this);
 
 			if (response == ProjectEvents.FAILED)
 			{
@@ -63,8 +63,8 @@ module Animate
 			if (val == "Yes")
 			{
 				this.close = true;
-				User.get.project.addEventListener(ProjectEvents.FAILED, this.onServer, this);
-				User.get.project.addEventListener(ProjectEvents.CSS_SAVED, this.onServer, this);
+				User.get.project.on(ProjectEvents.FAILED, this.onServer, this);
+				User.get.project.on(ProjectEvents.CSS_SAVED, this.onServer, this);
 				User.get.project.saveCSS();
 			}
 			else

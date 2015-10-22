@@ -442,7 +442,7 @@ module Animate
 		{
 			//Add the explorer
 			this.pluginBrowser = new PluginBrowser(this.pluginsBackground);
-			this.pluginBrowser.addEventListener(PluginBrowserEvents.PLUGINS_IMPLEMENTED, this.onPluginResponse, this);
+			this.pluginBrowser.on(PluginBrowserEvents.PLUGINS_IMPLEMENTED, this.onPluginResponse, this);
 		}
 
 		/**
@@ -473,8 +473,8 @@ module Animate
 			this.finalButton.element.click(this.clickProxy);
 			this.finalButton.enabled = false;
 
-			this.pluginLoader.addEventListener(ProjectLoaderEvents.READY, this.onProjectLoaderResponse, this);
-			this.pluginLoader.addEventListener(ProjectLoaderEvents.FAILED, this.onProjectLoaderResponse, this);
+			this.pluginLoader.on(ProjectLoaderEvents.READY, this.onProjectLoaderResponse, this);
+			this.pluginLoader.on(ProjectLoaderEvents.FAILED, this.onProjectLoaderResponse, this);
 		}
 
 		/**
@@ -727,7 +727,7 @@ module Animate
             //this.projectBrowser = new ProjectBrowser(this.project);
             this.projectBrowser = new ProjectBrowser(null);
             jQuery(".double-column", this.welcomeBackground).first().append(this.projectBrowser.element);
-			this.projectBrowser.addEventListener(ProjectBrowserEvents.COMBO, this.onProjectCombo, this);
+			this.projectBrowser.on(ProjectBrowserEvents.COMBO, this.onProjectCombo, this);
 			//this.closeButton.element.click(this.clickProxy);
 		}
 
@@ -789,7 +789,7 @@ module Animate
 				//project.id = this.projectBrowser.selectedID;
 				//user.project.addEventListener(ProjectEvents.OPENED, this.onProjectData, this );
 				//project.open();
-				user.addEventListener( UserEvents.PROJECT_OPENED, this.onProjectData, this );
+				user.on( UserEvents.PROJECT_OPENED, this.onProjectData, this );
 				user.openProject( this.projectBrowser.selectedID );
 
 			}
@@ -964,9 +964,9 @@ module Animate
 				//If a project already exists - warn the user it will have to be closed.
 				if (user.project)
 				{
-					user.removeEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
-					user.removeEventListener( UserEvents.FAILED, this.onProjectData, this );
-					user.removeEventListener( UserEvents.PROJECT_OPENED, this.onProjectData, this );
+					user.off( UserEvents.PROJECT_CREATED, this.onProjectData, this );
+					user.off( UserEvents.FAILED, this.onProjectData, this );
+					user.off( UserEvents.PROJECT_OPENED, this.onProjectData, this );
 				}
 
 				//Notif of the reset
@@ -1026,9 +1026,9 @@ module Animate
 		onProjectData(response : UserEvents, data : ProjectEvent, sender? : EventDispatcher )
 		{
 			var user : User = User.get;
-			user.removeEventListener( UserEvents.PROJECT_CREATED, this.onProjectData, this );
-			user.removeEventListener( UserEvents.FAILED, this.onProjectData, this );
-			user.removeEventListener( UserEvents.PROJECT_OPENED, this.onProjectData, this );
+			user.off( UserEvents.PROJECT_CREATED, this.onProjectData, this );
+			user.off( UserEvents.FAILED, this.onProjectData, this );
+			user.off( UserEvents.PROJECT_OPENED, this.onProjectData, this );
 
 			if ( response == UserEvents.FAILED)
 			{
