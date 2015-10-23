@@ -108,7 +108,6 @@ export class ResourceController extends Controller
 
         updateToken._id = new mongodb.ObjectID(id);
         updateToken.projectId = new mongodb.ObjectID(project);
-
         model.update(updateToken, token).then(function (instance)
         {
             if (instance.error)
