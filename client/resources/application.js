@@ -14814,7 +14814,6 @@ var Animate;
             _super.call(this, 600, 500, true, true, "Settings");
             BuildOptionsForm._singleton = this;
             this.element.addClass("build-options-form");
-            //this.okCancelContent.element.css( { height: "500px" });
             this._tab = new Animate.Tab(this.content);
             var tabPage = this._tab.addTab("Project", false).page;
             this._projectElm = jQuery("#options-project").remove().clone();
@@ -14830,85 +14829,10 @@ var Animate;
             this.$loadingPercent = "";
             // Compile the HTML
             Animate.Compiler.build(this._projectElm, this, false);
-            //var projectGroup = new Group( "Project Options", tabPage );
-            //var imgGroup = new Group( "Image", tabPage );
-            //this._projectTab = tabPage;
             tabPage = this._tab.addTab("Build Options", false).page;
             tabPage.element.append(this._buildElm);
-            //var buildGroup = new Group( "Build", null );
-            //var notesGroup = new Group( "Properties", null );
-            //Project fields
-            //this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
-            //this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
-            //this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
-            //(<Label>this._description.val).textfield.element.css( { height: "180px" });
-            //var combo : ComboBox = new ComboBox();
-            //combo.addItem( "Private" );
-            //combo.addItem( "Public" );
-            //this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
-            //info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
-            //info.element.addClass( "info" );
-            //combo = new ComboBox();
-            //combo.addItem( "Other" );
-            //combo.addItem( "Artistic" );
-            //combo.addItem( "Gaming" );
-            //combo.addItem( "Informative" );
-            //combo.addItem( "Musical" );
-            //combo.addItem( "Fun" );
-            //combo.addItem( "Technical" );
-            //this._category = new LabelVal( projectGroup.content, "Category", combo );
-            //info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
-            //info.element.addClass( "info" );
-            //this._saveProject = new Button( "Save", projectGroup.content );
-            //this._saveProject.css( { width: "85px" });
-            //Image
-            //this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
-            //var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
-            //info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
-            //info.element.addClass( "info" );
-            //this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
-            //imgGroup.content.addChild( "<div class='fix'></div>" );
-            //Build options	
-            //this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            //this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            //this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-            //buildGroup.content.element.append( "<div class='fix'></div>" );
-            //var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
-            //info.element.addClass( "info" );
-            //this._selectBuild = new Button( "Select Build", buildGroup.content );
-            //this._selectBuild.css( { width: "85px" });
-            //this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-            //this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-            //this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-            //Notes
-            //this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
-            //(<Label>this._notes.val).textfield.element.css( { height: "80px" });
-            //info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
-            //info.element.addClass( "info" );
-            //var combo = new ComboBox();
-            ///combo.addItem( "Private" );
-            ////combo.addItem( "Public" );
-            //this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
-            //info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
-            //info.element.addClass( "info" );
-            //this._saveBuild = new Button( "Save", notesGroup.content );
-            //this._saveBuild.css( { width: "85px" });
-            //this._warning = new Label( "", this.content );
-            //this._warning.element.addClass( "server-message" );
-            //Create the proxies
-            //this._renameProxy = jQuery.proxy( this.onRenamed, this );
-            //this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
-            //this._submitProxy = jQuery.proxy( this.onSubmit, this );
-            //this._progressProxy = jQuery.proxy( this.onProgress, this );
-            //this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
-            //this._errorProxy = jQuery.proxy( this.onError, this );
-            //this._clickProxy = jQuery.proxy( this.onClick, this );
-            //this._saveProject.element.on( "click", this._clickProxy );
-            //this._selectBuild.element.on( "click", this._clickProxy );
-            //this._saveBuild.element.on( "click", this._clickProxy );
             this._settingPages = [];
             this._tab.addEventListener(Animate.TabEvents.SELECTED, this.onTab, this);
-            //this.addSettingPage(new UserPreferences("User Options"));
             tabPage = this._tab.addTab("User Options", false).page;
             tabPage.element.append(this._userElm);
         }
@@ -15015,18 +14939,11 @@ var Animate;
         */
         BuildOptionsForm.prototype.onClick = function (e) {
             var target = jQuery(e.currentTarget).data("component");
-            if (target == null) {
-            }
-            else if (target == this._saveBuild) {
-                //Check if the values are valid
-                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-                //this._warning.textfield.element.css( "color", "" );
+            if (target == this._saveBuild) {
                 //Check for special chars
                 var message = Animate.Utils.checkForSpecialChars(this._notes.val.text, true);
                 if (message != null) {
                     this._notes.val.textfield.element.addClass("red-border");
-                    //this._warning.textfield.element.css( "color", "#FF0000" );
-                    //this._warning.text = message;
                     return;
                 }
                 var user = Animate.User.get;
@@ -15073,13 +14990,6 @@ var Animate;
             }
         };
         /**
-        * Catch the key down events.
-        * @param {any} e The jQuery event object
-        */
-        BuildOptionsForm.prototype.onKeyDown = function (e) {
-            //Do nothing	
-        };
-        /**
         * When we recieve the server call for build requests
         * @param {ProjectEvents} event
         * @param {Event} data
@@ -15090,32 +15000,20 @@ var Animate;
             project.removeEventListener(Animate.ProjectEvents.FAILED, this._buildProxy, this);
             project.removeEventListener(Animate.ProjectEvents.BUILD_SAVED, this._buildProxy, this);
             project.removeEventListener(Animate.ProjectEvents.BUILD_SELECTED, this._buildProxy, this);
-            if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
-                //(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-                //this._warning.textfield.element.css( "color", "#FF0000" );
-                //            this._warning.text = event.message;
+            if (event.return_type == Animate.AnimateLoaderResponses.ERROR)
                 return;
-            }
             if (response == Animate.ProjectEvents.BUILD_SELECTED) {
                 //Check if the values are valid
                 this._buildVerMaj.val.textfield.element.removeClass("red-border");
                 this._buildVerMid.val.textfield.element.removeClass("red-border");
                 this._buildVerMin.val.textfield.element.removeClass("red-border");
                 this._notes.val.textfield.element.removeClass("red-border");
-                //this._warning.textfield.element.css( "color", "#5DB526" );
-                //            this._warning.text = event.message;
                 //Update fields
                 this.updateFields(event.tag);
             }
             else if (response == Animate.ProjectEvents.BUILD_SAVED) {
-                ////Check if the values are valid
-                //            (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-                //this._warning.textfield.element.css( "color", "#5DB526" );
-                //this._warning.text = "Build saved";
                 //Update fields
                 this.updateFields(event.tag);
-            }
-            else {
             }
         };
         /**
@@ -15130,32 +15028,6 @@ var Animate;
             this._notes.val.text = data.build_notes;
             this._visibility.val.selectedItem = (data.visibility == "Public" ? "Public" : "Private");
             this.initializeLoader();
-        };
-        /**
-        * When we recieve the server call for saving project data.
-        * @param {UserEvents} event
-        * @param {UserEvent} data
-        */
-        BuildOptionsForm.prototype.onRenamed = function (response, event) {
-            var user = Animate.User.get;
-            var project = Animate.User.get.project;
-            if (event.return_type == Animate.AnimateLoaderResponses.ERROR) {
-            }
-            //if (response == UserEvents.PROJECT_RENAMED )
-            //{
-            //Check if the values are valid
-            //(<Label>this._name.val).textfield.element.removeClass( "red-border" );                
-            //(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
-            //this._warning.textfield.element.css( "color", "#5DB526" );
-            //this._warning.text = "Project updated.";
-            //}
-            //else
-            //{
-            //this._warning.textfield.element.css( "color", "#FF0000" );
-            // this._warning.text = event.message;
-            //}
-            //user.removeEventListener( UserEvents.FAILED, this._renameProxy );
-            //user.removeEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
         };
         /**
         * Shows the build options form
@@ -15174,34 +15046,6 @@ var Animate;
             Animate.Compiler.digest(this._projectElm, this, false);
             Animate.Compiler.digest(this._buildElm, this, false);
             Animate.Compiler.digest(this._userElm, this, false);
-            //this._warning.textfield.element.css( "color", "" );
-            //         this._warning.text = "";
-            //         //Set project vars
-            //         (<Label>this._name.val).text = project.entry.name;
-            //         (<Label>this._description.val).text = project.entry.description;
-            //         (<Label>this._tags.val).text = project.entry.tags.join(", ");
-            //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-            //(<Label>this._description.val).textfield.element.removeClass( "red-border" );
-            //(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
-            ////Set current build vars
-            //var versionParts = project.mCurBuild.version.split( "." );
-            //( <Label>this._buildVerMaj.val ).text = versionParts[0];
-            //( <Label>this._buildVerMid.val ).text = versionParts[1];
-            //( <Label>this._buildVerMin.val ).text = versionParts[2];
-            //         (<Label>this._notes.val).text = project.mCurBuild.build_notes;
-            //         this._imgPreview.element.html((project.entry.image != "" ? "<img src='" + project.entry.image + "'/>" : ""));
-            //         (<ComboBox>this._visibility.val).selectedItem = (project.mCurBuild.visibility == "Public" ? "Public" : "Private");
-            //         (<ComboBox>this._projVisibility.val).selectedItem = (project.entry.public ? "Public" : "Private");
-            //         (<ComboBox>this._category.val).selectedItem = project.entry.category;
-            //         (<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
-            //(<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
-            //(<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
-            //(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-            //         (<Label>this._name.val).textfield.element.focus();
-            //         (<Label>this._name.val).textfield.element.select();
-            //var i = this._settingPages.length;
-            //while ( i-- )
-            //	this._settingPages[i].onShow( project, user );
             this.update();
         };
         /**
@@ -15245,84 +15089,6 @@ var Animate;
             this._uploader.setParams({ projectId: Animate.User.get.project.entry._id });
         };
         /**
-        * Use this function to print a message on the settings screen.
-        * @param {string} message The message to print
-        * @param <bool> isError Should this be styled to an error or not
-        */
-        //message( message, isError )
-        //{
-        //if ( isError )
-        //	this._warning.textfield.element.css( "color", "#FF0000" );
-        //else
-        //	this._warning.textfield.element.css( "color", "#5DB526" );
-        //this._warning.text = message;
-        //}
-        ///**
-        //* Fired when the upload is complete
-        //*/
-        //onUploadComplete( id, fileName, response )
-        //{
-        //	if ( response.message )
-        //	{
-        //		//this._warning.text = response.message;
-        //              //this._addButton.enabled = true;
-        //		if ( AnimateLoaderResponses.fromString( response.return_type ) == AnimateLoaderResponses.SUCCESS )
-        //		{
-        //			//this._warning.textfield.element.css( "color", "#5DB526" );
-        //                  var project = User.get.project;
-        //                  project.entry.image = response.imageUrl;
-        //			//this._imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
-        //		}
-        //		else
-        //		{
-        //			//this._warning.textfield.element.css( "color", "#FF0000" );
-        //                 // this._warning.text = response.message;
-        //			return;
-        //		}
-        //	}
-        //	else
-        //	{
-        //		//this._warning.textfield.element.css( "color", "#FF0000" );
-        //		//this._warning.text = 'Error Uploading File.';
-        //		//this._addButton.enabled = true;
-        //	}
-        //}
-        ///**
-        //* Fired when the upload is cancelled due to an error
-        //*/
-        //onError( id, fileName, reason )
-        //{
-        //	//this._warning.textfield.element.css( "color", "#FF0000" );
-        //	//this._warning.text = 'Error Uploading File.';
-        //	//this._addButton.enabled = true;
-        //}
-        ///**
-        //* When we receive a progress event
-        //*/
-        //onProgress( id, fileName, loaded, total )
-        //{
-        //	//this._warning.text = 'Uploading...' + ( ( loaded / total ) * 100 );
-        //}
-        ///**
-        //* When we click submit on the upload button
-        //*/
-        //onSubmit( file, ext )
-        //{
-        //	var fExt = ext.split( "." );
-        //	fExt = fExt[fExt.length - 1];
-        //	fExt.toLowerCase();
-        //	if ( fExt != "png" && fExt != "jpeg" && fExt != "jpg" )
-        //	{
-        //		// check for valid file extension
-        //		//this._warning.textfield.element.css( "color", "#FF0000" );
-        //		//this._warning.text = 'Only png, jpg and jpeg files are allowed';
-        //		return false;
-        //	}
-        //	//this._warning.textfield.element.css( "color", "" );
-        //	//this._warning.text =  'Uploading...';
-        //	//this._addButton.enabled = false;
-        //}
-        /**
         * Gets the singleton instance.
         * @returns {BuildOptionsForm}
         */
@@ -15364,39 +15130,40 @@ var Animate;
     var FileViewerForm = (function (_super) {
         __extends(FileViewerForm, _super);
         function FileViewerForm() {
-            if (FileViewerForm._singleton != null)
-                throw new Error("The FileViewerForm class is a singleton. You need to call the FileViewerForm.getSingleton() function.");
-            FileViewerForm._singleton = this;
             // Call super-class constructor
             _super.call(this, 1000, 600, true, true, "Asset Browser");
-            this.toolbar = this.content.addChild("<div class='viewer-toolbar'></div>");
-            this.selectedID = null;
+            FileViewerForm._singleton = this;
             this._browserElm = jQuery("#file-viewer").remove().clone();
-            //Create buttons and groups
-            var group = this.createGroup();
-            this.modeGrid = this.createGroupButton("Grid", "media/asset-grid.png", group);
-            this.modeList = this.createGroupButton("List", "media/asset-list.png", group);
-            this.modeList.element.addClass("selected");
-            group = this.createGroup();
-            this.favouriteGroup = group;
-            this.favourite = this.createGroupButton("Favourite", "media/star.png", group);
-            this.favourite.enabled = false;
-            group = this.createGroup();
-            this.addRemoveGroup = group;
-            this.addButton = this.createGroupButton("Add", "media/add-asset.png", group);
-            this.removeButton = this.createGroupButton("Remove", "media/remove-asset.png", group);
-            this.content.element.append("<div class='fix'></div>");
-            group = this.createGroup();
-            this.catProject = this.createGroupButton("Project", "media/assets-project.png", group);
-            this.catUser = this.createGroupButton("My Assets", "media/assets-user.png", group);
-            this.catGlobal = this.createGroupButton("Global Assets", "media/assets-global.png", group);
-            this.catProject.element.addClass("selected");
-            group = this.createGroup();
-            this.search = group.addChild("<div class='asset-search'><input type='text'></input><img src='media/search.png' /></div>");
-            group.element.css({ "float": "right", "margin": "0 15px 0 0" });
+            //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
+            this.selectedID = null;
+            this.content.element.append(this._browserElm);
+            ////Create buttons and groups
+            //var group : Component = this.createGroup();
+            //this.modeGrid = this.createGroupButton( "Grid", "media/asset-grid.png", group );
+            //this.modeList = this.createGroupButton( "List", "media/asset-list.png", group );
+            //this.modeList.element.addClass( "selected" );
+            //group = this.createGroup();
+            //this.favouriteGroup = group;
+            //this.favourite = this.createGroupButton( "Favourite", "media/star.png", group );
+            //this.favourite.enabled = false;
+            //group = this.createGroup();
+            //this.addRemoveGroup = group;
+            //this.addButton = this.createGroupButton( "Add", "media/add-asset.png", group );
+            //this.removeButton = this.createGroupButton( "Remove", "media/remove-asset.png", group );
+            //this.content.element.append( "<div class='fix'></div>" );
+            //group = this.createGroup();
+            //this.catProject = this.createGroupButton( "Project", "media/assets-project.png", group );
+            //this.catUser = this.createGroupButton( "My Assets", "media/assets-user.png", group );
+            //this.catGlobal = this.createGroupButton( "Global Assets", "media/assets-global.png", group );
+            //this.catProject.element.addClass( "selected" );
+            //group = this.createGroup();
+            //this.search = <Component>group.addChild( "<div class='asset-search'><input type='text'></input><img src='media/search.png' /></div>" );
+            //group.element.css( { "float": "right", "margin": "0 15px 0 0" });
             //Bottom panels
-            var btmLeft = this.content.addChild("<div class='viewer-block'></div>");
-            var btmRight = this.content.addChild("<div class='viewer-block'></div>");
+            //var btmLeft : Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
+            //var btmRight: Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
+            var btmLeft = new Animate.Component("<div class='viewer-block'></div>");
+            var btmRight = new Animate.Component("<div class='viewer-block'></div>");
             var listBlock = btmLeft.addChild("<div class='list-block'></div>");
             this.menu = new Animate.ListView(listBlock);
             this.menu.addColumn("ID");
@@ -15419,73 +15186,73 @@ var Animate;
             var infoSection = new Animate.Component("<div class='info-section'></div>", btmRight);
             this.statusBar = new Animate.Component("<div class='upload-status'><img src='media/close.png' /><span class='upload-text'>Uploading</span></div>", infoSection);
             this.statusBar.element.hide();
-            //Name
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            var label = new Animate.Label("Name: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.name = new Animate.InputBox(group, "");
-            group.element.append("<div class='fix'></div>");
-            //Tags
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            label = new Animate.Label("Tags: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.tags = new Animate.InputBox(group, "");
-            group.element.append("<div class='fix'></div>");
-            //Global
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            label = new Animate.Label("Share: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.global = new Animate.Checkbox(group, "Share your file with all Animate users", false);
-            group.element.append("<div class='fix'></div>");
-            //Thumbnail
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            label = new Animate.Label("Thumbnail: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.thumbnail = new Animate.InputBox(group, "");
-            group.element.append("<div class='info'>Click here to upload a thumbnail image (100px, 100px)</div><div class='fix'></div>");
-            //Size
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            label = new Animate.Label("Filesize: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.size = new Animate.InputBox(group, "");
-            group.element.append("<div class='fix'></div>");
-            group.enabled = false;
-            //Path
-            group = new Animate.Component("<div class='file-group'><div>", infoSection);
-            label = new Animate.Label("Path: ", group);
-            label.element.css({ "text-align": "left", "float": "left", "padding-left": "5px" });
-            this.path = new Animate.InputBox(group, "");
-            group.element.append("<div class='fix'></div>");
-            group.enabled = false;
-            //Create the update button
-            this.updateButton = new Animate.Button("Update", infoSection);
-            this.updateButton.css({ width: "70px", height: "20px", "margin": "5px 3px 0 0", "float": "right" });
-            infoSection.element.append("<div class='fix'></div>");
-            this.thumbUploader = null;
-            this.uploader = null;
-            //Event Listeners
-            this.buttonProxy = jQuery.proxy(this.onButtonClick, this);
-            this.submitProxy = jQuery.proxy(this.onSubmit, this);
-            this.thumbSubmitProxy = jQuery.proxy(this.onThumbSubmit, this);
-            this.progressProxy = jQuery.proxy(this.onProgress, this);
-            this.cancelProxy = jQuery.proxy(this.onCancel, this);
-            this.completeProxy = jQuery.proxy(this.onUploadComplete, this);
-            this.errorProxy = jQuery.proxy(this.onError, this);
-            this.keyDownProxy = jQuery.proxy(this.onInputKey, this);
-            jQuery("input", this.search.element).on("keydown", this.keyDownProxy);
-            jQuery("img", this.search.element).on("click", this.buttonProxy);
-            this.modeGrid.element.on("click", this.buttonProxy);
-            this.modeList.element.on("click", this.buttonProxy);
-            this.favourite.element.on("click", this.buttonProxy);
-            this.updateButton.element.on("click", this.buttonProxy);
-            this.removeButton.element.on("click", this.buttonProxy);
-            this.okButton.element.on("click", this.buttonProxy);
-            this.catProject.element.on("click", this.buttonProxy);
-            this.catUser.element.on("click", this.buttonProxy);
-            this.catGlobal.element.on("click", this.buttonProxy);
-            this.extensions = [];
-            jQuery("img", this.statusBar.element).on("click", jQuery.proxy(this.onStatusCloseClick, this));
-            this.menu.addEventListener(Animate.ListViewEvents.ITEM_CLICKED, this.onItemClicked, this);
+            ////Name
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //var label: Label = new Label( "Name: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.name = new InputBox( group, "" );
+            //group.element.append( "<div class='fix'></div>" );
+            ////Tags
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //label = new Label( "Tags: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.tags = new InputBox( group, "" );
+            //group.element.append( "<div class='fix'></div>" );
+            ////Global
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //label = new Label( "Share: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.global = new Checkbox( group, "Share your file with all Animate users", false );
+            //group.element.append( "<div class='fix'></div>" );
+            ////Thumbnail
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //label = new Label( "Thumbnail: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.thumbnail = new InputBox( group, "" );
+            //group.element.append( "<div class='info'>Click here to upload a thumbnail image (100px, 100px)</div><div class='fix'></div>" );
+            ////Size
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //label = new Label( "Filesize: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.size = new InputBox( group, "" );
+            //group.element.append( "<div class='fix'></div>" );
+            //group.enabled = false;
+            ////Path
+            //group = new Component( "<div class='file-group'><div>", infoSection );
+            //label = new Label( "Path: ", group );
+            //label.element.css( { "text-align": "left", "float": "left", "padding-left": "5px" });
+            //this.path = new InputBox( group, "" );
+            //group.element.append( "<div class='fix'></div>" );
+            //group.enabled = false;
+            ////Create the update button
+            //this.updateButton = new Button( "Update", infoSection );
+            //this.updateButton.css( { width: "70px", height: "20px", "margin": "5px 3px 0 0", "float": "right" });
+            //infoSection.element.append( "<div class='fix'></div>" );
+            //this.thumbUploader = null;
+            //this.uploader = null;
+            ////Event Listeners
+            //this.buttonProxy = jQuery.proxy( this.onButtonClick, this );
+            //this.submitProxy = jQuery.proxy( this.onSubmit, this );
+            //this.thumbSubmitProxy = jQuery.proxy( this.onThumbSubmit, this );
+            //this.progressProxy = jQuery.proxy( this.onProgress, this );
+            //this.cancelProxy = jQuery.proxy( this.onCancel, this );
+            //this.completeProxy = jQuery.proxy( this.onUploadComplete, this );
+            //this.errorProxy = jQuery.proxy( this.onError, this );
+            //this.keyDownProxy = jQuery.proxy( this.onInputKey, this );			
+            //jQuery( "input", this.search.element ).on( "keydown", this.keyDownProxy );
+            //jQuery( "img", this.search.element ).on( "click", this.buttonProxy );
+            //this.modeGrid.element.on( "click", this.buttonProxy );
+            //this.modeList.element.on( "click", this.buttonProxy );
+            //this.favourite.element.on( "click", this.buttonProxy );
+            //this.updateButton.element.on( "click", this.buttonProxy );
+            //this.removeButton.element.on( "click", this.buttonProxy );
+            //this.okButton.element.on( "click", this.buttonProxy );
+            //this.catProject.element.on( "click", this.buttonProxy  );
+            //this.catUser.element.on( "click", this.buttonProxy );
+            //this.catGlobal.element.on( "click", this.buttonProxy );
+            //this.extensions = [];
+            //jQuery( "img", this.statusBar.element ).on( "click", jQuery.proxy( this.onStatusCloseClick, this ) );
+            //this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
             jQuery(this.element).on('dragexit', this.onDragLeave.bind(this));
             jQuery(this.element).on('dragleave', this.onDragLeave.bind(this));
             jQuery(this.element).on('dragover', this.onDragOver.bind(this));
@@ -15577,21 +15344,22 @@ var Animate;
         */
         FileViewerForm.prototype.showForm = function (id, extensions) {
             _super.prototype.show.call(this, null, undefined, undefined, true);
-            this.selectedID = id;
-            this.extensions = extensions;
-            this.initializeLoader();
-            this.update();
-            this.onItemClicked(null, null);
-            //Only show the OK button if we have an ID of an object 
-            if (id != null)
-                this.okButton.element.show();
-            else
-                this.okButton.element.hide();
-            this.catUser.element.removeClass("selected");
-            this.catGlobal.element.removeClass("selected");
-            this.catProject.element.removeClass("selected");
-            this.catProject.element.addClass("selected"); //Must be on to begin with
-            this.catProject.element.trigger("click");
+            //this.selectedID = id;
+            //this.extensions = extensions;
+            //this.initializeLoader();
+            //this.update();
+            //this.onItemClicked( null, null );
+            ////Only show the OK button if we have an ID of an object 
+            //if ( id != null )
+            //	this.okButton.element.show();
+            //else
+            //	this.okButton.element.hide();
+            //this.catUser.element.removeClass( "selected" );
+            //this.catGlobal.element.removeClass( "selected" );
+            //this.catProject.element.removeClass( "selected" );
+            //this.catProject.element.addClass( "selected" ); //Must be on to begin with
+            //this.catProject.element.trigger( "click" );
+            Animate.Compiler.digest(this._browserElm, this);
         };
         /**
         * Called when the files have been loaded

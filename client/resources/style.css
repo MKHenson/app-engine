@@ -947,6 +947,7 @@ html, body, #stage {
     float: left;
     -webkit-border-radius: 5px;
     margin: 5px 0 0 5px;
+    overflow:hidden;
 }
 .toolbar-button div {
     pointer-events: none;
@@ -1135,6 +1136,12 @@ span.date {
     height: 200px;
     float: left;
 }
+
+/**
+*  ASSET BROWSER
+*  =========================
+*/
+
 
 /**
 ======================================================

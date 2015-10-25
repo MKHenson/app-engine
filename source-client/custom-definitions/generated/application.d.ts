@@ -5355,7 +5355,6 @@ declare module Animate {
         private _selectBuild;
         private _saveBuild;
         private _uploader;
-        private _renameProxy;
         private _buildProxy;
         private _clickProxy;
         private _settingPages;
@@ -5393,11 +5392,6 @@ declare module Animate {
         */
         onClick(e: any): void;
         /**
-        * Catch the key down events.
-        * @param {any} e The jQuery event object
-        */
-        onKeyDown(e: any): void;
-        /**
         * When we recieve the server call for build requests
         * @param {ProjectEvents} event
         * @param {Event} data
@@ -5409,12 +5403,6 @@ declare module Animate {
         */
         updateFields(data: Build): void;
         /**
-        * When we recieve the server call for saving project data.
-        * @param {UserEvents} event
-        * @param {UserEvent} data
-        */
-        onRenamed(response: UserEvents, event: UserEvent): void;
-        /**
         * Shows the build options form
         * @returns {any}
         */
@@ -5423,11 +5411,6 @@ declare module Animate {
         * This is called to initialize the one click loader
         */
         initializeLoader(): void;
-        /**
-        * Use this function to print a message on the settings screen.
-        * @param {string} message The message to print
-        * @param <bool> isError Should this be styled to an error or not
-        */
         /**
         * Gets the singleton instance.
         * @returns {BuildOptionsForm}

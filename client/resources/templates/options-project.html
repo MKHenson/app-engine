@@ -18,7 +18,7 @@
 			<div class="field-option">
 				<div class="label">Visibility</div>
 				<div class="dropdown">
-					<select name="visibility" en-change="ctrl.$projectToken.public = (elm.value == '0' ? false : true )">
+					<select name="visibility" en-model="ctrl.$projectToken.public" en-transform="(elm.value == '0' ? false : true )">
 						<option value="0" en-selected="!ctrl.$projectToken.public">Private</option>
 						<option value="1" en-selected="ctrl.$projectToken.public">Public</option>
 					</select>
@@ -29,7 +29,7 @@
 			<div class="field-option">
 				<div class="label">Category</div>
 				<div class="dropdown">
-					<select name="category" en-change="ctrl.$projectToken.category = parseInt(elm.value)">
+					<select name="category" en-model="ctrl.$projectToken.category" en-transform="parseInt(elm.value)">
 						<option value="1" en-selected="ctrl.$projectToken.category == 1">Other</option>
 						<option value="2" en-selected="ctrl.$projectToken.category == 2">Artistic</option>
 						<option value="3" en-selected="ctrl.$projectToken.category == 3">Gaming</option>
