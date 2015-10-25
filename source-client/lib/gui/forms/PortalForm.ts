@@ -41,7 +41,7 @@ module Animate
 
 			this._warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
 
-			this._typeCombo.addEventListener( ListEvents.ITEM_SELECTED,  this.onTypeSelect.bind( this ) );
+			this._typeCombo.on( ListEvents.ITEM_SELECTED,  this.onTypeSelect.bind( this ) );
 			this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent( ListEvents.ITEM_SELECTED, "asset" ) );
 		}
 

@@ -41,7 +41,6 @@ module Animate
 				minHeight: 50,
 				minWidth: 50,
 				helper: "ui-resizable-helper",
-				//start:jQuery.proxy(this.onResizeStart, this),
 				resize: jQuery.proxy( this.onResizeUpdate, this ),
 				stop: jQuery.proxy( this.onResizeStop, this )
 			});

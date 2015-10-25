@@ -331,6 +331,91 @@ textarea, input, select {
 }
 
 /**
+* ==================================
+*     JQuery UI CSS for resizable
+* ================================== 
+*/
+.ui-icon {
+    width: 16px;
+    height: 16px;
+    background-image: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/images/ui-icons_222222_256x240.png) /*{iconsContent}*/;
+}
+.ui-resizable {
+    position: relative;
+}
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    z-index: 99999;
+    display: block;
+}
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
+    display: none;
+}
+.ui-resizable-n {
+    cursor: n-resize;
+    height: 7px;
+    width: 100%;
+    top: -5px;
+    left: 0px;
+}
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0px;
+}
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0px;
+    height: 100%;
+}
+.ui-resizable-w {
+    cursor: w-resize;
+    width: 7px;
+    left: -5px;
+    top: 0px;
+    height: 100%;
+}
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 1px;
+    bottom: 1px;
+}
+.ui-resizable-sw {
+    cursor: sw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    bottom: -5px;
+}
+.ui-resizable-nw {
+    cursor: nw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    top: -5px;
+}
+.ui-resizable-ne {
+    cursor: ne-resize;
+    width: 9px;
+    height: 9px;
+    right: -5px;
+    top: -5px;
+}
+.ui-icon-gripsmall-diagonal-se {
+    background-position: -64px -224px;
+}
+.ui-resizable-helper {
+    border: 2px dotted #00F;
+}
+
+/**
 ======================================================
 				DIRECTIVES
 ======================================================
@@ -563,6 +648,49 @@ Please only put css rules in here for layout related requirements.
 }
 
 /**
+* Tooltips
+*/
+.tooltip .tooltip-text {
+    pointer-events: none;
+    text-align: center;
+    font-size: 10px;
+    margin: 0 3px;
+}
+.tooltip-text {
+    margin: 0 3px 0 3px;
+}
+
+.tooltip:hover .tooltip-text {
+    display:inherit;
+    white-space: nowrap;
+}
+.active.tooltip .tooltip-text, .disabled.tooltip:hover .tooltip-text {
+    display:none;
+}
+
+.tooltip-text {
+    display:none;
+    position: absolute;
+    font-size: 16px !important;
+    background: #607DA0;
+    color: white;
+    padding: 10px;
+    text-shadow: none;
+    top: 60px;
+    left: 0;
+    z-index: 1;
+}
+.tooltip-text:before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 7px;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid #607DA0;
+}
+
+/**
 ======================================================
 				CSS LAYOUT DEFINITIONS
 ======================================================
@@ -598,6 +726,7 @@ html, body, #stage {
     width:33.333333333%;
     box-sizing:border-box;
     float:left;
+    padding: 10px;
 }
 .navigation-column.back {
     text-align: left;
@@ -725,14 +854,11 @@ html, body, #stage {
     overflow:auto;
     height:404px;
 }
-.no-projects {
+.no-items {
     font-weight: bold;
     margin-top: 140px;
     text-align: center;
     font-size: 40px;
-}
-#splash-welcome .navigation-column {
-    padding:10px;
 }
 .projects-toolbar .button {
     padding:20px;
@@ -937,6 +1063,9 @@ html, body, #stage {
 *  TOOLBAR
 *  ===============================
 */
+#toolbar-main {
+    padding-top:5px;
+}
 .toolbar {
     height: 85px;
     position: relative;
@@ -944,10 +1073,10 @@ html, body, #stage {
     z-index: 1;
 }
 .tool-bar-group {
-    float: left;
+    display: inline-block;
     -webkit-border-radius: 5px;
-    margin: 5px 0 0 5px;
-    overflow:hidden;
+    margin: 0 0 0 5px;
+    position: relative;
 }
 .toolbar-button div {
     pointer-events: none;
@@ -958,25 +1087,21 @@ html, body, #stage {
     height: 40px;
 }
 .toolbar-button, .toolbar-button-drop-down {
-    float: left;
+    display: inline-block;
 }
 .toolbar-button .tool-icon-upper img {
     margin: 0 8px 0 8px;
 }
 .toolbar-button {
     cursor: pointer;
-    height: 100%;
     padding: 4px 0 4px 0;
     position: relative;
 }
-.toolbar-button .tool-bar-text, .tool-icon-upper, .toolbar-button img {
+.tool-icon-upper, .toolbar-button img {
     pointer-events: none;
     text-align: center;
     font-size: 10px;
     margin: 0 3px;
-}
-.tool-bar-text {
-    margin: 0 3px 0 3px;
 }
 .toolbar-color {
     width: 45px;
@@ -986,32 +1111,8 @@ html, body, #stage {
     font-size: 10px;
     margin: 5px 5px 0 5px;
 }
-.toolbar-button:hover .tool-bar-text {
-    display:inherit;
-}
-.disabled.toolbar-button:hover .tool-bar-text {
-    display:none;
-}
-.tool-bar-text {
-    display:none;
-    position: absolute;
-    font-size: 16px !important;
-    background: #607DA0;
-    color: white;
-    padding: 10px;
-    text-shadow: none;
-    top: 60px;
-    left: 0;
-}
-.tool-bar-text:before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 7px;
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-bottom: 15px solid #607DA0;
-}
+
+
 .tool-bar-top {
     width: 100%;
     height: 25px;
@@ -1044,7 +1145,7 @@ html, body, #stage {
     left: 0px;
     top: 0px;
     position: absolute;
-    z-index: 999;
+    z-index: 9999;
 }
 .tool-bar-bottom .number-holder, .tool-bar-bottom .scrolling-number {
     pointer-events: all;
@@ -1138,11 +1239,56 @@ span.date {
 }
 
 /**
-*  ASSET BROWSER
+*  FILE VIEWER
 *  =========================
 */
-
-
+#file-viewer {
+    height:100%;
+}
+#file-viewer .files-view {
+    overflow: auto;
+    height: calc(100% - 57px);
+    width: 100%;
+}
+#file-viewer-window .window-control-box{
+    margin:0;
+}
+.file-search {
+    display:inline-block;
+    margin: 0px 5px;
+}
+.file-search input {
+   padding:10px;
+   box-sizing:border-box;
+}
+.file-search img {
+    vertical-align:middle;
+    cursor:pointer;
+    margin:0 0 0 5px;
+}
+.file-viewer-toolbar {
+    height:57px;
+    box-shadow: 0px 0px 20px 2px rgba(0,0,0,0.2);
+    position: relative;
+}
+.file-viewer-toolbar .button {
+    padding:18px;
+}
+.file-items {
+    overflow:auto;
+    height:calc(100% - 39px);
+}
+.file-item {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    float: left;
+    margin: 10px;
+    cursor: pointer;
+}
+.files-footer {
+    height:39px;
+}
 /**
 ======================================================
 				COLORS
@@ -1163,8 +1309,8 @@ Please only put css rules in here for generalized modules.
 #splash.welcome-pink {
     background-image:url("media/aurora2.png");
 }
-.no-projects {
-    color: #bbb;
+.no-items {
+    color: #BBC4D0;
     text-shadow: 1px 1px #FFFFFF;
 }
 .background {
@@ -1585,13 +1731,10 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .viewer-block{ float:left; width:48%; overflow:auto; margin: 0 12px 0 6px; height: 515px; }
 .header-name{ float:left; }
 .info-section{ border: 1px solid #ccc; padding:5px; overflow: auto; margin: 5px 0 0 0; height: 190px; }
-.viewer-toolbar{ height:40px; }
-.viewer-toolbar { margin-top:0px; }
+
 .selected-asset{ color:red; margin-right:10px; }
 
-.asset-search { width:210px; margin: 7px 0 10px 0; }
-.asset-search input{ margin: 0 0 0 5px; }
-.asset-search img { float:right; margin: 3px 3px 0 0; cursor:pointer; }
+
 
 .upload-status{ overflow:hidden; text-align:center; margin:5px 0 0 0; background-color:#F5F589; border-top: 2px dotted #F5CE33; border-bottom: 2px dotted #F5CE33;}
 .upload-status img{ float:right; margin: 3px 3px 0 0; cursor:pointer; }
@@ -1748,23 +1891,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .screen-manager-preview:hover{ transform: scale(1.2, 1.2); -moz-transform: scale(1.2, 1.2); -webkit-transform: scale(1.2, 1.2); -o-transform: scale( 1.2, 1.2 ); }
 
-/**JQuery UI CSS for resizable
-================================== */
-.ui-icon { width: 16px; height: 16px; background-image: url(http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.1/themes/base/images/ui-icons_222222_256x240.png)/*{iconsContent}*/; }
-.ui-resizable { position: relative;}
-.ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 99999; display: block;}
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
-.ui-resizable-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0px; }
-.ui-resizable-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0px; }
-.ui-resizable-e { cursor: e-resize; width: 7px; right: -5px; top: 0px; height: 100%; }
-.ui-resizable-w { cursor: w-resize; width: 7px; left: -5px; top: 0px; height: 100%; }
-.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
-.ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
-.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
-.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
-.ui-icon-gripsmall-diagonal-se { background-position: -64px -224px; }
-.ui-resizable-helper { border: 2px dotted #00F; }
-/**================================== */
+
 
 .project-explorer{ width:100%; overflow:auto; }
 .project-explorer-section{ float:left; width:50%; }
@@ -1866,7 +1993,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tooltip{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
+.tooltip.label{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
 .tool-icon-lower{ text-align:center; }
 .tool-icon-upper{}
 
@@ -1895,7 +2022,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tool-bar-dropdown{ background-color: #DDD; border:1px solid #CCC; overflow: hidden; }
+
 .tab-selector {
     -webkit-border-radius: 0px 5px 0px 0px;
     border-radius: 0px 5px 0px 0px;

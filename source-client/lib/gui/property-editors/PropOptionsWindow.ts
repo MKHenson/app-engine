@@ -67,7 +67,7 @@ module Animate
 
 				if ( event.cancel === false )
 				{
-					PropOptionsWindow._window.removeEventListener( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
+					PropOptionsWindow._window.off( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
 					var newValue: any = propertyValue;
 
 					if ( buttonOptions.getValue )
@@ -81,8 +81,8 @@ module Animate
             var mouseUp = function (e: JQueryEventObject  ) 
 			{
 				//Remove any previous references
-				PropOptionsWindow._window.removeEventListener( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
-				PropOptionsWindow._window.addEventListener( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
+				PropOptionsWindow._window.off( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
+				PropOptionsWindow._window.on( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
 				PropOptionsWindow._window.show( Application.getInstance(), NaN, NaN, true );
 				
 

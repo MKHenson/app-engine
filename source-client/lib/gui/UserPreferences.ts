@@ -36,7 +36,7 @@ module Animate
 			//Image
 			group = new Group( "Avatar", this );
 			this.imgPreview = <Component>group.content.addChild( "<div class='preview'></div>" );
-			this.userImgButton = <Component>group.content.addChild( "<div class='tool-bar-group'><div class='toolbar-button'><div><img src='media/add-asset.png' /></div><div class='tool-bar-text'>Add</div></div></div>" );
+            this.userImgButton = <Component>group.content.addChild( "<div class='tool-bar-group'><div class='toolbar-button tooltip'><div><img src='media/add-asset.png' /></div><div class='tooltip-text'>Add</div></div></div>" );
 			group.content.addChild( "<div class='fix'></div>" );
 
 			var info: Label = new Label( "Use this button to upload your avatar picture.", group.content );
@@ -84,8 +84,8 @@ module Animate
 					return;
 				}
 
-				user.addEventListener( UserEvents.DETAILS_SAVED, this.onServer, this );
-				user.addEventListener( UserEvents.FAILED, this.onServer, this );
+				user.on( UserEvents.DETAILS_SAVED, this.onServer, this );
+				user.on( UserEvents.FAILED, this.onServer, this );
 				user.updateDetails( ( <InputBox>this.bio.val ).text );
 			}
 		}
@@ -96,7 +96,7 @@ module Animate
 		onServer( event: UserEvents, e : UserEvent )
 		{
 			var user : User = User.get;
-			user.removeEventListener( UserEvents.FAILED, this.onServer, this );
+			user.off( UserEvents.FAILED, this.onServer, this );
 
 			if ( e.return_type == AnimateLoaderResponses.ERROR )
 			{
@@ -106,7 +106,7 @@ module Animate
 
 			if ( event == UserEvents.DETAILS_SAVED )
 			{
-				user.removeEventListener( UserEvents.DETAILS_SAVED, this.onServer, this );
+				user.off( UserEvents.DETAILS_SAVED, this.onServer, this );
                 //BuildOptionsForm.getSingleton().message(e.tag.message, false);
                 user.meta.bio = e.tag.bio;
 			}

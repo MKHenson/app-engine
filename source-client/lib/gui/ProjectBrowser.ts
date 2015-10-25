@@ -65,9 +65,9 @@ module Animate
 			this._selectedName = null;
 			this._selectedID = null;
 
-			this._list.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClick, this );
-			this._list.addEventListener( ListViewEvents.ITEM_DOUBLE_CLICKED,  this.onDblClick, this );
-			this._select.addEventListener( ListEvents.ITEM_SELECTED, this.onSelectClick, this );
+			this._list.on( ListViewEvents.ITEM_CLICKED, this.onItemClick, this );
+			this._list.on( ListViewEvents.ITEM_DOUBLE_CLICKED,  this.onDblClick, this );
+			this._select.on( ListEvents.ITEM_SELECTED, this.onSelectClick, this );
 		}
 
 		/**

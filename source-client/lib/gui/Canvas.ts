@@ -86,15 +86,15 @@ module Animate
 			jQuery( "body" ).on( "keydown", this.keyProxy );
 			jQuery( document ).on( "contextmenu", this.mContextProxy );
 
-			BehaviourPicker.getSingleton().addEventListener( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
-			PortalForm.getSingleton().addEventListener( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
+			BehaviourPicker.getSingleton().on( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
+			PortalForm.getSingleton().on( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 
 			new BehaviourPortal( this, "Start" );
-            PropertyGrid.getSingleton().addEventListener(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
+            PropertyGrid.getSingleton().on(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
             this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
 			this._containerReferences = { groups: [], assets: [] };
 
-			PluginManager.getSingleton().addEventListener(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
+			PluginManager.getSingleton().on(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
 		}
 
 		//onStartingDrag(response : DragManagerEvents, event: DragEvent )
@@ -218,12 +218,12 @@ module Animate
 		{
 			this.element.droppable("destroy");
 
-			PluginManager.getSingleton().removeEventListener(EditorEvents.ASSET_EDITED, this.onAssetEdited, this);
-			BehaviourPicker.getSingleton().removeEventListener( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
-			PortalForm.getSingleton().removeEventListener( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
+			PluginManager.getSingleton().off(EditorEvents.ASSET_EDITED, this.onAssetEdited, this);
+			BehaviourPicker.getSingleton().off( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
+			PortalForm.getSingleton().off( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 			jQuery( "body" ).off( "keydown", this.keyProxy );
 			jQuery( document ).off( "contextmenu", this.mContextProxy );
-			PropertyGrid.getSingleton().removeEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 
 			this.element.off( "mousedown", this.mDownProxy );
 
@@ -664,8 +664,8 @@ module Animate
 		onContextHide( response: WindowEvents, e: WindowEvent )
 		{
 			var context = Application.getInstance().canvasContext;
-			context.removeEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-			context.removeEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+			context.off( WindowEvents.HIDDEN, this.onContextHide, this );
+			context.off( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 		}
 
 		/**
@@ -699,8 +699,8 @@ module Animate
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, null );
 				context.element.css( { "width": "+=20px" });
-				context.addEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-				context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
+				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
 			//If a portal
 			else if ( targetComp instanceof Portal )
@@ -708,8 +708,8 @@ module Animate
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
 				context.element.css( { "width": "+=20px" });
-				context.addEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-				context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
+				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 			}
 			//If a link
@@ -722,8 +722,8 @@ module Animate
 				{
 					context.showContext( e.pageX, e.pageY, link );
 					context.element.css( { "width": "+=20px" });
-					context.addEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-					context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+					context.on( WindowEvents.HIDDEN, this.onContextHide, this );
+					context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 				}
 			}
 
@@ -733,8 +733,8 @@ module Animate
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
 				context.element.css( { "width": "+=20px" });
-				context.addEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-				context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
+				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
 			else if ( targetComp instanceof BehaviourComment )
 				e.preventDefault();
@@ -744,8 +744,8 @@ module Animate
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
 				context.element.css( { "width": "+=20px" });
-				context.addEventListener( WindowEvents.HIDDEN, this.onContextHide, this );
-				context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
+				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 			}
 			else
@@ -902,7 +902,7 @@ module Animate
 		*/
 		onBehaviourRename( e: RenameFormEvents, event: RenameFormEvent )
 		{
-			RenameForm.getSingleton().removeEventListener( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
+			RenameForm.getSingleton().off( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
 
 			var toEdit: Behaviour = null;
 			if ( event.object instanceof BehaviourShortcut )
@@ -951,7 +951,7 @@ module Animate
 						return;
 					else if ( Application.getInstance().focusObj instanceof Behaviour )
 					{
-						RenameForm.getSingleton().addEventListener( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
+						RenameForm.getSingleton().on( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
 						RenameForm.getSingleton().showForm( Application.getInstance().focusObj, Application.getInstance().focusObj.element.text() );
 						return;
 					}

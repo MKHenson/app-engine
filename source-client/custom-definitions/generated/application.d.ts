@@ -225,7 +225,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    type EventCallback = (response: ENUM, event: Event, sender?: EventDispatcher) => void;
     /**
     * Base class for all custom enums
     */
@@ -235,14 +234,16 @@ declare module Animate {
         constructor(v: string);
         toString(): string;
     }
+    type EventType = ENUM | string;
+    type EventCallback = (response: EventType, event: Event, sender?: EventDispatcher) => void;
     /**
     * Internal class only used internally by the {EventDispatcher}
     */
     class EventListener {
-        eventType: ENUM;
+        eventType: EventType;
         func: EventCallback;
         context: any;
-        constructor(eventType: ENUM, func: EventCallback, context?: any);
+        constructor(eventType: EventType, func: EventCallback, context?: any);
     }
     /**
     * The base class for all events dispatched by the {EventDispatcher}
@@ -252,13 +253,13 @@ declare module Animate {
         tag: any;
         /**
         * Creates a new event object
-        * @param {String} eventName The name of the trigger which dispatched this {Event}
+        * @param {EventType} eventType The type event
         */
-        constructor(eventName: ENUM, tag?: any);
+        constructor(eventType: EventType, tag?: any);
         /**
         * Gets the event type
         */
-        eventType: ENUM;
+        eventType: EventType;
     }
     /**
     * A simple class that allows the adding, removing and dispatching of events.
@@ -274,11 +275,11 @@ declare module Animate {
         /**
         * Adds a new listener to the dispatcher class.
         */
-        addEventListener(eventType: ENUM, func: EventCallback, context?: any): void;
+        on(eventType: EventType, func: EventCallback, context?: any): void;
         /**
         * Adds a new listener to the dispatcher class.
         */
-        removeEventListener(eventType: ENUM, func: EventCallback, context?: any): void;
+        off(eventType: EventType, func: EventCallback, context?: any): void;
         /**
         * Sends a message to all listeners based on the eventType provided.
         * @param {String} The trigger message
@@ -5206,13 +5207,9 @@ declare module Animate {
         */
         constructor(img: string, text: string, parent?: Component);
     }
-    class ToolbarDropDownEvents extends ENUM {
-        constructor(v: string);
-        static ITEM_CLICKED: ToolbarDropDownEvents;
-    }
     class ToolbarDropDownEvent extends Event {
         item: ToolbarItem;
-        constructor(item: ToolbarItem, e: ToolbarDropDownEvents);
+        constructor(item: ToolbarItem, e: EventType);
         dispose(): void;
     }
     /**
@@ -5220,10 +5217,10 @@ declare module Animate {
     */
     class ToolbarDropDown extends Component {
         items: Array<ToolbarItem>;
-        private popupContainer;
-        private selectedItem;
-        private clickProxy;
-        private stageDownProxy;
+        private _popupContainer;
+        private _selectedItem;
+        private _clickProxy;
+        private _stageDownProxy;
         /**
         * @param {Component} parent The parent of this toolbar
         * @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:"./img1.png", text:"option 1"}, {img:"./img2.png", text:"option 2"}]
@@ -5248,15 +5245,19 @@ declare module Animate {
         */
         clear(dispose?: boolean): void;
         /**
+        * Gets the selected item
+        * @returns {ToolbarItem}
+        */
+        /**
         * Sets the selected item
         * @param {any} item
         */
-        setItem(item: ToolbarItem): void;
+        selectedItem: ToolbarItem;
         /**
         * Called when the mouse is down on the DOM
         * @param {any} e The jQuery event
         */
-        onStageUp: (e: any) => void;
+        onStageUp(e: any): void;
         /**
         * When we click the main button
         * @param {any} e The jQuery event oject
@@ -5430,12 +5431,22 @@ declare module Animate {
         file: File;
         constructor(eventType: FileViewerFormEvents, file: File);
     }
+    enum FileSearchType {
+        Global = 0,
+        User = 1,
+        Project = 2,
+    }
     /**
     * This form is used to load and select assets.
     */
     class FileViewerForm extends Window {
         private static _singleton;
         private _browserElm;
+        private $pager;
+        private $selectedFile;
+        private $files;
+        private $loading;
+        private $errorMsg;
         private toolbar;
         private selectedID;
         private modeGrid;
@@ -5474,6 +5485,8 @@ declare module Animate {
         private keyDownProxy;
         private buttonProxy;
         constructor();
+        selectMode(type: FileSearchType): void;
+        fetchFiles(index: number, limit: number): void;
         /**
         * Called when we are dragging over the item
         */

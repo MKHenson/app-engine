@@ -143,7 +143,7 @@ module Animate
 
 			editor.setTheme( "ace/theme/chrome" );
 			editor.getSession().setMode( "ace/mode/javascript" );
-			this._editorComponent.addEventListener( ComponentEvents.UPDATED, this.onResize, this );
+			this._editorComponent.on( ComponentEvents.UPDATED, this.onResize, this );
 
 			// Ctrl + S
 			editor.commands.addCommand( {
@@ -200,8 +200,8 @@ module Animate
 			editor.on( "change", onChange );
 
 			//Get the current scripts
-			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
-			loader.addEventListener( LoaderEvents.FAILED, onServer );
+			loader.on( LoaderEvents.COMPLETE, onServer );
+			loader.on( LoaderEvents.FAILED, onServer );
 
             loader.load("/project/get-behaviour-scripts", { projectId: User.get.project.entry._id, shallowId: shallowId });
 
@@ -346,7 +346,7 @@ module Animate
 				return;
 			}
 
-			this._editorComponent.removeEventListener( ComponentEvents.UPDATED, this.onResize, this );
+			this._editorComponent.off( ComponentEvents.UPDATED, this.onResize, this );
 			jQuery( ".function-button", this.right.element ).off( "click", this.proxyFunctionClick );
 
 			this._editor.commands.removeCommand( "save" );
@@ -400,8 +400,8 @@ module Animate
 
 			//try to create the database entry of this node
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, onSave );
-			loader.addEventListener( LoaderEvents.FAILED, onSave );
+			loader.on( LoaderEvents.COMPLETE, onSave );
+			loader.on( LoaderEvents.FAILED, onSave );
 			loader.load( "/project/save-behaviour-script", {
                 projectId: User.get.project.entry._id,
 				onEnter: this.onEnter,

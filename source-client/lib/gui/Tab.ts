@@ -55,7 +55,7 @@ module Animate
 				Tab.contextMenu = new ContextMenu( 100 );
 
 			//this.element.disableSelection( true );
-			Tab.contextMenu.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContext.bind( this ) );
+			Tab.contextMenu.on( ContextMenuEvents.ITEM_CLICKED, this.onContext.bind( this ) );
 
 			this.addLayout( new Fill() );
 		}

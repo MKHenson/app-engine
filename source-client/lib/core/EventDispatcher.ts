@@ -1,6 +1,6 @@
 module Animate
 {
-	export type EventCallback = (response: ENUM, event: Event, sender?: EventDispatcher) => void;
+	
 
 	/**
 	* Base class for all custom enums
@@ -16,18 +16,21 @@ module Animate
 		}
 		
 		toString() { return this.value; }
-	}
+    }
+
+    export type EventType = ENUM | string;
+    export type EventCallback = (response: EventType, event: Event, sender?: EventDispatcher) => void;
 
 	/**
 	* Internal class only used internally by the {EventDispatcher}
 	*/
 	export class EventListener 
 	{
-		eventType: ENUM;
+        eventType: EventType;
 		func: EventCallback;
 		context: any;
 
-		constructor(eventType: ENUM, func: EventCallback, context?: any) 
+        constructor(eventType: EventType, func: EventCallback, context?: any) 
 		{
 			this.eventType = eventType;
 			this.func = func;
@@ -40,23 +43,23 @@ module Animate
 	*/
 	export class Event
 	{
-		private _eventType: ENUM;
+        private _eventType: EventType;
 		public tag: any;
 
 		/**
 		* Creates a new event object
-		* @param {String} eventName The name of the trigger which dispatched this {Event}
+		* @param {EventType} eventType The type event
 		*/
-		constructor(eventName: ENUM, tag?: any)
+        constructor(eventType: EventType, tag?: any)
 		{
-			this._eventType = eventName;
+            this._eventType = eventType;
 			this.tag = tag;
 		}
 
 		/**
 		* Gets the event type
 		*/
-		get eventType(): ENUM { return this._eventType; }
+        get eventType(): EventType { return this._eventType; }
 	}
 
     /**
@@ -85,7 +88,7 @@ module Animate
         /**
         * Adds a new listener to the dispatcher class.
         */
-		addEventListener(eventType: ENUM, func: EventCallback, context?: any) 
+        on(eventType: EventType, func: EventCallback, context?: any) 
 		{
 			if ( !func )
 				throw new Error("You cannot have an undefined function.");
@@ -96,7 +99,7 @@ module Animate
         /**
         * Adds a new listener to the dispatcher class.
         */
-		removeEventListener(eventType: ENUM, func: EventCallback, context?: any ) 
+        off(eventType: EventType, func: EventCallback, context?: any ) 
 		{
             var listeners: Array<EventListener> = this.listeners;
 
@@ -105,7 +108,6 @@ module Animate
 
 			if ( !func )
 				throw new Error( "You cannot have an undefined function." );
-
             
 			for (var i = 0, li = listeners.length; i < li; i++)
 			{

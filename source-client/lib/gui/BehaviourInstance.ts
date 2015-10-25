@@ -66,10 +66,10 @@ module Animate
 
 			this.updateDimensions();
 
-			PluginManager.getSingleton().addEventListener( EditorEvents.PORTAL_ADDED, this.onPortalChanged, this );
-			PluginManager.getSingleton().addEventListener( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
-			PluginManager.getSingleton().addEventListener( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
-			PluginManager.getSingleton().addEventListener( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
+			PluginManager.getSingleton().on( EditorEvents.PORTAL_ADDED, this.onPortalChanged, this );
+			PluginManager.getSingleton().on( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
+			PluginManager.getSingleton().on( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
+			PluginManager.getSingleton().on( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
 		}
 
 		/**
@@ -146,10 +146,10 @@ module Animate
 		*/
 		dispose()
 		{
-			PluginManager.getSingleton().removeEventListener( EditorEvents.PORTAL_ADDED, this.onPortalChanged, this );
-			PluginManager.getSingleton().removeEventListener( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
-			PluginManager.getSingleton().removeEventListener( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
-			PluginManager.getSingleton().removeEventListener( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
+			PluginManager.getSingleton().off( EditorEvents.PORTAL_ADDED, this.onPortalChanged, this );
+			PluginManager.getSingleton().off( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
+			PluginManager.getSingleton().off( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
+			PluginManager.getSingleton().off( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
 
 			this._behaviourContainer = null;
 

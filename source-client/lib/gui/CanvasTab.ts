@@ -41,7 +41,7 @@ module Animate
 			this.mDocker = null;
 
 			//Add the main tab
-			BehaviourManager.getSingleton().addEventListener( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
+			BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
 		}
 
 		/**
@@ -133,7 +133,7 @@ module Animate
 				var saveDataObj: CanvasToken = canvas.buildDataObject();
 
 				//Now get the project to save it.
-				User.get.project.addEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+				User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
 				User.get.project.saveBehaviours( [canvas.behaviourContainer.id] );
 			}
 			else
@@ -169,7 +169,7 @@ module Animate
 		*/
 		onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
 		{
-			User.get.project.removeEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+			User.get.project.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
 			if ( response == ProjectEvents.BEHAVIOUR_SAVED )
 			{
 				var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
@@ -272,8 +272,8 @@ module Animate
 		projectReady()
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onNewsLoaded, this );
+			loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
+			loader.on( LoaderEvents.FAILED, this.onNewsLoaded, this );
 			loader.load( "/misc/get-news-tab", {} );
 		}
 
@@ -374,7 +374,7 @@ module Animate
 				}
 
 				canvas.behaviourContainer.canvas = null;
-				canvas.removeEventListener(CanvasEvents.MODIFIED, this.onCanvasModified, this );
+				canvas.off(CanvasEvents.MODIFIED, this.onCanvasModified, this );
 			}
 
 			return super.removeTab( val, dispose );
@@ -422,7 +422,7 @@ module Animate
 				tabContent.canvas = canvas;
 				toRet.page.addChild( canvas );
 
-				canvas.addEventListener(CanvasEvents.MODIFIED, this.onCanvasModified, this );
+				canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this );
 
 				this._currentCanvas = canvas;
 				(<Behaviour>canvas.children[0]).updateDimensions();

@@ -279,8 +279,8 @@ module Animate
 
 			var sceneStr = JSON.stringify( dataToken );
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/export/compile", { projectId: project.entry._id, json: sceneStr });
 		}
 

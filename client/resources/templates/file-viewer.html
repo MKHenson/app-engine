@@ -1,170 +1,139 @@
 ﻿<div id="file-viewer">
-	<div class="viewer-toolbar">
+
+	<div class="file-viewer-toolbar">
+		<div class="button reg-gradient">
+			<div class="cross"></div>Add File
+		</div>
+
 		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button disabled">
-				<div><img src="media/star.png"></div>
-				<div class="tool-bar-text">Favourite</div>
+			<div class="toolbar-button tooltip disabled">
+				<div><img src="media/star.png" /></div>
+				<div class="tooltip-text">Favourite</div>
 			</div>
 		</div>
 		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button" style="position: relative; overflow: hidden; direction: ltr;">
-				<div><img src="media/add-asset.png"></div>
-				<div class="tool-bar-text">Add</div>
-				<input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
-			</div>
-			<div class="toolbar-button disabled">
-				<div><img src="media/remove-asset.png"></div>
-				<div class="tool-bar-text">Remove</div>
-			</div>
-		</div> 
-		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button selected">
-				<div><img src="media/assets-project.png"></div>
-				<div class="tool-bar-text">Project</div>
-			</div>
-			<div class="toolbar-button">
-				<div><img src="media/assets-user.png"></div>
-				<div class="tool-bar-text">My Assets</div>
-			</div>
-			<div class="toolbar-button">
-				<div><img src="media/assets-global.png"></div>
-				<div class="tool-bar-text">Global Assets</div>
+			<div class="toolbar-button tooltip disabled" >
+				<div><img src="media/remove-asset.png" /></div>
+				<div class="tooltip-text">Remove</div>
 			</div>
 		</div>
-		<div class="tool-bar-group background-view-light" style="float: right; margin: 0px 15px 0px 0px;">
-			<div class="asset-search">
-				<input type="text" class="background-view-light" />
-				<img src="media/search.png">
+		<div id="file-search-mode" class="tool-bar-group background-view-light"></div>
+		<div class="file-search">
+			<input class="background-view-light" type="text">
+			<img src="media/search.png">
+		</div>
+		<div class="fix"></div>
+	</div>
+	
+
+	<!-- File view -->
+	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
+		<div class="file-items">
+			<div class="file-item img-preview unselectable" en-repeat="ctrl.$files as file" en-click="ctrl.selectFile(project)">
+				<div class="welcome-preview">
+					<div class="background-tiles inner ng-scope">
+						<img src="./media/appling.png" />
+						<div class="div-center"></div>
+					</div>
+				</div>
+				<div class="item-name" en-class="{ 'reg-gradient' : file.selected }">{{file.name}}</div>
 			</div>
+			<div class="no-items unselectable" en-if="ctrl.$files.length == 0">You do not have any files uploaded</div>
+		</div>
+		<div class="files-footer background">
+			<div class="navigation-column back soft-text">
+				<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
+				<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goPrev()">Prev</a>
+			</div>
+			<div class="navigation-column index soft-text">
+				{{ctrl.$pager.getPageNum()}} of {{ctrl.$pager.getTotalPages()}}
+			</div>
+			<div class="navigation-column next soft-text">
+				<a en-show="ctrl.$pager.index + ctrl.$pager.limit < ctrl.$pager.last" en-click="ctrl.$pager.goNext()">Next</a>
+				<a en-show="ctrl.$pager.index < ctrl.$pager.last - ctrl.$pager.limit" en-click="ctrl.$pager.goLast()">Last</a>
+			</div>
+			<div class="fix"></div>
 		</div>
 	</div>
-	<div class="fix"></div>
-	<div class="viewer-block">
-		<div class="list-block">
-			<div class="list-view" style="min-width: 568px;">
-				<div class="list" style="min-width: 48px; width: 48px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">ID   ▼</span><div class="dragger light-gradient"></div>
+
+	<!-- File Info -->
+	<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedFile ? '30%' : ''), left :  (ctrl.$selectedFile ? '70%' : '') }">
+		<div en-if="ctrl.$selectedFile" class="fade-in" style="height:100%;">
+			<div class="project-details">
+				<h2>{{ctrl.$selectedFile.name}}</h2>
+				<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
+				<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}}</span></p>
+				<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}}</span></p>
+				<p><span class="info">No. Plugins</span>: <span class="detail">{{ctrl.$selectedFile.plugins.length}}</span></p>
+				<div class="fix"></div>
+				<p en-html="ctrl.$selectedFile.description"></p>
+			</div>
+			<div class="buttons ">
+				<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeProject, ctrl)">REMOVE</a></div>
+				<div class="button green animate-all" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
+			</div>
+		</div>
+
+		<div class="viewer-block">
+			<div class="file-preview-header">
+				<div class="header-name">Preview: </div>
+				<div class="button reg-gradient curve-small" style="width: 100px; height: 25px; margin: 0px 0px 5px; float: right; display: none;">
+					<div class="textfield" style="top: 3px;">Use this File</div>
+				</div><div class="fix"></div>
+			</div>
+			<div class="file-preview"></div><div class="info-section">
+				<div class="upload-status" style="display: none;">
+					<img src="media/close.png"><span class="upload-text">Uploading</span>
+				</div>
+				<div class="file-group">
+					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Name: </div>
+					</div><div class="input-box">
+						<input type="text">
+					</div><div class="fix"></div>
+				</div><div class="file-group">
+					<div></div>
+					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Tags: </div>
+					</div><div class="input-box">
+						<input type="text">
+					</div><div class="fix"></div>
+				</div><div class="file-group">
+					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Share: </div>
+					</div><div class="checkbox">
+						<input type="checkbox"><div class="text">Share your file with all Animate users</div>
+					</div>
+					<div class="fix"></div>
+				</div>
+				<div class="file-group">
+					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Thumbnail: </div>
+					</div>
+					<div class="input-box" style="position: relative; overflow: hidden; direction: ltr;">
+						<input type="text">
+						<input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
+					</div>
+					<div class="info">Click here to upload a thumbnail image (100px, 100px)</div><div class="fix"></div>
+				</div>
+				<div class="file-group disabled">
+					<div></div>
+					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Filesize: </div>
+					</div><div class="input-box"><input type="text"></div><div class="fix"></div>
+				</div>
+				<div class="file-group disabled">
+					<div></div>
+					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
+						<div class="textfield">Path: </div>
+					</div><div class="input-box"><input type="text"></div><div class="fix">
 					</div>
 				</div>
-				<div class="list" style="min-width: 53px; width: 53px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Name</span>
-						<div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 47px; width: 47px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Tags</span><div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 42px; width: 42px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Size</span><div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 41px; width: 41px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">URL</span>
-						<div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 74px; width: 74px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Favourite</span><div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 85px; width: 85px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Created On</span><div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 101px; width: 101px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Last Modified</span><div class="dragger light-gradient"></div>
-					</div>
-				</div>
-				<div class="list" style="min-width: 77px; width: 77px;">
-					<div class="list-view-header light-gradient">
-						<span class="inner">Extension</span>
-						<div class="dragger light-gradient"></div>
-					</div>
+				<div class="button reg-gradient curve-small disabled" style="width: 70px; height: 20px; margin: 5px 3px 0px 0px; float: right;">
+					<div class="textfield" style="top: 0.5px;">Update</div>
 				</div><div class="fix"></div>
 			</div>
 		</div>
-		<div class="selection-info">
-			<span class="selected-asset">None Selected. </span><span class="assets">All your base!</span>
-		</div>
-	</div>
-	<div class="viewer-block">
-		<div class="file-preview-header">
-			<div class="header-name">Preview: </div>
-			<div class="button reg-gradient curve-small" style="width: 100px; height: 25px; margin: 0px 0px 5px; float: right; display: none;">
-				<div class="textfield" style="top: 3px;">Use this File</div>
-			</div>
-			<div class="fix"></div>
-		</div>
-		<div class="file-preview"></div>
-		<div class="info-section">
-			<div class="upload-status" style="display: none;">
-				<img src="media/close.png"><span class="upload-text">Uploading</span>
-			</div>
-			<div class="file-group">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Name: </div>
-				</div>
-				<div class="input-box">
-					<input type="text">
-				</div>
-				<div class="fix"></div>
-			</div>
-			<div class="file-group">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Tags: </div>
-				</div>
-				<div class="input-box">
-					<input type="text">
-				</div>
-				<div class="fix"></div>
-			</div>
-			<div class="file-group">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Share: </div>
-				</div>
-				<div class="checkbox">
-					<input type="checkbox"><div class="text">Share your file with all Animate users</div>
-				</div>
-				<div class="fix"></div>
-			</div>
-			<div class="file-group">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Thumbnail: </div>
-				</div>
-				<div class="input-box" style="position: relative; overflow: hidden; direction: ltr;">
-					<input type="text">
-					<input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
-				</div>
-				<div class="info">Click here to upload a thumbnail image (100px, 100px)</div>
-				<div class="fix"></div>
-			</div>
-			<div class="file-group disabled">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Filesize: </div>
-				</div>
-				<div class="input-box"><input type="text"></div>
-				<div class="fix"></div>
-			</div>
-			<div class="file-group disabled">
-				<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-					<div class="textfield">Path: </div>
-				</div>
-				<div class="input-box"><input type="text"></div>
-				<div class="fix"></div>
-			</div>
-			<div class="button reg-gradient curve-small disabled" style="width: 70px; height: 20px; margin: 5px 3px 0px 0px; float: right;">
-				<div class="textfield" style="top: 0.5px;">Update</div>
-			</div>
-			<div class="fix"></div>
-		</div>
+
 	</div>
 </div>

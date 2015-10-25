@@ -61,9 +61,7 @@
         $pristine: boolean;
         $autoClear: boolean;
     }
-
     
-
     /**
     * Defines a set of functions for compiling template commands and a controller object. 
     */
@@ -374,7 +372,6 @@
             (<DescriptorNode>appNode).$clonedElements = null;
             (<DescriptorNode>appNode).$originalNode = null;
             appNode.$clonedData = null;
-            appNode.$ctxValues = null;
             Compiler.removeEvents(<Element><Node>appNode);
             appNode.$events = null;
 
@@ -478,8 +475,11 @@
                                             {
                                                 if (c == newNode)
                                                     return;
-                                                
-                                                c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
+
+                                                if (c.$ctxValues)
+                                                    c.$ctxValues.concat(newNode.$ctxValues.slice(0, newNode.$ctxValues.length));
+                                                else
+                                                    c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
                                             });
                                         };
 

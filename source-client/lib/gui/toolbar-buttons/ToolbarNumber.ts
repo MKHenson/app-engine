@@ -49,10 +49,10 @@
 		*/
 		constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 )
 		{
-			super( "<div class='toolbar-button scrolling-number'></div>", parent );
+            super( "<div class='toolbar-button tooltip scrolling-number'></div>", parent );
 
 			var container : IComponent = this.addChild( "<div class='number-holder'></div>" );
-			this.addChild( "<div class='tool-bar-text'>" + text + "</div>" );
+			this.addChild( "<div class='tooltip-text'>" + text + "</div>" );
 
 			this.defaultVal = defaultVal;
 			this.minValue = minValue;

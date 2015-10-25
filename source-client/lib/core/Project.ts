@@ -310,8 +310,8 @@ module Animate
 		renameObject( name: string, id: string, type: ProjectAssetTypes )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/rename-object", {
                 projectId: this.entry._id,
 				name: name,
@@ -327,8 +327,8 @@ module Animate
 		selectBuild( major: string, mid: string, minor: string ): void
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/select-build", { projectId: this.entry._id, major: major, mid: mid, minor: minor } );
 		}
 
@@ -338,8 +338,8 @@ module Animate
 		saveBuild( notes: string, visibility: string, html: string, css: string ): void
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-            loader.addEventListener(LoaderEvents.FAILED, this.onServer, this);
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+            loader.on(LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/save-build", { projectId: this.entry._id, buildId: this.entry.build, notes: notes, visibility: visibility, html: html, css: css });
 		}
 		
@@ -379,8 +379,8 @@ module Animate
 					}
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-behaviours", { projectId: this.entry._id, ids: ids, data : jsons } );
 		}
 
@@ -434,8 +434,8 @@ module Animate
 				}
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : BehaviourContainer.getNewLocalId() } );
 		}
 
@@ -448,8 +448,8 @@ module Animate
             var html: string = (HTMLTab.singleton ? HTMLTab.singleton.editor.getValue() : this.mCurBuild.html );
 			var loader = new AnimateLoader();
 			this.mCurBuild.html = html;
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-html", { projectId: this.entry._id, html: html } );
 		}
 
@@ -462,8 +462,8 @@ module Animate
 			var css: string = ( CSSTab.singleton ? CSSTab.singleton.editor.getValue() : this.mCurBuild.css );
 			var loader = new AnimateLoader();
 			this.mCurBuild.css = css;
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-css", { projectId: this.entry._id, css: css } );
 		}
 
@@ -481,8 +481,8 @@ module Animate
 				ids.push( behavioursIds[i] );
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids } );
 		}
 
@@ -494,8 +494,8 @@ module Animate
 		loadFiles( mode: string = "project" )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/get-files", { projectId: this.entry._id, mode : mode } );
 		}
 
@@ -505,8 +505,8 @@ module Animate
 		importFile( ids: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/import-files", { projectId: this.entry._id, ids: ids, });
 		}
 
@@ -521,8 +521,8 @@ module Animate
 		deleteFiles( ids: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/delete-files", { projectId: this.entry._id, ids: ids, } );
 		}
 
@@ -533,8 +533,8 @@ module Animate
 		createEmptyFile( name: string )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/file/create-empty-file", { projectId: this.entry._id, name: name });
 		}
 
@@ -547,8 +547,8 @@ module Animate
 		fillFile( id: string, view : ArrayBufferView )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
 			loader.contentType = "application/octet-stream";
 			loader.processData = false;
             loader.getVariables = { id: id, projectId: this.entry._id };
@@ -567,8 +567,8 @@ module Animate
 		saveFile( fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global } );
 		}
 
@@ -579,8 +579,8 @@ module Animate
 		loadBehaviours()
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/get-behaviours", { projectId: this.entry._id } );
 		}
 
@@ -594,8 +594,8 @@ module Animate
 		createGroup( name: string )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/create-group", { projectId: this.entry._id, name: name } );
 		}
 
@@ -605,8 +605,8 @@ module Animate
 		loadGroups()
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/get-groups", { projectId: this.entry._id } );
 		}
 
@@ -630,8 +630,8 @@ module Animate
 			}
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
 		}
 
@@ -642,8 +642,8 @@ module Animate
 		deleteGroups( groupIds: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/delete-groups", { projectId: this.entry._id, ids: groupIds } );
 		}
 
@@ -655,8 +655,8 @@ module Animate
 		updateGroups( groupIds: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/update-groups", { projectId: this.entry._id, ids: groupIds } );
 		}
 
@@ -671,8 +671,8 @@ module Animate
 		createAsset( name: string, className: string )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Asset.getNewLocalId() } );
 		}
 
@@ -705,8 +705,8 @@ module Animate
 			}
 
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons } );
 		}
 
@@ -717,8 +717,8 @@ module Animate
 		updateAssets( assetIds : Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/update-assets", { projectId: this.entry._id, ids: assetIds } );
 		}
 
@@ -729,8 +729,8 @@ module Animate
 		updateBehaviours( behaviourIDs: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/update-behaviours", { projectId: this.entry._id, ids: behaviourIDs } );
 		}
 
@@ -741,8 +741,8 @@ module Animate
 		copyAsset( assetId : string )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: Asset.getNewLocalId() } );
 		}
 
@@ -753,8 +753,8 @@ module Animate
 		deleteAssets( assetIDs: Array<string> )
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs } );
 		}
 
@@ -764,8 +764,8 @@ module Animate
 		loadAssets()
 		{
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
+			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			loader.on( LoaderEvents.FAILED, this.onServer, this );
             loader.load("/project/get-assets", { projectId: this.entry._id } );
 		}
 

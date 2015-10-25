@@ -39,8 +39,8 @@ module Animate
 
 				//try to create the database entry of this node
 				var loader = new AnimateLoader();
-				loader.addEventListener( LoaderEvents.COMPLETE, onServer );
-				loader.addEventListener( LoaderEvents.FAILED, onServer );
+				loader.on( LoaderEvents.COMPLETE, onServer );
+				loader.on( LoaderEvents.FAILED, onServer );
                 loader.load("/project/copy-script", { projectId: User.get.project.entry._id, originalId: shallowId, shallowId: behaviour.shallowId });
 
 				//When we have copied the script
@@ -92,8 +92,8 @@ module Animate
 
 			//try to create the database entry of this node
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
-			loader.addEventListener( LoaderEvents.FAILED, onServer );
+			loader.on( LoaderEvents.COMPLETE, onServer );
+			loader.on( LoaderEvents.FAILED, onServer );
             loader.load("/project/delete-scripts", { projectId: User.get.project.entry._id, ids: [this.shallowId] });
 			
 			//When we 
@@ -124,8 +124,8 @@ module Animate
 
 			//try to create the database entry of this node
 			var loader = new AnimateLoader();
-			loader.addEventListener( LoaderEvents.COMPLETE, onServer );
-			loader.addEventListener( LoaderEvents.FAILED, onServer );
+			loader.on( LoaderEvents.COMPLETE, onServer );
+			loader.on( LoaderEvents.FAILED, onServer );
             loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).behaviourContainer.shallowId, behaviourId: behaviour.id });
 			
 			//When we 

@@ -24,7 +24,7 @@ module Animate
 			this.behaviour = behaviour;
 
 			this.element.draggable( { opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-			PropertyGrid.getSingleton().addEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+			PropertyGrid.getSingleton().on( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 		}
 
 		/**
@@ -102,7 +102,7 @@ module Animate
 			if ( this.element.hasClass( "draggable" ) )
 				this.element.draggable( "destroy" );
 
-			PropertyGrid.getSingleton().removeEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 			this.behaviour = null;
 
 			//Call super

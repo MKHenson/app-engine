@@ -120,7 +120,11 @@ module Animate
 		* @param {object} val The jQuery event object
 		*/
 		onWindowResized( val ) : void
-		{
+        {
+            // Do not update everything if the event is from JQ UI
+            if (val && $(val.target).hasClass('ui-resizable'))
+                return;
+
 			super.update();
 		}
 
@@ -172,7 +176,7 @@ module Animate
 			CanvasTab.getSingleton().projectReady();
 
             var project: Project = User.get.project;
-			project.addEventListener( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+			project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			project.loadBehaviours();
 
 			//Create the page title
@@ -188,9 +192,9 @@ module Animate
 		onBehavioursLoaded( response: ProjectEvents, event: ProjectEvent, sender? : EventDispatcher ) : void
 		{
             var project: Project = User.get.project;
-			project.removeEventListener( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+			project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			
-			project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+			project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 			project.loadFiles();
 		}
 
@@ -200,9 +204,9 @@ module Animate
 		onAssetsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
             var project: Project = User.get.project;
-			project.removeEventListener( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+			project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
 
-			project.addEventListener( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+			project.on( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
 			project.loadGroups();
 		}
 
@@ -212,9 +216,9 @@ module Animate
 		onFilesLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
             var project: Project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+			project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
-			project.addEventListener( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+			project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
 			project.loadAssets();
 		}
 
@@ -224,10 +228,10 @@ module Animate
 		onGroupsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
             var project = User.get.project;
-			project.removeEventListener( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+			project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
 
-			project.removeEventListener( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
-			project.addEventListener( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+			project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+			project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
 
 			PluginManager.getSingleton().callReady();
 		}

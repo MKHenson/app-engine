@@ -34,7 +34,7 @@ module Animate
 			if ( this.asset.properties == null || this.asset.properties.variables.length == 0 )
 				this.asset.properties = assetClass.buildVariables();
 	
-			PropertyGrid.getSingleton().addEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+			PropertyGrid.getSingleton().on( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 		}
 
 		/**
@@ -119,7 +119,7 @@ module Animate
 		dispose()
 		{
 			this.element.draggable( "destroy" );
-			PropertyGrid.getSingleton().removeEventListener( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 
 			this.asset = null;
 			this.saved = null;

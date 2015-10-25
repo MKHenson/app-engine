@@ -18,7 +18,14 @@ module Animate
 			super( eventType, file );
 			this.file = file;
 		}
-	}
+    }
+
+    export enum FileSearchType
+    {
+        Global,
+        User,
+        Project
+    }
 
 	/**
 	* This form is used to load and select assets.
@@ -29,6 +36,11 @@ module Animate
 
         // New variables
         private _browserElm: JQuery;
+        private $pager: PageLoader;
+        private $selectedFile: Engine.IFile;
+        private $files: Array<Engine.IFile>;
+        private $loading: boolean;
+        private $errorMsg: string;
 
 		private toolbar: Component;
 		private selectedID: string;
@@ -44,7 +56,6 @@ module Animate
 		private catGlobal: Component;
 		private search: Component;
 		private menu: ListView;
-
 		private listInfo: Component;
 		private previewHeader: Component;
 		private okButton: Button;
@@ -56,12 +67,9 @@ module Animate
 		private tags: InputBox;
 		private thumbnail: InputBox;
 		private path: InputBox;
-
 		private uploader: FileUploaderBasic;
-
 		private updateButton: Button;
 		private extensions: Array<string>;
-
 		private submitProxy: any;
 		private thumbUploader: any;
 		private thumbSubmitProxy: any;
@@ -74,15 +82,56 @@ module Animate
 		
 		constructor()
 		{
+			FileViewerForm._singleton = this;
+
 			// Call super-class constructor
             super(1000, 600, true, true, "Asset Browser");
-            FileViewerForm._singleton = this;
-
+            this.element.attr("id", "file-viewer-window");
+            
             this._browserElm = jQuery("#file-viewer").remove().clone();
-
-            //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
-            this.selectedID = null;
             this.content.element.append(this._browserElm);
+            this.$files = [];
+            this.$selectedFile = null;
+            this.$errorMsg = "";
+            this.$pager = new PageLoader(this.fetchFiles.bind(this));
+            Compiler.build(this._browserElm, this);
+
+            
+
+            var that = this;
+            var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
+                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
+                new ToolbarItem("media/assets-user.png", "Filter by My Files"),
+                new ToolbarItem("media/assets-global.png", "Filter by Global Files")
+            ]);
+            searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown)
+            {
+                if (sender.selectedItem.text == "Filter by Project Files")
+                    that.selectMode(FileSearchType.Project);
+                else if (sender.selectedItem.text == "Filter by My Files")
+                    that.selectMode(FileSearchType.User);
+                else
+                    that.selectMode(FileSearchType.Global);
+            });
+
+            jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
+
+
+            // Make the form resizable
+            this.element.resizable(<JQueryUI.ResizableOptions>{
+                minHeight: 50,
+                minWidth: 50,
+                helper: "ui-resizable-helper",
+                stop: function ()
+                {
+                //    that.center();
+                }
+            });
+
+   //         //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
+   //         this.toolbar = new Component(null);
+
+   //         this.selectedID = null;
 
 			////Create buttons and groups
 			//var group : Component = this.createGroup();
@@ -113,41 +162,38 @@ module Animate
 
 
 
-			//Bottom panels
+			////Bottom panels
 			//var btmLeft : Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
 			//var btmRight: Component = <Component>this.content.addChild( "<div class='viewer-block'></div>" );
 
-            var btmLeft: Component = new Component("<div class='viewer-block'></div>");
-            var btmRight: Component = new Component("<div class='viewer-block'></div>");
+			//var listBlock : Component = <Component>btmLeft.addChild( "<div class='list-block'></div>" );
+			//this.menu = new ListView( listBlock );
+			//this.menu.addColumn( "ID" );
+			//this.menu.addColumn( "Name" );
+			//this.menu.addColumn( "Tags" );
+			//this.menu.addColumn( "Size" );
+			//this.menu.addColumn( "URL" );
+			//this.menu.addColumn( "Favourite" );
+			//this.menu.addColumn( "Created On" );
+			//this.menu.addColumn( "Last Modified" );
+			//this.menu.addColumn( "Extension" );
 
-			var listBlock : Component = <Component>btmLeft.addChild( "<div class='list-block'></div>" );
-			this.menu = new ListView( listBlock );
-			this.menu.addColumn( "ID" );
-			this.menu.addColumn( "Name" );
-			this.menu.addColumn( "Tags" );
-			this.menu.addColumn( "Size" );
-			this.menu.addColumn( "URL" );
-			this.menu.addColumn( "Favourite" );
-			this.menu.addColumn( "Created On" );
-			this.menu.addColumn( "Last Modified" );
-			this.menu.addColumn( "Extension" );
+			//this.listInfo = <Component>btmLeft.addChild( "<div class='selection-info'><span class='selected-asset'>Selected: </span><span class='assets'>All your base!</span></div>" );
 
-			this.listInfo = <Component>btmLeft.addChild( "<div class='selection-info'><span class='selected-asset'>Selected: </span><span class='assets'>All your base!</span></div>" );
-
-			//Preview section
-			this.previewHeader = new Component( "<div class='file-preview-header'><div class='header-name'>Preview</div></div>", btmRight );
-			this.okButton = new Button( "Use this File", this.previewHeader );
-			this.okButton.css( { "float": "right", width: "100px", height: "25px", margin: "0 0 5px 0" });
-			this.previewHeader.element.append( "<div class='fix'></div>" );
+			////Preview section
+			//this.previewHeader = new Component( "<div class='file-preview-header'><div class='header-name'>Preview</div></div>", btmRight );
+			//this.okButton = new Button( "Use this File", this.previewHeader );
+			//this.okButton.css( { "float": "right", width: "100px", height: "25px", margin: "0 0 5px 0" });
+			//this.previewHeader.element.append( "<div class='fix'></div>" );
 
 
-			this.preview = new Component( "<div class='file-preview'></div>", btmRight );
+			//this.preview = new Component( "<div class='file-preview'></div>", btmRight );
 
-			//Create info section
-			var infoSection : Component = new Component( "<div class='info-section'></div>", btmRight );
+			////Create info section
+			//var infoSection : Component = new Component( "<div class='info-section'></div>", btmRight );
 
-			this.statusBar = new Component( "<div class='upload-status'><img src='media/close.png' /><span class='upload-text'>Uploading</span></div>", infoSection );
-			this.statusBar.element.hide();
+			//this.statusBar = new Component( "<div class='upload-status'><img src='media/close.png' /><span class='upload-text'>Uploading</span></div>", infoSection );
+			//this.statusBar.element.hide();
 
 			////Name
 			//group = new Component( "<div class='file-group'><div>", infoSection );
@@ -228,11 +274,47 @@ module Animate
 
 			//this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
 
-			jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
-			jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
-		}
+			//jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
+			//jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
+			//jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
+			//jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
+        }
+
+        selectMode(type: FileSearchType)
+        {
+            
+        }
+
+        /*
+        * Fetches a list of user projects
+        * @param {number} index 
+        * @param {number} limit
+        */
+        fetchFiles(index: number, limit: number)
+        {
+            var that = this;
+            that.$loading = true;
+            that.$errorMsg = "";
+            that.$selectedFile = null;
+            Animate.Compiler.digest(that._browserElm, that);
+            //var project: Project = User.get.project;
+            //project.loadFiles("project");
+
+            //that.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
+            //{
+            //    that.$pager.last = projects.count || 1;
+            //    that.$files = projects.data;
+
+            //}).fail(function (err: Error)
+            //{
+            //    that.$errorMsg = err.message;
+
+            //}).done(function ()
+            //{
+            //    that.$loading = false;
+            //    Animate.Compiler.digest(that._browserElm, that);
+            //});
+        }
 
 		/**
 		* Called when we are dragging over the item
@@ -340,7 +422,7 @@ module Animate
 		*/
 		createGroupButton( text: string, image : string, group : Component )  : Component
 		{
-			return <Component>group.addChild( "<div class='toolbar-button'><div><img src='" + image + "' /></div><div class='tool-bar-text'>" + text + "</div></div>" );
+            return <Component>group.addChild( "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>" );
 		}
 
 
@@ -381,7 +463,7 @@ module Animate
 		onFilesLoaded( response: ProjectEvents, data : ProjectEvent )
 		{
 			var project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+			project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 			this.populateFiles( project.files );
 		}
 
@@ -428,7 +510,7 @@ module Animate
 		{
 			//Not a project file - so we have to import it.
 			var project : Project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+			project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
 			var file: File = null;
@@ -476,8 +558,8 @@ module Animate
 					//Not a project file - so we have to import it.
 					var project = User.get.project;
 					project.importFile( [file.id] );
-					project.removeEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
-					project.addEventListener( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+					project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+					project.on( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 				}
 			}
 			//Select Grid 
@@ -513,8 +595,8 @@ module Animate
 					this.onItemClicked( null, null );
                     var project: Project = User.get.project;
 					project.loadFiles( "project" );
-					project.removeEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
-					project.addEventListener( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+					project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+					project.on( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 
 					this.okButton.text = "Use this File";
 				}
@@ -528,8 +610,8 @@ module Animate
                     var project: Project = User.get.project;
 					
 
-					project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-					project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+					project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+					project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 					if ( target.is( this.catUser.element ) )
 						project.loadFiles( "user" );
@@ -555,8 +637,8 @@ module Animate
 
 					if ( file )
 					{
-						project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.addEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
 						project.deleteFiles( [file.id] );
 					}
 				}
@@ -565,7 +647,7 @@ module Animate
 			else if ( target.is( this.updateButton.element ) )
 			{
 				var project : Project = User.get.project;
-				project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
+				project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
 				var items: Array<ListViewItem> = this.menu.getSelectedItems();
 				if ( items.length > 0 )
 				{
@@ -576,8 +658,8 @@ module Animate
 
 					if ( file )
 					{
-						project.addEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.addEventListener( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+						project.on( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
 						project.saveFile( file.id, this.name.text, this.tags.text.split(","), file.favourite, this.global.checked );
 					}
 				}
@@ -780,8 +862,8 @@ module Animate
 				jQuery( ".upload-text", this.statusBar.element ).text( response.message );
 				this.addButton.enabled = true;
 				var project: Project = User.get.project;
-				project.removeEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-				project.addEventListener( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+				project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+				project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 				if ( this.catUser.selected )
 					project.loadFiles( "user" );
@@ -965,9 +1047,9 @@ module Animate
 			var data = event.tag;
 			var items: Array<ListViewItem> = this.menu.getSelectedItems();
 			var project : Project = User.get.project;
-			project.removeEventListener( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
-			project.removeEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
-			project.removeEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
 
 			if ( items.length > 0 )
 			{
@@ -1021,8 +1103,8 @@ module Animate
 				jQuery( ".upload-text", this.statusBar.element ).text( event.message );
 			}
 
-			project.removeEventListener( ProjectEvents.FAILED, this.onFileDeleted, this );
-			project.removeEventListener( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
+			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
 		}
 
 		/**

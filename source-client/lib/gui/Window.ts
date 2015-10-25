@@ -200,7 +200,11 @@ module Animate
 		* @param {object} val 
 		*/
 		onWindowResized( val )
-		{
+        {
+            // Do not update everything if the event is from JQ UI
+            if (val && $(val.target).hasClass('ui-resizable'))
+                return;
+
 			var bod = jQuery( "body" );
 			if ( this._isVisible )
 			{

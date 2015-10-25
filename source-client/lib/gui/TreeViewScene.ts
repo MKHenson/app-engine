@@ -53,7 +53,7 @@ module Animate
 			this._contextRefresh = this._contextMenu.addItem( new ContextMenuItem( "Update", "media/refresh.png" ) );
 			this._contextAddGroup = this._contextMenu.addItem( new ContextMenuItem( "Add Group", 'media/array.png' ) );
 
-			this._contextMenu.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+			this._contextMenu.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 
 			jQuery( document ).on( "contextmenu", this.onContext.bind( this ) );
@@ -79,7 +79,7 @@ module Animate
 			this._quickAdd.element.detach();
 			this._quickCopy.element.detach();
 
-			RenameForm.getSingleton().addEventListener( RenameFormEvents.OBJECT_RENAMING, this.onRenameCheck, this );
+			RenameForm.getSingleton().on( RenameFormEvents.OBJECT_RENAMING, this.onRenameCheck, this );
 		}
 
 		onShortcutClick( e )
@@ -143,16 +143,16 @@ module Animate
 				}
 
 			this._curProj = User.get.project;
-			this._curProj.addEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-			this._curProj.addEventListener( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
-			this._curProj.addEventListener( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
-			this._curProj.addEventListener( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
-			this._curProj.addEventListener( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
-			this._curProj.addEventListener( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
-			this._curProj.addEventListener( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
-			this._curProj.addEventListener( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
-			this._curProj.addEventListener( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
-			this._curProj.addEventListener( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
+			this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+			this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+			this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+			this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+			this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+			this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+			this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+			this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+			this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+			this._curProj.on( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
 		}
 
 		/**
@@ -162,16 +162,16 @@ module Animate
 		{
 			if ( this._curProj )
 			{
-				this._curProj.removeEventListener( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
-				this._curProj.removeEventListener( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
+				this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+				this._curProj.off( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+				this._curProj.off( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+				this._curProj.off( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+				this._curProj.off( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+				this._curProj.off( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+				this._curProj.off( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+				this._curProj.off( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+				this._curProj.off( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+				this._curProj.off( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
 			}
 
 			this.children[0].clear();

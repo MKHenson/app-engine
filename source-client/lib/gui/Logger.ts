@@ -44,7 +44,7 @@ module Animate
 			this.mContextProxy =  this.onContext.bind( this );
 
 			jQuery( document ).on( "contextmenu", this.mContextProxy );
-			this.context.addEventListener( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
+			this.context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 			//this.element.disableSelection( true );
 

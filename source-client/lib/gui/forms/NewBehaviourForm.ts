@@ -62,8 +62,8 @@ module Animate
 				}
 
 				//Create the Behaviour in the DB
-                User.get.project.addEventListener( ProjectEvents.FAILED, this.createProxy );
-				User.get.project.addEventListener( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
 				User.get.project.createBehaviour( ( <Label>this.name.val).text );
 				return;
 			}
@@ -74,8 +74,8 @@ module Animate
 		/** Called when we create a behaviour.*/
 		onCreated( response: ProjectEvents, event : ProjectEvent )
 		{
-			User.get.project.removeEventListener( ProjectEvents.FAILED, this.createProxy );
-			User.get.project.removeEventListener( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
 
 			if ( response == ProjectEvents.FAILED )
 			{
