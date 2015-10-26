@@ -10,19 +10,15 @@ import * as mongodb from "mongodb";
 */
 export class ResourceController extends Controller
 {
-    protected modelName;
-
 	/**
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
 	*/
-    constructor( restUrl : string, modelName: string, model: Model, server: IServer, config: IConfig, e: express.Express)
+    constructor( restUrl : string, model: Model, server: IServer, config: IConfig, e: express.Express)
     {
         super([model]);
-
-        this.modelName = modelName;
 
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
@@ -44,10 +40,10 @@ export class ResourceController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private create(req: IAuthReq, res: express.Response, next: Function)
+    protected create(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
 
         var newResource: Engine.IResource = req.body;
@@ -88,10 +84,10 @@ export class ResourceController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private editResource(req: IAuthReq, res: express.Response, next: Function)
+    protected editResource(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var project: string = req.params.project;
         var id: string = req.params.id;
@@ -140,10 +136,10 @@ export class ResourceController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private removeResources(req: IAuthReq, res: express.Response, next: Function)
+    protected removeResources(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var project : string = req.params.project;
         var ids : string = req.params.ids;
@@ -197,10 +193,10 @@ export class ResourceController extends Controller
     * @param {express.Response} res
     * @param {Function} next 
     */
-    private getResources(req: IAuthReq, res: express.Response, next: Function)
+    protected getResources(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var count = 0;
 

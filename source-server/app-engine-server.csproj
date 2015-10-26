@@ -45,6 +45,7 @@
     <TypeScriptCompile Include="lib\Captcha.ts" />
     <TypeScriptCompile Include="lib\controllers\PermissionController.ts" />
     <TypeScriptCompile Include="lib\controllers\PluginController.ts" />
+    <TypeScriptCompile Include="lib\new-controllers\FileController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\ResourceController.ts" />
     <TypeScriptCompile Include="lib\new-controllers\AssetController.ts" />
     <TypeScriptCompile Include="lib\controllers\MiscController.ts" />

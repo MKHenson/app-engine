@@ -20,9 +20,8 @@ var ResourceController = (function (_super) {
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function ResourceController(restUrl, modelName, model, server, config, e) {
+    function ResourceController(restUrl, model, server, config, e) {
         _super.call(this, [model]);
-        this.modelName = modelName;
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -42,7 +41,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.create = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var newResource = req.body;
         // Set the user parameter
@@ -76,7 +75,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.editResource = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var project = req.params.project;
         var id = req.params.id;
@@ -118,7 +117,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.removeResources = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var project = req.params.project;
         var ids = req.params.ids;
@@ -162,7 +161,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.getResources = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel(this.modelName);
+        var model = this._models[0];
         var that = this;
         var count = 0;
         var findToken = {};

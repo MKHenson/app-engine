@@ -41,6 +41,12 @@ module Animate
         private $files: Array<Engine.IFile>;
         private $loading: boolean;
         private $errorMsg: string;
+        private $search: string;
+        private $entries: Array<any>;
+
+        public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
+        public selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
+        public selectedFolder: UsersInterface.IBucketEntry;
 
 		private toolbar: Component;
 		private selectedID: string;
@@ -93,7 +99,12 @@ module Animate
             this.$files = [];
             this.$selectedFile = null;
             this.$errorMsg = "";
-            this.$pager = new PageLoader(this.fetchFiles.bind(this));
+            this.$pager = new PageLoader(this.updateContent.bind(this));
+            this.selectedEntities = [];
+            this.selectedEntity = null;
+            this.selectedFolder = null;
+            this.$search = "";
+            this.$entries = [];
             Compiler.build(this._browserElm, this);
 
             
@@ -286,17 +297,46 @@ module Animate
         }
 
         /*
-        * Fetches a list of user projects
+        * Fetches a list of user buckets and files
         * @param {number} index 
         * @param {number} limit
         */
-        fetchFiles(index: number, limit: number)
+        updateContent(index: number, limit: number)
         {
             var that = this;
+            var details = User.get.userEntry;
+            var command = "";
+            var mediaURL = DB.USERS + "/media";
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedFile = null;
             Animate.Compiler.digest(that._browserElm, that);
+            this.selectedEntities.splice(0, this.selectedEntities.length);
+            this.selectedEntity = null;
+            
+
+            if (this.selectedFolder)
+                command = "";//`${mediaURL}/get-files/${details.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.$search}`
+            else
+                command = `${mediaURL}/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
+
+            jQuery.getJSON(command).then(function (token : UsersInterface.IGetFiles)
+            {
+                if (token.error)
+                {
+                    that.$errorMsg = token.message;
+                    that.$entries = [];
+                    that.$pager.last = 1;
+                }
+                else
+                {
+                    that.$entries = token.data;
+                    that.$pager.last = token.count;
+                }
+
+                that.$loading = false;
+            });
+
             //var project: Project = User.get.project;
             //project.loadFiles("project");
 

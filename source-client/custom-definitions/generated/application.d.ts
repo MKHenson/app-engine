@@ -5356,6 +5356,7 @@ declare module Animate {
         private _selectBuild;
         private _saveBuild;
         private _uploader;
+        private _renameProxy;
         private _buildProxy;
         private _clickProxy;
         private _settingPages;
@@ -5393,6 +5394,11 @@ declare module Animate {
         */
         onClick(e: any): void;
         /**
+        * Catch the key down events.
+        * @param {any} e The jQuery event object
+        */
+        onKeyDown(e: any): void;
+        /**
         * When we recieve the server call for build requests
         * @param {ProjectEvents} event
         * @param {Event} data
@@ -5404,6 +5410,12 @@ declare module Animate {
         */
         updateFields(data: Build): void;
         /**
+        * When we recieve the server call for saving project data.
+        * @param {UserEvents} event
+        * @param {UserEvent} data
+        */
+        onRenamed(response: UserEvents, event: UserEvent): void;
+        /**
         * Shows the build options form
         * @returns {any}
         */
@@ -5412,6 +5424,11 @@ declare module Animate {
         * This is called to initialize the one click loader
         */
         initializeLoader(): void;
+        /**
+        * Use this function to print a message on the settings screen.
+        * @param {string} message The message to print
+        * @param <bool> isError Should this be styled to an error or not
+        */
         /**
         * Gets the singleton instance.
         * @returns {BuildOptionsForm}
@@ -5447,6 +5464,11 @@ declare module Animate {
         private $files;
         private $loading;
         private $errorMsg;
+        private $search;
+        private $entries;
+        selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
+        selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
+        selectedFolder: UsersInterface.IBucketEntry;
         private toolbar;
         private selectedID;
         private modeGrid;
@@ -5486,7 +5508,7 @@ declare module Animate {
         private buttonProxy;
         constructor();
         selectMode(type: FileSearchType): void;
-        fetchFiles(index: number, limit: number): void;
+        updateContent(index: number, limit: number): void;
         /**
         * Called when we are dragging over the item
         */

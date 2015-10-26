@@ -33,10 +33,10 @@ export default class AppEngine extends Controller
             new UserDetailsController(server, config, e),
             new PermissionController(server, config, e),
             new PluginController(server, config, e),
-            new ResourceController("/app-engine/assets", "en-assets", new AssetModel(), server, config, e),
-            new ResourceController("/app-engine/files", "en-files", new AssetModel(), server, config, e),
-            new ResourceController("/app-engine/groups", "en-groups", new AssetModel(), server, config, e),
-            new ResourceController("/app-engine/behaviours", "en-behaviours", new AssetModel(), server, config, e),
+            new ResourceController("/app-engine/assets", new AssetModel(), server, config, e),
+            new ResourceController("/app-engine/files", new FileModel(), server, config, e),
+            new ResourceController("/app-engine/groups", new GroupModel(), server, config, e),
+            new ResourceController("/app-engine/behaviours", new BehaviourModel(), server, config, e),
             new ProjectController(server, config, e),
             new BuildController(server, config, e)
         ];
@@ -65,7 +65,6 @@ export default class AppEngine extends Controller
             {
                 resolve(err);
             });
-        }) 
+        })
     }
-
 }

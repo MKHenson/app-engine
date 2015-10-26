@@ -1,7 +1,11 @@
 ﻿<div id="file-viewer">
 
 	<div class="file-viewer-toolbar">
-		<div class="button reg-gradient">
+		
+		<div class="button reg-gradient" en-if="!ctrl.$selectedFolder" en-click="ctrl.$$newFolder = !ctrl.$$newFolder" >
+			<div class="cross"></div>Add Folder
+		</div>
+		<div class="button green" en-if="ctrl.$selectedFolder">
 			<div class="cross"></div>Add File
 		</div>
 
@@ -29,6 +33,15 @@
 	<!-- File view -->
 	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
 		<div class="file-items">
+			
+			<div class="new-folder-ctnr animate-all background curve-small" en-class="{ opened : ctrl.$$newFolder }" >
+				<div class="new-folder-inner">
+					<p><strong>Folder Name:</strong></p>
+					<input class="background-view-light" id="new-folder-name" type="text" />
+					<div class="button green"><div class="cross"></div>Add</div>
+				</div>
+			</div>
+
 			<div class="file-item img-preview unselectable" en-repeat="ctrl.$files as file" en-click="ctrl.selectFile(project)">
 				<div class="welcome-preview">
 					<div class="background-tiles inner ng-scope">
