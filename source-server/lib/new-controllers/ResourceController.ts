@@ -16,22 +16,28 @@ export class ResourceController extends Controller
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
 	*/
-    constructor( restUrl : string, model: Model, server: IServer, config: IConfig, e: express.Express)
+    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express, router?: express.Router)
     {
         super([model]);
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+        var r = router;
 
-        router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-        router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
-        router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
-        router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
+        if (!r)
+        {
+            express.Router();
+            r.use(bodyParser.urlencoded({ 'extended': true }));
+            r.use(bodyParser.json());
+            r.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+
+            r.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
+            r.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+            r.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
+            r.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
+        }
 
         // Register the path
-        e.use(restUrl, router);
+        e.use(restUrl, r);
+
     }
 
     /**

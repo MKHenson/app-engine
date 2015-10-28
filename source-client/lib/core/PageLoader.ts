@@ -19,6 +19,14 @@
             this.last = 1;
             this.searchTerm = "";
         }
+
+        /**
+        * Calls the update function
+        */
+        invalidate()
+        {
+            this.updateFunc(this.index, this.limit);
+        }
         
         /**
         * Gets the current page number

@@ -1,58 +1,87 @@
 ﻿<div id="file-viewer">
 
 	<div class="file-viewer-toolbar">
-		
-		<div class="button reg-gradient" en-if="!ctrl.$selectedFolder" en-click="ctrl.$$newFolder = !ctrl.$$newFolder" >
+		<div class="button reg-gradient" en-if="!ctrl.selectedFolder" en-click="ctrl.$errorMsg = ''; ctrl.$$newFolder = !ctrl.$$newFolder" en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add Folder
 		</div>
-		<div class="button green" en-if="ctrl.$selectedFolder">
+		<div class="button reg-gradient" en-if="ctrl.selectedFolder"  en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add File
 		</div>
-
-		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button tooltip disabled">
-				<div><img src="media/star.png" /></div>
-				<div class="tooltip-text">Favourite</div>
+		
+		<div en-show="ctrl.selectedFolder" class="file-filters">
+			<div class="tool-bar-group background-view-light">
+				<div class="toolbar-button tooltip">
+					<div><img src="media/star.png" /></div>
+					<div class="tooltip-text">Favourite</div>
+				</div>
 			</div>
+			<div id="file-search-mode" class="tool-bar-group background-view-light"></div>
 		</div>
-		<div class="tool-bar-group background-view-light">
-			<div class="toolbar-button tooltip disabled" >
+		<div class="tool-bar-group background-view-light" en-class="{ disabled : ctrl.selectedEntities.length == 0 }">
+			<div class="toolbar-button tooltip" en-click="ctrl.confirmDelete()">
 				<div><img src="media/remove-asset.png" /></div>
 				<div class="tooltip-text">Remove</div>
 			</div>
 		</div>
-		<div id="file-search-mode" class="tool-bar-group background-view-light"></div>
 		<div class="file-search">
-			<input class="background-view-light" type="text">
-			<img src="media/search.png">
+			<input en-model="ctrl.$search" class="background-view-light" type="text">
+			<img en-click="ctrl.$pager.invalidate()" src="media/search.png">
 		</div>
 		<div class="fix"></div>
 	</div>
 	
 
-	<!-- File view -->
+	<!-- Folders/Files view -->
 	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
 		<div class="file-items">
-			
-			<div class="new-folder-ctnr animate-all background curve-small" en-class="{ opened : ctrl.$$newFolder }" >
+			<div class="error animate-all bad-input" en-show="ctrl.$errorMsg != ''" en-class="{ opened : ctrl.$errorMsg != '' }" >
+				<div class="error-inner">{{ctrl.$errorMsg}}
+					<div class="button red" en-show="ctrl.$confirmDelete" en-click="ctrl.removeEntities()">Yes</div>
+					<div class="button red" en-show="ctrl.$confirmDelete" en-click="ctrl.$errorMsg = ''; ctrl.$confirmDelete=false">No</div>
+				</div>
+				
+			</div>
+
+			<!--New folder-->
+			<div class="new-folder-ctnr animate-all background curve-small" en-show="ctrl.$$newFolder" en-class="{ opened : ctrl.$$newFolder }">
 				<div class="new-folder-inner">
 					<p><strong>Folder Name:</strong></p>
 					<input class="background-view-light" id="new-folder-name" type="text" />
-					<div class="button green"><div class="cross"></div>Add</div>
+					<div class="button green" en-click="ctrl.newFolder()"><div class="cross"></div>Add</div>
 				</div>
 			</div>
 
-			<div class="file-item img-preview unselectable" en-repeat="ctrl.$files as file" en-click="ctrl.selectFile(project)">
-				<div class="welcome-preview">
-					<div class="background-tiles inner ng-scope">
-						<img src="./media/appling.png" />
-						<div class="div-center"></div>
+			<!--Folders-->
+			<div class="folders" en-if="!ctrl.selectedFolder">
+				<div class="folder unselectable background" en-click="ctrl.selectEntity(folder)" en-repeat="ctrl.$entries as folder" en-class="{ selected : folder.selected }">
+					<div en-dclick="ctrl.openFolder(folder)">
+						<div class="icon" style="background-image:url('media/folder.png')"></div>{{folder.name}}
 					</div>
 				</div>
-				<div class="item-name" en-class="{ 'reg-gradient' : file.selected }">{{file.name}}</div>
+				<div class="fix"></div>
 			</div>
-			<div class="no-items unselectable" en-if="ctrl.$files.length == 0">You do not have any files uploaded</div>
+			<div class="folders" en-if="ctrl.selectedFolder">
+				<div class="folder unselectable light-hover" en-dclick="ctrl.openFolder()">
+					<div class="icon" style="background-image:url('media/folder.png')"></div>../{{ctrl.selectedFolder.name}}
+				</div>
+			</div>
+
+			<!--Files-->
+			<div en-if="ctrl.selectedFolder">
+				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectFile(project)">
+					<div class="welcome-preview">
+						<div class="background-tiles inner ng-scope">
+							<img src="./media/appling.png" />
+							<div class="div-center"></div>
+						</div>
+					</div>
+					<div class="item-name" en-class="{ 'reg-gradient' : file.selected }">{{file.name}}</div>
+				</div>
+			</div>
+			<div class="no-items unselectable" en-if="ctrl.$entries.length == 0">No {{(ctrl.selectedFolder ? "files" : "folders" )}} uploaded</div>
 		</div>
+
+		<!--Navigation-->
 		<div class="files-footer background">
 			<div class="navigation-column back soft-text">
 				<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
@@ -66,6 +95,10 @@
 				<a en-show="ctrl.$pager.index < ctrl.$pager.last - ctrl.$pager.limit" en-click="ctrl.$pager.goLast()">Last</a>
 			</div>
 			<div class="fix"></div>
+		</div>
+
+		<div class="loading modal-backdrop light-modal" en-show="ctrl.$loading">
+			<img class="loading" src="media/loading-blue.gif">
 		</div>
 	</div>
 

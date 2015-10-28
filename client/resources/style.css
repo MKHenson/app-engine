@@ -160,7 +160,9 @@ samp {
   font-family: monospace, monospace;
   font-size: 1em;
 }
-
+span {
+    color: inherit;
+}
 button,
 input,
 optgroup,
@@ -482,6 +484,14 @@ Please only put css rules in here for layout related requirements.
 /**
 *  WINDOW
 */
+.modal-backdrop {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 9998;
+    width: 100%;
+    height: 100%;
+}
 .window {
     position: absolute;
     z-index: 9998;
@@ -860,7 +870,7 @@ body {
 }
 .no-items {
     font-weight: bold;
-    margin-top: 10%;
+    margin-top: 25%;
     text-align: center;
     font-size: 40px;
 }
@@ -1207,15 +1217,12 @@ span.date {
     width: 200px;
     height: 200px;
     float: left;
+    margin-right:10px;
 }
 #upload-projet-img {
     cursor:pointer;
 }
 .build-options-form .img-data {
-    float: right;
-    width: 335px;
-    padding: 0px 10px 10px 10px;
-    box-sizing: border-box;
 }
 #options-project .error {
     margin: 10px 0;
@@ -1240,6 +1247,7 @@ span.date {
     width: 200px;
     height: 200px;
     float: left;
+    margin-right:10px;
 }
 
 /**
@@ -1250,9 +1258,13 @@ span.date {
     height:100%;
 }
 #file-viewer .files-view {
-    overflow: auto;
+    overflow: hidden;
     height: calc(100% - 57px);
     width: 100%;
+    position:relative;
+}
+.file-filters {
+    display:inline-block;
 }
 #file-viewer-window .window-control-box{
     margin:0;
@@ -1294,15 +1306,20 @@ span.date {
 .files-footer {
     height:39px;
 }
-.new-folder-ctnr {
+.new-folder-ctnr, .file-items .error {
     max-height:0;
     margin:10px;
     overflow:hidden;
     display:inline-block;
     
 }
-.new-folder-inner {
+.new-folder-inner, .error-inner {
     padding:15px;
+    color:inherit;
+    font-weight:bold;
+}
+.error-inner .button:first-child {
+    margin-left:15px;
 }
 .new-folder-ctnr input {
     padding:10px;
@@ -1311,10 +1328,51 @@ span.date {
 .new-folder-ctnr .button {
     margin-left:5px;
 }
-.new-folder-ctnr.opened {
+.new-folder-ctnr.opened, .file-items .error.opened {
     max-height:200px;
 }
+.folder, .file {
+    float:left;
+    margin:10px;
+    cursor:pointer;
+    line-height: 30px;
+}
+.folder{
+    padding:10px;
+}
+.file {
+    width:150px;
+    height:150px;
+    overflow: hidden;
+}
+.folders, .files {
+    margin: 15px;
+}
+.folder .icon {
+    width:32px;
+    height:32px;
+    float:left;
+    background-position:top left;
+    margin:0 5px 0 0;
+}
+.folder div {
+    color:inherit;
+}
+.folder.selected .icon {
+    background-position: 0 -32px;
+}
+.file-items .error {
+    margin:0;
+    display: block;
+}
+.folder, .file-preview {
+    background: #fff;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
+}
 
+#file-viewer .light-modal img {
+    margin: 20% 45%;
+}
 /**
 ======================================================
 				COLORS
@@ -1439,6 +1497,12 @@ a:active, a:hover {
 .dark-color {
     background-color: #292E38;
 }
+.dark-modal {
+    background-color: rgba(0,0,0,0.3) !important;
+}
+.light-modal {
+    background-color: rgba(255,255,255,0.7) !important;
+}
 .light-color {
     background-color: #ADC0DB;
 }
@@ -1500,6 +1564,14 @@ html .bad-input {
 .close-but:hover {
     color: #fff;
 }
+.selected:hover, .context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .project-selected, .drag-targets {
+    background: #5EA4EA;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+.red-highlight:hover {
+    color:red;
+}
 /**
 ======================================================
  TODO: Specific colors that need to be generalized!
@@ -1531,6 +1603,9 @@ html .bad-input {
     height: 20px;
     margin: 0px 5px 0 5px;
     vertical-align: middle;
+}
+.button .cross {
+    margin-right:10px;
 }
 
 .cross:before {
@@ -1788,7 +1863,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 .window .header-panel-heading{ height:30px; cursor:move; }
-.modal-backdrop { background-color:rgba(0,0,0,0.3) !important; position:absolute; top:0px; left:0px; z-index:9998; width:100%; height:100%; }
+
 
 
 
@@ -2079,18 +2154,13 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .tab-close .text{ pointer-events: none; }
 input, select{ color:#666; }
 .behaviour-picker .list{ color:#fff; }
-div .selected:hover{ text-shadow: 0px 0px 5px #c4ff00 !important; }
 
 .pushed {
     color: #fff !important;
     text-shadow: none !important;
 }
 
-.context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .menu-item-selected, .project-selected, .drag-targets {
-    background: #88CF0E;
-    color: #fff !important;
-    text-shadow: none !important;
-}
+
 .pushed, .context-item:active, .plugin-item:active, .project-browser-item:active, .tabs-drop-button:active {
     background: rgb(118,160,12); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(118,160,12,1) 1%, rgba(64,106,8,1) 100%); /* FF3.6+ */

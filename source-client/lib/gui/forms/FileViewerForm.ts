@@ -38,15 +38,16 @@ module Animate
         private _browserElm: JQuery;
         private $pager: PageLoader;
         private $selectedFile: Engine.IFile;
-        private $files: Array<Engine.IFile>;
         private $loading: boolean;
         private $errorMsg: string;
         private $search: string;
         private $entries: Array<any>;
+        private $confirmDelete: boolean;
 
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         public selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         public selectedFolder: UsersInterface.IBucketEntry;
+        private multiSelect: boolean;
 
 		private toolbar: Component;
 		private selectedID: string;
@@ -96,19 +97,18 @@ module Animate
             
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
-            this.$files = [];
             this.$selectedFile = null;
             this.$errorMsg = "";
+            this.$confirmDelete = false;
             this.$pager = new PageLoader(this.updateContent.bind(this));
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
             this.$search = "";
             this.$entries = [];
+            this.multiSelect = true;
             Compiler.build(this._browserElm, this);
-
             
-
             var that = this;
             var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
                 new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
@@ -132,11 +132,7 @@ module Animate
             this.element.resizable(<JQueryUI.ResizableOptions>{
                 minHeight: 50,
                 minWidth: 50,
-                helper: "ui-resizable-helper",
-                stop: function ()
-                {
-                //    that.center();
-                }
+                helper: "ui-resizable-helper"
             });
 
    //         //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
@@ -296,6 +292,132 @@ module Animate
             
         }
 
+        /**
+        * Attempts to open a folder
+        */
+        openFolder(folder: UsersInterface.IBucketEntry)
+        {
+            this.$pager.index = 0;
+            this.selectedFolder = folder;
+            this.$confirmDelete = false;
+            this.$errorMsg = "";
+            this.$pager.invalidate();
+        }
+
+        /**
+        * Creates a new folder 
+        */
+        newFolder()
+        {
+            var that = this;
+            var details = User.get.userEntry;
+            var folderName: string = $("#new-folder-name").val();
+            var mediaURL = DB.USERS + "/media";
+
+            if (folderName.trim() == "")
+            {
+                that.$errorMsg = "Please specify a valid folder name";
+                return Animate.Compiler.digest(that._browserElm, that);
+            }
+
+            that.$errorMsg = "";
+            that.$loading = true;
+
+            jQuery.post(`${mediaURL}/create-bucket/${details.username}/${folderName}`, null).then(function (token: UsersInterface.IResponse)
+            {
+                if (token.error)
+                    that.$errorMsg = token.message;
+                else
+                {
+                    $("#new-folder-name").val("");
+                    (<any>that).$$newFolder = false;
+                    that.$pager.invalidate();
+                }
+
+                that.$loading = false;
+                Animate.Compiler.digest(that._browserElm, that);
+            });
+        }
+
+        /**
+        * Shows / Hides the delete buttons
+        */
+        confirmDelete()
+        {
+            this.$confirmDelete = !this.$confirmDelete;
+            if (this.$confirmDelete)
+                this.$errorMsg = `Are you sure you want to delete these ${this.selectedFolder ? "file" : "folder" }s`;
+            else
+                this.$errorMsg = "";
+        }
+
+        /**
+        * Sets the selected status of a file or folder
+        */
+        selectEntity(entity)
+        {
+            this.$errorMsg = "";
+            this.$confirmDelete = false;
+
+            entity.selected = !entity.selected;
+            var ents = this.selectedEntities;
+
+            if (entity.selected)
+            {
+                if (this.multiSelect == false)
+                {
+                    for (var i = 0, l = ents.length; i < l; i++)
+                        (<any>ents[i]).selected = false;
+
+                    ents.splice(0, ents.length);
+                }
+
+                ents.push(entity);
+            }
+            else
+                ents.splice(ents.indexOf(entity), 1);
+
+            if (ents.length == 0)
+                this.selectedEntity = null;
+            else
+                this.selectedEntity = ents[ents.length - 1];
+        }
+
+        /**
+        * Removes the selected entities
+        */
+        removeEntities()
+        {
+            var that = this;
+            that.$errorMsg = "";
+            that.$loading = true;
+            var mediaURL = DB.USERS + "/media";
+            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            var entities = "";
+
+            if (this.selectedFolder)
+            {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
+            }
+            else
+            {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
+            }
+
+            entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
+
+            jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete"}).then(function (token: UsersInterface.IResponse)
+            {
+                if (token.error)
+                    that.$errorMsg = token.message;
+                that.$loading = false;
+                that.$confirmDelete = false;
+                that.$pager.invalidate();
+            });
+        }
+
         /*
         * Fetches a list of user buckets and files
         * @param {number} index 
@@ -310,13 +432,14 @@ module Animate
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedFile = null;
-            Animate.Compiler.digest(that._browserElm, that);
             this.selectedEntities.splice(0, this.selectedEntities.length);
             this.selectedEntity = null;
+
+            Animate.Compiler.digest(that._browserElm, that);
             
 
             if (this.selectedFolder)
-                command = "";//`${mediaURL}/get-files/${details.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.$search}`
+                command = `${mediaURL}/get-files/${details.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.$search}`
             else
                 command = `${mediaURL}/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
 
@@ -335,6 +458,7 @@ module Animate
                 }
 
                 that.$loading = false;
+                return Animate.Compiler.digest(that._browserElm, that);
             });
 
             //var project: Project = User.get.project;
@@ -471,7 +595,11 @@ module Animate
 		*/
 		showForm( id : string, extensions : Array<string> )
 		{
-			super.show(null, undefined, undefined, true);
+            super.show(null, undefined, undefined, true);
+            this.$errorMsg = "";
+            this.$confirmDelete = false;
+            this.$loading = false;
+            (<any>this).$$newFolder = false;
 
 			//this.selectedID = id;
 			//this.extensions = extensions;
@@ -492,7 +620,8 @@ module Animate
 			//this.catProject.element.addClass( "selected" ); //Must be on to begin with
 			//this.catProject.element.trigger( "click" );
 
-            Compiler.digest(this._browserElm, this);
+            this.$pager.invalidate();
+            //Compiler.digest(this._browserElm, this);
 		}
 
 		/**
@@ -800,20 +929,20 @@ module Animate
 				return;
 		}
 
-		/**
-		* @type public enum hide
-		* Hide this form
-		* @extends <FileViewerForm>
-		*/
-		hide()
-		{
-			super.hide();
+		///**
+		//* @type public enum hide
+		//* Hide this form
+		//* @extends <FileViewerForm>
+		//*/
+		//hide()
+		//{
+		//	super.hide();
 
-			var i = this.preview.children.length;
-			while ( i-- )
-				if ( this.preview.children[i].dispose )
-					this.preview.children[i].dispose();
-		}
+		//	var i = this.preview.children.length;
+		//	while ( i-- )
+		//		if ( this.preview.children[i].dispose )
+		//			this.preview.children[i].dispose();
+		//}
 
 		/**
 		* @type public mfunc handleDefaultPreviews

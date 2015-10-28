@@ -1923,6 +1923,10 @@ declare module Animate {
         protected searchTerm: string;
         constructor(updateFunction: (index: number, limit: number) => void);
         /**
+        * Calls the update function
+        */
+        invalidate(): void;
+        /**
         * Gets the current page number
         * @returns {number}
         */
@@ -5461,14 +5465,15 @@ declare module Animate {
         private _browserElm;
         private $pager;
         private $selectedFile;
-        private $files;
         private $loading;
         private $errorMsg;
         private $search;
         private $entries;
+        private $confirmDelete;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         selectedFolder: UsersInterface.IBucketEntry;
+        private multiSelect;
         private toolbar;
         private selectedID;
         private modeGrid;
@@ -5508,6 +5513,26 @@ declare module Animate {
         private buttonProxy;
         constructor();
         selectMode(type: FileSearchType): void;
+        /**
+        * Attempts to open a folder
+        */
+        openFolder(folder: UsersInterface.IBucketEntry): void;
+        /**
+        * Creates a new folder
+        */
+        newFolder(): Element;
+        /**
+        * Shows / Hides the delete buttons
+        */
+        confirmDelete(): void;
+        /**
+        * Sets the selected status of a file or folder
+        */
+        selectEntity(entity: any): void;
+        /**
+        * Removes the selected entities
+        */
+        removeEntities(): void;
         updateContent(index: number, limit: number): void;
         /**
         * Called when we are dragging over the item
@@ -5574,12 +5599,6 @@ declare module Animate {
         * When we click the close button on the status note
         */
         onItemClicked(responce: ListEvents, event: ListViewEvent): boolean;
-        /**
-        * @type public enum hide
-        * Hide this form
-        * @extends <FileViewerForm>
-        */
-        hide(): void;
         /**
         * @type public mfunc handleDefaultPreviews
         * This will attempt to handle simple file previews

@@ -62,7 +62,7 @@ module Animate
 			else
                 this._content = <Component>this.addChild( "<div class='window-content no-control'></div>" );
 
-			this._modalBackdrop = jQuery( "<div class='modal-backdrop dark-color'></div>" );
+            this._modalBackdrop = jQuery( "<div class='modal-backdrop dark-modal'></div>" );
 
 			//Proxies	
 			this._externalClickProxy = this.onStageClick.bind( this );

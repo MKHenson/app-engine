@@ -72,7 +72,7 @@ module Animate
 		onClick( e )
 		{
 			if ( this.selectedItem )
-				this.selectedItem.removeClass( "menu-item-selected" );
+				this.selectedItem.removeClass( "selected" );
 
 			this.selectedItem = null;
 
@@ -80,7 +80,7 @@ module Animate
 			if ( targ.is( jQuery( ".menu-list-item" ) ) )
 			{
 				this.selectedItem = targ;
-				this.selectedItem.addClass( "menu-item-selected" );
+				this.selectedItem.addClass( "selected" );
 				this.dispatchEvent( MenuListEvents.ITEM_CLICKED, targ.text() );
 
 				e.preventDefault();

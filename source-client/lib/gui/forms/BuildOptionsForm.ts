@@ -179,6 +179,18 @@ module Animate
             //this.addSettingPage(new UserPreferences("User Options"));
             tabPage = this._tab.addTab("User Options", false).page;
             tabPage.element.append(this._userElm);
+
+            // Make the form resizable
+            var that = this;
+            this.element.resizable(<JQueryUI.ResizableOptions>{
+                minHeight: 50,
+                minWidth: 50,
+                helper: "ui-resizable-helper",
+                stop: function ()
+                {
+                    that.update();
+                }
+            });
 		}
 
         /** 

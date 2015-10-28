@@ -95,7 +95,7 @@
             clone.$expression = node.$expression;
             clone.$expressionType = node.$expressionType;
             clone.$ieTextNodes = node.$ieTextNodes;
-
+            
             // If a descriptor node
             if (node.hasOwnProperty("$originalNode"))
             {
@@ -175,7 +175,10 @@
             for (var i in object)
             {
                 if (object[i])
+                {
                     htmlElem.classList.add(i);
+                    htmlElem.offsetWidth;
+                }
                 else if (htmlElem.classList.contains(i))
                     htmlElem.classList.remove(i);
             }
@@ -313,6 +316,8 @@
             var object = Compiler.parse(value, controller, null, elm, null);
             for (var i in object)
                 (<HTMLElement><Node>elm).style[i] = object[i];
+
+            (<HTMLElement><Node>elm).offsetWidth;
         }
 
         /**
@@ -657,8 +662,11 @@
                             break;
                         case "en-show":
                             var disp = (Compiler.parse(value, controller, null, elem, null) ? "" : "none");
-                            if (disp != (<HTMLImageElement>elem).style.display )
-                                (<HTMLImageElement>elem).style.display = disp;
+                            if (disp != (<HTMLImageElement>elem).style.display)
+                            {
+                                (<HTMLElement>elem).style.display = disp;
+                                (<HTMLElement>elem).offsetWidth;
+                            }
                             break;
                         case "en-html":
                             var html = Compiler.parse(value, controller, null, elem, null);

@@ -80,8 +80,10 @@ var Animate;
             var object = Compiler.parse(value, controller, null, elm, null);
             var htmlElem = elm;
             for (var i in object) {
-                if (object[i])
+                if (object[i]) {
                     htmlElem.classList.add(i);
+                    htmlElem.offsetWidth;
+                }
                 else if (htmlElem.classList.contains(i))
                     htmlElem.classList.remove(i);
             }
@@ -190,6 +192,7 @@ var Animate;
             var object = Compiler.parse(value, controller, null, elm, null);
             for (var i in object)
                 elm.style[i] = object[i];
+            elm.offsetWidth;
         };
         /**
         * Removes all registered events from the node
@@ -449,8 +452,10 @@ var Animate;
                             break;
                         case "en-show":
                             var disp = (Compiler.parse(value, controller, null, elem, null) ? "" : "none");
-                            if (disp != elem.style.display)
+                            if (disp != elem.style.display) {
                                 elem.style.display = disp;
+                                elem.offsetWidth;
+                            }
                             break;
                         case "en-html":
                             var html = Compiler.parse(value, controller, null, elem, null);
@@ -2746,14 +2751,14 @@ var Animate;
         */
         LoaderBase.createLoaderModal = function () {
             if (!LoaderBase.loaderBackdrop) {
-                var str = "<div class='modal-backdrop dark-color'><div class='logo-container'>" +
+                var str = "<div class='modal-backdrop dark-modal'><div class='logo-container'>" +
                     "<div class='logo-1 animated-logo loader-cog-slow'><img src='media/logo-1.png'/></div>" +
                     "<div class='logo-2 animated-logo loader-cog'><img src='media/logo-2.png'/></div>" +
                     "<div class='logo-3 animated-logo loader-cog-slow'><img src='media/logo-3.png'/></div>" +
                     "<div class='logo-4 animated-logo'><img src='media/logo-4.png'/></div>" +
                     "<div class='logo-5 animated-logo'><span class='loader-text'>LOADING</span></div>" +
                     "</div></div>";
-                //return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-color'><img class='loader-cog' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
+                //return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='loader-cog' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
                 LoaderBase.loaderBackdrop = jQuery(str);
             }
             return LoaderBase.loaderBackdrop;
@@ -4619,6 +4624,12 @@ var Animate;
             this.searchTerm = "";
         }
         /**
+        * Calls the update function
+        */
+        PageLoader.prototype.invalidate = function () {
+            this.updateFunc(this.index, this.limit);
+        };
+        /**
         * Gets the current page number
         * @returns {number}
         */
@@ -5136,12 +5147,12 @@ var Animate;
         */
         MenuList.prototype.onClick = function (e) {
             if (this.selectedItem)
-                this.selectedItem.removeClass("menu-item-selected");
+                this.selectedItem.removeClass("selected");
             this.selectedItem = null;
             var targ = jQuery(e.target);
             if (targ.is(jQuery(".menu-list-item"))) {
                 this.selectedItem = targ;
-                this.selectedItem.addClass("menu-item-selected");
+                this.selectedItem.addClass("selected");
                 this.dispatchEvent(MenuListEvents.ITEM_CLICKED, targ.text());
                 e.preventDefault();
                 return;
@@ -5812,7 +5823,7 @@ var Animate;
             }
             else
                 this._content = this.addChild("<div class='window-content no-control'></div>");
-            this._modalBackdrop = jQuery("<div class='modal-backdrop dark-color'></div>");
+            this._modalBackdrop = jQuery("<div class='modal-backdrop dark-modal'></div>");
             //Proxies	
             this._externalClickProxy = this.onStageClick.bind(this);
             this._isVisible = false;
@@ -6649,7 +6660,7 @@ var Animate;
                 this.selectedTab.page.element.detach();
             }
             var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
-            var tab = new Animate.Component("<div class='tab-selector background-dark tab-selected'><span class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div>", this._tabsDiv);
+            var tab = new Animate.Component("<div class='tab-selector background-dark tab-selected'><div class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</div></div>", this._tabsDiv);
             if (canClose) {
                 new Animate.Component("<div class='tab-close'>X</div>", tab);
                 tab.element.data("canClose", true);
@@ -14913,6 +14924,16 @@ var Animate;
             //this.addSettingPage(new UserPreferences("User Options"));
             tabPage = this._tab.addTab("User Options", false).page;
             tabPage.element.append(this._userElm);
+            // Make the form resizable
+            var that = this;
+            this.element.resizable({
+                minHeight: 50,
+                minWidth: 50,
+                helper: "ui-resizable-helper",
+                stop: function () {
+                    that.update();
+                }
+            });
         }
         /**
         * Attempts to update the project
@@ -15378,15 +15399,16 @@ var Animate;
             this.element.attr("id", "file-viewer-window");
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
-            this.$files = [];
             this.$selectedFile = null;
             this.$errorMsg = "";
+            this.$confirmDelete = false;
             this.$pager = new Animate.PageLoader(this.updateContent.bind(this));
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
             this.$search = "";
             this.$entries = [];
+            this.multiSelect = true;
             Animate.Compiler.build(this._browserElm, this);
             var that = this;
             var searchOptions = new Animate.ToolbarDropDown(null, [
@@ -15407,10 +15429,7 @@ var Animate;
             this.element.resizable({
                 minHeight: 50,
                 minWidth: 50,
-                helper: "ui-resizable-helper",
-                stop: function () {
-                    //    that.center();
-                }
+                helper: "ui-resizable-helper"
             });
             //         //this.toolbar = <Component>this.content.addChild("<div class='viewer-toolbar'></div>");
             //         this.toolbar = new Component(null);
@@ -15536,6 +15555,102 @@ var Animate;
         }
         FileViewerForm.prototype.selectMode = function (type) {
         };
+        /**
+        * Attempts to open a folder
+        */
+        FileViewerForm.prototype.openFolder = function (folder) {
+            this.$pager.index = 0;
+            this.selectedFolder = folder;
+            this.$confirmDelete = false;
+            this.$errorMsg = "";
+            this.$pager.invalidate();
+        };
+        /**
+        * Creates a new folder
+        */
+        FileViewerForm.prototype.newFolder = function () {
+            var that = this;
+            var details = Animate.User.get.userEntry;
+            var folderName = $("#new-folder-name").val();
+            var mediaURL = Animate.DB.USERS + "/media";
+            if (folderName.trim() == "") {
+                that.$errorMsg = "Please specify a valid folder name";
+                return Animate.Compiler.digest(that._browserElm, that);
+            }
+            that.$errorMsg = "";
+            that.$loading = true;
+            jQuery.post(mediaURL + "/create-bucket/" + details.username + "/" + folderName, null).then(function (token) {
+                if (token.error)
+                    that.$errorMsg = token.message;
+                else {
+                    $("#new-folder-name").val("");
+                    that.$$newFolder = false;
+                    that.$pager.invalidate();
+                }
+                that.$loading = false;
+                Animate.Compiler.digest(that._browserElm, that);
+            });
+        };
+        /**
+        * Shows / Hides the delete buttons
+        */
+        FileViewerForm.prototype.confirmDelete = function () {
+            this.$confirmDelete = !this.$confirmDelete;
+            if (this.$confirmDelete)
+                this.$errorMsg = "Are you sure you want to delete these " + (this.selectedFolder ? "file" : "folder") + "s";
+            else
+                this.$errorMsg = "";
+        };
+        /**
+        * Sets the selected status of a file or folder
+        */
+        FileViewerForm.prototype.selectEntity = function (entity) {
+            this.$errorMsg = "";
+            this.$confirmDelete = false;
+            entity.selected = !entity.selected;
+            var ents = this.selectedEntities;
+            if (entity.selected) {
+                if (this.multiSelect == false) {
+                    for (var i = 0, l = ents.length; i < l; i++)
+                        ents[i].selected = false;
+                    ents.splice(0, ents.length);
+                }
+                ents.push(entity);
+            }
+            else
+                ents.splice(ents.indexOf(entity), 1);
+            if (ents.length == 0)
+                this.selectedEntity = null;
+            else
+                this.selectedEntity = ents[ents.length - 1];
+        };
+        /**
+        * Removes the selected entities
+        */
+        FileViewerForm.prototype.removeEntities = function () {
+            var that = this;
+            that.$errorMsg = "";
+            that.$loading = true;
+            var mediaURL = Animate.DB.USERS + "/media";
+            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            var entities = "";
+            if (this.selectedFolder) {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += this.selectedEntities[i].identifier + ",";
+            }
+            else {
+                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                    entities += this.selectedEntities[i].name + ",";
+            }
+            entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
+            jQuery.ajax(mediaURL + "/" + command + "/" + entities, { type: "delete" }).then(function (token) {
+                if (token.error)
+                    that.$errorMsg = token.message;
+                that.$loading = false;
+                that.$confirmDelete = false;
+                that.$pager.invalidate();
+            });
+        };
         /*
         * Fetches a list of user buckets and files
         * @param {number} index
@@ -15549,11 +15664,11 @@ var Animate;
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedFile = null;
-            Animate.Compiler.digest(that._browserElm, that);
             this.selectedEntities.splice(0, this.selectedEntities.length);
             this.selectedEntity = null;
+            Animate.Compiler.digest(that._browserElm, that);
             if (this.selectedFolder)
-                command = ""; //`${mediaURL}/get-files/${details.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.$search}`
+                command = mediaURL + "/get-files/" + details.username + "/" + this.selectedFolder.name + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search;
             else
                 command = mediaURL + "/get-buckets/" + details.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search;
             jQuery.getJSON(command).then(function (token) {
@@ -15567,6 +15682,7 @@ var Animate;
                     that.$pager.last = token.count;
                 }
                 that.$loading = false;
+                return Animate.Compiler.digest(that._browserElm, that);
             });
             //var project: Project = User.get.project;
             //project.loadFiles("project");
@@ -15669,6 +15785,10 @@ var Animate;
         */
         FileViewerForm.prototype.showForm = function (id, extensions) {
             _super.prototype.show.call(this, null, undefined, undefined, true);
+            this.$errorMsg = "";
+            this.$confirmDelete = false;
+            this.$loading = false;
+            this.$$newFolder = false;
             //this.selectedID = id;
             //this.extensions = extensions;
             //this.initializeLoader();
@@ -15684,7 +15804,8 @@ var Animate;
             //this.catProject.element.removeClass( "selected" );
             //this.catProject.element.addClass( "selected" ); //Must be on to begin with
             //this.catProject.element.trigger( "click" );
-            Animate.Compiler.digest(this._browserElm, this);
+            this.$pager.invalidate();
+            //Compiler.digest(this._browserElm, this);
         };
         /**
         * Called when the files have been loaded
@@ -15915,18 +16036,19 @@ var Animate;
             if (this.handleDefaultPreviews(file, this.preview))
                 return;
         };
-        /**
-        * @type public enum hide
-        * Hide this form
-        * @extends <FileViewerForm>
-        */
-        FileViewerForm.prototype.hide = function () {
-            _super.prototype.hide.call(this);
-            var i = this.preview.children.length;
-            while (i--)
-                if (this.preview.children[i].dispose)
-                    this.preview.children[i].dispose();
-        };
+        ///**
+        //* @type public enum hide
+        //* Hide this form
+        //* @extends <FileViewerForm>
+        //*/
+        //hide()
+        //{
+        //	super.hide();
+        //	var i = this.preview.children.length;
+        //	while ( i-- )
+        //		if ( this.preview.children[i].dispose )
+        //			this.preview.children[i].dispose();
+        //}
         /**
         * @type public mfunc handleDefaultPreviews
         * This will attempt to handle simple file previews
