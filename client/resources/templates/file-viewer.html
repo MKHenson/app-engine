@@ -1,11 +1,12 @@
 ﻿<div id="file-viewer">
 
 	<div class="file-viewer-toolbar">
-		<div class="button reg-gradient" en-if="!ctrl.selectedFolder" en-click="ctrl.$errorMsg = ''; ctrl.$$newFolder = !ctrl.$$newFolder" en-class="{ disabled : ctrl.$loading }">
+		<div class="button reg-gradient" en-show="!ctrl.selectedFolder" en-click="ctrl.$errorMsg = ''; ctrl.$newFolder = !ctrl.$newFolder" en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add Folder
 		</div>
-		<div class="button reg-gradient" en-if="ctrl.selectedFolder"  en-class="{ disabled : ctrl.$loading }">
+		<div class="button reg-gradient" en-click="jQuery('#upload-new-file').trigger('click')" en-show="ctrl.selectedFolder" en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add File
+			<input type="file" id="upload-new-file" multiple="multiple" />
 		</div>
 		
 		<div en-show="ctrl.selectedFolder" class="file-filters">
@@ -34,6 +35,11 @@
 	<!-- Folders/Files view -->
 	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
 		<div class="file-items">
+
+			<div id="uploader-progress" class="progress-outer" en-show="ctrl.$numLoading > 0">
+				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$loadingPercent + '%'}">{{ctrl.$loadingPercent}}% of {{ctrl.$numLoading}}</span>
+			</div>
+
 			<div class="error animate-all bad-input" en-show="ctrl.$errorMsg != ''" en-class="{ opened : ctrl.$errorMsg != '' }" >
 				<div class="error-inner">{{ctrl.$errorMsg}}
 					<div class="button red" en-show="ctrl.$confirmDelete" en-click="ctrl.removeEntities()">Yes</div>
@@ -43,7 +49,7 @@
 			</div>
 
 			<!--New folder-->
-			<div class="new-folder-ctnr animate-all background curve-small" en-show="ctrl.$$newFolder" en-class="{ opened : ctrl.$$newFolder }">
+			<div class="new-folder-ctnr animate-all background curve-small" en-show="ctrl.$newFolder" en-class="{ opened : ctrl.$newFolder }">
 				<div class="new-folder-inner">
 					<p><strong>Folder Name:</strong></p>
 					<input class="background-view-light" id="new-folder-name" type="text" />

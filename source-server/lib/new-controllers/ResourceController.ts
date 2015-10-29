@@ -24,7 +24,7 @@ export class ResourceController extends Controller
 
         if (!r)
         {
-            express.Router();
+            r = express.Router();
             r.use(bodyParser.urlencoded({ 'extended': true }));
             r.use(bodyParser.json());
             r.use(bodyParser.json({ type: 'application/vnd.api+json' }));

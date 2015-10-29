@@ -24,7 +24,7 @@ var ResourceController = (function (_super) {
         _super.call(this, [model]);
         var r = router;
         if (!r) {
-            express.Router();
+            r = express.Router();
             r.use(bodyParser.urlencoded({ 'extended': true }));
             r.use(bodyParser.json());
             r.use(bodyParser.json({ type: 'application/vnd.api+json' }));

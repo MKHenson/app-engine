@@ -1,5 +1,25 @@
 ﻿declare module UsersInterface
 {
+    export module SocketEvents
+    {
+        /*
+        * The base interface for all socket events
+        */
+        export interface IEvent
+        {
+            eventType: number;
+            username: string;
+        }
+
+        /*
+        * Interface for file events
+        */
+        export interface IFileEvent extends IEvent
+        {
+            tokens: Array<IUploadToken>;
+        }
+    }
+
     /*
     * An interface to describe the data stored in the database for users
     */

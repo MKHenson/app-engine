@@ -23,8 +23,16 @@ var FileController = (function (_super) {
         r.put("/:user/:project/:id?", [modepress_api_1.canEdit, this.editResource.bind(this)]);
         r.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
         r.post("/:user/:project/:bucket", [modepress_api_1.canEdit, this.create.bind(this)]);
-        _super.call(this, "files", new FileModel_1.FileModel(), server, config, e, r);
+        modepress_api_1.EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
+        _super.call(this, "/app-engine/files", new FileModel_1.FileModel(), server, config, e, r);
     }
+    /**
+    * Called whenever a user has uploaded files
+    * @param {UsersInterface.SocketEvents.IFileEvent} event
+    */
+    FileController.prototype.onFilesUploaded = function (event) {
+        console.log("Uploaded files: " + event.tokens.);
+    };
     /**
     * Attempts to upload a file to the server
     * @param {express.Request} req
@@ -35,7 +43,7 @@ var FileController = (function (_super) {
         var that = this;
         var thatFunc = _super.prototype.create;
         var bucket = req.params.bucket;
-        Modepress.UsersService.getSingleton().uploadFile(bucket, req).then(function (data) {
+        modepress_api_1.UsersService.getSingleton().uploadFile(bucket, req).then(function (data) {
             if (data.error) {
                 winston.error(data.message, { process: process.pid });
                 return res.end(JSON.stringify({

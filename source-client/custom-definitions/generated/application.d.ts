@@ -5470,6 +5470,10 @@ declare module Animate {
         private $search;
         private $entries;
         private $confirmDelete;
+        private $newFolder;
+        private $numLoading;
+        private $loadingPercent;
+        extensions: Array<string>;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         selectedFolder: UsersInterface.IBucketEntry;
@@ -5501,7 +5505,6 @@ declare module Animate {
         private path;
         private uploader;
         private updateButton;
-        private extensions;
         private submitProxy;
         private thumbUploader;
         private thumbSubmitProxy;
@@ -5534,6 +5537,7 @@ declare module Animate {
         */
         removeEntities(): void;
         updateContent(index: number, limit: number): void;
+        uploadFile(file: any, url: string): void;
         /**
         * Called when we are dragging over the item
         */
@@ -5550,7 +5554,6 @@ declare module Animate {
         * This function is used to create a new group on the file viewer toolbar
         * @returns {Component} Returns the Component object representing the group
         */
-        createGroup(): Component;
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button
@@ -5558,7 +5561,6 @@ declare module Animate {
         * @param {Component} group The Component object representing the group
         * @returns {Component} Returns the Component object representing the button
         */
-        createGroupButton(text: string, image: string, group: Component): Component;
         /**
         * Shows the window.
         */

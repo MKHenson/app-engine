@@ -15399,6 +15399,7 @@ var Animate;
             this.element.attr("id", "file-viewer-window");
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
+            this.$newFolder = false;
             this.$selectedFile = null;
             this.$errorMsg = "";
             this.$confirmDelete = false;
@@ -15408,14 +15409,22 @@ var Animate;
             this.selectedFolder = null;
             this.$search = "";
             this.$entries = [];
+            this.extensions = [];
             this.multiSelect = true;
+            this.$numLoading = 0;
+            this.$loadingPercent = 0;
+            // Build the element with the compiler
             Animate.Compiler.build(this._browserElm, this);
             var that = this;
+            // Creates the filter options drop down
             var searchOptions = new Animate.ToolbarDropDown(null, [
                 new Animate.ToolbarItem("media/assets-project.png", "Filter by Project Files"),
                 new Animate.ToolbarItem("media/assets-user.png", "Filter by My Files"),
                 new Animate.ToolbarItem("media/assets-global.png", "Filter by Global Files")
             ]);
+            // Add the drop down to dom
+            jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
+            // Set the mode when they are clicked
             searchOptions.on("clicked", function (e, event, sender) {
                 if (sender.selectedItem.text == "Filter by Project Files")
                     that.selectMode(FileSearchType.Project);
@@ -15424,7 +15433,6 @@ var Animate;
                 else
                     that.selectMode(FileSearchType.Global);
             });
-            jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
             // Make the form resizable
             this.element.resizable({
                 minHeight: 50,
@@ -15524,7 +15532,7 @@ var Animate;
             //this.updateButton.css( { width: "70px", height: "20px", "margin": "5px 3px 0 0", "float": "right" });
             //infoSection.element.append( "<div class='fix'></div>" );
             //this.thumbUploader = null;
-            //this.uploader = null;
+            this.uploader = null;
             ////Event Listeners
             //this.buttonProxy = jQuery.proxy( this.onButtonClick, this );
             //this.submitProxy = jQuery.proxy( this.onSubmit, this );
@@ -15548,10 +15556,10 @@ var Animate;
             //this.extensions = [];
             //jQuery( "img", this.statusBar.element ).on( "click", jQuery.proxy( this.onStatusCloseClick, this ) );
             //this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
-            //jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
-            //jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
-            //jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
-            //jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
+            jQuery(this.element).on('dragexit', this.onDragLeave.bind(this));
+            jQuery(this.element).on('dragleave', this.onDragLeave.bind(this));
+            jQuery(this.element).on('dragover', this.onDragOver.bind(this));
+            jQuery(this.element).on('drop', this.onDrop.bind(this));
         }
         FileViewerForm.prototype.selectMode = function (type) {
         };
@@ -15573,6 +15581,7 @@ var Animate;
             var details = Animate.User.get.userEntry;
             var folderName = $("#new-folder-name").val();
             var mediaURL = Animate.DB.USERS + "/media";
+            // Empty names not allowed
             if (folderName.trim() == "") {
                 that.$errorMsg = "Please specify a valid folder name";
                 return Animate.Compiler.digest(that._browserElm, that);
@@ -15584,7 +15593,7 @@ var Animate;
                     that.$errorMsg = token.message;
                 else {
                     $("#new-folder-name").val("");
-                    that.$$newFolder = false;
+                    that.$newFolder = false;
                     that.$pager.invalidate();
                 }
                 that.$loading = false;
@@ -15684,20 +15693,37 @@ var Animate;
                 that.$loading = false;
                 return Animate.Compiler.digest(that._browserElm, that);
             });
-            //var project: Project = User.get.project;
-            //project.loadFiles("project");
-            //that.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
-            //{
-            //    that.$pager.last = projects.count || 1;
-            //    that.$files = projects.data;
-            //}).fail(function (err: Error)
-            //{
-            //    that.$errorMsg = err.message;
-            //}).done(function ()
-            //{
-            //    that.$loading = false;
-            //    Animate.Compiler.digest(that._browserElm, that);
-            //});
+        };
+        FileViewerForm.prototype.uploadFile = function (file, url) {
+            var that = this;
+            that.$numLoading++;
+            var xhr = new XMLHttpRequest();
+            var fd = new FormData();
+            xhr.open("POST", url, true);
+            //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onerror = function (ev) {
+                that.$numLoading--;
+                that.$loadingPercent = 0;
+                that.$errorMsg = "An error occurred while uploading the file '" + file.name + "' : ";
+                Animate.Compiler.digest(that._browserElm, that);
+            };
+            xhr.onprogress = function (ev) {
+                that.$loadingPercent = (ev.loaded / ev.total) * 100;
+                Animate.Compiler.digest(that._browserElm, that);
+            };
+            xhr.onreadystatechange = function () {
+                that.$numLoading--;
+                that.$loadingPercent = 100;
+                // Every thing ok, file uploaded
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.error)
+                        that.$errorMsg = data.message;
+                    Animate.Compiler.digest(that._browserElm, that);
+                }
+            };
+            fd.append("upload_file", file);
+            xhr.send(fd);
         };
         /**
         * Called when we are dragging over the item
@@ -15769,7 +15795,7 @@ var Animate;
         * This function is used to create a new group on the file viewer toolbar
         * @returns {Component} Returns the Component object representing the group
         */
-        FileViewerForm.prototype.createGroup = function () { return this.toolbar.addChild("<div class='tool-bar-group'></div>"); };
+        //createGroup(): Component { return <Component>this.toolbar.addChild( "<div class='tool-bar-group'></div>" ); }
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button
@@ -15777,9 +15803,10 @@ var Animate;
         * @param {Component} group The Component object representing the group
         * @returns {Component} Returns the Component object representing the button
         */
-        FileViewerForm.prototype.createGroupButton = function (text, image, group) {
-            return group.addChild("<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>");
-        };
+        //createGroupButton( text: string, image : string, group : Component )  : Component
+        //{
+        //     return <Component>group.addChild( "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>" );
+        //}
         /**
         * Shows the window.
         */
@@ -15788,7 +15815,81 @@ var Animate;
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$loading = false;
-            this.$$newFolder = false;
+            this.$newFolder = false;
+            var that = this, details = Animate.User.get.userEntry, extensions = this.extensions, apiUrl = "";
+            // Call update and redraw the elements
+            this.$pager.invalidate();
+            document.getElementById('upload-new-file').addEventListener('change', function () {
+                if (that.selectedFolder)
+                    apiUrl = Animate.DB.API + ("/files/" + details.username + "/" + details.username + "/" + that.selectedFolder.name);
+                else
+                    return;
+                for (var i = 0; i < this.files.length; i++) {
+                    var file = this.files[i];
+                    // This code is only for demo ...
+                    console.group("File " + i);
+                    console.log("name : " + file.name);
+                    console.log("size : " + file.size);
+                    console.log("type : " + file.type);
+                    console.log("date : " + file.lastModified);
+                    console.groupEnd();
+                    that.uploadFile(file, apiUrl);
+                }
+            }, false);
+            //// Initialize the file uploader
+            //if (!this.uploader)
+            //{
+            //    this.uploader = new qq.FileUploaderBasic({
+            //        button: document.getElementById("upload-new-file"),
+            //        action: `${apiUrl}/`,
+            //        onSubmit: function (file, ext)
+            //        {
+            //            // Approve all extensions unless otherwise stated
+            //            if (extensions.length > 0)
+            //            {
+            //                var extFound = false;
+            //                for (var i = 0, l = extensions.length; i < l; i++)
+            //                    if ("." + extensions[i] == ext)
+            //                    {
+            //                        extFound = true;
+            //                        break;
+            //                    }
+            //                if (!extFound)
+            //                {
+            //                    that.$errorMsg = `${ext} files are not allowed`;
+            //                    Compiler.digest(that._browserElm, that);
+            //                    return false;
+            //                }
+            //            }
+            //            that.$loadingPercent = 0;
+            //            that.$numLoading++;
+            //            return true;
+            //        },
+            //        onComplete: function (id, fileName, response)
+            //        {
+            //            that.$loadingPercent = 100;
+            //            that.$numLoading--;
+            //            Compiler.digest(that._browserElm, that);
+            //        },
+            //        onCancel: function (id, fileName)
+            //        {
+            //            that.$errorMsg = "";
+            //            Compiler.digest(that._browserElm, that);
+            //        },
+            //        onProgress: function (id, fileName, loaded, total)
+            //        {
+            //            that.$loadingPercent = (loaded / total) * 100;
+            //            Compiler.digest(that._browserElm, that);
+            //        },
+            //        onError: function (id, fileName, reason)
+            //        {
+            //            that.$loadingPercent = 0;
+            //            that.$numLoading--;
+            //            that.$errorMsg = `An error occurred while uploading the file '${fileName}': ${reason}`;
+            //            Compiler.digest(that._browserElm, that);
+            //        }
+            //    });
+            //};           
             //this.selectedID = id;
             //this.extensions = extensions;
             //this.initializeLoader();
@@ -15804,7 +15905,6 @@ var Animate;
             //this.catProject.element.removeClass( "selected" );
             //this.catProject.element.addClass( "selected" ); //Must be on to begin with
             //this.catProject.element.trigger( "click" );
-            this.$pager.invalidate();
             //Compiler.digest(this._browserElm, this);
         };
         /**
@@ -16243,6 +16343,7 @@ var Animate;
             //this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
             var projId = Animate.User.get.project.entry._id;
             this.uploader.setParams({ projectId: projId, });
+            this.uploader.setParams;
             this.thumbUploader.setParams({ projectId: projId, fileId: "" });
             //Set the allowed extensions
             this.uploader._options.allowedExtensions.splice(0, this.uploader._options.allowedExtensions.length);

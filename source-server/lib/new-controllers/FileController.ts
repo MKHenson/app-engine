@@ -26,7 +26,18 @@ export class FileController extends ResourceController
         r.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
         r.post("/:user/:project/:bucket", <any>[canEdit, this.create.bind(this)]);
 
-        super("files", new FileModel(), server, config, e, r);
+        EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
+
+        super("/app-engine/files", new FileModel(), server, config, e, r);
+    }
+
+    /**
+    * Called whenever a user has uploaded files
+    * @param {UsersInterface.SocketEvents.IFileEvent} event
+    */
+    private onFilesUploaded(event: UsersInterface.SocketEvents.IFileEvent)
+    {
+        console.log("Uploaded files: " + event.tokens.);
     }
 
     /**
@@ -40,7 +51,7 @@ export class FileController extends ResourceController
         var that = this;
         var thatFunc = super.create;
         var bucket = req.params.bucket;
-        Modepress.UsersService.getSingleton().uploadFile(bucket, req).then(function (data)
+        UsersService.getSingleton().uploadFile(bucket, req).then(function (data)
         {
             if (data.error)
             {
