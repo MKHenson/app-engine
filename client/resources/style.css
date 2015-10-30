@@ -1299,7 +1299,7 @@ span.date {
     opacity:0;
     height:1px;
     width:1px;
-    position:relative;
+    position:absolute;
     top:0;
     left:0;
 }
@@ -1312,6 +1312,7 @@ span.date {
 .file-search {
     display:inline-block;
     margin: 0px 5px;
+    vertical-align: middle;
 }
 .file-search input {
    padding:10px;
@@ -1330,6 +1331,8 @@ span.date {
 }
 .file-viewer-toolbar .button {
     padding:18px;
+    height: 100%;
+    line-height: 15px;
 }
 .file-items {
     overflow:auto;

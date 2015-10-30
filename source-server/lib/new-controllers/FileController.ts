@@ -27,6 +27,7 @@ export class FileController extends ResourceController
         r.post("/:user/:project/:bucket", <any>[canEdit, this.create.bind(this)]);
 
         EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
+        EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
 
         super("/app-engine/files", new FileModel(), server, config, e, r);
     }
@@ -37,7 +38,16 @@ export class FileController extends ResourceController
     */
     private onFilesUploaded(event: UsersInterface.SocketEvents.IFileEvent)
     {
-        console.log("Uploaded files: " + event.tokens.);
+        console.log("Uploaded files: " + event.tokens.length);
+    }
+
+    /**
+    * Called whenever a user has uploaded files
+    * @param {UsersInterface.SocketEvents.IFileEvent} event
+    */
+    private onFilesRemoved(event: UsersInterface.SocketEvents.IFileEvent)
+    {
+        console.log("Removed files: " + event.tokens.length);
     }
 
     /**

@@ -15556,10 +15556,10 @@ var Animate;
             //this.extensions = [];
             //jQuery( "img", this.statusBar.element ).on( "click", jQuery.proxy( this.onStatusCloseClick, this ) );
             //this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
-            jQuery(this.element).on('dragexit', this.onDragLeave.bind(this));
-            jQuery(this.element).on('dragleave', this.onDragLeave.bind(this));
-            jQuery(this.element).on('dragover', this.onDragOver.bind(this));
-            jQuery(this.element).on('drop', this.onDrop.bind(this));
+            jQuery(".file-items", this.element).on('dragexit', this.onDragLeave.bind(this));
+            jQuery(".file-items", this.element).on('dragleave', this.onDragLeave.bind(this));
+            jQuery(".file-items", this.element).on('dragover', this.onDragOver.bind(this));
+            jQuery(".file-items", this.element).on('drop', this.onDrop.bind(this));
         }
         FileViewerForm.prototype.selectMode = function (type) {
         };
@@ -15698,32 +15698,42 @@ var Animate;
             var that = this;
             that.$numLoading++;
             var xhr = new XMLHttpRequest();
-            var fd = new FormData();
-            xhr.open("POST", url, true);
-            //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             xhr.onerror = function (ev) {
                 that.$numLoading--;
                 that.$loadingPercent = 0;
                 that.$errorMsg = "An error occurred while uploading the file '" + file.name + "' : ";
                 Animate.Compiler.digest(that._browserElm, that);
             };
-            xhr.onprogress = function (ev) {
-                that.$loadingPercent = (ev.loaded / ev.total) * 100;
-                Animate.Compiler.digest(that._browserElm, that);
-            };
+            if (xhr.upload) {
+                xhr.upload.onprogress = function (e) {
+                    that.$loadingPercent = Math.floor(e.loaded / e.total * 1000) / 10;
+                    Animate.Compiler.digest(that._browserElm, that);
+                };
+            }
             xhr.onreadystatechange = function () {
-                that.$numLoading--;
-                that.$loadingPercent = 100;
                 // Every thing ok, file uploaded
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data.error)
-                        that.$errorMsg = data.message;
+                if (xhr.readyState == 4) {
+                    if (xhr.status !== 200)
+                        that.$errorMsg = "XHR returned response code : " + xhr.status;
+                    else {
+                        that.$numLoading--;
+                        that.$loadingPercent = 100;
+                        var data = JSON.parse(xhr.responseText);
+                        if (data.error)
+                            that.$errorMsg = data.message;
+                    }
                     Animate.Compiler.digest(that._browserElm, that);
                 }
             };
-            fd.append("upload_file", file);
-            xhr.send(fd);
+            var formData = new FormData();
+            formData.append(file.name, file);
+            xhr.withCredentials = true;
+            xhr.open("post", url, true);
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+            xhr.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            xhr.setRequestHeader("X-Mime-Type", file.type);
+            xhr.send(formData);
         };
         /**
         * Called when we are dragging over the item
@@ -15732,11 +15742,11 @@ var Animate;
             if (this.visible) {
                 var items = e.originalEvent.dataTransfer.items;
                 if (items.length > 0) {
-                    if (!jQuery(".list-block", this.element).hasClass("drag-here"))
-                        jQuery(".list-block", this.element).addClass("drag-here");
+                    if (!jQuery(".file-items", this.element).hasClass("drag-here"))
+                        jQuery(".file-items", this.element).addClass("drag-here");
                 }
-                else if (jQuery(".list-block", this.element).hasClass("drag-here"))
-                    jQuery(".list-block", this.element).removeClass("drag-here");
+                else if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
             }
             e.preventDefault();
             e.stopPropagation();
@@ -15746,8 +15756,8 @@ var Animate;
         */
         FileViewerForm.prototype.onDragLeave = function (e) {
             if (this.visible) {
-                if (jQuery(".list-block", this.element).hasClass("drag-here"))
-                    jQuery(".list-block", this.element).removeClass("drag-here");
+                if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
             }
         };
         /**
@@ -15755,8 +15765,8 @@ var Animate;
         */
         FileViewerForm.prototype.onDrop = function (e) {
             if (this.visible) {
-                if (jQuery(".list-block", this.element).hasClass("drag-here"))
-                    jQuery(".list-block", this.element).removeClass("drag-here");
+                if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
                 e.preventDefault();
                 e.stopPropagation();
                 var files = e.originalEvent.dataTransfer.files;
@@ -15779,14 +15789,15 @@ var Animate;
                             //The file was not supported!
                             if (!extAccepted) {
                                 this.statusBar.element.fadeIn();
-                                jQuery(".upload-text", this.statusBar.element).text('Only ' + extStr + ' files are allowed');
+                                //jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
                                 return false;
                             }
                         }
                     }
                     // check for valid file extension
-                    jQuery(".upload-text", this.statusBar.element).text("");
-                    this.uploader._uploadFileList(e.originalEvent.dataTransfer.files);
+                    //jQuery( ".upload-text", this.statusBar.element ).text( "" );
+                    for (var i = 0, l = e.originalEvent.dataTransfer.files.length; i < l; i++)
+                        this.uploadFile(e.originalEvent.dataTransfer.files[i], Animate.DB.USERS + "/media/upload/" + this.selectedFolder.name);
                     return false;
                 }
             }
@@ -15821,7 +15832,7 @@ var Animate;
             this.$pager.invalidate();
             document.getElementById('upload-new-file').addEventListener('change', function () {
                 if (that.selectedFolder)
-                    apiUrl = Animate.DB.API + ("/files/" + details.username + "/" + details.username + "/" + that.selectedFolder.name);
+                    apiUrl = Animate.DB.USERS + "/media/upload/" + that.selectedFolder.name;
                 else
                     return;
                 for (var i = 0; i < this.files.length; i++) {
@@ -15835,6 +15846,7 @@ var Animate;
                     console.groupEnd();
                     that.uploadFile(file, apiUrl);
                 }
+                this.value = "";
             }, false);
             //// Initialize the file uploader
             //if (!this.uploader)

@@ -296,10 +296,10 @@ module Animate
 
 			//this.menu.addEventListener( ListViewEvents.ITEM_CLICKED, this.onItemClicked, this );
 
-			jQuery( this.element ).on( 'dragexit', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragleave', this.onDragLeave.bind( this ) );
-			jQuery( this.element ).on( 'dragover', this.onDragOver.bind( this ) );
-			jQuery( this.element ).on( 'drop', this.onDrop.bind( this ) );
+            jQuery(".file-items", this.element).on( 'dragexit', this.onDragLeave.bind( this ) );
+            jQuery(".file-items", this.element).on( 'dragleave', this.onDragLeave.bind( this ) );
+            jQuery(".file-items", this.element).on( 'dragover', this.onDragOver.bind( this ) );
+            jQuery(".file-items", this.element).on( 'drop', this.onDrop.bind( this ) );
         }
 
         selectMode(type: FileSearchType)
@@ -484,9 +484,7 @@ module Animate
             that.$numLoading++;
 
             var xhr = new XMLHttpRequest();
-            var fd = new FormData();
-            xhr.open("POST", url, true);
-            //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
             xhr.onerror = function (ev)
             {
                 that.$numLoading--;
@@ -494,30 +492,46 @@ module Animate
                 that.$errorMsg = `An error occurred while uploading the file '${file.name}' : `;
                 Compiler.digest(that._browserElm, that);
             };
-            xhr.onprogress = function (ev: ProgressEvent)
+            
+            if (xhr.upload)
             {
-                that.$loadingPercent = (ev.loaded / ev.total) * 100;
-                Compiler.digest(that._browserElm, that);
-            };
+                xhr.upload.onprogress = function (e)
+                {
+                    that.$loadingPercent = Math.floor(e.loaded / e.total * 1000) / 10;
+                    Compiler.digest(that._browserElm, that);
+                };
+            }
+
             xhr.onreadystatechange = function ()
             {
-                that.$numLoading--;
-                that.$loadingPercent = 100;
-
                 // Every thing ok, file uploaded
-                if (xhr.readyState == 4 && xhr.status == 200)
+                if (xhr.readyState == 4)
                 {
-                    var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
+                    if (xhr.status !== 200)
+                        that.$errorMsg = "XHR returned response code : " + xhr.status;
+                    else
+                    {
+                        that.$numLoading--;
+                        that.$loadingPercent = 100;
+                        var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
 
-                    if (data.error)
-                        that.$errorMsg = data.message;
+                        if (data.error)
+                            that.$errorMsg = data.message;
+                    }
 
                     Compiler.digest(that._browserElm, that);
                 }               
             };
 
-            fd.append("upload_file", file);
-            xhr.send(fd);
+            var formData = new FormData();
+            formData.append(file.name, file);
+            xhr.withCredentials = true;
+            xhr.open("post", url, true);   
+            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");  
+            xhr.setRequestHeader("X-File-Name", encodeURIComponent(file.name));
+            xhr.setRequestHeader("Cache-Control", "no-cache");
+            xhr.setRequestHeader("X-Mime-Type", file.type);
+            xhr.send(formData);
         }
 
 		/**
@@ -530,11 +544,11 @@ module Animate
 				var items = e.originalEvent.dataTransfer.items;
 				if ( items.length > 0 )
 				{
-					if ( !jQuery( ".list-block", this.element ).hasClass( "drag-here" ) )
-						jQuery( ".list-block", this.element ).addClass( "drag-here" );
+                    if (!jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
+                        jQuery( ".file-items", this.element ).addClass( "drag-here" );
 				}
-				else if ( jQuery( ".list-block", this.element ).hasClass( "drag-here" ) )
-					jQuery( ".list-block", this.element ).removeClass( "drag-here" );
+                else if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
+                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
 
 			}
 
@@ -550,8 +564,8 @@ module Animate
 		{
 			if ( this.visible )
 			{
-				if ( jQuery( ".list-block", this.element ).hasClass( "drag-here" ) )
-					jQuery( ".list-block", this.element ).removeClass( "drag-here" );
+                if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
+                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
 			}
 		}
 
@@ -562,8 +576,8 @@ module Animate
 		{
 			if ( this.visible )
 			{
-				if ( jQuery( ".list-block", this.element ).hasClass( "drag-here" ) )
-					jQuery( ".list-block", this.element ).removeClass( "drag-here" );
+                if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
+                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
 
 				e.preventDefault();
 				e.stopPropagation();
@@ -575,7 +589,7 @@ module Animate
 					{
 						var extStr = this.extensions.join( "|" );
 						var extAccepted = false;
-						var i = files.length;
+						var i : number = files.length;
 						while ( i-- )
 						{
 							var fExt = files[i].name.split( "." );
@@ -595,16 +609,18 @@ module Animate
 							if ( !extAccepted )
 							{
 								this.statusBar.element.fadeIn();
-								jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
+								//jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
 								return false;
 							}
 						}
 					}
 
 					// check for valid file extension
-					jQuery( ".upload-text", this.statusBar.element ).text( "" );
+					//jQuery( ".upload-text", this.statusBar.element ).text( "" );
 
-					this.uploader._uploadFileList( e.originalEvent.dataTransfer.files );
+                    for (var i: number = 0, l = e.originalEvent.dataTransfer.files.length; i < l; i++ )
+                        this.uploadFile(e.originalEvent.dataTransfer.files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
+
 					return false;
 				}
 			}
@@ -652,7 +668,7 @@ module Animate
             document.getElementById('upload-new-file').addEventListener('change', function ()
             {
                 if (that.selectedFolder)
-                    apiUrl = DB.API + `/files/${details.username}/${details.username}/${that.selectedFolder.name}`;
+                    apiUrl = `${DB.USERS}/media/upload/${that.selectedFolder.name}`;
                 else
                     return;
 
@@ -669,6 +685,8 @@ module Animate
                     console.groupEnd();
                     that.uploadFile(file, apiUrl);
                 }
+
+                (<HTMLInputElement>this).value = "";
             }, false);
             
 

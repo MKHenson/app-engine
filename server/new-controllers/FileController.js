@@ -24,6 +24,7 @@ var FileController = (function (_super) {
         r.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
         r.post("/:user/:project/:bucket", [modepress_api_1.canEdit, this.create.bind(this)]);
         modepress_api_1.EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
+        modepress_api_1.EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
         _super.call(this, "/app-engine/files", new FileModel_1.FileModel(), server, config, e, r);
     }
     /**
@@ -31,7 +32,14 @@ var FileController = (function (_super) {
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesUploaded = function (event) {
-        console.log("Uploaded files: " + event.tokens.);
+        console.log("Uploaded files: " + event.tokens.length);
+    };
+    /**
+    * Called whenever a user has uploaded files
+    * @param {UsersInterface.SocketEvents.IFileEvent} event
+    */
+    FileController.prototype.onFilesRemoved = function (event) {
+        console.log("Removed files: " + event.tokens.length);
     };
     /**
     * Attempts to upload a file to the server
