@@ -417,10 +417,10 @@ module Animate
 			}
 			else if ( propType == ParameterType.HIDDEN_FILE )
 			{
-                var file: File = Animate.User.get.project.getFile( value );
+                var file: Engine.IFile = Animate.User.get.project.getFile( value );
 				if ( file )
-				{
-					var urlParts = file.path.split( "/" );
+                {
+                    var urlParts = file.url.split("/");
 					return "{{url}}uploads/" + urlParts[urlParts.length - 1];
 				}
 

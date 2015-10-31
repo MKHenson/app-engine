@@ -3,10 +3,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var mongodb = require("mongodb");
 var express = require("express");
 var bodyParser = require("body-parser");
 var modepress_api_1 = require("modepress-api");
-var ResourceController_1 = require("./ResourceController");
 var winston = require("winston");
 var FileModel_1 = require("../new-models/FileModel");
 /**
@@ -15,59 +15,123 @@ var FileModel_1 = require("../new-models/FileModel");
 var FileController = (function (_super) {
     __extends(FileController, _super);
     function FileController(server, config, e) {
-        var r = express.Router();
-        r.use(bodyParser.urlencoded({ 'extended': true }));
-        r.use(bodyParser.json());
-        r.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        r.delete("/:user/:project/:ids?", [modepress_api_1.canEdit, this.removeResources.bind(this)]);
-        r.put("/:user/:project/:id?", [modepress_api_1.canEdit, this.editResource.bind(this)]);
-        r.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
-        r.post("/:user/:project/:bucket", [modepress_api_1.canEdit, this.create.bind(this)]);
+        _super.call(this, [new FileModel_1.FileModel()]);
+        var router = express.Router();
+        router.use(bodyParser.urlencoded({ 'extended': true }));
+        router.use(bodyParser.json());
+        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+        //router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
+        //router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+        router.get("/:user/:project", [modepress_api_1.canEdit, this.getByProject.bind(this)]);
+        router.get("/:user", [modepress_api_1.canEdit, this.getByUser.bind(this)]);
+        //router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
         modepress_api_1.EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
         modepress_api_1.EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
-        _super.call(this, "/app-engine/files", new FileModel_1.FileModel(), server, config, e, r);
+        // Register the path
+        e.use("/app-engine/files", router);
     }
+    FileController.prototype.getFiles = function (query, index, limit, verbose) {
+        if (verbose === void 0) { verbose = true; }
+        var model = this._models[0];
+        var that = this;
+        var count = 0;
+        return new Promise(function (resolve, reject) {
+            // First get the count
+            model.count(query).then(function (num) {
+                count = num;
+                return model.findInstances(query, [], index, limit);
+            }).then(function (instances) {
+                resolve({
+                    error: false,
+                    count: count,
+                    message: "Found " + count + " files",
+                    data: that.getSanitizedData(instances, verbose)
+                });
+            }).catch(function (error) {
+                reject(error);
+            });
+        });
+    };
+    /**
+    * Gets the files from the project
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    FileController.prototype.getByProject = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var query = {};
+        var project = req.params.project;
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        query.projectId = new mongodb.ObjectID(project);
+        query.user = req._user.username;
+        // Check for keywords
+        if (req.query.search)
+            query.name = new RegExp(req.query.search, "i");
+        // Check for bucket ID
+        if (req.query.bucket)
+            query.bucketId = req.query.bucket;
+        this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
+            return res.end(JSON.stringify(data));
+        }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify({
+                error: true,
+                message: "An error occurred while fetching the files : " + err.message
+            }));
+        });
+    };
+    /**
+    * Gets the files from just the user
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    FileController.prototype.getByUser = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var query = { user: req._user.username };
+        // Check for keywords
+        if (req.query.search)
+            query.name = new RegExp(req.query.search, "i");
+        // Check for bucket ID
+        if (req.query.bucket)
+            query.bucketId = req.query.bucket;
+        this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
+            return res.end(JSON.stringify(data));
+        }).catch(function (err) {
+            winston.error(err.message, { process: process.pid });
+            return res.end(JSON.stringify({
+                error: true,
+                message: "An error occurred while fetching the files : " + err.message
+            }));
+        });
+    };
     /**
     * Called whenever a user has uploaded files
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesUploaded = function (event) {
-        console.log("Uploaded files: " + event.tokens.length);
+        var model = this._models[0];
+        var tokens = event.tokens;
+        var promises = [];
+        // TODO: Finish this
+        for (var i = 0, l = tokens.length; i < l; i++)
+            promises.push(model.createInstance({}));
+        // Save it in the DB
+        model.createInstance(newResource).then(function (instance) {
+            winston.info("[" + event.tokens.length + "] Files have been added", { process: process.pid });
+        }).catch(function (err) {
+            winston.error("Could not remove file instance : " + err.message, { process: process.pid });
+        });
     };
     /**
     * Called whenever a user has uploaded files
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesRemoved = function (event) {
-        console.log("Removed files: " + event.tokens.length);
-    };
-    /**
-    * Attempts to upload a file to the server
-    * @param {express.Request} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    FileController.prototype.create = function (req, res, next) {
-        var that = this;
-        var thatFunc = _super.prototype.create;
-        var bucket = req.params.bucket;
-        modepress_api_1.UsersService.getSingleton().uploadFile(bucket, req).then(function (data) {
-            if (data.error) {
-                winston.error(data.message, { process: process.pid });
-                return res.end(JSON.stringify({
-                    error: true,
-                    message: "Could not upload files' : " + data.message
-                }));
-            }
-            thatFunc(req, res, next);
-        }).catch(function (err) {
-            winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify({
-                error: true,
-                message: "Could not upload files : '" + err.message + "'"
-            }));
-        });
+        winston.info("[" + event.files.length + "] Files have been removed", { process: process.pid });
     };
     return FileController;
-})(ResourceController_1.ResourceController);
+})(modepress_api_1.Controller);
 exports.FileController = FileController;

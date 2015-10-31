@@ -78,7 +78,7 @@
 				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectFile(project)">
 					<div class="welcome-preview">
 						<div class="background-tiles inner ng-scope">
-							<img src="./media/appling.png" />
+							<img en-src="ctrl.getThumbnail(file)" />
 							<div class="div-center"></div>
 						</div>
 					</div>

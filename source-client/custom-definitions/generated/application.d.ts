@@ -1,5 +1,3 @@
-/// <reference path="../../source-client/definitions/node.d.ts" />
-/// <reference path="../../source-client/definitions/express.d.ts" />
 /// <reference path="../../source-client/definitions/jquery.d.ts" />
 /// <reference path="../../source-client/definitions/jqueryui.d.ts" />
 /// <reference path="../../source-client/definitions/jquery.scrollTo.d.ts" />
@@ -1129,42 +1127,6 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * A small object that represents a file that is associated with a project.
-    */
-    class File {
-        id: string;
-        name: string;
-        path: string;
-        global: boolean;
-        preview_path: string;
-        tags: Array<string>;
-        extension: string;
-        size: number;
-        createdOn: number;
-        lastModified: number;
-        favourite: boolean;
-        /**
-        * @param {string} name The name of the file
-        * @param {string} path The path of the file on the server
-        * @param {Array<string>} tags Keywords associated with the file to help search for it.This is a string
-        * with values separated by commas
-        * @param {number} createdOn The date this file was created on
-        * @param {number} lastModified The date this file was last modified
-        * @param {string} id The id of the file
-        * @param {number} size The size of the file
-        * @param {boolean} favourite Is this file a favourite
-        * @param {string} preview_path The path of the file thumbnail on the server
-        * @param {boolean} global Is this file globally accessible
-        */
-        constructor(name: string, path: string, tags: Array<string>, id: string, createdOn: number, lastModified: number, size: number, favourite: boolean, preview_path: string, global: boolean);
-        /**
-        * Disposes and cleans the object
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
     * A simple interface for any component
     */
     interface IComponent {
@@ -1520,14 +1482,6 @@ declare module Animate {
         static GROUP_DELETING: ProjectEvents;
         static GROUP_CREATED: ProjectEvents;
         static GROUPS_LOADED: ProjectEvents;
-        static FILE_CREATED: ProjectEvents;
-        static FILE_IMPORTED: ProjectEvents;
-        static FILE_DELETED: ProjectEvents;
-        static FILES_DELETED: ProjectEvents;
-        static FILES_CREATED: ProjectEvents;
-        static FILE_UPDATED: ProjectEvents;
-        static FILE_IMAGE_UPDATED: ProjectEvents;
-        static FILES_LOADED: ProjectEvents;
         static OBJECT_RENAMED: ProjectEvents;
     }
     class ProjectEvent extends AnimateLoaderEvent {
@@ -1583,9 +1537,9 @@ declare module Animate {
         /**
         * Gets a file by its ID
         * @param {string} id The ID of the file
-        * @returns {File} The file whose id matches the id parameter or null
+        * @returns {Engine.IFile} The file whose id matches the id parameter or null
         */
-        getFile(id: string): File;
+        getFile(id: string): Engine.IFile;
         /**
         * Gets a {BehaviourContainer} by its ID
         * @param {string} id The ID of the BehaviourContainer
@@ -1604,6 +1558,11 @@ declare module Animate {
         * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
         updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
+        /**
+        * This function is used to fetch the _files associated with a project.
+        * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+        */
+        loadFiles(mode?: string): JQueryPromise<ModepressAddons.IGetFiles>;
         /**
         * Use this to rename a behaviour, group or asset.
         * @param {string} name The new name of the object
@@ -1648,11 +1607,6 @@ declare module Animate {
         * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
         */
         deleteBehaviours(behavioursIds: Array<string>): void;
-        /**
-        * This function is used to fetch the _files associated with a project.
-        * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
-        */
-        loadFiles(mode?: string): void;
         /**
         * This function is used to import a user's file from another project or from the global _assets base
         */
@@ -1765,7 +1719,7 @@ declare module Animate {
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
         behaviours: Array<BehaviourContainer>;
-        files: Array<File>;
+        files: Array<Engine.IFile>;
         assets: Array<Asset>;
         /**
         * This will cleanup the project and remove all data associated with it.
@@ -5473,48 +5427,18 @@ declare module Animate {
         private $newFolder;
         private $numLoading;
         private $loadingPercent;
+        private _searchType;
         extensions: Array<string>;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         selectedFolder: UsersInterface.IBucketEntry;
         private multiSelect;
-        private toolbar;
-        private selectedID;
-        private modeGrid;
-        private modeList;
-        private addRemoveGroup;
-        private favouriteGroup;
-        private favourite;
-        private addButton;
-        private removeButton;
-        private catProject;
-        private catUser;
-        private catGlobal;
-        private search;
-        private menu;
-        private listInfo;
-        private previewHeader;
-        private okButton;
-        private preview;
-        private statusBar;
-        private global;
-        private size;
-        private name;
-        private tags;
-        private thumbnail;
-        private path;
-        private uploader;
-        private updateButton;
-        private submitProxy;
-        private thumbUploader;
-        private thumbSubmitProxy;
-        private progressProxy;
-        private cancelProxy;
-        private completeProxy;
-        private errorProxy;
-        private keyDownProxy;
-        private buttonProxy;
         constructor();
+        /**
+        * Returns a URL of a file preview image
+        * @returns {string}
+        */
+        getThumbnail(file: Engine.IFile): string;
         selectMode(type: FileSearchType): void;
         /**
         * Attempts to open a folder
@@ -5547,60 +5471,18 @@ declare module Animate {
         */
         onDragLeave(e: any): void;
         /**
+        * Checks if a file list has approved extensions
+        * @return {boolean}
+        */
+        checkIfAllowed(files: FileList): boolean;
+        /**
         * Called when we are no longer dragging items.
         */
-        onDrop(e: any): boolean;
-        /**
-        * This function is used to create a new group on the file viewer toolbar
-        * @returns {Component} Returns the Component object representing the group
-        */
-        /**
-        * Use this function to create a group button for the toolbar
-        * @param {string} text The text for the button
-        * @param {string} image An image URL for the button icon
-        * @param {Component} group The Component object representing the group
-        * @returns {Component} Returns the Component object representing the button
-        */
+        onDrop(e: JQueryEventObject): boolean;
         /**
         * Shows the window.
         */
         showForm(id: string, extensions: Array<string>): void;
-        /**
-        * Called when the files have been loaded
-        * @param {ProjectEvents} response
-        * @param {Event} data
-        */
-        onFilesLoaded(response: ProjectEvents, data: ProjectEvent): void;
-        /**
-        * Gets the viewer to search using the terms in the search inut
-        * @returns {any}
-        */
-        searchItems(): void;
-        /**
-        * When we hit a key on the search box
-        * @param {any} e The jQuery event
-        */
-        onInputKey(e: any): void;
-        /**
-        * Called when a file is imported
-        * @param {ProjectEvents} e
-        * @param {File} file
-        */
-        onFileImported(e: ProjectEvents, event: ProjectEvent): void;
-        /**
-        * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-        and pass the text either for the ok or cancel buttons.
-        * @param {any} e The jQuery event object
-        */
-        onButtonClick(e: any): void;
-        /**
-        * Clears up the contents to free the memory
-        */
-        clearItems(): void;
-        /**
-        * When we click the close button on the status note
-        */
-        onItemClicked(responce: ListEvents, event: ListViewEvent): boolean;
         /**
         * @type public mfunc handleDefaultPreviews
         * This will attempt to handle simple file previews
@@ -5610,50 +5492,6 @@ declare module Animate {
         * @returns <bool> True if this is handled
         */
         handleDefaultPreviews(file: any, previewComponent: any): boolean;
-        /**
-        * When we click the close button on the status note
-        */
-        onStatusCloseClick(id: any, fileName: any, response: any): void;
-        /**
-        * Use this function to populate the files uploaded for use in this project.
-        */
-        populateFiles(files: Array<File>): void;
-        /**
-        * Fired when the upload is complete
-        */
-        onUploadComplete(id: any, fileName: any, response: any): void;
-        /**
-        * Fired when the upload is cancelled due to an error
-        */
-        onError(id: any, fileName: any, reason: any): void;
-        /**
-        * When we receive a progress event
-        */
-        onCancel(id: any, fileName: any): void;
-        /**
-        * When we receive a progress event
-        */
-        onProgress(id: any, fileName: any, loaded: any, total: any): void;
-        /**
-        * When we click submit on the upload button
-        */
-        onSubmit(file: any, ext: any): boolean;
-        /**
-        * When we click submit on the preview upload button
-        */
-        onThumbSubmit(file: any, ext: any): boolean;
-        /**
-        * This is called to initialize the one click loader
-        */
-        initializeLoader(): void;
-        /**
-        * This is called when a file has been successfully deleted.
-        */
-        onFileUpdated(response: ProjectEvents, event: ProjectEvent): void;
-        /**
-        * This is called when a file has been successfully deleted.
-        */
-        onFileDeleted(response: ProjectEvents, event: ProjectEvent): void;
         /**
         * This function is used to cleanup the object before its removed from memory.
         */

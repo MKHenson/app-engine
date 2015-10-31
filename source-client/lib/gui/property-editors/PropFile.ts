@@ -33,7 +33,7 @@ module Animate
 			var path = propertyValue.path || "";
 
 			var project : Project = User.get.project;
-			var file : File = project.getFile(fileID);
+            var file: Engine.IFile = project.getFile(fileID);
 			
 			//Create HTML	
 			var editor: JQuery =
@@ -51,9 +51,9 @@ module Animate
 				if ( response == FileViewerFormEvents.CANCELLED )
 					return;
 
-				var file : File = event.file;				
+                var file: Engine.IFile = event.file;				
 				jQuery( ".file-name", editor ).text( ( file ? file.name : path ) );
-				that.notify( propertyName, { extensions: fileExtensions, path: ( file ? file.path : "" ), id: ( file ? file.id : "" ), selectedExtension: ( file ? file.extension : "" ) }, objectType );
+				that.notify( propertyName, { extensions: fileExtensions, path: ( file ? file.url : "" ), id: ( file ? file._id : "" ), selectedExtension: ( file ? file.extension : "" ) }, objectType );
 			};
 			
             var mouseUp = function (e: JQueryEventObject  ) 

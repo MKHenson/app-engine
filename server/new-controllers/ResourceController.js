@@ -20,21 +20,21 @@ var ResourceController = (function (_super) {
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
     */
-    function ResourceController(restUrl, model, server, config, e, router) {
+    function ResourceController(restUrl, model, server, config, e, r) {
         _super.call(this, [model]);
-        var r = router;
+        var router = r;
         if (!r) {
-            r = express.Router();
-            r.use(bodyParser.urlencoded({ 'extended': true }));
-            r.use(bodyParser.json());
-            r.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-            r.delete("/:user/:project/:ids?", [modepress_api_1.canEdit, this.removeResources.bind(this)]);
-            r.put("/:user/:project/:id?", [modepress_api_1.canEdit, this.editResource.bind(this)]);
-            r.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
-            r.post("/:user/:project/", [modepress_api_1.canEdit, this.create.bind(this)]);
+            router = express.Router();
+            router.use(bodyParser.urlencoded({ 'extended': true }));
+            router.use(bodyParser.json());
+            router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+            router.delete("/:user/:project/:ids?", [modepress_api_1.canEdit, this.removeResources.bind(this)]);
+            router.put("/:user/:project/:id?", [modepress_api_1.canEdit, this.editResource.bind(this)]);
+            router.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
+            router.post("/:user/:project/", [modepress_api_1.canEdit, this.create.bind(this)]);
         }
         // Register the path
-        e.use(restUrl, r);
+        e.use(restUrl, router);
     }
     /**
     * Creates a new resource item
@@ -58,7 +58,7 @@ var ResourceController = (function (_super) {
         // Save it in the DB
         model.createInstance(newResource).then(function (instance) {
             return res.end(JSON.stringify({
-                error: true,
+                error: false,
                 message: "New resource '" + newResource.name + "' created",
                 data: instance.schema.generateCleanData(false, instance._id)
             }));

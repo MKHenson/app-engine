@@ -16,28 +16,26 @@ export class ResourceController extends Controller
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server	
 	*/
-    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express, router?: express.Router)
+    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express, r?: express.Router )
     {
         super([model]);
 
-        var r = router;
-
+        var router = r;
         if (!r)
         {
-            r = express.Router();
-            r.use(bodyParser.urlencoded({ 'extended': true }));
-            r.use(bodyParser.json());
-            r.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+            router = express.Router();
+            router.use(bodyParser.urlencoded({ 'extended': true }));
+            router.use(bodyParser.json());
+            router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-            r.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-            r.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
-            r.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
-            r.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
+            router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
+            router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+            router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
+            router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
         }
 
         // Register the path
-        e.use(restUrl, r);
-
+        e.use(restUrl, router);
     }
 
     /**
@@ -69,7 +67,7 @@ export class ResourceController extends Controller
         model.createInstance<Engine.IResource>(newResource).then(function(instance)
         {
             return res.end(JSON.stringify(<ModepressAddons.ICreateResource>{
-                error: true,
+                error: false,
                 message: `New resource '${newResource.name}' created`,
                 data: instance.schema.generateCleanData(false, instance._id)
             }));

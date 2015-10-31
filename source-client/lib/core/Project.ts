@@ -63,14 +63,14 @@ module Animate
 		static GROUP_DELETING: ProjectEvents = new ProjectEvents("group_deleting");
 		static GROUP_CREATED: ProjectEvents = new ProjectEvents("group_created");
 		static GROUPS_LOADED: ProjectEvents = new ProjectEvents("groups_loaded");
-		static FILE_CREATED: ProjectEvents = new ProjectEvents("file_created");
-		static FILE_IMPORTED: ProjectEvents = new ProjectEvents("file_imported");
-		static FILE_DELETED: ProjectEvents = new ProjectEvents("file_deleted");
-		static FILES_DELETED: ProjectEvents = new ProjectEvents("files_deleted");
-		static FILES_CREATED: ProjectEvents = new ProjectEvents("files_created");
-		static FILE_UPDATED: ProjectEvents = new ProjectEvents( "file_updated" );
-		static FILE_IMAGE_UPDATED: ProjectEvents = new ProjectEvents("file_image_updated");
-		static FILES_LOADED: ProjectEvents = new ProjectEvents("files_loaded");
+		//static FILE_CREATED: ProjectEvents = new ProjectEvents("file_created");
+		//static FILE_IMPORTED: ProjectEvents = new ProjectEvents("file_imported");
+		//static FILE_DELETED: ProjectEvents = new ProjectEvents("file_deleted");
+		//static FILES_DELETED: ProjectEvents = new ProjectEvents("files_deleted");
+		//static FILES_CREATED: ProjectEvents = new ProjectEvents("files_created");
+		//static FILE_UPDATED: ProjectEvents = new ProjectEvents( "file_updated" );
+		//static FILE_IMAGE_UPDATED: ProjectEvents = new ProjectEvents("file_image_updated");
+		//static FILES_LOADED: ProjectEvents = new ProjectEvents("files_loaded");
 		//static FILES_FETCHED: ProjectEvents = new ProjectEvents("files_fetched");
 		static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
@@ -129,8 +129,8 @@ module Animate
 		//public mImgPath: string;
 		//public mVisibility: string;
 		private _behaviours: Array<BehaviourContainer>;
-		private _assets: Array<Asset>;
-		private _files: Array<File>;
+        private _assets: Array<Asset>;
+        private _files: Array<Engine.IFile>;
 
 		/**
 		* @param{string} id The database id of this project
@@ -192,12 +192,12 @@ module Animate
 		/**
 		* Gets a file by its ID
 		* @param {string} id The ID of the file
-		* @returns {File} The file whose id matches the id parameter or null
+		* @returns {Engine.IFile} The file whose id matches the id parameter or null
 		*/
-		getFile( id: string ): File
+        getFile(id: string): Engine.IFile
 		{
 			for ( var i = 0; i < this._files.length; i++ )
-				if ( this._files[i].id == id )
+				if ( this._files[i]._id == id )
 					return this._files[i];
 
 			return null;
@@ -287,6 +287,33 @@ module Animate
 
             return d.promise();
         }
+
+        /**
+		* This function is used to fetch the _files associated with a project.
+		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+		*/
+        loadFiles(mode: string = "project")
+        {
+            var d = jQuery.Deferred<ModepressAddons.IGetFiles>();
+            var that = this;
+            jQuery.getJSON(`${DB.API}/files/${this.entry.user}/${this.entry._id}`).done(function (data: ModepressAddons.IGetFiles)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+
+                that.files = data.data;
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
+
+            return d.promise();
+        }
+
+
+
 
 
 
@@ -487,17 +514,17 @@ module Animate
 		}
 
 
-		/**
-		* This function is used to fetch the _files associated with a project.
-		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
-		*/
-		loadFiles( mode: string = "project" )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/get-files", { projectId: this.entry._id, mode : mode } );
-		}
+		///**
+		//* This function is used to fetch the _files associated with a project.
+		//* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+		//*/
+		//loadFiles( mode: string = "project" )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/get-files", { projectId: this.entry._id, mode : mode } );
+		//}
 
 		/**
 		* This function is used to import a user's file from another project or from the global _assets base
@@ -957,85 +984,85 @@ module Animate
 								}
 						}							
 					}
-					//Creates each of the _files and notify they were loaded.
-					else if ( loader.url == "/project/get-files" )
-					{
-						var i = this._files.length;
-						while ( i-- )
-							this._files[i].dispose();
+					////Creates each of the _files and notify they were loaded.
+					//else if ( loader.url == "/project/get-files" )
+					//{
+					//	var i = this._files.length;
+					//	while ( i-- )
+					//		this._files[i].dispose();
 
-						this._files.splice( 0, this._files.length );
+					//	this._files.splice( 0, this._files.length );
 
-						//Create each of the files
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-							var dbEntry = data[i];
-							var file = new File( dbEntry["name"], dbEntry["url"], dbEntry["tags"], dbEntry["_id"], dbEntry["createdOn"], dbEntry["lastModified"], dbEntry["size"], dbEntry["favourite"], dbEntry["previewUrl"], dbEntry["global"] );
+					//	//Create each of the files
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+					//		var dbEntry = data[i];
+					//		var file = new File( dbEntry["name"], dbEntry["url"], dbEntry["tags"], dbEntry["_id"], dbEntry["createdOn"], dbEntry["lastModified"], dbEntry["size"], dbEntry["favourite"], dbEntry["previewUrl"], dbEntry["global"] );
 
-							this._files.push( file );
-							this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_CREATED, "File created", LoaderEvents.COMPLETE, file ) );
-						}
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_CREATED, "Files created", LoaderEvents.COMPLETE, this ) );
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_LOADED, "Files loaded", LoaderEvents.COMPLETE, this ) );
-					}
+					//		this._files.push( file );
+					//		this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_CREATED, "File created", LoaderEvents.COMPLETE, file ) );
+					//	}
+					//	this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_CREATED, "Files created", LoaderEvents.COMPLETE, this ) );
+					//	this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_LOADED, "Files loaded", LoaderEvents.COMPLETE, this ) );
+					//}
 					//Create the file and notifies it was loaded.
-					else if ( loader.url == "/project/import-files" )
-					{
-						//Create new _assets which we fetched from the DB.
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_CREATED, event.message, LoaderEvents.COMPLETE, file ) );
-						this.dispatchEvent( new ProjectEvent(ProjectEvents.FILE_IMPORTED, event.message, LoaderEvents.COMPLETE, file ) );
-					}
-					//Delets a file
-					else if ( loader.url == "/project/delete-files" )
-					{
-						for ( var ii = 0, l = data.length; ii < l; ii++ )
-							for ( var i = 0, len = this._files.length; i < len; i++ )
-								if ( this._files[i].id == data[ii] )
-								{
-									this._files[i].dispose();
-									this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_DELETED, "File deleted", LoaderEvents.COMPLETE, this._files[i] ) );
-									this._files.splice( i, 1 );
-									break;
-								}
+					//else if ( loader.url == "/project/import-files" )
+					//{
+					//	//Create new _assets which we fetched from the DB.
+					//	this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_CREATED, event.message, LoaderEvents.COMPLETE, file ) );
+					//	this.dispatchEvent( new ProjectEvent(ProjectEvents.FILE_IMPORTED, event.message, LoaderEvents.COMPLETE, file ) );
+					//}
+					////Delets a file
+					//else if ( loader.url == "/project/delete-files" )
+					//{
+					//	for ( var ii = 0, l = data.length; ii < l; ii++ )
+					//		for ( var i = 0, len = this._files.length; i < len; i++ )
+					//			if ( this._files[i].id == data[ii] )
+					//			{
+					//				this._files[i].dispose();
+					//				this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_DELETED, "File deleted", LoaderEvents.COMPLETE, this._files[i] ) );
+					//				this._files.splice( i, 1 );
+					//				break;
+					//			}
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_DELETED, "Files deleted", LoaderEvents.COMPLETE, data ) );
-					}
+					//	this.dispatchEvent(new ProjectEvent(ProjectEvents.FILES_DELETED, "Files deleted", LoaderEvents.COMPLETE, data ) );
+					//}
 					// Creates an empty file on the server
-					else if ( loader.url == "/file/create-empty-file" )
-					{
-						var file = new File( data["name"], data["url"], [], data["_id"], data["createdOn"], data["lastModified"], 0, false, data["previewUrl"], false );
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_CREATED, "File created", LoaderEvents.COMPLETE, file ) );
-					}
-					// Fills a file with data
-					else if ( loader.url == "/file/fill-file" )
-					{
-						for ( var i = 0, len = this._files.length; i < len; i++ )
-							if ( this._files[i].id == data.id )
-								{
-									this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_UPDATED, "File updated", LoaderEvents.COMPLETE, this._files[i] ) );
-									return;
-								}
-					}
-					// Saves the details of an uploaded file
-					else if ( loader.url == "/project/save-file" )
-					{
-						for ( var i = 0, len = this._files.length; i < len; i++ )
-							if ( this._files[i].id == data._id )
-							{
-								this._files[i].name = data.name;
-								this._files[i].tags = data.tags;
-								this._files[i].lastModified = data.lastModified;
-								this._files[i].favourite = data.favourite;
-								this._files[i].global = data.global;
+					//else if ( loader.url == "/file/create-empty-file" )
+					//{
+					//	var file = new File( data["name"], data["url"], [], data["_id"], data["createdOn"], data["lastModified"], 0, false, data["previewUrl"], false );
+					//	this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_CREATED, "File created", LoaderEvents.COMPLETE, file ) );
+					//}
+					//// Fills a file with data
+					//else if ( loader.url == "/file/fill-file" )
+					//{
+					//	for ( var i = 0, len = this._files.length; i < len; i++ )
+					//		if ( this._files[i].id == data.id )
+					//			{
+					//				this.dispatchEvent( new ProjectEvent( ProjectEvents.FILE_UPDATED, "File updated", LoaderEvents.COMPLETE, this._files[i] ) );
+					//				return;
+					//			}
+					//}
+					//// Saves the details of an uploaded file
+					//else if ( loader.url == "/project/save-file" )
+					//{
+					//	for ( var i = 0, len = this._files.length; i < len; i++ )
+					//		if ( this._files[i].id == data._id )
+					//		{
+					//			this._files[i].name = data.name;
+					//			this._files[i].tags = data.tags;
+					//			this._files[i].lastModified = data.lastModified;
+					//			this._files[i].favourite = data.favourite;
+					//			this._files[i].global = data.global;
 
-								if ( loader.url == "/project/save-file" )
-									this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_UPDATED, "File updated", LoaderEvents.COMPLETE,  this._files[i] ) );
-								else
-									this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_IMAGE_UPDATED, "File image updated", LoaderEvents.COMPLETE, this._files[i] ) );
+					//			if ( loader.url == "/project/save-file" )
+					//				this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_UPDATED, "File updated", LoaderEvents.COMPLETE,  this._files[i] ) );
+					//			else
+					//				this.dispatchEvent(new ProjectEvent(ProjectEvents.FILE_IMAGE_UPDATED, "File image updated", LoaderEvents.COMPLETE, this._files[i] ) );
 
-								return;
-							}
-					}
+					//			return;
+					//		}
+					//}
 
 					//Create a new group
 					else if ( loader.url == "/project/create-group" )
@@ -1235,7 +1262,7 @@ module Animate
         }
 
         get behaviours(): Array<BehaviourContainer> { return this._behaviours; }
-        get files(): Array<File> { return this._files; }
+        get files(): Array<Engine.IFile> { return this._files; }
         get assets(): Array<Asset> { return this._assets; }
         
 		/**
@@ -1265,9 +1292,9 @@ module Animate
 				this._assets[i].dispose();
 			}
 
-			i = this._files.length;
-			while ( i-- )
-				this._files[i].dispose();
+			//i = this._files.length;
+			//while ( i-- )
+			//	this._files[i].dispose();
 
 			//this._plugins = null;
 			//this.created = null;

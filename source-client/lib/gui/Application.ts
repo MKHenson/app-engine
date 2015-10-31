@@ -190,12 +190,16 @@ module Animate
 		* This is called when a project has loaded all its behaviours.
 		*/
 		onBehavioursLoaded( response: ProjectEvents, event: ProjectEvent, sender? : EventDispatcher ) : void
-		{
+        {
+            var that = this;
             var project: Project = User.get.project;
 			project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			
-			project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-			project.loadFiles();
+            //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+            project.loadFiles().then(function ()
+            {
+                that.onFilesLoaded(null, null, null);
+            });
 		}
 
 		/**
@@ -216,7 +220,7 @@ module Animate
 		onFilesLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
 		{
             var project: Project = User.get.project;
-			project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+			//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
 			project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
 			project.loadAssets();

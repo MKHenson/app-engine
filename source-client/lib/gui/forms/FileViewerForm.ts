@@ -41,11 +41,12 @@ module Animate
         private $loading: boolean;
         private $errorMsg: string;
         private $search: string;
-        private $entries: Array<any>;
+        private $entries: Array<Engine.IFile>;
         private $confirmDelete: boolean;
         private $newFolder: boolean;
         private $numLoading: number;
         private $loadingPercent: number;
+        private _searchType: FileSearchType;
 
         public extensions: Array<string>;
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
@@ -53,43 +54,43 @@ module Animate
         public selectedFolder: UsersInterface.IBucketEntry;
         private multiSelect: boolean;
 
-		private toolbar: Component;
-		private selectedID: string;
-		private modeGrid: Component;
-		private modeList: Component;		
-		private addRemoveGroup: Component;
-		private favouriteGroup: Component;
-		private favourite: Component;
-		private addButton: Component;
-		private removeButton: Component;
-		private catProject: Component;
-		private catUser: Component;
-		private catGlobal: Component;
-		private search: Component;
-		private menu: ListView;
-		private listInfo: Component;
-		private previewHeader: Component;
-		private okButton: Button;
-		private preview: Component;
-		private statusBar: Component;
-		private global: Checkbox;
-		private size: InputBox;
-		private name: InputBox;
-		private tags: InputBox;
-		private thumbnail: InputBox;
-		private path: InputBox;
-		private uploader: FileUploaderBasic;
-		private updateButton: Button;
+		//private toolbar: Component;
+		//private selectedID: string;
+		//private modeGrid: Component;
+		//private modeList: Component;		
+		//private addRemoveGroup: Component;
+		//private favouriteGroup: Component;
+		//private favourite: Component;
+		//private addButton: Component;
+		//private removeButton: Component;
+		//private catProject: Component;
+		//private catUser: Component;
+		//private catGlobal: Component;
+		//private search: Component;
+		//private menu: ListView;
+		//private listInfo: Component;
+		//private previewHeader: Component;
+		//private okButton: Button;
+		//private preview: Component;
+		//private statusBar: Component;
+		//private global: Checkbox;
+		//private size: InputBox;
+		//private name: InputBox;
+		//private tags: InputBox;
+		//private thumbnail: InputBox;
+		//private path: InputBox;
+		//private uploader: FileUploaderBasic;
+		//private updateButton: Button;
 		
-		private submitProxy: any;
-		private thumbUploader: any;
-		private thumbSubmitProxy: any;
-		private progressProxy: any;
-		private cancelProxy: any;
-		private completeProxy: any;
-		private errorProxy: any;
-		private keyDownProxy: any;
-		private buttonProxy: any;
+		//private submitProxy: any;
+		//private thumbUploader: any;
+		//private thumbSubmitProxy: any;
+		//private progressProxy: any;
+		//private cancelProxy: any;
+		//private completeProxy: any;
+		//private errorProxy: any;
+		//private keyDownProxy: any;
+		//private buttonProxy: any;
 		
 		constructor()
 		{
@@ -115,6 +116,7 @@ module Animate
             this.multiSelect = true;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
+            this._searchType = FileSearchType.Project;
 
             // Build the element with the compiler
             Compiler.build(this._browserElm, this);
@@ -267,7 +269,7 @@ module Animate
 			//infoSection.element.append( "<div class='fix'></div>" );
 
 			//this.thumbUploader = null;
-			this.uploader = null;
+			//this.uploader = null;
 
 			////Event Listeners
 			//this.buttonProxy = jQuery.proxy( this.onButtonClick, this );
@@ -302,9 +304,22 @@ module Animate
             jQuery(".file-items", this.element).on( 'drop', this.onDrop.bind( this ) );
         }
 
+        /**
+        * Returns a URL of a file preview image
+        * @returns {string}
+        */
+        getThumbnail(file: Engine.IFile): string
+        {
+            if (file.extension == "jpg" || file.extension == "jpeg" || file.extension == "png" || file.extension == "gif")
+                return file.url;
+
+            return "./media/appling.png";
+        }
+
         selectMode(type: FileSearchType)
         {
-            
+            this._searchType = type;
+            this.$pager.invalidate();
         }
 
         /**
@@ -315,6 +330,7 @@ module Animate
             this.$pager.index = 0;
             this.selectedFolder = folder;
             this.$confirmDelete = false;
+            this.$newFolder = false;
             this.$errorMsg = "";
             this.$pager.invalidate();
         }
@@ -444,7 +460,6 @@ module Animate
             var that = this;
             var details = User.get.userEntry;
             var command = "";
-            var mediaURL = DB.USERS + "/media";
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedFile = null;
@@ -453,11 +468,15 @@ module Animate
 
             Animate.Compiler.digest(that._browserElm, that);
             
-
             if (this.selectedFolder)
-                command = `${mediaURL}/get-files/${details.username}/${this.selectedFolder.name}/?index=${index}&limit=${limit}&search=${that.$search}`
+            {
+                if (this._searchType == FileSearchType.Project)
+                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
+                else
+                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
+            }
             else
-                command = `${mediaURL}/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
+                command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
 
             jQuery.getJSON(command).then(function (token : UsersInterface.IGetFiles)
             {
@@ -478,6 +497,11 @@ module Animate
             });
         }
 
+        /*
+        * Uploads a file to the users storage api
+        * @param {File} file The file we are uploading
+        * @param {string} url The URL to use
+        */
         uploadFile(file, url: string)
         {
             var that = this;
@@ -567,12 +591,44 @@ module Animate
                 if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
                     jQuery( ".file-items", this.element ).removeClass( "drag-here" );
 			}
-		}
+        }
+
+        /**
+        * Checks if a file list has approved extensions
+        * @return {boolean}
+        */
+        checkIfAllowed(files: FileList): boolean
+        {
+            var extensions = this.extensions;
+
+            // Approve all extensions unless otherwise stated
+            if (extensions.length > 0)
+            {
+                for (var f = 0, fl = files.length; f < fl; f++)
+                {
+                    var split = files[i].name.split("."),
+                        ext = split[split.length - 1].toLowerCase(),
+                        extFound = false;
+
+                    for (var i = 0, l = extensions.length; i < l; i++)
+                        if (extensions[i] == ext)
+                        {
+                            extFound = true;
+                            break;
+                        }
+
+                    if (!extFound)
+                        return false;
+                }
+            }
+
+            return true;
+        }
 
 		/**
 		* Called when we are no longer dragging items.
 		*/
-		onDrop( e )
+        onDrop(e: JQueryEventObject )
 		{
 			if ( this.visible )
 			{
@@ -582,69 +638,25 @@ module Animate
 				e.preventDefault();
 				e.stopPropagation();
 
-				var files = e.originalEvent.dataTransfer.files;
+                var files = (<DragEvent>e.originalEvent).dataTransfer.files;
 				if ( files.length > 0 )
-				{
-					if ( this.selectedID )
-					{
-						var extStr = this.extensions.join( "|" );
-						var extAccepted = false;
-						var i : number = files.length;
-						while ( i-- )
-						{
-							var fExt = files[i].name.split( "." );
-							fExt = fExt[fExt.length - 1];
-							fExt.toLowerCase();
+                {
+                    // Make sure the file types are allowed
+                    if (!this.checkIfAllowed(files))
+                    {
+                        this.$errorMsg = `Only ${this.extensions.join(', ')} file types are allowed`;
+                        Compiler.digest(this._browserElm, this);
+                        return false;
+                    }
 
-							extAccepted = false;
-							var ii = this.extensions.length;
-							while ( ii-- )
-								if ( fExt == this.extensions[ii].toLowerCase() )
-								{
-									extAccepted = true;
-									break;
-								}
-
-							//The file was not supported!
-							if ( !extAccepted )
-							{
-								this.statusBar.element.fadeIn();
-								//jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
-								return false;
-							}
-						}
-					}
-
-					// check for valid file extension
-					//jQuery( ".upload-text", this.statusBar.element ).text( "" );
-
-                    for (var i: number = 0, l = e.originalEvent.dataTransfer.files.length; i < l; i++ )
-                        this.uploadFile(e.originalEvent.dataTransfer.files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
+                    // Now upload each file
+                    for (var i: number = 0, l = files.length; i < l; i++ )
+                        this.uploadFile(files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
 
 					return false;
 				}
 			}
 		}
-
-		/**
-		* This function is used to create a new group on the file viewer toolbar
-		* @returns {Component} Returns the Component object representing the group
-		*/
-		//createGroup(): Component { return <Component>this.toolbar.addChild( "<div class='tool-bar-group'></div>" ); }
-
-
-		/**
-		* Use this function to create a group button for the toolbar
-		* @param {string} text The text for the button
-		* @param {string} image An image URL for the button icon
-		* @param {Component} group The Component object representing the group
-		* @returns {Component} Returns the Component object representing the button
-		*/
-		//createGroupButton( text: string, image : string, group : Component )  : Component
-		//{
-       //     return <Component>group.addChild( "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>" );
-		//}
-
 
 		/**
 		* Shows the window.
@@ -667,413 +679,337 @@ module Animate
             
             document.getElementById('upload-new-file').addEventListener('change', function ()
             {
+                var input = <HTMLInputElement>this;
+
                 if (that.selectedFolder)
                     apiUrl = `${DB.USERS}/media/upload/${that.selectedFolder.name}`;
                 else
                     return;
 
-                for (var i = 0; i < this.files.length; i++)
+                // Make sure the file types are allowed
+                if (!this.checkIfAllowed(input.files))
                 {
-                    var file = this.files[i];
+                    this.$errorMsg = `Only ${this.extensions.join(', ') } file types are allowed`;
+                    Compiler.digest(this._browserElm, this);
+                    return false;
+                }
 
-                    // This code is only for demo ...
-                    console.group("File " + i);
-                    console.log("name : " + file.name);
-                    console.log("size : " + file.size);
-                    console.log("type : " + file.type);
-                    console.log("date : " + file.lastModified);
-                    console.groupEnd();
+                // Upload each file
+                for (var i = 0; i < input.files.length; i++)
+                {
+                    var file = input.files[i];
                     that.uploadFile(file, apiUrl);
                 }
 
+                // Reset the value
                 (<HTMLInputElement>this).value = "";
             }, false);
-            
-
-            //// Initialize the file uploader
-            //if (!this.uploader)
-            //{
-            //    this.uploader = new qq.FileUploaderBasic({
-            //        button: document.getElementById("upload-new-file"),
-            //        action: `${apiUrl}/`,
-
-            //        onSubmit: function (file, ext)
-            //        {
-            //            // Approve all extensions unless otherwise stated
-            //            if (extensions.length > 0)
-            //            {
-            //                var extFound = false;
-            //                for (var i = 0, l = extensions.length; i < l; i++)
-            //                    if ("." + extensions[i] == ext)
-            //                    {
-            //                        extFound = true;
-            //                        break;
-            //                    }
-
-            //                if (!extFound)
-            //                {
-            //                    that.$errorMsg = `${ext} files are not allowed`;
-            //                    Compiler.digest(that._browserElm, that);
-            //                    return false;
-            //                }
-            //            }
-            //            that.$loadingPercent = 0;
-            //            that.$numLoading++;
-            //            return true;
-            //        },
-            //        onComplete: function (id, fileName, response)
-            //        {
-            //            that.$loadingPercent = 100;
-            //            that.$numLoading--;
-            //            Compiler.digest(that._browserElm, that);
-            //        },
-            //        onCancel: function (id, fileName)
-            //        {
-            //            that.$errorMsg = "";
-            //            Compiler.digest(that._browserElm, that);
-            //        },
-            //        onProgress: function (id, fileName, loaded, total)
-            //        {
-            //            that.$loadingPercent = (loaded / total) * 100;
-            //            Compiler.digest(that._browserElm, that);
-            //        },
-            //        onError: function (id, fileName, reason)
-            //        {
-            //            that.$loadingPercent = 0;
-            //            that.$numLoading--;
-            //            that.$errorMsg = `An error occurred while uploading the file '${fileName}': ${reason}`;
-            //            Compiler.digest(that._browserElm, that);
-            //        }
-            //    });
-            //};           
-
-			//this.selectedID = id;
-			//this.extensions = extensions;
-			//this.initializeLoader();
-			//this.update();
-
-			//this.onItemClicked( null, null );
-
-			////Only show the OK button if we have an ID of an object 
-			//if ( id != null )
-			//	this.okButton.element.show();
-			//else
-			//	this.okButton.element.hide();
-
-			//this.catUser.element.removeClass( "selected" );
-			//this.catGlobal.element.removeClass( "selected" );
-			//this.catProject.element.removeClass( "selected" );
-			//this.catProject.element.addClass( "selected" ); //Must be on to begin with
-			//this.catProject.element.trigger( "click" );
-
-            
-            //Compiler.digest(this._browserElm, this);
 		}
 
-		/**
-		* Called when the files have been loaded
-		* @param {ProjectEvents} response 
-		* @param {Event} data 
-		*/
-		onFilesLoaded( response: ProjectEvents, data : ProjectEvent )
-		{
-			var project = User.get.project;
-			project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
-			this.populateFiles( project.files );
-		}
+		///**
+		//* Called when the files have been loaded
+		//* @param {ProjectEvents} response 
+		//* @param {Event} data 
+		//*/
+		//onFilesLoaded( response: ProjectEvents, data : ProjectEvent )
+		//{
+		//	var project = User.get.project;
+		//	project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+		//	this.populateFiles( project.files );
+		//}
 
-		/**
-		* Gets the viewer to search using the terms in the search inut
-		* @returns {any} 
-		*/
-		searchItems()
-		{
-			var items = this.menu.items;
-			var i = items.length;
-			while ( i-- )
-			{
-				var ii = items[i].components.length;
+		///**
+		//* Gets the viewer to search using the terms in the search inut
+		//* @returns {any} 
+		//*/
+		//searchItems()
+		//{
+		//	var items = this.menu.items;
+		//	var i = items.length;
+		//	while ( i-- )
+		//	{
+		//		var ii = items[i].components.length;
 
-				var searchTerm = jQuery( "input", this.search.element ).val();
-				var baseString = ( items[i].fields[1] + items[i].fields[2] );
-				var result = baseString.search( new RegExp( searchTerm, "i" ) );
+		//		var searchTerm = jQuery( "input", this.search.element ).val();
+		//		var baseString = ( items[i].fields[1] + items[i].fields[2] );
+		//		var result = baseString.search( new RegExp( searchTerm, "i" ) );
 
-				while ( ii-- )
-					if ( result != -1 )
-						items[i].components[ii].element.show();
-					else
-						items[i].components[ii].element.hide();
-			}
-		}
+		//		while ( ii-- )
+		//			if ( result != -1 )
+		//				items[i].components[ii].element.show();
+		//			else
+		//				items[i].components[ii].element.hide();
+		//	}
+		//}
 
-		/**
-		* When we hit a key on the search box
-		* @param {any} e The jQuery event
-		*/
-		onInputKey( e : any )
-		{
-			if ( e.keyCode == 13 )
-				this.searchItems();
-		}
+		///**
+		//* When we hit a key on the search box
+		//* @param {any} e The jQuery event
+		//*/
+		//onInputKey( e : any )
+		//{
+		//	if ( e.keyCode == 13 )
+		//		this.searchItems();
+		//}
 
-		/**
-		* Called when a file is imported
-		* @param {ProjectEvents} e 
-		* @param {File} file 
-		*/
-		onFileImported( e: ProjectEvents, event : ProjectEvent )
-		{
-			//Not a project file - so we have to import it.
-			var project : Project = User.get.project;
-			project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+		///**
+		//* Called when a file is imported
+		//* @param {ProjectEvents} e 
+		//* @param {File} file 
+		//*/
+		//onFileImported( e: ProjectEvents, event : ProjectEvent )
+		//{
+		//	//Not a project file - so we have to import it.
+		//	var project : Project = User.get.project;
+		//	project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
 
-			var items: Array<ListViewItem> = this.menu.getSelectedItems();
-			var file: File = null;
-			if ( items.length > 0 )
-				file = <File>items[0].tag;
+		//	var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//	var file: File = null;
+		//	if ( items.length > 0 )
+		//		file = <File>items[0].tag;
 
-			this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.FILE_CHOSEN, file ) );
-			this.clearItems();
-			this.hide();
-		}
+		//	this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.FILE_CHOSEN, file ) );
+		//	this.clearItems();
+		//	this.hide();
+		//}
 
-		/**
-		* Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-		and pass the text either for the ok or cancel buttons.
-		* @param {any} e The jQuery event object
-		*/
-		onButtonClick( e : any )
-		{
-			e.preventDefault();
+		///**
+		//* Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+		//and pass the text either for the ok or cancel buttons.
+		//* @param {any} e The jQuery event object
+		//*/
+		//onButtonClick( e : any )
+		//{
+		//	e.preventDefault();
 
-			var target = jQuery( e.target );
+		//	var target = jQuery( e.target );
 
-			//If Search
-			if ( target.is( jQuery( "img", this.search.element ) ) )
-			{
-				this.searchItems();
-			}
-			//Select Ok 
-			else if ( target.is( this.okButton.element ) )
-			{
-				var file : File = null;
-				var items: Array<ListViewItem> = this.menu.getSelectedItems();
-				if ( items.length > 0 )
-					file = <File>items[0].tag;
+		//	//If Search
+		//	if ( target.is( jQuery( "img", this.search.element ) ) )
+		//	{
+		//		this.searchItems();
+		//	}
+		//	//Select Ok 
+		//	else if ( target.is( this.okButton.element ) )
+		//	{
+		//		var file : File = null;
+		//		var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//		if ( items.length > 0 )
+		//			file = <File>items[0].tag;
 
-				//If its a project file - then select the file
-				if ( this.catProject.element.hasClass( "selected" ) )
-				{
-					this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.FILE_CHOSEN, file ) );
-					this.clearItems();
-					this.hide();
-				}
-				else
-				{
-					//Not a project file - so we have to import it.
-					var project = User.get.project;
-					project.importFile( [file.id] );
-					project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
-					project.on( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
-				}
-			}
-			//Select Grid 
-			else if ( target.is( this.modeGrid.element ) )
-			{
-				this.modeList.element.removeClass( "selected" );
-				this.modeGrid.element.addClass( "selected" );
-				this.menu.displayMode = ListViewType.IMAGES;
-			}
-			//Select List 
-			else if ( target.is( this.modeList.element ) )
-			{
-				this.modeGrid.element.removeClass( "selected" );
-				this.modeList.element.addClass( "selected" );
-				this.menu.displayMode = ListViewType.DETAILS;
-			}
-			//Select assets list
-			else if ( target.is( this.catUser.element ) || target.is( this.catGlobal.element ) || target.is( this.catProject.element ) )
-			{
-				this.catUser.element.removeClass( "selected" );
-				this.catGlobal.element.removeClass( "selected" );
-				this.catProject.element.removeClass( "selected" );
+		//		//If its a project file - then select the file
+		//		if ( this.catProject.element.hasClass( "selected" ) )
+		//		{
+		//			this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.FILE_CHOSEN, file ) );
+		//			this.clearItems();
+		//			this.hide();
+		//		}
+		//		else
+		//		{
+		//			//Not a project file - so we have to import it.
+		//			var project = User.get.project;
+		//			project.importFile( [file.id] );
+		//			project.off( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+		//			project.on( ProjectEvents.FILE_IMPORTED, this.onFileImported, this );
+		//		}
+		//	}
+		//	//Select Grid 
+		//	else if ( target.is( this.modeGrid.element ) )
+		//	{
+		//		this.modeList.element.removeClass( "selected" );
+		//		this.modeGrid.element.addClass( "selected" );
+		//		this.menu.displayMode = ListViewType.IMAGES;
+		//	}
+		//	//Select List 
+		//	else if ( target.is( this.modeList.element ) )
+		//	{
+		//		this.modeGrid.element.removeClass( "selected" );
+		//		this.modeList.element.addClass( "selected" );
+		//		this.menu.displayMode = ListViewType.DETAILS;
+		//	}
+		//	//Select assets list
+		//	else if ( target.is( this.catUser.element ) || target.is( this.catGlobal.element ) || target.is( this.catProject.element ) )
+		//	{
+		//		this.catUser.element.removeClass( "selected" );
+		//		this.catGlobal.element.removeClass( "selected" );
+		//		this.catProject.element.removeClass( "selected" );
 
-				target.addClass( "selected" );
+		//		target.addClass( "selected" );
 
-				if ( target.is( this.catProject.element ) )
-				{
-					this.addRemoveGroup.enabled = true;
-					this.favouriteGroup.enabled = true;
+		//		if ( target.is( this.catProject.element ) )
+		//		{
+		//			this.addRemoveGroup.enabled = true;
+		//			this.favouriteGroup.enabled = true;
 
-					//Re-download project files
-					this.update();
-					this.onItemClicked( null, null );
-                    var project: Project = User.get.project;
-					project.loadFiles( "project" );
-					project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
-					project.on( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+		//			//Re-download project files
+		//			this.update();
+		//			this.onItemClicked( null, null );
+  //                  var project: Project = User.get.project;
+		//			project.loadFiles( "project" );
+		//			project.off( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
+		//			project.on( ProjectEvents.FILES_CREATED, this.onFilesLoaded, this );
 
-					this.okButton.text = "Use this File";
-				}
-				else
-				{
-					this.addRemoveGroup.enabled = false;
-					this.favouriteGroup.enabled = false;
+		//			this.okButton.text = "Use this File";
+		//		}
+		//		else
+		//		{
+		//			this.addRemoveGroup.enabled = false;
+		//			this.favouriteGroup.enabled = false;
 
-					//Either download user or global files
-					this.onItemClicked( null, null );
-                    var project: Project = User.get.project;
+		//			//Either download user or global files
+		//			this.onItemClicked( null, null );
+  //                  var project: Project = User.get.project;
 					
 
-					project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-					project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+		//			project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+		//			project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
-					if ( target.is( this.catUser.element ) )
-						project.loadFiles( "user" );
-					else
-						project.loadFiles( "global" );
+		//			if ( target.is( this.catUser.element ) )
+		//				project.loadFiles( "user" );
+		//			else
+		//				project.loadFiles( "global" );
 
-					this.okButton.text = "Import";
-				}
-			}
-			//Delete
-			else if ( target.is( this.removeButton.element ) )
-			{
-				var project : Project = User.get.project;
-				var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//			this.okButton.text = "Import";
+		//		}
+		//	}
+		//	//Delete
+		//	else if ( target.is( this.removeButton.element ) )
+		//	{
+		//		var project : Project = User.get.project;
+		//		var items: Array<ListViewItem> = this.menu.getSelectedItems();
 
-				//Remove
-				if ( items.length > 0 )
-				{
-					var file : File = <File>items[0].tag;
+		//		//Remove
+		//		if ( items.length > 0 )
+		//		{
+		//			var file : File = <File>items[0].tag;
 
-					this.statusBar.element.fadeIn();
-					jQuery( ".upload-text", this.statusBar.element ).text( 'Deleting file...' );
+		//			this.statusBar.element.fadeIn();
+		//			jQuery( ".upload-text", this.statusBar.element ).text( 'Deleting file...' );
 
-					if ( file )
-					{
-						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.on( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
-						project.deleteFiles( [file.id] );
-					}
-				}
-			}
-			//Update
-			else if ( target.is( this.updateButton.element ) )
-			{
-				var project : Project = User.get.project;
-				project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
-				var items: Array<ListViewItem> = this.menu.getSelectedItems();
-				if ( items.length > 0 )
-				{
-					var file : File = <File>items[0].tag;
+		//			if ( file )
+		//			{
+		//				project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+		//				project.on( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+		//				project.deleteFiles( [file.id] );
+		//			}
+		//		}
+		//	}
+		//	//Update
+		//	else if ( target.is( this.updateButton.element ) )
+		//	{
+		//		var project : Project = User.get.project;
+		//		project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+		//		var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//		if ( items.length > 0 )
+		//		{
+		//			var file : File = <File>items[0].tag;
 
-					this.statusBar.element.fadeIn();
-					jQuery( ".upload-text", this.statusBar.element ).text( 'Updating file...' );
+		//			this.statusBar.element.fadeIn();
+		//			jQuery( ".upload-text", this.statusBar.element ).text( 'Updating file...' );
 
-					if ( file )
-					{
-						project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
-						project.on( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
-						project.saveFile( file.id, this.name.text, this.tags.text.split(","), file.favourite, this.global.checked );
-					}
-				}
-			}
-			//FAVOURITE
-			else if ( target.is( this.favourite.element ) )
-			{
-				var items: Array<ListViewItem> = this.menu.getSelectedItems();
-				if ( items.length > 0 )
-				{
-					var file : File = <File>items[0].tag;
-					if ( file )
-					{
-						if ( file.favourite == false )
-							file.favourite = true;
-						else
-							file.favourite = false;
+		//			if ( file )
+		//			{
+		//				project.on( ProjectEvents.FAILED, this.onFileDeleted, this );
+		//				project.on( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+		//				project.saveFile( file.id, this.name.text, this.tags.text.split(","), file.favourite, this.global.checked );
+		//			}
+		//		}
+		//	}
+		//	//FAVOURITE
+		//	else if ( target.is( this.favourite.element ) )
+		//	{
+		//		var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//		if ( items.length > 0 )
+		//		{
+		//			var file : File = <File>items[0].tag;
+		//			if ( file )
+		//			{
+		//				if ( file.favourite == false )
+		//					file.favourite = true;
+		//				else
+		//					file.favourite = false;
 
-						this.updateButton.element.trigger( "click" );
-					}
-				}
-			}
-			else
-				this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.CANCELLED, null ) );
-		}
-
-
-		/**
-		* Clears up the contents to free the memory
-		*/
-		clearItems()
-		{
-			var i = this.preview.children.length;
-			while ( i-- )
-				this.preview.children[i].dispose();
-		}
-
-		/**
-		* When we click the close button on the status note
-		*/
-		onItemClicked( responce: ListEvents, event: ListViewEvent )
-		{
-			this.clearItems();
-
-			if (event == null || event.item == null )
-			{
-				this.name.text = "";
-				this.tags.text = "";
-				this.size.text = "";
-				this.path.text = "";
-				this.removeButton.enabled = false;
-				this.menu.setSelectedItems( null );
-				this.updateButton.enabled = false;
-				this.favourite.enabled = false;
-				this.global.checked = false;
-				this.favourite.element.removeClass( "selected" );
-				jQuery( ".selected-asset", this.listInfo.element ).text( "None Selected. " );
-				jQuery( ".header-name", this.previewHeader.element ).text( "Preview: " );
-
-				//Get the plugin to display a preview
-				PluginManager.getSingleton().displayPreview( null, this.preview );
-				return;
-			}
-
-			this.updateButton.enabled = true;
-			this.removeButton.enabled = true;
-			this.favourite.enabled = true;
-
-			var file: File = <File>event.item.tag;
-			this.name.text = file.name;
-			this.tags.text = file.tags.join( "," );
-			this.size.text = ( ( parseInt( file.size.toString() ) / ( 1024 * 1024 ) ) ).toFixed( 3 ) + "M";
-			this.path.text = file.path;
-
-			if ( file.global )
-				this.global.checked = true;
-			else
-				this.global.checked = false;
-
-			this.thumbnail.text = file.preview_path;
-
-			if ( !file.favourite )
-				this.favourite.element.removeClass( "selected" );
-			else
-				this.favourite.element.addClass( "selected" );
+		//				this.updateButton.element.trigger( "click" );
+		//			}
+		//		}
+		//	}
+		//	else
+		//		this.dispatchEvent( new FileViewerFormEvent( FileViewerFormEvents.CANCELLED, null ) );
+		//}
 
 
-			jQuery( ".selected-asset", this.listInfo.element ).text( "Selected: " + file.name );
+		///**
+		//* Clears up the contents to free the memory
+		//*/
+		//clearItems()
+		//{
+		//	var i = this.preview.children.length;
+		//	while ( i-- )
+		//		this.preview.children[i].dispose();
+		//}
 
-			jQuery( ".header-name", this.previewHeader.element ).text( "Preview: " + file.name );
+		///**
+		//* When we click the close button on the status note
+		//*/
+		//onItemClicked( responce: ListEvents, event: ListViewEvent )
+		//{
+		//	this.clearItems();
 
-			//Get the plugin to display a preview
-			if ( PluginManager.getSingleton().displayPreview( file, this.preview ) )
-				return true;
+		//	if (event == null || event.item == null )
+		//	{
+		//		this.name.text = "";
+		//		this.tags.text = "";
+		//		this.size.text = "";
+		//		this.path.text = "";
+		//		this.removeButton.enabled = false;
+		//		this.menu.setSelectedItems( null );
+		//		this.updateButton.enabled = false;
+		//		this.favourite.enabled = false;
+		//		this.global.checked = false;
+		//		this.favourite.element.removeClass( "selected" );
+		//		jQuery( ".selected-asset", this.listInfo.element ).text( "None Selected. " );
+		//		jQuery( ".header-name", this.previewHeader.element ).text( "Preview: " );
 
-			//Dee if we can handle this
-			if ( this.handleDefaultPreviews( file, this.preview ) )
-				return;
-		}
+		//		//Get the plugin to display a preview
+		//		PluginManager.getSingleton().displayPreview( null, this.preview );
+		//		return;
+		//	}
+
+		//	this.updateButton.enabled = true;
+		//	this.removeButton.enabled = true;
+		//	this.favourite.enabled = true;
+
+		//	var file: File = <File>event.item.tag;
+		//	this.name.text = file.name;
+		//	this.tags.text = file.tags.join( "," );
+		//	this.size.text = ( ( parseInt( file.size.toString() ) / ( 1024 * 1024 ) ) ).toFixed( 3 ) + "M";
+		//	this.path.text = file.path;
+
+		//	if ( file.global )
+		//		this.global.checked = true;
+		//	else
+		//		this.global.checked = false;
+
+		//	this.thumbnail.text = file.preview_path;
+
+		//	if ( !file.favourite )
+		//		this.favourite.element.removeClass( "selected" );
+		//	else
+		//		this.favourite.element.addClass( "selected" );
+
+
+		//	jQuery( ".selected-asset", this.listInfo.element ).text( "Selected: " + file.name );
+
+		//	jQuery( ".header-name", this.previewHeader.element ).text( "Preview: " + file.name );
+
+		//	//Get the plugin to display a preview
+		//	if ( PluginManager.getSingleton().displayPreview( file, this.preview ) )
+		//		return true;
+
+		//	//Dee if we can handle this
+		//	if ( this.handleDefaultPreviews( file, this.preview ) )
+		//		return;
+		//}
 
 		///**
 		//* @type public enum hide
@@ -1114,337 +1050,337 @@ module Animate
 			}
 		}
 
-		/**
-		* When we click the close button on the status note
-		*/
-		onStatusCloseClick( id, fileName, response )
-		{
-			this.statusBar.element.fadeOut();
-		}
+		///**
+		//* When we click the close button on the status note
+		//*/
+		//onStatusCloseClick( id, fileName, response )
+		//{
+		//	this.statusBar.element.fadeOut();
+		//}
 
-		/**
-		* Use this function to populate the files uploaded for use in this project.
-		*/
-		populateFiles( files : Array<File> )
-		{
-			this.menu.clearItems();
-			var counter = 0;
-			var i = files.length;
-			while ( i-- )
-			{
-				var file : File = files[i];
+		///**
+		//* Use this function to populate the files uploaded for use in this project.
+		//*/
+		//populateFiles( files : Array<File> )
+		//{
+		//	this.menu.clearItems();
+		//	var counter = 0;
+		//	var i = files.length;
+		//	while ( i-- )
+		//	{
+		//		var file : File = files[i];
 
-				if ( this.extensions == null || this.extensions === undefined || jQuery.inArray( file.extension, this.extensions ) != -1 )
-				{
-					//If its an image, we use the image as a preview
-					var ext = jQuery.trim( file.extension.toLowerCase() );
-					var imgPath : string = "media/page.png";
-					if ( file.preview_path )
-						imgPath = file.preview_path;
-					else if ( ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" )
-						imgPath = file.path;
+		//		if ( this.extensions == null || this.extensions === undefined || jQuery.inArray( file.extension, this.extensions ) != -1 )
+		//		{
+		//			//If its an image, we use the image as a preview
+		//			var ext = jQuery.trim( file.extension.toLowerCase() );
+		//			var imgPath : string = "media/page.png";
+		//			if ( file.preview_path )
+		//				imgPath = file.preview_path;
+		//			else if ( ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "gif" )
+		//				imgPath = file.path;
 
-					var item = new ListViewItem(
-						<Array<string>>[
-							file.id,
-							( file.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + file.name : file.name ),
-							file.tags.join(","),
-							( ( parseInt( file.size.toString() ) / ( 1024 * 1024 ) ) ).toFixed( 3 ) + "M",
-							file.path,
-							file.favourite,
-							new Date( file.createdOn ).toDateString(),
-							new Date( file.lastModified ).toDateString(),
-							file.extension
-						], imgPath, imgPath );
+		//			var item = new ListViewItem(
+		//				<Array<string>>[
+		//					file.id,
+		//					( file.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + file.name : file.name ),
+		//					file.tags.join(","),
+		//					( ( parseInt( file.size.toString() ) / ( 1024 * 1024 ) ) ).toFixed( 3 ) + "M",
+		//					file.path,
+		//					file.favourite,
+		//					new Date( file.createdOn ).toDateString(),
+		//					new Date( file.lastModified ).toDateString(),
+		//					file.extension
+		//				], imgPath, imgPath );
 
-					item.tag = file;
-					this.menu.addItem( item );
-					counter++;
-				}
-			}
+		//			item.tag = file;
+		//			this.menu.addItem( item );
+		//			counter++;
+		//		}
+		//	}
 
-			this.menu.updateItems();
-			jQuery( ".assets", this.listInfo.element ).text( ( counter ) + " assets listed" );
-		}
+		//	this.menu.updateItems();
+		//	jQuery( ".assets", this.listInfo.element ).text( ( counter ) + " assets listed" );
+		//}
 
-		/**
-		* Fired when the upload is complete
-		*/
-		onUploadComplete( id, fileName, response )
-		{
-			if ( LoaderEvents.fromString( response.return_type.toString() ) == AnimateLoaderResponses.SUCCESS )
-			{
-				jQuery( ".upload-text", this.statusBar.element ).text( response.message );
-				this.addButton.enabled = true;
-				var project: Project = User.get.project;
-				project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-				project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+		///**
+		//* Fired when the upload is complete
+		//*/
+		//onUploadComplete( id, fileName, response )
+		//{
+		//	if ( LoaderEvents.fromString( response.return_type.toString() ) == AnimateLoaderResponses.SUCCESS )
+		//	{
+		//		jQuery( ".upload-text", this.statusBar.element ).text( response.message );
+		//		this.addButton.enabled = true;
+		//		var project: Project = User.get.project;
+		//		project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+		//		project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
-				if ( this.catUser.selected )
-					project.loadFiles( "user" );
-				else if ( this.catProject.selected )
-					project.loadFiles( "project" );
-				else
-					project.loadFiles( "global" );
-			}
-			else
-			{
-				jQuery( ".upload-text", this.statusBar.element ).text( response.message );
-				this.addButton.enabled = true;
-			}
-		}
+		//		if ( this.catUser.selected )
+		//			project.loadFiles( "user" );
+		//		else if ( this.catProject.selected )
+		//			project.loadFiles( "project" );
+		//		else
+		//			project.loadFiles( "global" );
+		//	}
+		//	else
+		//	{
+		//		jQuery( ".upload-text", this.statusBar.element ).text( response.message );
+		//		this.addButton.enabled = true;
+		//	}
+		//}
 
-		/**
-		* Fired when the upload is cancelled due to an error
-		*/
-		onError( id, fileName, reason )
-		{
-			jQuery( ".upload-text", this.statusBar.element ).text( 'Error Uploading File.' );
-			this.addButton.enabled = true;
-		}
+		///**
+		//* Fired when the upload is cancelled due to an error
+		//*/
+		//onError( id, fileName, reason )
+		//{
+		//	jQuery( ".upload-text", this.statusBar.element ).text( 'Error Uploading File.' );
+		//	this.addButton.enabled = true;
+		//}
 
-		/**
-		* When we receive a progress event
-		*/
-		onCancel( id, fileName )
-		{
-			jQuery( ".upload-text", this.statusBar.element ).text( 'Cancelled' );
-			this.addButton.enabled = true;
-		}
+		///**
+		//* When we receive a progress event
+		//*/
+		//onCancel( id, fileName )
+		//{
+		//	jQuery( ".upload-text", this.statusBar.element ).text( 'Cancelled' );
+		//	this.addButton.enabled = true;
+		//}
 
-		/**
-		* When we receive a progress event
-		*/
-		onProgress( id, fileName, loaded, total )
-		{
-			jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' + ( ( loaded / total ) * 100 ) );
-		}
+		///**
+		//* When we receive a progress event
+		//*/
+		//onProgress( id, fileName, loaded, total )
+		//{
+		//	jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' + ( ( loaded / total ) * 100 ) );
+		//}
 
-		/**
-		* When we click submit on the upload button
-		*/
-		onSubmit( file, ext )
-		{
-			this.statusBar.element.fadeIn( "slow" );
-			var extStr = this.extensions.join( "|" );
+		///**
+		//* When we click submit on the upload button
+		//*/
+		//onSubmit( file, ext )
+		//{
+		//	this.statusBar.element.fadeIn( "slow" );
+		//	var extStr = this.extensions.join( "|" );
 
-			var fExt = ext.split( "." );
-			fExt = fExt[fExt.length - 1];
-			fExt.toLowerCase();
-			var extAccepted = false;
+		//	var fExt = ext.split( "." );
+		//	fExt = fExt[fExt.length - 1];
+		//	fExt.toLowerCase();
+		//	var extAccepted = false;
 
-			if ( this.selectedID )
-			{
-				var i = this.extensions.length;
-				while ( i-- )
-					if ( fExt.toLowerCase() == this.extensions[i].toLowerCase() )
-					{
-						extAccepted = true;
-						break;
-					}
+		//	if ( this.selectedID )
+		//	{
+		//		var i = this.extensions.length;
+		//		while ( i-- )
+		//			if ( fExt.toLowerCase() == this.extensions[i].toLowerCase() )
+		//			{
+		//				extAccepted = true;
+		//				break;
+		//			}
 
-				if ( extAccepted == false )
-				{
-					// check for valid file extension
-					jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
-					return false;
-				}
-			}
+		//		if ( extAccepted == false )
+		//		{
+		//			// check for valid file extension
+		//			jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
+		//			return false;
+		//		}
+		//	}
 
-			jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
-			this.addButton.enabled = false;
-		}
+		//	jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
+		//	this.addButton.enabled = false;
+		//}
 
-		/**
-		* When we click submit on the preview upload button
-		*/
-		onThumbSubmit( file, ext )
-		{
-			this.statusBar.element.fadeIn( "slow" );
-			var imageExtensions = ["png", "jpg", "jpeg", "gif"];
-			var extStr = imageExtensions.join( "|" );
+		///**
+		//* When we click submit on the preview upload button
+		//*/
+		//onThumbSubmit( file, ext )
+		//{
+		//	this.statusBar.element.fadeIn( "slow" );
+		//	var imageExtensions = ["png", "jpg", "jpeg", "gif"];
+		//	var extStr = imageExtensions.join( "|" );
 
-			var fExt = ext.split( "." );
-			fExt = fExt[fExt.length - 1];
-			fExt.toLowerCase();
-			var extAccepted : boolean = false;
+		//	var fExt = ext.split( "." );
+		//	fExt = fExt[fExt.length - 1];
+		//	fExt.toLowerCase();
+		//	var extAccepted : boolean = false;
 
-			var selectedItems: Array<ListViewItem> = this.menu.getSelectedItems();
-			if ( selectedItems == null || selectedItems.length == 0 )
-			{
-				jQuery( ".upload-text", this.statusBar.element ).text( "No file selected." );
-				return false;
-			}
+		//	var selectedItems: Array<ListViewItem> = this.menu.getSelectedItems();
+		//	if ( selectedItems == null || selectedItems.length == 0 )
+		//	{
+		//		jQuery( ".upload-text", this.statusBar.element ).text( "No file selected." );
+		//		return false;
+		//	}
 
-			var i = this.extensions.length;
-			while ( i-- )
-				if ( fExt.toLowerCase() == imageExtensions[i].toLowerCase() )
-				{
-					extAccepted = true;
-					break;
-				}
+		//	var i = this.extensions.length;
+		//	while ( i-- )
+		//		if ( fExt.toLowerCase() == imageExtensions[i].toLowerCase() )
+		//		{
+		//			extAccepted = true;
+		//			break;
+		//		}
 
-			if ( extAccepted == false )
-			{
-				// check for valid file extension
-				jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
-				return false;
-			}
+		//	if ( extAccepted == false )
+		//	{
+		//		// check for valid file extension
+		//		jQuery( ".upload-text", this.statusBar.element ).text( 'Only ' + extStr + ' files are allowed' );
+		//		return false;
+		//	}
 
-			var f : File = <File>selectedItems[0].tag;
+		//	var f : File = <File>selectedItems[0].tag;
 
-			//Update the thumbuploader
-            this.thumbUploader.setParams({ projectId: User.get.project.entry._id, "fileId": f.id });
+		//	//Update the thumbuploader
+  //          this.thumbUploader.setParams({ projectId: User.get.project.entry._id, "fileId": f.id });
 
-			jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
-			this.addButton.enabled = false;
+		//	jQuery( ".upload-text", this.statusBar.element ).text( 'Uploading...' );
+		//	this.addButton.enabled = false;
 
-		}
+		//}
 
-		/**
-		* This is called to initialize the one click loader
-		*/
-		initializeLoader()
-		{
-			if ( !this.uploader )
-			{
-				this.uploader = new qq.FileUploaderBasic( {
-					button: document.getElementById( this.addButton.id ),
-					action: DB.HOST + "/file/upload-file",
+		///**
+		//* This is called to initialize the one click loader
+		//*/
+		//initializeLoader()
+		//{
+		//	if ( !this.uploader )
+		//	{
+		//		this.uploader = new qq.FileUploaderBasic( {
+		//			button: document.getElementById( this.addButton.id ),
+		//			action: DB.HOST + "/file/upload-file",
 
-					onSubmit: this.submitProxy,
-					onComplete: this.completeProxy,
-					onCancel: this.cancelProxy,
-					onProgress: this.progressProxy,
-					onError: this.errorProxy
-				});
-			}
+		//			onSubmit: this.submitProxy,
+		//			onComplete: this.completeProxy,
+		//			onCancel: this.cancelProxy,
+		//			onProgress: this.progressProxy,
+		//			onError: this.errorProxy
+		//		});
+		//	}
 
-			if ( !this.thumbUploader )
-			{
-				this.thumbUploader = new qq.FileUploaderBasic( {
-					button: document.getElementById( this.thumbnail.id ),
-					action: DB.HOST + "/file/upload-thumb",
+		//	if ( !this.thumbUploader )
+		//	{
+		//		this.thumbUploader = new qq.FileUploaderBasic( {
+		//			button: document.getElementById( this.thumbnail.id ),
+		//			action: DB.HOST + "/file/upload-thumb",
 
-					onSubmit: this.thumbSubmitProxy,
-					onComplete: this.completeProxy,
-					onCancel: this.cancelProxy,
-					onProgress: this.progressProxy,
-					onError: this.errorProxy
-				});
+		//			onSubmit: this.thumbSubmitProxy,
+		//			onComplete: this.completeProxy,
+		//			onCancel: this.cancelProxy,
+		//			onProgress: this.progressProxy,
+		//			onError: this.errorProxy
+		//		});
 
-				this.thumbUploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
-			}
+		//		this.thumbUploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
+		//	}
 
-			//this.uploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "upload" });
-			//this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
+		//	//this.uploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "upload" });
+		//	//this.thumbUploader.setParams( { projectID: User.get.project._id, "category": "files", "command": "uploadThumb", "file": "" });
 
-            var projId: string = User.get.project.entry._id;
-            this.uploader.setParams({ projectId: projId, });
-            this.uploader.setParams
-			this.thumbUploader.setParams( { projectId: projId, fileId: "" });
+  //          var projId: string = User.get.project.entry._id;
+  //          this.uploader.setParams({ projectId: projId, });
+  //          this.uploader.setParams
+		//	this.thumbUploader.setParams( { projectId: projId, fileId: "" });
 
-			//Set the allowed extensions
-			this.uploader._options.allowedExtensions.splice( 0, this.uploader._options.allowedExtensions.length );
-			if ( this.extensions )
-			{
-				for ( var i = 0; i < this.extensions.length; i++ )
-					this.uploader._options.allowedExtensions.push( this.extensions[i] );
-			}
-		}
-
-
-		/**
-		* This is called when a file has been successfully deleted.
-		*/
-		onFileUpdated( response: ProjectEvents, event : ProjectEvent )
-		{
-			var data = event.tag;
-			var items: Array<ListViewItem> = this.menu.getSelectedItems();
-			var project : Project = User.get.project;
-			project.off( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
-			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
-			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
-
-			if ( items.length > 0 )
-			{
-				if ( this.modeGrid.element.hasClass( "selected" ) )
-				{
-					jQuery( ".info", items[0].components[0].element ).html( ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name ) );
-				}
-				else
-				{
-					items[0].components[1].element.html( ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name ) );
-					items[0].components[2].element.text( data.tags );
-					items[0].components[3].element.text( data.lastModified );
-					items[0].components[5].element.text( data.favourite );
-				}
-
-				items[0].fields[1] = ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name );
-				items[0].fields[2] = data.tags;
-				items[0].fields[7] = data.lastModified;
-				items[0].fields[5] = data.favourite;
-
-				if ( data.favourite == "false" )
-					this.favourite.element.removeClass( "selected" );
-				else
-					this.favourite.element.addClass( "selected" );
-
-				jQuery( ".upload-text", this.statusBar.element ).text( 'File updated' );
-			}
-		}
-
-		/**
-		* This is called when a file has been successfully deleted.
-		*/
-		onFileDeleted( response : ProjectEvents, event : ProjectEvent )
-		{
-			var project : Project = User.get.project;
-
-			if ( response == ProjectEvents.FILE_DELETED )
-			{
-				var items: Array<ListViewItem> = this.menu.getSelectedItems();
-				if ( items.length > 0 )
-					this.menu.removeItem( items[0] );
+		//	//Set the allowed extensions
+		//	this.uploader._options.allowedExtensions.splice( 0, this.uploader._options.allowedExtensions.length );
+		//	if ( this.extensions )
+		//	{
+		//		for ( var i = 0; i < this.extensions.length; i++ )
+		//			this.uploader._options.allowedExtensions.push( this.extensions[i] );
+		//	}
+		//}
 
 
-				jQuery( ".upload-text", this.statusBar.element ).text( 'File deleted.' );
+		///**
+		//* This is called when a file has been successfully deleted.
+		//*/
+		//onFileUpdated( response: ProjectEvents, event : ProjectEvent )
+		//{
+		//	var data = event.tag;
+		//	var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//	var project : Project = User.get.project;
+		//	project.off( ProjectEvents.FILE_UPDATED, this.onFileUpdated, this );
+		//	project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+		//	project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
 
-				this.onItemClicked( ListEvents.ITEM_SELECTED, null );
-			}
-			else
-			{
-				this.statusBar.element.show();
-				jQuery( ".upload-text", this.statusBar.element ).text( event.message );
-			}
+		//	if ( items.length > 0 )
+		//	{
+		//		if ( this.modeGrid.element.hasClass( "selected" ) )
+		//		{
+		//			jQuery( ".info", items[0].components[0].element ).html( ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name ) );
+		//		}
+		//		else
+		//		{
+		//			items[0].components[1].element.html( ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name ) );
+		//			items[0].components[2].element.text( data.tags );
+		//			items[0].components[3].element.text( data.lastModified );
+		//			items[0].components[5].element.text( data.favourite );
+		//		}
 
-			project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
-			project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
-		}
+		//		items[0].fields[1] = ( data.favourite ? "<img src='media/star-small.png' style='width:20px; height:20px; position:relative; top:-5px; vertical-align:middle; left:0px;' />" + data.name : data.name );
+		//		items[0].fields[2] = data.tags;
+		//		items[0].fields[7] = data.lastModified;
+		//		items[0].fields[5] = data.favourite;
+
+		//		if ( data.favourite == "false" )
+		//			this.favourite.element.removeClass( "selected" );
+		//		else
+		//			this.favourite.element.addClass( "selected" );
+
+		//		jQuery( ".upload-text", this.statusBar.element ).text( 'File updated' );
+		//	}
+		//}
+
+		///**
+		//* This is called when a file has been successfully deleted.
+		//*/
+		//onFileDeleted( response : ProjectEvents, event : ProjectEvent )
+		//{
+		//	var project : Project = User.get.project;
+
+		//	if ( response == ProjectEvents.FILE_DELETED )
+		//	{
+		//		var items: Array<ListViewItem> = this.menu.getSelectedItems();
+		//		if ( items.length > 0 )
+		//			this.menu.removeItem( items[0] );
+
+
+		//		jQuery( ".upload-text", this.statusBar.element ).text( 'File deleted.' );
+
+		//		this.onItemClicked( ListEvents.ITEM_SELECTED, null );
+		//	}
+		//	else
+		//	{
+		//		this.statusBar.element.show();
+		//		jQuery( ".upload-text", this.statusBar.element ).text( event.message );
+		//	}
+
+		//	project.off( ProjectEvents.FAILED, this.onFileDeleted, this );
+		//	project.off( ProjectEvents.FILE_DELETED, this.onFileDeleted, this );
+		//}
 
 		/**
 		* This function is used to cleanup the object before its removed from memory.
 		*/
 		dispose()
 		{
-			jQuery( "img", this.search.element ).off( "click", this.buttonProxy );
-			this.modeGrid.element.off( "click", this.buttonProxy );
-			this.modeList.element.off( "click", this.buttonProxy );
-			this.favourite.element.off( "click", this.buttonProxy );
-			jQuery( "img", this.statusBar.element ).off();
-			//this.refresh.element.off("unclick", this.buttonProxy);
-			this.okButton.element.off( "click", this.buttonProxy );
-			jQuery( "input", this.search.element ).off( "keydown", this.keyDownProxy );
+			//jQuery( "img", this.search.element ).off( "click", this.buttonProxy );
+			//this.modeGrid.element.off( "click", this.buttonProxy );
+			//this.modeList.element.off( "click", this.buttonProxy );
+			//this.favourite.element.off( "click", this.buttonProxy );
+			//jQuery( "img", this.statusBar.element ).off();
+			////this.refresh.element.off("unclick", this.buttonProxy);
+			//this.okButton.element.off( "click", this.buttonProxy );
+			//jQuery( "input", this.search.element ).off( "keydown", this.keyDownProxy );
 
-			this.updateButton.element.off();
-			this.addButton.element.off();
-			this.removeButton.element.off();
-			this.addButton = null;
-			this.updateButton = null;
-			this.removeButton = null;
-			this.buttonProxy = null;
-			this.okButton = null;
-			this.keyDownProxy = null;
+			//this.updateButton.element.off();
+			//this.addButton.element.off();
+			//this.removeButton.element.off();
+			//this.addButton = null;
+			//this.updateButton = null;
+			//this.removeButton = null;
+			//this.buttonProxy = null;
+			//this.okButton = null;
+			//this.keyDownProxy = null;
 
 			//Call super
 			super.dispose();

@@ -123,14 +123,16 @@
     */
     export interface IFile extends IResource
     {
-        url ?: string;
+        url?: string;
         tags ?: Array<string>;
-        previewPath ?: string;
+        previewPath?: string;
+        extension?: string;
         previewUrl ?: string;
         global ?: boolean;
         favourite ?: boolean;
         size ?: number;
-        shallowId ?: number;
+        shallowId?: number;
+        bucketId?: string;
     }
 }
 
