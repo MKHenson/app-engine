@@ -133,6 +133,7 @@
         size ?: number;
         shallowId?: number;
         bucketId?: string;
+        identifier?: string;
     }
 }
 

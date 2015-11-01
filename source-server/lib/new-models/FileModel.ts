@@ -20,11 +20,12 @@ export class FileModel extends Model
         this.defaultSchema.add(new SchemaFactory.bool("global", false));
         this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
+        this.defaultSchema.add(new SchemaFactory.text("identifier", "", 1, 50));
         this.defaultSchema.add(new SchemaFactory.text("extension", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("url", "", 1, 1024, true));
         this.defaultSchema.add(new SchemaFactory.textArray("tags", [], 0, 50, 0, 200, true));
-        this.defaultSchema.add(new SchemaFactory.text("previewPath", "", 1, 1024, true));
-        this.defaultSchema.add(new SchemaFactory.text("previewUrl", "", 1, 1024, true));
+        this.defaultSchema.add(new SchemaFactory.text("previewPath", "", 0, 1024, true));
+        this.defaultSchema.add(new SchemaFactory.text("previewUrl", "", 0, 1024, true));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }

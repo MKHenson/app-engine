@@ -687,10 +687,10 @@ module Animate
                     return;
 
                 // Make sure the file types are allowed
-                if (!this.checkIfAllowed(input.files))
+                if (!that.checkIfAllowed(input.files))
                 {
-                    this.$errorMsg = `Only ${this.extensions.join(', ') } file types are allowed`;
-                    Compiler.digest(this._browserElm, this);
+                    that.$errorMsg = `Only ${that.extensions.join(', ') } file types are allowed`;
+                    Compiler.digest(that._browserElm, that);
                     return false;
                 }
 

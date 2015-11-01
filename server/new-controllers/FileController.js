@@ -113,16 +113,24 @@ var FileController = (function (_super) {
     */
     FileController.prototype.onFilesUploaded = function (event) {
         var model = this._models[0];
-        var tokens = event.tokens;
+        var files = event.files;
         var promises = [];
-        // TODO: Finish this
-        for (var i = 0, l = tokens.length; i < l; i++)
-            promises.push(model.createInstance({}));
+        // Add an IFile reference for each file thats added
+        for (var i = 0, l = files.length; i < l; i++)
+            promises.push(model.createInstance({
+                bucketId: files[i].bucketId,
+                user: files[i].user,
+                url: files[i].publicURL,
+                extension: files[i].name.split(".").pop(),
+                name: files[i].name,
+                identifier: files[i].identifier,
+                size: files[i].size
+            }));
         // Save it in the DB
-        model.createInstance(newResource).then(function (instance) {
-            winston.info("[" + event.tokens.length + "] Files have been added", { process: process.pid });
+        Promise.all(promises).then(function (instances) {
+            winston.info("[" + instances.length + "] Files have been added", { process: process.pid });
         }).catch(function (err) {
-            winston.error("Could not remove file instance : " + err.message, { process: process.pid });
+            winston.error("Could not add file instances : " + err.message, { process: process.pid });
         });
     };
     /**
@@ -130,7 +138,17 @@ var FileController = (function (_super) {
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesRemoved = function (event) {
-        winston.info("[" + event.files.length + "] Files have been removed", { process: process.pid });
+        var model = this._models[0];
+        // Add an IFile reference for each file thats added
+        var removeQuery = [];
+        for (var i = 0, l = event.files.length; i < l; i++)
+            removeQuery.push({ identifier: event.files[i] });
+        // Save it in the DB
+        model.deleteInstances({ $or: removeQuery }).then(function (numRemoved) {
+            winston.info("[" + numRemoved + "] Files have been removed", { process: process.pid });
+        }).catch(function (err) {
+            winston.error("Could not remove file instances : " + err.message, { process: process.pid });
+        });
     };
     return FileController;
 })(modepress_api_1.Controller);

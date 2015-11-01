@@ -15857,9 +15857,9 @@ var Animate;
                 else
                     return;
                 // Make sure the file types are allowed
-                if (!this.checkIfAllowed(input.files)) {
-                    this.$errorMsg = "Only " + this.extensions.join(', ') + " file types are allowed";
-                    Animate.Compiler.digest(this._browserElm, this);
+                if (!that.checkIfAllowed(input.files)) {
+                    that.$errorMsg = "Only " + that.extensions.join(', ') + " file types are allowed";
+                    Animate.Compiler.digest(that._browserElm, that);
                     return false;
                 }
                 // Upload each file
