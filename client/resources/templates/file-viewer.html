@@ -110,83 +110,26 @@
 	</div>
 
 	<!-- File Info -->
-	<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedFile ? '30%' : ''), left :  (ctrl.$selectedFile ? '70%' : '') }">
+	<div class="file-info background animate-all" en-class="{ open : ctrl.$selectedFile }">
 		<div en-if="ctrl.$selectedFile" class="fade-in" style="height:100%;">
-			<div class="project-details">
+			<div class="file-details">
 				<h2>{{ctrl.$selectedFile.name}}</h2>
 				<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
 				<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}}</span></p>
+				<p><span class="info">Name</span>: <span class="detail"><b>{{ctrl.$selectedFile.name}}</b></span></p>
+				<p><span class="info">Raw Url</span>: <span class="detail">{{ctrl.$selectedFile.url}}</span></p>
+				<p><span class="info">Size</span>: <span class="detail">{{ctrl.$selectedFile.size}}</span></p>
+				<p><span class="info">Extension</span>: <span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
+				<p><span class="info">Global</span>: <span class="detail">{{ctrl.$selectedFile.global}}</span></p>
+				<p><span class="info">Favourite</span>: <span class="detail">{{ctrl.$selectedFile.favourite}}</span></p>
 				<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}}</span></p>
-				<p><span class="info">No. Plugins</span>: <span class="detail">{{ctrl.$selectedFile.plugins.length}}</span></p>
+				<p><span class="info">Tags</span>: <span class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span></p>
 				<div class="fix"></div>
-				<p en-html="ctrl.$selectedFile.description"></p>
 			</div>
 			<div class="buttons ">
-				<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeProject, ctrl)">REMOVE</a></div>
+				<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
 				<div class="button green animate-all" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
 			</div>
 		</div>
-
-		<div class="viewer-block">
-			<div class="file-preview-header">
-				<div class="header-name">Preview: </div>
-				<div class="button reg-gradient curve-small" style="width: 100px; height: 25px; margin: 0px 0px 5px; float: right; display: none;">
-					<div class="textfield" style="top: 3px;">Use this File</div>
-				</div><div class="fix"></div>
-			</div>
-			<div class="file-preview"></div><div class="info-section">
-				<div class="upload-status" style="display: none;">
-					<img src="media/close.png"><span class="upload-text">Uploading</span>
-				</div>
-				<div class="file-group">
-					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Name: </div>
-					</div><div class="input-box">
-						<input type="text">
-					</div><div class="fix"></div>
-				</div><div class="file-group">
-					<div></div>
-					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Tags: </div>
-					</div><div class="input-box">
-						<input type="text">
-					</div><div class="fix"></div>
-				</div><div class="file-group">
-					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Share: </div>
-					</div><div class="checkbox">
-						<input type="checkbox"><div class="text">Share your file with all Animate users</div>
-					</div>
-					<div class="fix"></div>
-				</div>
-				<div class="file-group">
-					<div></div><div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Thumbnail: </div>
-					</div>
-					<div class="input-box" style="position: relative; overflow: hidden; direction: ltr;">
-						<input type="text">
-						<input multiple="multiple" type="file" name="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">
-					</div>
-					<div class="info">Click here to upload a thumbnail image (100px, 100px)</div><div class="fix"></div>
-				</div>
-				<div class="file-group disabled">
-					<div></div>
-					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Filesize: </div>
-					</div><div class="input-box"><input type="text"></div><div class="fix"></div>
-				</div>
-				<div class="file-group disabled">
-					<div></div>
-					<div class="label" style="text-align: left; float: left; padding-left: 5px;">
-						<div class="textfield">Path: </div>
-					</div><div class="input-box"><input type="text"></div><div class="fix">
-					</div>
-				</div>
-				<div class="button reg-gradient curve-small disabled" style="width: 70px; height: 20px; margin: 5px 3px 0px 0px; float: right;">
-					<div class="textfield" style="top: 0.5px;">Update</div>
-				</div><div class="fix"></div>
-			</div>
-		</div>
-
 	</div>
 </div>

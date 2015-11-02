@@ -126,7 +126,6 @@ module Animate
             // Build the element with the compiler
             Compiler.build(this._browserElm, this);
             
-            
             var that = this;
 
             // Creates the filter options drop down
@@ -419,6 +418,11 @@ module Animate
                 this.selectedEntity = null;
             else
                 this.selectedEntity = ents[ents.length - 1];
+
+            if (this.selectedFolder)
+                this.$selectedFile = this.selectedEntity;
+            else
+                this.$selectedFile = null;
         }
 
         /**

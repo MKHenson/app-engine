@@ -15743,6 +15743,10 @@ var Animate;
                 this.selectedEntity = null;
             else
                 this.selectedEntity = ents[ents.length - 1];
+            if (this.selectedFolder)
+                this.$selectedFile = this.selectedEntity;
+            else
+                this.$selectedFile = null;
         };
         /**
         * Removes the selected entities

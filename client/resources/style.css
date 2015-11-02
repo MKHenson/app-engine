@@ -1402,10 +1402,47 @@ span.date {
     background: #fff;
     box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
 }
-
+.file-details {
+    padding: 15px;
+    height: calc(100% - 56px);
+    overflow: auto;
+    box-sizing: border-box;
+}
+.file-details p {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.file-info {
+    width: 0%;
+    position: absolute;
+    left: 100%;
+    top:0;
+    height: 100%;
+    overflow: hidden;
+}
+.file-info .buttons {
+    text-align:right;
+    position:relative;
+}
+.file-info .buttons .button {
+    float:left;
+    width:50%;
+    line-height: 36px;
+    position:relative;
+    top:58px;
+}
+.file-info.open {
+    width:30%;
+    left:70%;
+}
+.file-info.open .button {
+    top:0px;
+}
 #file-viewer .light-modal img {
     margin: 20% 45%;
 }
+
 /**
 ======================================================
 				COLORS
