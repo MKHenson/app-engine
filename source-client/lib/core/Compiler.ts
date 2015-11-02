@@ -1,7 +1,26 @@
 ﻿module Animate
 {
     export type CompiledEval = (ctrl, event, elm, contexts) => any;
+    
+    /* 
+    * Directives are classes that define rules for expanding compiler blocks (eg en-repeat)
+    */
+    export interface IDirective
+    {
+        /* 
+        * Expands the html directive
+        * @param {string} expression The JS expression in the HTML value attribute
+        * @param {any} ctrl The controller
+        * @param {DescriptorNode} The reference descriptor comment node
+        * @param {InstanceNode} The current instance
+        * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
+        */
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+    }
 
+    /* 
+    * A custom node interface for compiler nodes
+    */
     export interface AppNode extends Node
     {
         /* Bug in IE  means that blank text nodes are removed - we need them to stay
@@ -30,10 +49,14 @@
          If the object is different to the clone, then the dyanmic nodes are re-created */
         $clonedData: any;
     }
-    export interface DescriptorNode extends AppNode
+    
+    export interface InstanceNode extends AppNode
     {
         $clonedElements: Array<AppNode>;
+    }
 
+    export interface DescriptorNode extends InstanceNode
+    {
         /* Referene of origin node if cloned */
         $originalNode: AppNode;
     }
@@ -47,13 +70,13 @@
         $commentReferences: { [id: string]: DescriptorNode };
     }
 
-    export interface EngineInput extends HTMLInputElement
+    export interface NodeInput extends HTMLInputElement
     {
         $error: boolean;
         $autoClear: boolean;
     }
 
-    export interface EngineForm extends HTMLFormElement
+    export interface NodeForm extends HTMLFormElement
     {
         $error: boolean;
         $errorExpression: string;
@@ -67,6 +90,7 @@
     */
     export class Compiler
     {
+        public static directives: { [name: string]: IDirective; } = {};
         private static attrs: Array<Attr> = [];
         private static $commentRefIDCounter: number = 0;
 
@@ -84,7 +108,7 @@
         * @param {Node} node The node to clone
         * @returns {Node}
         */
-        private static cloneNode(node: AppNode): Node
+        public static cloneNode(node: AppNode): Node
         {
             var clone: AppNode = <AppNode>node.cloneNode(false);
 
@@ -146,7 +170,7 @@
         * @returns {CompiledEval}
         * @return {any}
         */
-        private static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any>): any
+        public static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any>): any
         {
             var contexts = {};
             var ctxValues = $ctxValues || elm.$ctxValues;
@@ -374,7 +398,7 @@
             appNode.$ctxValues = null;
             appNode.$compliledEval = null;
             appNode.$ieTextNodes = null;
-            (<DescriptorNode>appNode).$clonedElements = null;
+            (<InstanceNode>appNode).$clonedElements = null;
             (<DescriptorNode>appNode).$originalNode = null;
             appNode.$clonedData = null;
             Compiler.removeEvents(<Element><Node>appNode);
@@ -440,103 +464,55 @@
                     var $expression = commentElement.$originalNode.$expression;
                     var $expressionType = commentElement.$originalNode.$expressionType;
 
-                    if ($expressionType == "en-repeat")
+                    // Check to see if the directive exists
+                    if (Compiler.directives[$expressionType])
                     {
-                        var e = $expression.split("as");
-                        if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "")
+                        // Processes the value and returns nodes to added or null if nothing must be done
+                        var results = Compiler.directives[$expressionType].expand($expression, ctrl, commentElement, <InstanceNode>child);
+                        var newNode: AppNode;
+
+                        // Do nothing
+                        if (!results)
+                            return;
+
+                        // Remove any existing nodes
+                        for (var c = 0, k = (<InstanceNode>child).$clonedElements.length; c < k; c++)
+                            Compiler.cleanupNode((<InstanceNode>child).$clonedElements[c]);
+
+                        (<InstanceNode>child).$clonedElements.splice(0, (<InstanceNode>child).$clonedElements.length);
+
+                        // Go through each node that was created
+                        for (var k = 0, lk = results.length; k < lk; k++)
                         {
-                            var loopExpression = e[0];
+                            newNode = results[k];
 
-                            var ctxParts = e[1].split(",");
-                            var ctxValueName = ctxParts[0];
-                            var ctxIndexName = ctxParts[1];
-
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, (<AppNode>child).$ctxValues);
-                            if (Compiler.isEquivalent(expressionValue, (<AppNode>child).$clonedData) == false)
-                            {
-                                // Remove any existing nodes
-                                for (var c = 0, k = (<DescriptorNode>child).$clonedElements.length; c < k; c++)
-                                    Compiler.cleanupNode((<DescriptorNode>child).$clonedElements[c]);
-
-                                if (expressionValue)
-                                {
-                                    for (var t in expressionValue)
-                                    {
-                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
-                                        var newNode: AppNode = <AppNode><Node>clone.get(0);
-                                        newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
-
-                                        if (ctxIndexName && ctxIndexName.trim() != "")
-                                            newNode.$ctxValues.push({ name: ctxIndexName, value: t });
-
-                                        // If the parent element has context values - then add those to the clone
-                                        if (child.parentNode && (<AppNode><Node>child.parentNode).$ctxValues)
-                                            newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentNode).$ctxValues);
-                                        
-                                        // Go through each child and assign the context
-                                        if (newNode.$ctxValues.length > 0)
-                                        {
-                                            Compiler.traverse(newNode, function (c: AppNode)
-                                            {
-                                                if (c == newNode)
-                                                    return;
-
-                                                if (c.$ctxValues)
-                                                    c.$ctxValues.concat(newNode.$ctxValues.slice(0, newNode.$ctxValues.length));
-                                                else
-                                                    c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
-                                            });
-                                        };
-
-                                        // Add the new elements after this child comment
-                                        clone.insertAfter(jQuery(child));
-                                        (<DescriptorNode>child).$clonedElements.push(newNode);
-                                    };
-                                }
-
-                                (<AppNode>child).$clonedData = Compiler.clone(expressionValue);
-                            }
-                        }
-                    }
-                    else if ($expressionType == "en-if")
-                    {
-                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, (<AppNode>child).$ctxValues);
-                        if (Compiler.isEquivalent(expressionValue, (<AppNode>child).$clonedData) == false)
-                        {
-                            // Remove any existing nodes
-                            for (var c = 0, k = (<DescriptorNode>child).$clonedElements.length; c < k; c++)
-                                Compiler.cleanupNode((<DescriptorNode>child).$clonedElements[c]);
-
-                            if (expressionValue)
-                            {
-                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
-                                var newNode: AppNode = <AppNode><Node>clone.get(0);
-                                if (<Element><Node>commentElement.$originalNode == <Element><Node>root)
-                                    root = <RootNode><Node>clone.get(0);
-
+                            // Make sure the node has context variables
+                            if (!newNode.$ctxValues)
                                 newNode.$ctxValues = [];
-                                
-                                // If the parent element has context values - then add those to the clone
-                                if (child.parentNode && (<AppNode><Node>child.parentNode).$ctxValues)
-                                    newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentNode).$ctxValues);
-                                        
-                                // Go through each child and assign the context
-                                if (newNode.$ctxValues.length > 0)
+
+                            // If the parent element has context values - then add those to the clone
+                            if (child.parentNode && (<AppNode><Node>child.parentNode).$ctxValues)
+                                newNode.$ctxValues = newNode.$ctxValues.concat((<AppNode><Node>child.parentNode).$ctxValues);
+
+                            // Go through each child node and assign the context variables
+                            if (newNode.$ctxValues.length > 0)
+                            {
+                                Compiler.traverse(newNode, function (c: AppNode)
                                 {
-                                    Compiler.traverse(newNode, function (c: AppNode)
-                                    {
-                                        if (c == newNode)
-                                            return;
+                                    if (c == newNode)
+                                        return;
 
+                                    if (c.$ctxValues)
+                                        c.$ctxValues.concat(newNode.$ctxValues.slice(0, newNode.$ctxValues.length));
+                                    else
                                         c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
-                                    });
-                                };
+                                });
+                            };
 
-                                clone.insertAfter(jQuery(child));
-                                (<DescriptorNode>child).$clonedElements.push(newNode);
-                            }
-
-                            (<AppNode>child).$clonedData = Compiler.clone(expressionValue);
+                            // Add the new elements after this child comment
+                            var jq = jQuery(newNode);
+                            jq.insertAfter(jQuery(child));
+                            (<InstanceNode>child).$clonedElements.push(newNode);
                         }
                     }
                 }
@@ -745,7 +721,7 @@
 
                             var ev = function (e)
                             {
-                                var form: EngineForm = <EngineForm>elem;
+                                var form: NodeForm = <NodeForm>elem;
                                 e.preventDefault();
                                 form.$error = false;
                                 form.$errorExpression = "";
@@ -781,12 +757,12 @@
                             
                             // Set the parent form to be pristine
                             if ((<HTMLInputElement>elem).form)
-                                (<EngineForm>(<HTMLInputElement>elem).form).$pristine = true;
+                                (<NodeForm>(<HTMLInputElement>elem).form).$pristine = true;
 
                             var ev = function (e)
                             {
                                 // IF it has a form - check other elements for errors
-                                var form: EngineForm = <EngineForm>(<HTMLInputElement>elem).form;
+                                var form: NodeForm = <NodeForm>(<HTMLInputElement>elem).form;
                                 if (form)
                                 {
                                     form.$error = false;
@@ -800,7 +776,7 @@
                                 {
                                     jQuery("[en-validate]", form).each(function (index, subElem)
                                     {
-                                        if ((<EngineInput>subElem).$error)
+                                        if ((<NodeInput>subElem).$error)
                                         {
                                             form.$error = true;
                                             form.$errorInput = (<HTMLInputElement | HTMLTextAreaElement>subElem).name;
@@ -814,7 +790,7 @@
                             Compiler.registerFunc(appNode, "change", "en-validate", ev);
                             break;
                         case "en-auto-clear":
-                            (<EngineForm | EngineInput>elem).$autoClear = true;
+                            (<NodeForm | NodeInput>elem).$autoClear = true;
                             break;
                     }
                 });
@@ -831,13 +807,13 @@
         static checkValidations(value: string, elem: HTMLInputElement| HTMLTextAreaElement): boolean
         {
             var expressions: Array<{ name: string; regex: RegExp; negate: boolean;  }> = [];
-            var form: EngineForm = <EngineForm>elem.form;
+            var form: NodeForm = <NodeForm>elem.form;
 
             for (var i = 0, values = value.split("|"), l = values.length; i < l; i++)
                 if (Compiler.validators[values[i]])
                     expressions.push(Compiler.validators[values[i]]);
 
-            (<EngineInput>elem).$error = false;
+            (<NodeInput>elem).$error = false;
             for (var i = 0, l = expressions.length; i < l; i++)
             {
                 var matches : any = elem.value.match(expressions[i].regex);
@@ -850,7 +826,7 @@
 
                 if (!matches)
                 {
-                    (<EngineInput>elem).$error = true;
+                    (<NodeInput>elem).$error = true;
                     if (form)
                     {
                         form.$errorExpression = expressions[i].name;
@@ -861,7 +837,7 @@
                 }
             }
 
-            return (<EngineInput>elem).$error;
+            return (<NodeInput>elem).$error;
         }
 
         /**
@@ -872,7 +848,7 @@
         static transform(script: string, elem: HTMLInputElement | HTMLTextAreaElement, controller: any)
         {
             var expressions: Array<{ name: string; regex: RegExp; negate: boolean; }> = [];
-            var form: EngineForm = <EngineForm>elem.form;
+            var form: NodeForm = <NodeForm>elem.form;
 
             for (var i = 0, l = elem.attributes.length; i < l; i++)
             {
@@ -910,7 +886,7 @@
                 if (elem.nodeType != 1)
                     return;
 
-                if ((<AppNode><Node>elem).$dynamic || (<DescriptorNode><Node>elem).$clonedElements)
+                if ((<AppNode><Node>elem).$dynamic || (<InstanceNode><Node>elem).$clonedElements)
                     return;
                 
                 var attrs: Array<Attr> = Compiler.attrs;

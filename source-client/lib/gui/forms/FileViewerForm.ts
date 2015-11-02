@@ -32,7 +32,9 @@ module Animate
 	*/
 	export class FileViewerForm extends Window
 	{
-		private static _singleton: FileViewerForm;
+        private static _singleton: FileViewerForm;
+        private static _dCount: number;
+        private static _downloads: { [id: number]: { total: number; loaded: number; }; };
 
         // New variables
         private _browserElm: JQuery;
@@ -99,6 +101,9 @@ module Animate
 			// Call super-class constructor
             super(1000, 600, true, true, "Asset Browser");
             this.element.attr("id", "file-viewer-window");
+
+            FileViewerForm._dCount = 0;
+            FileViewerForm._downloads = {};
             
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
@@ -332,6 +337,7 @@ module Animate
             this.$confirmDelete = false;
             this.$newFolder = false;
             this.$errorMsg = "";
+            this.$search = "";
             this.$pager.invalidate();
         }
 
@@ -502,27 +508,44 @@ module Animate
         * @param {File} file The file we are uploading
         * @param {string} url The URL to use
         */
-        uploadFile(file, url: string)
+        uploadFile(file: File, url: string)
         {
             var that = this;
             that.$numLoading++;
 
             var xhr = new XMLHttpRequest();
 
+            var id = FileViewerForm._dCount++;
+            FileViewerForm._downloads[id] = { loaded: 0, total: 0 };
+
+            var calcLoaded = function()
+            {
+                var total = 0;
+                var loaded = 0;
+                for (var i in FileViewerForm._downloads)
+                {
+                    total += FileViewerForm._downloads[i].total;
+                    loaded += FileViewerForm._downloads[i].loaded;
+                }
+
+                that.$loadingPercent = Math.floor(loaded / total * 1000) / 10;
+                Compiler.digest(that._browserElm, that);
+            }
+
             xhr.onerror = function (ev)
             {
+                delete FileViewerForm._downloads[id];
                 that.$numLoading--;
-                that.$loadingPercent = 0;
                 that.$errorMsg = `An error occurred while uploading the file '${file.name}' : `;
-                Compiler.digest(that._browserElm, that);
+                calcLoaded();                
             };
             
             if (xhr.upload)
             {
                 xhr.upload.onprogress = function (e)
                 {
-                    that.$loadingPercent = Math.floor(e.loaded / e.total * 1000) / 10;
-                    Compiler.digest(that._browserElm, that);
+                    FileViewerForm._downloads[id] = { total: e.total, loaded: e.loaded };
+                    calcLoaded();
                 };
             }
 

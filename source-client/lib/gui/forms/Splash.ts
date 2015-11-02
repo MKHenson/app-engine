@@ -107,7 +107,7 @@ module Animate
         * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
 		*/
-        reportError(form: EngineForm, registerCheck: boolean = false): boolean
+        reportError(form: NodeForm, registerCheck: boolean = false): boolean
         {
             if (!form.$error)
                 this.$loginError = "";

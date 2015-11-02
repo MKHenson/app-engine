@@ -60,7 +60,7 @@
 		*/
         goLast()
         {
-            this.index = this.last - this.limit;
+            this.index = this.last - (this.last - this.limit) % this.limit;
             if (this.index < 0)
                 this.index = 0;
 

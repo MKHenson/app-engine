@@ -284,78 +284,43 @@ var Animate;
                 if (commentElement && commentElement.$originalNode.$expression) {
                     var $expression = commentElement.$originalNode.$expression;
                     var $expressionType = commentElement.$originalNode.$expressionType;
-                    if ($expressionType == "en-repeat") {
-                        var e = $expression.split("as");
-                        if (e.length > 1 && e[0].trim() != "" && e[1].trim() != "") {
-                            var loopExpression = e[0];
-                            var ctxParts = e[1].split(",");
-                            var ctxValueName = ctxParts[0];
-                            var ctxIndexName = ctxParts[1];
-                            var expressionValue = Compiler.parse(loopExpression, ctrl, null, commentElement, child.$ctxValues);
-                            if (Compiler.isEquivalent(expressionValue, child.$clonedData) == false) {
-                                // Remove any existing nodes
-                                for (var c = 0, k = child.$clonedElements.length; c < k; c++)
-                                    Compiler.cleanupNode(child.$clonedElements[c]);
-                                if (expressionValue) {
-                                    for (var t in expressionValue) {
-                                        var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
-                                        var newNode = clone.get(0);
-                                        newNode.$ctxValues = [{ name: ctxValueName, value: expressionValue[t] }];
-                                        if (ctxIndexName && ctxIndexName.trim() != "")
-                                            newNode.$ctxValues.push({ name: ctxIndexName, value: t });
-                                        // If the parent element has context values - then add those to the clone
-                                        if (child.parentNode && child.parentNode.$ctxValues)
-                                            newNode.$ctxValues = newNode.$ctxValues.concat(child.parentNode.$ctxValues);
-                                        // Go through each child and assign the context
-                                        if (newNode.$ctxValues.length > 0) {
-                                            Compiler.traverse(newNode, function (c) {
-                                                if (c == newNode)
-                                                    return;
-                                                if (c.$ctxValues)
-                                                    c.$ctxValues.concat(newNode.$ctxValues.slice(0, newNode.$ctxValues.length));
-                                                else
-                                                    c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
-                                            });
-                                        }
-                                        ;
-                                        // Add the new elements after this child comment
-                                        clone.insertAfter(jQuery(child));
-                                        child.$clonedElements.push(newNode);
-                                    }
-                                    ;
-                                }
-                                child.$clonedData = Compiler.clone(expressionValue);
-                            }
-                        }
-                    }
-                    else if ($expressionType == "en-if") {
-                        var expressionValue = Compiler.parse($expression, ctrl, null, commentElement, child.$ctxValues);
-                        if (Compiler.isEquivalent(expressionValue, child.$clonedData) == false) {
-                            // Remove any existing nodes
-                            for (var c = 0, k = child.$clonedElements.length; c < k; c++)
-                                Compiler.cleanupNode(child.$clonedElements[c]);
-                            if (expressionValue) {
-                                var clone = jQuery(Compiler.cloneNode(commentElement.$originalNode));
-                                var newNode = clone.get(0);
-                                if (commentElement.$originalNode == root)
-                                    root = clone.get(0);
+                    // Check to see if the directive exists
+                    if (Compiler.directives[$expressionType]) {
+                        // Processes the value and returns nodes to added or null if nothing must be done
+                        var results = Compiler.directives[$expressionType].expand($expression, ctrl, commentElement, child);
+                        var newNode;
+                        // Do nothing
+                        if (!results)
+                            return;
+                        // Remove any existing nodes
+                        for (var c = 0, k = child.$clonedElements.length; c < k; c++)
+                            Compiler.cleanupNode(child.$clonedElements[c]);
+                        child.$clonedElements.splice(0, child.$clonedElements.length);
+                        // Go through each node that was created
+                        for (var k = 0, lk = results.length; k < lk; k++) {
+                            newNode = results[k];
+                            // Make sure the node has context variables
+                            if (!newNode.$ctxValues)
                                 newNode.$ctxValues = [];
-                                // If the parent element has context values - then add those to the clone
-                                if (child.parentNode && child.parentNode.$ctxValues)
-                                    newNode.$ctxValues = newNode.$ctxValues.concat(child.parentNode.$ctxValues);
-                                // Go through each child and assign the context
-                                if (newNode.$ctxValues.length > 0) {
-                                    Compiler.traverse(newNode, function (c) {
-                                        if (c == newNode)
-                                            return;
+                            // If the parent element has context values - then add those to the clone
+                            if (child.parentNode && child.parentNode.$ctxValues)
+                                newNode.$ctxValues = newNode.$ctxValues.concat(child.parentNode.$ctxValues);
+                            // Go through each child node and assign the context variables
+                            if (newNode.$ctxValues.length > 0) {
+                                Compiler.traverse(newNode, function (c) {
+                                    if (c == newNode)
+                                        return;
+                                    if (c.$ctxValues)
+                                        c.$ctxValues.concat(newNode.$ctxValues.slice(0, newNode.$ctxValues.length));
+                                    else
                                         c.$ctxValues = newNode.$ctxValues.slice(0, newNode.$ctxValues.length);
-                                    });
-                                }
-                                ;
-                                clone.insertAfter(jQuery(child));
-                                child.$clonedElements.push(newNode);
+                                });
                             }
-                            child.$clonedData = Compiler.clone(expressionValue);
+                            ;
+                            // Add the new elements after this child comment
+                            var jq = jQuery(newNode);
+                            jq.insertAfter(jQuery(child));
+                            child.$clonedElements.push(newNode);
                         }
                     }
                 }
@@ -683,6 +648,7 @@ var Animate;
             }
             return jQuery(Compiler.digest(elm, ctrl, includeSubTemplates));
         };
+        Compiler.directives = {};
         Compiler.attrs = [];
         Compiler.$commentRefIDCounter = 0;
         Compiler.validators = {
@@ -696,6 +662,123 @@ var Animate;
         return Compiler;
     })();
     Animate.Compiler = Compiler;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /*
+    * Directive for expanding HTML from iterable objects
+    * Eg usage en-repeate="array as value, index"
+    */
+    var Repeater = (function () {
+        function Repeater() {
+            this._returnVal = [];
+        }
+        /*
+        * Expands the html directive
+        * @param {string} expression The JS expression in the HTML value attribute
+        * @param {any} ctrl The controller
+        * @param {DescriptorNode} The reference descriptor comment node
+        * @param {InstanceNode} The current instance
+        * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
+        */
+        Repeater.prototype.expand = function (expression, ctrl, desc, instance) {
+            var e = expression.split("as");
+            if (e.length < 1)
+                throw new Error("Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?");
+            var loopExpression = e[0];
+            var ctxParts = e[1].split(",");
+            var ctxValueName = ctxParts[0];
+            var ctxIndexName = ctxParts[1];
+            var mustRebuild = false;
+            var iterable = Animate.Compiler.parse(loopExpression, ctrl, null, desc, instance.$ctxValues);
+            this._returnVal.splice(0, this._returnVal.length);
+            var numItems = 0;
+            if (iterable) {
+                if (!instance.$clonedData)
+                    mustRebuild = true;
+                else {
+                    var prevIterables = instance.$clonedData.items;
+                    for (var i in iterable) {
+                        numItems++;
+                        if (prevIterables[i] !== undefined && prevIterables[i] != iterable[i]) {
+                            mustRebuild = true;
+                            break;
+                        }
+                    }
+                    if (instance.$clonedData.length != numItems)
+                        mustRebuild = true;
+                }
+            }
+            else
+                mustRebuild = true;
+            if (mustRebuild) {
+                if (iterable) {
+                    for (var t in iterable) {
+                        var clone = Animate.Compiler.cloneNode(desc.$originalNode);
+                        this._returnVal.push(clone);
+                        // Create new context variables. A loop is given the name and value contexts of the iterable
+                        clone.$ctxValues = [{ name: ctxValueName, value: iterable[t] }];
+                        // Optionally we can specify the index name as well
+                        if (ctxIndexName && ctxIndexName.trim() != "")
+                            clone.$ctxValues.push({ name: ctxIndexName, value: t });
+                    }
+                    ;
+                }
+                instance.$clonedData = { length: numItems, items: iterable };
+            }
+            else
+                return null;
+            return this._returnVal;
+        };
+        return Repeater;
+    })();
+    Animate.Repeater = Repeater;
+    Animate.Compiler.directives["en-repeat"] = new Repeater();
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /*
+    * Directive for expanding HTML based on a boolean test
+    * Eg usage en-if="ctrl.value"
+    */
+    var If = (function () {
+        function If() {
+            this._returnVal = [];
+        }
+        /*
+        * Expands the html directive
+        * @param {string} expression The JS expression in the HTML value attribute
+        * @param {any} ctrl The controller
+        * @param {DescriptorNode} The reference descriptor comment node
+        * @param {InstanceNode} The current instance
+        * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
+        */
+        If.prototype.expand = function (expression, ctrl, desc, instance) {
+            var mustRebuild = false;
+            var parsedExp = Animate.Compiler.parse(expression, ctrl, null, desc, instance.$ctxValues);
+            this._returnVal.splice(0, this._returnVal.length);
+            if (!instance.$clonedData)
+                mustRebuild = true;
+            else {
+                var prevValue = instance.$clonedData;
+                if (Animate.Compiler.isEquivalent(prevValue, parsedExp) == false)
+                    mustRebuild = true;
+            }
+            if (mustRebuild) {
+                if (parsedExp) {
+                    var clone = Animate.Compiler.cloneNode(desc.$originalNode);
+                    this._returnVal.push(clone);
+                }
+                instance.$clonedData = parsedExp;
+            }
+            else
+                return null;
+            return this._returnVal;
+        };
+        return If;
+    })();
+    Animate.If = If;
+    Animate.Compiler.directives["en-if"] = new If();
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -4627,7 +4710,7 @@ var Animate;
         * Gets the last set of users
         */
         PageLoader.prototype.goLast = function () {
-            this.index = this.last - this.limit;
+            this.index = this.last - (this.last - this.limit) % this.limit;
             if (this.index < 0)
                 this.index = 0;
             this.updateFunc(this.index, this.limit);
@@ -15409,6 +15492,8 @@ var Animate;
             // Call super-class constructor
             _super.call(this, 1000, 600, true, true, "Asset Browser");
             this.element.attr("id", "file-viewer-window");
+            FileViewerForm._dCount = 0;
+            FileViewerForm._downloads = {};
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
             this.$newFolder = false;
@@ -15596,6 +15681,7 @@ var Animate;
             this.$confirmDelete = false;
             this.$newFolder = false;
             this.$errorMsg = "";
+            this.$search = "";
             this.$pager.invalidate();
         };
         /**
@@ -15731,16 +15817,28 @@ var Animate;
             var that = this;
             that.$numLoading++;
             var xhr = new XMLHttpRequest();
-            xhr.onerror = function (ev) {
-                that.$numLoading--;
-                that.$loadingPercent = 0;
-                that.$errorMsg = "An error occurred while uploading the file '" + file.name + "' : ";
+            var id = FileViewerForm._dCount++;
+            FileViewerForm._downloads[id] = { loaded: 0, total: 0 };
+            var calcLoaded = function () {
+                var total = 0;
+                var loaded = 0;
+                for (var i in FileViewerForm._downloads) {
+                    total += FileViewerForm._downloads[i].total;
+                    loaded += FileViewerForm._downloads[i].loaded;
+                }
+                that.$loadingPercent = Math.floor(loaded / total * 1000) / 10;
                 Animate.Compiler.digest(that._browserElm, that);
+            };
+            xhr.onerror = function (ev) {
+                delete FileViewerForm._downloads[id];
+                that.$numLoading--;
+                that.$errorMsg = "An error occurred while uploading the file '" + file.name + "' : ";
+                calcLoaded();
             };
             if (xhr.upload) {
                 xhr.upload.onprogress = function (e) {
-                    that.$loadingPercent = Math.floor(e.loaded / e.total * 1000) / 10;
-                    Animate.Compiler.digest(that._browserElm, that);
+                    FileViewerForm._downloads[id] = { total: e.total, loaded: e.loaded };
+                    calcLoaded();
                 };
             }
             xhr.onreadystatechange = function () {
@@ -19942,6 +20040,8 @@ jQuery(document).ready(function () {
 /// <reference path="../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 /// <reference path="lib/core/Compiler.ts" />
+/// <reference path="lib/core/compiler-directives/Repeater.ts" />
+/// <reference path="lib/core/compiler-directives/If.ts" />
 /// <reference path="lib/core/Enums.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/UserPlan.ts" />

@@ -12,6 +12,9 @@
 /// <reference path="../../source-server/custom-definitions/app-engine.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
+    interface IDirective {
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+    }
     interface AppNode extends Node {
         $ieTextNodes: Array<AppNode>;
         $expression: string;
@@ -31,8 +34,10 @@ declare module Animate {
         $dynamic: boolean;
         $clonedData: any;
     }
-    interface DescriptorNode extends AppNode {
+    interface InstanceNode extends AppNode {
         $clonedElements: Array<AppNode>;
+    }
+    interface DescriptorNode extends InstanceNode {
         $originalNode: AppNode;
     }
     interface RootNode extends AppNode {
@@ -41,11 +46,11 @@ declare module Animate {
             [id: string]: DescriptorNode;
         };
     }
-    interface EngineInput extends HTMLInputElement {
+    interface NodeInput extends HTMLInputElement {
         $error: boolean;
         $autoClear: boolean;
     }
-    interface EngineForm extends HTMLFormElement {
+    interface NodeForm extends HTMLFormElement {
         $error: boolean;
         $errorExpression: string;
         $errorInput: string;
@@ -56,6 +61,9 @@ declare module Animate {
     * Defines a set of functions for compiling template commands and a controller object.
     */
     class Compiler {
+        static directives: {
+            [name: string]: IDirective;
+        };
         private static attrs;
         private static $commentRefIDCounter;
         static validators: {
@@ -95,7 +103,7 @@ declare module Animate {
         * @param {Node} node The node to clone
         * @returns {Node}
         */
-        private static cloneNode(node);
+        static cloneNode(node: AppNode): Node;
         /**
         * Given a string, this function will compile it into machine code that can be stored and run
         * @param {string} script The script to compile
@@ -115,7 +123,7 @@ declare module Animate {
         * @returns {CompiledEval}
         * @return {any}
         */
-        private static parse(script, ctrl, event, elm, $ctxValues?);
+        static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any>): any;
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
@@ -197,6 +205,20 @@ declare module Animate {
         * @returns {JQuery}
         */
         static build(elm: JQuery, ctrl: any, includeSubTemplates?: boolean): JQuery;
+    }
+}
+declare module Animate {
+    class Repeater implements IDirective {
+        private _returnVal;
+        constructor();
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+    }
+}
+declare module Animate {
+    class If implements IDirective {
+        private _returnVal;
+        constructor();
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
     }
 }
 declare module Animate {
@@ -5328,7 +5350,7 @@ declare module Animate {
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
         */
-        reportError(form: EngineForm): boolean;
+        reportError(form: NodeForm): boolean;
         /**
         * Updates the user bio information
         * @param {string} bio The new bio data
@@ -5416,6 +5438,8 @@ declare module Animate {
     */
     class FileViewerForm extends Window {
         private static _singleton;
+        private static _dCount;
+        private static _downloads;
         private _browserElm;
         private $pager;
         private $selectedFile;
@@ -5461,7 +5485,7 @@ declare module Animate {
         */
         removeEntities(): void;
         updateContent(index: number, limit: number): void;
-        uploadFile(file: any, url: string): void;
+        uploadFile(file: File, url: string): void;
         /**
         * Called when we are dragging over the item
         */
@@ -6153,7 +6177,7 @@ declare module Animate {
         * @param {boolean} registerCheck Check register password and assign captcha
         * @param {boolean} True if there is an error
         */
-        reportError(form: EngineForm, registerCheck?: boolean): boolean;
+        reportError(form: NodeForm, registerCheck?: boolean): boolean;
         loginError(err: Error): void;
         loginSuccess(data: UsersInterface.IResponse): void;
         /**
@@ -6328,7 +6352,7 @@ declare module Animate {
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
         */
-        reportError(form: EngineForm): boolean;
+        reportError(form: NodeForm): boolean;
         /**
         * Creates a new user project
         * @param {EngineForm} The form to check.

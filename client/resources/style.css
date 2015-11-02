@@ -494,18 +494,6 @@ Please only put css rules in here for layout related requirements.
     width:0;
     display: block;
     height: 100%;
-    -webkit-border-top-right-radius: 8px;
-    -webkit-border-bottom-right-radius: 8px;
-    -moz-border-radius-topright: 8px;
-    -moz-border-radius-bottomright: 8px;
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    -webkit-border-top-left-radius: 20px;
-    -webkit-border-bottom-left-radius: 20px;
-    -moz-border-radius-topleft: 20px;
-    -moz-border-radius-bottomleft: 20px;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
     -webkit-box-shadow: inset 0 2px 9px rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.4);
     -moz-box-shadow: inset 0 2px 9px rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.4);
     box-shadow: inset 0 2px 9px rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.4);
@@ -1302,6 +1290,7 @@ span.date {
     position:absolute;
     top:0;
     left:0;
+    visibility: hidden;
 }
 .file-filters {
     display:inline-block;
@@ -1345,6 +1334,7 @@ span.date {
     float: left;
     margin: 10px;
     cursor: pointer;
+    border: 2px solid transparent;
 }
 .files-footer {
     height:39px;
@@ -1593,7 +1583,6 @@ html .bad-input {
 .build-options-form .tab-selected {
     background-color: #fff !important;
 }
-
 
 .tab-selector .text {
     color: #fff;

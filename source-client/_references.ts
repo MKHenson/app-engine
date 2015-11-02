@@ -15,6 +15,8 @@
 /// <reference path="../source-server/custom-definitions/app-engine.d.ts" />
 
 /// <reference path="lib/core/Compiler.ts" />
+/// <reference path="lib/core/compiler-directives/Repeater.ts" />
+/// <reference path="lib/core/compiler-directives/If.ts" />
 /// <reference path="lib/core/Enums.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
 /// <reference path="lib/core/UserPlan.ts" />

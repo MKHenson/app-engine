@@ -37,7 +37,7 @@
 		<div class="file-items">
 
 			<div id="uploader-progress" class="progress-outer" en-show="ctrl.$numLoading > 0">
-				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$loadingPercent + '%'}">{{ctrl.$loadingPercent}}% of {{ctrl.$numLoading}}</span>
+				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$loadingPercent + '%'}">{{ctrl.$loadingPercent}}% [{{ctrl.$numLoading}}]</span>
 			</div>
 
 			<div class="error animate-all bad-input" en-show="ctrl.$errorMsg != ''" en-class="{ opened : ctrl.$errorMsg != '' }" >
@@ -75,14 +75,14 @@
 
 			<!--Files-->
 			<div en-if="ctrl.selectedFolder">
-				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectFile(project)">
+				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectEntity(file)" en-class="{ 'reg-gradient' : file.selected }">
 					<div class="welcome-preview">
 						<div class="background-tiles inner ng-scope">
 							<img en-src="ctrl.getThumbnail(file)" />
 							<div class="div-center"></div>
 						</div>
 					</div>
-					<div class="item-name" en-class="{ 'reg-gradient' : file.selected }">{{file.name}}</div>
+					<div class="item-name">{{file.name}}</div>
 				</div>
 			</div>
 			<div class="no-items unselectable" en-if="ctrl.$entries.length == 0">No {{(ctrl.selectedFolder ? "files" : "folders" )}} uploaded</div>

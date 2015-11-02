@@ -347,7 +347,7 @@
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
 		*/
-        reportError(form: EngineForm): boolean
+        reportError(form: NodeForm): boolean
         {
             if (!form.$error)
                 this.$errorMsg = "";

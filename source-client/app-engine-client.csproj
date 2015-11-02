@@ -78,6 +78,8 @@
     <TypeScriptCompile Include="lib\core\BehaviourDefinition.ts" />
     <TypeScriptCompile Include="lib\core\BehaviourManager.ts" />
     <TypeScriptCompile Include="lib\core\CanvasToken.ts" />
+    <TypeScriptCompile Include="lib\core\compiler-directives\If.ts" />
+    <TypeScriptCompile Include="lib\core\compiler-directives\Repeater.ts" />
     <TypeScriptCompile Include="lib\core\Compiler.ts" />
     <TypeScriptCompile Include="lib\core\DataToken.ts" />
     <TypeScriptCompile Include="lib\core\DB.ts" />
