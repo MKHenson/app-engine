@@ -54,7 +54,8 @@ module Animate
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         public selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         public selectedFolder: UsersInterface.IBucketEntry;
-        private multiSelect: boolean;
+        public multiSelect: boolean;
+        private shiftkey: boolean;
 
 		//private toolbar: Component;
 		//private selectedID: string;
@@ -112,6 +113,7 @@ module Animate
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new PageLoader(this.updateContent.bind(this));
+            this.$pager.limit = 1;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -119,6 +121,7 @@ module Animate
             this.$entries = [];
             this.extensions = [];
             this.multiSelect = true;
+            this.shiftkey = false;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
             this._searchType = FileSearchType.Project;
@@ -137,6 +140,7 @@ module Animate
 
             // Add the drop down to dom
             jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
+            $(document).on('keyup keydown', function (e) { that.shiftkey = e.shiftKey });
 
             // Set the mode when they are clicked
             searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown)
@@ -401,7 +405,7 @@ module Animate
 
             if (entity.selected)
             {
-                if (this.multiSelect == false)
+                if (this.multiSelect && this.shiftkey == false )
                 {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (<any>ents[i]).selected = false;

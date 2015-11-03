@@ -5456,7 +5456,8 @@ declare module Animate {
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
         selectedFolder: UsersInterface.IBucketEntry;
-        private multiSelect;
+        multiSelect: boolean;
+        private shiftkey;
         constructor();
         /**
         * Returns a URL of a file preview image
@@ -6423,4 +6424,4 @@ declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
 * Returns a formatted byte string
 * @returns {string}
 */
-declare function byteFilter(bytes: any, precision: any): string;
+declare function byteFilter(bytes: any, precision?: number): string;

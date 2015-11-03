@@ -648,6 +648,10 @@
                             var html = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLElement>elem).innerHTML = html;
                             break;
+                        case "en-href":
+                            var href = Compiler.parse(value, controller, null, elem, null);
+                            (<HTMLAnchorElement>elem).href = href;
+                            break;
                         case "en-init":
                             Compiler.parse(value, controller, null, elem, null);
                             break;

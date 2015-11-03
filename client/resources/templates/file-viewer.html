@@ -114,21 +114,49 @@
 		<div en-if="ctrl.$selectedFile" class="fade-in" style="height:100%;">
 			<div class="file-details">
 				<h2>{{ctrl.$selectedFile.name}}</h2>
-				<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
-				<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}}</span></p>
-				<p><span class="info">Name</span>: <span class="detail"><b>{{ctrl.$selectedFile.name}}</b></span></p>
-				<p><span class="info">Raw Url</span>: <span class="detail">{{ctrl.$selectedFile.url}}</span></p>
-				<p><span class="info">Size</span>: <span class="detail">{{ctrl.$selectedFile.size}}</span></p>
-				<p><span class="info">Extension</span>: <span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
-				<p><span class="info">Global</span>: <span class="detail">{{ctrl.$selectedFile.global}}</span></p>
-				<p><span class="info">Favourite</span>: <span class="detail">{{ctrl.$selectedFile.favourite}}</span></p>
-				<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}}</span></p>
-				<p><span class="info">Tags</span>: <span class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span></p>
+				<p><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
+				<p><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}}</span></p>
+				<div class="info-divider background-view-light"></div>
+				<p en-show="!ctrl.$$editMode"><span class="info">URL: </span><span class="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></p>
+				<p en-show="!ctrl.$$editMode"><input class="background-view-light" en-value="ctrl.$selectedFile.url" /><br /></p>
+				<p en-show="!ctrl.$$editMode"><span class="info">Size: </span><span class="detail">{{byteFilter(ctrl.$selectedFile.size)}}</span></p>
+				<p en-show="!ctrl.$$editMode"><span class="info">Extension: </span><span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
+				<p>
+					<div class="checkbox" en-show="ctrl.$$editMode">
+						<div class="tick-box" en-click="ctrl.$selectedFile.global = !ctrl.$selectedFile.global">
+							<div class="tick" en-show="ctrl.$selectedFile.global"></div>
+						</div>
+						<span class="info">Global :</span><span class="detail">{{(ctrl.$selectedFile.global ? 'YES' : 'NO')}}</span>
+					</div>
+					<div en-show="!ctrl.$$editMode">
+						<span class="info">Global: </span><span class="detail">{{ctrl.$selectedFile.global}}</span>
+					</div>
+				</p>
+				<p>
+					<div class="checkbox" en-show="ctrl.$$editMode">
+						<div class="tick-box" en-click="ctrl.$selectedFile.favourite = !ctrl.$selectedFile.favourite">
+							<div class="tick" en-show="ctrl.$selectedFile.favourite"></div>
+						</div>
+						<span class="info">Favourite: </span><span class="detail">{{(ctrl.$selectedFile.favourite ? 'YES' : 'NO')}}</span>
+					</div>
+					<div en-show="!ctrl.$$editMode">
+						<span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span>
+					</div>
+				</p>
+				<p en-show="!ctrl.$$editMode"><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}}</span></p>
+				<p>
+					<span class="info">Tags: </span>
+					<span en-show="!ctrl.$$editMode" class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span>
+					<span en-show="ctrl.$$editMode" class="detail"><input class="background-view-light" id="file-tags" en-value="ctrl.$selectedFile.tags.join(', ')" /></span>
+				</p>
 				<div class="fix"></div>
+				<div class="button" en-show="!ctrl.$$editMode" en-click="ctrl.$$editMode = !ctrl.$$editMode;"><a>Edit Details</a></div>
 			</div>
 			<div class="buttons ">
-				<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
-				<div class="button green animate-all" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
+				<div class="button"  en-show="!ctrl.$$editMode" ><a class="red-highlight"en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
+				<div class="button" en-show="ctrl.$$editMode"><a class="red-highlight" en-click="ctrl.$$editMode = false">CANCEL</a></div>
+				<div class="button green animate-all" en-show="!ctrl.$$editMode" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
+				<div class="button reg-gradient animate-all" en-show="ctrl.$$editMode" en-click="ctrl.update(ctrl.$selectedFile)">UPDATE</div>
 			</div>
 		</div>
 	</div>

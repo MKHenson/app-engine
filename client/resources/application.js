@@ -426,6 +426,10 @@ var Animate;
                             var html = Compiler.parse(value, controller, null, elem, null);
                             elem.innerHTML = html;
                             break;
+                        case "en-href":
+                            var href = Compiler.parse(value, controller, null, elem, null);
+                            elem.href = href;
+                            break;
                         case "en-init":
                             Compiler.parse(value, controller, null, elem, null);
                             break;
@@ -15501,6 +15505,7 @@ var Animate;
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new Animate.PageLoader(this.updateContent.bind(this));
+            this.$pager.limit = 1;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -15508,6 +15513,7 @@ var Animate;
             this.$entries = [];
             this.extensions = [];
             this.multiSelect = true;
+            this.shiftkey = false;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
             this._searchType = FileSearchType.Project;
@@ -15522,6 +15528,7 @@ var Animate;
             ]);
             // Add the drop down to dom
             jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
+            $(document).on('keyup keydown', function (e) { that.shiftkey = e.shiftKey; });
             // Set the mode when they are clicked
             searchOptions.on("clicked", function (e, event, sender) {
                 if (sender.selectedItem.text == "Filter by Project Files")
@@ -15730,7 +15737,7 @@ var Animate;
             entity.selected = !entity.selected;
             var ents = this.selectedEntities;
             if (entity.selected) {
-                if (this.multiSelect == false) {
+                if (this.multiSelect && this.shiftkey == false) {
                     for (var i = 0, l = ents.length; i < l; i++)
                         ents[i].selected = false;
                     ents.splice(0, ents.length);
@@ -20004,10 +20011,9 @@ function onPluginsLoaded(plugins) {
 * @returns {string}
 */
 function byteFilter(bytes, precision) {
+    if (precision === void 0) { precision = 1; }
     if (isNaN(parseFloat(bytes)) || !isFinite(bytes))
         return '-';
-    if (typeof precision === 'undefined')
-        precision = 1;
     var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'], number = Math.floor(Math.log(bytes) / Math.log(1024));
     return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
 }

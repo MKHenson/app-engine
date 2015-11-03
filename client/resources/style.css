@@ -1214,7 +1214,6 @@ span.date {
 .field-option input, .field-option textarea {
     display:block;
     padding:10px;
-    box-sizing:border-box;
     width:100%;
 }
 .build-options-form .button{
@@ -1255,7 +1254,6 @@ span.date {
 */
 #options-build .build-version input {
     margin: 5px;
-    box-sizing: border-box;
     width: 25%;
     vertical-align: middle;
     display: inline-block;
@@ -1305,7 +1303,6 @@ span.date {
 }
 .file-search input {
    padding:10px;
-   box-sizing:border-box;
 }
 .file-search img {
     vertical-align:middle;
@@ -1412,6 +1409,11 @@ span.date {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    margin: 0 0 5px 0;
+}
+.file-details input {
+    width:100%;
+    padding:5px;
 }
 .file-info {
     width: 0%;
@@ -1441,6 +1443,13 @@ span.date {
 }
 #file-viewer .light-modal img {
     margin: 20% 45%;
+}
+.info-divider {
+    height:1px;
+    margin:10px 0;
+}
+.file-details .detail {
+    float: right;
 }
 
 /**
