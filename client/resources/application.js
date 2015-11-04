@@ -15505,7 +15505,6 @@ var Animate;
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new Animate.PageLoader(this.updateContent.bind(this));
-            this.$pager.limit = 1;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -15517,6 +15516,7 @@ var Animate;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
             this._searchType = FileSearchType.Project;
+            this.$fileToken = { tags: [] };
             // Build the element with the compiler
             Animate.Compiler.build(this._browserElm, this);
             var that = this;
@@ -15675,6 +15675,9 @@ var Animate;
                 return file.url;
             return "./media/appling.png";
         };
+        /**
+        * Specifies the type of file search
+        */
         FileViewerForm.prototype.selectMode = function (type) {
             this._searchType = type;
             this.$pager.invalidate();
@@ -15750,8 +15753,15 @@ var Animate;
                 this.selectedEntity = null;
             else
                 this.selectedEntity = ents[ents.length - 1];
-            if (this.selectedFolder)
+            if (this.selectedFolder) {
                 this.$selectedFile = this.selectedEntity;
+                var f = this.$selectedFile;
+                if (f) {
+                    this.$fileToken = {
+                        name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global
+                    };
+                }
+            }
             else
                 this.$selectedFile = null;
         };

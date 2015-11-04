@@ -69,9 +69,10 @@ template {
 }
 
 a {
-  background-color: transparent;
+  border: 1px solid transparent;
   text-decoration: none;
   cursor:pointer;
+  display: block;
 }
 
 a:active,
@@ -467,10 +468,7 @@ Please only put css rules in here for layout related requirements.
     height:20px;
     cursor:pointer;
 }
-.tick {
-    width:120%;
-    height:120%;
-}
+
 .tick-box .tick, .tick-outer .tick {
     top: -25%;
 }
@@ -653,6 +651,14 @@ Please only put css rules in here for layout related requirements.
 }
 .message-box .button {
     margin:5px;
+}
+/**
+* EDIT ICON
+*/
+.edit-icon {
+    font-size: 30px;
+    vertical-align: middle;
+    margin: 0px 5px 0  0;
 }
 
 /**
@@ -1415,6 +1421,9 @@ span.date {
     width:100%;
     padding:5px;
 }
+.file-details .button:last-child {
+    padding:0;
+}
 .file-info {
     width: 0%;
     position: absolute;
@@ -1460,6 +1469,9 @@ Please only put css rules in here for generalized modules.
 
 	eg: classes for highlighting text on certain pages
 **/
+a{
+    color: #4182C3;
+}
 .background-haze {
   background: -webkit-linear-gradient(left, #D8A2A2 , #6F6C98); /* For Safari 5.1 to 6.0 */
   background: -o-linear-gradient(right, #D8A2A2, #6F6C98); /* For Opera 11.1 to 12.0 */
@@ -1702,11 +1714,18 @@ html .bad-input {
 }
 
 .tick {
-    position: absolute;
+    width:20px;
+    height:20px;
     display:inline-block;
     -ms-transform: rotate(45deg);
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
+    margin:0 5px 0 0;
+}
+.tick-box .tick {
+    position: absolute;
+    width: 120%;
+    height: 120%;
 }
 
 .tick:before, .tick:after, .minus:before, .minus:after, .cross:before, .cross:after {

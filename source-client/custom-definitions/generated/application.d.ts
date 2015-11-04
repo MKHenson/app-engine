@@ -5451,10 +5451,11 @@ declare module Animate {
         private $newFolder;
         private $numLoading;
         private $loadingPercent;
+        private $fileToken;
         private _searchType;
         extensions: Array<string>;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
-        selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
+        selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
         selectedFolder: UsersInterface.IBucketEntry;
         multiSelect: boolean;
         private shiftkey;
@@ -5464,6 +5465,9 @@ declare module Animate {
         * @returns {string}
         */
         getThumbnail(file: Engine.IFile): string;
+        /**
+        * Specifies the type of file search
+        */
         selectMode(type: FileSearchType): void;
         /**
         * Attempts to open a folder

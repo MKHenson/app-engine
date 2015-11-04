@@ -48,11 +48,12 @@ module Animate
         private $newFolder: boolean;
         private $numLoading: number;
         private $loadingPercent: number;
+        private $fileToken: Engine.IFile;
         private _searchType: FileSearchType;
 
         public extensions: Array<string>;
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
-        public selectedEntity: UsersInterface.IBucketEntry | UsersInterface.IFileEntry;
+        public selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
         public selectedFolder: UsersInterface.IBucketEntry;
         public multiSelect: boolean;
         private shiftkey: boolean;
@@ -113,7 +114,6 @@ module Animate
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new PageLoader(this.updateContent.bind(this));
-            this.$pager.limit = 1;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -125,6 +125,7 @@ module Animate
             this.$numLoading = 0;
             this.$loadingPercent = 0;
             this._searchType = FileSearchType.Project;
+            this.$fileToken = { tags: [] };
 
             // Build the element with the compiler
             Compiler.build(this._browserElm, this);
@@ -324,6 +325,9 @@ module Animate
             return "./media/appling.png";
         }
 
+        /**
+        * Specifies the type of file search
+        */
         selectMode(type: FileSearchType)
         {
             this._searchType = type;
@@ -424,7 +428,16 @@ module Animate
                 this.selectedEntity = ents[ents.length - 1];
 
             if (this.selectedFolder)
+            {
                 this.$selectedFile = this.selectedEntity;
+                var f = this.$selectedFile;
+                if (f)
+                {
+                    this.$fileToken = {
+                        name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global
+                    };
+                }
+            }
             else
                 this.$selectedFile = null;
         }
