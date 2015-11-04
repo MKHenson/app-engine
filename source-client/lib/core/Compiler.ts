@@ -648,6 +648,16 @@
                             var html = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLElement>elem).innerHTML = html;
                             break;
+                        case "en-scrolltop":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val !== undefined)
+                                (<HTMLElement>elem).scrollTop = val;
+                            break;
+                        case "en-scrollLeft":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val !== undefined)
+                                (<HTMLElement>elem).scrollLeft = val;
+                            break;
                         case "en-href":
                             var href = Compiler.parse(value, controller, null, elem, null);
                             (<HTMLAnchorElement>elem).href = href;
@@ -680,8 +690,9 @@
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
-                            Compiler.parse(`${value} = elm.value`, controller, null, elem, null);
-                            Compiler.transform(`${value}`, elem, controller);
+                            var val = Compiler.parse(`${value}`, controller, null, elem, null);
+                            (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value = (val? val.toString() : "") || (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value || "";
+                            //Compiler.transform(`${value}`, elem, controller);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
@@ -851,9 +862,6 @@
         */
         static transform(script: string, elem: HTMLInputElement | HTMLTextAreaElement, controller: any)
         {
-            var expressions: Array<{ name: string; regex: RegExp; negate: boolean; }> = [];
-            var form: NodeForm = <NodeForm>elem.form;
-
             for (var i = 0, l = elem.attributes.length; i < l; i++)
             {
                 if (elem.attributes[i].name == "en-transform")

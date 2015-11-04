@@ -33,8 +33,8 @@
 	
 
 	<!-- Folders/Files view -->
-	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '70%' : '') }">
-		<div class="file-items">
+	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '60%' : '') }">
+		<div class="file-items" en-scrollTop="(ctrl.$errorMsg != '' ? 0 : undefined)">
 
 			<div id="uploader-progress" class="progress-outer" en-show="ctrl.$numLoading > 0">
 				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$loadingPercent + '%'}">{{ctrl.$loadingPercent}}% [{{ctrl.$numLoading}}]</span>
@@ -45,7 +45,6 @@
 					<div class="button red" en-show="ctrl.$confirmDelete" en-click="ctrl.removeEntities()">Yes</div>
 					<div class="button red" en-show="ctrl.$confirmDelete" en-click="ctrl.$errorMsg = ''; ctrl.$confirmDelete=false">No</div>
 				</div>
-				
 			</div>
 
 			<!--New folder-->
@@ -76,7 +75,7 @@
 			<!--Files-->
 			<div en-if="ctrl.selectedFolder">
 				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectEntity(file)" en-class="{ 'reg-gradient' : file.selected }">
-					<div class="welcome-preview">
+					<div class="preview-child">
 						<div class="background-tiles inner ng-scope">
 							<img en-src="ctrl.getThumbnail(file)" />
 							<div class="div-center"></div>
@@ -113,53 +112,62 @@
 	<div class="file-info background animate-all" en-class="{ open : ctrl.$selectedFile }">
 		<div en-if="ctrl.$selectedFile" class="fade-in" style="height:100%;">
 			<div class="file-details">
+				<div en-show="!ctrl.$editMode" class="button" en-click="ctrl.$editMode = !ctrl.$editMode;"><a><span class="edit-icon">✎</span>Edit</a></div>
 				<h2>{{ctrl.$selectedFile.name}}</h2>
-				<p><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
-				<p><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}}</span></p>
-				<div class="info-divider background-view-light"></div>
-				<p en-show="ctrl.$$editMode">
-					<span class="info">Name:</span><span class="detail"><input id="file-name" class="background-view-light" en-model="ctrl.$fileToken.name" /></span>
-				</p>
-				<p en-show="!ctrl.$$editMode"><span class="info">URL: </span><span class="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></p>
-				<p en-show="!ctrl.$$editMode"><input class="background-view-light" en-value="ctrl.$selectedFile.url" /></p>
-				<p en-show="!ctrl.$$editMode"><span class="info">Size: </span><span class="detail">{{byteFilter(ctrl.$selectedFile.size)}}</span></p>
-				<p en-show="!ctrl.$$editMode"><span class="info">Extension: </span><span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
-				<p>
-					<div class="checkbox" en-show="ctrl.$$editMode">
-						<div class="tick-box" en-click="ctrl.$fileToken.global = !ctrl.$fileToken.global">
-							<div class="tick" en-show="ctrl.$fileToken.global"></div>
+				<div en-show="!ctrl.$editMode">
+					<div class="img-preview">
+						<div class="preview-child background-tiles">
+							<div class="inner">
+								<img en-src="ctrl.$selectedFile.url" />
+								<div class="div-center"></div>
+							</div>
 						</div>
-						<span class="info">Global</span><span class="detail">{{(ctrl.$fileToken.global ? 'YES' : 'NO')}}</span>
 					</div>
-					<div en-show="!ctrl.$$editMode">
-						<span class="info">Global: </span><span class="detail">{{ctrl.$selectedFile.global}}</span>
-					</div>
-				</p>
-				<p>
-					<div class="checkbox" en-show="ctrl.$$editMode">
-						<div class="tick-box" en-click="ctrl.$fileToken.favourite = !ctrl.$fileToken.favourite">
-							<div class="tick" en-show="ctrl.$fileToken.favourite"></div>
+					<p><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
+					<p><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.createdOn).toLocaleTimeString()}}</span></p>
+					<div class="info-divider background-view-light"></div>
+					<p><input class="background-view-light" en-value="ctrl.$selectedFile.url" /></p>
+					<p><span class="info">URL: </span><span class="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></p>
+					<p><span class="info">Size: </span><span class="detail">{{byteFilter(ctrl.$selectedFile.size)}}</span></p>
+					<p><span class="info">Extension: </span><span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
+					<p><span class="info">Tags:</span><span class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span></p>
+					<p><div><span class="info">Global: </span><span class="detail">{{ctrl.$selectedFile.global}}</span></div></p>
+					<p><div><span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span></div></p>
+					<p><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.lastModified).toLocaleTimeString()}}</span></p>
+				</div>
+				<div en-show="ctrl.$editMode">
+					<div class="info-divider background-view-light"></div>
+					<p>
+						<span class="info">Name:</span><span class="detail"><input id="file-name" class="background-view-light" en-model="ctrl.$fileToken.name" /></span>
+					</p>
+					<p>
+						<span class="info">Tags: </span>
+						<span class="detail"><input class="background-view-light" id="file-tags" en-model="ctrl.$fileToken.tags" en-transform="ctrl.$fileToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" /></span>
+					</p>
+					<p>
+						<div class="checkbox">
+							<div class="tick-box" en-click="ctrl.$fileToken.global = !ctrl.$fileToken.global">
+								<div class="tick" en-show="ctrl.$fileToken.global"></div>
+							</div>
+							<span class="info">Global</span><span class="detail">{{(ctrl.$fileToken.global ? 'YES' : 'NO')}}</span>
 						</div>
-						<span class="info">Favourite</span><span class="detail">{{(ctrl.$fileToken.favourite ? 'YES' : 'NO')}}</span>
-					</div>
-					<div en-show="!ctrl.$$editMode">
-						<span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span>
-					</div>
-				</p>
-				<p en-show="!ctrl.$$editMode"><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}}</span></p>
-				<p>
-					<span class="info">Tags: </span>
-					<span en-show="!ctrl.$$editMode" class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span>
-					<span en-show="ctrl.$$editMode" class="detail"><input class="background-view-light" id="file-tags" en-model="ctrl.$fileToken.tags" en-transform="ctrl.$fileToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" /></span>
-				</p>
+					</p>
+					<p>
+						<div class="checkbox">
+							<div class="tick-box" en-click="ctrl.$fileToken.favourite = !ctrl.$fileToken.favourite">
+								<div class="tick" en-show="ctrl.$fileToken.favourite"></div>
+							</div>
+							<span class="info">Favourite</span><span class="detail">{{(ctrl.$fileToken.favourite ? 'YES' : 'NO')}}</span>
+						</div>
+					</p>
+				</div>
 				<div class="fix"></div>
-				<div class="button" en-show="!ctrl.$$editMode" en-click="ctrl.$$editMode = !ctrl.$$editMode;"><a><span class="edit-icon">✎</span>Edit Details</a></div>
 			</div>
 			<div class="buttons ">
-				<div class="button"  en-show="!ctrl.$$editMode" ><a class="red-highlight"en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
-				<div class="button" en-show="ctrl.$$editMode"><a class="red-highlight" en-click="ctrl.$$editMode = false">CANCEL</a></div>
-				<div class="button green animate-all" en-show="!ctrl.$$editMode" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
-				<div class="button reg-gradient animate-all" en-show="ctrl.$$editMode" en-click="ctrl.update(ctrl.$selectedFile)"><div class="tick"></div>UPDATE</div>
+				<div class="button"  en-show="!ctrl.$editMode" ><a class="red-highlight" en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
+				<div class="button" en-show="ctrl.$editMode"><a class="red-highlight" en-click="ctrl.$editMode = false">CANCEL</a></div>
+				<div class="button green animate-all" en-show="!ctrl.$editMode" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
+				<div class="button reg-gradient animate-all" en-show="ctrl.$editMode" en-click="ctrl.update(ctrl.$fileToken)"><div class="tick"></div>UPDATE</div>
 			</div>
 		</div>
 	</div>

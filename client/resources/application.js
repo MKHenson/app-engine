@@ -426,6 +426,16 @@ var Animate;
                             var html = Compiler.parse(value, controller, null, elem, null);
                             elem.innerHTML = html;
                             break;
+                        case "en-scrolltop":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val !== undefined)
+                                elem.scrollTop = val;
+                            break;
+                        case "en-scrollLeft":
+                            var val = Compiler.parse(value, controller, null, elem, null);
+                            if (val !== undefined)
+                                elem.scrollLeft = val;
+                            break;
                         case "en-href":
                             var href = Compiler.parse(value, controller, null, elem, null);
                             elem.href = href;
@@ -456,8 +466,9 @@ var Animate;
                                 Compiler.transform("" + value, elem, controller);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            Compiler.parse(value + " = elm.value", controller, null, elem, null);
-                            Compiler.transform("" + value, elem, controller);
+                            var val = Compiler.parse("" + value, controller, null, elem, null);
+                            elem.value = (val ? val.toString() : "") || elem.value || "";
+                            //Compiler.transform(`${value}`, elem, controller);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;
                         case "en-click":
@@ -582,8 +593,6 @@ var Animate;
         * @param {HTMLInputElement| HTMLTextAreaElement} elem The element to traverse
         */
         Compiler.transform = function (script, elem, controller) {
-            var expressions = [];
-            var form = elem.form;
             for (var i = 0, l = elem.attributes.length; i < l; i++) {
                 if (elem.attributes[i].name == "en-transform")
                     return Compiler.parse(script + " = " + elem.attributes[i].value, controller, null, elem, null);
@@ -3388,8 +3397,7 @@ var Animate;
             jQuery.ajax(Animate.DB.API + "/projects/" + this.entry.user + "/" + this.entry._id, {
                 type: "put",
                 contentType: 'application/json;charset=UTF-8',
-                dataType: "json",
-                data: JSON.stringify(token)
+                dataType: "json", data: JSON.stringify(token)
             }).done(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -15505,6 +15513,7 @@ var Animate;
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new Animate.PageLoader(this.updateContent.bind(this));
+            //this.$pager.limit = 2;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -15515,6 +15524,7 @@ var Animate;
             this.shiftkey = false;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
+            this.$editMode = false;
             this._searchType = FileSearchType.Project;
             this.$fileToken = { tags: [] };
             // Build the element with the compiler
@@ -15726,8 +15736,10 @@ var Animate;
         */
         FileViewerForm.prototype.confirmDelete = function () {
             this.$confirmDelete = !this.$confirmDelete;
-            if (this.$confirmDelete)
-                this.$errorMsg = "Are you sure you want to delete these " + (this.selectedFolder ? "file" : "folder") + "s";
+            if (this.$confirmDelete) {
+                var fileType = (this.selectedFolder ? "file" : "folder");
+                this.$errorMsg = "Are you sure you want to delete " + (this.selectedEntities.length > 1 ? "these [" + this.selectedEntities.length + "]" : "the ") + " " + fileType + (this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'");
+            }
             else
                 this.$errorMsg = "";
         };
@@ -15753,14 +15765,11 @@ var Animate;
                 this.selectedEntity = null;
             else
                 this.selectedEntity = ents[ents.length - 1];
+            // Set the selected file
             if (this.selectedFolder) {
-                this.$selectedFile = this.selectedEntity;
-                var f = this.$selectedFile;
-                if (f) {
-                    this.$fileToken = {
-                        name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global
-                    };
-                }
+                var f = this.$selectedFile = this.selectedEntity;
+                if (f)
+                    this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
             }
             else
                 this.$selectedFile = null;
@@ -15771,18 +15780,17 @@ var Animate;
         FileViewerForm.prototype.removeEntities = function () {
             var that = this;
             that.$errorMsg = "";
+            that.$editMode = false;
             that.$loading = true;
             var mediaURL = Animate.DB.USERS + "/media";
             var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
             var entities = "";
-            if (this.selectedFolder) {
+            if (this.selectedFolder)
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += this.selectedEntities[i].identifier + ",";
-            }
-            else {
+            else
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += this.selectedEntities[i].name + ",";
-            }
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
             jQuery.ajax(mediaURL + "/" + command + "/" + entities, { type: "delete" }).then(function (token) {
                 if (token.error)
@@ -15873,11 +15881,16 @@ var Animate;
                         var data = JSON.parse(xhr.responseText);
                         if (data.error)
                             that.$errorMsg = data.message;
+                        else {
+                            if (that.$numLoading == 0)
+                                that.$pager.invalidate();
+                        }
                     }
                     Animate.Compiler.digest(that._browserElm, that);
                 }
             };
             var formData = new FormData();
+            formData.append('meta', '{ "name" : "Chris" }');
             formData.append(file.name, file);
             xhr.withCredentials = true;
             xhr.open("post", url, true);
@@ -15963,13 +15976,14 @@ var Animate;
         FileViewerForm.prototype.showForm = function (id, extensions) {
             _super.prototype.show.call(this, null, undefined, undefined, true);
             this.$errorMsg = "";
+            this.$numLoading = 0;
             this.$confirmDelete = false;
             this.$loading = false;
             this.$newFolder = false;
             var that = this, details = Animate.User.get.userEntry, extensions = this.extensions, apiUrl = "";
             // Call update and redraw the elements
             this.$pager.invalidate();
-            document.getElementById('upload-new-file').addEventListener('change', function () {
+            var onChanged = function () {
                 var input = this;
                 if (that.selectedFolder)
                     apiUrl = Animate.DB.USERS + "/media/upload/" + that.selectedFolder.name;
@@ -15988,7 +16002,40 @@ var Animate;
                 }
                 // Reset the value
                 this.value = "";
-            }, false);
+            };
+            var elm = document.getElementById('upload-new-file');
+            // If we already added a function handler - then remove it
+            if (elm._func)
+                elm.removeEventListener('change', elm._func, false);
+            elm.addEventListener('change', onChanged, false);
+            elm._func = onChanged;
+        };
+        FileViewerForm.prototype.update = function (token) {
+            var that = this, details = Animate.User.get.userEntry;
+            that.$loading = true;
+            that.$errorMsg = "";
+            that.$confirmDelete = false;
+            Animate.Compiler.digest(that._browserElm, that);
+            jQuery.ajax(Animate.DB.API + "/files/" + details.username + "/" + token._id, {
+                type: "put",
+                data: JSON.stringify(token),
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json"
+            }).then(function (token) {
+                that.$loading = false;
+                if (token.error) {
+                    that.$errorMsg = token.message;
+                    Animate.Compiler.digest(that._browserElm, that);
+                }
+                else {
+                    that.$editMode = false;
+                    that.$pager.invalidate();
+                }
+            }).fail(function (err) {
+                that.$errorMsg = "An error occurred while connecting to the server. " + err.status + ": " + err.responseText;
+                Animate.Compiler.digest(that._browserElm, that);
+            });
+            ;
         };
         ///**
         //* Called when the files have been loaded
@@ -20032,7 +20079,7 @@ jQuery(document).ready(function () {
     // Make sure we call ajax with credentials on
     jQuery.ajaxSetup({
         crossDomain: true,
-        xhrFields: { withCredentials: true }
+        xhrFields: { withCredentials: true },
     });
     var that = this;
     // Show the loading animation

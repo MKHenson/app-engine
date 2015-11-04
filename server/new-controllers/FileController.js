@@ -21,7 +21,7 @@ var FileController = (function (_super) {
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         //router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-        //router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+        router.put("/:user/:id", [modepress_api_1.canEdit, this.editFileDetails.bind(this)]);
         router.get("/:user/:project", [modepress_api_1.canEdit, this.getByProject.bind(this)]);
         router.get("/:user", [modepress_api_1.canEdit, this.getByUser.bind(this)]);
         //router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
@@ -30,6 +30,45 @@ var FileController = (function (_super) {
         // Register the path
         e.use("/app-engine/files", router);
     }
+    /**
+    * Attempts to update a single file's details
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    FileController.prototype.editFileDetails = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this._models[0];
+        var that = this;
+        // Verify the resource ID
+        if (!modepress_api_1.isValidID(req.params.id))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid resource ID" }));
+        var searchToken = { _id: new mongodb.ObjectID(req.params.id) };
+        var token = req.body;
+        model.update(searchToken, token).then(function (instance) {
+            if (instance.error) {
+                winston.error(instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: instance.tokens[0].error
+                }));
+            }
+            res.end(JSON.stringify({
+                error: false,
+                message: "[" + instance.tokens.length + "] Files updated"
+            }));
+        }).catch(function (error) {
+            winston.error("Could not update file details: " + error.message, { process: process.pid });
+            res.end(JSON.stringify({ error: true, message: "Could not update file details: " + error.message }));
+        });
+    };
+    /**
+    * Fetches files by a given query
+    * @param {any} query A mongo DB style query
+    * @param {number} index The index start
+    * @param {number} limit The limit
+    * @param {number} verbose Weather or not to use verbose
+    */
     FileController.prototype.getFiles = function (query, index, limit, verbose) {
         if (verbose === void 0) { verbose = true; }
         var model = this._models[0];

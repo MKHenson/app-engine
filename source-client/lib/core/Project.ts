@@ -270,8 +270,7 @@ module Animate
             jQuery.ajax(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, {
                 type: "put",
                 contentType: 'application/json;charset=UTF-8',
-                dataType: "json",
-                data: JSON.stringify(token)
+                dataType: "json", data: JSON.stringify(token)
 
             }).done(function (data: UsersInterface.IResponse)
             {

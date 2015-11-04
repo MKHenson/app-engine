@@ -656,7 +656,7 @@ Please only put css rules in here for layout related requirements.
 * EDIT ICON
 */
 .edit-icon {
-    font-size: 30px;
+    font-size: 25px;
     vertical-align: middle;
     margin: 0px 5px 0  0;
 }
@@ -782,6 +782,9 @@ body {
 }
 .navigation-column.next a {
     margin:0 0 0 10px;
+}
+.navigation-column a {
+    display:inline-block;
 }
 
 /**
@@ -951,13 +954,12 @@ body {
     margin: 10px;
     cursor: pointer;
 }
-.img-preview .welcome-preview {
-    background: #fff;
+.img-preview .preview-child {
     box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
     padding-top: 75%;
     position: relative;
 }
-.img-preview .welcome-preview .inner {
+.img-preview .preview-child .inner {
     top: 0;
     left: 0;
     overflow: hidden;
@@ -1411,6 +1413,9 @@ span.date {
     overflow: auto;
     box-sizing: border-box;
 }
+.file-details .img-preview {
+    margin: 0 0 10px 0;
+}
 .file-details p {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -1421,8 +1426,10 @@ span.date {
     width:100%;
     padding:5px;
 }
-.file-details .button:last-child {
+.file-details .button {
     padding:0;
+    float:right;
+    margin: 0 0 0 25px;
 }
 .file-info {
     width: 0%;
@@ -1444,8 +1451,8 @@ span.date {
     top:58px;
 }
 .file-info.open {
-    width:30%;
-    left:70%;
+    width:40%;
+    left:60%;
 }
 .file-info.open .button {
     top:0px;
@@ -1455,10 +1462,13 @@ span.date {
 }
 .info-divider {
     height:1px;
-    margin:10px 0;
+    margin:15px 0;
 }
 .file-details .detail {
     float: right;
+}
+.file-details .img-preview .preview-child {
+    box-shadow: none;
 }
 
 /**

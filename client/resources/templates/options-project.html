@@ -6,13 +6,13 @@
 		<form en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) && ctrl.updateDetails(ctrl.$projectToken)">
 			<div class="group-content">
 				<div class="field-option">
-					<input name="name" class="background-view-light" type="text" en-class="{ 'bad-input' : elm.$error }" placeholder="Project Name" en-value="ctrl.$projectToken.name" en-model="ctrl.$projectToken.name" en-validate="non-empty|no-html" />
+					<input name="name" class="background-view-light" type="text" en-class="{ 'bad-input' : elm.$error }" placeholder="Project Name" en-model="ctrl.$projectToken.name" en-validate="non-empty|no-html" />
 				</div>
 				<div class="field-option">
-					<input name="tags" class="background-view-light" type="text" placeholder="Keywords" en-value="ctrl.$projectToken.tags.join(', ')" en-model="ctrl.$projectToken.tags" en-transform="ctrl.$projectToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" />
+					<input name="tags" class="background-view-light" type="text" placeholder="Keywords" en-model="ctrl.$projectToken.tags" en-transform="ctrl.$projectToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" />
 				</div>
 				<div class="field-option">
-					<textarea name="description" class="background-view-light" style="height: 180px;" en-class="{error : elm.$error}" placeholder="Project Description" en-value="ctrl.$projectToken.description" en-model="ctrl.$projectToken.description"></textarea>
+					<textarea name="description" class="background-view-light" style="height: 180px;" en-class="{error : elm.$error}" placeholder="Project Description" en-model="ctrl.$projectToken.description"></textarea>
 				</div>
 			</div>
 			<div class="field-option">
@@ -51,7 +51,7 @@
 		</div>
 		<div class="group-content">
 			<div class="img-preview unselectable">
-				<div class="welcome-preview">
+				<div class="preview-child">
 					<div class="background-tiles inner ng-scope">
 						<img en-src="ctrl.$project && (ctrl.$project.entry.image || './media/appling.png')">
 						<div class="div-center"></div>

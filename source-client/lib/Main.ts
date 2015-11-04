@@ -101,7 +101,9 @@ jQuery(document).ready(function ()
     // Make sure we call ajax with credentials on
     jQuery.ajaxSetup({
         crossDomain: true,
-        xhrFields: { withCredentials: true }
+        xhrFields: { withCredentials: true },
+        //contentType: 'application/json;charset=UTF-8',
+        //dataType: "json"
     });
 
     var that = this;

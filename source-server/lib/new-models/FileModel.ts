@@ -23,7 +23,7 @@ export class FileModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("identifier", "", 1, 50));
         this.defaultSchema.add(new SchemaFactory.text("extension", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("url", "", 1, 1024, true));
-        this.defaultSchema.add(new SchemaFactory.textArray("tags", [], 0, 50, 0, 200, true));
+        this.defaultSchema.add(new SchemaFactory.textArray("tags", [], 0, 20, 0, 50, true));
         this.defaultSchema.add(new SchemaFactory.text("previewPath", "", 0, 1024, true));
         this.defaultSchema.add(new SchemaFactory.text("previewUrl", "", 0, 1024, true));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);

@@ -48,6 +48,7 @@ module Animate
         private $newFolder: boolean;
         private $numLoading: number;
         private $loadingPercent: number;
+        private $editMode: boolean;
         private $fileToken: Engine.IFile;
         private _searchType: FileSearchType;
 
@@ -114,6 +115,7 @@ module Animate
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$pager = new PageLoader(this.updateContent.bind(this));
+            //this.$pager.limit = 2;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -124,6 +126,7 @@ module Animate
             this.shiftkey = false;
             this.$numLoading = 0;
             this.$loadingPercent = 0;
+            this.$editMode = false;
             this._searchType = FileSearchType.Project;
             this.$fileToken = { tags: [] };
 
@@ -391,7 +394,10 @@ module Animate
         {
             this.$confirmDelete = !this.$confirmDelete;
             if (this.$confirmDelete)
-                this.$errorMsg = `Are you sure you want to delete these ${this.selectedFolder ? "file" : "folder" }s`;
+            {
+                var fileType = (this.selectedFolder ? "file" : "folder");
+                this.$errorMsg = `Are you sure you want to delete ${(this.selectedEntities.length > 1 ? `these [${this.selectedEntities.length}]` : "the ") } ${fileType}${(this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'")}`;
+            }
             else
                 this.$errorMsg = "";
         }
@@ -427,16 +433,12 @@ module Animate
             else
                 this.selectedEntity = ents[ents.length - 1];
 
+            // Set the selected file
             if (this.selectedFolder)
             {
-                this.$selectedFile = this.selectedEntity;
-                var f = this.$selectedFile;
+                var f = this.$selectedFile = <Engine.IFile>this.selectedEntity;
                 if (f)
-                {
-                    this.$fileToken = {
-                        name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global
-                    };
-                }
+                    this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
             }
             else
                 this.$selectedFile = null;
@@ -449,24 +451,20 @@ module Animate
         {
             var that = this;
             that.$errorMsg = "";
+            that.$editMode = false;
             that.$loading = true;
             var mediaURL = DB.USERS + "/media";
             var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
             var entities = "";
 
             if (this.selectedFolder)
-            {
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
-            }
             else
-            {
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
-            }
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-
             jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete"}).then(function (token: UsersInterface.IResponse)
             {
                 if (token.error)
@@ -585,6 +583,11 @@ module Animate
 
                         if (data.error)
                             that.$errorMsg = data.message;
+                        else
+                        {
+                            if (that.$numLoading == 0)
+                                that.$pager.invalidate();
+                        }
                     }
 
                     Compiler.digest(that._browserElm, that);
@@ -592,6 +595,7 @@ module Animate
             };
 
             var formData = new FormData();
+            formData.append('meta', '{ "name" : "Chris" }');
             formData.append(file.name, file);
             xhr.withCredentials = true;
             xhr.open("post", url, true);   
@@ -709,6 +713,7 @@ module Animate
 		{
             super.show(null, undefined, undefined, true);
             this.$errorMsg = "";
+            this.$numLoading = 0;
             this.$confirmDelete = false;
             this.$loading = false;
             this.$newFolder = false;
@@ -720,8 +725,7 @@ module Animate
             // Call update and redraw the elements
             this.$pager.invalidate();
 
-            
-            document.getElementById('upload-new-file').addEventListener('change', function ()
+            var onChanged = function()
             {
                 var input = <HTMLInputElement>this;
 
@@ -747,8 +751,53 @@ module Animate
 
                 // Reset the value
                 (<HTMLInputElement>this).value = "";
-            }, false);
-		}
+            }
+            
+            var elm = document.getElementById('upload-new-file');
+
+            // If we already added a function handler - then remove it
+            if ((<any>elm)._func)
+                elm.removeEventListener('change', (<any>elm)._func, false);
+
+            elm.addEventListener('change', onChanged, false);
+            (<any>elm)._func = onChanged;
+        }
+
+        update(token: Engine.IFile)
+        {
+            var that = this,
+                details = User.get.userEntry;
+
+            that.$loading = true;
+            that.$errorMsg = "";
+            that.$confirmDelete = false;
+            Compiler.digest(that._browserElm, that);
+
+            jQuery.ajax(`${DB.API}/files/${details.username}/${token._id}`, {
+                type: "put",
+                data: JSON.stringify(token),
+                contentType: 'application/json;charset=UTF-8',
+                dataType: "json"
+            }).then(function (token: UsersInterface.IResponse)
+            {
+                that.$loading = false;
+                if (token.error)
+                {
+                    that.$errorMsg = token.message;
+                    Compiler.digest(that._browserElm, that);
+                }
+                else
+                {
+                    that.$editMode = false;
+                    that.$pager.invalidate();
+                }
+
+            }).fail(function (err: JQueryXHR)
+            {
+                that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.responseText}`;
+                Compiler.digest(that._browserElm, that);
+            });;
+        }
 
 		///**
 		//* Called when the files have been loaded

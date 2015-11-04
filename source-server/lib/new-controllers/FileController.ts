@@ -24,7 +24,7 @@ export class FileController extends Controller
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
         //router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-        //router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+        router.put("/:user/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
         router.get("/:user/:project", <any>[canEdit, this.getByProject.bind(this)]);
         router.get("/:user", <any>[canEdit, this.getByUser.bind(this)]);
         //router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
@@ -36,6 +36,55 @@ export class FileController extends Controller
         e.use("/app-engine/files", router);
     }
 
+    /**
+    * Attempts to update a single file's details
+    * @param {express.Request} req 
+    * @param {express.Response} res
+    * @param {Function} next 
+    */
+    protected editFileDetails(req: IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this._models[0];
+        var that = this;
+        
+        // Verify the resource ID
+        if (!isValidID(req.params.id))
+            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid resource ID" }));
+
+        var searchToken: Engine.IFile = { _id: new mongodb.ObjectID(req.params.id) };
+        var token: Engine.IResource = req.body;
+        
+        model.update(searchToken, token).then(function (instance)
+        {
+            if (instance.error)
+            {
+                winston.error(<string>instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify(<IResponse>{
+                    error: true,
+                    message: <string>instance.tokens[0].error
+                }));
+            }
+
+            res.end(JSON.stringify(<IResponse>{
+                error: false,
+                message: `[${instance.tokens.length}] Files updated`
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error("Could not update file details: " + error.message, { process: process.pid });
+            res.end(JSON.stringify(<IResponse>{ error: true, message: "Could not update file details: " + error.message }));
+        });
+    }
+
+    /**
+    * Fetches files by a given query
+    * @param {any} query A mongo DB style query
+    * @param {number} index The index start
+    * @param {number} limit The limit
+    * @param {number} verbose Weather or not to use verbose 
+    */
     protected getFiles(query: any, index: number, limit: number, verbose: boolean = true ): Promise<ModepressAddons.IGetFiles>
     {
         var model = this._models[0];

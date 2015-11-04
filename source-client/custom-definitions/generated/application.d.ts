@@ -5451,6 +5451,7 @@ declare module Animate {
         private $newFolder;
         private $numLoading;
         private $loadingPercent;
+        private $editMode;
         private $fileToken;
         private _searchType;
         extensions: Array<string>;
@@ -5512,6 +5513,7 @@ declare module Animate {
         * Shows the window.
         */
         showForm(id: string, extensions: Array<string>): void;
+        update(token: Engine.IFile): void;
         /**
         * @type public mfunc handleDefaultPreviews
         * This will attempt to handle simple file previews
