@@ -92,6 +92,24 @@ var FileController = (function (_super) {
         });
     };
     /**
+    * Checks for and adds any optional file queries
+    * @param {Engine.IFile} query
+    * @param {any} params
+    */
+    FileController.prototype.appendOptionalQueries = function (query, params) {
+        // Check for keywords
+        if (params.search) {
+            query.name = new RegExp(params.search, "i");
+            query.tags = { $in: [new RegExp(params.search, "i")] };
+        }
+        // Check for favourites
+        if (params.favourite && params.favourite.toLowerCase() == "true")
+            query.favourite = true;
+        // Check for bucket ID
+        if (params.bucket)
+            query.bucketId = params.bucket;
+    };
+    /**
     * Gets the files from the project
     * @param {express.Request} req
     * @param {express.Response} res
@@ -99,18 +117,12 @@ var FileController = (function (_super) {
     */
     FileController.prototype.getByProject = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var query = {};
         var project = req.params.project;
         if (!modepress_api_1.isValidID(project))
             return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
-        query.projectId = new mongodb.ObjectID(project);
-        query.user = req._user.username;
-        // Check for keywords
-        if (req.query.search)
-            query.name = new RegExp(req.query.search, "i");
-        // Check for bucket ID
-        if (req.query.bucket)
-            query.bucketId = req.query.bucket;
+        // Create the query
+        var query = { projectId: new mongodb.ObjectID(project), user: req._user.username };
+        this.appendOptionalQueries(query, req.query);
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
             return res.end(JSON.stringify(data));
         }).catch(function (err) {
@@ -129,13 +141,9 @@ var FileController = (function (_super) {
     */
     FileController.prototype.getByUser = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
+        // Create the query
         var query = { user: req._user.username };
-        // Check for keywords
-        if (req.query.search)
-            query.name = new RegExp(req.query.search, "i");
-        // Check for bucket ID
-        if (req.query.bucket)
-            query.bucketId = req.query.bucket;
+        this.appendOptionalQueries(query, req.query);
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
             return res.end(JSON.stringify(data));
         }).catch(function (err) {

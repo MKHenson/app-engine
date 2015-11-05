@@ -36,8 +36,8 @@
 	<div class="files-view background-view animate-all" en-style="{ width: (ctrl.$selectedFile ? '60%' : '') }">
 		<div class="file-items" en-scrollTop="(ctrl.$errorMsg != '' ? 0 : undefined)">
 
-			<div id="uploader-progress" class="progress-outer" en-show="ctrl.$numLoading > 0">
-				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$loadingPercent + '%'}">{{ctrl.$loadingPercent}}% [{{ctrl.$numLoading}}]</span>
+			<div id="uploader-progress" class="progress-outer" en-show="ctrl.$uploader.numDownloads > 0">
+				<span class="reg-gradient animate-all" en-style="{ width : ctrl.$uploader.percent + '%'}">{{ctrl.$uploader.percent}}% [{{ctrl.$uploader.numDownloads}}]</span>
 			</div>
 
 			<div class="error animate-all bad-input" en-show="ctrl.$errorMsg != ''" en-class="{ opened : ctrl.$errorMsg != '' }" >

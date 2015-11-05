@@ -85,7 +85,7 @@ export class FileController extends Controller
     * @param {number} limit The limit
     * @param {number} verbose Weather or not to use verbose 
     */
-    protected getFiles(query: any, index: number, limit: number, verbose: boolean = true ): Promise<ModepressAddons.IGetFiles>
+    private getFiles(query: any, index: number, limit: number, verbose: boolean = true ): Promise<ModepressAddons.IGetFiles>
     {
         var model = this._models[0];
         var that = this;
@@ -114,6 +114,29 @@ export class FileController extends Controller
             });
         });
     }
+    
+    /**
+    * Checks for and adds any optional file queries
+    * @param {Engine.IFile} query 
+    * @param {any} params
+    */
+    private appendOptionalQueries(query: Engine.IFile, params: any)
+    {
+        // Check for keywords
+        if (params.search)
+        {
+            query.name = <any>new RegExp(params.search, "i");
+            query.tags = <any>{ $in: [new RegExp(params.search, "i")] };
+        }
+
+        // Check for favourites
+        if (params.favourite && params.favourite.toLowerCase() == "true")
+            query.favourite = true;
+
+        // Check for bucket ID
+        if (params.bucket)
+            query.bucketId = params.bucket;
+    }
 
     /**
     * Gets the files from the project
@@ -124,22 +147,14 @@ export class FileController extends Controller
     protected getByProject(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var query: Engine.IFile = {};
+       
         var project = req.params.project;
-
         if (!isValidID(project))
             return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
-        
-        query.projectId = new mongodb.ObjectID(project);
-        query.user = req._user.username;
-
-        // Check for keywords
-        if (req.query.search)
-            query.name = <any>new RegExp(req.query.search, "i");
-
-        // Check for bucket ID
-        if (req.query.bucket)
-            query.bucketId = req.query.bucket;
+       
+        // Create the query
+        var query: Engine.IFile = { projectId: new mongodb.ObjectID(project), user: req._user.username };
+        this.appendOptionalQueries(query, req.query);
 
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data)
         {
@@ -164,15 +179,10 @@ export class FileController extends Controller
     protected getByUser(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var query: Engine.IFile = { user : req._user.username };
-        
-        // Check for keywords
-        if (req.query.search)
-            query.name = <any>new RegExp(req.query.search, "i");
 
-        // Check for bucket ID
-        if (req.query.bucket)
-            query.bucketId = req.query.bucket;
+        // Create the query
+        var query: Engine.IFile = { user : req._user.username };
+        this.appendOptionalQueries(query, req.query);
 
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data)
         {

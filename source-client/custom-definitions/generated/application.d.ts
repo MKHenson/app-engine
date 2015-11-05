@@ -5438,8 +5438,6 @@ declare module Animate {
     */
     class FileViewerForm extends Window {
         private static _singleton;
-        private static _dCount;
-        private static _downloads;
         private _browserElm;
         private $pager;
         private $selectedFile;
@@ -5449,17 +5447,19 @@ declare module Animate {
         private $entries;
         private $confirmDelete;
         private $newFolder;
-        private $numLoading;
-        private $loadingPercent;
         private $editMode;
         private $fileToken;
+        private $uploader;
         private _searchType;
+        private _shiftkey;
         extensions: Array<string>;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
         selectedFolder: UsersInterface.IBucketEntry;
         multiSelect: boolean;
-        private shiftkey;
+        /**
+        * Creates an instance of the file uploader form
+        */
         constructor();
         /**
         * Returns a URL of a file preview image
@@ -5491,7 +5491,6 @@ declare module Animate {
         */
         removeEntities(): void;
         updateContent(index: number, limit: number): void;
-        uploadFile(file: File, url: string): void;
         /**
         * Called when we are dragging over the item
         */
@@ -5513,20 +5512,10 @@ declare module Animate {
         * Shows the window.
         */
         showForm(id: string, extensions: Array<string>): void;
+        /**
+        * Attempts to update the selected entity
+        */
         update(token: Engine.IFile): void;
-        /**
-        * @type public mfunc handleDefaultPreviews
-        * This will attempt to handle simple file previews
-        * @param {any} file The file to preview
-        * @param {any} previewComponent The preview box
-        * @extends <FileViewerForm>
-        * @returns <bool> True if this is handled
-        */
-        handleDefaultPreviews(file: any, previewComponent: any): boolean;
-        /**
-        * This function is used to cleanup the object before its removed from memory.
-        */
-        dispose(): void;
         /** Gets the singleton instance. */
         static getSingleton(): FileViewerForm;
     }
@@ -6431,3 +6420,21 @@ declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
 * @returns {string}
 */
 declare function byteFilter(bytes: any, precision?: number): string;
+declare module Animate {
+    type ProgressCallback = (percent: number) => void;
+    type CompleteCallback = (err?: Error) => void;
+    class FileUploader {
+        private _dCount;
+        private _downloads;
+        percent: number;
+        private _onProg;
+        private _onComplete;
+        constructor(onProg?: ProgressCallback, onComp?: CompleteCallback);
+        numDownloads: number;
+        uploadFile(file: File, url: string, meta?: any): void;
+        getBase64Image(img: HTMLImageElement): string;
+        uploadArrayBuffer(array: ArrayBuffer, name: string, url: string, meta?: any): void;
+        uploadTextAsFile(text: string, name: string, url: string, meta?: any): void;
+        upload(form: FormData, url: string, identifier: string): void;
+    }
+}
