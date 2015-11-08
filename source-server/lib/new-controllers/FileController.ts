@@ -125,8 +125,10 @@ export class FileController extends Controller
         // Check for keywords
         if (params.search)
         {
-            query.name = <any>new RegExp(params.search, "i");
-            query.tags = <any>{ $in: [new RegExp(params.search, "i")] };
+            (<any>query).$or = [
+                { name: new RegExp(params.search, "i") },
+                { tags : { $in: [new RegExp(params.search, "i")] } }
+            ];
         }
 
         // Check for favourites

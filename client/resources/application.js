@@ -15484,6 +15484,7 @@ var Animate;
             this.selectedEntity = null;
             this.selectedFolder = null;
             this.$search = "";
+            this.$onlyFavourites = false;
             this.$entries = [];
             this.extensions = [];
             this.multiSelect = true;
@@ -15674,9 +15675,9 @@ var Animate;
             Animate.Compiler.digest(that._browserElm, that);
             if (this.selectedFolder) {
                 if (this._searchType == FileSearchType.Project)
-                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
+                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
                 else
-                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
+                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
             }
             else
                 command = Animate.DB.USERS + "/media/get-buckets/" + details.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search;

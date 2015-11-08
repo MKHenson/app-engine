@@ -5450,6 +5450,7 @@ declare module Animate {
         private $editMode;
         private $fileToken;
         private $uploader;
+        private $onlyFavourites;
         private _searchType;
         private _shiftkey;
         extensions: Array<string>;

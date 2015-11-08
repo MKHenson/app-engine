@@ -1,5 +1,4 @@
 ﻿<div id="file-viewer">
-
 	<div class="file-viewer-toolbar">
 		<div class="button reg-gradient" en-show="!ctrl.selectedFolder" en-click="ctrl.$errorMsg = ''; ctrl.$newFolder = !ctrl.$newFolder" en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add Folder
@@ -11,8 +10,8 @@
 		
 		<div en-show="ctrl.selectedFolder" class="file-filters">
 			<div class="tool-bar-group background-view-light">
-				<div class="toolbar-button tooltip">
-					<div><img src="media/star.png" /></div>
+				<div class="toolbar-button tooltip" en-click="ctrl.$onlyFavourites = !ctrl.$onlyFavourites; ctrl.$pager.invalidate()" en-class="{ selected : ctrl.$onlyFavourites}">
+					<div class="icon" style="background-image:url('media/star.png')"></div>
 					<div class="tooltip-text">Favourite</div>
 				</div>
 			</div>
@@ -20,7 +19,7 @@
 		</div>
 		<div class="tool-bar-group background-view-light" en-class="{ disabled : ctrl.selectedEntities.length == 0 }">
 			<div class="toolbar-button tooltip" en-click="ctrl.confirmDelete()">
-				<div><img src="media/remove-asset.png" /></div>
+				<div class="icon" style="background-image:url('media/remove-asset.png')"></div>
 				<div class="tooltip-text">Remove</div>
 			</div>
 		</div>

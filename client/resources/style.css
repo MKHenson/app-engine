@@ -1124,9 +1124,18 @@ body {
     pointer-events: none;
     text-align: center;
 }
-.toolbar-button img {
+.toolbar-button .icon, .toolbar-button img {
     width: 40px;
     height: 40px;
+}
+.toolbar-button .icon{
+    margin: 0 3px;
+}
+.toolbar-button.selected .icon {
+   background-position: 0 -40px;
+}
+.toolbar-button.selected {
+    border-radius: 5px;
 }
 .toolbar-button, .toolbar-button-drop-down {
     display: inline-block;
@@ -1138,6 +1147,7 @@ body {
     cursor: pointer;
     padding: 4px 0 4px 0;
     position: relative;
+    vertical-align: middle;
 }
 .tool-icon-upper, .toolbar-button img {
     pointer-events: none;

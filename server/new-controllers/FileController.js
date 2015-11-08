@@ -99,8 +99,10 @@ var FileController = (function (_super) {
     FileController.prototype.appendOptionalQueries = function (query, params) {
         // Check for keywords
         if (params.search) {
-            query.name = new RegExp(params.search, "i");
-            query.tags = { $in: [new RegExp(params.search, "i")] };
+            query.$or = [
+                { name: new RegExp(params.search, "i") },
+                { tags: { $in: [new RegExp(params.search, "i")] } }
+            ];
         }
         // Check for favourites
         if (params.favourite && params.favourite.toLowerCase() == "true")

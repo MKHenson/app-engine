@@ -47,6 +47,7 @@ module Animate
         private $editMode: boolean;
         private $fileToken: Engine.IFile;
         private $uploader: FileUploader;
+        private $onlyFavourites: boolean;
         private _searchType: FileSearchType;
         private _shiftkey: boolean;
 
@@ -80,6 +81,7 @@ module Animate
             this.selectedEntity = null;
             this.selectedFolder = null;
             this.$search = "";
+            this.$onlyFavourites = false;
             this.$entries = [];
             this.extensions = [];
             this.multiSelect = true;
@@ -322,9 +324,9 @@ module Animate
             if (this.selectedFolder)
             {
                 if (this._searchType == FileSearchType.Project)
-                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
+                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
                 else
-                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
+                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
             }
             else
                 command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
