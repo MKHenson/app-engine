@@ -1,14 +1,11 @@
 ﻿<div id="file-viewer">
 	<div class="file-viewer-toolbar">
-		<div class="button reg-gradient" en-show="!ctrl.selectedFolder" en-click="ctrl.$errorMsg = ''; ctrl.$newFolder = !ctrl.$newFolder" en-class="{ disabled : ctrl.$loading }">
-			<div class="cross"></div>Add Folder
-		</div>
-		<div class="button reg-gradient" en-click="jQuery('#upload-new-file').trigger('click')" en-show="ctrl.selectedFolder" en-class="{ disabled : ctrl.$loading }">
+		<div class="button reg-gradient" en-click="jQuery('#upload-new-file').trigger('click')" en-class="{ disabled : ctrl.$loading }">
 			<div class="cross"></div>Add File
 			<input type="file" id="upload-new-file" multiple="multiple" />
 		</div>
 		
-		<div en-show="ctrl.selectedFolder" class="file-filters">
+		<div class="file-filters">
 			<div class="tool-bar-group background-view-light">
 				<div class="toolbar-button tooltip" en-click="ctrl.$onlyFavourites = !ctrl.$onlyFavourites; ctrl.$pager.invalidate()" en-class="{ selected : ctrl.$onlyFavourites}">
 					<div class="icon" style="background-image:url('media/star.png')"></div>
@@ -49,15 +46,15 @@
 			<!--New folder-->
 			<div class="new-folder-ctnr animate-all background curve-small" en-show="ctrl.$newFolder" en-class="{ opened : ctrl.$newFolder }">
 				<div class="new-folder-inner">
-					<p><strong>Folder Name:</strong></p>
+					<div><strong>Folder Name:</strong></div>
 					<input class="background-view-light" id="new-folder-name" type="text" />
 					<div class="button green" en-click="ctrl.newFolder()"><div class="cross"></div>Add</div>
 				</div>
 			</div>
 
 			<!--Folders-->
-			<div class="folders" en-if="!ctrl.selectedFolder">
-				<div class="folder unselectable background" en-click="ctrl.selectEntity(folder)" en-repeat="ctrl.$entries as folder" en-class="{ selected : folder.selected }">
+			<div class="folders" en-if="ctrl.$folders.length > 0">
+				<div class="folder unselectable background" en-click="ctrl.selectEntity(folder)" en-repeat="ctrl.$folders as folder" en-class="{ selected : folder.selected }">
 					<div en-dclick="ctrl.openFolder(folder)">
 						<div class="icon" style="background-image:url('media/folder.png')"></div>{{folder.name}}
 					</div>
@@ -72,11 +69,11 @@
 			</div>
 
 			<!--Files-->
-			<div en-if="ctrl.selectedFolder">
+			<div>
 				<div class="file-item img-preview unselectable" en-repeat="ctrl.$entries as file" en-click="ctrl.selectEntity(file)" en-class="{ 'reg-gradient' : file.selected }">
 					<div class="preview-child">
 						<div class="background-tiles inner ng-scope">
-							<img en-src="ctrl.getThumbnail(file)" />
+							<img class="vert-align" en-src="ctrl.getThumbnail(file)" />
 							<div class="div-center"></div>
 						</div>
 					</div>
@@ -113,52 +110,52 @@
 			<div class="file-details">
 				<div en-show="!ctrl.$editMode" class="button" en-click="ctrl.$editMode = !ctrl.$editMode;"><a><span class="edit-icon">✎</span>Edit</a></div>
 				<h2>{{ctrl.$selectedFile.name}}</h2>
-				<div en-show="!ctrl.$editMode">
+				<div class="file-stats" en-show="!ctrl.$editMode">
 					<div class="img-preview">
 						<div class="preview-child background-tiles">
 							<div class="inner">
-								<img en-src="ctrl.$selectedFile.url" />
+								<img class="vert-align" en-src="ctrl.$selectedFile.url" />
 								<div class="div-center"></div>
 							</div>
 						</div>
 					</div>
-					<p><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></p>
-					<p><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.createdOn).toLocaleTimeString()}}</span></p>
+					<div><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></div>
+					<div><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.createdOn).toLocaleTimeString()}}</span></div>
 					<div class="info-divider background-view-light"></div>
-					<p><input class="background-view-light" en-value="ctrl.$selectedFile.url" /></p>
-					<p><span class="info">URL: </span><span class="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></p>
-					<p><span class="info">Size: </span><span class="detail">{{byteFilter(ctrl.$selectedFile.size)}}</span></p>
-					<p><span class="info">Extension: </span><span class="detail">{{ctrl.$selectedFile.extension}}</span></p>
-					<p><span class="info">Tags:</span><span class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span></p>
-					<p><div><span class="info">Global: </span><span class="detail">{{ctrl.$selectedFile.global}}</span></div></p>
-					<p><div><span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span></div></p>
-					<p><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.lastModified).toLocaleTimeString()}}</span></p>
+					<div><input class="background-view-light" en-value="ctrl.$selectedFile.url" /></div>
+					<div><span class="info">URL: </span><span class="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></div>
+					<div><span class="info">Size: </span><span class="detail">{{byteFilter(ctrl.$selectedFile.size)}}</span></div>
+					<div><span class="info">Extension: </span><span class="detail">{{ctrl.$selectedFile.extension}}</span></div>
+					<div><span class="info">Tags:</span><span class="detail">{{ctrl.$selectedFile.tags.join(', ')}}</span></div>
+					<div><span class="info">Global: </span><span class="detail">{{ctrl.$selectedFile.global}}</span></div>
+					<div><span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span></div>
+					<div><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.lastModified).toLocaleTimeString()}}</span></div>
 				</div>
 				<div en-show="ctrl.$editMode">
 					<div class="info-divider background-view-light"></div>
-					<p>
+					<div>
 						<span class="info">Name:</span><span class="detail"><input id="file-name" class="background-view-light" en-model="ctrl.$fileToken.name" /></span>
-					</p>
-					<p>
+					</div>
+					<div>
 						<span class="info">Tags: </span>
 						<span class="detail"><input class="background-view-light" id="file-tags" en-model="ctrl.$fileToken.tags" en-transform="ctrl.$fileToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" /></span>
-					</p>
-					<p>
+					</div>
+					<div>
 						<div class="checkbox">
 							<div class="tick-box" en-click="ctrl.$fileToken.global = !ctrl.$fileToken.global">
 								<div class="tick" en-show="ctrl.$fileToken.global"></div>
 							</div>
 							<span class="info">Global</span><span class="detail">{{(ctrl.$fileToken.global ? 'YES' : 'NO')}}</span>
 						</div>
-					</p>
-					<p>
+					</div>
+					<div>
 						<div class="checkbox">
 							<div class="tick-box" en-click="ctrl.$fileToken.favourite = !ctrl.$fileToken.favourite">
 								<div class="tick" en-show="ctrl.$fileToken.favourite"></div>
 							</div>
 							<span class="info">Favourite</span><span class="detail">{{(ctrl.$fileToken.favourite ? 'YES' : 'NO')}}</span>
 						</div>
-					</p>
+					</div>
 				</div>
 				<div class="fix"></div>
 			</div>
@@ -166,7 +163,7 @@
 				<div class="button"  en-show="!ctrl.$editMode" ><a class="red-highlight" en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeFile, ctrl)">REMOVE</a></div>
 				<div class="button" en-show="ctrl.$editMode"><a class="red-highlight" en-click="ctrl.$editMode = false">CANCEL</a></div>
 				<div class="button green animate-all" en-show="!ctrl.$editMode" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
-				<div class="button reg-gradient animate-all" en-show="ctrl.$editMode" en-click="ctrl.update(ctrl.$fileToken)"><div class="tick"></div>UPDATE</div>
+				<div class="button reg-gradient animate-all" en-show="ctrl.$editMode" en-click="ctrl.updateFile(ctrl.$fileToken)"><div class="tick"></div>UPDATE</div>
 			</div>
 		</div>
 	</div>

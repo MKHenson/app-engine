@@ -51,54 +51,71 @@
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
-
-            //// Attaching text
-            //var content = 'Some user defined text!';
-            //var blob = new Blob([content], { type: "text/plain" });
-            //formData.append('text-example', blob);
-
-            //// Attaching array buffer
-            //var ab = new ArrayBuffer(1024);
-            //var v = new Uint8Array(ab);
-            //for (var i = 0; i < 1024; i++)
-            //    v[i] = 0x78;
-            //var b = new Blob([ab], { type: "application/octet-stream" });
-            //formData.append('buffer-example', b);
-
+            
             formData.append(file.name, file);
-
-            return this.upload(formData, url, file.name);
+            this.upload(formData, url, file.name);
         }
-        
-        getBase64Image(img: HTMLImageElement): string
+
+       /*
+       * Uploads an image or canvas as a png or jpeg
+       * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
+        * @param {string} name The name to give it
+       * @param {string} url The URL to use
+       * @param {any} meta [Optional] Any additional meta to be associated with the upload
+       */
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name:string, url: string, meta?: any)
         {
-            // Create an empty canvas element
-            var canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
+            var canvas: HTMLCanvasElement;
 
-            // Copy the image contents to the canvas
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
+            if (img instanceof HTMLImageElement)
+            {
+                // Create an empty canvas element
+                canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
 
+                // Copy the image contents to the canvas
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
+            
             // Get the data-URL formatted image
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
             // will re-encode the image.
             var dataURL = canvas.toDataURL("image/png");
 
-            var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+            // Convert the dataURL to pure base 64
+            //var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
 
-            // write the bytes of the string to an ArrayBuffer
+            // convert base64 to raw binary data held in a string
+            // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+            var byteString = atob(dataURL.split(',')[1]);
+
+            // separate out the mime component
+            var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+
+            // Write the bytes of the string to an ArrayBuffer
             var ab = new ArrayBuffer(byteString.length);
             var ia = new Uint8Array(ab);
             for (var i = 0; i < byteString.length; i++)
                 ia[i] = byteString.charCodeAt(i);
 
-            // write the ArrayBuffer to a blob, and you're done
-            var bb = new Blob([ab]);
+            // Create the blob and set the buffer
+            var blob: Blob;
+            if (dataURL.indexOf("png"))
+                blob = new Blob([ab], { type: mimeString });
+            else
+                blob = new Blob([ab], { type: mimeString });
 
-            return byteString;
+            var formData = new FormData();
+
+            // Attaching meta
+            if (meta)
+                formData.append('meta', JSON.stringify(meta));
+
+            formData.append( name, blob );
+            this.upload(formData, url, name);
         }
 
         /*
@@ -229,7 +246,10 @@
                         var data: UsersInterface.IResponse = JSON.parse(xhr.responseText);
 
                         if (data.error)
+                        {
                             errorMsg = data.message;
+                            comp(new Error(errorMsg));
+                        }
                         else
                         {
                             if (that._downloads.length == 0)

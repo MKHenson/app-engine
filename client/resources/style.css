@@ -991,7 +991,7 @@ body {
     height: 100%;
     vertical-align: middle;
 }
-.img-preview .inner img {
+.img-preview .inner .vert-align {
     display: inline-block;
     max-height: 100%;
     max-width: 100%;
@@ -1422,6 +1422,9 @@ span.date {
     height: calc(100% - 56px);
     overflow: auto;
     box-sizing: border-box;
+}
+.file-stats > div {
+    clear:both;
 }
 .file-details .img-preview {
     margin: 0 0 10px 0;

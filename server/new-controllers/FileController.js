@@ -16,6 +16,7 @@ var FileController = (function (_super) {
     __extends(FileController, _super);
     function FileController(server, config, e) {
         _super.call(this, [new FileModel_1.FileModel()]);
+        this._bucketId = "webinate-hatchery";
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -108,8 +109,7 @@ var FileController = (function (_super) {
         if (params.favourite && params.favourite.toLowerCase() == "true")
             query.favourite = true;
         // Check for bucket ID
-        if (params.bucket)
-            query.bucketId = params.bucket;
+        query.bucketId = this._bucketId;
     };
     /**
     * Gets the files from the project
@@ -170,7 +170,7 @@ var FileController = (function (_super) {
                 bucketId: files[i].bucketId,
                 user: files[i].user,
                 url: files[i].publicURL,
-                extension: files[i].name.split(".").pop(),
+                extension: files[i].mimeType,
                 name: files[i].name,
                 identifier: files[i].identifier,
                 size: files[i].size

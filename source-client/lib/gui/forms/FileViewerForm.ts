@@ -42,6 +42,7 @@ module Animate
         private $errorMsg: string;
         private $search: string;
         private $entries: Array<Engine.IFile>;
+        private $folders: Array<string>;
         private $confirmDelete: boolean;
         private $newFolder: boolean;
         private $editMode: boolean;
@@ -54,7 +55,7 @@ module Animate
         public extensions: Array<string>;
         public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         public selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
-        public selectedFolder: UsersInterface.IBucketEntry;
+        public selectedFolder: string;
         public multiSelect: boolean;
         
         /**
@@ -83,11 +84,12 @@ module Animate
             this.$search = "";
             this.$onlyFavourites = false;
             this.$entries = [];
+            this.$folders = [];
             this.extensions = [];
             this.multiSelect = true;
             this._shiftkey = false;
             this.$editMode = false;
-            this._searchType = FileSearchType.Project;
+            this._searchType = FileSearchType.User;
             this.$fileToken = { tags: [] };
 
             // Create the file uploader
@@ -111,8 +113,8 @@ module Animate
             
             // Creates the filter options drop down
             var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
-                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
                 new ToolbarItem("media/assets-user.png", "Filter by My Files"),
+                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),                
                 new ToolbarItem("media/assets-global.png", "Filter by Global Files")
             ]);
 
@@ -150,7 +152,8 @@ module Animate
         */
         getThumbnail(file: Engine.IFile): string
         {
-            if (file.extension == "jpg" || file.extension == "jpeg" || file.extension == "png" || file.extension == "gif")
+            file.previewUrl
+            if (file.extension == "image/jpg" || file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif")
                 return file.url;
 
             return "./media/appling.png";
@@ -168,7 +171,7 @@ module Animate
         /**
         * Attempts to open a folder
         */
-        openFolder(folder: UsersInterface.IBucketEntry)
+        openFolder(folder: string)
         {
             this.$pager.index = 0;
             this.selectedFolder = folder;
@@ -262,14 +265,14 @@ module Animate
                 this.selectedEntity = ents[ents.length - 1];
 
             // Set the selected file
-            if (this.selectedFolder)
-            {
+            //if (this.selectedFolder)
+            //{
                 var f = this.$selectedFile = <Engine.IFile>this.selectedEntity;
                 if (f)
                     this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
-            }
-            else
-                this.$selectedFile = null;
+            ///}
+            //else
+            //    this.$selectedFile = null;
         }
 
         /**
@@ -282,15 +285,16 @@ module Animate
             that.$editMode = false;
             that.$loading = true;
             var mediaURL = DB.USERS + "/media";
-            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            //var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            var command = "remove-files";
             var entities = "";
 
-            if (this.selectedFolder)
+            //if (this.selectedFolder)
                 for (var i = 0, l = this.selectedEntities.length; i < l; i++)
                     entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
-            else
-                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                    entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
+            //else
+            //    for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+            //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
             jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete"}).then(function (token: UsersInterface.IResponse)
@@ -312,6 +316,7 @@ module Animate
         {
             var that = this;
             var details = User.get.userEntry;
+            var project = User.get.project;
             var command = "";
             that.$loading = true;
             that.$errorMsg = "";
@@ -321,15 +326,15 @@ module Animate
 
             Animate.Compiler.digest(that._browserElm, that);
             
-            if (this.selectedFolder)
-            {
+            //if (this.selectedFolder)
+            //{
                 if (this._searchType == FileSearchType.Project)
-                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
+                    command = `${DB.API}/files/${details.username}/${project.entry._id}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}`
                 else
-                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${this.selectedFolder.identifier}`
-            }
-            else
-                command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
+                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}`
+            //}
+            //else
+            //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
 
             jQuery.getJSON(command).then(function (token : UsersInterface.IGetFiles)
             {
@@ -442,8 +447,7 @@ module Animate
 
                     // Now upload each file
                     for (var i: number = 0, l = files.length; i < l; i++ )
-                        //this.uploadFile(files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
-                        this.$uploader.uploadFile(files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
+                        this.$uploader.uploadFile(files[i], `${DB.USERS}/media/upload/${DB.BUCKET}`);
 
 					return false;
 				}
@@ -457,7 +461,6 @@ module Animate
 		{
             super.show(null, undefined, undefined, true);
             this.$errorMsg = "";
-            //this.$numLoading = 0;
             this.$confirmDelete = false;
             this.$loading = false;
             this.$newFolder = false;
@@ -473,10 +476,10 @@ module Animate
             {
                 var input = <HTMLInputElement>this;
 
-                if (that.selectedFolder)
-                    apiUrl = `${DB.USERS}/media/upload/${that.selectedFolder.name}`;
-                else
-                    return;
+                //if (that.selectedFolder)
+                apiUrl = `${DB.USERS}/media/upload/${DB.BUCKET}`;
+                //else
+                //    return;
 
                 // Make sure the file types are allowed
                 if (!that.checkIfAllowed(input.files))
@@ -490,7 +493,6 @@ module Animate
                 for (var i = 0; i < input.files.length; i++)
                 {
                     var file = input.files[i];
-                    //that.uploadFile(file, apiUrl);
                     that.$uploader.uploadFile(file, apiUrl);
                 }
 
@@ -511,7 +513,7 @@ module Animate
         /**
 		* Attempts to update the selected entity
 		*/
-        update(token: Engine.IFile)
+        updateFile(token: Engine.IFile)
         {
             var that = this,
                 details = User.get.userEntry;
@@ -544,7 +546,7 @@ module Animate
             {
                 that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.responseText}`;
                 Compiler.digest(that._browserElm, that);
-            });;
+            });
         }
         
 		/** Gets the singleton instance. */

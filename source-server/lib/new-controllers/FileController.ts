@@ -14,9 +14,13 @@ import * as request from "request"
 */
 export class FileController extends Controller
 {
+    private _bucketId: string;
+
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
         super([new FileModel()]);
+
+        this._bucketId = "webinate-hatchery";
 
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
@@ -136,8 +140,7 @@ export class FileController extends Controller
             query.favourite = true;
 
         // Check for bucket ID
-        if (params.bucket)
-            query.bucketId = params.bucket;
+        query.bucketId = this._bucketId;
     }
 
     /**
@@ -216,7 +219,7 @@ export class FileController extends Controller
                 bucketId: files[i].bucketId,
                 user: files[i].user,
                 url: files[i].publicURL,
-                extension: files[i].name.split(".").pop(),
+                extension: files[i].mimeType,
                 name: files[i].name,
                 identifier: files[i].identifier,
                 size: files[i].size

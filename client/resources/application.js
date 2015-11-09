@@ -2707,6 +2707,7 @@ var Animate;
         DB.USERS = "http://webinate-test.net:8000";
         DB.HOST = "http://animate.webinate-test.net";
         DB.API = "http://animate.webinate-test.net/app-engine";
+        DB.BUCKET = "webinate-hatchery";
         DB.PLAN_FREE = "animate-free";
         DB.PLAN_BRONZE = "animate-bronze";
         DB.PLAN_SILVER = "animate-silver";
@@ -14685,10 +14686,10 @@ var Animate;
                 if (this._selectedItem)
                     this._popupContainer.addChild(this._selectedItem);
                 this.addChild(item);
+                this._selectedItem = item;
                 var e = new ToolbarDropDownEvent(item, "clicked");
                 this.dispatchEvent(e);
                 e.dispose();
-                this._selectedItem = item;
                 return;
             },
             enumerable: true,
@@ -15486,11 +15487,12 @@ var Animate;
             this.$search = "";
             this.$onlyFavourites = false;
             this.$entries = [];
+            this.$folders = [];
             this.extensions = [];
             this.multiSelect = true;
             this._shiftkey = false;
             this.$editMode = false;
-            this._searchType = FileSearchType.Project;
+            this._searchType = FileSearchType.User;
             this.$fileToken = { tags: [] };
             // Create the file uploader
             this.$uploader = new Animate.FileUploader(function (loaded) {
@@ -15507,8 +15509,8 @@ var Animate;
             Animate.Compiler.build(this._browserElm, this);
             // Creates the filter options drop down
             var searchOptions = new Animate.ToolbarDropDown(null, [
-                new Animate.ToolbarItem("media/assets-project.png", "Filter by Project Files"),
                 new Animate.ToolbarItem("media/assets-user.png", "Filter by My Files"),
+                new Animate.ToolbarItem("media/assets-project.png", "Filter by Project Files"),
                 new Animate.ToolbarItem("media/assets-global.png", "Filter by Global Files")
             ]);
             // Add the drop down to dom
@@ -15539,7 +15541,8 @@ var Animate;
         * @returns {string}
         */
         FileViewerForm.prototype.getThumbnail = function (file) {
-            if (file.extension == "jpg" || file.extension == "jpeg" || file.extension == "png" || file.extension == "gif")
+            file.previewUrl;
+            if (file.extension == "image/jpg" || file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif")
                 return file.url;
             return "./media/appling.png";
         };
@@ -15624,13 +15627,14 @@ var Animate;
             else
                 this.selectedEntity = ents[ents.length - 1];
             // Set the selected file
-            if (this.selectedFolder) {
-                var f = this.$selectedFile = this.selectedEntity;
-                if (f)
-                    this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
-            }
-            else
-                this.$selectedFile = null;
+            //if (this.selectedFolder)
+            //{
+            var f = this.$selectedFile = this.selectedEntity;
+            if (f)
+                this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
+            ///}
+            //else
+            //    this.$selectedFile = null;
         };
         /**
         * Removes the selected entities
@@ -15641,14 +15645,15 @@ var Animate;
             that.$editMode = false;
             that.$loading = true;
             var mediaURL = Animate.DB.USERS + "/media";
-            var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            //var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
+            var command = "remove-files";
             var entities = "";
-            if (this.selectedFolder)
-                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                    entities += this.selectedEntities[i].identifier + ",";
-            else
-                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                    entities += this.selectedEntities[i].name + ",";
+            //if (this.selectedFolder)
+            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                entities += this.selectedEntities[i].identifier + ",";
+            //else
+            //    for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+            //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
             jQuery.ajax(mediaURL + "/" + command + "/" + entities, { type: "delete" }).then(function (token) {
                 if (token.error)
@@ -15666,6 +15671,7 @@ var Animate;
         FileViewerForm.prototype.updateContent = function (index, limit) {
             var that = this;
             var details = Animate.User.get.userEntry;
+            var project = Animate.User.get.project;
             var command = "";
             that.$loading = true;
             that.$errorMsg = "";
@@ -15673,14 +15679,15 @@ var Animate;
             this.selectedEntities.splice(0, this.selectedEntities.length);
             this.selectedEntity = null;
             Animate.Compiler.digest(that._browserElm, that);
-            if (this.selectedFolder) {
-                if (this._searchType == FileSearchType.Project)
-                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
-                else
-                    command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + this.selectedFolder.identifier;
-            }
+            //if (this.selectedFolder)
+            //{
+            if (this._searchType == FileSearchType.Project)
+                command = Animate.DB.API + "/files/" + details.username + "/" + project.entry._id + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search;
             else
-                command = Animate.DB.USERS + "/media/get-buckets/" + details.username + "/?index=" + index + "&limit=" + limit + "&search=" + that.$search;
+                command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search;
+            //}
+            //else
+            //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
             jQuery.getJSON(command).then(function (token) {
                 if (token.error) {
                     that.$errorMsg = token.message;
@@ -15760,8 +15767,7 @@ var Animate;
                     }
                     // Now upload each file
                     for (var i = 0, l = files.length; i < l; i++)
-                        //this.uploadFile(files[i], `${DB.USERS}/media/upload/${this.selectedFolder.name}`);
-                        this.$uploader.uploadFile(files[i], Animate.DB.USERS + "/media/upload/" + this.selectedFolder.name);
+                        this.$uploader.uploadFile(files[i], Animate.DB.USERS + "/media/upload/" + Animate.DB.BUCKET);
                     return false;
                 }
             }
@@ -15772,7 +15778,6 @@ var Animate;
         FileViewerForm.prototype.showForm = function (id, extensions) {
             _super.prototype.show.call(this, null, undefined, undefined, true);
             this.$errorMsg = "";
-            //this.$numLoading = 0;
             this.$confirmDelete = false;
             this.$loading = false;
             this.$newFolder = false;
@@ -15781,10 +15786,10 @@ var Animate;
             this.$pager.invalidate();
             var onChanged = function () {
                 var input = this;
-                if (that.selectedFolder)
-                    apiUrl = Animate.DB.USERS + "/media/upload/" + that.selectedFolder.name;
-                else
-                    return;
+                //if (that.selectedFolder)
+                apiUrl = Animate.DB.USERS + "/media/upload/" + Animate.DB.BUCKET;
+                //else
+                //    return;
                 // Make sure the file types are allowed
                 if (!that.checkIfAllowed(input.files)) {
                     that.$errorMsg = "Only " + that.extensions.join(', ') + " file types are allowed";
@@ -15794,7 +15799,6 @@ var Animate;
                 // Upload each file
                 for (var i = 0; i < input.files.length; i++) {
                     var file = input.files[i];
-                    //that.uploadFile(file, apiUrl);
                     that.$uploader.uploadFile(file, apiUrl);
                 }
                 // Reset the value
@@ -15810,7 +15814,7 @@ var Animate;
         /**
         * Attempts to update the selected entity
         */
-        FileViewerForm.prototype.update = function (token) {
+        FileViewerForm.prototype.updateFile = function (token) {
             var that = this, details = Animate.User.get.userEntry;
             that.$loading = true;
             that.$errorMsg = "";
@@ -15835,7 +15839,6 @@ var Animate;
                 that.$errorMsg = "An error occurred while connecting to the server. " + err.status + ": " + err.responseText;
                 Animate.Compiler.digest(that._browserElm, that);
             });
-            ;
         };
         /** Gets the singleton instance. */
         FileViewerForm.getSingleton = function () {
@@ -19487,42 +19490,56 @@ var Animate;
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
-            //// Attaching text
-            //var content = 'Some user defined text!';
-            //var blob = new Blob([content], { type: "text/plain" });
-            //formData.append('text-example', blob);
-            //// Attaching array buffer
-            //var ab = new ArrayBuffer(1024);
-            //var v = new Uint8Array(ab);
-            //for (var i = 0; i < 1024; i++)
-            //    v[i] = 0x78;
-            //var b = new Blob([ab], { type: "application/octet-stream" });
-            //formData.append('buffer-example', b);
             formData.append(file.name, file);
-            return this.upload(formData, url, file.name);
+            this.upload(formData, url, file.name);
         };
-        FileUploader.prototype.getBase64Image = function (img) {
-            // Create an empty canvas element
-            var canvas = document.createElement("canvas");
-            canvas.width = img.width;
-            canvas.height = img.height;
-            // Copy the image contents to the canvas
-            var ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
+        /*
+        * Uploads an image or canvas as a png or jpeg
+        * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
+         * @param {string} name The name to give it
+        * @param {string} url The URL to use
+        * @param {any} meta [Optional] Any additional meta to be associated with the upload
+        */
+        FileUploader.prototype.upload2DElement = function (img, name, url, meta) {
+            var canvas;
+            if (img instanceof HTMLImageElement) {
+                // Create an empty canvas element
+                canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                // Copy the image contents to the canvas
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+            }
             // Get the data-URL formatted image
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
             // will re-encode the image.
             var dataURL = canvas.toDataURL("image/png");
-            var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
-            // write the bytes of the string to an ArrayBuffer
+            // Convert the dataURL to pure base 64
+            //var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+            // convert base64 to raw binary data held in a string
+            // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+            var byteString = atob(dataURL.split(',')[1]);
+            // separate out the mime component
+            var mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+            // Write the bytes of the string to an ArrayBuffer
             var ab = new ArrayBuffer(byteString.length);
             var ia = new Uint8Array(ab);
             for (var i = 0; i < byteString.length; i++)
                 ia[i] = byteString.charCodeAt(i);
-            // write the ArrayBuffer to a blob, and you're done
-            var bb = new Blob([ab]);
-            return byteString;
+            // Create the blob and set the buffer
+            var blob;
+            if (dataURL.indexOf("png"))
+                blob = new Blob([ab], { type: mimeString });
+            else
+                blob = new Blob([ab], { type: mimeString });
+            var formData = new FormData();
+            // Attaching meta
+            if (meta)
+                formData.append('meta', JSON.stringify(meta));
+            formData.append(name, blob);
+            this.upload(formData, url, name);
         };
         /*
        * Uploads a file to the users storage api
@@ -19618,8 +19635,10 @@ var Animate;
                         errorMsg = "XHR returned response code : " + xhr.status;
                     else {
                         var data = JSON.parse(xhr.responseText);
-                        if (data.error)
+                        if (data.error) {
                             errorMsg = data.message;
+                            comp(new Error(errorMsg));
+                        }
                         else {
                             if (that._downloads.length == 0) {
                                 if (comp) {

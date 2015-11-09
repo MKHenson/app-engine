@@ -143,11 +143,12 @@ module Animate
 			if ( this._selectedItem )
 				this._popupContainer.addChild( this._selectedItem );
 		
-			this.addChild( item );
+            this.addChild(item);
+            this._selectedItem = item;
 			var e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, "clicked" );
 			this.dispatchEvent( e );
 			e.dispose();
-			this._selectedItem = item;
+			
 			return;
         }
 

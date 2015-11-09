@@ -1140,6 +1140,7 @@ declare module Animate {
         static USERS: string;
         static HOST: string;
         static API: string;
+        static BUCKET: string;
         static PLAN_FREE: string;
         static PLAN_BRONZE: string;
         static PLAN_SILVER: string;
@@ -5445,6 +5446,7 @@ declare module Animate {
         private $errorMsg;
         private $search;
         private $entries;
+        private $folders;
         private $confirmDelete;
         private $newFolder;
         private $editMode;
@@ -5456,7 +5458,7 @@ declare module Animate {
         extensions: Array<string>;
         selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
         selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
-        selectedFolder: UsersInterface.IBucketEntry;
+        selectedFolder: string;
         multiSelect: boolean;
         /**
         * Creates an instance of the file uploader form
@@ -5474,7 +5476,7 @@ declare module Animate {
         /**
         * Attempts to open a folder
         */
-        openFolder(folder: UsersInterface.IBucketEntry): void;
+        openFolder(folder: string): void;
         /**
         * Creates a new folder
         */
@@ -5516,7 +5518,7 @@ declare module Animate {
         /**
         * Attempts to update the selected entity
         */
-        update(token: Engine.IFile): void;
+        updateFile(token: Engine.IFile): void;
         /** Gets the singleton instance. */
         static getSingleton(): FileViewerForm;
     }
@@ -6433,7 +6435,7 @@ declare module Animate {
         constructor(onProg?: ProgressCallback, onComp?: CompleteCallback);
         numDownloads: number;
         uploadFile(file: File, url: string, meta?: any): void;
-        getBase64Image(img: HTMLImageElement): string;
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, url: string, meta?: any): void;
         uploadArrayBuffer(array: ArrayBuffer, name: string, url: string, meta?: any): void;
         uploadTextAsFile(text: string, name: string, url: string, meta?: any): void;
         upload(form: FormData, url: string, identifier: string): void;
