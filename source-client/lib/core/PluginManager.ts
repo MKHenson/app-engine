@@ -13,7 +13,8 @@ module Animate
 		private _assetTemplates: Array<AssetTemplate>;
 		private _converters: Array<TypeConverter>;
 		private _dataTypes: Array<string>;
-		private scriptTemplate: BehaviourDefinition;
+        private scriptTemplate: BehaviourDefinition;
+        private _imgVisualizer: ImageVisualizer;
 
 		constructor()
 		{
@@ -53,7 +54,9 @@ module Animate
 			this._loadedPlugins = [];
 
 			BehaviourPicker.getSingleton().list.addItem( "Asset" );
-			BehaviourPicker.getSingleton().list.addItem( "Script" );
+            BehaviourPicker.getSingleton().list.addItem("Script");
+
+            this._imgVisualizer = new ImageVisualizer();
 		}
 
 		/**
@@ -423,37 +426,44 @@ module Animate
 
 		/**
 		* This function is called when we need to create a preview for a file that is associated with a project
-		* @param {File} file The file that needs to be previewed
+		* @param {Engine.IFile} file The file that needs to be previewed
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		*/
-		displayPreview( file: File, previewComponent: Component )
-		{
-            var firstChild = previewComponent.element.children(":first");
-            var firstComp = <Component>firstChild.data("component");
+        displayPreview(file: Engine.IFile, previewComponent: HTMLDivElement): Node
+        {
+            var toRet = this._imgVisualizer.generate(file);
+            if (toRet)
+                return toRet;
+            
 
-			if ( firstComp )
-				firstComp.dispose();
+            return null;
+            
+   //         var firstChild = previewComponent.element.children(":first");
+   //         var firstComp = <Component>firstChild.data("component");
 
-			previewComponent.element.empty();
-			previewComponent.element.css( { "min-width": "" });
-			var w : number = previewComponent.element.width();
+			//if ( firstComp )
+			//	firstComp.dispose();
 
-			if ( file )
-			{
-				var i = this._plugins.length;
-				while ( i-- )
-				{
-					var handled = this._plugins[i].onDisplayPreview( file, previewComponent );
-					if ( handled )
-					{
+			//previewComponent.element.empty();
+			//previewComponent.element.css( { "min-width": "" });
+			//var w : number = previewComponent.element.width();
 
-						var childW : number = firstChild.outerWidth( true );
+			//if ( file )
+			//{
+			//	var i = this._plugins.length;
+			//	while ( i-- )
+			//	{
+			//		var handled = this._plugins[i].onDisplayPreview( file, previewComponent );
+			//		if ( handled )
+			//		{
 
-						previewComponent.element.css( { "min-width": ( childW > w ? childW.toString() : "" ) + "px" });
-						break;
-					}
-				}
-			}
+			//			var childW : number = firstChild.outerWidth( true );
+
+			//			previewComponent.element.css( { "min-width": ( childW > w ? childW.toString() : "" ) + "px" });
+			//			break;
+			//		}
+			//	}
+			//}
 		}
 
 		get dataTypes(): Array<string> { return this._dataTypes; }

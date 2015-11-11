@@ -129,10 +129,12 @@
         extension?: string;
         previewUrl ?: string;
         global ?: boolean;
-        favourite ?: boolean;
+        favourite?: boolean;
+        browsable?: boolean;
         size ?: number;
         shallowId?: number;
         bucketId?: string;
+        bucketName?: string;
         identifier?: string;
     }
 }

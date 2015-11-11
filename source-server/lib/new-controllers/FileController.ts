@@ -14,14 +14,10 @@ import * as request from "request"
 */
 export class FileController extends Controller
 {
-    private _bucketId: string;
-
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
         super([new FileModel()]);
-
-        this._bucketId = "webinate-hatchery";
-
+        
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -140,7 +136,10 @@ export class FileController extends Controller
             query.favourite = true;
 
         // Check for bucket ID
-        query.bucketId = this._bucketId;
+        if (params.bucket)
+            query.bucketName = params.bucket;
+
+        query.browsable = true;
     }
 
     /**
@@ -217,12 +216,14 @@ export class FileController extends Controller
         for (var i = 0, l = files.length; i < l; i++)
             promises.push(model.createInstance<Engine.IFile>(<Engine.IFile>{
                 bucketId: files[i].bucketId,
+                bucketName: files[i].bucketName,
                 user: files[i].user,
                 url: files[i].publicURL,
                 extension: files[i].mimeType,
                 name: files[i].name,
                 identifier: files[i].identifier,
-                size: files[i].size
+                size: files[i].size,
+                browsable: (files[i].meta && files[i].meta.browsable ? true : false )
             }))
 
         // Save it in the DB

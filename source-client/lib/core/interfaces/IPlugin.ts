@@ -20,7 +20,7 @@ module Animate
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
-		onDisplayPreview(file: File, previewComponent: Component) : boolean;
+        onDisplayPreview(file: Engine.IFile, previewComponent: Component) : boolean;
         
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.

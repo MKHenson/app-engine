@@ -30,8 +30,8 @@ module Animate
 	/**
 	* This form is used to load and select assets.
 	*/
-	export class FileViewerForm extends Window
-	{
+    export class FileViewerForm extends Window
+    {
         private static _singleton: FileViewerForm;
         
         // New variables
@@ -61,15 +61,15 @@ module Animate
         /**
         * Creates an instance of the file uploader form
         */
-		constructor()
-		{
-			FileViewerForm._singleton = this;
+        constructor()
+        {
+            FileViewerForm._singleton = this;
             var that = this;
 
-			// Call super-class constructor
+            // Call super-class constructor
             super(1000, 600, true, true, "Asset Browser");
             this.element.attr("id", "file-viewer-window");
-            
+
             this._browserElm = jQuery("#file-viewer").remove().clone();
             this.content.element.append(this._browserElm);
             this.$newFolder = false;
@@ -94,10 +94,12 @@ module Animate
 
             // Create the file uploader
             this.$uploader = new FileUploader(
-                function (loaded: number) {
+                function (loaded: number)
+                {
                     Compiler.digest(that._browserElm, that);
                 },
-                function (err: Error) {
+                function (err: Error)
+                {
                     if (err)
                     {
                         that.$errorMsg = err.message;
@@ -114,7 +116,7 @@ module Animate
             // Creates the filter options drop down
             var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
                 new ToolbarItem("media/assets-user.png", "Filter by My Files"),
-                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),                
+                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
                 new ToolbarItem("media/assets-global.png", "Filter by Global Files")
             ]);
 
@@ -140,10 +142,10 @@ module Animate
                 helper: "ui-resizable-helper"
             });
 
-            jQuery(".file-items", this.element).on( 'dragexit', this.onDragLeave.bind( this ) );
-            jQuery(".file-items", this.element).on( 'dragleave', this.onDragLeave.bind( this ) );
-            jQuery(".file-items", this.element).on( 'dragover', this.onDragOver.bind( this ) );
-            jQuery(".file-items", this.element).on( 'drop', this.onDrop.bind( this ) );
+            jQuery(".file-items", this.element).on('dragexit', this.onDragLeave.bind(this));
+            jQuery(".file-items", this.element).on('dragleave', this.onDragLeave.bind(this));
+            jQuery(".file-items", this.element).on('dragover', this.onDragOver.bind(this));
+            jQuery(".file-items", this.element).on('drop', this.onDrop.bind(this));
         }
 
         /**
@@ -152,11 +154,10 @@ module Animate
         */
         getThumbnail(file: Engine.IFile): string
         {
-            file.previewUrl
-            if (file.extension == "image/jpg" || file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif")
-                return file.url;
-
-            return "./media/appling.png";
+            if (file.previewUrl)
+                return file.previewUrl;
+            else
+                return "./media/appling.png";
         }
 
         /**
@@ -226,11 +227,30 @@ module Animate
             this.$confirmDelete = !this.$confirmDelete;
             if (this.$confirmDelete)
             {
-                var fileType = (this.selectedFolder ? "file" : "folder");
-                this.$errorMsg = `Are you sure you want to delete ${(this.selectedEntities.length > 1 ? `these [${this.selectedEntities.length}]` : "the ") } ${fileType}${(this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'")}`;
+                //var fileType = (this.selectedFolder ? "file" : "folder");
+                var fileType = "file";
+                this.$errorMsg = `Are you sure you want to delete ${(this.selectedEntities.length > 1 ? `these [${this.selectedEntities.length}]` : "the ") } ${fileType}${(this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'") }`;
             }
             else
                 this.$errorMsg = "";
+        }
+
+
+
+        getPreview(file: Engine.IFile)
+        {
+            var preview = <HTMLDivElement>this._browserElm[0].querySelector("#file-preview");
+            //document.getElementById("file-preview");
+            var child = PluginManager.getSingleton().displayPreview(file, preview);
+            var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
+
+            if (curChild && child != curChild)
+                preview.removeChild(preview.childNodes[0]);
+
+            if (child && curChild != child)
+                preview.appendChild(child);
+            //jQuery(preview).empty();
+            //jQuery(preview).append(jQuery(`<div class="img-preview"><div class="preview-child background-tiles"><div class="inner"><img class="vert-align" src="${file.url}" /><div class="div-center"></div></div></div></div>`));
         }
 
         /**
@@ -246,7 +266,7 @@ module Animate
 
             if (entity.selected)
             {
-                if (this.multiSelect && this._shiftkey == false )
+                if (this.multiSelect && this._shiftkey == false)
                 {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (<any>ents[i]).selected = false;
@@ -267,9 +287,9 @@ module Animate
             // Set the selected file
             //if (this.selectedFolder)
             //{
-                var f = this.$selectedFile = <Engine.IFile>this.selectedEntity;
-                if (f)
-                    this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
+            var f = this.$selectedFile = <Engine.IFile>this.selectedEntity;
+            if (f)
+                this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
             ///}
             //else
             //    this.$selectedFile = null;
@@ -290,14 +310,14 @@ module Animate
             var entities = "";
 
             //if (this.selectedFolder)
-                for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                    entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
+            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
+                entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
             //else
             //    for (var i = 0, l = this.selectedEntities.length; i < l; i++)
             //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-            jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete"}).then(function (token: UsersInterface.IResponse)
+            jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete" }).then(function (token: UsersInterface.IResponse)
             {
                 if (token.error)
                     that.$errorMsg = token.message;
@@ -328,15 +348,15 @@ module Animate
             
             //if (this.selectedFolder)
             //{
-                if (this._searchType == FileSearchType.Project)
-                    command = `${DB.API}/files/${details.username}/${project.entry._id}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}`
-                else
-                    command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}`
+            if (this._searchType == FileSearchType.Project)
+                command = `${DB.API}/files/${details.username}/${project.entry._id}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
+            else
+                command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
             //}
             //else
             //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
 
-            jQuery.getJSON(command).then(function (token : UsersInterface.IGetFiles)
+            jQuery.getJSON(command).then(function (token: UsersInterface.IGetFiles)
             {
                 if (token.error)
                 {
@@ -358,35 +378,35 @@ module Animate
 		/**
 		* Called when we are dragging over the item
 		*/
-		onDragOver( e )
-		{
-			if ( this.visible )
-			{
-				var items = e.originalEvent.dataTransfer.items;
-				if ( items.length > 0 )
-				{
-                    if (!jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
-                        jQuery( ".file-items", this.element ).addClass( "drag-here" );
-				}
-                else if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
-                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
+        onDragOver(e)
+        {
+            if (this.visible)
+            {
+                var items = e.originalEvent.dataTransfer.items;
+                if (items.length > 0)
+                {
+                    if (!jQuery(".file-items", this.element).hasClass("drag-here"))
+                        jQuery(".file-items", this.element).addClass("drag-here");
+                }
+                else if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
 
-			}
+            }
 
-			e.preventDefault();
-			e.stopPropagation();
-		}
+            e.preventDefault();
+            e.stopPropagation();
+        }
         
 		/**
 		* Called when we are no longer dragging items.
 		*/
-		onDragLeave( e )
-		{
-			if ( this.visible )
-			{
-                if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
-                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
-			}
+        onDragLeave(e)
+        {
+            if (this.visible)
+            {
+                if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
+            }
         }
 
         /**
@@ -424,35 +444,84 @@ module Animate
 		/**
 		* Called when we are no longer dragging items.
 		*/
-        onDrop(e: JQueryEventObject )
-		{
-			if ( this.visible )
-			{
-                if (jQuery( ".file-items", this.element ).hasClass( "drag-here" ) )
-                    jQuery( ".file-items", this.element ).removeClass( "drag-here" );
+        onDrop(e: JQueryEventObject)
+        {
+            var details = User.get.userEntry;
 
-				e.preventDefault();
-				e.stopPropagation();
+            if (this.visible)
+            {
+                if (jQuery(".file-items", this.element).hasClass("drag-here"))
+                    jQuery(".file-items", this.element).removeClass("drag-here");
+
+                e.preventDefault();
+                e.stopPropagation();
 
                 var files = (<DragEvent>e.originalEvent).dataTransfer.files;
-				if ( files.length > 0 )
+                if (files.length > 0)
                 {
                     // Make sure the file types are allowed
                     if (!this.checkIfAllowed(files))
                     {
-                        this.$errorMsg = `Only ${this.extensions.join(', ')} file types are allowed`;
+                        this.$errorMsg = `Only ${this.extensions.join(', ') } file types are allowed`;
                         Compiler.digest(this._browserElm, this);
                         return false;
                     }
 
                     // Now upload each file
-                    for (var i: number = 0, l = files.length; i < l; i++ )
-                        this.$uploader.uploadFile(files[i], `${DB.USERS}/media/upload/${DB.BUCKET}`);
+                    for (var i: number = 0, l = files.length; i < l; i++)
+                        this.$uploader.uploadFile(files[i], null, { browsable: true });
 
-					return false;
-				}
-			}
-		}
+                    return false;
+                }
+            }
+        }
+
+        /**
+		* Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
+        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+        * @param {Engine.IFile} file The target file we are setting the preview for
+		*/
+        uploadPreview(preview: HTMLCanvasElement | HTMLImageElement, file: Engine.IFile)
+        {
+            var that = this;
+            var details = User.get.userEntry;
+            var loaderDiv = jQuery(".preview-loader", this._browserElm);
+            loaderDiv.css({ "width": "0%", "height": "1px" });
+
+            var fu = new FileUploader(function (p)
+            {
+                loaderDiv.css({ "width": p + "%", "height": "1px"} );
+
+            }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>)
+            {
+                loaderDiv.css({ "width": "", "height" : "" });
+                if (err)
+                {
+                    Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                    return;
+                }
+                else
+                {
+                    // TODO: Finish this preview stuff off
+                    //jQuery.ajax(`${DB.API}/files/${details.username}/${file._id}`, {
+                    //    type: "put",
+                    //    data: JSON.stringify({ _id: file._id, previewUrl: tokens[1]. }),
+                    //    contentType: 'application/json;charset=UTF-8',
+                    //    dataType: "json"
+                    //}).then(function (token: UsersInterface.IResponse)
+                    //{
+                    //    if (token.error)
+                    //        Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                        
+                    //}).fail(function (err: JQueryXHR)
+                    //{
+                    //    Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, null, LogType.ERROR);
+                    //});                    
+                }
+            });
+
+            fu.upload2DElement(preview, file.name + "-preview", null, { browsable: false, reference : file._id });
+        }
 
 		/**
 		* Shows the window.
@@ -467,7 +536,7 @@ module Animate
             var that = this,
                 details = User.get.userEntry,
                 extensions = this.extensions,
-                apiUrl = ""; 
+                apiUrl = "";
 
             // Call update and redraw the elements
             this.$pager.invalidate();
@@ -477,7 +546,7 @@ module Animate
                 var input = <HTMLInputElement>this;
 
                 //if (that.selectedFolder)
-                apiUrl = `${DB.USERS}/media/upload/${DB.BUCKET}`;
+                //  apiUrl = `${DB.USERS}/media/upload/${details.username}-bucket`;
                 //else
                 //    return;
 
@@ -493,7 +562,7 @@ module Animate
                 for (var i = 0; i < input.files.length; i++)
                 {
                     var file = input.files[i];
-                    that.$uploader.uploadFile(file, apiUrl);
+                    that.$uploader.uploadFile(file, null, { browsable: true });
                 }
 
                 // Reset the value

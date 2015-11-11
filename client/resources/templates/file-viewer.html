@@ -111,14 +111,8 @@
 				<div en-show="!ctrl.$editMode" class="button" en-click="ctrl.$editMode = !ctrl.$editMode;"><a><span class="edit-icon">✎</span>Edit</a></div>
 				<h2>{{ctrl.$selectedFile.name}}</h2>
 				<div class="file-stats" en-show="!ctrl.$editMode">
-					<div class="img-preview">
-						<div class="preview-child background-tiles">
-							<div class="inner">
-								<img class="vert-align" en-src="ctrl.$selectedFile.url" />
-								<div class="div-center"></div>
-							</div>
-						</div>
-					</div>
+					<div class="preview-loader reg-gradient"></div>
+					<div id="file-preview" en-init="ctrl.getPreview(ctrl.$selectedFile)"></div>					
 					<div><span class="info">Owner: </span><span class="detail"><b>{{ctrl.$selectedFile.user}}</b></span></div>
 					<div><span class="info">Created On: </span><span class="detail">{{new Date(ctrl.$selectedFile.createdOn).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.createdOn).toLocaleTimeString()}}</span></div>
 					<div class="info-divider background-view-light"></div>
@@ -131,7 +125,7 @@
 					<div><span class="info">Favourite: </span><span class="detail">{{ctrl.$selectedFile.favourite}}</span></div>
 					<div><span class="info">Last Modified On: </span><span class="detail">{{new Date(ctrl.$selectedFile.lastModified).toLocaleDateString()}} {{new Date(ctrl.$selectedFile.lastModified).toLocaleTimeString()}}</span></div>
 				</div>
-				<div en-show="ctrl.$editMode">
+				<div class="file-stats" en-show="ctrl.$editMode">
 					<div class="info-divider background-view-light"></div>
 					<div>
 						<span class="info">Name:</span><span class="detail"><input id="file-name" class="background-view-light" en-model="ctrl.$fileToken.name" /></span>

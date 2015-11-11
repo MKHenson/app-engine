@@ -121,6 +121,7 @@ declare module UsersInterface
         mimeType?: string;
         isPublic?: boolean;
         numDownloads?: number;
+        meta?: any;
     }
 
     /**

@@ -1459,6 +1459,7 @@ var Animate;
             this._loadedPlugins = [];
             Animate.BehaviourPicker.getSingleton().list.addItem("Asset");
             Animate.BehaviourPicker.getSingleton().list.addItem("Script");
+            this._imgVisualizer = new Animate.ImageVisualizer();
         }
         /**
         * Updates an assets value as well as any components displaying the asset.
@@ -1746,28 +1747,35 @@ var Animate;
         };
         /**
         * This function is called when we need to create a preview for a file that is associated with a project
-        * @param {File} file The file that needs to be previewed
+        * @param {Engine.IFile} file The file that needs to be previewed
         * @param {Component} previewComponent The component which will act as the parent div of the preview.
         */
         PluginManager.prototype.displayPreview = function (file, previewComponent) {
-            var firstChild = previewComponent.element.children(":first");
-            var firstComp = firstChild.data("component");
-            if (firstComp)
-                firstComp.dispose();
-            previewComponent.element.empty();
-            previewComponent.element.css({ "min-width": "" });
-            var w = previewComponent.element.width();
-            if (file) {
-                var i = this._plugins.length;
-                while (i--) {
-                    var handled = this._plugins[i].onDisplayPreview(file, previewComponent);
-                    if (handled) {
-                        var childW = firstChild.outerWidth(true);
-                        previewComponent.element.css({ "min-width": (childW > w ? childW.toString() : "") + "px" });
-                        break;
-                    }
-                }
-            }
+            var toRet = this._imgVisualizer.generate(file);
+            if (toRet)
+                return toRet;
+            return null;
+            //         var firstChild = previewComponent.element.children(":first");
+            //         var firstComp = <Component>firstChild.data("component");
+            //if ( firstComp )
+            //	firstComp.dispose();
+            //previewComponent.element.empty();
+            //previewComponent.element.css( { "min-width": "" });
+            //var w : number = previewComponent.element.width();
+            //if ( file )
+            //{
+            //	var i = this._plugins.length;
+            //	while ( i-- )
+            //	{
+            //		var handled = this._plugins[i].onDisplayPreview( file, previewComponent );
+            //		if ( handled )
+            //		{
+            //			var childW : number = firstChild.outerWidth( true );
+            //			previewComponent.element.css( { "min-width": ( childW > w ? childW.toString() : "" ) + "px" });
+            //			break;
+            //		}
+            //	}
+            //}
         };
         Object.defineProperty(PluginManager.prototype, "dataTypes", {
             get: function () { return this._dataTypes; },
@@ -2707,7 +2715,6 @@ var Animate;
         DB.USERS = "http://webinate-test.net:8000";
         DB.HOST = "http://animate.webinate-test.net";
         DB.API = "http://animate.webinate-test.net/app-engine";
-        DB.BUCKET = "webinate-hatchery";
         DB.PLAN_FREE = "animate-free";
         DB.PLAN_BRONZE = "animate-bronze";
         DB.PLAN_SILVER = "animate-silver";
@@ -4747,6 +4754,54 @@ var Animate;
         return PageLoader;
     })();
     Animate.PageLoader = PageLoader;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    var ImageVisualizer = (function () {
+        function ImageVisualizer() {
+            this._maxPreviewSize = 200;
+        }
+        /**
+        * This function generates some an html node that is used to preview a file
+        */
+        ImageVisualizer.prototype.generate = function (file) {
+            if (file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif" || file.extension == "image/bmp" || file.extension == "image/jpg") {
+                var size = this._maxPreviewSize;
+                var k = document.createDocumentFragment();
+                var d = k.appendChild(document.createElement("div"));
+                d.innerHTML = "<div class=\"img-preview\"><div class=\"preview-child background-tiles\"><div class=\"inner\"><img class=\"vert-align\" src=\"" + file.url + "\" /><div class=\"div-center\"></div></div></div></div>";
+                // If no preview exists, lets create one
+                if (!file.previewUrl || file.previewUrl.toString().trim() == "") {
+                    var img = d.querySelector("img");
+                    img.crossOrigin = "Anonymous";
+                    img.onload = function (e) {
+                        // Resize the image
+                        var canvas = document.createElement('canvas'), width = img.width, height = img.height;
+                        if (width > height) {
+                            if (width > size) {
+                                height *= size / width;
+                                width = size;
+                            }
+                        }
+                        else {
+                            if (height > size) {
+                                width *= size / height;
+                                height = size;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        Animate.FileViewerForm.getSingleton().uploadPreview(canvas, file);
+                    };
+                }
+                return k.firstChild;
+            }
+            return null;
+        };
+        return ImageVisualizer;
+    })();
+    Animate.ImageVisualizer = ImageVisualizer;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -15541,10 +15596,10 @@ var Animate;
         * @returns {string}
         */
         FileViewerForm.prototype.getThumbnail = function (file) {
-            file.previewUrl;
-            if (file.extension == "image/jpg" || file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif")
-                return file.url;
-            return "./media/appling.png";
+            if (file.previewUrl)
+                return file.previewUrl;
+            else
+                return "./media/appling.png";
         };
         /**
         * Specifies the type of file search
@@ -15598,11 +15653,24 @@ var Animate;
         FileViewerForm.prototype.confirmDelete = function () {
             this.$confirmDelete = !this.$confirmDelete;
             if (this.$confirmDelete) {
-                var fileType = (this.selectedFolder ? "file" : "folder");
+                //var fileType = (this.selectedFolder ? "file" : "folder");
+                var fileType = "file";
                 this.$errorMsg = "Are you sure you want to delete " + (this.selectedEntities.length > 1 ? "these [" + this.selectedEntities.length + "]" : "the ") + " " + fileType + (this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'");
             }
             else
                 this.$errorMsg = "";
+        };
+        FileViewerForm.prototype.getPreview = function (file) {
+            var preview = this._browserElm[0].querySelector("#file-preview");
+            //document.getElementById("file-preview");
+            var child = Animate.PluginManager.getSingleton().displayPreview(file, preview);
+            var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
+            if (curChild && child != curChild)
+                preview.removeChild(preview.childNodes[0]);
+            if (child && curChild != child)
+                preview.appendChild(child);
+            //jQuery(preview).empty();
+            //jQuery(preview).append(jQuery(`<div class="img-preview"><div class="preview-child background-tiles"><div class="inner"><img class="vert-align" src="${file.url}" /><div class="div-center"></div></div></div></div>`));
         };
         /**
         * Sets the selected status of a file or folder
@@ -15682,9 +15750,9 @@ var Animate;
             //if (this.selectedFolder)
             //{
             if (this._searchType == FileSearchType.Project)
-                command = Animate.DB.API + "/files/" + details.username + "/" + project.entry._id + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search;
+                command = Animate.DB.API + "/files/" + details.username + "/" + project.entry._id + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + details.username + "-bucket";
             else
-                command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search;
+                command = Animate.DB.API + "/files/" + details.username + "/?index=" + index + "&limit=" + limit + "&favourite=" + this.$onlyFavourites + "&search=" + that.$search + "&bucket=" + details.username + "-bucket";
             //}
             //else
             //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
@@ -15752,6 +15820,7 @@ var Animate;
         * Called when we are no longer dragging items.
         */
         FileViewerForm.prototype.onDrop = function (e) {
+            var details = Animate.User.get.userEntry;
             if (this.visible) {
                 if (jQuery(".file-items", this.element).hasClass("drag-here"))
                     jQuery(".file-items", this.element).removeClass("drag-here");
@@ -15767,10 +15836,32 @@ var Animate;
                     }
                     // Now upload each file
                     for (var i = 0, l = files.length; i < l; i++)
-                        this.$uploader.uploadFile(files[i], Animate.DB.USERS + "/media/upload/" + Animate.DB.BUCKET);
+                        this.$uploader.uploadFile(files[i], null, { browsable: true });
                     return false;
                 }
             }
+        };
+        /**
+        * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
+        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+        * @param {Engine.IFile} file The target file we are setting the preview for
+        */
+        FileViewerForm.prototype.uploadPreview = function (preview, file) {
+            var loaderDiv = jQuery(".preview-loader", this._browserElm);
+            loaderDiv.css({ "width": "0%", "height": "1px" });
+            var fu = new Animate.FileUploader(function (p) {
+                loaderDiv.css({ "width": p + "%", "height": "1px" });
+            }, function (err, tokens) {
+                loaderDiv.css({ "width": "", "height": "" });
+                if (err) {
+                    Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                    return;
+                }
+                else {
+                    Animate.MessageBox.show("Preview uploaded");
+                }
+            });
+            fu.upload2DElement(preview, file.name + "-preview", null, { browsable: false, reference: file._id });
         };
         /**
         * Shows the window.
@@ -15787,7 +15878,7 @@ var Animate;
             var onChanged = function () {
                 var input = this;
                 //if (that.selectedFolder)
-                apiUrl = Animate.DB.USERS + "/media/upload/" + Animate.DB.BUCKET;
+                //  apiUrl = `${DB.USERS}/media/upload/${details.username}-bucket`;
                 //else
                 //    return;
                 // Make sure the file types are allowed
@@ -15799,7 +15890,7 @@ var Animate;
                 // Upload each file
                 for (var i = 0; i < input.files.length; i++) {
                     var file = input.files[i];
-                    that.$uploader.uploadFile(file, apiUrl);
+                    that.$uploader.uploadFile(file, null, { browsable: true });
                 }
                 // Reset the value
                 this.value = "";
@@ -19364,6 +19455,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/Utils.ts" />
 /// <reference path="lib/core/User.ts" />
 /// <reference path="lib/core/PageLoader.ts" />
+/// <reference path="lib/core/file-visualizers/ImageVisualizer.ts" />
 /// <reference path="lib/gui/layouts/ILayout.ts" />
 /// <reference path="lib/gui/layouts/Percentile.ts" />
 /// <reference path="lib/gui/layouts/Fill.ts" />
@@ -19511,6 +19603,8 @@ var Animate;
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0);
             }
+            else
+                canvas = img;
             // Get the data-URL formatted image
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
@@ -19578,6 +19672,10 @@ var Animate;
         * @param {string} url The URL to use
         */
         FileUploader.prototype.upload = function (form, url, identifier) {
+            if (!url) {
+                var details = Animate.User.get.userEntry;
+                url = Animate.DB.USERS + "/media/upload/" + details.username + "-bucket";
+            }
             var that = this;
             var xhr = new XMLHttpRequest();
             var id = that._dCount++;
@@ -19637,15 +19735,15 @@ var Animate;
                         var data = JSON.parse(xhr.responseText);
                         if (data.error) {
                             errorMsg = data.message;
-                            comp(new Error(errorMsg));
+                            comp(new Error(errorMsg), null);
                         }
                         else {
                             if (that._downloads.length == 0) {
                                 if (comp) {
                                     if (errorMsg)
-                                        comp(new Error(errorMsg));
+                                        comp(new Error(errorMsg), null);
                                     else
-                                        comp();
+                                        comp(null, data.tokens);
                                 }
                             }
                         }

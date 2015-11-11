@@ -1425,9 +1425,15 @@ span.date {
 }
 .file-stats > div {
     clear:both;
+    margin: 0 0 10px 0;
 }
 .file-details .img-preview {
     margin: 0 0 10px 0;
+}
+.preview-loader {
+    height:0;
+    width:0;
+    margin:0 !important;
 }
 .file-details p {
     white-space: nowrap;
@@ -1437,7 +1443,7 @@ span.date {
 }
 .file-details input {
     width:100%;
-    padding:5px;
+    padding: 2px 5px;
 }
 .file-details .button {
     padding:0;

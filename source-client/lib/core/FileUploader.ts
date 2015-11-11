@@ -1,7 +1,7 @@
 ﻿module Animate
 {
     export type ProgressCallback = (percent: number) => void;
-    export type CompleteCallback = (err?: Error) => void;
+    export type CompleteCallback = (err?: Error, files?: Array<UsersInterface.IUploadToken>) => void;
      
     /*
     * A class that assembles data & files into a form and sends it as an XHR request to a server
@@ -44,7 +44,7 @@
        * @param {string} url The URL to use
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
        */
-        uploadFile(file: File, url: string, meta?: any)
+        uploadFile(file: File, url?: string, meta?: any)
         {
             var formData = new FormData();
 
@@ -78,6 +78,8 @@
                 var ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0);
             }
+            else
+                canvas = <HTMLCanvasElement>img;
             
             // Get the data-URL formatted image
             // Firefox supports PNG and JPEG. You could check img.src to
@@ -164,6 +166,12 @@
         */
         upload(form: FormData, url: string, identifier: string)
         {
+            if (!url)
+            {
+                var details = User.get.userEntry;
+                url = `${DB.USERS}/media/upload/${details.username}-bucket`;
+            }
+
             var that = this;
             var xhr = new XMLHttpRequest();
             var id = that._dCount++;
@@ -243,12 +251,12 @@
                         errorMsg = "XHR returned response code : " + xhr.status;
                     else
                     {
-                        var data: UsersInterface.IResponse = JSON.parse(xhr.responseText);
+                        var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
 
                         if (data.error)
                         {
                             errorMsg = data.message;
-                            comp(new Error(errorMsg));
+                            comp(new Error(errorMsg), null);
                         }
                         else
                         {
@@ -257,9 +265,9 @@
                                 if (comp)
                                 {
                                     if (errorMsg)
-                                        comp(new Error(errorMsg));
+                                        comp(new Error(errorMsg), null);
                                     else
-                                        comp();
+                                        comp(null, data.tokens);
                                 }
                             }
                         }

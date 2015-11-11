@@ -85,6 +85,7 @@
     <TypeScriptCompile Include="lib\core\DB.ts" />
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
     <TypeScriptCompile Include="lib\core\Enums.ts" />
+    <TypeScriptCompile Include="lib\core\file-visualizers\ImageVisualizer.ts" />
     <TypeScriptCompile Include="lib\core\File.ts" />
     <TypeScriptCompile Include="lib\core\FileUploader.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.ts" />
