@@ -713,10 +713,8 @@ var Animate;
                     var prevIterables = instance.$clonedData.items;
                     for (var i in iterable) {
                         numItems++;
-                        if (prevIterables[i] !== undefined && prevIterables[i] != iterable[i]) {
+                        if (prevIterables[i] !== undefined && prevIterables[i] != iterable[i])
                             mustRebuild = true;
-                            break;
-                        }
                     }
                     if (instance.$clonedData.length != numItems)
                         mustRebuild = true;
@@ -1325,6 +1323,20 @@ var Animate;
     var Utils = (function () {
         function Utils() {
         }
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        Utils.put = function (url, data) {
+            // Associate the uploaded preview with the file
+            return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        };
+        /**
+        * A predefined shorthand method for calling deleta methods that use JSON communication
+        */
+        Utils.delete = function (url, data) {
+            // Associate the uploaded preview with the file
+            return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        };
         /*Gets the local mouse position of an event on a given dom element.*/
         Utils.getMousePos = function (evt, id) {
             // get canvas position
@@ -1459,7 +1471,7 @@ var Animate;
             this._loadedPlugins = [];
             Animate.BehaviourPicker.getSingleton().list.addItem("Asset");
             Animate.BehaviourPicker.getSingleton().list.addItem("Script");
-            this._imgVisualizer = new Animate.ImageVisualizer();
+            this._previewVisualizers = [new Animate.ImageVisualizer()];
         }
         /**
         * Updates an assets value as well as any components displaying the asset.
@@ -1746,14 +1758,20 @@ var Animate;
             }
         };
         /**
-        * This function is called when we need to create a preview for a file that is associated with a project
-        * @param {Engine.IFile} file The file that needs to be previewed
-        * @param {Component} previewComponent The component which will act as the parent div of the preview.
+        * This function generates an html node that is used to preview a file
+        * @param {Engine.IFile} file The file we are looking to preview
+        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
+        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
+        * will continue looking for a factory than can preview the file
         */
-        PluginManager.prototype.displayPreview = function (file, previewComponent) {
-            var toRet = this._imgVisualizer.generate(file);
-            if (toRet)
-                return toRet;
+        PluginManager.prototype.displayPreview = function (file, updatePreviewImg) {
+            var toRet;
+            var factories = this._previewVisualizers;
+            for (var i = 0, l = factories.length; i < l; i++) {
+                toRet = factories[i].generate(file, updatePreviewImg);
+                if (toRet)
+                    return toRet;
+            }
             return null;
             //         var firstChild = previewComponent.element.children(":first");
             //         var firstComp = <Component>firstChild.data("component");
@@ -3401,12 +3419,7 @@ var Animate;
         */
         Project.prototype.updateDetails = function (token) {
             var d = jQuery.Deferred();
-            // Attempts to update the model
-            jQuery.ajax(Animate.DB.API + "/projects/" + this.entry.user + "/" + this.entry._id, {
-                type: "put",
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json", data: JSON.stringify(token)
-            }).done(function (data) {
+            Animate.Utils.put(Animate.DB.API + "/projects/" + this.entry.user + "/" + this.entry._id, token).then(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
                 return d.resolve(data);
@@ -4484,13 +4497,7 @@ var Animate;
         User.prototype.updateDetails = function (token) {
             var d = jQuery.Deferred();
             var meta = this.meta;
-            // Attempts to update the model
-            jQuery.ajax(Animate.DB.API + "/user-details/" + this.userEntry.username, {
-                type: "put",
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json",
-                data: JSON.stringify(token)
-            }).done(function (data) {
+            Animate.Utils.put(Animate.DB.API + "/user-details/" + this.userEntry.username, token).then(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
                 else {
@@ -4762,9 +4769,13 @@ var Animate;
             this._maxPreviewSize = 200;
         }
         /**
-        * This function generates some an html node that is used to preview a file
+        * This function generates an html node that is used to preview a file
+        * @param {Engine.IFile} file The file we are looking to preview
+        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
+        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
+        * will continue looking for a factory than can preview the file
         */
-        ImageVisualizer.prototype.generate = function (file) {
+        ImageVisualizer.prototype.generate = function (file, updatePreviewImg) {
             if (file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif" || file.extension == "image/bmp" || file.extension == "image/jpg") {
                 var size = this._maxPreviewSize;
                 var k = document.createDocumentFragment();
@@ -4776,7 +4787,7 @@ var Animate;
                     img.crossOrigin = "Anonymous";
                     img.onload = function (e) {
                         // Resize the image
-                        var canvas = document.createElement('canvas'), width = img.width, height = img.height;
+                        var canvas = document.createElement('canvas'), width = img.naturalWidth, height = img.naturalHeight;
                         if (width > height) {
                             if (width > size) {
                                 height *= size / width;
@@ -4792,7 +4803,8 @@ var Animate;
                         canvas.width = width;
                         canvas.height = height;
                         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                        Animate.FileViewerForm.getSingleton().uploadPreview(canvas, file);
+                        // Once the image is loaded - we upload a preview of the image
+                        updatePreviewImg(file, canvas);
                     };
                 }
                 return k.firstChild;
@@ -15662,15 +15674,12 @@ var Animate;
         };
         FileViewerForm.prototype.getPreview = function (file) {
             var preview = this._browserElm[0].querySelector("#file-preview");
-            //document.getElementById("file-preview");
-            var child = Animate.PluginManager.getSingleton().displayPreview(file, preview);
+            var child = Animate.PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
             var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
             if (curChild && child != curChild)
                 preview.removeChild(preview.childNodes[0]);
             if (child && curChild != child)
                 preview.appendChild(child);
-            //jQuery(preview).empty();
-            //jQuery(preview).append(jQuery(`<div class="img-preview"><div class="preview-child background-tiles"><div class="inner"><img class="vert-align" src="${file.url}" /><div class="div-center"></div></div></div></div>`));
         };
         /**
         * Sets the selected status of a file or folder
@@ -15723,7 +15732,7 @@ var Animate;
             //    for (var i = 0, l = this.selectedEntities.length; i < l; i++)
             //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-            jQuery.ajax(mediaURL + "/" + command + "/" + entities, { type: "delete" }).then(function (token) {
+            Animate.Utils.delete(mediaURL + "/" + command + "/" + entities).then(function (token) {
                 if (token.error)
                     that.$errorMsg = token.message;
                 that.$loading = false;
@@ -15836,32 +15845,45 @@ var Animate;
                     }
                     // Now upload each file
                     for (var i = 0, l = files.length; i < l; i++)
-                        this.$uploader.uploadFile(files[i], null, { browsable: true });
+                        this.$uploader.uploadFile(files[i], { browsable: true });
                     return false;
                 }
             }
         };
         /**
         * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
         * @param {Engine.IFile} file The target file we are setting the preview for
+        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
         */
-        FileViewerForm.prototype.uploadPreview = function (preview, file) {
-            var loaderDiv = jQuery(".preview-loader", this._browserElm);
+        FileViewerForm.prototype.uploadPreview = function (file, preview) {
+            var that = FileViewerForm._singleton;
+            var details = Animate.User.get.userEntry;
+            var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
+            // Create the uploader
             var fu = new Animate.FileUploader(function (p) {
+                // Update the loading bar
                 loaderDiv.css({ "width": p + "%", "height": "1px" });
             }, function (err, tokens) {
+                // Remove loading bar
                 loaderDiv.css({ "width": "", "height": "" });
                 if (err) {
                     Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
                     return;
                 }
                 else {
-                    Animate.MessageBox.show("Preview uploaded");
+                    // Associate the uploaded preview with the file
+                    Animate.Utils.put(Animate.DB.API + "/files/" + details.username + "/" + file._id, { previewUrl: tokens[1].url }).then(function (token) {
+                        if (token.error)
+                            Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                        file.previewUrl = tokens[1].url;
+                    }).fail(function (err) {
+                        Animate.Logger.getSingleton().logMessage("An error occurred while connecting to the server. " + err.status + ": " + err.responseText, null, Animate.LogType.ERROR);
+                    });
                 }
             });
-            fu.upload2DElement(preview, file.name + "-preview", null, { browsable: false, reference: file._id });
+            // Starts the upload process
+            fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
         };
         /**
         * Shows the window.
@@ -15890,7 +15912,7 @@ var Animate;
                 // Upload each file
                 for (var i = 0; i < input.files.length; i++) {
                     var file = input.files[i];
-                    that.$uploader.uploadFile(file, null, { browsable: true });
+                    that.$uploader.uploadFile(file, { browsable: true });
                 }
                 // Reset the value
                 this.value = "";
@@ -15911,12 +15933,7 @@ var Animate;
             that.$errorMsg = "";
             that.$confirmDelete = false;
             Animate.Compiler.digest(that._browserElm, that);
-            jQuery.ajax(Animate.DB.API + "/files/" + details.username + "/" + token._id, {
-                type: "put",
-                data: JSON.stringify(token),
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json"
-            }).then(function (token) {
+            Animate.Utils.put(Animate.DB.API + "/files/" + details.username + "/" + token._id, token).then(function (token) {
                 that.$loading = false;
                 if (token.error) {
                     that.$errorMsg = token.message;
@@ -19439,12 +19456,13 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/CanvasToken.ts" />
 /// <reference path="lib/core/DB.ts" />
 /// <reference path="lib/core/File.ts" />
-/// <reference path="lib/core/interfaces/IComponent.ts" />
-/// <reference path="lib/core/interfaces/IPlugin.ts" />
-/// <reference path="lib/core/interfaces/ICanvasItem.ts" />
-/// <reference path="lib/core/interfaces/IComponent.ts" />
-/// <reference path="lib/core/interfaces/IDockItem.ts" />
-/// <reference path="lib/core/interfaces/ISettingsPage.ts" />
+/// <reference path="lib/core/interfaces/IComponent.d.ts" />
+/// <reference path="lib/core/interfaces/IPlugin.d.ts" />
+/// <reference path="lib/core/interfaces/ICanvasItem.d.ts" />
+/// <reference path="lib/core/interfaces/IComponent.d.ts" />
+/// <reference path="lib/core/interfaces/IDockItem.d.ts" />
+/// <reference path="lib/core/interfaces/ISettingsPage.d.ts" />
+/// <reference path="lib/core/interfaces/IPreviewFactory.d.ts" />
 /// <reference path="lib/core/loaders/LoaderBase.ts" />
 /// <reference path="lib/core/loaders/AnimateLoader.ts" />
 /// <reference path="lib/core/loaders/BinaryLoader.ts" />
@@ -19576,23 +19594,24 @@ var Animate;
         * @param {File} file The file we are uploading
         * @param {string} url The URL to use
         * @param {any} meta [Optional] Any additional meta to be associated with the upload
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        FileUploader.prototype.uploadFile = function (file, url, meta) {
+        FileUploader.prototype.uploadFile = function (file, meta, parentFile) {
             var formData = new FormData();
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
             formData.append(file.name, file);
-            this.upload(formData, url, file.name);
+            this.upload(formData, null, file.name, parentFile);
         };
         /*
         * Uploads an image or canvas as a png or jpeg
         * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
-         * @param {string} name The name to give it
-        * @param {string} url The URL to use
-        * @param {any} meta [Optional] Any additional meta to be associated with the upload
+        * @param {string} name The name to give it
+        * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        FileUploader.prototype.upload2DElement = function (img, name, url, meta) {
+        FileUploader.prototype.upload2DElement = function (img, name, meta, parentFile) {
             var canvas;
             if (img instanceof HTMLImageElement) {
                 // Create an empty canvas element
@@ -19609,7 +19628,7 @@ var Animate;
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
             // will re-encode the image.
-            var dataURL = canvas.toDataURL("image/png");
+            var dataURL = canvas.toDataURL();
             // Convert the dataURL to pure base 64
             //var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
             // convert base64 to raw binary data held in a string
@@ -19633,48 +19652,50 @@ var Animate;
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
             formData.append(name, blob);
-            this.upload(formData, url, name);
+            this.upload(formData, null, name, parentFile);
         };
         /*
        * Uploads a file to the users storage api
        * @param {ArrayBuffer} array The array we are uploading
        * @param {string} name The name to give it
-       * @param {string} url The URL to use
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
+       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        FileUploader.prototype.uploadArrayBuffer = function (array, name, url, meta) {
+        FileUploader.prototype.uploadArrayBuffer = function (array, name, meta, parentFile) {
             var formData = new FormData();
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
             formData.append(name, new Blob([array], { type: "application/octet-stream" }));
-            return this.upload(formData, url, name);
+            return this.upload(formData, null, name, parentFile);
         };
         /*
         * Uploads text and saves it as a file on the server
         * @param {string} text The text to upload
         * @param {string} name The name to give it
-        * @param {string} url The URL to use
         * @param {any} meta [Optional] Any additional meta to be associated with the upload
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        FileUploader.prototype.uploadTextAsFile = function (text, name, url, meta) {
+        FileUploader.prototype.uploadTextAsFile = function (text, name, meta, parentFile) {
             var formData = new FormData();
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
             // Attaching text
             formData.append(name, new Blob([text], { type: "text/plain" }));
-            return this.upload(formData, url, name);
+            return this.upload(formData, null, name, parentFile);
         };
         /*
         * Uploads a file to the users storage api
         * @param {FormData} file The file we are uploading
         * @param {string} url The URL to use
+        * @param {string} identifier Helps identify the upload
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        FileUploader.prototype.upload = function (form, url, identifier) {
+        FileUploader.prototype.upload = function (form, url, identifier, parentFile) {
             if (!url) {
                 var details = Animate.User.get.userEntry;
-                url = Animate.DB.USERS + "/media/upload/" + details.username + "-bucket";
+                url = Animate.DB.USERS + "/media/upload/" + details.username + "-bucket" + (parentFile ? "/" + parentFile : "");
             }
             var that = this;
             var xhr = new XMLHttpRequest();

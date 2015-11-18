@@ -26,7 +26,7 @@ module Animate
         User,
         Project
     }
-
+    
 	/**
 	* This form is used to load and select assets.
 	*/
@@ -240,8 +240,7 @@ module Animate
         getPreview(file: Engine.IFile)
         {
             var preview = <HTMLDivElement>this._browserElm[0].querySelector("#file-preview");
-            //document.getElementById("file-preview");
-            var child = PluginManager.getSingleton().displayPreview(file, preview);
+            var child = PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
             var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
 
             if (curChild && child != curChild)
@@ -249,8 +248,6 @@ module Animate
 
             if (child && curChild != child)
                 preview.appendChild(child);
-            //jQuery(preview).empty();
-            //jQuery(preview).append(jQuery(`<div class="img-preview"><div class="preview-child background-tiles"><div class="inner"><img class="vert-align" src="${file.url}" /><div class="div-center"></div></div></div></div>`));
         }
 
         /**
@@ -317,7 +314,7 @@ module Animate
             //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-            jQuery.ajax(`${mediaURL}/${command}/${entities}`, { type: "delete" }).then(function (token: UsersInterface.IResponse)
+            Utils.delete(`${mediaURL}/${command}/${entities}`).then(function (token: UsersInterface.IResponse)
             {
                 if (token.error)
                     that.$errorMsg = token.message;
@@ -469,7 +466,7 @@ module Animate
 
                     // Now upload each file
                     for (var i: number = 0, l = files.length; i < l; i++)
-                        this.$uploader.uploadFile(files[i], null, { browsable: true });
+                        this.$uploader.uploadFile(files[i], { browsable: true });
 
                     return false;
                 }
@@ -478,22 +475,25 @@ module Animate
 
         /**
 		* Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
         * @param {Engine.IFile} file The target file we are setting the preview for
+        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
 		*/
-        uploadPreview(preview: HTMLCanvasElement | HTMLImageElement, file: Engine.IFile)
+        uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement)
         {
-            var that = this;
+            var that = FileViewerForm._singleton;
             var details = User.get.userEntry;
-            var loaderDiv = jQuery(".preview-loader", this._browserElm);
+            var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
 
+            // Create the uploader
             var fu = new FileUploader(function (p)
             {
+                // Update the loading bar
                 loaderDiv.css({ "width": p + "%", "height": "1px"} );
 
             }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>)
             {
+                // Remove loading bar
                 loaderDiv.css({ "width": "", "height" : "" });
                 if (err)
                 {
@@ -502,25 +502,23 @@ module Animate
                 }
                 else
                 {
-                    // TODO: Finish this preview stuff off
-                    //jQuery.ajax(`${DB.API}/files/${details.username}/${file._id}`, {
-                    //    type: "put",
-                    //    data: JSON.stringify({ _id: file._id, previewUrl: tokens[1]. }),
-                    //    contentType: 'application/json;charset=UTF-8',
-                    //    dataType: "json"
-                    //}).then(function (token: UsersInterface.IResponse)
-                    //{
-                    //    if (token.error)
-                    //        Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
-                        
-                    //}).fail(function (err: JQueryXHR)
-                    //{
-                    //    Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, null, LogType.ERROR);
-                    //});                    
+                    // Associate the uploaded preview with the file
+                    Utils.put(`${DB.API}/files/${details.username}/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse)
+                    {
+                        if (token.error)
+                            Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+
+                        file.previewUrl = tokens[1].url;
+
+                    }).fail(function (err: JQueryXHR)
+                    {
+                        Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, null, LogType.ERROR);
+                    });                    
                 }
             });
 
-            fu.upload2DElement(preview, file.name + "-preview", null, { browsable: false, reference : file._id });
+            // Starts the upload process
+            fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
         }
 
 		/**
@@ -562,7 +560,7 @@ module Animate
                 for (var i = 0; i < input.files.length; i++)
                 {
                     var file = input.files[i];
-                    that.$uploader.uploadFile(file, null, { browsable: true });
+                    that.$uploader.uploadFile(file, { browsable: true });
                 }
 
                 // Reset the value
@@ -592,12 +590,7 @@ module Animate
             that.$confirmDelete = false;
             Compiler.digest(that._browserElm, that);
 
-            jQuery.ajax(`${DB.API}/files/${details.username}/${token._id}`, {
-                type: "put",
-                data: JSON.stringify(token),
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json"
-            }).then(function (token: UsersInterface.IResponse)
+            Utils.put(`${DB.API}/files/${details.username}/${token._id}`, token).then(function (token: UsersInterface.IResponse)
             {
                 that.$loading = false;
                 if (token.error)

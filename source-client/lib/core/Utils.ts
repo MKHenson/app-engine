@@ -1,8 +1,25 @@
 ﻿module Animate
 {
+    export class Utils
+    {
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        static put(url: string, data: any): JQueryXHR
+        {
+            // Associate the uploaded preview with the file
+            return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        }
 
-	export class Utils
-	{
+        /**
+        * A predefined shorthand method for calling deleta methods that use JSON communication
+        */
+        static delete(url: string, data?: any): JQueryXHR
+        {
+            // Associate the uploaded preview with the file
+            return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        }
+
 		/*Gets the local mouse position of an event on a given dom element.*/
 		static getMousePos( evt, id ): any
 		{

@@ -14,7 +14,7 @@ module Animate
 		private _converters: Array<TypeConverter>;
 		private _dataTypes: Array<string>;
         private scriptTemplate: BehaviourDefinition;
-        private _imgVisualizer: ImageVisualizer;
+        private _previewVisualizers: Array<IPreviewFactory>;
 
 		constructor()
 		{
@@ -56,7 +56,7 @@ module Animate
 			BehaviourPicker.getSingleton().list.addItem( "Asset" );
             BehaviourPicker.getSingleton().list.addItem("Script");
 
-            this._imgVisualizer = new ImageVisualizer();
+            this._previewVisualizers = [new ImageVisualizer()];
 		}
 
 		/**
@@ -423,18 +423,24 @@ module Animate
 				}
 			}
 		}
-
+        
 		/**
-		* This function is called when we need to create a preview for a file that is associated with a project
-		* @param {Engine.IFile} file The file that needs to be previewed
-		* @param {Component} previewComponent The component which will act as the parent div of the preview.
-		*/
-        displayPreview(file: Engine.IFile, previewComponent: HTMLDivElement): Node
+        * This function generates an html node that is used to preview a file
+        * @param {Engine.IFile} file The file we are looking to preview
+        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
+        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
+        * will continue looking for a factory than can preview the file
+        */
+        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node
         {
-            var toRet = this._imgVisualizer.generate(file);
-            if (toRet)
-                return toRet;
-            
+            var toRet;
+            var factories = this._previewVisualizers;
+            for (var i = 0, l = factories.length; i < l; i++)
+            {
+                toRet = factories[i].generate(file, updatePreviewImg);
+                if (toRet)
+                    return toRet;
+            }
 
             return null;
             

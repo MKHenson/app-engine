@@ -125,7 +125,6 @@
     {
         url?: string;
         tags ?: Array<string>;
-        previewPath?: string;
         extension?: string;
         previewUrl ?: string;
         global ?: boolean;
@@ -136,6 +135,14 @@
         bucketId?: string;
         bucketName?: string;
         identifier?: string;
+    }
+
+    /**
+    * An interface to describe the meta data we react to with file uploads
+    */
+    export interface IFileMeta extends IResource
+    {
+        browsable: boolean;
     }
 }
 

@@ -1,4 +1,4 @@
-module Animate
+declare module Animate
 {
 	/**
 	* A simple interface for any compent that needs to act as a Docker parent.

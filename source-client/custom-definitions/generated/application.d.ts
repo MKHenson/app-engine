@@ -10,6 +10,12 @@
 /// <reference path="../../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../../source-server/custom-definitions/app-engine.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/IComponent.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/IPlugin.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/ICanvasItem.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/IDockItem.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/ISettingsPage.d.ts" />
+/// <reference path="../../source-client/lib/core/interfaces/IPreviewFactory.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
@@ -665,6 +671,14 @@ declare module Animate {
 }
 declare module Animate {
     class Utils {
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        static put(url: string, data: any): JQueryXHR;
+        /**
+        * A predefined shorthand method for calling deleta methods that use JSON communication
+        */
+        static delete(url: string, data?: any): JQueryXHR;
         static getMousePos(evt: any, id: any): any;
         /**
         * Use this function to check if a value contains characters that break things.
@@ -712,7 +726,7 @@ declare module Animate {
         private _converters;
         private _dataTypes;
         private scriptTemplate;
-        private _imgVisualizer;
+        private _previewVisualizers;
         constructor();
         /**
         * Updates an assets value as well as any components displaying the asset.
@@ -808,11 +822,13 @@ declare module Animate {
         */
         callReady(): void;
         /**
-        * This function is called when we need to create a preview for a file that is associated with a project
-        * @param {Engine.IFile} file The file that needs to be previewed
-        * @param {Component} previewComponent The component which will act as the parent div of the preview.
+        * This function generates an html node that is used to preview a file
+        * @param {Engine.IFile} file The file we are looking to preview
+        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
+        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
+        * will continue looking for a factory than can preview the file
         */
-        displayPreview(file: Engine.IFile, previewComponent: HTMLDivElement): Node;
+        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
         dataTypes: Array<string>;
         assetTemplates: Array<AssetTemplate>;
         loadedPlugins: Array<IPlugin>;
@@ -1146,101 +1162,6 @@ declare module Animate {
         static PLAN_SILVER: string;
         static PLAN_GOLD: string;
         static PLAN_PLATINUM: string;
-    }
-}
-declare module Animate {
-    /**
-    * A simple interface for any component
-    */
-    interface IComponent {
-        element: JQuery;
-        parent: IComponent;
-        dispose(): void;
-        addChild(child: string): IComponent;
-        addChild(child: IComponent): IComponent;
-        addChild(child: any): IComponent;
-        removeChild(child: IComponent): IComponent;
-        update(): void;
-        selected: boolean;
-        savedID: string;
-        id: string;
-        children: Array<IComponent>;
-        clear(): void;
-        disposed: boolean;
-        onDelete(): void;
-    }
-}
-declare module Animate {
-    /**
-    * The IPlugin interface needs to be fully implemented
-    * by plugins. It defines how your plugin interacts with Animate.
-    */
-    interface IPlugin {
-        /**
-        * This function is called by Animate to get an array of
-        * behvaiour definitions. These definitions describe what kind
-        * behvaiours a user can create in the scene.
-        * @returns {Array<BehaviourDefinition>}
-        */
-        getBehaviourDefinitions(): Array<BehaviourDefinition>;
-        /**
-        * This function is called when we need to create a preview for a file that is associated with a project
-        * @param {File} file The file that needs to be previewed
-        * @param {Component} previewComponent The component which will act as the parent div of the preview.
-        * @returns {boolean} Return true if this is handled or false if not.
-        */
-        onDisplayPreview(file: Engine.IFile, previewComponent: Component): boolean;
-        /**
-        * This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
-        */
-        getTypeConverters(): Array<TypeConverter>;
-        /**
-        * This function is called by Animate to get an array of
-        * AssetsTemplate. The AssetsTemplate object is used to define what assets are available to the scene.
-        * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
-        * is to think of it as a predefined object that contains a number of variables. You could for example
-        * create Assets like cats, dogs, animals or humans. Its really up you the plugin writer how they want
-        * to define their assets. This function can return null if no Assets are required.
-        * @returns <Array> Returns an array of <AssetTemplate> objects
-        */
-        getAssetsTemplate(): Array<AssetTemplate>;
-        /**
-        * This function is called by Animate when its time to unload a plugin. This should be used
-        * to cleanup all resources used by the plugin
-        */
-        unload(): void;
-        /**
-        * Plugins can return an array of extensions that are allowed to be uploaded for Asset files. For example
-        * your plugin might require images and so would allow png and jpg files.
-        * Each extension must just be in the following format: ["png", "jpg" ..etc]
-        * @param {Array<string>} extArray The array of allowed extensions that are so far allowed.
-        * @returns {Array<string>} An array of allowed file extensions.
-        */
-        getFileUploadExtensions(extArray: Array<string>): Array<string>;
-    }
-}
-declare module Animate {
-    interface ICanvasItem {
-        onDelete(): void;
-    }
-}
-declare module Animate {
-    /**
-    * A simple interface for any compent that needs to act as a Docker parent.
-    */
-    interface IDockItem extends IComponent {
-        getPreviewImage(): string;
-        onShow(): void;
-        getDocker(): Docker;
-        setDocker(dockItem: Docker): any;
-        onHide(): void;
-    }
-}
-declare module Animate {
-    interface ISettingsPage extends IComponent {
-        onShow(project: Project, user: User): any;
-        name: string;
-        onTab(): void;
     }
 }
 declare module Animate {
@@ -1932,13 +1853,17 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class ImageVisualizer {
+    class ImageVisualizer implements IPreviewFactory {
         private _maxPreviewSize;
         constructor();
         /**
-        * This function generates some an html node that is used to preview a file
+        * This function generates an html node that is used to preview a file
+        * @param {Engine.IFile} file The file we are looking to preview
+        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
+        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
+        * will continue looking for a factory than can preview the file
         */
-        generate(file: Engine.IFile): Node;
+        generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
     }
 }
 declare module Animate {
@@ -5524,10 +5449,10 @@ declare module Animate {
         onDrop(e: JQueryEventObject): boolean;
         /**
         * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
         * @param {Engine.IFile} file The target file we are setting the preview for
+        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
         */
-        uploadPreview(preview: HTMLCanvasElement | HTMLImageElement, file: Engine.IFile): void;
+        uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement): void;
         /**
         * Shows the window.
         */
@@ -6451,10 +6376,10 @@ declare module Animate {
         private _onComplete;
         constructor(onProg?: ProgressCallback, onComp?: CompleteCallback);
         numDownloads: number;
-        uploadFile(file: File, url?: string, meta?: any): void;
-        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, url: string, meta?: any): void;
-        uploadArrayBuffer(array: ArrayBuffer, name: string, url: string, meta?: any): void;
-        uploadTextAsFile(text: string, name: string, url: string, meta?: any): void;
-        upload(form: FormData, url: string, identifier: string): void;
+        uploadFile(file: File, meta?: any, parentFile?: string): void;
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string): void;
+        uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
+        uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string): void;
+        upload(form: FormData, url: string, identifier: string, parentFile?: string): void;
     }
 }

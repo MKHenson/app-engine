@@ -265,14 +265,8 @@ module Animate
         updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
         {
             var d = jQuery.Deferred<UsersInterface.IResponse>();
-            
-            // Attempts to update the model
-            jQuery.ajax(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, {
-                type: "put",
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json", data: JSON.stringify(token)
 
-            }).done(function (data: UsersInterface.IResponse)
+            Utils.put(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, token).then(function (data: UsersInterface.IResponse)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));

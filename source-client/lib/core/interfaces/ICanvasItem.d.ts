@@ -1,4 +1,4 @@
-module Animate
+declare module Animate
 {
 	export interface ICanvasItem
 	{

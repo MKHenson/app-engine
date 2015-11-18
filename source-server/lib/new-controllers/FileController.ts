@@ -157,7 +157,7 @@ export class FileController extends Controller
             return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
        
         // Create the query
-        var query: Engine.IFile = { projectId: new mongodb.ObjectID(project), user: req._user.username };
+        var query: Engine.IFile = { projectId: new mongodb.ObjectID(project), user: req._user.username, browsable : true };
         this.appendOptionalQueries(query, req.query);
 
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data)
@@ -185,7 +185,7 @@ export class FileController extends Controller
         res.setHeader('Content-Type', 'application/json');
 
         // Create the query
-        var query: Engine.IFile = { user : req._user.username };
+        var query: Engine.IFile = { user: req._user.username, browsable: true };
         this.appendOptionalQueries(query, req.query);
 
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data)
@@ -211,9 +211,14 @@ export class FileController extends Controller
         var model = this._models[0];
         var files = event.files;
         var promises: Array<Promise<ModelInstance<Engine.IFile>>> = [];
+        
 
         // Add an IFile reference for each file thats added
         for (var i = 0, l = files.length; i < l; i++)
+        {
+            // Check for file meta
+            var fileMeta: Engine.IFileMeta = files[i].meta;
+
             promises.push(model.createInstance<Engine.IFile>(<Engine.IFile>{
                 bucketId: files[i].bucketId,
                 bucketName: files[i].bucketName,
@@ -223,8 +228,9 @@ export class FileController extends Controller
                 name: files[i].name,
                 identifier: files[i].identifier,
                 size: files[i].size,
-                browsable: (files[i].meta && files[i].meta.browsable ? true : false )
-            }))
+                browsable: (fileMeta && fileMeta.browsable ? true : false)
+            }));
+        }
 
         // Save it in the DB
         Promise.all(promises).then(function(instances)
@@ -244,17 +250,16 @@ export class FileController extends Controller
     private onFilesRemoved(event: UsersInterface.SocketEvents.IFilesRemovedEvent)
     {
         var model = this._models[0];
-
-        // Add an IFile reference for each file thats added
+        
+        // Remove each IFile reference
         var removeQuery = [];
         for (var i = 0, l = event.files.length; i < l; i++)
-            removeQuery.push(<Engine.IFile>{ identifier : event.files[i] });
+            removeQuery.push(<Engine.IFile>{ identifier: event.files[i].identifier });
         
-        // Save it in the DB
         model.deleteInstances({ $or: removeQuery }).then(function (numRemoved: number)
         {
             winston.info(`[${numRemoved}] Files have been removed`, { process: process.pid });
-
+            
         }).catch(function (err: Error)
         {
             winston.error(`Could not remove file instances : ${err.message}`, { process: process.pid });

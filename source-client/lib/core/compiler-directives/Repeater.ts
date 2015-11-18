@@ -50,10 +50,7 @@
                         numItems++;
 
                         if (prevIterables[i] !== undefined && prevIterables[i] != iterable[i] )
-                        {
                             mustRebuild = true;
-                            break;
-                        }
                     }
 
                     if (instance.$clonedData.length != numItems)

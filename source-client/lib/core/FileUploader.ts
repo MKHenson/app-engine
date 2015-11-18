@@ -43,8 +43,9 @@
        * @param {File} file The file we are uploading
        * @param {string} url The URL to use
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
+       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        uploadFile(file: File, url?: string, meta?: any)
+        uploadFile(file: File, meta?: any, parentFile?: string)
         {
             var formData = new FormData();
 
@@ -53,17 +54,17 @@
                 formData.append('meta', JSON.stringify(meta));
             
             formData.append(file.name, file);
-            this.upload(formData, url, file.name);
+            this.upload(formData, null, file.name, parentFile);
         }
 
        /*
        * Uploads an image or canvas as a png or jpeg
        * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
-        * @param {string} name The name to give it
-       * @param {string} url The URL to use
-       * @param {any} meta [Optional] Any additional meta to be associated with the upload
+       * @param {string} name The name to give it
+       * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
+       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name:string, url: string, meta?: any)
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string)
         {
             var canvas: HTMLCanvasElement;
 
@@ -85,7 +86,7 @@
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
             // will re-encode the image.
-            var dataURL = canvas.toDataURL("image/png");
+            var dataURL = canvas.toDataURL();
 
             // Convert the dataURL to pure base 64
             //var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
@@ -117,17 +118,17 @@
                 formData.append('meta', JSON.stringify(meta));
 
             formData.append( name, blob );
-            this.upload(formData, url, name);
+            this.upload(formData, null, name, parentFile);
         }
 
         /*
        * Uploads a file to the users storage api
        * @param {ArrayBuffer} array The array we are uploading
        * @param {string} name The name to give it
-       * @param {string} url The URL to use
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
+       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        uploadArrayBuffer(array: ArrayBuffer, name : string, url: string, meta?: any)
+        uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string)
         {
             var formData = new FormData();
 
@@ -136,17 +137,17 @@
                 formData.append('meta', JSON.stringify(meta));
             
             formData.append(name, new Blob([array], { type: "application/octet-stream" }));
-            return this.upload(formData, url, name);
+            return this.upload(formData, null, name, parentFile);
         }
 
         /*
         * Uploads text and saves it as a file on the server
         * @param {string} text The text to upload
         * @param {string} name The name to give it
-        * @param {string} url The URL to use
         * @param {any} meta [Optional] Any additional meta to be associated with the upload
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        uploadTextAsFile(text: string, name: string, url: string, meta?: any)
+        uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string)
         {
             var formData = new FormData();
 
@@ -156,20 +157,22 @@
 
             // Attaching text
             formData.append(name, new Blob([text], { type: "text/plain" }));
-            return this.upload(formData, url, name);
+            return this.upload(formData, null, name, parentFile);
         }
 
         /*
         * Uploads a file to the users storage api
         * @param {FormData} file The file we are uploading
         * @param {string} url The URL to use
+        * @param {string} identifier Helps identify the upload 
+        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        upload(form: FormData, url: string, identifier: string)
+        upload(form: FormData, url: string, identifier: string, parentFile?: string)
         {
             if (!url)
             {
                 var details = User.get.userEntry;
-                url = `${DB.USERS}/media/upload/${details.username}-bucket`;
+                url = `${DB.USERS}/media/upload/${details.username}-bucket${(parentFile ? "/" + parentFile : "")}`;
             }
 
             var that = this;

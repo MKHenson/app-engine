@@ -40,7 +40,7 @@ declare module UsersInterface
         */
         export interface IFilesRemovedEvent extends IEvent
         {
-            files: Array<string>;
+            files: Array<IFileEntry>;
         }
 
         /*
@@ -121,6 +121,7 @@ declare module UsersInterface
         mimeType?: string;
         isPublic?: boolean;
         numDownloads?: number;
+        parentFile?: string;
         meta?: any;
     }
 
@@ -247,6 +248,7 @@ declare module UsersInterface
         filename: string;
         error: boolean;
         errorMsg: string;
+        url: string;
     }
 
     /*

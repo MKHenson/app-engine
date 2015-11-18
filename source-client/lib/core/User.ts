@@ -416,14 +416,7 @@ module Animate
             var d = jQuery.Deferred<UsersInterface.IResponse>();
             var meta = this.meta;
 
-            // Attempts to update the model
-            jQuery.ajax(`${DB.API}/user-details/${this.userEntry.username}`, {
-                type: "put",
-                contentType: 'application/json;charset=UTF-8',
-                dataType: "json",
-                data: JSON.stringify(token)
-
-            }).done(function (data: UsersInterface.IResponse)
+            Utils.put(`${DB.API}/user-details/${this.userEntry.username}`, token).then(function (data: UsersInterface.IResponse)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));

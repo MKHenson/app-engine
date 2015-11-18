@@ -124,7 +124,7 @@ var FileController = (function (_super) {
         if (!modepress_api_1.isValidID(project))
             return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
         // Create the query
-        var query = { projectId: new mongodb.ObjectID(project), user: req._user.username };
+        var query = { projectId: new mongodb.ObjectID(project), user: req._user.username, browsable: true };
         this.appendOptionalQueries(query, req.query);
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
             return res.end(JSON.stringify(data));
@@ -145,7 +145,7 @@ var FileController = (function (_super) {
     FileController.prototype.getByUser = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
         // Create the query
-        var query = { user: req._user.username };
+        var query = { user: req._user.username, browsable: true };
         this.appendOptionalQueries(query, req.query);
         this.getFiles(query, parseInt(req.query.index), parseInt(req.query.limit)).then(function (data) {
             return res.end(JSON.stringify(data));
@@ -166,7 +166,9 @@ var FileController = (function (_super) {
         var files = event.files;
         var promises = [];
         // Add an IFile reference for each file thats added
-        for (var i = 0, l = files.length; i < l; i++)
+        for (var i = 0, l = files.length; i < l; i++) {
+            // Check for file meta
+            var fileMeta = files[i].meta;
             promises.push(model.createInstance({
                 bucketId: files[i].bucketId,
                 bucketName: files[i].bucketName,
@@ -176,8 +178,9 @@ var FileController = (function (_super) {
                 name: files[i].name,
                 identifier: files[i].identifier,
                 size: files[i].size,
-                browsable: (files[i].meta && files[i].meta.browsable ? true : false)
+                browsable: (fileMeta && fileMeta.browsable ? true : false)
             }));
+        }
         // Save it in the DB
         Promise.all(promises).then(function (instances) {
             winston.info("[" + instances.length + "] Files have been added", { process: process.pid });
@@ -191,11 +194,10 @@ var FileController = (function (_super) {
     */
     FileController.prototype.onFilesRemoved = function (event) {
         var model = this._models[0];
-        // Add an IFile reference for each file thats added
+        // Remove each IFile reference
         var removeQuery = [];
         for (var i = 0, l = event.files.length; i < l; i++)
-            removeQuery.push({ identifier: event.files[i] });
-        // Save it in the DB
+            removeQuery.push({ identifier: event.files[i].identifier });
         model.deleteInstances({ $or: removeQuery }).then(function (numRemoved) {
             winston.info("[" + numRemoved + "] Files have been removed", { process: process.pid });
         }).catch(function (err) {

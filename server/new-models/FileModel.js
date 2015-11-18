@@ -28,7 +28,6 @@ var FileModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("extension", "", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("url", "", 1, 1024, true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.textArray("tags", [], 0, 20, 0, 50, true));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("previewPath", "", 0, 1024, true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("previewUrl", "", 0, 1024, true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);

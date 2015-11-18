@@ -1,4 +1,4 @@
-module Animate
+declare module Animate
 {
 	/**
 	* The IPlugin interface needs to be fully implemented

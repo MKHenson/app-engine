@@ -1,4 +1,4 @@
-module Animate
+declare module Animate
 {
 	/**
 	* A simple interface for any component
