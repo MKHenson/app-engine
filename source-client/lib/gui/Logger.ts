@@ -34,7 +34,7 @@ module Animate
 
 			this.element.addClass( "logger" );
 
-			this.context = new ContextMenu( 150 );
+			this.context = new ContextMenu();
 			this.context.addItem( new ContextMenuItem( "media/cross.png", "Clear" ) );
 			this.mDocker = null;
 

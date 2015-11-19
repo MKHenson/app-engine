@@ -28,7 +28,7 @@ module Animate
             Application.bodyComponent = new Component("body");
 
 			Application._singleton = this;		
-			this._canvasContext = new CanvasContext( 200 );
+			this._canvasContext = new CanvasContext();
 			this._focusObj = null; 
 
 			//Start the tooltip manager

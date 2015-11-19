@@ -5331,7 +5331,7 @@ var Animate;
             // Call super-class constructor
             _super.call(this, parent);
             this.element.addClass("logger");
-            this.context = new Animate.ContextMenu(150);
+            this.context = new Animate.ContextMenu();
             this.context.addItem(new Animate.ContextMenuItem("media/cross.png", "Clear"));
             this.mDocker = null;
             this.warningFlagger = jQuery("<img class='logger-warning fade-animation' src='media/warning-button.png' />");
@@ -5953,7 +5953,7 @@ var Animate;
             if (this._controlBox) {
                 this._header = this.addChild("<div class='window-control-box background-haze'></div>");
                 this._headerText = this._header.addChild("<div class='window-header'>" + title + "</div>");
-                this._headerCloseBut = this._header.addChild("<div class='close-but'>X</div>");
+                this._headerCloseBut = this._header.addChild("<div class='close-but black-tint'>X</div>");
                 this.addChild("<div class='fix'></div>");
                 this._content = this.addChild("<div class='window-content'></div>");
             }
@@ -6148,7 +6148,7 @@ var Animate;
         * @param {string} imgURL An optional image URL
         */
         function ContextMenuItem(text, imgURL, parent) {
-            _super.call(this, "<div class='context-item'>" + (imgURL && imgURL != "" ? "<img src='" + imgURL + "'/>" : "") + "<div class='text'></div></div>", parent);
+            _super.call(this, "<div class='context-item curve-small'>" + (imgURL && imgURL != "" ? "<img src='" + imgURL + "'/>" : "") + "<div class='text'></div></div>", parent);
             this.text = text;
             this.imageURL = imgURL;
         }
@@ -6201,11 +6201,11 @@ var Animate;
     var ContextMenu = (function (_super) {
         __extends(ContextMenu, _super);
         /**
-        * @param {number} The width of the menu.
         */
-        function ContextMenu(width) {
+        function ContextMenu() {
             // Call super-class constructor
-            _super.call(this, width, 100);
+            _super.call(this, 100, 100);
+            this.element.css({ width: "", height: "" });
             this.element.addClass("context-menu");
             this.element.addClass("reg-gradient");
             this.element.addClass("curve-small");
@@ -6671,7 +6671,7 @@ var Animate;
             this.element.on("click", jQuery.proxy(this.onClick, this));
             this.dropButton = new Animate.Component("<div class='tabs-drop-button'>&#x21E3;</div>", this._tabsDiv);
             if (!Tab.contextMenu)
-                Tab.contextMenu = new Animate.ContextMenu(100);
+                Tab.contextMenu = new Animate.ContextMenu();
             //this.element.disableSelection( true );
             Tab.contextMenu.on(Animate.ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
             this.addLayout(new Animate.Fill());
@@ -8038,7 +8038,7 @@ var Animate;
             // Creates a common body element
             Application.bodyComponent = new Animate.Component("body");
             Application._singleton = this;
-            this._canvasContext = new Animate.CanvasContext(200);
+            this._canvasContext = new Animate.CanvasContext();
             this._focusObj = null;
             //Start the tooltip manager
             Animate.TooltipManager.create();
@@ -16935,9 +16935,9 @@ var Animate;
     */
     var CanvasContext = (function (_super) {
         __extends(CanvasContext, _super);
-        function CanvasContext(width) {
+        function CanvasContext() {
             // Call super-class constructor
-            _super.call(this, width);
+            _super.call(this);
             //Add the items
             this.mDel = this.addItem(new Animate.ContextMenuItem("Delete", "media/cross.png"));
             this.mCreate = this.addItem(new Animate.ContextMenuItem("Create Behaviour", "media/behavior_20.png"));
@@ -17285,7 +17285,7 @@ var Animate;
             this._sceneNode.canUpdate = true;
             this._groupsNode.canUpdate = true;
             //Create the context menu
-            this._contextMenu = new Animate.ContextMenu(100);
+            this._contextMenu = new Animate.ContextMenu();
             this._contextCopy = this._contextMenu.addItem(new Animate.ContextMenuItem("Copy", "media/copy-small.png"));
             this._contextDel = this._contextMenu.addItem(new Animate.ContextMenuItem("Delete", "media/cross.png"));
             this._contextAddInstance = this._contextMenu.addItem(new Animate.ContextMenuItem("Add Instance", "media/portal.png"));

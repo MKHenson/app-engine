@@ -12,7 +12,7 @@ module Animate
 		*/
 		constructor( text : string, imgURL : string, parent?: Component )
 		{
-			super( "<div class='context-item'>" + ( imgURL && imgURL != "" ? "<img src='"+ imgURL +"'/>" : "" ) + "<div class='text'></div></div>", parent );
+            super( "<div class='context-item curve-small'>" + ( imgURL && imgURL != "" ? "<img src='"+ imgURL +"'/>" : "" ) + "<div class='text'></div></div>", parent );
 			this.text = text;
 			this.imageURL = imgURL;
 		}
@@ -67,13 +67,13 @@ module Animate
 		private selectedItem;
 		
 		/**
-		* @param {number} The width of the menu.
 		*/
-		constructor( width : number )
+		constructor()
 		{
 			// Call super-class constructor
-			super( width, 100 );
+			super( 100, 100 );
 
+            this.element.css({width: "", height: ""})
 			this.element.addClass( "context-menu" );
 
 			this.element.addClass( "reg-gradient" );

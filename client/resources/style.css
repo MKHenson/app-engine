@@ -529,7 +529,9 @@ Please only put css rules in here for layout related requirements.
     margin: 0px 0 5px 0;
 }
 .window-control-box .close-but {
-    margin: 5px 10px 0 0;
+    margin: 0;
+    padding:0 10px;
+    line-height: 30px;
 }
 .window-header {
     float: left;
@@ -1618,10 +1620,16 @@ a:active, a:hover {
     background-color: #292E38;
 }
 .dark-modal {
-    background-color: rgba(0,0,0,0.3) !important;
+    background-color: rgba(0,0,0,0.3);
+}
+.black-tint {
+    background-color: rgba(0,0,0,0.2);
+}
+.black-tint:hover {
+    background-color: rgba(0,0,0,0.4);
 }
 .light-modal {
-    background-color: rgba(255,255,255,0.7) !important;
+    background-color: rgba(255,255,255,0.7);
 }
 .light-color {
     background-color: #ADC0DB;

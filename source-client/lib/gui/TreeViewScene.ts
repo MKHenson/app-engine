@@ -45,7 +45,7 @@ module Animate
 			this._groupsNode.canUpdate = true;
 
 			//Create the context menu
-			this._contextMenu = new ContextMenu( 100 );
+			this._contextMenu = new ContextMenu();
 			this._contextCopy = this._contextMenu.addItem( new ContextMenuItem( "Copy", "media/copy-small.png" ) );
 			this._contextDel = this._contextMenu.addItem( new ContextMenuItem( "Delete", "media/cross.png" ) );
 			this._contextAddInstance = this._contextMenu.addItem( new ContextMenuItem( "Add Instance", "media/portal.png" ) );

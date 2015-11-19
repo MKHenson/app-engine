@@ -2398,9 +2398,8 @@ declare module Animate {
         private items;
         private selectedItem;
         /**
-        * @param {number} The width of the menu.
         */
-        constructor(width: number);
+        constructor();
         /**
         * Cleans up the context menu
         */
@@ -5800,7 +5799,7 @@ declare module Animate {
         private mCreate;
         private mCreateComment;
         private mDelEmpty;
-        constructor(width: any);
+        constructor();
         /**
         * Shows the window by adding it to a parent.
         */

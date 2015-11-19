@@ -15,10 +15,10 @@ module Animate
 		private mCreateComment: ContextMenuItem;
 		private mDelEmpty: ContextMenuItem;
 
-		constructor( width )
+		constructor()
 		{
 			// Call super-class constructor
-			super( width );
+			super();
 
 			//Add the items
 			this.mDel = this.addItem( new ContextMenuItem( "Delete", "media/cross.png" ) );

@@ -55,7 +55,7 @@ module Animate
 			{
                 this._header = <Component>this.addChild( "<div class='window-control-box background-haze'></div>" );
 				this._headerText = <Component>this._header.addChild( "<div class='window-header'>" + title + "</div>" );
-				this._headerCloseBut = <Component>this._header.addChild( "<div class='close-but'>X</div>" );
+                this._headerCloseBut = <Component>this._header.addChild( "<div class='close-but black-tint'>X</div>" );
 				this.addChild( "<div class='fix'></div>" );
 				this._content = <Component>this.addChild( "<div class='window-content'></div>" );
 			}

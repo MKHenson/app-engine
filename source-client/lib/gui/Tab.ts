@@ -52,7 +52,7 @@ module Animate
 			this.dropButton = new Component( "<div class='tabs-drop-button'>&#x21E3;</div>", this._tabsDiv );
 
 			if ( !Tab.contextMenu )
-				Tab.contextMenu = new ContextMenu( 100 );
+				Tab.contextMenu = new ContextMenu();
 
 			//this.element.disableSelection( true );
 			Tab.contextMenu.on( ContextMenuEvents.ITEM_CLICKED, this.onContext.bind( this ) );
