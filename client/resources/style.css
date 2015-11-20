@@ -687,6 +687,33 @@ Please only put css rules in here for layout related requirements.
     padding: 0 10px;
 }
 
+.tabs-drop-button
+{ 
+    cursor:pointer; 
+    position:absolute; 
+    height:100%; 
+    width:14px; 
+    text-align:center; 
+}
+
+/**
+* Context Menu
+*/
+.context-item img { 
+    margin: 0 8px 0 0;
+    pointer-events: none;
+    display: inline-block;
+}
+.context-item .text { 
+    display:inline-block; 
+    pointer-events:none;
+    color: inherit;
+}
+.context-item { 
+    cursor:pointer; 
+    padding:6px 12px;
+}
+
 /**
 * Tooltips
 */
@@ -712,7 +739,7 @@ Please only put css rules in here for layout related requirements.
     display:none;
     position: absolute;
     font-size: 16px !important;
-    background: #607DA0;
+    
     color: white;
     padding: 10px;
     text-shadow: none;
@@ -1534,6 +1561,9 @@ a{
 .background-view-light {
     background:#eee;
 }
+.tooltip-text {
+    background: #607DA0;
+}
 a:active, a:hover {
   border-bottom:1px solid #ccc;
 }
@@ -1623,10 +1653,11 @@ a:active, a:hover {
     background-color: rgba(0,0,0,0.3);
 }
 .black-tint {
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0,0,0,0.1);
 }
 .black-tint:hover {
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.3);
+    color:#fff;
 }
 .light-modal {
     background-color: rgba(255,255,255,0.7);
@@ -1691,7 +1722,7 @@ html .bad-input {
 .close-but:hover {
     color: #fff;
 }
-.selected:hover, .context-item:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tabs-drop-button:hover, .tree-node-selected, .project-selected, .drag-targets {
+.selected:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tree-node-selected, .project-selected, .drag-targets {
     background: #5EA4EA;
     color: #fff !important;
     text-shadow: none !important;
@@ -2234,10 +2265,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.context-item img { margin: 0 10px 5px 5px; pointer-events: none; display:inline-block; width:16px; pointer-events:none; }
-.context-item .text{ display:inline-block; pointer-events:none; }
-.context-item{ cursor:pointer; padding-left:5px; padding-right:5px; }
-.context-item:hover{ text-shadow: 0px 0px 7px #ffffff; }
+
 
 .tab{ width:300px; height:300px; }
 .tabs-div{ width:100%; height:25px; position:relative; overflow:hidden; }
@@ -2246,7 +2274,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .tab-page{ width:100%; height:100%; overflow:auto; position:relative; }
 .tab-selected { position:relative; -webkit-border-radius: 0px 0px 0px 0px !important; border-radius: 0px 0px 0px 0px !important; }
-.tabs-drop-button{ cursor:pointer; position:absolute; height:100%; width:14px; text-align:center; }
+
 
 .tab-close{ float:right; margin-top:1px;width:13px; height:13px; margin-left:10px; text-align:center; border:none !important; }
 
@@ -2269,14 +2297,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
     line-height: 25px;
 }
 
-
-
-/*.input-box input:focus, .input-box textarea:focus, .combo-box select:focus{ border: 1px solid #04508C; }*/
-
-.context-menu{ border:1px solid #04508C; }
-
-
-
 .tab-close{ color:#04508C; }
 
 .tab-selected .tab-close{ color:#04508C; }
@@ -2295,7 +2315,7 @@ input, select{ color:#666; }
 }
 
 
-.pushed, .context-item:active, .plugin-item:active, .project-browser-item:active, .tabs-drop-button:active {
+.pushed, .plugin-item:active, .project-browser-item:active{
     background: rgb(118,160,12); /* Old browsers */
     background: -moz-linear-gradient(top, rgba(118,160,12,1) 1%, rgba(64,106,8,1) 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(1%,rgba(118,160,12,1)), color-stop(100%,rgba(64,106,8,1))); /* Chrome,Safari4+ */

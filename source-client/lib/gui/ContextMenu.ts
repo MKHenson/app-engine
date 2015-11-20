@@ -12,7 +12,7 @@ module Animate
 		*/
 		constructor( text : string, imgURL : string, parent?: Component )
 		{
-            super( "<div class='context-item curve-small'>" + ( imgURL && imgURL != "" ? "<img src='"+ imgURL +"'/>" : "" ) + "<div class='text'></div></div>", parent );
+            super( "<div class='context-item reg-gradient'>" + ( imgURL && imgURL != "" ? "<img src='"+ imgURL +"'/>" : "" ) + "<div class='text'></div></div>", parent );
 			this.text = text;
 			this.imageURL = imgURL;
 		}
@@ -73,17 +73,14 @@ module Animate
 			// Call super-class constructor
 			super( 100, 100 );
 
-            this.element.css({width: "", height: ""})
+           
 			this.element.addClass( "context-menu" );
-
-			this.element.addClass( "reg-gradient" );
-			this.element.addClass( "curve-small" );
-
 			this.element.css( "height", "" );
 			this.items = [];
 			this.selectedItem = null;
 
-			this.content.element.css( { width: "" });
+            this.content.element.css({ width: "", height: "" });
+            this.element.css({ width: "initial", height: "initial" })
 		}
 
 		/**
@@ -119,10 +116,7 @@ module Animate
 				this.element.css( "left", width - this.element.width() );
 			if ( y + this.element.height() > width )
 				this.element.css( "top", height - this.element.height() );
-
-			this.element.css( "width", "" );
-
-			
+            			
 			//Check if nothing is visible - if so then hide it.
 			var somethingVisible = false;
 			var i = this.items.length;

@@ -49,7 +49,7 @@ module Animate
 			this.selectedTab = null;
 			this.element.on( "click", jQuery.proxy( this.onClick, this ) );
 
-			this.dropButton = new Component( "<div class='tabs-drop-button'>&#x21E3;</div>", this._tabsDiv );
+			this.dropButton = new Component( "<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null );
 
 			if ( !Tab.contextMenu )
 				Tab.contextMenu = new ContextMenu();
@@ -249,7 +249,11 @@ module Animate
 
 			this.selectedTab = toAdd;
 			this._tabs.push( toAdd );
-			this.onTabSelected( this.selectedTab );
+            this.onTabSelected(this.selectedTab);
+
+            // Only add the drop down if there is more than 1 tab
+            if (this._tabs.length > 1 && !this.contains(this.dropButton))
+                this._tabsDiv.addChild(this.dropButton);
 
 			tab.element.trigger( "click" );
 
@@ -325,7 +329,11 @@ module Animate
 						return;
 
 					var v = this._tabs[i];
-					this._tabs.splice( i, 1 );
+                    this._tabs.splice(i, 1);
+
+                    // Remove the drop button when less than 1 tab
+                    if (this._tabs.length <= 1 && this.contains(this.dropButton))
+                        this._tabsDiv.removeChild(this.dropButton);
 
 					this.onTabPairClosing( v );
 					this._tabsDiv.removeChild( v.tabSelector );

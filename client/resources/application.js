@@ -5107,6 +5107,16 @@ var Animate;
             return toAdd;
         };
         /**
+        * Checks to see if a component is a child of this one
+        * @param {IComponent} child The {IComponent} to check
+        * @returns {boolean} true if the component is a child
+        */
+        Component.prototype.contains = function (child) {
+            if (this._children.indexOf(child) == -1)
+                return false;
+            return true;
+        };
+        /**
         * Use this function to remove a child from this component.
         * It uses the {JQuery} detach function to achieve this functionality.
         * @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
@@ -5332,7 +5342,7 @@ var Animate;
             _super.call(this, parent);
             this.element.addClass("logger");
             this.context = new Animate.ContextMenu();
-            this.context.addItem(new Animate.ContextMenuItem("media/cross.png", "Clear"));
+            this.context.addItem(new Animate.ContextMenuItem("Clear", "media/cross.png"));
             this.mDocker = null;
             this.warningFlagger = jQuery("<img class='logger-warning fade-animation' src='media/warning-button.png' />");
             //Add listeners
@@ -6148,7 +6158,7 @@ var Animate;
         * @param {string} imgURL An optional image URL
         */
         function ContextMenuItem(text, imgURL, parent) {
-            _super.call(this, "<div class='context-item curve-small'>" + (imgURL && imgURL != "" ? "<img src='" + imgURL + "'/>" : "") + "<div class='text'></div></div>", parent);
+            _super.call(this, "<div class='context-item reg-gradient'>" + (imgURL && imgURL != "" ? "<img src='" + imgURL + "'/>" : "") + "<div class='text'></div></div>", parent);
             this.text = text;
             this.imageURL = imgURL;
         }
@@ -6205,14 +6215,12 @@ var Animate;
         function ContextMenu() {
             // Call super-class constructor
             _super.call(this, 100, 100);
-            this.element.css({ width: "", height: "" });
             this.element.addClass("context-menu");
-            this.element.addClass("reg-gradient");
-            this.element.addClass("curve-small");
             this.element.css("height", "");
             this.items = [];
             this.selectedItem = null;
-            this.content.element.css({ width: "" });
+            this.content.element.css({ width: "", height: "" });
+            this.element.css({ width: "initial", height: "initial" });
         }
         /**
         * Cleans up the context menu
@@ -6246,7 +6254,6 @@ var Animate;
                 this.element.css("left", width - this.element.width());
             if (y + this.element.height() > width)
                 this.element.css("top", height - this.element.height());
-            this.element.css("width", "");
             //Check if nothing is visible - if so then hide it.
             var somethingVisible = false;
             var i = this.items.length;
@@ -6669,7 +6676,7 @@ var Animate;
             this._tabs = [];
             this.selectedTab = null;
             this.element.on("click", jQuery.proxy(this.onClick, this));
-            this.dropButton = new Animate.Component("<div class='tabs-drop-button'>&#x21E3;</div>", this._tabsDiv);
+            this.dropButton = new Animate.Component("<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null);
             if (!Tab.contextMenu)
                 Tab.contextMenu = new Animate.ContextMenu();
             //this.element.disableSelection( true );
@@ -6812,6 +6819,9 @@ var Animate;
             this.selectedTab = toAdd;
             this._tabs.push(toAdd);
             this.onTabSelected(this.selectedTab);
+            // Only add the drop down if there is more than 1 tab
+            if (this._tabs.length > 1 && !this.contains(this.dropButton))
+                this._tabsDiv.addChild(this.dropButton);
             tab.element.trigger("click");
             toAdd.onAdded();
             return toAdd;
@@ -6861,6 +6871,9 @@ var Animate;
                         return;
                     var v = this._tabs[i];
                     this._tabs.splice(i, 1);
+                    // Remove the drop button when less than 1 tab
+                    if (this._tabs.length <= 1 && this.contains(this.dropButton))
+                        this._tabsDiv.removeChild(this.dropButton);
                     this.onTabPairClosing(v);
                     this._tabsDiv.removeChild(v.tabSelector);
                     this.pagesDiv.removeChild(v.page);

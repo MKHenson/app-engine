@@ -1990,6 +1990,12 @@ declare module Animate {
         */
         addChild(child: string | IComponent | JQuery): IComponent;
         /**
+        * Checks to see if a component is a child of this one
+        * @param {IComponent} child The {IComponent} to check
+        * @returns {boolean} true if the component is a child
+        */
+        contains(child: IComponent): boolean;
+        /**
         * Use this function to remove a child from this component.
         * It uses the {JQuery} detach function to achieve this functionality.
         * @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children

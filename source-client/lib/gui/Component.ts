@@ -201,7 +201,19 @@ module Animate
 			this._children.push(toAdd);
 			this._element.append(toAdd._element);
 			return toAdd;
-		}
+        }
+
+        /**
+		* Checks to see if a component is a child of this one
+		* @param {IComponent} child The {IComponent} to check
+		* @returns {boolean} true if the component is a child
+		*/
+        contains(child: IComponent): boolean
+        {
+            if (this._children.indexOf(child) == -1)
+                return false;
+            return true;
+        }
 
 		/**
 		* Use this function to remove a child from this component. 

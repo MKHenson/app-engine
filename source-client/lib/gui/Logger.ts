@@ -35,7 +35,7 @@ module Animate
 			this.element.addClass( "logger" );
 
 			this.context = new ContextMenu();
-			this.context.addItem( new ContextMenuItem( "media/cross.png", "Clear" ) );
+            this.context.addItem(new ContextMenuItem("Clear", "media/cross.png" ) );
 			this.mDocker = null;
 
 			this.warningFlagger = jQuery( "<img class='logger-warning fade-animation' src='media/warning-button.png' />" );
