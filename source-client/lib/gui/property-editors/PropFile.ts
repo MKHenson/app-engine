@@ -43,12 +43,12 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-			var onFileChosen: ( response: FileViewerFormEvents, event: FileViewerFormEvent ) => void = function ( response: FileViewerFormEvents, event: FileViewerFormEvent ) 
+            var onFileChosen = function(response: string, event: FileViewerEvent ) 
 			{
-				FileViewerForm.getSingleton().off( FileViewerFormEvents.CANCELLED, onFileChosen );
-				FileViewerForm.getSingleton().off( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
+                FileViewer.get.off( "cancelled", onFileChosen );
+                FileViewer.get.off( "change", onFileChosen );
 
-				if ( response == FileViewerFormEvents.CANCELLED )
+                if (response == "cancelled" )
 					return;
 
                 var file: Engine.IFile = event.file;				
@@ -65,11 +65,11 @@ module Animate
 				}
 
 				//Remove any previous references
-				FileViewerForm.getSingleton().off( FileViewerFormEvents.CANCELLED, onFileChosen );
-				FileViewerForm.getSingleton().off( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
-				FileViewerForm.getSingleton().on( FileViewerFormEvents.FILE_CHOSEN, onFileChosen );
-				FileViewerForm.getSingleton().on( FileViewerFormEvents.CANCELLED, onFileChosen );
-				FileViewerForm.getSingleton().showForm( fileID, fileExtensions );
+                FileViewer.get.off("cancelled", onFileChosen );
+                FileViewer.get.off("change", onFileChosen );
+                FileViewer.get.on("change", onFileChosen );
+                FileViewer.get.on("cancelled", onFileChosen);
+                FileViewer.get.choose(fileExtensions);
 			};
 
 			//Add listeners

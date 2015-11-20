@@ -141,7 +141,7 @@
     <TypeScriptCompile Include="lib\gui\ContextMenu.ts" />
     <TypeScriptCompile Include="lib\gui\Docker.ts" />
     <TypeScriptCompile Include="lib\gui\forms\BuildOptionsForm.ts" />
-    <TypeScriptCompile Include="lib\gui\forms\FileViewerForm.ts" />
+    <TypeScriptCompile Include="lib\gui\forms\FileViewer.ts" />
     <TypeScriptCompile Include="lib\gui\forms\MessageBox.ts" />
     <TypeScriptCompile Include="lib\gui\forms\NewBehaviourForm.ts" />
     <TypeScriptCompile Include="lib\gui\forms\OkCancelForm.ts" />

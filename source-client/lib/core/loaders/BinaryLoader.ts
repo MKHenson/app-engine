@@ -94,7 +94,7 @@
 			else
 			{
 				LoaderBase.hideLoader();
-				this.dispatchEvent( new BinaryLoaderEvent( BinaryLoaderResponses.ERROR, null, "Could not download data from '" + fullURL + "'" ) );
+				this.emit( new BinaryLoaderEvent( BinaryLoaderResponses.ERROR, null, "Could not download data from '" + fullURL + "'" ) );
 				this.dispose();
 			}
 		}
@@ -137,7 +137,7 @@
 			LoaderBase.hideLoader();
 
 			var e: BinaryLoaderEvent = new BinaryLoaderEvent( BinaryLoaderResponses.SUCCESS, buffer );
-			this.dispatchEvent( e );
+			this.emit( e );
 			this.dispose();
 		}
 	}

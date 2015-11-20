@@ -120,7 +120,7 @@ module Animate
 					children[i].update();
 			}
 
-			super.dispatchEvent(new Event( ComponentEvents.UPDATED ) );
+			super.emit(new Event( ComponentEvents.UPDATED ) );
 		}
 		
 		/**

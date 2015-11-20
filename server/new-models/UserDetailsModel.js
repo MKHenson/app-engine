@@ -28,7 +28,7 @@ var UserDetailsModel = (function (_super) {
         _super.call(this, "en-user-details");
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1)).setIndexable(true).setUnique(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("bio", ""));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("image", "", true));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("image", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("plan", Plan.Free, undefined, undefined, undefined, undefined, true)).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("website", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("customerId", "", undefined, undefined, true)).setIndexable(true);

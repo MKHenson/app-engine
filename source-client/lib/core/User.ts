@@ -408,10 +408,10 @@ module Animate
         
         /**
 		* Attempts to update the user's details base on the token provided
-        * @returns {Engine.IProject} The project token 
+        * @returns {Engine.IUserMeta} The user details token 
         * @returns {JQueryPromise<UsersInterface.IResponse>}
 		*/
-        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
+        updateDetails(token: Engine.IUserMeta): JQueryPromise<UsersInterface.IResponse>
         {
             var d = jQuery.Deferred<UsersInterface.IResponse>();
             var meta = this.meta;
@@ -585,7 +585,7 @@ module Animate
 				if ( event.return_type == AnimateLoaderResponses.ERROR )
 				{
 					//MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
+					this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
 					return;
 				}
 
@@ -622,19 +622,19 @@ module Animate
 				//else if ( loader.url == "/user/resend-activation" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.ACTIVATION_RESET, event.message, event.return_type, data ) );
 				else if ( loader.url == "/user/update-details" )
-					this.dispatchEvent(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
+					this.emit(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
 				//else if ( loader.url == "/project/get-user-projects" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, "", event.return_type, data ) );
 				else if ( loader.url == "/project/create" )
 				{
                     //this.project = new Project(data.project.entry._id, data.project.name, data.build );
-					this.dispatchEvent( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
+					this.emit( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
 				}
 				else if ( loader.url == "/project/open" )
 				{
                     //this.project = new Project(data.project.entry._id, data.project.name, null );
 					this.project.loadFromData( data );
-					this.dispatchEvent( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
+					this.emit( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
 				}
 				//else if ( loader.url == "/project/delete" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
@@ -678,10 +678,10 @@ module Animate
 				}				
 								
 				else
-					this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
+					this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 			}
 			else
-				this.dispatchEvent(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
+				this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 		}
 
 		//get project(): Project { return this._project; }

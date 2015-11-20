@@ -266,26 +266,22 @@ declare module Animate {
     * Internal class only used internally by the {EventDispatcher}
     */
     class EventListener {
-        eventType: EventType;
+        type: EventType;
         func: EventCallback;
         context: any;
-        constructor(eventType: EventType, func: EventCallback, context?: any);
+        constructor(type: EventType, func: EventCallback, context?: any);
     }
     /**
     * The base class for all events dispatched by the {EventDispatcher}
     */
     class Event {
-        private _eventType;
+        type: EventType;
         tag: any;
         /**
         * Creates a new event object
         * @param {EventType} eventType The type event
         */
         constructor(eventType: EventType, tag?: any);
-        /**
-        * Gets the event type
-        */
-        eventType: EventType;
     }
     /**
     * A simple class that allows the adding, removing and dispatching of events.
@@ -301,18 +297,18 @@ declare module Animate {
         /**
         * Adds a new listener to the dispatcher class.
         */
-        on(eventType: EventType, func: EventCallback, context?: any): void;
+        on(type: EventType, func: EventCallback, context?: any): void;
         /**
         * Adds a new listener to the dispatcher class.
         */
-        off(eventType: EventType, func: EventCallback, context?: any): void;
+        off(type: EventType, func: EventCallback, context?: any): void;
         /**
         * Sends a message to all listeners based on the eventType provided.
         * @param {String} The trigger message
         * @param {Event} event The event to dispatch
         * @returns {any}
         */
-        dispatchEvent(event: Event | ENUM, tag?: any): any;
+        emit(event: Event | ENUM, tag?: any): any;
         /**
         * This will cleanup the component by nullifying all its variables and clearing up all memory.
         */
@@ -1775,10 +1771,10 @@ declare module Animate {
         removeProject(pid: string): JQueryPromise<Modepress.IResponse>;
         /**
         * Attempts to update the user's details base on the token provided
-        * @returns {Engine.IProject} The project token
+        * @returns {Engine.IUserMeta} The user details token
         * @returns {JQueryPromise<UsersInterface.IResponse>}
         */
-        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
+        updateDetails(token: Engine.IUserMeta): JQueryPromise<UsersInterface.IResponse>;
         /**
         * @type public mfunc copyProject
         * Use this function to duplicate a project
@@ -5276,12 +5272,19 @@ declare module Animate {
         private _notes;
         private _selectBuild;
         private _saveBuild;
-        private _uploader;
         private _renameProxy;
         private _buildProxy;
         private _clickProxy;
         private _settingPages;
         constructor();
+        /**
+        * Opens the file viewer and lets the user pick an image for their avatar
+        */
+        pickAvatar(): void;
+        /**
+        * Opens the file viewer and lets the user pick an image for their project
+        */
+        pickProjectPick(): void;
         /**
         * Attempts to update the project
         */
@@ -5342,10 +5345,6 @@ declare module Animate {
         */
         show(): void;
         /**
-        * This is called to initialize the one click loader
-        */
-        initializeLoader(): void;
-        /**
         * Use this function to print a message on the settings screen.
         * @param {string} message The message to print
         * @param <bool> isError Should this be styled to an error or not
@@ -5358,17 +5357,17 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class FileViewerFormEvents extends ENUM {
-        constructor(v: string);
-        static OBJECT_RENAMED: FileViewerFormEvents;
-        static OBJECT_RENAMING: FileViewerFormEvents;
-        static FILE_CHOSEN: FileViewerFormEvents;
-        static CANCELLED: FileViewerFormEvents;
+    /**
+    * An event to deal with file viewer events
+    * The event type can be 'cancelled' or 'change'
+    */
+    class FileViewerEvent extends Event {
+        file: Engine.IFile;
+        constructor(type: string, file: Engine.IFile);
     }
-    class FileViewerFormEvent extends Event {
-        file: File;
-        constructor(eventType: FileViewerFormEvents, file: File);
-    }
+    /**
+    * Defines which types of files to search through
+    */
     enum FileSearchType {
         Global = 0,
         User = 1,
@@ -5377,9 +5376,12 @@ declare module Animate {
     /**
     * This form is used to load and select assets.
     */
-    class FileViewerForm extends Window {
+    class FileViewer extends Window {
         private static _singleton;
         private _browserElm;
+        private _searchType;
+        private _shiftkey;
+        private _cancelled;
         private $pager;
         private $selectedFile;
         private $loading;
@@ -5393,11 +5395,9 @@ declare module Animate {
         private $fileToken;
         private $uploader;
         private $onlyFavourites;
-        private _searchType;
-        private _shiftkey;
         extensions: Array<string>;
-        selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
-        selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
+        selectedEntities: Array<UsersInterface.IFileEntry>;
+        selectedEntity: Engine.IFile;
         selectedFolder: string;
         multiSelect: boolean;
         /**
@@ -5425,11 +5425,23 @@ declare module Animate {
         * Shows / Hides the delete buttons
         */
         confirmDelete(): void;
+        /**
+        * Called in the HTML once a file is clicked and we need to get a preview of it
+        * @param {IFile} file The file to preview
+        */
         getPreview(file: Engine.IFile): void;
         /**
         * Sets the selected status of a file or folder
         */
         selectEntity(entity: any): void;
+        /**
+        * Removes the window and modal from the DOM.
+        */
+        hide(): void;
+        /**
+        * Called whenever we select a file
+        */
+        fileChosen(file: Engine.IFile): void;
         /**
         * Removes the selected entities
         */
@@ -5449,6 +5461,10 @@ declare module Animate {
         */
         checkIfAllowed(files: FileList): boolean;
         /**
+        * Makes sure we only view the file types specified in the exension array
+        */
+        filterByExtensions(): Array<Engine.IFile>;
+        /**
         * Called when we are no longer dragging items.
         */
         onDrop(e: JQueryEventObject): boolean;
@@ -5459,15 +5475,28 @@ declare module Animate {
         */
         uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement): void;
         /**
-        * Shows the window.
+        * Shows the window by adding it to a parent.
+        * @param {Component} parent The parent Component we are adding this window to
+        * @param {number} x The x coordinate of the window
+        * @param {number} y The y coordinate of the window
+        * @param {boolean} isModal Does this window block all other user operations?
+        * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
         */
-        showForm(id: string, extensions: Array<string>): void;
+        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
         /**
-        * Attempts to update the selected entity
+        * Use this function to show the file viewer and listen for when the user has selected a file
+        */
+        choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile>;
+        /**
+        * Attempts to update the selected file
+        * @param {IFile} token The file token to update with
         */
         updateFile(token: Engine.IFile): void;
-        /** Gets the singleton instance. */
-        static getSingleton(): FileViewerForm;
+        /**
+        * Gets the singleton instance.
+        * @returns {FileViewer}
+        */
+        static get: FileViewer;
     }
 }
 declare module Animate {

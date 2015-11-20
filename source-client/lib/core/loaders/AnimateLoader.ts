@@ -134,7 +134,7 @@ module Animate
 			else
 			{
 				LoaderBase.hideLoader();				
-				this.dispatchEvent( new AnimateLoaderEvent( LoaderEvents.FAILED, errorThrown.message, AnimateLoaderResponses.ERROR, null ) );
+				this.emit( new AnimateLoaderEvent( LoaderEvents.FAILED, errorThrown.message, AnimateLoaderResponses.ERROR, null ) );
 				this.dispose();
 			}
 		}
@@ -157,7 +157,7 @@ module Animate
 			else
 				e = new AnimateLoaderEvent( LoaderEvents.COMPLETE, "Loaded", AnimateLoaderResponses.SUCCESS, data );
 
-			this.dispatchEvent(e);
+			this.emit(e);
 			this.dispose();
 		}
 

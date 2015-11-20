@@ -113,7 +113,7 @@ module Animate
 					//Let the plugins export their data
 					containerToken.plugins = canvasToken.plugins;	
 
-					PluginManager.getSingleton().dispatchEvent( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
+					PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
 
 					//Create tokens and fill each with data. First create either a behaviour
 					//or link objct
@@ -275,7 +275,7 @@ module Animate
 			}
 
 			//Send the object to the plugins
-			PluginManager.getSingleton().dispatchEvent( new EditorExportingEvent( dataToken ) );
+			PluginManager.getSingleton().emit( new EditorExportingEvent( dataToken ) );
 
 			var sceneStr = JSON.stringify( dataToken );
 			var loader = new AnimateLoader();
@@ -466,17 +466,17 @@ module Animate
 						if ( this.runWhenDone )
 							window.open( event.tag.liveLink, 'Webinate Live!', 'width=900,height=860' ); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'
 
-						this.dispatchEvent(new ImportExportEvent(ImportExportEvents.COMPLETE, event.tag.liveLink) );
+						this.emit(new ImportExportEvent(ImportExportEvents.COMPLETE, event.tag.liveLink) );
 					}
 				}
 				else
 				{
 					MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.dispatchEvent( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
+					this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
 				}
 			}
 			else
-				this.dispatchEvent( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag));
+				this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag));
 		}
 
 		/**

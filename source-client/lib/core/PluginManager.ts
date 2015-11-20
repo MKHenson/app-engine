@@ -311,7 +311,7 @@ module Animate
 			}
 
 			// Send event
-			this.dispatchEvent( new AssetEditedEvent( EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType ) );
+			this.emit( new AssetEditedEvent( EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType ) );
 		}
 
 		/**
@@ -395,7 +395,7 @@ module Animate
 					asset.properties.getVar( variable.name ).options = variable.options;
 			}
 
-			this.dispatchEvent( new AssetCreatedEvent( asset, name ) );
+			this.emit( new AssetCreatedEvent( asset, name ) );
 		}
 
 		/**
@@ -403,7 +403,7 @@ module Animate
 		*/
 		callReady()
 		{
-			this.dispatchEvent( new Event( EditorEvents.EDITOR_READY, null ) );
+			this.emit( new Event( EditorEvents.EDITOR_READY, null ) );
 
             // TODO: Determine what to do with user plans
             if (User.get.meta.plan == UserPlan.Free)

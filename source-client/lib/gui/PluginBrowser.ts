@@ -365,21 +365,21 @@ module Animate
 				{
 					if (event.return_type == AnimateLoaderResponses.ERROR )
 					{
-						this.dispatchEvent( new PluginBrowserEvent( PluginBrowserEvents.FAILED, event.message, event.tag ) );
+						this.emit( new PluginBrowserEvent( PluginBrowserEvents.FAILED, event.message, event.tag ) );
 						MessageBox.show(event.message, ["Ok"], null, null );
 						this.projectNext.enabled = true;
 					}
 					else
 					{
 						//Say we're good to go!
-						this.dispatchEvent( new PluginBrowserEvent( PluginBrowserEvents.PLUGINS_IMPLEMENTED, event.message, event.tag ) );
+						this.emit( new PluginBrowserEvent( PluginBrowserEvents.PLUGINS_IMPLEMENTED, event.message, event.tag ) );
 					}
 				}
 			}
 			else 
 			{
 				//Failed - so we don't show anything
-				this.dispatchEvent( new PluginBrowserEvent( PluginBrowserEvents.FAILED, event.message, event.tag ) );
+				this.emit( new PluginBrowserEvent( PluginBrowserEvents.FAILED, event.message, event.tag ) );
 				this.projectNext.enabled = true;
 			}
 		}

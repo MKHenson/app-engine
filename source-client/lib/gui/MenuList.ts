@@ -44,7 +44,7 @@ module Animate
 		removeItem( item : JQuery )
 		{
 			if ( item == this.selectedItem )
-				this.dispatchEvent( MenuListEvents.ITEM_CLICKED, "" );
+				this.emit( MenuListEvents.ITEM_CLICKED, "" );
 
 			this._items.splice( jQuery.inArray( item, this.items ), 1 );
 			item.remove();
@@ -81,13 +81,13 @@ module Animate
 			{
 				this.selectedItem = targ;
 				this.selectedItem.addClass( "selected" );
-				this.dispatchEvent( MenuListEvents.ITEM_CLICKED, targ.text() );
+				this.emit( MenuListEvents.ITEM_CLICKED, targ.text() );
 
 				e.preventDefault();
 				return;
 			}
 			else
-				this.dispatchEvent( MenuListEvents.ITEM_CLICKED, "" );
+				this.emit( MenuListEvents.ITEM_CLICKED, "" );
 		}
 
 		get items(): Array<JQuery> { return this._items; }

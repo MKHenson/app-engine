@@ -36,7 +36,7 @@ module Animate
 		//private _saveProject: Button;
 		private _selectBuild: Button;
         private _saveBuild: Button;
-        private _uploader: FileUploaderBasic;
+        //private _uploader: FileUploaderBasic;
 
 		private _renameProxy: any;
 		private _buildProxy: any;
@@ -191,7 +191,54 @@ module Animate
                     that.update();
                 }
             });
-		}
+        }
+
+        /** 
+        * Opens the file viewer and lets the user pick an image for their avatar
+        */
+        pickAvatar()
+        {
+            var that = this;
+            this.$loading = true;
+            (<any>this).$errorMsgUserImg = "";
+
+            Animate.FileViewer.get.choose('img').then(function(file)
+            {
+                User.get.updateDetails({ image: (file ? file.url : null) }).fail(function (err: Error)
+                {
+                    (<any>that).$errorMsgUserImg = err.message;
+
+                }).always(function ()
+                {
+                    that.$loading = false;
+                    Compiler.digest(that._userElm, that, false);
+                });
+            });
+        }
+        
+        /** 
+        * Opens the file viewer and lets the user pick an image for their project
+        */
+        pickProjectPick()
+        {
+            var that = this;
+            this.$loading = true;
+            var project = User.get.project;
+            (<any>this).$errorMsgProjImg = "";
+
+            Animate.FileViewer.get.choose('img').then(function (file)
+            {
+                project.updateDetails({ image: (file ? file.url : null) }).fail(function (err: Error)
+                {
+                    (<any>that).$errorMsgProjImg = err.message;
+
+                }).always(function ()
+                {
+                    that.$loading = false;
+                    Compiler.digest(that._projectElm, that, false);
+                });
+            });
+        }
 
         /** 
         * Attempts to update the project
@@ -504,7 +551,7 @@ module Animate
 			( <Label>this._buildVerMin.val ).text = versionParts[2];
 			(<Label>this._notes.val).text = data.build_notes;
             (<ComboBox>this._visibility.val).selectedItem = ( data.visibility == "Public" ? "Public" : "Private" );
-			this.initializeLoader();
+			//this.initializeLoader();
 		}
 
 		/**
@@ -556,7 +603,7 @@ module Animate
             var e = project.entry;
 
 			//Start the image uploader
-            this.initializeLoader();
+            //this.initializeLoader();
             this.$project = project;
             this.$projectToken = { name: e.name, description: e.description, tags: e.tags, category: e.category, public: e.public };
 
@@ -603,58 +650,58 @@ module Animate
 			this.update();
 		}
 
-		/**
-		* This is called to initialize the one click loader
-		*/
-		initializeLoader()
-        {
-            var that = this;
-            that.$loadingPercent = "";
-            that.$errorMsgImg = "";
+		///**
+		//* This is called to initialize the one click loader
+		//*/
+		//initializeLoader()
+  //      {
+  //          var that = this;
+  //          that.$loadingPercent = "";
+  //          that.$errorMsgImg = "";
 
-			if ( !this._uploader )
-			{
-				this._uploader = new qq.FileUploaderBasic( {
-                    button: document.getElementById( "upload-projet-img" ),
-					action: DB.HOST + "/file/upload-project-image",
+		//	if ( !this._uploader )
+		//	{
+		//		this._uploader = new qq.FileUploaderBasic( {
+  //                  button: document.getElementById( "upload-projet-img" ),
+		//			action: DB.HOST + "/file/upload-project-image",
 
-                    onSubmit: function (file, ext )
-                    {
-                        ext = ext.split(".");
-                        ext = ext[ext.length - 1];
-                        ext.toLowerCase();
+  //                  onSubmit: function (file, ext )
+  //                  {
+  //                      ext = ext.split(".");
+  //                      ext = ext[ext.length - 1];
+  //                      ext.toLowerCase();
 
-                        if (ext != "png" && ext != "jpeg" && ext != "jpg")
-                        {
-                            that.$errorMsgImg = 'Only png, jpg and jpeg files are allowed';
-                            Compiler.digest(that._projectElm, that, false);
-                            return false;
-                        }
-                    },
-                    onComplete: function( id, fileName, response )
-                    {
-                        that.$project.entry.image = "";
-                        that.$loadingPercent = "";
-                        Compiler.digest(that._projectElm, that, false);
-                    },
-                    onProgress: function (id, fileName, loaded, total)
-                    {
-                        that.$loadingPercent = `${((loaded / total) * 100) }%`;
-                        Compiler.digest(that._projectElm, that, false);
-                    },
-                    onError: function (id, fileName, reason)
-                    {
-                        that.$errorMsgImg = "An Error occurred uploading the file: " + reason;
-                        Compiler.digest(that._projectElm, that, false);
-                    },
-					demoMode: false
-				});
+  //                      if (ext != "png" && ext != "jpeg" && ext != "jpg")
+  //                      {
+  //                          that.$errorMsgImg = 'Only png, jpg and jpeg files are allowed';
+  //                          Compiler.digest(that._projectElm, that, false);
+  //                          return false;
+  //                      }
+  //                  },
+  //                  onComplete: function( id, fileName, response )
+  //                  {
+  //                      that.$project.entry.image = "";
+  //                      that.$loadingPercent = "";
+  //                      Compiler.digest(that._projectElm, that, false);
+  //                  },
+  //                  onProgress: function (id, fileName, loaded, total)
+  //                  {
+  //                      that.$loadingPercent = `${((loaded / total) * 100) }%`;
+  //                      Compiler.digest(that._projectElm, that, false);
+  //                  },
+  //                  onError: function (id, fileName, reason)
+  //                  {
+  //                      that.$errorMsgImg = "An Error occurred uploading the file: " + reason;
+  //                      Compiler.digest(that._projectElm, that, false);
+  //                  },
+		//			demoMode: false
+		//		});
 
-				this._uploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
-			}
+		//		this._uploader._options.allowedExtensions.push( "jpg", "png", "jpeg" );
+		//	}
 
-            this._uploader.setParams({ projectId: User.get.project.entry._id });
-		}
+  //          this._uploader.setParams({ projectId: User.get.project.entry._id });
+		//}
 
 		/**
 		* Use this function to print a message on the settings screen. 

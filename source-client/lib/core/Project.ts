@@ -265,12 +265,19 @@ module Animate
         updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
         {
             var d = jQuery.Deferred<UsersInterface.IResponse>();
+            var entry = this.entry;
 
             Utils.put(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, token).then(function (data: UsersInterface.IResponse)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
-           
+                else
+                {
+                    for (var i in token)
+                        if (entry.hasOwnProperty(i))
+                            entry[i] = token[i];
+                }
+
                 return d.resolve(data);
 
             }).fail(function (err: JQueryXHR)
@@ -449,7 +456,7 @@ module Animate
 			for ( var i = 0; i < this._behaviours.length; i++ )
 				if ( this._behaviours[i].name == name )
 				{
-					this.dispatchEvent( new ProjectEvent( ProjectEvents.FAILED, "A behaviour with that name already exists.", LoaderEvents.FAILED ) );
+					this.emit( new ProjectEvent( ProjectEvents.FAILED, "A behaviour with that name already exists.", LoaderEvents.FAILED ) );
 					return;
 				}
 
@@ -717,7 +724,7 @@ module Animate
 
 				// Tell plugins about asset saving
 				ev.asset = asset;
-				pm.dispatchEvent( ev );
+				pm.emit( ev );
 
 				jsons.push( JSON.stringify( asset.properties.tokenize() ) );
 				ids.push( asset.id );
@@ -856,13 +863,13 @@ module Animate
 					if ( loader.url == "/project/select-build" )
 					{
 						this.mCurBuild = data.build;
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.BUILD_SELECTED, data.message, LoaderEvents.fromString( data.return_type ),  this.mCurBuild ) );
+						this.emit( new ProjectEvent( ProjectEvents.BUILD_SELECTED, data.message, LoaderEvents.fromString( data.return_type ),  this.mCurBuild ) );
 					}
 					//Updates the current build
 					else if ( loader.url == "/project/save-build" )
 					{
 						//this.mCurBuild = data.build;
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.BUILD_SAVED, "Build saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						this.emit( new ProjectEvent( ProjectEvents.BUILD_SAVED, "Build saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 					}
 					//Delete a new Behaviour
 					else if ( loader.url == "/project/delete-behaviours" )
@@ -877,7 +884,7 @@ module Animate
 									var behaviour : BehaviourContainer = this._behaviours[ii];
 									behaviour.dispose();									
 									this._behaviours.splice( ii, 1 );
-									this.dispatchEvent( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
+									this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
 									break;
 								}
 						}							
@@ -895,7 +902,7 @@ module Animate
 						jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
 						tabPair.name = node.element.text();
 
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
+						this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
 					}
 					else if ( loader.url == "/project/get-behaviours" )
 					{
@@ -919,9 +926,9 @@ module Animate
 
 							//Update the GUI elements
 							TreeViewScene.getSingleton().updateBehaviour( b );
-							this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
+							this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
 						}
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
+						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/save-behaviours" )
 					{
@@ -934,21 +941,21 @@ module Animate
 									if ( canvas )
 										this._behaviours[i].json = canvas.buildDataObject();
 
-									this.dispatchEvent( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+									this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
+						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/save-html" )
 					{
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 						if ( HTMLTab.singleton )
 							HTMLTab.singleton.save();
 					}
 					else if ( loader.url == "/project/save-css" )
 					{
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 						if ( CSSTab.singleton )
 							CSSTab.singleton.save();
 					}
@@ -965,11 +972,11 @@ module Animate
 								if ( this._assets[ii].id == data[i] )
 								{
 									ev.asset = this._assets[ii];
-									this.dispatchEvent( ev );
+									this.emit( ev );
 
 									//Notify the destruction of an asset
 									( <AssetEvent>dispatchEvent).asset = this._assets[ii];
-									pManager.dispatchEvent( dispatchEvent );
+									pManager.emit( dispatchEvent );
 
 									this._assets[ii].dispose();
 									this._assets.splice( ii, 1 );
@@ -1059,7 +1066,7 @@ module Animate
 
 					//Create a new group
 					else if ( loader.url == "/project/create-group" )
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: data._id, name: data.name, json: data.json } ) );
+						this.emit( new ProjectEvent( ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: data._id, name: data.name, json: data.json } ) );
 					//Creates each of the groups and notify they were loaded.
 					else if ( loader.url == "/project/get-groups" )
 					{
@@ -1067,9 +1074,9 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var dbEntry = data[i];
-							this.dispatchEvent(new ProjectEvent(ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: dbEntry["_id"], name: dbEntry["name"], json: dbEntry["json"] } ));
+							this.emit(new ProjectEvent(ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: dbEntry["_id"], name: dbEntry["name"], json: dbEntry["json"] } ));
 						}
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.GROUPS_LOADED, "Groups loaded", LoaderEvents.COMPLETE, this ) );
+						this.emit(new ProjectEvent(ProjectEvents.GROUPS_LOADED, "Groups loaded", LoaderEvents.COMPLETE, this ) );
 					}
 					//Delete a new group
 					else if ( loader.url == "/project/delete-groups" )
@@ -1077,7 +1084,7 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var grpID = data[i];
-							this.dispatchEvent( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
+							this.emit( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
 						}
 					}
 					//Update / download group details
@@ -1087,18 +1094,18 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var grp = data[i];
-							this.dispatchEvent( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
+							this.emit( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
 						}
 
-						this.dispatchEvent( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
+						this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
 					}
 					//Entered if we have saved some groups
 					else if ( loader.url == "/project/save-groups" )
 					{
 						for ( var i = 0, l = data.length; i < l; i++ )
-							this.dispatchEvent(new ProjectEvent(ProjectEvents.GROUP_SAVED, "Group saved", LoaderEvents.COMPLETE, data[i] ) );
+							this.emit(new ProjectEvent(ProjectEvents.GROUP_SAVED, "Group saved", LoaderEvents.COMPLETE, data[i] ) );
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.GROUPS_SAVED, "Groups saved", LoaderEvents.COMPLETE, null ) );
+						this.emit(new ProjectEvent(ProjectEvents.GROUPS_SAVED, "Groups saved", LoaderEvents.COMPLETE, null ) );
 					}
 					//Create a new Behaviour
 					else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
@@ -1119,9 +1126,9 @@ module Animate
 							pManager.assetEdited( asset, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
 
 						//pManager.assetLoaded( asset );
-						pManager.dispatchEvent( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
+						pManager.emit( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
+						this.emit(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
 					}
 					//Save the asset
 					else if ( loader.url == "/project/save-assets" )
@@ -1129,9 +1136,9 @@ module Animate
 						for ( var ii = 0; ii < data.length; ii++ )
 							for ( var i = 0; i < this._assets.length; i++ )							
 								if ( this._assets[i].id == data[ii] )
-									this.dispatchEvent( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
+									this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
+						this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
 					}
 					//Update / download asset details
 					else if ( loader.url == "/project/update-assets" )
@@ -1141,10 +1148,10 @@ module Animate
 								if ( this._assets[i].id == data[ii]._id )
 								{
 									this._assets[i].update( data[ii].name, data[ii].className, data[ii].json );
-									this.dispatchEvent( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
+									this.emit( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
 								}
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
+						this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
 					}
 					//Update / download behaviour details
 					else if ( loader.url == "/project/update-behaviours" )
@@ -1159,12 +1166,12 @@ module Animate
 									
 									//Update the GUI elements
 									TreeViewScene.getSingleton().updateBehaviour( this._behaviours[i] );
-									this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+									this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}
 						}
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
+						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/get-assets" )
 					{
@@ -1206,10 +1213,10 @@ module Animate
 						{
 							//pManager.assetLoaded( this._assets[i] );
 							eventCreated.asset = this._assets[i];
-							pManager.dispatchEvent( eventCreated );
+							pManager.emit( eventCreated );
 						}
 
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
+						this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
 					}
 					//Handle renaming
 					else if ( loader.url == "/project/rename-object" )
@@ -1241,17 +1248,17 @@ module Animate
 							obj = TreeViewScene.getSingleton().getGroupByID( data.id )
 
 						//Send event
-						this.dispatchEvent(new ProjectEvent(ProjectEvents.OBJECT_RENAMED, "Object Renamed", LoaderEvents.COMPLETE, { object: obj, type: data.type, name: data.name, id: data.id }));
+						this.emit(new ProjectEvent(ProjectEvents.OBJECT_RENAMED, "Object Renamed", LoaderEvents.COMPLETE, { object: obj, type: data.type, name: data.name, id: data.id }));
 					}
 				}
 				else
 				{
 					MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.dispatchEvent( new ProjectEvent( ProjectEvents.FAILED, event.message, data ) );
+					this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, data ) );
 				}
 			}
 			else
-				this.dispatchEvent(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
+				this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         }
 
         get behaviours(): Array<BehaviourContainer> { return this._behaviours; }
@@ -1271,7 +1278,7 @@ module Animate
 			var i = this._behaviours.length;
 			while ( i-- )
 			{
-				this.dispatchEvent(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
+				this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
 				this._behaviours[i].dispose();
 			}
 
@@ -1281,7 +1288,7 @@ module Animate
 			{
 				( <AssetEvent>event).asset = this._assets[i];
 				//Notify the destruction of an asset
-				pManager.dispatchEvent( event );			
+				pManager.emit( event );			
 				this._assets[i].dispose();
 			}
 

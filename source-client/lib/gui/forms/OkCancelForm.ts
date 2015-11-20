@@ -72,7 +72,7 @@ module Animate
 		onCloseClicked( e )
 		{
 			var event: OkCancelFormEvent = new OkCancelFormEvent( OkCancelFormEvents.CONFIRM, "Cancel" );
-			this.dispatchEvent( event );
+			this.emit( event );
 			if ( event.cancel === false )
 				this.hide();
 		}
@@ -85,7 +85,7 @@ module Animate
 		OnButtonClick( e )
 		{
 			var event: OkCancelFormEvent = new OkCancelFormEvent( OkCancelFormEvents.CONFIRM, jQuery( e.target ).text() )
-			this.dispatchEvent( event );
+			this.emit( event );
 			if ( event.cancel === false )
 				this.hide();
 		}

@@ -111,7 +111,7 @@ module Animate
 				{
 					//We tell the plugins we've selected a behaviour container
 					//PluginManager.getSingleton().containerSelected( null );
-					PluginManager.getSingleton().dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
+					PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
 				}
 			}
 
@@ -224,7 +224,7 @@ module Animate
 				{
 					var asset: Asset = project.getAssetByShallowId( references.assets[i] );
 					contEvent.asset = asset;
-					pManager.dispatchEvent( contEvent );
+					pManager.emit( contEvent );
 				}
 			}
 
@@ -251,15 +251,15 @@ module Animate
 				{
 					var asset: Asset = project.getAssetByShallowId( references.assets[i] );
 					contEvent.asset = asset;
-					pManager.dispatchEvent( contEvent );
+					pManager.emit( contEvent );
 				}
 
 				//We tell the plugins we've selected a behaviour container
-				pManager.dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, canvas.behaviourContainer ) );
+				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, canvas.behaviourContainer ) );
 			}
 			else
 				//We tell the plugins we've selected a behaviour container
-				pManager.dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
+				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
 
 			Tab.prototype.onTabSelected.call( this, tab );
 		}
@@ -370,7 +370,7 @@ module Animate
 				{
 					var asset = project.getAssetByShallowId( references.assets[i] );					
 					contEvent.asset = asset;
-					pManager.dispatchEvent( contEvent );
+					pManager.emit( contEvent );
 				}
 
 				canvas.behaviourContainer.canvas = null;
@@ -428,10 +428,10 @@ module Animate
 				(<Behaviour>canvas.children[0]).updateDimensions();
 
 				//PluginManager.getSingleton().containerCreated( tabContent );
-				pManager.dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_CREATED, tabContent ) );
+				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_CREATED, tabContent ) );
 
 				//PluginManager.getSingleton().containerSelected( tabContent );
-				PluginManager.getSingleton().dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
+				PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
 				return toRet;
 			}
 			else if ( type == CanvasTabType.BLANK )

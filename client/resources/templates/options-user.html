@@ -24,15 +24,16 @@
 			<div class="img-preview unselectable">
 				<div class="preview-child">
 					<div class="background-tiles inner ng-scope">
-						<img class="vert-align" en-src="ctrl.$project && (ctrl.$project.entry.image || './media/appling.png')">
+						<img class="vert-align" en-src="( Animate.User.get.meta.image && Animate.User.get.meta.image.trim() != '' ? Animate.User.get.meta.image : './media/appling.png')">
 						<div class="div-center"></div>
 					</div>
 				</div>
-				<div class="item-name reg-gradient" id="upload-projet-img" en-click="Animate.FileViewerForm.getSingleton().showForm( null, null )"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
+				<div class="item-name reg-gradient" id="upload-projet-img" en-click="ctrl.pickAvatar()"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
 			</div>
 			<div class="img-data">
 				<div class="info">Your avatar is the image others see you as. Use the upload button to change your profile picture.</div>
 			</div>
+			<div class="error" en-show="ctrl.$errorMsgUserImg && ctrl.$errorMsgUserImg != ''">{{ctrl.$errorMsgUserImg}}</div>
 			<div class="fix"></div>
 		</div>
 	</div>

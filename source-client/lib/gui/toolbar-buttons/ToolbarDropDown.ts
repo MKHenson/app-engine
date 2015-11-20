@@ -146,7 +146,7 @@ module Animate
             this.addChild(item);
             this._selectedItem = item;
 			var e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, "clicked" );
-			this.dispatchEvent( e );
+			this.emit( e );
 			e.dispose();
 			
 			return;

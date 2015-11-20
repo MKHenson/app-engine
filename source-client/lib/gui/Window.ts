@@ -120,7 +120,7 @@ module Animate
 			if ( this._controlBox )
 				this.element.draggable( "destroy" );
 
-			this.dispatchEvent( new WindowEvent( WindowEvents.HIDDEN, this ) );
+			this.emit( new WindowEvent( WindowEvents.HIDDEN, this ) );
 		}
 
 		/**
@@ -177,7 +177,7 @@ module Animate
 
 			
 
-			this.dispatchEvent( new WindowEvent( WindowEvents.SHOWN, this ) );
+			this.emit( new WindowEvent( WindowEvents.SHOWN, this ) );
 
 			if ( this._controlBox )
 				this.element.draggable( { handle: ".window-control-box", containment: "parent" });

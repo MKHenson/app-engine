@@ -488,7 +488,7 @@ module Animate
 		propUpdated( name : string, value : any, type : ParameterType )
 		{
 			//dispatches the grid event
-			this.dispatchEvent( new PropertyGridEvent( PropertyGridEvents.PROPERTY_EDITED, name, this._idObject, value, type ));
+			this.emit( new PropertyGridEvent( PropertyGridEvents.PROPERTY_EDITED, name, this._idObject, value, type ));
 		}
 
 		/**

@@ -57,14 +57,14 @@
 						<div class="div-center"></div>
 					</div>
 				</div>
-				<div class="item-name reg-gradient" id="upload-projet-img" en-click="Animate.FileViewerForm.getSingleton().showForm( null, null )"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
+				<div class="item-name reg-gradient" id="upload-projet-img" en-click="ctrl.pickProjectPick()"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
 			</div>
 			<div class="img-data">
 				<div class="info">
 					Upload an image for the project; this image will show up in the Animate gallery for others to see. 
 					<br><br><span class="nb">Your application must have an image in order to be shown in the gallery.</span><br><br>
 					Your project image should be either a .png or .jpg image that is 200 by 200 pixels.
-					<div class="error" en-show="ctrl.$errorMsgImg != ''">{{ctrl.$errorMsgImg}}</div>
+					<div class="error" en-show="ctrl.$errorMsgProjImg && ctrl.$errorMsgProjImg != ''">{{ctrl.$errorMsgProjImg}}</div>
 				</div>
 			</div>
 			<div class="fix"></div>

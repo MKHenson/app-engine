@@ -102,7 +102,7 @@ module Animate
 
 				//Dispatch an event notifying listeners of the renamed object
 				var event: RenameFormEvent  = new RenameFormEvent(RenameFormEvents.OBJECT_RENAMING, name, this.object)
-				this.dispatchEvent(event );
+				this.emit(event );
 				if ( event.cancel )
 					return;
 
@@ -111,7 +111,7 @@ module Animate
 					OkCancelForm.prototype.OnButtonClick.call( this, e );
 					(<Behaviour>this.object).onRenamed( name );
 					//Dispatch an event notifying listeners of the renamed object
-					this.dispatchEvent(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object));
+					this.emit(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object));
 					this.object = null;
 					return;
 				}
@@ -164,7 +164,7 @@ module Animate
 
 			//Dispatch an event notifying listeners of the renamed object
 			var name = ( <Label>this.name.val ).text;
-			this.dispatchEvent(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object)  );
+			this.emit(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object)  );
 			this.object = null;
 
 			this.hide();

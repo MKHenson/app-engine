@@ -56,7 +56,7 @@ module Animate
 		*/
 		onSelection( val )
 		{
-			this.dispatchEvent(new ListEvent( ListEvents.ITEM_SELECTED, this.selectedItem ) );
+			this.emit(new ListEvent( ListEvents.ITEM_SELECTED, this.selectedItem ) );
 		}
 
 		/**

@@ -1,25 +1,22 @@
 module Animate
 {
-	export class FileViewerFormEvents extends ENUM
+    /**
+	* An event to deal with file viewer events 
+    * The event type can be 'cancelled' or 'change'
+	*/
+	export class FileViewerEvent extends Event
 	{
-		constructor(v: string) { super(v); }
-
-		static OBJECT_RENAMED: FileViewerFormEvents = new FileViewerFormEvents("file_viewer_object_renamed");
-		static OBJECT_RENAMING: FileViewerFormEvents = new FileViewerFormEvents("file_viewer_object_renaming");
-		static FILE_CHOSEN: FileViewerFormEvents = new FileViewerFormEvents("file_viewer_file_chosen");
-		static CANCELLED: FileViewerFormEvents = new FileViewerFormEvents("file_viewer_cancelled");
-	}
-
-	export class FileViewerFormEvent extends Event
-	{
-		public file: File;
-		constructor( eventType: FileViewerFormEvents, file: File )
+        public file: Engine.IFile;
+        constructor(type: string, file: Engine.IFile )
 		{
-			super( eventType, file );
+			super( type, file );
 			this.file = file;
 		}
     }
 
+    /**
+	* Defines which types of files to search through 
+	*/
     export enum FileSearchType
     {
         Global,
@@ -30,12 +27,16 @@ module Animate
 	/**
 	* This form is used to load and select assets.
 	*/
-    export class FileViewerForm extends Window
+    export class FileViewer extends Window
     {
-        private static _singleton: FileViewerForm;
+        private static _singleton: FileViewer;
         
         // New variables
         private _browserElm: JQuery;
+        private _searchType: FileSearchType;
+        private _shiftkey: boolean;
+        private _cancelled: boolean;
+
         private $pager: PageLoader;
         private $selectedFile: Engine.IFile;
         private $loading: boolean;
@@ -49,21 +50,20 @@ module Animate
         private $fileToken: Engine.IFile;
         private $uploader: FileUploader;
         private $onlyFavourites: boolean;
-        private _searchType: FileSearchType;
-        private _shiftkey: boolean;
-
+        
         public extensions: Array<string>;
-        public selectedEntities: Array<UsersInterface.IBucketEntry | UsersInterface.IFileEntry>;
-        public selectedEntity: UsersInterface.IBucketEntry | Engine.IFile;
+        public selectedEntities: Array<UsersInterface.IFileEntry>;
+        public selectedEntity: Engine.IFile;
         public selectedFolder: string;
         public multiSelect: boolean;
+        
         
         /**
         * Creates an instance of the file uploader form
         */
         constructor()
         {
-            FileViewerForm._singleton = this;
+            FileViewer._singleton = this;
             var that = this;
 
             // Call super-class constructor
@@ -76,8 +76,9 @@ module Animate
             this.$selectedFile = null;
             this.$errorMsg = "";
             this.$confirmDelete = false;
+            this._cancelled = true;
             this.$pager = new PageLoader(this.updateContent.bind(this));
-            //this.$pager.limit = 2;
+            this.$pager.limit = 15;
             this.selectedEntities = [];
             this.selectedEntity = null;
             this.selectedFolder = null;
@@ -235,8 +236,10 @@ module Animate
                 this.$errorMsg = "";
         }
 
-
-
+        /**
+        * Called in the HTML once a file is clicked and we need to get a preview of it
+        * @param {IFile} file The file to preview
+        */
         getPreview(file: Engine.IFile)
         {
             var preview = <HTMLDivElement>this._browserElm[0].querySelector("#file-preview");
@@ -290,6 +293,26 @@ module Animate
             ///}
             //else
             //    this.$selectedFile = null;
+        }
+
+        /**
+		* Removes the window and modal from the DOM.
+		*/
+        hide()
+        {
+            this.emit(new FileViewerEvent("selected", (this._cancelled ? null : this.selectedEntity)));
+            super.hide();
+            this.extensions.splice(0, this.extensions.length);
+        }
+
+        /**
+        * Called whenever we select a file
+        */
+        fileChosen(file: Engine.IFile)
+        {
+            this._cancelled = false;
+            this.hide();
+            this._cancelled = true;
         }
 
         /**
@@ -364,6 +387,7 @@ module Animate
                 else
                 {
                     that.$entries = token.data;
+                    that.$entries = that.filterByExtensions();
                     that.$pager.last = token.count;
                 }
 
@@ -419,7 +443,7 @@ module Animate
             {
                 for (var f = 0, fl = files.length; f < fl; f++)
                 {
-                    var split = files[i].name.split("."),
+                    var split = files[f].name.split("."),
                         ext = split[split.length - 1].toLowerCase(),
                         extFound = false;
 
@@ -436,6 +460,43 @@ module Animate
             }
 
             return true;
+        }
+
+        /**
+		* Makes sure we only view the file types specified in the exension array
+		*/
+        filterByExtensions(): Array<Engine.IFile>
+        {
+            var extensions = this.extensions,
+                files = this.$entries,
+                ext = "",
+                hasExtension = false;
+
+            if (extensions.length == 0)
+                return this.$entries;
+
+            var filtered = [];
+                
+
+            for (var i = 0, l = files.length; i < l; i++)
+            {
+                ext = files[i].extension.split(/\\|\//).pop().trim();
+                hasExtension = false;
+
+                for (var ii = 0, li = extensions.length; ii < li; ii++)
+                {
+                    if (ext == extensions[ii])
+                    {
+                        hasExtension = true;
+                        break;
+                    }
+                }
+
+                if (hasExtension)
+                    filtered.push(files[i]);
+            }
+
+            return filtered;
         }
 
 		/**
@@ -480,7 +541,7 @@ module Animate
 		*/
         uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement)
         {
-            var that = FileViewerForm._singleton;
+            var that = FileViewer._singleton;
             var details = User.get.userEntry;
             var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
@@ -521,16 +582,23 @@ module Animate
             fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
         }
 
-		/**
-		* Shows the window.
+        /**
+		* Shows the window by adding it to a parent.
+		* @param {Component} parent The parent Component we are adding this window to
+		* @param {number} x The x coordinate of the window
+		* @param {number} y The y coordinate of the window
+		* @param {boolean} isModal Does this window block all other user operations?
+		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-		showForm( id : string, extensions : Array<string> )
-		{
+        show(parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false)
+        {
             super.show(null, undefined, undefined, true);
+            
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$loading = false;
             this.$newFolder = false;
+            this.selectedEntity = null;
             var that = this,
                 details = User.get.userEntry,
                 extensions = this.extensions,
@@ -539,7 +607,7 @@ module Animate
             // Call update and redraw the elements
             this.$pager.invalidate();
 
-            var onChanged = function()
+            var onChanged = function ()
             {
                 var input = <HTMLInputElement>this;
 
@@ -553,6 +621,10 @@ module Animate
                 {
                     that.$errorMsg = `Only ${that.extensions.join(', ') } file types are allowed`;
                     Compiler.digest(that._browserElm, that);
+
+                    // Reset the value
+                    (<HTMLInputElement>this).value = "";
+
                     return false;
                 }
 
@@ -566,7 +638,7 @@ module Animate
                 // Reset the value
                 (<HTMLInputElement>this).value = "";
             }
-            
+
             var elm = document.getElementById('upload-new-file');
 
             // If we already added a function handler - then remove it
@@ -577,8 +649,35 @@ module Animate
             (<any>elm)._func = onChanged;
         }
 
+		/**
+		* Use this function to show the file viewer and listen for when the user has selected a file
+		*/
+        choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile>
+        {
+            // Show the form
+            this.show(); 
+
+            var d = jQuery.Deferred<Engine.IFile>(),
+                that = this
+            if (extensions == "img")
+                this.extensions = ['jpg', 'jpeg', 'png', 'gif'];
+            else
+                this.extensions = <Array<string>>extensions;
+            
+            // When the file is chosen - return
+            var fileChosen = function(type, event: FileViewerEvent, sender)
+            {
+                that.off("selected", fileChosen);
+                d.resolve(event.file);
+            }
+
+            this.on("selected", fileChosen);
+            return d.promise();
+        }
+
         /**
-		* Attempts to update the selected entity
+		* Attempts to update the selected file
+        * @param {IFile} token The file token to update with
 		*/
         updateFile(token: Engine.IFile)
         {
@@ -611,13 +710,16 @@ module Animate
             });
         }
         
-		/** Gets the singleton instance. */
-		static getSingleton(): FileViewerForm
+		/** 
+        * Gets the singleton instance. 
+        * @returns {FileViewer}
+        */
+		static get get(): FileViewer
 		{
-			if ( !FileViewerForm._singleton )
-				new FileViewerForm();
+			if ( !FileViewer._singleton )
+				new FileViewer();
 
-			return FileViewerForm._singleton;
+			return FileViewer._singleton;
 		}
 	}
 }

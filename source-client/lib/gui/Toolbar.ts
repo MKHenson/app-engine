@@ -121,7 +121,7 @@ module Animate
         */
         onRun()
         {
-            PluginManager.getSingleton().dispatchEvent(new Event(EditorEvents.EDITOR_RUN, null));
+            PluginManager.getSingleton().emit(new Event(EditorEvents.EDITOR_RUN, null));
             ImportExport.getSingleton().run();
         }
 
@@ -137,7 +137,7 @@ module Animate
             {
                 var canvas = CanvasTab.getSingleton().currentCanvas;
                 canvas.openFromDataObject(this._copyPasteToken, false, true);
-                canvas.dispatchEvent(new CanvasEvent(CanvasEvents.MODIFIED, canvas));
+                canvas.emit(new CanvasEvent(CanvasEvents.MODIFIED, canvas));
             }
         }
 
@@ -165,7 +165,7 @@ module Animate
             if (cut)
                 Canvas.lastSelectedItem.dispose();
 
-            canvas.dispatchEvent(CanvasEvents.MODIFIED, canvas);
+            canvas.emit(CanvasEvents.MODIFIED, canvas);
         }
 
        

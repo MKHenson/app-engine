@@ -67,7 +67,7 @@ module Animate
 		onTabSelected( tab: TabPair )
 		{
 			var event: TabEvent = new TabEvent( TabEvents.SELECTED, tab );
-			this.dispatchEvent( event );
+			this.emit( event );
 			if ( event.cancel === false )
 				tab.onSelected();
 		}

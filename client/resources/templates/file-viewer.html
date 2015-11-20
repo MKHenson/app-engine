@@ -156,7 +156,7 @@
 			<div class="buttons ">
 				<div class="button"  en-show="!ctrl.$editMode" ><a class="red-highlight" en-click="Animate.MessageBox.show('Are you sure you want to permanently delete the file`' + ctrl.$selectedFile.name + '`?', ['Yes Delete It', 'No'], ctrl.removeEntities, ctrl)">REMOVE</a></div>
 				<div class="button" en-show="ctrl.$editMode"><a class="red-highlight" en-click="ctrl.$editMode = false">CANCEL</a></div>
-				<div class="button green animate-all" en-show="!ctrl.$editMode" en-click="ctrl.openProject(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
+				<div class="button green animate-all" en-show="!ctrl.$editMode" en-click="ctrl.fileChosen(ctrl.$selectedFile)">OPEN &nbsp; &#10148;</div>
 				<div class="button reg-gradient animate-all" en-show="ctrl.$editMode" en-click="ctrl.updateFile(ctrl.$fileToken)"><div class="tick"></div>UPDATE</div>
 			</div>
 		</div>

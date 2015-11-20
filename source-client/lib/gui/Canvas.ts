@@ -159,7 +159,7 @@ module Animate
 				target.portals[i].updateAllLinks();
 
 			//Notify of change
-			this.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+			this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 		}
 
 		/**
@@ -317,11 +317,11 @@ module Animate
 					if ( toRemove[i] == item )
 					{
 						//Notify of change
-						this.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+						this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
 						//Notify of change
 						if ( toRemove[i] instanceof BehaviourPortal )
-							PluginManager.getSingleton().dispatchEvent( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._behaviourContainer, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
+							PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._behaviourContainer, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
 
 						toRemove[i].dispose();
 
@@ -513,7 +513,7 @@ module Animate
 				if ( curAssets.indexOf( this._containerReferences.assets[i] ) == -1 )
 				{
 					removeEvent.asset = project.getAssetByShallowId( this._containerReferences.assets[i] );
-					pManager.dispatchEvent( removeEvent );
+					pManager.emit( removeEvent );
 				}
 
 			// Notify of asset additions			
@@ -521,7 +521,7 @@ module Animate
 				if ( this._containerReferences.assets.indexOf( curAssets[i] ) == -1 )
 				{
 					addEvent.asset = project.getAssetByShallowId( curAssets[i] );
-					pManager.dispatchEvent( addEvent );
+					pManager.emit( addEvent );
 				}
 
 			this._containerReferences.assets = curAssets;
@@ -574,7 +574,7 @@ module Animate
 								item.portals[ii].value = event.propertyValue;
 
 								//Notify of change
-								this.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+								this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 								this.buildSceneReferences();
 								return;
 							}
@@ -621,7 +621,7 @@ module Animate
 					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, behaviour, "" );
 
 					//Notify of change
-					PluginManager.getSingleton().dispatchEvent( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._behaviourContainer, portal, this ) );
+					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._behaviourContainer, portal, this ) );
 
 					return;
 				}
@@ -650,11 +650,11 @@ module Animate
 					newNode.css( { "left": this.mX + "px", "top": this.mY + "px", "position": "absolute" });
 
 					//Notify of change
-					PluginManager.getSingleton().dispatchEvent( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._behaviourContainer, newNode.portals[0], this ) );
+					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._behaviourContainer, newNode.portals[0], this ) );
 				}
 
 				//Notify of change
-				this.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+				this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 			}
 		}
 
@@ -892,7 +892,7 @@ module Animate
 			toAdd.updateDimensions();
 
 			//Notify of change
-			this.dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+			this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
 			return toAdd;
 		}
@@ -1263,7 +1263,7 @@ module Animate
 				items = this.children;
 
 			//Let the plugins save their data			
-			PluginManager.getSingleton().dispatchEvent( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._behaviourContainer, data.plugins, this._containerReferences ) );
+			PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._behaviourContainer, data.plugins, this._containerReferences ) );
 
 
 			//Create a multidimension array and pass each of the project dependencies
@@ -1584,7 +1584,7 @@ module Animate
 
 			//Let the plugins open their data
 			if ( jsonObj && jsonObj.plugins )				
-				pManager.dispatchEvent( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._behaviourContainer, jsonObj.plugins ) );
+				pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._behaviourContainer, jsonObj.plugins ) );
 
 			this.checkDimensions();
 			this.buildSceneReferences();

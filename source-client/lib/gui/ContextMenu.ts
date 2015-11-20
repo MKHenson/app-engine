@@ -181,7 +181,7 @@ module Animate
 			{
 				var item: ContextMenuItem = <ContextMenuItem>targ.data( "component" );
 				this.onItemClicked( item, targ );
-				this.dispatchEvent( new ContextMenuEvent( item, ContextMenuEvents.ITEM_CLICKED ) );
+				this.emit( new ContextMenuEvent( item, ContextMenuEvents.ITEM_CLICKED ) );
 				this.hide();
 				e.preventDefault();
 				return;

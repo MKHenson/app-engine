@@ -144,7 +144,7 @@ module Animate
 
 					this._loadedCount++;
 					if ( this._loadedCount >= this._buildEntries.length )
-						this.dispatchEvent( new ProjectLoaderEvent( ProjectLoaderEvents.READY, "Plugins loaded." ) ); 
+						this.emit( new ProjectLoaderEvent( ProjectLoaderEvents.READY, "Plugins loaded." ) ); 
 
 				}
 				else if ( jQuery.trim( url ) != "" )
@@ -221,7 +221,7 @@ module Animate
 			}
 
 			if ( this._loadedCount >= this._buildEntries.length )
-				this.dispatchEvent( new ProjectLoaderEvent( ProjectLoaderEvents.READY, "Plugins loaded." ) );
+				this.emit( new ProjectLoaderEvent( ProjectLoaderEvents.READY, "Plugins loaded." ) );
 	   }
 
 		get errorOccured(): boolean { return this._errorOccured; }

@@ -81,7 +81,7 @@ module Animate
 				this._selectedName = event.item.fields[0];
 				this._selectedID = event.item.fields[5];
 
-				this.dispatchEvent( new ProjectBrowserEvent( ProjectBrowserEvents.COMBO, "Open" ) );
+				this.emit( new ProjectBrowserEvent( ProjectBrowserEvents.COMBO, "Open" ) );
 				this._select.selectedItem = "Start";
 			}
 		}
@@ -93,7 +93,7 @@ module Animate
 		{
 			if ( event.item != "Start" )
 			{
-				this.dispatchEvent( new ProjectBrowserEvent( ProjectBrowserEvents.COMBO, event.item ) );
+				this.emit( new ProjectBrowserEvent( ProjectBrowserEvents.COMBO, event.item ) );
 				this._select.selectedItem = "Start";
 			}
 		}

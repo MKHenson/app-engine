@@ -535,7 +535,7 @@ module Animate
 
 						if ( data.object instanceof Asset )
 							//PluginManager.getSingleton().assetRenamed( data.object, prevName );
-							PluginManager.getSingleton().dispatchEvent( new AssetRenamedEvent( data.object, prevName ) );
+							PluginManager.getSingleton().emit( new AssetRenamedEvent( data.object, prevName ) );
 					}
 				}
 			}
@@ -820,7 +820,7 @@ module Animate
 			super.selectNode( node, expandToNode, multiSelect );
 
 			if ( node == null )
-				PluginManager.getSingleton().dispatchEvent( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
+				PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
 				//PluginManager.getSingleton().assetSelected( null );
 		}
 

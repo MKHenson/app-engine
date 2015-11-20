@@ -67,7 +67,7 @@ module Animate
 		*/
 		dispose()
 		{
-			PluginManager.getSingleton().dispatchEvent( new ContainerEvent( EditorEvents.CONTAINER_DELETED, this ) );
+			PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_DELETED, this ) );
 
 			//Call super
 			super.dispose();

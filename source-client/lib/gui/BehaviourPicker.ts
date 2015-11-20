@@ -90,7 +90,7 @@ module Animate
 		*/
 		onListDClick( e ) 
 		{
-			this.dispatchEvent( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
+			this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
 			this.hide();
 		}
 
@@ -138,7 +138,7 @@ module Animate
 			//If enter is pressed we select the current item
 			if ( e.keyCode == 13 )
 			{
-				this.dispatchEvent( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
+				this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
 				this.hide();
 			}
 

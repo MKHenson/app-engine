@@ -228,7 +228,7 @@
 					comp.element.addClass("selected");
 				}
 
-				this.dispatchEvent( new ListViewEvent( ListViewEvents.ITEM_DOUBLE_CLICKED, listViewItem ) );
+				this.emit( new ListViewEvent( ListViewEvents.ITEM_DOUBLE_CLICKED, listViewItem ) );
 			}
 
 			e.preventDefault();
@@ -271,7 +271,7 @@
 							comp.element.removeClass("selected");
 						}
 
-						this.dispatchEvent(new ListViewEvent(ListViewEvents.ITEM_CLICKED, null));
+						this.emit(new ListViewEvent(ListViewEvents.ITEM_CLICKED, null));
 						return;
 					}
 
@@ -294,7 +294,7 @@
 						{
 							var comp = listViewItem.components[i];
 							comp.element.removeClass("selected");
-							this.dispatchEvent (new ListViewEvent(ListViewEvents.ITEM_CLICKED, null) );
+							this.emit (new ListViewEvent(ListViewEvents.ITEM_CLICKED, null) );
 						}
 					}
 					else
@@ -307,7 +307,7 @@
 							comp.element.addClass("selected");
 						}
 
-						this.dispatchEvent(new ListViewEvent(ListViewEvents.ITEM_CLICKED, listViewItem));
+						this.emit(new ListViewEvent(ListViewEvents.ITEM_CLICKED, listViewItem));
 					}
 				}
 			}
