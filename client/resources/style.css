@@ -1306,6 +1306,10 @@ span.date {
     display: inline-block;
 }
 
+/**
+*  OPTIONS WINDOW - USER
+*  =========================
+*/
 #options-user .img-preview {
     position:relative;
     overflow:hidden;
@@ -1314,10 +1318,16 @@ span.date {
     float: left;
     margin-right:10px;
 }
-
 #options-user .error {
     margin: 10px 0 0 0;
     font-weight: bold;
+}
+#options-user .soft-text {
+    font-weight: normal;
+    float:right;
+}
+#options-user .field-option {
+    margin:10px 0px;
 }
 
 /**
@@ -1523,7 +1533,16 @@ span.date {
 .file-details .img-preview .preview-child {
     box-shadow: none;
 }
-
+.img-favourite {
+    background-image: url("media/star-15px.png");
+    width:15px;
+    height:15px;
+    display:inline-block;
+    margin:0 4px 0 0;
+}
+.f-selected.img-favourite {
+    background-position: 0 -15px;
+}
 /**
 ======================================================
 				COLORS

@@ -77,7 +77,7 @@
 							<div class="div-center"></div>
 						</div>
 					</div>
-					<div class="item-name">{{file.name}}</div>
+					<div class="item-name"><div class="img-favourite" en-class="{ 'f-selected' : file.selected }" en-show="file.favourite"></div>{{file.name}}</div>
 				</div>
 			</div>
 			<div class="no-items unselectable" en-if="ctrl.$entries.length == 0">No {{(ctrl.selectedFolder ? "files" : "folders" )}} uploaded</div>

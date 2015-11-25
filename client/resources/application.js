@@ -16056,16 +16056,17 @@ var Animate;
             that.$errorMsg = "";
             that.$confirmDelete = false;
             Animate.Compiler.digest(that._browserElm, that);
-            Animate.Utils.put(Animate.DB.API + "/files/" + details.username + "/" + token._id, token).then(function (token) {
+            Animate.Utils.put(Animate.DB.API + "/files/" + details.username + "/" + token._id, token).then(function (response) {
                 that.$loading = false;
-                if (token.error) {
-                    that.$errorMsg = token.message;
-                    Animate.Compiler.digest(that._browserElm, that);
-                }
+                if (response.error)
+                    that.$errorMsg = response.message;
                 else {
                     that.$editMode = false;
-                    that.$pager.invalidate();
+                    for (var i in token)
+                        if (that.$selectedFile.hasOwnProperty(i))
+                            that.$selectedFile[i] = token[i];
                 }
+                Animate.Compiler.digest(that._browserElm, that);
             }).fail(function (err) {
                 that.$errorMsg = "An error occurred while connecting to the server. " + err.status + ": " + err.responseText;
                 Animate.Compiler.digest(that._browserElm, that);

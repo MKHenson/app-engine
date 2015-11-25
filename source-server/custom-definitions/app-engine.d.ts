@@ -131,7 +131,6 @@
         favourite?: boolean;
         browsable?: boolean;
         size ?: number;
-        shallowId?: number;
         bucketId?: string;
         bucketName?: string;
         identifier?: string;

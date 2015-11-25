@@ -689,19 +689,20 @@ module Animate
             that.$confirmDelete = false;
             Compiler.digest(that._browserElm, that);
 
-            Utils.put(`${DB.API}/files/${details.username}/${token._id}`, token).then(function (token: UsersInterface.IResponse)
+            Utils.put(`${DB.API}/files/${details.username}/${token._id}`, token).then(function (response: UsersInterface.IResponse)
             {
                 that.$loading = false;
-                if (token.error)
-                {
-                    that.$errorMsg = token.message;
-                    Compiler.digest(that._browserElm, that);
-                }
+                if (response.error)
+                    that.$errorMsg = response.message;
                 else
                 {
                     that.$editMode = false;
-                    that.$pager.invalidate();
+                    for (var i in token)
+                        if (that.$selectedFile.hasOwnProperty(i))
+                            that.$selectedFile[i] = token[i];
                 }
+
+                Compiler.digest(that._browserElm, that);
 
             }).fail(function (err: JQueryXHR)
             {

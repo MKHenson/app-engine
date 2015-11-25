@@ -6,15 +6,19 @@
 		<div class="group-content">
 			<div class="field-option">
 				<div class="label">Username: <span class="soft-text">{{ctrl.$user.userEntry.username}}</span></div>
+				<div class="fix"></div>
 			</div>
 			<div class="field-option">
 				<div class="label">Email: <span class="soft-text">{{ctrl.$user.userEntry.email}}</span></div>
+				<div class="fix"></div>
 			</div>
 			<div class="field-option">
 				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.userEntry.createdOn).toLocaleDateString()}} {{new Date(ctrl.$user.userEntry.createdOn).toLocaleTimeString()}}</span></div>
+				<div class="fix"></div>
 			</div>
 			<div class="field-option">
 				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.userEntry.lastLoggedIn).toLocaleDateString()}} {{new Date(ctrl.$user.userEntry.lastLoggedIn).toLocaleTimeString()}}</span></div>
+				<div class="fix"></div>
 			</div>
 		</div>
 	</div>
@@ -46,6 +50,7 @@
 				<div class="label">Bio</div>
 				<textarea id="meta-bio" class="background-view-light">{{ctrl.$user.meta.bio}}</textarea>
 				<div class="soft-text info">Use the above pad to write about yourself. This will show up on Webinate next to your projects.</div>
+				<div class="fix"></div>
 			</div>
 			<div class="error" en-show="ctrl.$errorMsgImg != ''">{{ctrl.$errorMsgImg}}</div>
 			<div class="button reg-gradient curve-small"  en-click="ctrl.updateBio(jQuery('#meta-bio').val());" en-class="{ disabled : ctrl.$loading }">Update Information</div>
