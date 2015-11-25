@@ -3,7 +3,7 @@ module Animate
 	/**
 	* Behaviours are the base class for all nodes placed on a <Canvas>
 	*/
-	export class Behaviour extends Button implements ICanvasItem
+    export class Behaviour extends Button implements ICanvasItem, IRenamable
 	{
 		private _originalName: string;
 		private _alias: string;
@@ -235,6 +235,7 @@ module Animate
 			Button.prototype.dispose.call( this );
 		}
 
+        get name(): string { return this._alias; }
 		get originalName(): string { return this._originalName; }
 		get alias(): string { return this._alias; }
 		set alias( val: string ) { this._alias = val; }

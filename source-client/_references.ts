@@ -136,7 +136,6 @@
 /// <reference path="lib/gui/forms/BuildOptionsForm.ts" />
 /// <reference path="lib/gui/forms/FileViewer.ts" />
 /// <reference path="lib/gui/forms/MessageBox.ts" />
-/// <reference path="lib/gui/forms/NewBehaviourForm.ts" />
 /// <reference path="lib/gui/forms/PortalForm.ts" />
 /// <reference path="lib/gui/forms/RenameForm.ts" />
 /// <reference path="lib/gui/forms/UserPrivilegesForm.ts" />

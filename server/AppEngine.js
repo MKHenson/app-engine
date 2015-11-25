@@ -32,9 +32,9 @@ var AppEngine = (function (_super) {
             new PermissionController_1.PermissionController(server, config, e),
             new PluginController_1.PluginController(server, config, e),
             new ResourceController_1.ResourceController("/app-engine/assets", new AssetModel_1.AssetModel(), server, config, e),
-            new FileController_1.FileController(server, config, e),
             new ResourceController_1.ResourceController("/app-engine/groups", new GroupModel_1.GroupModel(), server, config, e),
             new ResourceController_1.ResourceController("/app-engine/behaviours", new BehaviourModel_1.BehaviourModel(), server, config, e),
+            new FileController_1.FileController(server, config, e),
             new ProjectController_1.ProjectController(server, config, e),
             new BuildController_1.BuildController(server, config, e)
         ];

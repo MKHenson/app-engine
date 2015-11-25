@@ -1,13 +1,20 @@
 module Animate
 {
+    export enum ResourceType
+    {
+        BEHAVIOUR,
+        GROUP,
+        ASSET,
+        CONTAINER
+    }
 	export class ProjectAssetTypes extends ENUM
 	{
 		constructor(v: string) { super(v); }
 
 		static BEHAVIOUR: ProjectAssetTypes = new ProjectAssetTypes("behaviour");
 		static ASSET: ProjectAssetTypes = new ProjectAssetTypes("asset");
-		static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
-
+        static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
+ 
 		/**
 		* Returns an enum reference by its name/value
 		* @param {string} val
@@ -72,7 +79,7 @@ module Animate
 		//static FILE_IMAGE_UPDATED: ProjectEvents = new ProjectEvents("file_image_updated");
 		//static FILES_LOADED: ProjectEvents = new ProjectEvents("files_loaded");
 		//static FILES_FETCHED: ProjectEvents = new ProjectEvents("files_fetched");
-		static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
+		//static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
 
 	export class ProjectEvent extends AnimateLoaderEvent
@@ -292,7 +299,7 @@ module Animate
 		* This function is used to fetch the _files associated with a project.
 		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
 		*/
-        loadFiles(mode: string = "project")
+        loadFiles(mode: string = "project"): JQueryPromise<ModepressAddons.IGetFiles>
         {
             var d = jQuery.Deferred<ModepressAddons.IGetFiles>();
             var that = this;
@@ -302,6 +309,42 @@ module Animate
                     return d.reject(new Error(data.message));
 
                 that.files = data.data;
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
+
+            return d.promise();
+        }
+
+        /**
+		* Use this to rename the project, a behaviour, group or asset.
+		* @param {string} name The new name of the object
+		* @param {string} id The id of the object we are renaming.
+		* @param {ResourceType} type The type of resource we are renaming
+		*/
+        renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>
+        {
+            var d = jQuery.Deferred<Modepress.IResponse>();
+            var that = this;
+            var details = User.get.userEntry;
+            var projId = this.entry._id;
+            var restURL = "";
+
+            if (type == ResourceType.ASSET)
+                restURL = `assets/${details.username}/${projId}/${id}`;
+            else if (type == ResourceType.BEHAVIOUR)
+                restURL = `behaviours/${details.username}/${projId}/${id}`;
+            else if (type == ResourceType.GROUP)
+                restURL = `groups/${details.username}/${projId}/${id}`;
+            
+            Utils.put(`${DB.API}/${restURL}`, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                
                 return d.resolve(data);
 
             }).fail(function (err: JQueryXHR)
@@ -328,24 +371,26 @@ module Animate
 
 
 
-		/**
-		* Use this to rename a behaviour, group or asset.
-		* @param {string} name The new name of the object
-		* @param {string} id The id of the asset or behaviour.
-		* @param {ProjectAssetTypes} type The type of object we are renaming. this can be either 'group', 'asset' or 'behaviour'
-		*/
-		renameObject( name: string, id: string, type: ProjectAssetTypes )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/rename-object", {
-                projectId: this.entry._id,
-				name: name,
-				objectId: id,
-				type: type.toString()
-			} );
-		}
+
+
+		///**
+		//* Use this to rename a behaviour, group or asset.
+		//* @param {string} name The new name of the object
+		//* @param {string} id The id of the asset or behaviour.
+		//* @param {ProjectAssetTypes} type The type of object we are renaming. this can be either 'group', 'asset' or 'behaviour'
+		//*/
+		//renameObject( name: string, id: string, type: ProjectAssetTypes )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/rename-object", {
+  //              projectId: this.entry._id,
+		//		name: name,
+		//		objectId: id,
+		//		type: type.toString()
+		//	} );
+		//}
 
 
 		/**
@@ -1218,38 +1263,38 @@ module Animate
 
 						this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
 					}
-					//Handle renaming
-					else if ( loader.url == "/project/rename-object" )
-					{
-						var obj = null;
-						var dataType: ProjectAssetTypes = ProjectAssetTypes.fromString( data.type );
-						if ( dataType.toString() == ProjectAssetTypes.BEHAVIOUR.toString() )
-						{
-							var len = this._behaviours.length;
-							for ( var i = 0; i < len; i++ )
-								if ( data.id == this._behaviours[i].id )
-								{
-									obj = this._behaviours[i];
-									break;
-								}
-						}
-						//We need to do it like this because there is also a ParameterType.ASSET
-						else if ( dataType.toString() == ProjectAssetTypes.ASSET.toString() )
-						{
-							var len = this._assets.length;
-							for ( var i = 0; i < len; i++ )
-								if ( data.id == this._assets[i].id )
-								{
-									obj = this._assets[i];
-									break;
-								}
-						}
-						else
-							obj = TreeViewScene.getSingleton().getGroupByID( data.id )
+					////Handle renaming
+					//else if ( loader.url == "/project/rename-object" )
+					//{
+					//	var obj = null;
+					//	var dataType: ProjectAssetTypes = ProjectAssetTypes.fromString( data.type );
+					//	if ( dataType.toString() == ProjectAssetTypes.BEHAVIOUR.toString() )
+					//	{
+					//		var len = this._behaviours.length;
+					//		for ( var i = 0; i < len; i++ )
+					//			if ( data.id == this._behaviours[i].id )
+					//			{
+					//				obj = this._behaviours[i];
+					//				break;
+					//			}
+					//	}
+					//	//We need to do it like this because there is also a ParameterType.ASSET
+					//	else if ( dataType.toString() == ProjectAssetTypes.ASSET.toString() )
+					//	{
+					//		var len = this._assets.length;
+					//		for ( var i = 0; i < len; i++ )
+					//			if ( data.id == this._assets[i].id )
+					//			{
+					//				obj = this._assets[i];
+					//				break;
+					//			}
+					//	}
+					//	else
+					//		obj = TreeViewScene.getSingleton().getGroupByID( data.id )
 
-						//Send event
-						this.emit(new ProjectEvent(ProjectEvents.OBJECT_RENAMED, "Object Renamed", LoaderEvents.COMPLETE, { object: obj, type: data.type, name: data.name, id: data.id }));
-					}
+					//	//Send event
+					//	this.emit(new ProjectEvent(ProjectEvents.OBJECT_RENAMED, "Object Renamed", LoaderEvents.COMPLETE, { object: obj, type: data.type, name: data.name, id: data.id }));
+					//}
 				}
 				else
 				{

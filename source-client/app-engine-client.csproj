@@ -39,6 +39,9 @@
     <Content Include="..\client\resources\templates\options-user.html">
       <Link>html\templates\options-user.html</Link>
     </Content>
+    <Content Include="..\client\resources\templates\rename-form.html">
+      <Link>html\templates\rename-form.html</Link>
+    </Content>
     <Content Include="..\client\resources\templates\splash-loading.html">
       <Link>html\templates\splash-loading.html</Link>
     </Content>

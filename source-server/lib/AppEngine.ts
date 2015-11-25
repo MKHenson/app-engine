@@ -34,9 +34,9 @@ export default class AppEngine extends Controller
             new PermissionController(server, config, e),
             new PluginController(server, config, e),
             new ResourceController("/app-engine/assets", new AssetModel(), server, config, e),
-            new FileController(server, config, e),
             new ResourceController("/app-engine/groups", new GroupModel(), server, config, e),
             new ResourceController("/app-engine/behaviours", new BehaviourModel(), server, config, e),
+            new FileController(server, config, e),
             new ProjectController(server, config, e),
             new BuildController(server, config, e)
         ];

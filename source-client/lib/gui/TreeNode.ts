@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This is the base class for all tree node classes
 	*/
-	export class TreeNode extends Component
+    export class TreeNode extends Component implements IRenamable
 	{
 		private mText: string;
 		private img: string;
@@ -283,6 +283,7 @@ module Animate
 		}
 
 		get originalText(): string { return this.mText; }
-		set originalText( val : string ) { this.mText = val; }
+        set originalText(val: string) { this.mText = val; }
+        get name(): string { return this.mText; }
 	}
 }

@@ -895,33 +895,7 @@ module Animate
 			this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
 			return toAdd;
-		}
-
-		/**
-		* Called when a behaviour is renamed
-		*/
-		onBehaviourRename( e: RenameFormEvents, event: RenameFormEvent )
-		{
-			RenameForm.getSingleton().off( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
-
-			var toEdit: Behaviour = null;
-			if ( event.object instanceof BehaviourShortcut )
-				toEdit = event.object.originalNode;
-			else
-				toEdit = event.object;
-
-			toEdit.text = event.name;
-			toEdit.alias = event.name;
-
-			//Check if there are any shortcuts and make sure they are renamed
-			var i = this.children.length;
-			while ( i-- )
-				if ( this.children[i] instanceof BehaviourShortcut && ( <BehaviourShortcut>this.children[i] ).originalNode == toEdit )
-				{
-					( <BehaviourShortcut>this.children[i] ).text = event.name;
-					( <BehaviourShortcut>this.children[i] ).alias = event.name;
-				}
-		}
+        }
 
 		/**
 		* Catch the key down events.
@@ -936,23 +910,44 @@ module Animate
 				return;
 
 			var focusObj = Application.getInstance().focusObj;
+            var that = this;
 
-			if ( Application.getInstance().focusObj != null )
+            if (focusObj != null )
 			{
 				//If F2 pressed
 				if ( e.keyCode == 113 )
 				{
-					if ( focusObj instanceof BehaviourComment )
-					{
-						( <BehaviourComment>focusObj ).enterText();
-						return;
-					}
-					else if ( focusObj instanceof BehaviourPortal )
-						return;
-					else if ( Application.getInstance().focusObj instanceof Behaviour )
-					{
-						RenameForm.getSingleton().on( RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this );
-						RenameForm.getSingleton().showForm( Application.getInstance().focusObj, Application.getInstance().focusObj.element.text() );
+					if ( focusObj instanceof BehaviourPortal )
+                        return;
+                    else if (focusObj instanceof BehaviourComment)
+                        return focusObj.enterText();
+                    else if (focusObj instanceof Behaviour )
+                    {
+                        // Attempt to rename the behaviour
+                        RenameForm.get.renameObject(focusObj, focusObj.text, focusObj.id, ResourceType.BEHAVIOUR).then(function (token)
+                        {
+                            var toEdit: Behaviour = null;
+                            if (focusObj instanceof BehaviourShortcut)
+                                toEdit = focusObj.originalNode;
+                            else
+                                toEdit = focusObj;
+
+                            toEdit.text = token.newName;
+                            toEdit.alias = token.newName;
+
+                            //Check if there are any shortcuts and make sure they are renamed
+                            var i = that.children.length;
+                            while (i--)
+                            {
+                                var shortcut = <BehaviourShortcut>that.children[i];
+
+                                if (shortcut instanceof BehaviourShortcut && shortcut.originalNode == toEdit)
+                                {
+                                    shortcut.text = token.newName;
+                                    shortcut.alias = token.newName;
+                                }
+                            }
+                        });
 						return;
 					}
 				}
@@ -966,9 +961,9 @@ module Animate
 					if ( focusObj instanceof BehaviourShortcut )
 					{
 						this.selectItem( null );
-						( <BehaviourShortcut>focusObj ).selected = false;
-						this.selectItem( ( <BehaviourShortcut>focusObj ).originalNode );
-						this.element.parent().scrollTo( '#' + ( <BehaviourShortcut>focusObj ).originalNode.id, 500 );
+						focusObj.selected = false;
+						this.selectItem( focusObj.originalNode );
+						this.element.parent().scrollTo( '#' + focusObj.originalNode.id, 500 );
 						return;
 					}
 				}

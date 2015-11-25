@@ -50,9 +50,9 @@ module Animate
 		* Creates a new event object
 		* @param {EventType} eventType The type event
 		*/
-        constructor(eventType: EventType, tag?: any)
+        constructor(type: EventType, tag?: any)
 		{
-            this.type = eventType;
+            this.type = type;
 			this.tag = tag;
 		}
 	}

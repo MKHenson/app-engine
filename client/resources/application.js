@@ -850,8 +850,8 @@ var Animate;
         * Creates a new event object
         * @param {EventType} eventType The type event
         */
-        function Event(eventType, tag) {
-            this.type = eventType;
+        function Event(type, tag) {
+            this.type = type;
             this.tag = tag;
         }
         return Event;
@@ -3216,6 +3216,13 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
+    (function (ResourceType) {
+        ResourceType[ResourceType["BEHAVIOUR"] = 0] = "BEHAVIOUR";
+        ResourceType[ResourceType["GROUP"] = 1] = "GROUP";
+        ResourceType[ResourceType["ASSET"] = 2] = "ASSET";
+        ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
+    })(Animate.ResourceType || (Animate.ResourceType = {}));
+    var ResourceType = Animate.ResourceType;
     var ProjectAssetTypes = (function (_super) {
         __extends(ProjectAssetTypes, _super);
         function ProjectAssetTypes(v) {
@@ -3276,16 +3283,6 @@ var Animate;
         ProjectEvents.GROUP_DELETING = new ProjectEvents("group_deleting");
         ProjectEvents.GROUP_CREATED = new ProjectEvents("group_created");
         ProjectEvents.GROUPS_LOADED = new ProjectEvents("groups_loaded");
-        //static FILE_CREATED: ProjectEvents = new ProjectEvents("file_created");
-        //static FILE_IMPORTED: ProjectEvents = new ProjectEvents("file_imported");
-        //static FILE_DELETED: ProjectEvents = new ProjectEvents("file_deleted");
-        //static FILES_DELETED: ProjectEvents = new ProjectEvents("files_deleted");
-        //static FILES_CREATED: ProjectEvents = new ProjectEvents("files_created");
-        //static FILE_UPDATED: ProjectEvents = new ProjectEvents( "file_updated" );
-        //static FILE_IMAGE_UPDATED: ProjectEvents = new ProjectEvents("file_image_updated");
-        //static FILES_LOADED: ProjectEvents = new ProjectEvents("files_loaded");
-        //static FILES_FETCHED: ProjectEvents = new ProjectEvents("files_fetched");
-        ProjectEvents.OBJECT_RENAMED = new ProjectEvents("object_renamed");
         return ProjectEvents;
     })();
     Animate.ProjectEvents = ProjectEvents;
@@ -3445,22 +3442,50 @@ var Animate;
             return d.promise();
         };
         /**
-        * Use this to rename a behaviour, group or asset.
+        * Use this to rename the project, a behaviour, group or asset.
         * @param {string} name The new name of the object
-        * @param {string} id The id of the asset or behaviour.
-        * @param {ProjectAssetTypes} type The type of object we are renaming. this can be either 'group', 'asset' or 'behaviour'
+        * @param {string} id The id of the object we are renaming.
+        * @param {ResourceType} type The type of resource we are renaming
         */
         Project.prototype.renameObject = function (name, id, type) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/rename-object", {
-                projectId: this.entry._id,
-                name: name,
-                objectId: id,
-                type: type.toString()
+            var d = jQuery.Deferred();
+            var that = this;
+            var details = Animate.User.get.userEntry;
+            var projId = this.entry._id;
+            var restURL = "";
+            if (type == ResourceType.ASSET)
+                restURL = "assets/" + details.username + "/" + projId + "/" + id;
+            else if (type == ResourceType.BEHAVIOUR)
+                restURL = "behaviours/" + details.username + "/" + projId + "/" + id;
+            else if (type == ResourceType.GROUP)
+                restURL = "groups/" + details.username + "/" + projId + "/" + id;
+            Animate.Utils.put(Animate.DB.API + "/" + restURL, { name: name }).done(function (data) {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                return d.resolve(data);
+            }).fail(function (err) {
+                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
             });
+            return d.promise();
         };
+        ///**
+        //* Use this to rename a behaviour, group or asset.
+        //* @param {string} name The new name of the object
+        //* @param {string} id The id of the asset or behaviour.
+        //* @param {ProjectAssetTypes} type The type of object we are renaming. this can be either 'group', 'asset' or 'behaviour'
+        //*/
+        //renameObject( name: string, id: string, type: ProjectAssetTypes )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/rename-object", {
+        //              projectId: this.entry._id,
+        //		name: name,
+        //		objectId: id,
+        //		type: type.toString()
+        //	} );
+        //}
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -4077,30 +4102,6 @@ var Animate;
                             pManager.emit(eventCreated);
                         }
                         this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", Animate.LoaderEvents.COMPLETE, this));
-                    }
-                    else if (loader.url == "/project/rename-object") {
-                        var obj = null;
-                        var dataType = ProjectAssetTypes.fromString(data.type);
-                        if (dataType.toString() == ProjectAssetTypes.BEHAVIOUR.toString()) {
-                            var len = this._behaviours.length;
-                            for (var i = 0; i < len; i++)
-                                if (data.id == this._behaviours[i].id) {
-                                    obj = this._behaviours[i];
-                                    break;
-                                }
-                        }
-                        else if (dataType.toString() == ProjectAssetTypes.ASSET.toString()) {
-                            var len = this._assets.length;
-                            for (var i = 0; i < len; i++)
-                                if (data.id == this._assets[i].id) {
-                                    obj = this._assets[i];
-                                    break;
-                                }
-                        }
-                        else
-                            obj = Animate.TreeViewScene.getSingleton().getGroupByID(data.id);
-                        //Send event
-                        this.emit(new ProjectEvent(ProjectEvents.OBJECT_RENAMED, "Object Renamed", Animate.LoaderEvents.COMPLETE, { object: obj, type: data.type, name: data.name, id: data.id }));
                     }
                 }
                 else {
@@ -8433,6 +8434,11 @@ var Animate;
             //Call super
             Animate.Button.prototype.dispose.call(this);
         };
+        Object.defineProperty(Behaviour.prototype, "name", {
+            get: function () { return this._alias; },
+            enumerable: true,
+            configurable: true
+        });
         Object.defineProperty(Behaviour.prototype, "originalName", {
             get: function () { return this._originalName; },
             enumerable: true,
@@ -10333,6 +10339,11 @@ var Animate;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(TreeNode.prototype, "name", {
+            get: function () { return this.mText; },
+            enumerable: true,
+            configurable: true
+        });
         return TreeNode;
     })(Animate.Component);
     Animate.TreeNode = TreeNode;
@@ -11473,26 +11484,6 @@ var Animate;
             return toAdd;
         };
         /**
-        * Called when a behaviour is renamed
-        */
-        Canvas.prototype.onBehaviourRename = function (e, event) {
-            Animate.RenameForm.getSingleton().off(Animate.RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this);
-            var toEdit = null;
-            if (event.object instanceof Animate.BehaviourShortcut)
-                toEdit = event.object.originalNode;
-            else
-                toEdit = event.object;
-            toEdit.text = event.name;
-            toEdit.alias = event.name;
-            //Check if there are any shortcuts and make sure they are renamed
-            var i = this.children.length;
-            while (i--)
-                if (this.children[i] instanceof Animate.BehaviourShortcut && this.children[i].originalNode == toEdit) {
-                    this.children[i].text = event.name;
-                    this.children[i].alias = event.name;
-                }
-        };
-        /**
         * Catch the key down events.
         * @param {any} e The jQuery event object
         */
@@ -11502,18 +11493,34 @@ var Animate;
             if (jQuery(e.target).is("input"))
                 return;
             var focusObj = Animate.Application.getInstance().focusObj;
-            if (Animate.Application.getInstance().focusObj != null) {
+            var that = this;
+            if (focusObj != null) {
                 //If F2 pressed
                 if (e.keyCode == 113) {
-                    if (focusObj instanceof Animate.BehaviourComment) {
-                        focusObj.enterText();
+                    if (focusObj instanceof Animate.BehaviourPortal)
                         return;
-                    }
-                    else if (focusObj instanceof Animate.BehaviourPortal)
-                        return;
-                    else if (Animate.Application.getInstance().focusObj instanceof Animate.Behaviour) {
-                        Animate.RenameForm.getSingleton().on(Animate.RenameFormEvents.OBJECT_RENAMED, this.onBehaviourRename, this);
-                        Animate.RenameForm.getSingleton().showForm(Animate.Application.getInstance().focusObj, Animate.Application.getInstance().focusObj.element.text());
+                    else if (focusObj instanceof Animate.BehaviourComment)
+                        return focusObj.enterText();
+                    else if (focusObj instanceof Animate.Behaviour) {
+                        // Attempt to rename the behaviour
+                        Animate.RenameForm.get.renameObject(focusObj, focusObj.text, focusObj.id, Animate.ResourceType.BEHAVIOUR).then(function (token) {
+                            var toEdit = null;
+                            if (focusObj instanceof Animate.BehaviourShortcut)
+                                toEdit = focusObj.originalNode;
+                            else
+                                toEdit = focusObj;
+                            toEdit.text = token.newName;
+                            toEdit.alias = token.newName;
+                            //Check if there are any shortcuts and make sure they are renamed
+                            var i = that.children.length;
+                            while (i--) {
+                                var shortcut = that.children[i];
+                                if (shortcut instanceof Animate.BehaviourShortcut && shortcut.originalNode == toEdit) {
+                                    shortcut.text = token.newName;
+                                    shortcut.alias = token.newName;
+                                }
+                            }
+                        });
                         return;
                     }
                 }
@@ -14869,7 +14876,6 @@ var Animate;
             if (hideCancel === void 0) { hideCancel = false; }
             // Call super-class constructor
             _super.call(this, width, height, autoCenter, controlBox, title);
-            this.element.addClass("curve-med");
             this.element.css("height", "");
             //this.heading = new Label( this.content, "OkCancelForm" );
             this.okCancelContent = new Animate.Component("<div class='content'></div>", this.content);
@@ -16163,78 +16169,6 @@ var Animate;
     /**
     * This form is used to create or edit Portals.
     */
-    var NewBehaviourForm = (function (_super) {
-        __extends(NewBehaviourForm, _super);
-        function NewBehaviourForm() {
-            if (NewBehaviourForm._singleton != null)
-                throw new Error("The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function.");
-            NewBehaviourForm._singleton = this;
-            // Call super-class constructor
-            _super.call(this, 400, 250, false, true, "Please enter a name");
-            this.element.addClass("new-behaviour-form");
-            this.name = new Animate.LabelVal(this.okCancelContent, "Name", new Animate.InputBox(null, ""));
-            this.warning = new Animate.Label("Please enter a behaviour name.", this.okCancelContent);
-            //Create the proxies
-            this.createProxy = this.onCreated.bind(this);
-        }
-        /** Shows the window. */
-        NewBehaviourForm.prototype.show = function () {
-            this.name.val.text = "";
-            this.warning.textfield.element.css("color", "");
-            this.warning.text = "Please enter a behaviour name.";
-            this.name.val.textfield.element.removeClass("red-border");
-            _super.prototype.show.call(this);
-            this.name.val.textfield.element.focus();
-        };
-        /** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-        and pass the text either for the ok or cancel buttons. */
-        NewBehaviourForm.prototype.OnButtonClick = function (e) {
-            if (jQuery(e.target).text() == "Ok") {
-                //Check if the values are valid
-                this.name.val.textfield.element.removeClass("red-border");
-                this.warning.textfield.element.css("color", "");
-                //Check for special chars
-                var message = Animate.Utils.checkForSpecialChars(this.name.val.text);
-                if (message != null) {
-                    this.name.val.textfield.element.addClass("red-border");
-                    this.warning.textfield.element.css("color", "#FF0000");
-                    this.warning.text = message;
-                    return;
-                }
-                //Create the Behaviour in the DB
-                Animate.User.get.project.on(Animate.ProjectEvents.FAILED, this.createProxy);
-                Animate.User.get.project.on(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
-                Animate.User.get.project.createBehaviour(this.name.val.text);
-                return;
-            }
-            _super.prototype.OnButtonClick.call(this, e);
-        };
-        /** Called when we create a behaviour.*/
-        NewBehaviourForm.prototype.onCreated = function (response, event) {
-            Animate.User.get.project.off(Animate.ProjectEvents.FAILED, this.createProxy);
-            Animate.User.get.project.off(Animate.ProjectEvents.BEHAVIOUR_CREATED, this.createProxy);
-            if (response == Animate.ProjectEvents.FAILED) {
-                this.warning.textfield.element.css("color", "#FF0000");
-                this.warning.text = event.message;
-                return;
-            }
-            this.hide();
-        };
-        /** Gets the singleton instance. */
-        NewBehaviourForm.getSingleton = function () {
-            if (!NewBehaviourForm._singleton)
-                new NewBehaviourForm();
-            return NewBehaviourForm._singleton;
-        };
-        return NewBehaviourForm;
-    })(Animate.OkCancelForm);
-    Animate.NewBehaviourForm = NewBehaviourForm;
-})(Animate || (Animate = {}));
-var Animate;
-(function (Animate) {
-    /**
-    * This form is used to create or edit Portals.
-    */
     var PortalForm = (function (_super) {
         __extends(PortalForm, _super);
         function PortalForm() {
@@ -16419,23 +16353,20 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    var RenameFormEvents = (function (_super) {
-        __extends(RenameFormEvents, _super);
-        function RenameFormEvents(v) {
-            _super.call(this, v);
-        }
-        RenameFormEvents.OBJECT_RENAMED = new RenameFormEvents("rename_form_object_renamed");
-        RenameFormEvents.OBJECT_RENAMING = new RenameFormEvents("rename_form_object_renaming");
-        return RenameFormEvents;
-    })(Animate.ENUM);
-    Animate.RenameFormEvents = RenameFormEvents;
+    ;
+    ;
+    /**
+    * Event used to describe re-naming of objects. Listen for either
+    * 'renaming' or 'renamed' event types
+    */
     var RenameFormEvent = (function (_super) {
         __extends(RenameFormEvent, _super);
-        function RenameFormEvent(eventName, name, object) {
-            _super.call(this, eventName, name);
+        function RenameFormEvent(type, name, object, rt) {
+            _super.call(this, type, name);
             this.cancel = false;
             this.name = name;
             this.object = object;
+            this.resourceType = rt;
         }
         return RenameFormEvent;
     })(Animate.Event);
@@ -16446,32 +16377,64 @@ var Animate;
     var RenameForm = (function (_super) {
         __extends(RenameForm, _super);
         function RenameForm() {
-            if (RenameForm._singleton != null)
-                throw new Error("The RenameForm class is a singleton. You need to call the RenameForm.getSingleton() function.");
             RenameForm._singleton = this;
             // Call super-class constructor
             _super.call(this, 400, 250, false, true, "Please enter a name");
             this.element.addClass("rename-form");
-            this.name = new Animate.LabelVal(this.okCancelContent, "Name", new Animate.InputBox(null, ""));
-            //this.heading.text("Please enter a name");
+            this.element.css("height", "");
+            this.$name = "";
+            this.$errorMsg = "";
+            this.$loading = false;
+            this._deferred = null;
+            // Fetch & compile the HTML
+            this._projectElm = jQuery("#rename-content").remove().clone();
+            this.content.element.append(this._projectElm);
+            Animate.Compiler.build(this._projectElm, this, false);
+            //this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
             this.object = null;
-            this.warning = new Animate.Label("Please enter a name and click Ok.", this.okCancelContent);
+            //this.warning = new Label( "Please enter a name and click Ok.", this.okCancelContent );
         }
+        RenameForm.prototype.hide = function () {
+            _super.prototype.hide.call(this);
+            this._deferred = null;
+        };
         /**
-        * @type public mfunc show
-        * Shows the window.
-        * @param {any} object
+         * Shows the window by adding it to a parent.
+         * @param {Component} parent The parent Component we are adding this window to
+         * @param {number} x The x coordinate of the window
+         * @param {number} y The y coordinate of the window
+         * @param {boolean} isModal Does this window block all other user operations?
+         * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
+         */
+        RenameForm.prototype.show = function (parent, x, y, isModal, isPopup) {
+            if (parent === void 0) { parent = null; }
+            if (x === void 0) { x = NaN; }
+            if (y === void 0) { y = NaN; }
+            if (isModal === void 0) { isModal = false; }
+            if (isPopup === void 0) { isPopup = false; }
+            _super.prototype.show.call(this);
+            jQuery("input", this._projectElm).select();
+        };
+        /**
+        * Attempts to rename an object
+        * @param {IRenamable} object
         * @param {string} curName
         * @extends {RenameForm}
         */
-        RenameForm.prototype.showForm = function (object, curName) {
+        RenameForm.prototype.renameObject = function (object, curName, id, type) {
+            var d = jQuery.Deferred();
             this.object = object;
-            this.name.val.text = curName;
-            this.warning.textfield.element.css("color", "");
-            this.warning.text = "Please enter a name and click Ok.";
-            this.name.val.textfield.element.removeClass("red-border");
-            _super.prototype.show.call(this);
-            this.name.val.focus();
+            //(<Label>this.name.val).text = curName;
+            //this.warning.textfield.element.css( "color", "" );
+            //this.warning.text = "Please enter a name and click Ok.";
+            //( <Label>this.name.val ).textfield.element.removeClass( "red-border" );
+            _super.prototype.show.call(this, undefined, undefined, undefined, true);
+            Animate.Compiler.digest(this._projectElm, this);
+            //( <InputBox>this.name.val ).focus();
+            this._resourceId = id;
+            this._type = type;
+            this._deferred = d;
+            return d.promise();
         };
         /**
         * @type public mfunc OnButtonClick
@@ -16480,83 +16443,121 @@ var Animate;
         * @param {any} e
         * @extends {RenameForm}
         */
-        RenameForm.prototype.OnButtonClick = function (e) {
-            if (jQuery(e.target).text() == "Ok") {
-                //Check if the values are valid
-                this.name.val.textfield.element.removeClass("red-border");
-                this.warning.textfield.element.css("color", "");
-                //Check for special chars
-                var message = Animate.Utils.checkForSpecialChars(this.name.val.text);
-                if (message != null) {
-                    this.name.val.textfield.element.addClass("red-border");
-                    this.warning.textfield.element.css("color", "#FF0000");
-                    this.warning.text = message;
-                    return;
-                }
-                var name = this.name.val.text;
-                //Dispatch an event notifying listeners of the renamed object
-                var event = new RenameFormEvent(RenameFormEvents.OBJECT_RENAMING, name, this.object);
-                this.emit(event);
-                if (event.cancel)
-                    return;
-                if (this.object instanceof Animate.Behaviour) {
-                    Animate.OkCancelForm.prototype.OnButtonClick.call(this, e);
-                    this.object.onRenamed(name);
-                    //Dispatch an event notifying listeners of the renamed object
-                    this.emit(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object));
-                    this.object = null;
-                    return;
-                }
-                var user = Animate.User.get;
-                //Create the Behaviour in the DB
-                if (user.project) {
-                    user.project.on(Animate.ProjectEvents.FAILED, this.onRenamed, this);
-                    user.project.on(Animate.ProjectEvents.OBJECT_RENAMED, this.onRenamed, this);
-                    if (this.object instanceof Animate.TreeNodeGroup)
-                        user.project.renameObject(name, this.object.groupID, Animate.ProjectAssetTypes.GROUP);
-                    else if (this.object instanceof Animate.Asset)
-                        user.project.renameObject(name, this.object.id, Animate.ProjectAssetTypes.ASSET);
-                    else if (this.object instanceof Animate.BehaviourContainer)
-                        user.project.renameObject(name, this.object.id, Animate.ProjectAssetTypes.BEHAVIOUR);
-                }
+        RenameForm.prototype.ok = function (e) {
+            var name = this.$name;
+            var that = this;
+            var proj = Animate.User.get.project;
+            var event = new RenameFormEvent("renaming", name, this.object, this._type);
+            this.$loading = true;
+            this.$errorMsg = "";
+            // Dispatch an event notifying listeners of the renaming object
+            this.emit(event);
+            if (event.cancel) {
+                this.$errorMsg = event.reason;
+                Animate.Compiler.digest(this._projectElm, this);
                 return;
             }
-            _super.prototype.OnButtonClick.call(this, e);
+            if (!this._resourceId)
+                return that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+            // Attempt to connect to the DB and update the object
+            proj.renameObject(name, this._resourceId, this._type).then(function (resp) {
+                that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+                that.hide();
+            }).fail(function (err) {
+                that.$errorMsg = err.message;
+            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._projectElm, that);
+            });
+            //if ( jQuery( e.target ).text() == "Ok" )
+            //{
+            //	//Check if the values are valid
+            //	(<Label>this.name.val).textfield.element.removeClass( "red-border" );
+            //	this.warning.textfield.element.css( "color", "" );
+            //	//Check for special chars
+            //	var message = Utils.checkForSpecialChars( (<Label>this.name.val).text );
+            //	if ( message != null )
+            //	{
+            //		( <Label>this.name.val ).textfield.element.addClass( "red-border" );
+            //		this.warning.textfield.element.css( "color", "#FF0000" );
+            //		this.warning.text = message;
+            //		return;
+            //	}
+            //	var name : string = ( <Label>this.name.val ).text;
+            //	//Dispatch an event notifying listeners of the renamed object
+            //	var event: RenameFormEvent  = new RenameFormEvent("renaming", name, this.object)
+            //	this.emit(event );
+            //             if (event.cancel)
+            //             {
+            //                 event.reason;
+            //                 return;
+            //             }
+            //	if ( this.object instanceof Behaviour )
+            //	{
+            //		OkCancelForm.prototype.OnButtonClick.call( this, e );
+            //                 (<Behaviour>this.object).onRenamed(name);
+            //		//Dispatch an event notifying listeners of the renamed object
+            //                 this.emit(new RenameFormEvent("renamed", name, this.object));
+            //		this.object = null;
+            //		return;
+            //	}
+            //	var user = User.get;
+            //	//Create the Behaviour in the DB
+            //	if ( user.project )
+            //	{
+            //		user.project.on(ProjectEvents.FAILED, this.onRenamed, this );
+            //		user.project.on(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
+            //		if ( this.object instanceof TreeNodeGroup )
+            //			user.project.renameObject(name, (<TreeNodeGroup>this.object).groupID, ProjectAssetTypes.GROUP );
+            //		else if ( this.object instanceof Asset )
+            //			user.project.renameObject( name, this.object.id, ProjectAssetTypes.ASSET );
+            //		else if ( this.object instanceof BehaviourContainer )
+            //			user.project.renameObject( name, this.object.id, ProjectAssetTypes.BEHAVIOUR );
+            //	}
+            //	return;
+            //}
+            //super.OnButtonClick( e );
         };
-        /**
-        * Called when we create a behaviour.
-        * @param {any} response
-        * @param {any} data
-        */
-        RenameForm.prototype.onRenamed = function (response, data) {
-            var user = Animate.User.get;
-            //user.removeEventListener( UserEvents.PROJECT_RENAMED, this.onRenamed, this );
-            if (user.project) {
-                user.project.off(Animate.ProjectEvents.FAILED, this.onRenamed, this);
-                user.project.off(Animate.ProjectEvents.OBJECT_RENAMED, this.onRenamed, this);
-            }
-            if (response == Animate.ProjectEvents.FAILED) {
-                this.warning.textfield.element.css("color", "#FF0000");
-                this.warning.text = data.message;
-                return;
-            }
-            //Dispatch an event notifying listeners of the renamed object
-            var name = this.name.val.text;
-            this.emit(new RenameFormEvent(RenameFormEvents.OBJECT_RENAMED, name, this.object));
-            this.object = null;
-            this.hide();
-        };
-        /**
-        * Gets the singleton instance.
-        * @returns {RenameForm}
-        */
-        RenameForm.getSingleton = function () {
-            if (!RenameForm._singleton)
-                new RenameForm();
-            return RenameForm._singleton;
-        };
+        Object.defineProperty(RenameForm, "get", {
+            ///**
+            //* Called when we create a behaviour.
+            //* @param {any} response 
+            //* @param {any} data 
+            //*/
+            //onRenamed(response: ProjectEvents, data: ProjectEvent )
+            //{
+            //	var user : User = User.get;
+            //	if ( user.project )
+            //	{
+            //		user.project.off(ProjectEvents.FAILED, this.onRenamed, this );
+            //		user.project.off(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
+            //	}
+            //	//if ( response == ProjectEvents.FAILED )
+            //	//{
+            //	//	this.warning.textfield.element.css( "color", "#FF0000" );
+            //	//	this.warning.text = data.message;
+            //	//	return;
+            //	//}
+            //	//Dispatch an event notifying listeners of the renamed object
+            //	//var name = ( <Label>this.name.val ).text;
+            //          this.emit(new RenameFormEvent("renamed", name, this.object)  );
+            //	this.object = null;
+            //	this.hide();
+            //}
+            /**
+            * Gets the singleton instance.
+            * @returns {RenameForm}
+            */
+            get: function () {
+                if (!RenameForm._singleton)
+                    new RenameForm();
+                return RenameForm._singleton;
+            },
+            enumerable: true,
+            configurable: true
+        });
         return RenameForm;
-    })(Animate.OkCancelForm);
+    })(Animate.Window);
     Animate.RenameForm = RenameForm;
 })(Animate || (Animate = {}));
 var Animate;
@@ -17266,6 +17267,13 @@ var Animate;
             canvas.emit(Animate.CanvasEvents.MODIFIED, canvas);
         };
         /**
+        * Shows the rename form - and creates a new behaviour if valid
+        */
+        Toolbar.prototype.newBehaviour = function () {
+            // Todo: This must be NewBehaviourForm
+            Animate.RenameForm.get.renameObject(null, "", null, Animate.ResourceType.CONTAINER);
+        };
+        /**
         * When we click the delete button
         */
         Toolbar.prototype.onDelete = function () {
@@ -17441,7 +17449,7 @@ var Animate;
             this.element.on("mousemove", this.onMouseMove.bind(this));
             this._quickAdd.element.detach();
             this._quickCopy.element.detach();
-            Animate.RenameForm.getSingleton().on(Animate.RenameFormEvents.OBJECT_RENAMING, this.onRenameCheck, this);
+            Animate.RenameForm.get.on("renaming", this.onRenameCheck, this);
         }
         TreeViewScene.prototype.onShortcutClick = function (e) {
             var comp = jQuery(e.currentTarget).data("component");
@@ -17496,7 +17504,7 @@ var Animate;
             this._curProj.on(Animate.ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this);
             this._curProj.on(Animate.ProjectEvents.GROUP_SAVED, this.onGroupResponse, this);
             this._curProj.on(Animate.ProjectEvents.GROUP_DELETING, this.onGroupResponse, this);
-            this._curProj.on(Animate.ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this);
+            //RenameForm.get.on("renamed", this.onObjectRenamed, this);
         };
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
@@ -17512,7 +17520,6 @@ var Animate;
                 this._curProj.off(Animate.ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this);
                 this._curProj.off(Animate.ProjectEvents.GROUP_SAVED, this.onGroupResponse, this);
                 this._curProj.off(Animate.ProjectEvents.GROUP_DELETING, this.onGroupResponse, this);
-                this._curProj.off(Animate.ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this);
             }
             this.children[0].clear();
             this.children[1].clear();
@@ -17526,14 +17533,24 @@ var Animate;
             if (Animate.Application.getInstance().focusObj != null && Animate.Application.getInstance().focusObj instanceof Animate.TreeNode) {
                 //If f2 pressed
                 if (jQuery(e.target).is("input") == false && e.keyCode == 113) {
+                    var promise;
+                    var node = this.selectedNode;
                     //Unselect all other items
-                    if (this.selectedNode != null)
-                        if (this.selectedNode instanceof Animate.TreeNodeGroup)
-                            Animate.RenameForm.getSingleton().showForm(this.selectedNode, this.selectedNode.text);
-                        else if (this.selectedNode instanceof Animate.TreeNodeBehaviour)
-                            Animate.RenameForm.getSingleton().showForm(this.selectedNode.behaviour, this.selectedNode.text);
-                        else if (this.selectedNode instanceof Animate.TreeNodeAssetInstance)
-                            Animate.RenameForm.getSingleton().showForm(this.selectedNode.asset, this.selectedNode.text);
+                    if (node != null) {
+                        if (node instanceof Animate.TreeNodeGroup)
+                            promise = Animate.RenameForm.get.renameObject(node, node.text, node.id, Animate.ResourceType.GROUP);
+                        else if (node instanceof Animate.TreeNodeBehaviour)
+                            promise = Animate.RenameForm.get.renameObject(node.behaviour, node.text, node.behaviour.id, Animate.ResourceType.BEHAVIOUR);
+                        else if (node instanceof Animate.TreeNodeAssetInstance)
+                            promise = Animate.RenameForm.get.renameObject(node.asset, node.text, node.asset.id, Animate.ResourceType.ASSET);
+                        if (promise) {
+                            promise.then(function (token) {
+                                node.text = token.newName;
+                                if (node instanceof Animate.TreeNodeAssetInstance)
+                                    Animate.PluginManager.getSingleton().emit(new Animate.AssetRenamedEvent(node.asset, token.oldName));
+                            });
+                        }
+                    }
                 }
             }
         };
@@ -17754,44 +17771,41 @@ var Animate;
             //	return;
             var project = Animate.User.get.project;
             var len = project.behaviours.length;
-            if (event.object instanceof Animate.BehaviourContainer)
+            if (event.resourceType == Animate.ResourceType.CONTAINER)
                 for (var i = 0; i < len; i++)
                     if (project.behaviours[i].name == event.name) {
-                        Animate.RenameForm.getSingleton().name.val.textfield.element.addClass("red-border");
-                        Animate.RenameForm.getSingleton().warning.textfield.element.css("color", "#FF0000");
-                        Animate.RenameForm.getSingleton().warning.text = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
-                        event.cancel = true;
+                        event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
                         return;
                     }
             event.cancel = false;
         };
-        /**
-        * When the database returns from its command to rename an object.
-        * @param {ProjectEvents} response The loader response
-        * @param {ProjectEvent} data The data sent from the server
-        */
-        TreeViewScene.prototype.onObjectRenamed = function (response, event) {
-            var data = event.tag;
-            if (response == Animate.ProjectEvents.OBJECT_RENAMED) {
-                if (data.object != null) {
-                    var prevName = data.object.name;
-                    data.object.name = data.name;
-                    var node = null;
-                    if (data.object instanceof Animate.BehaviourContainer)
-                        node = this._sceneNode.findNode("behaviour", data.object);
-                    else if (data.object instanceof Animate.Asset)
-                        node = this._assetsNode.findNode("asset", data.object);
-                    else if (data.object instanceof Animate.TreeNodeGroup)
-                        node = data.object;
-                    if (node != null) {
-                        node.text = data.name;
-                        if (data.object instanceof Animate.Asset)
-                            //PluginManager.getSingleton().assetRenamed( data.object, prevName );
-                            Animate.PluginManager.getSingleton().emit(new Animate.AssetRenamedEvent(data.object, prevName));
-                    }
-                }
-            }
-        };
+        ///**
+        //* When the database returns from its command to rename an object.
+        //* @param {string} type The event type
+        //* @param {RenameFormEvent} event The event from the rename form
+        //*/
+        //      onObjectRenamed(type: string, event: RenameFormEvent)
+        //{
+        //	var data = event.tag;
+        //          if (data.object != null)
+        //          {
+        //              var prevName = data.object.name;
+        //              data.object.name = data.name;
+        //              var node: TreeNode = null;
+        //              if (data.object instanceof BehaviourContainer)
+        //                  node = this._sceneNode.findNode("behaviour", data.object);
+        //              else if (data.object instanceof Asset)
+        //                  node = this._assetsNode.findNode("asset", data.object);
+        //              else if (data.object instanceof TreeNodeGroup)
+        //                  node = data.object;
+        //              if (node != null)
+        //              {
+        //                  node.text = data.name;
+        //                  if (data.object instanceof Asset)
+        //                      PluginManager.getSingleton().emit(new AssetRenamedEvent(data.object, prevName));
+        //              }
+        //          }
+        //}
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The loader response
@@ -19678,7 +19692,6 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/forms/BuildOptionsForm.ts" />
 /// <reference path="lib/gui/forms/FileViewer.ts" />
 /// <reference path="lib/gui/forms/MessageBox.ts" />
-/// <reference path="lib/gui/forms/NewBehaviourForm.ts" />
 /// <reference path="lib/gui/forms/PortalForm.ts" />
 /// <reference path="lib/gui/forms/RenameForm.ts" />
 /// <reference path="lib/gui/forms/UserPrivilegesForm.ts" />
@@ -19914,3 +19927,85 @@ var Animate;
     })();
     Animate.FileUploader = FileUploader;
 })(Animate || (Animate = {}));
+//module Animate
+//{
+//	/**
+//	* This form is used to create or edit Portals.
+//	*/
+//	export class NewBehaviourForm extends OkCancelForm
+//	{
+//		public static _singleton: NewBehaviourForm;
+//		private name: LabelVal;
+//		private warning: Label;
+//		private createProxy: any;
+//		constructor()
+//		{
+//			if ( NewBehaviourForm._singleton != null )
+//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
+//			NewBehaviourForm._singleton = this;
+//			// Call super-class constructor
+//			super( 400, 250, false, true, "Please enter a name" );
+//			this.element.addClass( "new-behaviour-form" );
+//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
+//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
+//			//Create the proxies
+//			this.createProxy = this.onCreated.bind( this );
+//		}
+//		/** Shows the window. */
+//		show()
+//		{
+//			( <Label>this.name.val ).text = "";
+//			this.warning.textfield.element.css( "color", "" );
+//			this.warning.text = "Please enter a behaviour name.";
+//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//			super.show();
+//			( <Label>this.name.val).textfield.element.focus();
+//		}
+//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//		and pass the text either for the ok or cancel buttons. */
+//		OnButtonClick( e )
+//		{
+//			if ( jQuery( e.target ).text() == "Ok" )
+//			{
+//				//Check if the values are valid
+//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//				this.warning.textfield.element.css( "color", "" );
+//				//Check for special chars
+//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
+//				if ( message != null )
+//				{
+//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
+//					this.warning.textfield.element.css( "color", "#FF0000" );
+//					this.warning.text = message;
+//					return;
+//				}
+//				//Create the Behaviour in the DB
+//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
+//				return;
+//			}
+//			super.OnButtonClick( e );
+//		}
+//		/** Called when we create a behaviour.*/
+//		onCreated( response: ProjectEvents, event : ProjectEvent )
+//		{
+//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//			if ( response == ProjectEvents.FAILED )
+//			{
+//				this.warning.textfield.element.css( "color", "#FF0000" );
+//				this.warning.text = event.message;
+//				return;
+//			}
+//			this.hide();
+//		}
+//		/** Gets the singleton instance. */
+//		static getSingleton()
+//		{
+//			if ( !NewBehaviourForm._singleton )
+//				new NewBehaviourForm();
+//			return NewBehaviourForm._singleton;
+//		}
+//	}
+//} 

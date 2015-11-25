@@ -28,8 +28,8 @@ export class ResourceController extends Controller
             router.use(bodyParser.json());
             router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-            router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-            router.put("/:user/:project/:id?", <any>[canEdit, this.editResource.bind(this)]);
+            router.delete("/:user/:project/:ids", <any>[canEdit, this.removeResources.bind(this)]);
+            router.put("/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
             router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
             router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
         }

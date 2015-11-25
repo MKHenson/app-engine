@@ -526,7 +526,6 @@ Please only put css rules in here for layout related requirements.
 .window-control-box {
     height: 30px;
     cursor: pointer;
-    margin: 0px 0 5px 0;
 }
 .window-control-box .close-but {
     margin: 0;
@@ -1331,6 +1330,25 @@ span.date {
 }
 
 /**
+*  RENAME FORM
+*  =========================
+*/
+#rename-content input {
+    width:100%;
+    padding:15px;
+    border:none;
+}
+#rename-content .error {
+    padding: 5px;
+    text-align: center;
+    margin: 0 0 10px 0;
+}
+.buttons-container .button {
+    float:right;
+    height:45px;
+    padding:10px 15px;
+}
+/**
 *  FILE VIEWER
 *  =========================
 */
@@ -1784,7 +1802,7 @@ html .bad-input {
     width: 20px;
     height: 20px;
     margin: 0px 5px 0 5px;
-    vertical-align: middle;
+    vertical-align: sub;
 }
 .button .cross {
     margin-right:10px;
@@ -1813,6 +1831,7 @@ html .bad-input {
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
     margin:0 5px 0 0;
+    vertical-align: sub;
 }
 .tick-box .tick {
     position: absolute;
@@ -2209,7 +2228,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .checkbox .text{  display:inline; }
 
 .ok-cancel-heading { margin-bottom:5px; }
-.portal-form, .new-behaviour-form, .rename-form { padding:5px; }
 .portal-form .input-box, .portal-form .combo-box, .new-behaviour-form .input-box, .rename-form .input-box{ float: right; }
 .portal-form .input-box input, .new-behaviour-form .input-box input, .rename-form .input-box input, .portal-form .combo-box select{ width:300px; border:1px solid #ADC0DB; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; margin-bottom:5px; }
 .button-container{ float:right; padding: 3px; margin-top:3px; }

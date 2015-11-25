@@ -42,7 +42,7 @@ module Animate
 		{
 			// Call super-class constructor
 			super( width, height, autoCenter, controlBox, title );
-			this.element.addClass( "curve-med" );
+			
 
 			this.element.css( "height", "" );
 

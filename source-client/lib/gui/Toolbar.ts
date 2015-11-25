@@ -168,6 +168,14 @@ module Animate
             canvas.emit(CanvasEvents.MODIFIED, canvas);
         }
 
+        /**
+        * Shows the rename form - and creates a new behaviour if valid
+        */
+        newBehaviour()
+        {
+            // Todo: This must be NewBehaviourForm
+            RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER)
+        }
        
         /**
         * When we click the delete button

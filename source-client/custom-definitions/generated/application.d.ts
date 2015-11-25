@@ -281,7 +281,7 @@ declare module Animate {
         * Creates a new event object
         * @param {EventType} eventType The type event
         */
-        constructor(eventType: EventType, tag?: any);
+        constructor(type: EventType, tag?: any);
     }
     /**
     * A simple class that allows the adding, removing and dispatching of events.
@@ -1379,6 +1379,12 @@ declare module Animate {
     }
 }
 declare module Animate {
+    enum ResourceType {
+        BEHAVIOUR = 0,
+        GROUP = 1,
+        ASSET = 2,
+        CONTAINER = 3,
+    }
     class ProjectAssetTypes extends ENUM {
         constructor(v: string);
         static BEHAVIOUR: ProjectAssetTypes;
@@ -1422,7 +1428,6 @@ declare module Animate {
         static GROUP_DELETING: ProjectEvents;
         static GROUP_CREATED: ProjectEvents;
         static GROUPS_LOADED: ProjectEvents;
-        static OBJECT_RENAMED: ProjectEvents;
     }
     class ProjectEvent extends AnimateLoaderEvent {
         constructor(eventName: ProjectEvents, message: string, return_type: LoaderEvents, data?: any);
@@ -1504,12 +1509,12 @@ declare module Animate {
         */
         loadFiles(mode?: string): JQueryPromise<ModepressAddons.IGetFiles>;
         /**
-        * Use this to rename a behaviour, group or asset.
+        * Use this to rename the project, a behaviour, group or asset.
         * @param {string} name The new name of the object
-        * @param {string} id The id of the asset or behaviour.
-        * @param {ProjectAssetTypes} type The type of object we are renaming. this can be either 'group', 'asset' or 'behaviour'
+        * @param {string} id The id of the object we are renaming.
+        * @param {ResourceType} type The type of resource we are renaming
         */
-        renameObject(name: string, id: string, type: ProjectAssetTypes): void;
+        renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -3176,7 +3181,7 @@ declare module Animate {
     /**
     * Behaviours are the base class for all nodes placed on a <Canvas>
     */
-    class Behaviour extends Button implements ICanvasItem {
+    class Behaviour extends Button implements ICanvasItem, IRenamable {
         private _originalName;
         private _alias;
         private _canGhost;
@@ -3225,6 +3230,7 @@ declare module Animate {
         * Diposes and cleans up this component and all its child components
         */
         dispose(): void;
+        name: string;
         originalName: string;
         alias: string;
         canGhost: boolean;
@@ -3703,7 +3709,7 @@ declare module Animate {
     /**
     * This is the base class for all tree node classes
     */
-    class TreeNode extends Component {
+    class TreeNode extends Component implements IRenamable {
         private mText;
         private img;
         private _expanded;
@@ -3797,6 +3803,7 @@ declare module Animate {
         */
         removeNode(node: TreeNode): TreeNode;
         originalText: string;
+        name: string;
     }
 }
 declare module Animate {
@@ -4106,14 +4113,10 @@ declare module Animate {
         */
         createNode(template: BehaviourDefinition, x: number, y: number, container?: BehaviourContainer): Behaviour;
         /**
-        * Called when a behaviour is renamed
-        */
-        onBehaviourRename(e: RenameFormEvents, event: RenameFormEvent): void;
-        /**
         * Catch the key down events.
         * @param {any} e The jQuery event object
         */
-        onKeyDown(e: any): void;
+        onKeyDown(e: any): boolean;
         /**
         * When we double click the canvas we show the behaviour picker.
         * @param {any} e The jQuery event object
@@ -5540,27 +5543,6 @@ declare module Animate {
     /**
     * This form is used to create or edit Portals.
     */
-    class NewBehaviourForm extends OkCancelForm {
-        static _singleton: NewBehaviourForm;
-        private name;
-        private warning;
-        private createProxy;
-        constructor();
-        /** Shows the window. */
-        show(): void;
-        /** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-        and pass the text either for the ok or cancel buttons. */
-        OnButtonClick(e: any): void;
-        /** Called when we create a behaviour.*/
-        onCreated(response: ProjectEvents, event: ProjectEvent): void;
-        /** Gets the singleton instance. */
-        static getSingleton(): NewBehaviourForm;
-    }
-}
-declare module Animate {
-    /**
-    * This form is used to create or edit Portals.
-    */
     class PortalForm extends OkCancelForm {
         private static _singleton;
         private _typeCombo;
@@ -5596,34 +5578,57 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class RenameFormEvents extends ENUM {
-        constructor(v: string);
-        static OBJECT_RENAMED: RenameFormEvents;
-        static OBJECT_RENAMING: RenameFormEvents;
+    interface IRenameToken {
+        newName: string;
+        oldName: string;
+        object: IRenamable;
     }
+    interface IRenamable {
+        name: string;
+    }
+    /**
+    * Event used to describe re-naming of objects. Listen for either
+    * 'renaming' or 'renamed' event types
+    */
     class RenameFormEvent extends Event {
         cancel: boolean;
         name: string;
-        object: any;
-        constructor(eventName: RenameFormEvents, name: string, object: any);
+        object: IRenamable;
+        reason: string;
+        resourceType: ResourceType;
+        constructor(type: string, name: string, object: IRenamable, rt: ResourceType);
     }
     /**
     * This form is used to rename objects
     */
-    class RenameForm extends OkCancelForm {
+    class RenameForm extends Window {
         private static _singleton;
-        name: LabelVal;
-        warning: Label;
         private object;
+        private $errorMsg;
+        private $loading;
+        private $name;
+        private _projectElm;
+        private _deferred;
+        private _resourceId;
+        private _type;
         constructor();
+        hide(): void;
         /**
-        * @type public mfunc show
-        * Shows the window.
-        * @param {any} object
+         * Shows the window by adding it to a parent.
+         * @param {Component} parent The parent Component we are adding this window to
+         * @param {number} x The x coordinate of the window
+         * @param {number} y The y coordinate of the window
+         * @param {boolean} isModal Does this window block all other user operations?
+         * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
+         */
+        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        /**
+        * Attempts to rename an object
+        * @param {IRenamable} object
         * @param {string} curName
         * @extends {RenameForm}
         */
-        showForm(object: any, curName: string): void;
+        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): JQueryPromise<IRenameToken>;
         /**
         * @type public mfunc OnButtonClick
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
@@ -5631,18 +5636,12 @@ declare module Animate {
         * @param {any} e
         * @extends {RenameForm}
         */
-        OnButtonClick(e: any): void;
-        /**
-        * Called when we create a behaviour.
-        * @param {any} response
-        * @param {any} data
-        */
-        onRenamed(response: ProjectEvents, data: ProjectEvent): void;
+        ok(e: any): JQueryDeferred<IRenameToken>;
         /**
         * Gets the singleton instance.
         * @returns {RenameForm}
         */
-        static getSingleton(): RenameForm;
+        static get: RenameForm;
     }
 }
 declare module Animate {
@@ -5891,6 +5890,10 @@ declare module Animate {
         */
         onDuplicate(cut?: boolean): void;
         /**
+        * Shows the rename form - and creates a new behaviour if valid
+        */
+        newBehaviour(): void;
+        /**
         * When we click the delete button
         */
         onDelete(): void;
@@ -6039,13 +6042,7 @@ declare module Animate {
         /** When the rename form is about to proceed. We can cancel it by externally checking
         * if against the data.object and data.name variables.
         */
-        onRenameCheck(response: RenameFormEvents, event: RenameFormEvent, sender?: EventDispatcher): void;
-        /**
-        * When the database returns from its command to rename an object.
-        * @param {ProjectEvents} response The loader response
-        * @param {ProjectEvent} data The data sent from the server
-        */
-        onObjectRenamed(response: ProjectEvents, event: ProjectEvent): void;
+        onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The loader response

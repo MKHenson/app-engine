@@ -79,7 +79,7 @@ module Animate
 			this._quickAdd.element.detach();
 			this._quickCopy.element.detach();
 
-			RenameForm.getSingleton().on( RenameFormEvents.OBJECT_RENAMING, this.onRenameCheck, this );
+            RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
 		onShortcutClick( e )
@@ -152,7 +152,7 @@ module Animate
 			this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
 			this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
 			this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
-			this._curProj.on( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
+            //RenameForm.get.on("renamed", this.onObjectRenamed, this);
 		}
 
 		/**
@@ -171,7 +171,7 @@ module Animate
 				this._curProj.off( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
 				this._curProj.off( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
 				this._curProj.off( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
-				this._curProj.off( ProjectEvents.OBJECT_RENAMED, this.onObjectRenamed, this );
+                //RenameForm.get.off("renamed", this.onObjectRenamed, this);
 			}
 
 			this.children[0].clear();
@@ -189,15 +189,31 @@ module Animate
 			{
 				//If f2 pressed
 				if ( jQuery( e.target ).is( "input" ) == false && e.keyCode == 113 )
-				{
+                {
+                    var promise: JQueryPromise<IRenameToken>;
+                    var node = this.selectedNode;
+
 					//Unselect all other items
-					if ( this.selectedNode != null )
-						if ( this.selectedNode instanceof TreeNodeGroup )
-							RenameForm.getSingleton().showForm( this.selectedNode, this.selectedNode.text );
-						else if ( this.selectedNode instanceof TreeNodeBehaviour )
-							RenameForm.getSingleton().showForm( (<TreeNodeBehaviour>this.selectedNode).behaviour, this.selectedNode.text );
-						else if ( this.selectedNode instanceof TreeNodeAssetInstance )
-							RenameForm.getSingleton().showForm( (<TreeNodeAssetInstance>this.selectedNode).asset, this.selectedNode.text );
+                    if (node != null)
+                    {
+                        if (node instanceof TreeNodeGroup)
+                            promise = RenameForm.get.renameObject(node, node.text, node.id, ResourceType.GROUP);
+                        else if (node instanceof TreeNodeBehaviour)
+                            promise = RenameForm.get.renameObject(node.behaviour, node.text, node.behaviour.id, ResourceType.BEHAVIOUR);
+                        else if (node instanceof TreeNodeAssetInstance)
+                            promise = RenameForm.get.renameObject(node.asset, node.text, node.asset.id, ResourceType.ASSET);
+
+                        if (promise)
+                        {
+                            promise.then(function(token)
+                            {
+                                node.text = token.newName;
+
+                                if (node instanceof TreeNodeAssetInstance)
+                                    PluginManager.getSingleton().emit(new AssetRenamedEvent(node.asset, token.oldName));
+                            });
+                        }
+                    }
 				}
 			}
 		}
@@ -485,61 +501,54 @@ module Animate
 		/** When the rename form is about to proceed. We can cancel it by externally checking
 		* if against the data.object and data.name variables.
 		*/
-		onRenameCheck(response: RenameFormEvents, event: RenameFormEvent, sender?: EventDispatcher )
+		onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher )
 		{
 			//if (event.tag.object.type == "project" )
 			//	return;
 			var project = User.get.project;
-			var len = project.behaviours.length;
-			if (event.object instanceof BehaviourContainer )
+            var len = project.behaviours.length;
+            if (event.resourceType == ResourceType.CONTAINER)
 				for ( var i = 0; i < len; i++ )
 					if (project.behaviours[i].name == event.name )
-					{
-						(<Label>RenameForm.getSingleton().name.val).textfield.element.addClass( "red-border" );
-						RenameForm.getSingleton().warning.textfield.element.css( "color", "#FF0000" );
-						RenameForm.getSingleton().warning.text = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
-						event.cancel = true;
+                    {
+                        event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
 						return;
 					}
 
 			event.cancel = false;
 		}
 
-		/**
-		* When the database returns from its command to rename an object.
-		* @param {ProjectEvents} response The loader response
-		* @param {ProjectEvent} data The data sent from the server
-		*/
-		onObjectRenamed(response: ProjectEvents, event: ProjectEvent )
-		{
-			var data = event.tag;
+		///**
+		//* When the database returns from its command to rename an object.
+		//* @param {string} type The event type
+		//* @param {RenameFormEvent} event The event from the rename form
+		//*/
+  //      onObjectRenamed(type: string, event: RenameFormEvent)
+		//{
+		//	var data = event.tag;
+            
+  //          if (data.object != null)
+  //          {
+  //              var prevName = data.object.name;
+  //              data.object.name = data.name;
 
-			if ( response == ProjectEvents.OBJECT_RENAMED )
-			{
-				if ( data.object != null )
-				{
-					var prevName = data.object.name;
-					data.object.name = data.name;
+  //              var node: TreeNode = null;
+  //              if (data.object instanceof BehaviourContainer)
+  //                  node = this._sceneNode.findNode("behaviour", data.object);
+  //              else if (data.object instanceof Asset)
+  //                  node = this._assetsNode.findNode("asset", data.object);
+  //              else if (data.object instanceof TreeNodeGroup)
+  //                  node = data.object;
 
-					var node : TreeNode = null;
-					if ( data.object instanceof BehaviourContainer )
-						node = this._sceneNode.findNode( "behaviour", data.object );
-					else if ( data.object instanceof Asset )
-						node = this._assetsNode.findNode( "asset", data.object );
-					else if ( data.object instanceof TreeNodeGroup )
-						node = data.object;
+  //              if (node != null)
+  //              {
+  //                  node.text = data.name;
 
-					if ( node != null )
-					{
-						node.text = data.name;
-
-						if ( data.object instanceof Asset )
-							//PluginManager.getSingleton().assetRenamed( data.object, prevName );
-							PluginManager.getSingleton().emit( new AssetRenamedEvent( data.object, prevName ) );
-					}
-				}
-			}
-		}
+  //                  if (data.object instanceof Asset)
+  //                      PluginManager.getSingleton().emit(new AssetRenamedEvent(data.object, prevName));
+  //              }
+  //          }
+		//}
 
 		/**
 		* When the database returns from its command.

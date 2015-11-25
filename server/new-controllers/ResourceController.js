@@ -28,8 +28,8 @@ var ResourceController = (function (_super) {
             router.use(bodyParser.urlencoded({ 'extended': true }));
             router.use(bodyParser.json());
             router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-            router.delete("/:user/:project/:ids?", [modepress_api_1.canEdit, this.removeResources.bind(this)]);
-            router.put("/:user/:project/:id?", [modepress_api_1.canEdit, this.editResource.bind(this)]);
+            router.delete("/:user/:project/:ids", [modepress_api_1.canEdit, this.removeResources.bind(this)]);
+            router.put("/:user/:project/:id", [modepress_api_1.canEdit, this.editResource.bind(this)]);
             router.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getResources.bind(this)]);
             router.post("/:user/:project/", [modepress_api_1.canEdit, this.create.bind(this)]);
         }

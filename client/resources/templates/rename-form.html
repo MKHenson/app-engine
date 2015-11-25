@@ -1,0 +1,15 @@
+<div id="rename-content">
+	<form>
+		<input type="text" id="rename-input" placeholder="Please enter a name" class="background-view-light" en-model="ctrl.$name" />
+		<div class="buttons-container">
+			<div class="button green" en-click="ctrl.ok()">
+				<div class="tick"></div>OK
+			</div>
+			<div class="button" en-click="ctrl.hide()">
+				<div class="red-highlight">CANCEL</div>
+			</div>
+			<div class="error" en-show="ctrl.$errorMsg != ''">This is an errorThis is an errorThis is an errorThis is an errorThis is an errorThis is an errorThis is an error</div>
+			<div class="fix"></div>
+		</div>
+	</form>
+</div>
