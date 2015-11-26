@@ -499,13 +499,13 @@ module Animate
             project.off(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
             project.off(ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
 
-			if (event.return_type == AnimateLoaderResponses.ERROR )
-			{
+			//if (event.return_type == AnimateLoaderResponses.ERROR )
+			//{
 				//(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
 				//this._warning.textfield.element.css( "color", "#FF0000" );
     //            this._warning.text = event.message;
-				return;
-			}
+			//	return;
+			//}
 
             if (response == ProjectEvents.BUILD_SELECTED )
 			{
@@ -559,17 +559,17 @@ module Animate
 		* @param {UserEvents} event 
 		* @param {UserEvent} data 
 		*/
-        onRenamed( response: UserEvents, event: UserEvent )
-		{
-			var user : User = User.get;
-			var project = User.get.project;
+       // onRenamed( response: UserEvents, event: UserEvent )
+	//	{
+			//var user : User = User.get;
+			//var project = User.get.project;
 
-			if ( event.return_type == AnimateLoaderResponses.ERROR )
-			{
+			//if ( event.return_type == AnimateLoaderResponses.ERROR )
+			//{
 				//this._warning.textfield.element.css( "color", "#FF0000" );
 				//this._warning.text = event.message;
 				//return;
-			}
+			//}
 
             //if (response == UserEvents.PROJECT_RENAMED )
 			//{
@@ -587,7 +587,7 @@ module Animate
 
 			//user.removeEventListener( UserEvents.FAILED, this._renameProxy );
             //user.removeEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
-		}
+		//}
 
 		/**
 		* Shows the build options form

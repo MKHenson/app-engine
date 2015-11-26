@@ -119,7 +119,7 @@ module Animate
 		* @param {any} e 
 		* @extends {RenameForm}
 		*/
-		ok( e : any )
+		ok()
         {
             var name: string = this.$name;
             var that = this;

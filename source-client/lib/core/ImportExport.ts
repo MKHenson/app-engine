@@ -472,11 +472,11 @@ module Animate
 				else
 				{
 					MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
+					//this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
 				}
 			}
-			else
-				this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag));
+			//else
+			//	this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag));
 		}
 
 		/**

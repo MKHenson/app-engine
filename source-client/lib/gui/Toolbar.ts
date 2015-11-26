@@ -174,7 +174,10 @@ module Animate
         newBehaviour()
         {
             // Todo: This must be NewBehaviourForm
-            RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER)
+            RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER).then(function (token)
+            {
+                User.get.project.createResource(token.newName, ResourceType.CONTAINER);
+            });
         }
        
         /**

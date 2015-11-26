@@ -82,11 +82,11 @@ module Animate
 		//static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
 
-	export class ProjectEvent extends AnimateLoaderEvent
+	export class ProjectEvent extends Event
 	{
-		constructor(eventName: ProjectEvents, message: string, return_type: LoaderEvents, data?: any)
+		constructor(type: string, data?: any)
 		{
-			super(eventName, message, return_type, data);
+			super(type, data);
 		}
 	}
 
@@ -324,6 +324,7 @@ module Animate
 		* @param {string} name The new name of the object
 		* @param {string} id The id of the object we are renaming.
 		* @param {ResourceType} type The type of resource we are renaming
+        * @returns {JQueryPromise<Modepress.IResponse>}
 		*/
         renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>
         {
@@ -331,16 +332,16 @@ module Animate
             var that = this;
             var details = User.get.userEntry;
             var projId = this.entry._id;
-            var restURL = "";
+            var url: string;
 
             if (type == ResourceType.ASSET)
-                restURL = `assets/${details.username}/${projId}/${id}`;
-            else if (type == ResourceType.BEHAVIOUR)
-                restURL = `behaviours/${details.username}/${projId}/${id}`;
+                url = `${DB.API}/assets/${details.username}/${projId}/${id}`;
+            else if (type == ResourceType.CONTAINER)
+                url = `${DB.API}/behaviours/${details.username}/${projId}/${id}`;
             else if (type == ResourceType.GROUP)
-                restURL = `groups/${details.username}/${projId}/${id}`;
+                url = `${DB.API}/groups/${details.username}/${projId}/${id}`;
             
-            Utils.put(`${DB.API}/${restURL}`, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
+            Utils.put(url, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -355,8 +356,57 @@ module Animate
             return d.promise();
         }
 
+        /**
+        * Creates a new project resource. 
+        * @param {string} name The new name of the object
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns {JQueryPromise<Modepress.IResponse>}
+        */
+        createResource(name: string, type: ResourceType): JQueryPromise<ModepressAddons.ICreateResource>
+        {
+            var d = jQuery.Deferred<ModepressAddons.ICreateResource>();
+            var that = this;
+            var details = User.get.userEntry;
+            var projId = this.entry._id;
+            var url : string;
 
+            if (type == ResourceType.ASSET)
+                url = `${DB.API}/assets/${details.username}/${projId}`;
+            else if (type == ResourceType.CONTAINER)
+                url = `${DB.API}/behaviours/${details.username}/${projId}`;
+            else if (type == ResourceType.GROUP)
+                url = `${DB.API}/groups/${details.username}/${projId}`;
+            
+            Utils.post(url, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: ModepressAddons.ICreateResource)
+            {
+                if (data.error)
+                    return d.reject(new Error(data.message));
+                
+                // TODO: Factory to create resources?
+                that.emit(new ProjectEvent("resource-created", data.data));
 
+                //	var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
+                //	this._behaviours.push( behaviour );
+
+                //	//Create the GUI elements
+                //	var node: TreeNodeBehaviour = TreeViewScene.getSingleton().addContainer( behaviour );
+                //	node.save( false );
+                //	var tabPair = CanvasTab.getSingleton().addSpecialTab(behaviour.name, CanvasTabType.CANVAS, behaviour );
+                //	jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
+                //	tabPair.name = node.element.text();
+
+                //	this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
+
+                return d.resolve(data);
+
+            }).fail(function (err: JQueryXHR)
+            {
+                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+            });
+
+            return d.promise();
+        }
+       
 
 
 
@@ -490,26 +540,26 @@ module Animate
 			this.saveCSS();
 		}
 
-		/**
-		* This function is used to create a new behaviour. This will make
-		* a call the server. If the server sends a fail message no new behaviour
-		* will be created. You can use the event BEHAVIOUR_CREATED to hook into
-		* @param {string} name The proposed name of the behaviour.
-		*/
-		createBehaviour( name: string )
-		{
-			for ( var i = 0; i < this._behaviours.length; i++ )
-				if ( this._behaviours[i].name == name )
-				{
-					this.emit( new ProjectEvent( ProjectEvents.FAILED, "A behaviour with that name already exists.", LoaderEvents.FAILED ) );
-					return;
-				}
+		///**
+		//* This function is used to create a new behaviour. This will make
+		//* a call the server. If the server sends a fail message no new behaviour
+		//* will be created. You can use the event BEHAVIOUR_CREATED to hook into
+		//* @param {string} name The proposed name of the behaviour.
+		//*/
+		//createBehaviour( name: string )
+		//{
+		//	for ( var i = 0; i < this._behaviours.length; i++ )
+		//		if ( this._behaviours[i].name == name )
+		//		{
+		//			this.emit( new ProjectEvent( ProjectEvents.FAILED, "A behaviour with that name already exists.", LoaderEvents.FAILED ) );
+		//			return;
+		//		}
 
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : BehaviourContainer.getNewLocalId() } );
-		}
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : BehaviourContainer.getNewLocalId() } );
+		//}
 
 
 		/**
@@ -908,13 +958,13 @@ module Animate
 					if ( loader.url == "/project/select-build" )
 					{
 						this.mCurBuild = data.build;
-						this.emit( new ProjectEvent( ProjectEvents.BUILD_SELECTED, data.message, LoaderEvents.fromString( data.return_type ),  this.mCurBuild ) );
+						//this.emit( new ProjectEvent( ProjectEvents.BUILD_SELECTED, data.message, LoaderEvents.fromString( data.return_type ),  this.mCurBuild ) );
 					}
 					//Updates the current build
 					else if ( loader.url == "/project/save-build" )
 					{
 						//this.mCurBuild = data.build;
-						this.emit( new ProjectEvent( ProjectEvents.BUILD_SAVED, "Build saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						//this.emit( new ProjectEvent( ProjectEvents.BUILD_SAVED, "Build saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 					}
 					//Delete a new Behaviour
 					else if ( loader.url == "/project/delete-behaviours" )
@@ -929,26 +979,26 @@ module Animate
 									var behaviour : BehaviourContainer = this._behaviours[ii];
 									behaviour.dispose();									
 									this._behaviours.splice( ii, 1 );
-									this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
+									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
 									break;
 								}
 						}							
 					}
-					//Create a new Behaviour
-					else if ( loader.url == "/project/create-behaviour" )
-					{
-						var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
-						this._behaviours.push( behaviour );
+					////Create a new Behaviour
+					//else if ( loader.url == "/project/create-behaviour" )
+					//{
+					//	var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
+					//	this._behaviours.push( behaviour );
 
-						//Create the GUI elements
-						var node: TreeNodeBehaviour = TreeViewScene.getSingleton().addContainer( behaviour );
-						node.save( false );
-						var tabPair = CanvasTab.getSingleton().addSpecialTab(behaviour.name, CanvasTabType.CANVAS, behaviour );
-						jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
-						tabPair.name = node.element.text();
+					//	//Create the GUI elements
+					//	var node: TreeNodeBehaviour = TreeViewScene.getSingleton().addContainer( behaviour );
+					//	node.save( false );
+					//	var tabPair = CanvasTab.getSingleton().addSpecialTab(behaviour.name, CanvasTabType.CANVAS, behaviour );
+					//	jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
+					//	tabPair.name = node.element.text();
 
-						this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
-					}
+					//	this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
+					//}
 					else if ( loader.url == "/project/get-behaviours" )
 					{
 						//Cleanup behaviourssaveAll
@@ -971,9 +1021,9 @@ module Animate
 
 							//Update the GUI elements
 							TreeViewScene.getSingleton().updateBehaviour( b );
-							this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
+							//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
 						}
-						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
+						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/save-behaviours" )
 					{
@@ -986,21 +1036,21 @@ module Animate
 									if ( canvas )
 										this._behaviours[i].json = canvas.buildDataObject();
 
-									this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}
 
-						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
+						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/save-html" )
 					{
-						this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						//this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 						if ( HTMLTab.singleton )
 							HTMLTab.singleton.save();
 					}
 					else if ( loader.url == "/project/save-css" )
 					{
-						this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+						//this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 						if ( CSSTab.singleton )
 							CSSTab.singleton.save();
 					}
@@ -1110,8 +1160,8 @@ module Animate
 					//}
 
 					//Create a new group
-					else if ( loader.url == "/project/create-group" )
-						this.emit( new ProjectEvent( ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: data._id, name: data.name, json: data.json } ) );
+					//else if ( loader.url == "/project/create-group" )
+					//	this.emit( new ProjectEvent( ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: data._id, name: data.name, json: data.json } ) );
 					//Creates each of the groups and notify they were loaded.
 					else if ( loader.url == "/project/get-groups" )
 					{
@@ -1119,9 +1169,9 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var dbEntry = data[i];
-							this.emit(new ProjectEvent(ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: dbEntry["_id"], name: dbEntry["name"], json: dbEntry["json"] } ));
+							//this.emit(new ProjectEvent(ProjectEvents.GROUP_CREATED, "Group created", LoaderEvents.COMPLETE, { id: dbEntry["_id"], name: dbEntry["name"], json: dbEntry["json"] } ));
 						}
-						this.emit(new ProjectEvent(ProjectEvents.GROUPS_LOADED, "Groups loaded", LoaderEvents.COMPLETE, this ) );
+						//this.emit(new ProjectEvent(ProjectEvents.GROUPS_LOADED, "Groups loaded", LoaderEvents.COMPLETE, this ) );
 					}
 					//Delete a new group
 					else if ( loader.url == "/project/delete-groups" )
@@ -1129,7 +1179,7 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var grpID = data[i];
-							this.emit( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
+							//this.emit( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
 						}
 					}
 					//Update / download group details
@@ -1139,18 +1189,18 @@ module Animate
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
 							var grp = data[i];
-							this.emit( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
+							//this.emit( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
 						}
 
-						this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
+						//this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
 					}
 					//Entered if we have saved some groups
 					else if ( loader.url == "/project/save-groups" )
 					{
-						for ( var i = 0, l = data.length; i < l; i++ )
-							this.emit(new ProjectEvent(ProjectEvents.GROUP_SAVED, "Group saved", LoaderEvents.COMPLETE, data[i] ) );
+						//for ( var i = 0, l = data.length; i < l; i++ )
+							///this.emit(new ProjectEvent(ProjectEvents.GROUP_SAVED, "Group saved", LoaderEvents.COMPLETE, data[i] ) );
 
-						this.emit(new ProjectEvent(ProjectEvents.GROUPS_SAVED, "Groups saved", LoaderEvents.COMPLETE, null ) );
+						//this.emit(new ProjectEvent(ProjectEvents.GROUPS_SAVED, "Groups saved", LoaderEvents.COMPLETE, null ) );
 					}
 					//Create a new Behaviour
 					else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
@@ -1173,7 +1223,7 @@ module Animate
 						//pManager.assetLoaded( asset );
 						pManager.emit( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
 
-						this.emit(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
+						//this.emit(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
 					}
 					//Save the asset
 					else if ( loader.url == "/project/save-assets" )
@@ -1183,7 +1233,7 @@ module Animate
 								if ( this._assets[i].id == data[ii] )
 									this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
 
-						this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
+						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
 					}
 					//Update / download asset details
 					else if ( loader.url == "/project/update-assets" )
@@ -1196,7 +1246,7 @@ module Animate
 									this.emit( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
 								}
 
-						this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
+						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
 					}
 					//Update / download behaviour details
 					else if ( loader.url == "/project/update-behaviours" )
@@ -1211,12 +1261,12 @@ module Animate
 									
 									//Update the GUI elements
 									TreeViewScene.getSingleton().updateBehaviour( this._behaviours[i] );
-									this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+									//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}
 						}
 
-						this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
+						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
 					}
 					else if ( loader.url == "/project/get-assets" )
 					{
@@ -1261,7 +1311,7 @@ module Animate
 							pManager.emit( eventCreated );
 						}
 
-						this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
+						//this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
 					}
 					////Handle renaming
 					//else if ( loader.url == "/project/rename-object" )
@@ -1299,11 +1349,11 @@ module Animate
 				else
 				{
 					MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, data ) );
+					//this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, data ) );
 				}
 			}
-			else
-				this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
+			//else
+			//	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         }
 
         get behaviours(): Array<BehaviourContainer> { return this._behaviours; }
@@ -1323,7 +1373,7 @@ module Animate
 			var i = this._behaviours.length;
 			while ( i-- )
 			{
-				this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
+				//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
 				this._behaviours[i].dispose();
 			}
 

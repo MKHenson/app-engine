@@ -5,6 +5,15 @@
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
+        static post(url: string, data: any): JQueryXHR
+        {
+            // Associate the uploaded preview with the file
+            return jQuery.ajax(url, { type: "post", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        }
+
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
         static put(url: string, data: any): JQueryXHR
         {
             // Associate the uploaded preview with the file

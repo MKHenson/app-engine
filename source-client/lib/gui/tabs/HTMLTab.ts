@@ -45,7 +45,7 @@ module Animate
 			if (response == ProjectEvents.FAILED)
 			{
 				this.saved = false;
-				MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
+				//MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
 			}
 			else
 			{

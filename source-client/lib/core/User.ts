@@ -1,28 +1,28 @@
 module Animate
 {
-	export class UserEvents extends ENUM
-	{
-		constructor( v: string ) { super( v ); }
+	//export class UserEvents extends ENUM
+	//{
+		//constructor( v: string ) { super( v ); }
 		//static LOGGED_IN: UserEvents = new UserEvents( "user_logged_in" );
-		static FAILED: UserEvents = new UserEvents( "user_failed" );
+		//static FAILED: UserEvents = new UserEvents( "user_failed" );
 		//static REGISTERED: UserEvents = new UserEvents( "user_registered" );
 		//static LOGGED_OUT: UserEvents = new UserEvents( "user_logged_out" );
 		//static PASSWORD_RESET: UserEvents = new UserEvents( "user_password_reset" );
 		//static ACTIVATION_RESET: UserEvents = new UserEvents( "user_activation_reset" );
-		static PROJECT_CREATED: UserEvents = new UserEvents( "user_project_created" );
-		static PROJECT_OPENED: UserEvents = new UserEvents( "user_project_opened" );
+		//static PROJECT_CREATED: UserEvents = new UserEvents( "user_project_created" );
+		//static PROJECT_OPENED: UserEvents = new UserEvents( "user_project_opened" );
 		//static PROJECTS_RECIEVED: UserEvents = new UserEvents( "user_projects_recieved" );
 		//static PROJECT_DELETED: UserEvents = new UserEvents( "user_project_deleted" );
 		//static PROJECT_COPIED: UserEvents = new UserEvents( "user_project_copied" );
 		//static PROJECT_RENAMED: UserEvents = new UserEvents( "user_project_rename" );
-		static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
-	}
+		//static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
+	//}
 
-	export class UserEvent extends AnimateLoaderEvent
+    export class UserEvent extends Event
 	{
-		constructor(eventName: UserEvents, message: string, return_type: LoaderEvents, data: any)
+		constructor(type: string, data: any)
 		{
-			super(eventName, message, return_type, data);
+            super(type, data);
 		}
     }
 
@@ -585,7 +585,7 @@ module Animate
 				if ( event.return_type == AnimateLoaderResponses.ERROR )
 				{
 					//MessageBox.show(event.message, Array<string>("Ok"), null, null );
-					this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
+					//this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
 					return;
 				}
 
@@ -621,20 +621,20 @@ module Animate
 				//	this.dispatchEvent( new UserEvent( UserEvents.PASSWORD_RESET, event.message, event.return_type, data ) );
 				//else if ( loader.url == "/user/resend-activation" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.ACTIVATION_RESET, event.message, event.return_type, data ) );
-				else if ( loader.url == "/user/update-details" )
-					this.emit(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
+				//else if ( loader.url == "/user/update-details" )
+				//	this.emit(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
 				//else if ( loader.url == "/project/get-user-projects" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, "", event.return_type, data ) );
 				else if ( loader.url == "/project/create" )
 				{
                     //this.project = new Project(data.project.entry._id, data.project.name, data.build );
-					this.emit( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
+					//this.emit( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
 				}
 				else if ( loader.url == "/project/open" )
 				{
                     //this.project = new Project(data.project.entry._id, data.project.name, null );
 					this.project.loadFromData( data );
-					this.emit( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
+					//this.emit( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
 				}
 				//else if ( loader.url == "/project/delete" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
@@ -677,11 +677,11 @@ module Animate
 					//this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
 				}				
 								
-				else
-					this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
+				//else
+				//	this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 			}
-			else
-				this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
+			//else
+			//	this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 		}
 
 		//get project(): Project { return this._project; }

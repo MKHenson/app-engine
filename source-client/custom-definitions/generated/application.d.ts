@@ -670,6 +670,10 @@ declare module Animate {
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
+        static post(url: string, data: any): JQueryXHR;
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
         static put(url: string, data: any): JQueryXHR;
         /**
         * A predefined shorthand method for calling deleta methods that use JSON communication
@@ -1429,8 +1433,8 @@ declare module Animate {
         static GROUP_CREATED: ProjectEvents;
         static GROUPS_LOADED: ProjectEvents;
     }
-    class ProjectEvent extends AnimateLoaderEvent {
-        constructor(eventName: ProjectEvents, message: string, return_type: LoaderEvents, data?: any);
+    class ProjectEvent extends Event {
+        constructor(type: string, data?: any);
     }
     /**
     * The build class defined in the database
@@ -1513,8 +1517,16 @@ declare module Animate {
         * @param {string} name The new name of the object
         * @param {string} id The id of the object we are renaming.
         * @param {ResourceType} type The type of resource we are renaming
+        * @returns {JQueryPromise<Modepress.IResponse>}
         */
         renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>;
+        /**
+        * Creates a new project resource.
+        * @param {string} name The new name of the object
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns {JQueryPromise<Modepress.IResponse>}
+        */
+        createResource(name: string, type: ResourceType): JQueryPromise<ModepressAddons.ICreateResource>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -1532,13 +1544,6 @@ declare module Animate {
         * This function is used to save the behaviors, groups and _assets or the DB
         */
         saveAll(): void;
-        /**
-        * This function is used to create a new behaviour. This will make
-        * a call the server. If the server sends a fail message no new behaviour
-        * will be created. You can use the event BEHAVIOUR_CREATED to hook into
-        * @param {string} name The proposed name of the behaviour.
-        */
-        createBehaviour(name: string): void;
         /**
         * Saves the HTML from the HTML tab to the server
         */
@@ -1687,15 +1692,8 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class UserEvents extends ENUM {
-        constructor(v: string);
-        static FAILED: UserEvents;
-        static PROJECT_CREATED: UserEvents;
-        static PROJECT_OPENED: UserEvents;
-        static DETAILS_SAVED: UserEvents;
-    }
-    class UserEvent extends AnimateLoaderEvent {
-        constructor(eventName: UserEvents, message: string, return_type: LoaderEvents, data: any);
+    class UserEvent extends Event {
+        constructor(type: string, data: any);
     }
     /**
     * This class is used to represent the user who is logged into Animate.
@@ -2460,111 +2458,56 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class PortalType extends ENUM {
-        constructor(v: string);
-        static PARAMETER: PortalType;
-        static PRODUCT: PortalType;
-        static INPUT: PortalType;
-        static OUTPUT: PortalType;
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns {PortalType}
-        */
-        static fromString(val: string): PortalType;
-    }
-    class ParameterType extends ENUM {
-        constructor(v: string);
-        static ASSET: ParameterType;
-        static ASSET_LIST: ParameterType;
-        static NUMBER: ParameterType;
-        static GROUP: ParameterType;
-        static FILE: ParameterType;
-        static STRING: ParameterType;
-        static OBJECT: ParameterType;
-        static BOOL: ParameterType;
-        static INT: ParameterType;
-        static COLOR: ParameterType;
-        static ENUM: ParameterType;
-        static HIDDEN: ParameterType;
-        static HIDDEN_FILE: ParameterType;
-        static OPTIONS: ParameterType;
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns {ParameterType}
-        */
-        static fromString(val: string): ParameterType;
-    }
     /**
-    * A portal class for behaviours. There are 4 different types of portals -
-    * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
+    * This class is used to create tree view items.
     */
-    class Portal extends Component {
-        private _links;
-        private _customPortal;
-        private _name;
-        private _type;
-        private _dataType;
-        value: any;
-        behaviour: Behaviour;
+    class TreeView extends Component {
+        private _selectedNode;
+        private fixDiv;
+        private _selectedNodes;
+        constructor(parent: Component);
         /**
-        * @param {Behaviour} parent The parent component of the Portal
-        * @param {string} name The name of the portal
-        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {any} value The default value of the portal
-        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
+        * When we click the view
+        * @param {any} e
         */
-        constructor(parent: Behaviour, name: string, type?: PortalType, value?: any, dataType?: ParameterType);
+        onClick(e: any): void;
         /**
-        * Edits the portal variables
-        * @param {string} name The name of the portal
-        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {any} value The default value of the portal
-        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
-        * @extends <Portal>
+        * Selects a node.
+        * @param {TreeNode} node The node to select
+        * @param {boolean} expandToNode A bool to say if we need to traverse the tree down until we get to the node
+        * and expand all parent nodes
+        * @param {boolean} multiSelect If true then multiple nodes are selected
         */
-        edit(name: string, type: PortalType, value: any, dataType: ParameterType): void;
+        selectNode(node: TreeNode, expandToNode?: boolean, multiSelect?: boolean): void;
         /**
-        * This function will check if the source portal is an acceptable match with the current portal.
-        * @param source The source panel we are checking against
+        * This will add a node to the treeview
+        * @param {TreeNode} node The node to add
+        * @returns {TreeNode}
         */
-        checkPortalLink(source: Portal): boolean;
+        addNode(node: TreeNode): TreeNode;
+        /** @returns {Array<TreeNode>} The nodes of this treeview.*/
+        nodes(): Array<TreeNode>;
         /**
-        * This function will check if the source portal is an acceptable match with the current portal.
+        * This will clear and dispose of all the nodes
+        * @returns Array<TreeNode> The nodes of this tree
         */
-        dispose(): void;
+        clear(): void;
         /**
-        * When the mouse is down on the portal.
-        * @param {object} e The jQuery event object
+        * This removes a node from the treeview
+        * @param {TreeNode} node The node to remove
+        * @returns {TreeNode}
         */
-        onPortalDown(e: any): void;
+        removeNode(node: any): TreeNode;
         /**
-        * Adds a link to the portal.
-        * @param {Link} link The link we are adding
+        * This will recursively look through each of the nodes to find a node with
+        * the specified name.
+        * @param {string} property The name property we are evaluating
+        * @param {any} value The object we should be comparing against
+        * @returns {TreeNode}
         */
-        addLink(link: Link): void;
-        /**
-        * Removes a link from the portal.
-        * @param {Link} link The link we are removing
-        */
-        removeLink(link: Link): Link;
-        /**
-        * Makes sure the links are positioned correctly
-        */
-        updateAllLinks(): void;
-        /**
-        * Returns this portal's position on the canvas.
-        */
-        positionOnCanvas(): {
-            left: number;
-            top: number;
-        };
-        type: PortalType;
-        name: string;
-        dataType: ParameterType;
-        customPortal: boolean;
-        links: Array<Link>;
+        findNode(property: string, value: any): TreeNode;
+        selectedNode: TreeNode;
+        selectedNodes: Array<TreeNode>;
     }
 }
 declare module Animate {
@@ -2650,6 +2593,51 @@ declare module Animate {
         removeTab(val: string, dispose: boolean): any;
         removeTab(val: TabPair, dispose: boolean): any;
         tabs: Array<TabPair>;
+    }
+}
+declare module Animate {
+    /**
+    * This class is a small container class that is used by the Tab class. It creates TabPairs
+    * each time a tab is created with the addTab function. This creates a TabPair object that keeps a reference to the
+    * label and page as well as a few other things.
+    */
+    class TabPair {
+        tabSelector: Component;
+        page: Component;
+        name: string;
+        constructor(tab: Component, page: Component, name: string);
+        /**
+        * Called when the editor is resized
+        */
+        onResize(): void;
+        /**
+        * Called by the tab class when the pair is to be removed.
+        * @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        */
+        onRemove(data: TabEvent): void;
+        /**
+        * Called by the tab when the save all button is clicked
+        */
+        onSaveAll(): void;
+        /**
+        * Called when the pair has been added to the tab
+        */
+        onAdded(): void;
+        /**
+        * Called when the pair has been selected
+        */
+        onSelected(): void;
+        /**
+        * Gets the label text of the pair
+        */
+        /**
+        * Sets the label text of the pair
+        */
+        text: string;
+        /**
+        * Cleans up the references
+        */
+        dispose(): void;
     }
 }
 declare module Animate {
@@ -3333,55 +3321,111 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class BehaviourPickerEvents extends ENUM {
+    class PortalType extends ENUM {
         constructor(v: string);
-        static BEHAVIOUR_PICKED: BehaviourPickerEvents;
+        static PARAMETER: PortalType;
+        static PRODUCT: PortalType;
+        static INPUT: PortalType;
+        static OUTPUT: PortalType;
+        /**
+        * Returns an enum reference by its name/value
+        * @param {string} val
+        * @returns {PortalType}
+        */
+        static fromString(val: string): PortalType;
     }
-    class BehaviourPickerEvent extends Event {
-        behaviourName: string;
-        constructor(eventName: BehaviourPickerEvents, behaviourName: string);
+    class ParameterType extends ENUM {
+        constructor(v: string);
+        static ASSET: ParameterType;
+        static ASSET_LIST: ParameterType;
+        static NUMBER: ParameterType;
+        static GROUP: ParameterType;
+        static FILE: ParameterType;
+        static STRING: ParameterType;
+        static OBJECT: ParameterType;
+        static BOOL: ParameterType;
+        static INT: ParameterType;
+        static COLOR: ParameterType;
+        static ENUM: ParameterType;
+        static HIDDEN: ParameterType;
+        static HIDDEN_FILE: ParameterType;
+        static OPTIONS: ParameterType;
+        /**
+        * Returns an enum reference by its name/value
+        * @param {string} val
+        * @returns {ParameterType}
+        */
+        static fromString(val: string): ParameterType;
     }
-    class BehaviourPicker extends Window {
-        private static _singleton;
-        private _input;
-        private _list;
-        private _X;
-        private _Y;
-        constructor();
+    /**
+    * A portal class for behaviours. There are 4 different types of portals -
+    * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
+    */
+    class Portal extends Component {
+        private _links;
+        private _customPortal;
+        private _name;
+        private _type;
+        private _dataType;
+        value: any;
+        behaviour: Behaviour;
         /**
-        * Shows the window by adding it to a parent.
-        * @param {Component} parent The parent Component we are adding this window to
-        * @param {number} x The x coordinate of the window
-        * @param {number} y The y coordinate of the window
-        * @param {boolean} isModal Does this window block all other user operations?
-        * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
+        * @param {Behaviour} parent The parent component of the Portal
+        * @param {string} name The name of the portal
+        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
+        * @param {any} value The default value of the portal
+        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
         */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        constructor(parent: Behaviour, name: string, type?: PortalType, value?: any, dataType?: ParameterType);
         /**
-        * Called when we click the list.
-        * @param {any} e
-        * @returns {any}
+        * Edits the portal variables
+        * @param {string} name The name of the portal
+        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
+        * @param {any} value The default value of the portal
+        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
+        * @extends <Portal>
         */
-        onListClick(e: any): void;
+        edit(name: string, type: PortalType, value: any, dataType: ParameterType): void;
         /**
-        * Called when we double click the list.
-        * @param {any} e
-        * @returns {any}
+        * This function will check if the source portal is an acceptable match with the current portal.
+        * @param source The source panel we are checking against
         */
-        onListDClick(e: any): void;
+        checkPortalLink(source: Portal): boolean;
         /**
-        * When the input text changes we go through each list item
-        * and select it.
-        * @param {any} e
-        * @returns {any}
+        * This function will check if the source portal is an acceptable match with the current portal.
         */
-        onKeyDown(e: any): void;
+        dispose(): void;
         /**
-        * Gets the singleton instance.
-        * @returns {BehaviourPicker}
+        * When the mouse is down on the portal.
+        * @param {object} e The jQuery event object
         */
-        static getSingleton(): BehaviourPicker;
-        list: List;
+        onPortalDown(e: any): void;
+        /**
+        * Adds a link to the portal.
+        * @param {Link} link The link we are adding
+        */
+        addLink(link: Link): void;
+        /**
+        * Removes a link from the portal.
+        * @param {Link} link The link we are removing
+        */
+        removeLink(link: Link): Link;
+        /**
+        * Makes sure the links are positioned correctly
+        */
+        updateAllLinks(): void;
+        /**
+        * Returns this portal's position on the canvas.
+        */
+        positionOnCanvas(): {
+            left: number;
+            top: number;
+        };
+        type: PortalType;
+        name: string;
+        dataType: ParameterType;
+        customPortal: boolean;
+        links: Array<Link>;
     }
 }
 declare module Animate {
@@ -3439,270 +3483,450 @@ declare module Animate {
     }
 }
 declare module Animate {
+    class CanvasEvents extends ENUM {
+        constructor(v: string);
+        static MODIFIED: CanvasEvents;
+    }
+    class CanvasEvent extends Event {
+        canvas: Canvas;
+        constructor(eventName: CanvasEvents, canvas: Canvas);
+    }
     /**
-    * Use this form to set the project meta and update build versions.
+    * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
     */
-    class UserPreferences extends Component implements ISettingsPage {
-        private username;
-        private joined;
-        private bio;
-        private info;
-        private imgPreview;
-        private userImgButton;
-        private saveDetails;
-        private submitProxy;
-        private progressProxy;
-        private completeProxy;
-        private errorProxy;
-        private avatarUploader;
-        private _name;
-        constructor(name?: string);
-        /**
-        * When we click a button
-        */
-        onClick(e: any): void;
-        /**
-        * When we receive a server command
-        */
-        onServer(event: UserEvents, e: UserEvent): void;
-        /**
-        * Called when the tab page is clicked
-        */
-        onTab(): void;
-        /**
-        * When the settings page is shown.
-        * @param <Project> project The project of this session
-        * @param <User> user The user of this session
-        */
-        onShow(project: any, user: any): void;
-        /**
-        * Fired when the upload is complete
-        */
-        onUploadComplete(id: any, fileName: any, response: any): void;
-        /**
-        * Fired when the upload is cancelled due to an error
-        */
-        onError(id: any, fileName: any, reason: any): void;
-        /**
-        * When we receive a progress event
-        */
-        onProgress(id: any, fileName: any, loaded: any, total: any): void;
-        /**
-        * When we click submit on the upload button
-        */
-        onSubmit(file: any, ext: any): boolean;
+    class Canvas extends Component {
+        static lastSelectedItem: any;
+        static snapping: boolean;
+        private mUpProxy;
+        private mDownProxy;
+        private mContextProxy;
+        private keyProxy;
+        private mContextNode;
+        private mX;
+        private mY;
         name: string;
+        private _behaviourContainer;
+        private _containerReferences;
+        private _proxyMoving;
+        private _proxyStartDrag;
+        private _proxyStopDrag;
+        /**
+        * @param {Component} parent The parent component to add this canvas to
+        * @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
+        */
+        constructor(parent: Component, behaviourContainer: BehaviourContainer);
+        onStartingDrag(e: any, ui: any): void;
+        /**
+        * When an item is finished being dragged
+        */
+        onChildDropped(e: any, ui: any): void;
+        /**
+        * Called when a draggable object is dropped onto the canvas.
+        * @param {any} event The jQuery UI event
+        * @param {any} ui The event object sent from jQuery UI
+        */
+        onObjectDropped(event: any, ui: any): void;
+        /**
+        * Create an asset node at a location
+        * @param {Asset} asset
+        * @param {number} x
+        * @param {number} y
+        */
+        addAssetAtLocation(asset: Asset, x: number, y: number): void;
+        /**
+        * This function is used to cleanup the object before its removed from memory.
+        */
+        dispose(): void;
+        /**
+        * This function will remove all references of an asset in the behaviour nodes
+        * @param {Asset} asset The asset reference
+        */
+        removeAsset(asset: Asset): void;
+        /**
+        * Call this to remove an item from the canvas
+        * @param {Component} item The component we are removing from the canvas
+        * @extends <Canvas>
+        */
+        removeItem(item: any): void;
+        /**
+        * Removes all selected items
+        */
+        removeItems(): void;
+        /**
+        * Called when the canvas context menu is closed and an item clicked.
+        */
+        onContextSelect(e: ContextMenuEvents, event: ContextMenuEvent): void;
+        getAssetList(asset: Asset, assetMap: Array<number>): void;
+        onAssetEdited(e: ENUM, event: AssetEditedEvent, sender?: EventDispatcher): void;
+        buildSceneReferences(): void;
+        /**
+        * Called when the property grid fires an edited event.
+        * @param {PropertyGridEvents} response
+        * @param {PropertyGridEvent} event
+        */
+        onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent): void;
+        /**
+        * When we click ok on the portal form
+        */
+        OnPortalConfirm(response: OkCancelFormEvents, e: OkCancelFormEvent): void;
+        /**
+        * When the context is hidden we remove the event listeners.
+        */
+        onContextHide(response: WindowEvents, e: WindowEvent): void;
+        /**
+        * Called when the context menu is about to open
+        * @param {any} e The jQuery event object
+        */
+        onContext(e: any): void;
+        /**
+        * When we have chosen a behaviour
+        */
+        onBehaviourPicked(response: BehaviourPickerEvents, event: BehaviourPickerEvent): void;
+        /**
+        * Iteratively goes through each container to check if its pointing to this behaviour
+        */
+        private isCyclicDependency(container, ref);
+        /**
+        * This will create a canvas node based on the template given
+        * @param {BehaviourDefinition} template The definition of the node
+        * @param {number} x The x position of where the node shoule be placed
+        * @param {number} y The y position of where the node shoule be placed
+        * @param {BehaviourContainer} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
+        * is the actual behaviour container
+        * @returns {Behaviour}
+        */
+        createNode(template: BehaviourDefinition, x: number, y: number, container?: BehaviourContainer): Behaviour;
+        /**
+        * Catch the key down events.
+        * @param {any} e The jQuery event object
+        */
+        onKeyDown(e: any): boolean;
+        /**
+        * When we double click the canvas we show the behaviour picker.
+        * @param {any} e The jQuery event object
+        */
+        onDoubleClick(e: any): void;
+        /**
+        * This is called to set the selected canvas item.
+        * @param {Component} comp The component to select
+        */
+        selectItem(comp: Component): void;
+        /**
+        * Called when we click down on the canvas
+        * @param {any} e The jQuery event object
+        */
+        onMouseDown(e: any): void;
+        /**
+        * Called when we click up on the canvas
+        * @param {any} e The jQuery event object
+        */
+        onMouseUp(e: any): void;
+        /**
+        * This is called externally when the canvas has been selected. We use this
+        * function to remove any animated elements
+        */
+        onSelected(): void;
+        /**
+        * Use this function to add a child to this component. This has the same effect of adding some HTML as a child of another piece of HTML.
+        * It uses the jQuery append function to achieve this functionality.
+        * @param {any} child The child to add. Valid parameters are valid HTML code or other Components.
+        * @returns {Component} The child as a Component.
+        */
+        addChild(child: any): Component;
+        /**
+        * Use this function to remove a child from this component. It uses the jQuery detach function to achieve this functionality.
+        * @param {Component} child The child to remove. Valid parameters are valid Components.
+        * @returns {Component} The child as a Component.
+        */
+        removeChild(child: any): Component;
+        /**
+        * Called when an item is moving
+        */
+        onChildMoving(e: any, ui: any): void;
+        /**
+        * This function is called when animate is reading in saved data from the server.
+        * @param {any} data
+        */
+        open(data: any): void;
+        /**
+        * This function is called when animate is writing data to the database.
+        * @param {any} items The items we need to build
+        * @returns {CanvasToken}
+        */
+        buildDataObject(items?: Array<IComponent>): CanvasToken;
+        /**
+        * This function is called when a behaviour is double clicked,
+        * a canvas is created and we try and load the behavious contents.
+        * @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
+        * @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
+        * @returns {any}
+        */
+        openFromDataObject(dataToken?: CanvasToken, clearItems?: boolean, addSceneAssets?: boolean): void;
+        /**
+        * This function is called to make sure the canvas min width and min height variables are set
+        */
+        checkDimensions(): void;
+        behaviourContainer: BehaviourContainer;
+        containerReferences: {
+            groups: Array<string>;
+            assets: Array<number>;
+        };
     }
 }
 declare module Animate {
-    class PluginBrowserEvents extends ENUM {
-        constructor(v: string);
-        static UPDATED: PluginBrowserEvents;
-        static PLUGINS_IMPLEMENTED: PluginBrowserEvents;
-        static FAILED: PluginBrowserEvents;
-    }
-    class PluginBrowserEvent extends Event {
-        message: string;
-        data: any;
-        constructor(eventName: PluginBrowserEvents, message: string, data: any);
-    }
     /**
-    * A small class for browsing the available plugins
+    * The link class are the lines drawn from behavior portals
     */
-    class PluginBrowser extends Component {
-        private pluginList;
-        private help;
-        private projectNext;
-        private newPlugsLower;
-        private selectedFilter;
-        private leftTop;
-        private mRequest;
+    class Link extends Component implements ICanvasItem {
+        startPortal: Portal;
+        endPortal: Portal;
+        _startBehaviour: any;
+        _endBehaviour: any;
+        private mMouseMoveProxy;
+        private mMouseUpProxy;
+        private mMouseUpAnchorProxy;
+        private mPrevPortal;
+        frameDelay: number;
+        private mStartClientX;
+        private mStartClientY;
+        delta: number;
+        private mStartX;
+        private mStartY;
+        private mCurTarget;
+        private canvas;
+        private graphics;
+        private linePoints;
+        private _selected;
         /**
-        * @param {Component} parent The parent of the button
+        * @param {Canvas} parent The parent {Canvas} of the link
         */
         constructor(parent: Component);
         /**
-        * When we click a filter button
-        * @param {any} e The jQuery event object
-        */
-        onFilterClick(e: any): void;
-        /**
-        * Resets the component and its data
-        */
-        reset(): void;
-        /**
-        * Adds a plugin component
-        * @param {IPlugin} plugin
-        */
-        addProjectPluginComp(plugin: Engine.IPlugin): IComponent;
-        /**
-        * Resets the component and fills it with user plugin data
-        */
-        resetAvailablePlugins(): void;
-        /**
-        * When we hover over a project
-        * @param {any} e The jQuery event object
-        */
-        onOverProject(e: any): void;
-        /**
-        * When we click the X on a project's plugin
-        * @param {any} e The jQuery event object
-        */
-        onRemoveProject(e: any): void;
-        /**
-        * When we click on a projects plugin
-        * @param {any} e The jQuery event object
-        */
-        onClickProject(e: any): void;
-        /**
-        * When we click the next button
-        * @param {any} e The jQuery event object
-        */
-        onNextClick(e: any): void;
-        /**
-        * This is the resonse from the server
-        */
-        onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-    }
-}
-declare module Animate {
-    class ProjectLoaderEvents extends ENUM {
-        constructor(v: string);
-        static READY: ProjectLoaderEvents;
-        static FAILED: ProjectLoaderEvents;
-    }
-    class ProjectLoaderEvent extends Event {
-        message: string;
-        constructor(eventType: ProjectLoaderEvents, message: string);
-        static READY: ProjectLoaderEvents;
-        static FAILED: ProjectLoaderEvents;
-    }
-    /**
-    * The Project loader is a small component that is used to show the downloading and loading
-    * of projects/plugins into the current workspace.
-    */
-    class ProjectLoader extends Component {
-        private _buildEntries;
-        private _loadedCount;
-        private _errorOccured;
-        private _reloadProxy;
-        /**
-        * @param {Component} parent The parent of the button
-        */
-        constructor(parent: Component);
-        /** Use this function to get a list of the dependencies the project has associated with itself.*/
-        updateDependencies(): void;
-        /** When we click a reload button we reload the build. */
-        onButtonClick(e: any): void;
-        /** Gets the loader to load the individual projects. */
-        startLoading(): void;
-        /** When one of the loaders returns from its request.*/
-        onData(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-        errorOccured: boolean;
-    }
-}
-declare module Animate {
-    class ProjectBrowserEvents extends ENUM {
-        constructor(v: string);
-        static COMBO: ProjectBrowserEvents;
-    }
-    class ProjectBrowserEvent extends Event {
-        command: string;
-        constructor(eventName: ProjectBrowserEvents, command: string);
-    }
-    /**
-    * This class is used to do administrative tasks on projects
-    */
-    class ProjectBrowser extends Component {
-        private _list;
-        private _select;
-        private _search;
-        private _selectedItem;
-        private _selectedName;
-        private _selectedID;
-        /**
-        * @param {Component} parent The parent of the button
-        */
-        constructor(parent: Component);
-        /**
-        * When we double click a project item
-        */
-        onDblClick(response: ListViewEvents, event: ListViewEvent): void;
-        /**
-        * when we select an option from the combo
-        */
-        onSelectClick(response: ListEvents, event: ListEvent, sender?: EventDispatcher): void;
-        /**
-        * Clears all the projects
-        */
-        clearItems(): void;
-        /**
-        * When we click on one of the project items
-        * @param {JQuery} e The jQuery event object
-        * @param {any} item The ListViewItem that was selected.
-        */
-        onItemClick(response: ListViewEvents, event: ListViewEvent, sender?: EventDispatcher): void;
-        /**
-        * Fills the browser with project items
-        * @param {any} data The data object sent from the server
-        */
-        fill(data: any): void;
-        selectedItem: ListViewItem;
-        selectedName: string;
-        selectedID: string;
-    }
-}
-declare module Animate {
-    /**
-    * This class is used to create tree view items.
-    */
-    class TreeView extends Component {
-        private _selectedNode;
-        private fixDiv;
-        private _selectedNodes;
-        constructor(parent: Component);
-        /**
-        * When we click the view
+        * This is called when we need a link to start drawing. This will
+        * follow the mouse and draw a link from the original mouse co-ordinates to an
+        * end portal.
+        * @param {Portal} startPortal
         * @param {any} e
         */
-        onClick(e: any): void;
+        start(startPortal: Portal, e: any): void;
+        /**
+        * Check if a point is actually selecting the link
+        * @param {any} e
+        */
+        hitTestPoint(e: any): boolean;
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        selected: boolean;
+        /**
+        * Builds the dimensions of link based on the line points
+        */
+        buildDimensions(): void;
+        /**
+        * Use this function to build the line points that define the link
+        */
+        buildLinePoints(e: any): void;
+        /**
+        * Updates the link points (should they have been moved).
+        */
+        updatePoints(): void;
+        /**
+        * When the mouse moves we resize the stage.
+        * @param {any} e
+        */
+        onMouseMove(e: any): void;
+        /**
+       * Draws a series of lines
+       */
+        draw(): void;
+        /**
+        * Remove listeners.
+        * @param {any} e
+        */
+        onMouseUpAnchor(e: any): void;
+        /**
+        * Cleanup the link
+        */
+        dispose(): void;
+    }
+}
+declare module Animate {
+    /**
+    * This is the implementation of the context menu on the canvas.
+    */
+    class CanvasContext extends ContextMenu {
+        private mCreateInput;
+        private mCreateOutput;
+        private mCreateParam;
+        private mCreateProduct;
+        private mEditPortal;
+        private mDel;
+        private mCreate;
+        private mCreateComment;
+        private mDelEmpty;
+        constructor();
+        /**
+        * Shows the window by adding it to a parent.
+        */
+        showContext(x: number, y: number, item: Component): void;
+    }
+}
+declare module Animate {
+    /**
+    * An implementation of the tree view for the scene.
+    */
+    class TreeViewScene extends TreeView {
+        private static _singleton;
+        private _sceneNode;
+        private _assetsNode;
+        private _groupsNode;
+        private _pluginBehaviours;
+        private _contextMenu;
+        private _contextCopy;
+        private _contextDel;
+        private _contextAddInstance;
+        private _contextSave;
+        private _contextRefresh;
+        private _contextAddGroup;
+        private _quickCopy;
+        private _quickAdd;
+        private _contextNode;
+        private _curProj;
+        private _shortcutProxy;
+        constructor(parent?: Component);
+        onShortcutClick(e: any): void;
+        onMouseMove(e: any): void;
+        /**
+        * Called when the project is loaded and ready.
+        */
+        projectReady(): void;
+        /**
+        * Called when the project is reset by either creating a new one or opening an older one.
+        */
+        projectReset(): void;
+        /**
+        * Catch the key down events.
+        * @param e The event passed by jQuery
+        */
+        onKeyDown(e: any): void;
+        /**
+        * Creates an asset node for the tree
+        * @param {Asset} asset The asset to associate with the node
+        */
+        addAssetInstance(asset: Asset, collapse?: boolean): boolean;
+        /**
+        * Update the asset node so that its saved.
+        * @param {Asset} asset The asset to associate with the node
+        */
+        updateAssetInstance(asset: Asset): void;
+        /**
+        * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
+        * @param {BehaviourContainer} behaviour The hehaviour object we need to update
+        */
+        updateBehaviour(behaviour: BehaviourContainer): void;
+        /**
+        * Called when we select a menu item.
+        */
+        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
+        /**
+        * When we double click the tree
+        * @param <object> e The jQuery event object
+        */
+        onDblClick(e: any): void;
+        /**
+        * Use this function to get an array of the groups in the scene.
+        * @returns {Array<TreeNodeGroup>} The array of group nodes
+        */
+        getGroups(): Array<TreeNodeGroup>;
+        /**
+        * Use this function to get a group by its ID
+        * @param {string} id The ID of the group
+        * @returns {TreeNodeGroup}
+        */
+        getGroupByID(id: string): TreeNodeGroup;
+        /**
+        * When the database returns from its command.
+        * @param {ProjectEvents} response The loader response
+        * @param {ProjectEvent} data The data sent from the server
+        */
+        onGroupResponse(response: ProjectEvents, event: ProjectEvent): void;
+        /** When the rename form is about to proceed. We can cancel it by externally checking
+        * if against the data.object and data.name variables.
+        */
+        onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
+        /**
+        * When the database returns from its command.
+        * @param {ProjectEvents} response The loader response
+        * @param {Event} data The data sent from the server
+        */
+        onBehaviourResponse(response: ProjectEvents, event: ProjectEvent): void;
+        /**
+        * When the database returns from its command.
+        * @param {ProjectEvents} response The type of event
+        * @param {AssetEvent} event The data sent from the server
+        */
+        onAssetResponse(response: ProjectEvents, event: AssetEvent): void;
+        /**
+        * When the database returns from its command.
+        * @param {ProjectEvents} response The loader response
+        * @param {Event} data The data sent from the server
+        */
+        onProjectResponse(response: ProjectEvents, event: ProjectEvent): void;
+        /**
+        * This function will get a list of asset instances based on their class name.
+        * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
+        * @returns Array<TreeNodeAssetInstance>
+        */
+        getAssets(classNames: string | Array<string>): Array<TreeNodeAssetInstance>;
+        /**
+        * This function will get a list of asset classes.
+        * returns {Array<TreeNodeAssetClass>}
+        */
+        getAssetClasses(): Array<AssetClass>;
+        /**
+        * Called when the context menu is about to open.
+        * @param <jQuery> e The jQuery event object
+        */
+        onContext(e: any): void;
         /**
         * Selects a node.
         * @param {TreeNode} node The node to select
         * @param {boolean} expandToNode A bool to say if we need to traverse the tree down until we get to the node
         * and expand all parent nodes
-        * @param {boolean} multiSelect If true then multiple nodes are selected
+        * @param {boolean} multiSelect Do we allow nodes to be multiply selected
         */
         selectNode(node: TreeNode, expandToNode?: boolean, multiSelect?: boolean): void;
         /**
-        * This will add a node to the treeview
-        * @param {TreeNode} node The node to add
+        * Gets the singleton instance.
+        * @returns <TreeViewScene> The singleton instance
+        */
+        static getSingleton(): TreeViewScene;
+        /**
+        * This will add a node to the treeview to represent the containers.
+        * @param {BehaviourContainer} behaviour The behaviour we are associating with the node
+        * @returns {TreeNodeBehaviour}
+        */
+        addContainer(behaviour: BehaviourContainer): TreeNodeBehaviour;
+        /**
+        * This will add a node to the treeview to represent the behaviours available to developers
+        * @param {BehaviourDefinition} template
+        * @returns {TreeNodePluginBehaviour}
+        */
+        addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour;
+        /**
+        * This will remove a node from the treeview that represents the behaviours available to developers.
+        * @param  {string} name The name if the plugin behaviour
         * @returns {TreeNode}
         */
-        addNode(node: TreeNode): TreeNode;
-        /** @returns {Array<TreeNode>} The nodes of this treeview.*/
-        nodes(): Array<TreeNode>;
-        /**
-        * This will clear and dispose of all the nodes
-        * @returns Array<TreeNode> The nodes of this tree
-        */
-        clear(): void;
-        /**
-        * This removes a node from the treeview
-        * @param {TreeNode} node The node to remove
-        * @returns {TreeNode}
-        */
-        removeNode(node: any): TreeNode;
-        /**
-        * This will recursively look through each of the nodes to find a node with
-        * the specified name.
-        * @param {string} property The name property we are evaluating
-        * @param {any} value The object we should be comparing against
-        * @returns {TreeNode}
-        */
-        findNode(property: string, value: any): TreeNode;
-        selectedNode: TreeNode;
-        selectedNodes: Array<TreeNode>;
+        removePluginBehaviour(name: string, dispose?: boolean): TreeNode;
+        sceneNode: TreeNode;
+        assetsNode: TreeNode;
+        groupsNode: TreeNode;
+        pluginBehaviours: TreeNode;
+        contextNode: TreeNode;
     }
 }
 declare module Animate {
@@ -3999,322 +4223,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class CanvasEvents extends ENUM {
-        constructor(v: string);
-        static MODIFIED: CanvasEvents;
-    }
-    class CanvasEvent extends Event {
-        canvas: Canvas;
-        constructor(eventName: CanvasEvents, canvas: Canvas);
-    }
-    /**
-    * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
-    */
-    class Canvas extends Component {
-        static lastSelectedItem: any;
-        static snapping: boolean;
-        private mUpProxy;
-        private mDownProxy;
-        private mContextProxy;
-        private keyProxy;
-        private mContextNode;
-        private mX;
-        private mY;
-        name: string;
-        private _behaviourContainer;
-        private _containerReferences;
-        private _proxyMoving;
-        private _proxyStartDrag;
-        private _proxyStopDrag;
-        /**
-        * @param {Component} parent The parent component to add this canvas to
-        * @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
-        */
-        constructor(parent: Component, behaviourContainer: BehaviourContainer);
-        onStartingDrag(e: any, ui: any): void;
-        /**
-        * When an item is finished being dragged
-        */
-        onChildDropped(e: any, ui: any): void;
-        /**
-        * Called when a draggable object is dropped onto the canvas.
-        * @param {any} event The jQuery UI event
-        * @param {any} ui The event object sent from jQuery UI
-        */
-        onObjectDropped(event: any, ui: any): void;
-        /**
-        * Create an asset node at a location
-        * @param {Asset} asset
-        * @param {number} x
-        * @param {number} y
-        */
-        addAssetAtLocation(asset: Asset, x: number, y: number): void;
-        /**
-        * This function is used to cleanup the object before its removed from memory.
-        */
-        dispose(): void;
-        /**
-        * This function will remove all references of an asset in the behaviour nodes
-        * @param {Asset} asset The asset reference
-        */
-        removeAsset(asset: Asset): void;
-        /**
-        * Call this to remove an item from the canvas
-        * @param {Component} item The component we are removing from the canvas
-        * @extends <Canvas>
-        */
-        removeItem(item: any): void;
-        /**
-        * Removes all selected items
-        */
-        removeItems(): void;
-        /**
-        * Called when the canvas context menu is closed and an item clicked.
-        */
-        onContextSelect(e: ContextMenuEvents, event: ContextMenuEvent): void;
-        getAssetList(asset: Asset, assetMap: Array<number>): void;
-        onAssetEdited(e: ENUM, event: AssetEditedEvent, sender?: EventDispatcher): void;
-        buildSceneReferences(): void;
-        /**
-        * Called when the property grid fires an edited event.
-        * @param {PropertyGridEvents} response
-        * @param {PropertyGridEvent} event
-        */
-        onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent): void;
-        /**
-        * When we click ok on the portal form
-        */
-        OnPortalConfirm(response: OkCancelFormEvents, e: OkCancelFormEvent): void;
-        /**
-        * When the context is hidden we remove the event listeners.
-        */
-        onContextHide(response: WindowEvents, e: WindowEvent): void;
-        /**
-        * Called when the context menu is about to open
-        * @param {any} e The jQuery event object
-        */
-        onContext(e: any): void;
-        /**
-        * When we have chosen a behaviour
-        */
-        onBehaviourPicked(response: BehaviourPickerEvents, event: BehaviourPickerEvent): void;
-        /**
-        * Iteratively goes through each container to check if its pointing to this behaviour
-        */
-        private isCyclicDependency(container, ref);
-        /**
-        * This will create a canvas node based on the template given
-        * @param {BehaviourDefinition} template The definition of the node
-        * @param {number} x The x position of where the node shoule be placed
-        * @param {number} y The y position of where the node shoule be placed
-        * @param {BehaviourContainer} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
-        * is the actual behaviour container
-        * @returns {Behaviour}
-        */
-        createNode(template: BehaviourDefinition, x: number, y: number, container?: BehaviourContainer): Behaviour;
-        /**
-        * Catch the key down events.
-        * @param {any} e The jQuery event object
-        */
-        onKeyDown(e: any): boolean;
-        /**
-        * When we double click the canvas we show the behaviour picker.
-        * @param {any} e The jQuery event object
-        */
-        onDoubleClick(e: any): void;
-        /**
-        * This is called to set the selected canvas item.
-        * @param {Component} comp The component to select
-        */
-        selectItem(comp: Component): void;
-        /**
-        * Called when we click down on the canvas
-        * @param {any} e The jQuery event object
-        */
-        onMouseDown(e: any): void;
-        /**
-        * Called when we click up on the canvas
-        * @param {any} e The jQuery event object
-        */
-        onMouseUp(e: any): void;
-        /**
-        * This is called externally when the canvas has been selected. We use this
-        * function to remove any animated elements
-        */
-        onSelected(): void;
-        /**
-        * Use this function to add a child to this component. This has the same effect of adding some HTML as a child of another piece of HTML.
-        * It uses the jQuery append function to achieve this functionality.
-        * @param {any} child The child to add. Valid parameters are valid HTML code or other Components.
-        * @returns {Component} The child as a Component.
-        */
-        addChild(child: any): Component;
-        /**
-        * Use this function to remove a child from this component. It uses the jQuery detach function to achieve this functionality.
-        * @param {Component} child The child to remove. Valid parameters are valid Components.
-        * @returns {Component} The child as a Component.
-        */
-        removeChild(child: any): Component;
-        /**
-        * Called when an item is moving
-        */
-        onChildMoving(e: any, ui: any): void;
-        /**
-        * This function is called when animate is reading in saved data from the server.
-        * @param {any} data
-        */
-        open(data: any): void;
-        /**
-        * This function is called when animate is writing data to the database.
-        * @param {any} items The items we need to build
-        * @returns {CanvasToken}
-        */
-        buildDataObject(items?: Array<IComponent>): CanvasToken;
-        /**
-        * This function is called when a behaviour is double clicked,
-        * a canvas is created and we try and load the behavious contents.
-        * @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
-        * @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
-        * @returns {any}
-        */
-        openFromDataObject(dataToken?: CanvasToken, clearItems?: boolean, addSceneAssets?: boolean): void;
-        /**
-        * This function is called to make sure the canvas min width and min height variables are set
-        */
-        checkDimensions(): void;
-        behaviourContainer: BehaviourContainer;
-        containerReferences: {
-            groups: Array<string>;
-            assets: Array<number>;
-        };
-    }
-}
-declare module Animate {
-    /**
-    * The link class are the lines drawn from behavior portals
-    */
-    class Link extends Component implements ICanvasItem {
-        startPortal: Portal;
-        endPortal: Portal;
-        _startBehaviour: any;
-        _endBehaviour: any;
-        private mMouseMoveProxy;
-        private mMouseUpProxy;
-        private mMouseUpAnchorProxy;
-        private mPrevPortal;
-        frameDelay: number;
-        private mStartClientX;
-        private mStartClientY;
-        delta: number;
-        private mStartX;
-        private mStartY;
-        private mCurTarget;
-        private canvas;
-        private graphics;
-        private linePoints;
-        private _selected;
-        /**
-        * @param {Canvas} parent The parent {Canvas} of the link
-        */
-        constructor(parent: Component);
-        /**
-        * This is called when we need a link to start drawing. This will
-        * follow the mouse and draw a link from the original mouse co-ordinates to an
-        * end portal.
-        * @param {Portal} startPortal
-        * @param {any} e
-        */
-        start(startPortal: Portal, e: any): void;
-        /**
-        * Check if a point is actually selecting the link
-        * @param {any} e
-        */
-        hitTestPoint(e: any): boolean;
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        selected: boolean;
-        /**
-        * Builds the dimensions of link based on the line points
-        */
-        buildDimensions(): void;
-        /**
-        * Use this function to build the line points that define the link
-        */
-        buildLinePoints(e: any): void;
-        /**
-        * Updates the link points (should they have been moved).
-        */
-        updatePoints(): void;
-        /**
-        * When the mouse moves we resize the stage.
-        * @param {any} e
-        */
-        onMouseMove(e: any): void;
-        /**
-       * Draws a series of lines
-       */
-        draw(): void;
-        /**
-        * Remove listeners.
-        * @param {any} e
-        */
-        onMouseUpAnchor(e: any): void;
-        /**
-        * Cleanup the link
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * This class is a small container class that is used by the Tab class. It creates TabPairs
-    * each time a tab is created with the addTab function. This creates a TabPair object that keeps a reference to the
-    * label and page as well as a few other things.
-    */
-    class TabPair {
-        tabSelector: Component;
-        page: Component;
-        name: string;
-        constructor(tab: Component, page: Component, name: string);
-        /**
-        * Called when the editor is resized
-        */
-        onResize(): void;
-        /**
-        * Called by the tab class when the pair is to be removed.
-        * @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
-        */
-        onRemove(data: TabEvent): void;
-        /**
-        * Called by the tab when the save all button is clicked
-        */
-        onSaveAll(): void;
-        /**
-        * Called when the pair has been added to the tab
-        */
-        onAdded(): void;
-        /**
-        * Called when the pair has been selected
-        */
-        onSelected(): void;
-        /**
-        * Gets the label text of the pair
-        */
-        /**
-        * Sets the label text of the pair
-        */
-        text: string;
-        /**
-        * Cleans up the references
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
     class CanvasTabPair extends TabPair {
         canvas: Canvas;
         constructor(canvas: Canvas, name: string);
@@ -4515,6 +4423,143 @@ declare module Animate {
         onHide(): void;
         /** Gets the singleton instance. */
         static getSingleton(parent?: Component): SceneTab;
+    }
+}
+declare module Animate {
+    class CanvasTabType extends ENUM {
+        constructor(v: string);
+        static CANVAS: CanvasTabType;
+        static HTML: CanvasTabType;
+        static CSS: CanvasTabType;
+        static SCRIPT: CanvasTabType;
+        static BLANK: CanvasTabType;
+    }
+    /**
+    * This is an implementation of the tab class that deals with the canvas
+    */
+    class CanvasTab extends Tab {
+        private static _singleton;
+        private _currentCanvas;
+        private welcomeTab;
+        private closingTabPair;
+        private mDocker;
+        constructor(parent: Component);
+        /**
+        * This is called by a controlling ScreenManager class. An image string needs to be returned
+        * which will act as a preview of the component that is being viewed or hidden.
+        * @return {string}
+        */
+        getPreviewImage(): string;
+        /**
+        * Each IDock item needs to implement this so that we can keep track of where it moves.
+        * @returns {Docker}
+        */
+        getDocker(): Docker;
+        /**
+        * Each IDock item needs to implement this so that we can keep track of where it moves.
+        * @param {Docker} val
+        */
+        setDocker(val: Docker): void;
+        /**
+        * This is called by a controlling Docker class when the component needs to be shown.
+        */
+        onShow(): void;
+        /**
+        * Called when sall all is returned from the DB
+        */
+        saveAll(): void;
+        /**
+        * This is called by a controlling Docker class when the component needs to be hidden.
+        */
+        onHide(): void;
+        /**
+        * Called just before a tab is closed. If you return false it will cancel the operation.
+        * @param {TabPair} tabPair An object that contains both the page and label of the tab
+        * @returns {boolean} Returns false if the tab needs to be saved. Otherwise true.
+        */
+        onTabPairClosing(tabPair: TabPair): boolean;
+        /**
+        *  The response of the message box.
+        * @param {string} choice The choice of the message box. It can be either Yes or No
+        */
+        onMessage(choice: string): void;
+        /**
+        * We use this function to remove any assets from the tabs
+        * @param {Asset} asset The asset we are removing
+        */
+        removeAsset(asset: Asset): void;
+        /**
+        * When the behaviour was saved on request of the message box - we close the tab that represents it.
+        * @param <string> response
+        * @param <object> behaviour
+        */
+        onBehaviourSaved(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
+        /**
+        * You can use this function to fetch a tab's canvas by a behaviour local ID
+        * @param {number} behaviourID The local id of the container
+        * @returns {Canvas} The returned tab's canvas or null
+        */
+        getTabCanvas(behaviourID: string): Canvas;
+        /**
+        * When we click the tab
+        * @param {TabPair} tab The tab pair object which contains both the label and page components
+        */
+        onTabSelected(tab: TabPair): void;
+        /**
+        * @type public mfunc projectReady
+        * When we start a new project we load the welcome page.
+        * @extends <CanvasTab>
+        */
+        projectReady(): void;
+        /**
+        * @type public mfunc projectReset
+        * Called when the project is reset by either creating a new one or opening an older one.
+        * @extends <CanvasTab>
+        */
+        projectReset(): void;
+        /**
+        * @type public mfunc onNewsLoaded
+        * When the news has been loaded from webinate.
+        */
+        onNewsLoaded(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
+        /**
+        * Gets the singleton instance.
+        * @param {Component} parent The parent component of this tab
+        * @returns {CanvasTab}
+        */
+        static getSingleton(parent?: Component): CanvasTab;
+        /**
+        * Renames a tab and its container
+        * @param {string} oldName The old name of the tab
+        * @param {string} newName The new name of the tab
+        * @returns {TabPair} Returns the tab pair
+        */
+        renameTab(oldName: string, newName: string): TabPair;
+        /**
+        * Removes an item from the tab
+        * @param val The label text of the tab
+        * @param {boolean} dispose Set this to true to clean up the tab
+        * @returns {TabPair} The tab pair containing both the label and page <Component>s
+        */
+        removeTab(val: string, dispose: boolean): TabPair;
+        removeTab(val: TabPair, dispose: boolean): TabPair;
+        /**
+        * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
+        */
+        onCanvasModified(response: CanvasEvents, event: CanvasEvent, sender?: EventDispatcher): void;
+        /**
+        * Removes an item from the tab
+        */
+        removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent): void;
+        /**
+        * Adds an item to the tab
+        * @param {string} text The text of the new tab
+        * @param {CanvasTabType} type The type of tab to create
+        * @param {any} tabContent Data associated with the tab
+        * @returns {TabPair} The tab pair object
+        */
+        addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair;
+        currentCanvas: Canvas;
     }
 }
 declare module Animate {
@@ -5341,7 +5386,6 @@ declare module Animate {
         * @param {UserEvents} event
         * @param {UserEvent} data
         */
-        onRenamed(response: UserEvents, event: UserEvent): void;
         /**
         * Shows the build options form
         * @returns {any}
@@ -5636,7 +5680,7 @@ declare module Animate {
         * @param {any} e
         * @extends {RenameForm}
         */
-        ok(e: any): JQueryDeferred<IRenameToken>;
+        ok(): JQueryDeferred<IRenameToken>;
         /**
         * Gets the singleton instance.
         * @returns {RenameForm}
@@ -5683,161 +5727,55 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class CanvasTabType extends ENUM {
+    class BehaviourPickerEvents extends ENUM {
         constructor(v: string);
-        static CANVAS: CanvasTabType;
-        static HTML: CanvasTabType;
-        static CSS: CanvasTabType;
-        static SCRIPT: CanvasTabType;
-        static BLANK: CanvasTabType;
+        static BEHAVIOUR_PICKED: BehaviourPickerEvents;
     }
-    /**
-    * This is an implementation of the tab class that deals with the canvas
-    */
-    class CanvasTab extends Tab {
+    class BehaviourPickerEvent extends Event {
+        behaviourName: string;
+        constructor(eventName: BehaviourPickerEvents, behaviourName: string);
+    }
+    class BehaviourPicker extends Window {
         private static _singleton;
-        private _currentCanvas;
-        private welcomeTab;
-        private closingTabPair;
-        private mDocker;
-        constructor(parent: Component);
-        /**
-        * This is called by a controlling ScreenManager class. An image string needs to be returned
-        * which will act as a preview of the component that is being viewed or hidden.
-        * @return {string}
-        */
-        getPreviewImage(): string;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @returns {Docker}
-        */
-        getDocker(): Docker;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @param {Docker} val
-        */
-        setDocker(val: Docker): void;
-        /**
-        * This is called by a controlling Docker class when the component needs to be shown.
-        */
-        onShow(): void;
-        /**
-        * Called when sall all is returned from the DB
-        */
-        saveAll(): void;
-        /**
-        * This is called by a controlling Docker class when the component needs to be hidden.
-        */
-        onHide(): void;
-        /**
-        * Called just before a tab is closed. If you return false it will cancel the operation.
-        * @param {TabPair} tabPair An object that contains both the page and label of the tab
-        * @returns {boolean} Returns false if the tab needs to be saved. Otherwise true.
-        */
-        onTabPairClosing(tabPair: TabPair): boolean;
-        /**
-        *  The response of the message box.
-        * @param {string} choice The choice of the message box. It can be either Yes or No
-        */
-        onMessage(choice: string): void;
-        /**
-        * We use this function to remove any assets from the tabs
-        * @param {Asset} asset The asset we are removing
-        */
-        removeAsset(asset: Asset): void;
-        /**
-        * When the behaviour was saved on request of the message box - we close the tab that represents it.
-        * @param <string> response
-        * @param <object> behaviour
-        */
-        onBehaviourSaved(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * You can use this function to fetch a tab's canvas by a behaviour local ID
-        * @param {number} behaviourID The local id of the container
-        * @returns {Canvas} The returned tab's canvas or null
-        */
-        getTabCanvas(behaviourID: string): Canvas;
-        /**
-        * When we click the tab
-        * @param {TabPair} tab The tab pair object which contains both the label and page components
-        */
-        onTabSelected(tab: TabPair): void;
-        /**
-        * @type public mfunc projectReady
-        * When we start a new project we load the welcome page.
-        * @extends <CanvasTab>
-        */
-        projectReady(): void;
-        /**
-        * @type public mfunc projectReset
-        * Called when the project is reset by either creating a new one or opening an older one.
-        * @extends <CanvasTab>
-        */
-        projectReset(): void;
-        /**
-        * @type public mfunc onNewsLoaded
-        * When the news has been loaded from webinate.
-        */
-        onNewsLoaded(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-        /**
-        * Gets the singleton instance.
-        * @param {Component} parent The parent component of this tab
-        * @returns {CanvasTab}
-        */
-        static getSingleton(parent?: Component): CanvasTab;
-        /**
-        * Renames a tab and its container
-        * @param {string} oldName The old name of the tab
-        * @param {string} newName The new name of the tab
-        * @returns {TabPair} Returns the tab pair
-        */
-        renameTab(oldName: string, newName: string): TabPair;
-        /**
-        * Removes an item from the tab
-        * @param val The label text of the tab
-        * @param {boolean} dispose Set this to true to clean up the tab
-        * @returns {TabPair} The tab pair containing both the label and page <Component>s
-        */
-        removeTab(val: string, dispose: boolean): TabPair;
-        removeTab(val: TabPair, dispose: boolean): TabPair;
-        /**
-        * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
-        */
-        onCanvasModified(response: CanvasEvents, event: CanvasEvent, sender?: EventDispatcher): void;
-        /**
-        * Removes an item from the tab
-        */
-        removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent): void;
-        /**
-        * Adds an item to the tab
-        * @param {string} text The text of the new tab
-        * @param {CanvasTabType} type The type of tab to create
-        * @param {any} tabContent Data associated with the tab
-        * @returns {TabPair} The tab pair object
-        */
-        addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair;
-        currentCanvas: Canvas;
-    }
-}
-declare module Animate {
-    /**
-    * This is the implementation of the context menu on the canvas.
-    */
-    class CanvasContext extends ContextMenu {
-        private mCreateInput;
-        private mCreateOutput;
-        private mCreateParam;
-        private mCreateProduct;
-        private mEditPortal;
-        private mDel;
-        private mCreate;
-        private mCreateComment;
-        private mDelEmpty;
+        private _input;
+        private _list;
+        private _X;
+        private _Y;
         constructor();
         /**
         * Shows the window by adding it to a parent.
+        * @param {Component} parent The parent Component we are adding this window to
+        * @param {number} x The x coordinate of the window
+        * @param {number} y The y coordinate of the window
+        * @param {boolean} isModal Does this window block all other user operations?
+        * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
         */
-        showContext(x: number, y: number, item: Component): void;
+        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        /**
+        * Called when we click the list.
+        * @param {any} e
+        * @returns {any}
+        */
+        onListClick(e: any): void;
+        /**
+        * Called when we double click the list.
+        * @param {any} e
+        * @returns {any}
+        */
+        onListDClick(e: any): void;
+        /**
+        * When the input text changes we go through each list item
+        * and select it.
+        * @param {any} e
+        * @returns {any}
+        */
+        onKeyDown(e: any): void;
+        /**
+        * Gets the singleton instance.
+        * @returns {BehaviourPicker}
+        */
+        static getSingleton(): BehaviourPicker;
+        list: List;
     }
 }
 declare module Animate {
@@ -5958,323 +5896,6 @@ declare module Animate {
         * Gets the singleton instance
         */
         static getSingleton(parent?: Component): Toolbar;
-    }
-}
-declare module Animate {
-    /**
-    * An implementation of the tree view for the scene.
-    */
-    class TreeViewScene extends TreeView {
-        private static _singleton;
-        private _sceneNode;
-        private _assetsNode;
-        private _groupsNode;
-        private _pluginBehaviours;
-        private _contextMenu;
-        private _contextCopy;
-        private _contextDel;
-        private _contextAddInstance;
-        private _contextSave;
-        private _contextRefresh;
-        private _contextAddGroup;
-        private _quickCopy;
-        private _quickAdd;
-        private _contextNode;
-        private _curProj;
-        private _shortcutProxy;
-        constructor(parent?: Component);
-        onShortcutClick(e: any): void;
-        onMouseMove(e: any): void;
-        /**
-        * Called when the project is loaded and ready.
-        */
-        projectReady(): void;
-        /**
-        * Called when the project is reset by either creating a new one or opening an older one.
-        */
-        projectReset(): void;
-        /**
-        * Catch the key down events.
-        * @param e The event passed by jQuery
-        */
-        onKeyDown(e: any): void;
-        /**
-        * Creates an asset node for the tree
-        * @param {Asset} asset The asset to associate with the node
-        */
-        addAssetInstance(asset: Asset, collapse?: boolean): boolean;
-        /**
-        * Update the asset node so that its saved.
-        * @param {Asset} asset The asset to associate with the node
-        */
-        updateAssetInstance(asset: Asset): void;
-        /**
-        * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-        * @param {BehaviourContainer} behaviour The hehaviour object we need to update
-        */
-        updateBehaviour(behaviour: BehaviourContainer): void;
-        /**
-        * Called when we select a menu item.
-        */
-        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
-        /**
-        * When we double click the tree
-        * @param <object> e The jQuery event object
-        */
-        onDblClick(e: any): void;
-        /**
-        * Use this function to get an array of the groups in the scene.
-        * @returns {Array<TreeNodeGroup>} The array of group nodes
-        */
-        getGroups(): Array<TreeNodeGroup>;
-        /**
-        * Use this function to get a group by its ID
-        * @param {string} id The ID of the group
-        * @returns {TreeNodeGroup}
-        */
-        getGroupByID(id: string): TreeNodeGroup;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {ProjectEvent} data The data sent from the server
-        */
-        onGroupResponse(response: ProjectEvents, event: ProjectEvent): void;
-        /** When the rename form is about to proceed. We can cancel it by externally checking
-        * if against the data.object and data.name variables.
-        */
-        onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        onBehaviourResponse(response: ProjectEvents, event: ProjectEvent): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The type of event
-        * @param {AssetEvent} event The data sent from the server
-        */
-        onAssetResponse(response: ProjectEvents, event: AssetEvent): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        onProjectResponse(response: ProjectEvents, event: ProjectEvent): void;
-        /**
-        * This function will get a list of asset instances based on their class name.
-        * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
-        * @returns Array<TreeNodeAssetInstance>
-        */
-        getAssets(classNames: string | Array<string>): Array<TreeNodeAssetInstance>;
-        /**
-        * This function will get a list of asset classes.
-        * returns {Array<TreeNodeAssetClass>}
-        */
-        getAssetClasses(): Array<AssetClass>;
-        /**
-        * Called when the context menu is about to open.
-        * @param <jQuery> e The jQuery event object
-        */
-        onContext(e: any): void;
-        /**
-        * Selects a node.
-        * @param {TreeNode} node The node to select
-        * @param {boolean} expandToNode A bool to say if we need to traverse the tree down until we get to the node
-        * and expand all parent nodes
-        * @param {boolean} multiSelect Do we allow nodes to be multiply selected
-        */
-        selectNode(node: TreeNode, expandToNode?: boolean, multiSelect?: boolean): void;
-        /**
-        * Gets the singleton instance.
-        * @returns <TreeViewScene> The singleton instance
-        */
-        static getSingleton(): TreeViewScene;
-        /**
-        * This will add a node to the treeview to represent the containers.
-        * @param {BehaviourContainer} behaviour The behaviour we are associating with the node
-        * @returns {TreeNodeBehaviour}
-        */
-        addContainer(behaviour: BehaviourContainer): TreeNodeBehaviour;
-        /**
-        * This will add a node to the treeview to represent the behaviours available to developers
-        * @param {BehaviourDefinition} template
-        * @returns {TreeNodePluginBehaviour}
-        */
-        addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour;
-        /**
-        * This will remove a node from the treeview that represents the behaviours available to developers.
-        * @param  {string} name The name if the plugin behaviour
-        * @returns {TreeNode}
-        */
-        removePluginBehaviour(name: string, dispose?: boolean): TreeNode;
-        sceneNode: TreeNode;
-        assetsNode: TreeNode;
-        groupsNode: TreeNode;
-        pluginBehaviours: TreeNode;
-        contextNode: TreeNode;
-    }
-}
-declare module Animate {
-    class Splash2 extends Window {
-        private static _singleton;
-        private welcomeBackground;
-        private newProjectBackground;
-        private loginBackground;
-        private pluginsBackground;
-        private finalScreen;
-        private finalError;
-        private finalButton;
-        private userImg;
-        private response;
-        private pluginLoader;
-        private projectBrowser;
-        private pluginBrowser;
-        private clickProxy;
-        private initialized;
-        names: {
-            name: string;
-            lastname: string;
-        }[];
-        private user;
-        private $loginError;
-        private $loginRed;
-        private $loading;
-        private $activePane;
-        constructor();
-        /**
-        * Given a form element, we look at if it has an error and based on the expression. If there is we set
-        * the login error message
-        * @param {EngineForm} The form to check.
-        * @param {boolean} registerCheck Check register password and assign captcha
-        * @param {boolean} True if there is an error
-        */
-        reportError(form: NodeForm, registerCheck?: boolean): boolean;
-        loginError(err: Error): void;
-        loginSuccess(data: UsersInterface.IResponse): void;
-        /**
-        * Attempts to log the user in
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
-        */
-        login(user: string, password: string, remember: boolean): void;
-        /**
-        * Attempts to register a new user
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
-        */
-        register(user: string, password: string, email: string, captcha: string, challenge: string): void;
-        /**
-        * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resendActivation(user: string): Element;
-        /**
-        * Attempts to reset the users password
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resetPassword(user: string): Element;
-        /**
-        * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        logout(): void;
-        /**
-        * Fills the project browser with projects from the server
-        */
-        refreshProjects(): void;
-        /**
-        * This function can be called to reset all the splash variables and states.absolute
-        * This is called from Animate when we click the home button.
-        * @returns {any}
-        */
-        reset(): void;
-        /**
-        * Creates the new project page on the splash screen
-        */
-        createNewProjectPage(): void;
-        /**
-        * Creates the new plugins page on the splash screen
-        */
-        createPluginsPage(): void;
-        /**
-        * Creates the final screen.
-        * This screen loads each of the plugins and allows the user to enter the application.
-        */
-        createFinalScreen(): void;
-        /**
-        * @type public mfunc createLoginPage
-        * Creates the login page on the Splash menu
-        * @extends <Splash>
-        */
-        createLoginPage(): void;
-        /**
-        * Creates the first page on the splash screen
-        */
-        createWelcomePage(): void;
-        /**
-        * Shows the window by adding it to a parent.
-        */
-        onProjectCombo(response: ProjectBrowserEvents, event: ProjectBrowserEvent): void;
-        /**
-        * When we click a button
-        * @param {any} e
-        */
-        onButtonClick(e: MouseEvent): void;
-        newProject(name: string, description: string): void;
-        /**
-        * This is called when we click a button on the message box.
-        * @param {string} response
-        */
-        onProjectOpenMessageBox(response: string): void;
-        /**
-        * This is called when we click a button on the message box.
-        * @param {any} response
-        */
-        onCopyMessageBox(response: any): void;
-        /**
-        * This is called when we click a button on the message box.
-        * @param {any} response
-        */
-        onMessageBox(response: any): void;
-        /**
-        * This is called when we click a button on the message box.
-        * @param {any} response
-        */
-        onFinalMessageBox(response: any): void;
-        /**
-        * This is called when we receive data from the projects.
-        */
-        onProjectData(response: UserEvents, data: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * This is called when we receive data from the projects.
-        * @param {any} response
-        * @param {any} data >
-        */
-        onPluginResponse(response: PluginBrowserEvents, event: PluginBrowserEvent): void;
-        /**
-        * This is called when we receive data from the projects.
-        * @param {ProjectLoaderEvents} response
-        * @param {ProjectLoaderEvent} data
-        */
-        onProjectLoaderResponse(response: ProjectLoaderEvents, event: ProjectLoaderEvent): void;
-        /**
-        * When we receive data from the server
-        */
-        onUserLoggedInCheck(): void;
-        /**
-        * Shows the window by adding it to a parent.
-        */
-        show(): void;
-        /**
-        * Gets the singleton reference of this class.
-        * @returns {Splash}
-        */
-        static get: Splash2;
     }
 }
 declare module Animate {
