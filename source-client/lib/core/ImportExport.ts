@@ -82,19 +82,19 @@ module Animate
 			var i = project.behaviours.length;
 			while ( i-- )
 			{
-				var behaviour : BehaviourContainer = project.behaviours[i];
-				if ( behaviour.json === null )
+                var behaviour: BehaviourContainer = project.behaviours[i];
+                if (behaviour.entry.json === null)
 					continue;
 
-				canvasToken = behaviour.json;
+                canvasToken = behaviour.entry.json;
 
 				//Check if we have valid json and items saved
 				if ( canvasToken && canvasToken.items )
 				{
 					var containerToken: ContainerToken = <ContainerToken>{};
 					dataToken.containers.push( containerToken );
-					containerToken.name = behaviour.name;
-					containerToken.id = behaviour.shallowId;
+                    containerToken.name = behaviour.entry.name;
+                    containerToken.id = behaviour.entry.shallowId;
 					containerToken.behaviours = [];
 					containerToken.links = [];
 					containerToken.assets = [];
@@ -238,11 +238,11 @@ module Animate
 				if ( canvasToken )
 				{
 					var assetToken: AssetToken = <AssetToken>{};
-					dataToken.assets.push( assetToken );
-					assetToken.name = asset.name;
-					assetToken.id = asset.shallowId;
+                    dataToken.assets.push(assetToken);
+                    assetToken.name = asset.entry.name;
+                    assetToken.id = asset.entry.shallowId;
 					assetToken.properties = {};
-					assetToken.className = asset.className;
+                    assetToken.className = asset.entry.className;
 
 					var aprops = asset.properties.tokenize();
 					for ( var assetPropName in aprops )

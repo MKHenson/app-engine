@@ -134,7 +134,7 @@ module Animate
 
 				//Now get the project to save it.
 				User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
-				User.get.project.saveBehaviours( [canvas.behaviourContainer.id] );
+                User.get.project.saveBehaviours([canvas.behaviourContainer.entry._id] );
 			}
 			else
 			{
@@ -194,7 +194,7 @@ module Animate
 		{
 			var tabs : Array<TabPair> = this.tabs;
 			for ( var i = 0, l = tabs.length; i < l; i++ )
-				if ( tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && ( <Canvas>tabs[i].page.children[0]).behaviourContainer.id == behaviourID )
+                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && (<Canvas>tabs[i].page.children[0]).behaviourContainer.entry._id == behaviourID )
 				{
 					var canvas: Canvas = <Canvas>tabs[i].page.children[0];
 					return canvas;

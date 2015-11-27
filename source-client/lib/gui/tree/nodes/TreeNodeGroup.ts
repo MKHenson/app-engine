@@ -112,7 +112,7 @@ module Animate
 			{
 				var added = null;
 				if ( comp instanceof TreeNodeAssetInstance )
-					added = this.addNode( new TreeNodeGroupInstance( ( <TreeNodeAssetInstance>comp ).asset.shallowId, ( <TreeNodeAssetInstance>comp).asset.name ) );
+                    added = this.addNode(new TreeNodeGroupInstance((<TreeNodeAssetInstance>comp).asset.entry.shallowId, (<TreeNodeAssetInstance>comp).asset.entry.name ) );
 				else
 					added = this.addNode( new TreeNodeGroupInstance( ( <TreeNodeGroup>comp).groupID, comp.text ) );
 
@@ -122,7 +122,7 @@ module Animate
 				this.save( false );
 
 				var identifier = this.json.assets.length;
-				this.json.assets[identifier] = { id: added.instanceID, name: ( comp instanceof TreeNodeAssetInstance ? ( <TreeNodeAssetInstance>comp ).asset.name : comp.text ) };
+                this.json.assets[identifier] = { id: added.instanceID, name: (comp instanceof TreeNodeAssetInstance ? (<TreeNodeAssetInstance>comp).asset.entry.name : comp.text ) };
 			}
 		}
 

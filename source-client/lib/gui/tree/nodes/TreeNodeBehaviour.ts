@@ -14,7 +14,7 @@ module Animate
 		constructor( behaviour: BehaviourContainer )
 		{
 			// Call super-class constructor
-			super( behaviour.name, "media/variable.png", false );
+            super(behaviour.entry.name, "media/variable.png", false );
 
 			this.element.addClass( "behaviour-to-canvas" );
 
@@ -83,7 +83,7 @@ module Animate
 				jQuery( ".text:first", this.element ).text( ( this.behaviour.saved ? "" : "*" ) + this.originalText );
 			}
 
-			this.behaviour.name = this.originalText;
+            this.behaviour.entry.name = this.originalText;
 		}
 
 		/**

@@ -72,7 +72,7 @@ module Animate
 			this.element.on( "dblclick", jQuery.proxy( this.onDoubleClick, this ) );
 			this.mX = 0;
 			this.mY = 0;
-			this.name = behaviourContainer.name;
+            this.name = behaviourContainer.entry.name;
 			this._behaviourContainer = behaviourContainer;
 			behaviourContainer.canvas = this;
 
@@ -199,13 +199,13 @@ module Animate
 		{
 			var node: BehaviourAsset = <BehaviourAsset>this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), x, y );
 			node.asset = asset;
-			node.parameters[0].value = { selected : asset.shallowId, classname : "" };
+            node.parameters[0].value = { selected: asset.entry.shallowId, classname : "" };
 
 			//Add a reference to this canvas's scene assets
 			if ( asset )
 			{
-				node.text = asset.name;
-				node.alias = asset.name;
+                node.text = asset.entry.name;
+                node.alias = asset.entry.name;
 			}
 
 			this.buildSceneReferences();
@@ -435,8 +435,8 @@ module Animate
 			if ( !asset )
 				return;
 
-			if ( assetMap.indexOf( asset.shallowId ) == -1 )
-				assetMap.push( asset.shallowId );
+            if (assetMap.indexOf(asset.entry.shallowId ) == -1 )
+                assetMap.push(asset.entry.shallowId );
 
             var project: Project = User.get.project;
 			var properties = asset.properties.variables;
@@ -788,13 +788,13 @@ module Animate
 				return true;
 
 			// Get the most updated JSON
-			canvas = CanvasTab.getSingleton().getTabCanvas( container.id );
+            canvas = CanvasTab.getSingleton().getTabCanvas(container.entry._id );
 			if ( canvas && !canvas._behaviourContainer.saved )
 				json = canvas.buildDataObject();
 			else
-				json = container.json;
+                json = container.entry.json;
 
-			if ( !container.json )
+            if (!container.entry.json )
 				return false;
 
 			// Go through each of the items to see if got any instance that might refer to this container
@@ -805,7 +805,7 @@ module Animate
 					var childContainer = project.getBehaviourByShallowId( items[i].containerId );
 					if ( childContainer && this.isCyclicDependency( childContainer, ref ) )
 					{
-						ref = childContainer.name;
+                        ref = childContainer.entry.name;
 						return true;
 					}
 				}
@@ -1250,8 +1250,8 @@ module Animate
 		*/
 		buildDataObject( items: Array<IComponent> = null ): CanvasToken
 		{
-			var data: CanvasToken = new CanvasToken( this.behaviourContainer.shallowId );
-			data.name = this._behaviourContainer.name;
+            var data: CanvasToken = new CanvasToken(this.behaviourContainer.entry.shallowId );
+            data.name = this._behaviourContainer.entry.name;
 			data.properties = this._behaviourContainer.properties.tokenize();
 
 			if ( items == null )
@@ -1286,7 +1286,7 @@ module Animate
 					}
 
 					if ( items[i] instanceof BehaviourAsset )
-						data.items[i].assetID = ( ( <BehaviourAsset>items[i] ).asset ? ( <BehaviourAsset>items[i] ).asset.shallowId : 0 );
+                        data.items[i].assetID = ((<BehaviourAsset>items[i]).asset ? (<BehaviourAsset>items[i]).asset.entry.shallowId : 0 );
 					else if ( items[i] instanceof BehaviourScript )
 					{
 						//First initialize the script node to make sure we have a DB entry
@@ -1299,7 +1299,7 @@ module Animate
 						data.items[i].behaviourID = ( ( <BehaviourShortcut>items[i] ).originalNode ? ( <BehaviourShortcut>items[i] ).originalNode.id : "" );
 					}
 					else if ( items[i] instanceof BehaviourInstance )
-						data.items[i].containerId = ( ( <BehaviourInstance>items[i] ).behaviourContainer ? ( <BehaviourInstance>items[i] ).behaviourContainer.shallowId : 0 );
+                        data.items[i].containerId = ((<BehaviourInstance>items[i]).behaviourContainer ? (<BehaviourInstance>items[i]).behaviourContainer.entry.shallowId : 0 );
 
 					if ( items[i] instanceof BehaviourPortal )
 					{
@@ -1363,8 +1363,8 @@ module Animate
 
 			if ( dataToken )
 				jsonObj = dataToken;
-			else if ( this._behaviourContainer.json !== null )
-				jsonObj = this._behaviourContainer.json;
+            else if (this._behaviourContainer.entry.json !== null )
+                jsonObj = this._behaviourContainer.entry.json;
 
 			//Cleanup the 
 			if ( clearItems )

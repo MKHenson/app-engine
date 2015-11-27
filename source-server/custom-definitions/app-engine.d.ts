@@ -5,6 +5,7 @@
         name?: string;
         projectId?: any;
         user?: string;
+        shallowId?: number;
         createdOn?: number;
         lastModified?: number;
         _id?: any;
@@ -15,9 +16,24 @@
     */
     export interface IAsset extends IResource
     {
-        shallowId?: number;
         className?: string;
         json?: Array<{ name: string; category: string; value: any; type: string; }>;
+    }
+
+    /**
+    * An interface that is used to describe project behaviours
+    */
+    export interface IContainer extends IResource
+    {
+        json?: string | any;
+    }
+
+    /**
+    * An interface that is used to describe project groups
+    */
+    export interface IGroup extends IResource
+    {
+        items?: Array<number>;
     }
 
     /**
@@ -87,8 +103,12 @@
     /**
     * An interface that is used to describe a project build
     */
-    export interface IBuild extends IResource
+    export interface IBuild
     {
+        name?: string;
+        projectId?: any;
+        user?: string;
+        _id?: any;
         notes?: string;
         version?: string;
         public?: boolean;
@@ -98,25 +118,11 @@
         liveToken?: string;
         totalVotes?: number;
         totalVoters?: number;
+        createdOn?: number;
+        lastModified?: number;
     }
 
-    /**
-    * An interface that is used to describe project behaviours
-    */
-    export interface IBehaviour extends IResource
-    {
-        shallowId?: number;
-        json?: string;
-    }
-
-    /**
-    * An interface that is used to describe project groups
-    */
-    export interface IGroup extends IResource
-    {
-        shallowId ?: number;
-        items ?: Array<number>;
-    }
+  
 
     /**
     * An interface that is used to describe users files
@@ -150,7 +156,7 @@ declare module ModepressAddons
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
     export interface ICreateResource extends Modepress.IGetResponse<Engine.IResource> { }
     export interface ICreateAsset extends Modepress.IGetResponse<Engine.IAsset> { }
-    export interface ICreateBehaviour extends Modepress.IGetResponse<Engine.IBehaviour> { }
+    export interface ICreateBehaviour extends Modepress.IGetResponse<Engine.IContainer> { }
     export interface ICreateFile extends Modepress.IGetResponse<Engine.IFile> { }
     export interface ICreateGroup extends Modepress.IGetResponse<Engine.IGroup> { }
     export interface ICreatePlugin extends Modepress.IGetResponse<Engine.IPlugin> { }
@@ -159,7 +165,7 @@ declare module ModepressAddons
     export interface IGetBuilds extends Modepress.IGetArrayResponse<Engine.IBuild> { }
     export interface IGetProjects extends Modepress.IGetArrayResponse<Engine.IProject> { }
     export interface IGetDetails extends Modepress.IGetResponse<Engine.IUserMeta> { }
-    export interface IGetBehaviours extends Modepress.IGetArrayResponse<Engine.IBehaviour> { }
+    export interface IGetBehaviours extends Modepress.IGetArrayResponse<Engine.IContainer> { }
     export interface IGetFiles extends Modepress.IGetArrayResponse<Engine.IFile> { }
     export interface IGetGroups extends Modepress.IGetArrayResponse<Engine.IGroup> { }
     export interface IGetAssets extends Modepress.IGetArrayResponse<Engine.IAsset> { }

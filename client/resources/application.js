@@ -940,6 +940,84 @@ var Animate;
     })();
     Animate.EventDispatcher = EventDispatcher;
 })(Animate || (Animate = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Animate;
+(function (Animate) {
+    /**
+    * A base class for all project resources
+    */
+    var ProjectResource = (function (_super) {
+        __extends(ProjectResource, _super);
+        function ProjectResource(entry) {
+            _super.call(this);
+            this.entry = entry;
+            var resource = entry;
+            // Make sure the ID is always really high - i.e. dont allow for duplicates
+            if (resource.shallowId && resource.shallowId > ProjectResource.shallowIds)
+                ProjectResource.shallowIds = resource.shallowId + 1;
+            this.saved = true;
+            this._options = {};
+            this._properties = new Animate.EditableSet();
+        }
+        ProjectResource.generateLocalId = function () {
+            Animate.Asset.shallowIds++;
+            return Animate.Asset.shallowIds;
+        };
+        ProjectResource.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            this._properties = null;
+            this._options = null;
+        };
+        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
+        ProjectResource.prototype.createOption = function (name, val) { this._options[name] = val; };
+        /** Destroys an option */
+        ProjectResource.prototype.removeOption = function (name) { delete this._options[name]; };
+        /**  Update the value of an option */
+        ProjectResource.prototype.updateOption = function (name, val) { this._options[name] = val; };
+        /** Returns the value of an option */
+        ProjectResource.prototype.getOption = function (name) { return this._options[name]; };
+        Object.defineProperty(ProjectResource.prototype, "properties", {
+            //get properties(): EditableSet { return this._properties; }
+            //set properties(val: EditableSet)
+            //{
+            //    for (var vi = 0, l = this._properties.variables.length; vi < l; vi++)
+            //        this._properties.variables[vi].dispose();
+            //    this._properties.variables.splice(0, this._properties.variables.length);
+            //    if (val instanceof EditableSet)
+            //        this._properties = val;
+            //    else
+            //    {
+            //        for (var i in val)
+            //            this._properties.addVar(val[i].name, val[i].value, ParameterType.fromString(val[i].type), val[i].category, val[i].options);
+            //    }
+            //}
+            get: function () { return this._properties; },
+            enumerable: true,
+            configurable: true
+        });
+        ProjectResource.prototype.setProperties = function (val) {
+            for (var i = 0, l = this._properties.variables.length; i < l; i++)
+                this._properties.variables[i].dispose();
+            this._properties.variables.splice(0, this._properties.variables.length);
+            if (val instanceof Animate.EditableSet)
+                this._properties = val;
+            else {
+                var arr = val;
+                for (var i = 0, len = arr.length; i < len; i++)
+                    this._properties.addVar(arr[i].name, arr[i].value, Animate.ParameterType.fromString(arr[i].type), arr[i].category, arr[i].options);
+            }
+            // TODO: I think the resources need a way of storing custom data
+            // this.entry.json.properties = this._properties.tokenize();
+        };
+        ProjectResource.shallowIds = 0;
+        return ProjectResource;
+    })(Animate.EventDispatcher);
+    Animate.ProjectResource = ProjectResource;
+})(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
     /*
@@ -955,11 +1033,6 @@ var Animate;
     })(Animate.UserPlan || (Animate.UserPlan = {}));
     var UserPlan = Animate.UserPlan;
 })(Animate || (Animate = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var Animate;
 (function (Animate) {
     var EditorEvents = (function (_super) {
@@ -1716,7 +1789,7 @@ var Animate;
         PluginManager.prototype.assetCreated = function (name, asset) {
             var template = null;
             // Assign any of the options / missing variables for classes that are updated in code but not in the DB
-            var aClass = this.getAssetClass(asset.className);
+            var aClass = this.getAssetClass(asset.entry.className);
             // Get all the variables for this class
             var topClass = aClass;
             var variables = new Array();
@@ -1888,15 +1961,15 @@ var Animate;
             var i = project.behaviours.length;
             while (i--) {
                 var behaviour = project.behaviours[i];
-                if (behaviour.json === null)
+                if (behaviour.entry.json === null)
                     continue;
-                canvasToken = behaviour.json;
+                canvasToken = behaviour.entry.json;
                 //Check if we have valid json and items saved
                 if (canvasToken && canvasToken.items) {
                     var containerToken = {};
                     dataToken.containers.push(containerToken);
-                    containerToken.name = behaviour.name;
-                    containerToken.id = behaviour.shallowId;
+                    containerToken.name = behaviour.entry.name;
+                    containerToken.id = behaviour.entry.shallowId;
                     containerToken.behaviours = [];
                     containerToken.links = [];
                     containerToken.assets = [];
@@ -2006,10 +2079,10 @@ var Animate;
                 if (canvasToken) {
                     var assetToken = {};
                     dataToken.assets.push(assetToken);
-                    assetToken.name = asset.name;
-                    assetToken.id = asset.shallowId;
+                    assetToken.name = asset.entry.name;
+                    assetToken.id = asset.entry.shallowId;
                     assetToken.properties = {};
-                    assetToken.className = asset.className;
+                    assetToken.className = asset.entry.className;
                     var aprops = asset.properties.tokenize();
                     for (var assetPropName in aprops) {
                         var propType = Animate.ParameterType.fromString(aprops[assetPropName].type.toString());
@@ -2286,40 +2359,37 @@ var Animate;
 (function (Animate) {
     var Asset = (function (_super) {
         __extends(Asset, _super);
+        //public id: string;
+        //public shallowId: number;
+        //public name: string;
+        //private _className: string;
         /**
         * @param {string} name The name of the asset
         * @param {string} className The name of the "class" or "template" that this asset belongs to
         * @param {any} json The JSON with all the asset properties
         * @param {string} id The id of this asset
         */
-        function Asset(name, className, json, id, shallowId) {
-            if (name === void 0) { name = ""; }
-            if (className === void 0) { className = ""; }
-            if (json === void 0) { json = {}; }
-            if (id === void 0) { id = ""; }
-            if (shallowId === void 0) { shallowId = 0; }
+        function Asset(entry) {
             // Call super-class constructor
-            _super.call(this);
-            // Make sure the ID is always really high - i.e. dont allow for duplicates
-            if (shallowId !== 0 && shallowId > Asset.shallowIds)
-                Asset.shallowIds = shallowId + 1;
-            this._options = {};
-            this.id = id;
-            this.shallowId = shallowId;
-            this.name = name;
-            this.saved = true;
-            this._properties = new Animate.EditableSet();
-            if (json)
-                this.properties = json;
-            this._className = className;
+            _super.call(this, entry);
+            //this._options = {};
+            //this.id = id;
+            //this.shallowId = shallowId;
+            //this.name = name;
+            //this.saved = true;
+            //this._properties = new EditableSet();
+            if (entry.json)
+                this.setProperties(entry.json);
+            //this._className = entry.className;
         }
-        Asset.getNewLocalId = function () {
-            Asset.shallowIds++;
-            return Asset.shallowIds;
-        };
+        //static getNewLocalId(): number
+        //{
+        //	Asset.shallowIds++;
+        //	return Asset.shallowIds;
+        //}
         /** Writes this assset to a readable string */
         Asset.prototype.toString = function () {
-            return this.name + "(" + this.shallowId + ")";
+            return this.entry.name + "(" + this.entry.shallowId + ")";
         };
         /**
         * Use this function to reset the asset properties
@@ -2329,10 +2399,10 @@ var Animate;
         */
         Asset.prototype.update = function (name, className, json) {
             if (json === void 0) { json = {}; }
-            this.name = name;
+            this.entry.name = name;
             this.saved = true;
             this.properties = json;
-            this._className = className;
+            this.entry.className = className;
         };
         /**
         * Disposes and cleans up the data of this asset
@@ -2340,44 +2410,14 @@ var Animate;
         Asset.prototype.dispose = function () {
             //Call super
             _super.prototype.dispose.call(this);
-            this.id = null;
-            this.name = null;
-            this._properties = null;
-            this._className = null;
-            this._options = null;
+            //this.id = null;
+            //this.name = null;
+            //this._properties = null;
+            //this._className = null;
+            //this._options = null;
         };
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
-        Asset.prototype.createOption = function (name, val) { this._options[name] = val; };
-        /** Destroys an option */
-        Asset.prototype.removeOption = function (name) { delete this._options[name]; };
-        /**  Update the value of an option */
-        Asset.prototype.updateOption = function (name, val) { this._options[name] = val; };
-        /** Returns the value of an option */
-        Asset.prototype.getOption = function (name) { return this._options[name]; };
-        Object.defineProperty(Asset.prototype, "className", {
-            get: function () { return this._className; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Asset.prototype, "properties", {
-            get: function () { return this._properties; },
-            set: function (val) {
-                for (var vi = 0, l = this._properties.variables.length; vi < l; vi++)
-                    this._properties.variables[vi].dispose();
-                this._properties.variables.splice(0, this._properties.variables.length);
-                if (val instanceof Animate.EditableSet)
-                    this._properties = val;
-                else {
-                    for (var i in val)
-                        this._properties.addVar(val[i].name, val[i].value, Animate.ParameterType.fromString(val[i].type), val[i].category, val[i].options);
-                }
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Asset.shallowIds = 0;
         return Asset;
-    })(Animate.EventDispatcher);
+    })(Animate.ProjectResource);
     Animate.Asset = Asset;
 })(Animate || (Animate = {}));
 var Animate;
@@ -2446,39 +2486,32 @@ var Animate;
     */
     var BehaviourContainer = (function (_super) {
         __extends(BehaviourContainer, _super);
+        //public json: CanvasToken;
         /**
         * {string} name The name of the container
         */
-        function BehaviourContainer(name, id, shallowId) {
+        function BehaviourContainer(entry) {
             // Call super-class constructor
-            _super.call(this);
-            // Make sure the ID is always really high - i.e. dont allow for duplicates
-            if (shallowId !== 0 && shallowId > BehaviourContainer.shallowIds)
-                BehaviourContainer.shallowIds = shallowId + 1;
-            this._id = id;
-            this.shallowId = shallowId;
-            this._options = {};
-            this._name = name;
-            this.json = null;
+            _super.call(this, entry);
+            //this._id = id;
+            //this.shallowId = shallowId;
+            //this._name = name;
+            //this.json = null;
             this.canvas = null;
-            this.saved = true;
-            this._properties = new Animate.EditableSet();
             this._properties.addVar("Start On Load", true, Animate.ParameterType.BOOL, "Container Properties", null);
             this._properties.addVar("Unload On Exit", true, Animate.ParameterType.BOOL, "Container Properties", null);
         }
-        BehaviourContainer.getNewLocalId = function () {
-            BehaviourContainer.shallowIds++;
-            return BehaviourContainer.shallowIds;
-        };
         /**
         * This will download and update all data of the asset.
         * @param {string} name The name of the behaviour
         * @param {CanvasToken} json Its data object
         */
         BehaviourContainer.prototype.update = function (name, json) {
-            this._name = name;
+            this.entry.name = name;
+            this.entry.json = json;
+            //this._name = name;
             this.saved = true;
-            this.json = json;
+            //this.json = json;
         };
         /**
         * This will cleanup the behaviour.
@@ -2487,51 +2520,16 @@ var Animate;
             Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_DELETED, this));
             //Call super
             _super.prototype.dispose.call(this);
-            this._properties = null;
-            this._id = null;
-            this._name = null;
-            this.json = null;
+            //this._properties = null;
+            //this._id = null;
+            //this._name = null;
+            //this.json = null;
             this.canvas = null;
-            this.saved = null;
-            this._options = null;
+            //this.saved = null;
+            //this._options = null;
         };
-        Object.defineProperty(BehaviourContainer.prototype, "id", {
-            get: function () { return this._id; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BehaviourContainer.prototype, "name", {
-            get: function () { return this._name; },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(BehaviourContainer.prototype, "properties", {
-            get: function () { return this._properties; },
-            enumerable: true,
-            configurable: true
-        });
-        BehaviourContainer.prototype.setProperties = function (val) {
-            if (val instanceof Animate.EditableSet)
-                this._properties = val;
-            else {
-                for (var i = 0, l = this._properties.variables.length; i < l; i++)
-                    this._properties.variables[i].dispose();
-                this._properties.variables.splice(0, this._properties.variables.length);
-                var arr = val;
-                for (var i = 0, len = arr.length; i < len; i++)
-                    this._properties.addVar(arr[i].name, arr[i].value, Animate.ParameterType.fromString(arr[i].type), arr[i].category, arr[i].options);
-            }
-            this.json.properties = this._properties.tokenize();
-        };
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
-        BehaviourContainer.prototype.createOption = function (name, val) { this._options[name] = val; };
-        /**  Update the value of an option */
-        BehaviourContainer.prototype.updateOption = function (name, val) { this._options[name] = val; };
-        /** Returns the value of an option */
-        BehaviourContainer.prototype.getOption = function (name) { return this._options[name]; };
-        BehaviourContainer.shallowIds = 0;
         return BehaviourContainer;
-    })(Animate.EventDispatcher);
+    })(Animate.ProjectResource);
     Animate.BehaviourContainer = BehaviourContainer;
 })(Animate || (Animate = {}));
 var Animate;
@@ -3229,33 +3227,31 @@ var Animate;
         ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
     })(Animate.ResourceType || (Animate.ResourceType = {}));
     var ResourceType = Animate.ResourceType;
-    var ProjectAssetTypes = (function (_super) {
-        __extends(ProjectAssetTypes, _super);
-        function ProjectAssetTypes(v) {
-            _super.call(this, v);
-        }
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns ENUM
-        */
-        ProjectAssetTypes.fromString = function (val) {
-            switch (val) {
-                case "behaviour":
-                    return ProjectAssetTypes.BEHAVIOUR;
-                case "asset":
-                    return ProjectAssetTypes.ASSET;
-                case "group":
-                    return ProjectAssetTypes.GROUP;
-            }
-            return null;
-        };
-        ProjectAssetTypes.BEHAVIOUR = new ProjectAssetTypes("behaviour");
-        ProjectAssetTypes.ASSET = new ProjectAssetTypes("asset");
-        ProjectAssetTypes.GROUP = new ProjectAssetTypes("group");
-        return ProjectAssetTypes;
-    })(Animate.ENUM);
-    Animate.ProjectAssetTypes = ProjectAssetTypes;
+    //export class ProjectAssetTypes extends ENUM
+    //{
+    //	constructor(v: string) { super(v); }
+    //	static BEHAVIOUR: ProjectAssetTypes = new ProjectAssetTypes("behaviour");
+    //	static ASSET: ProjectAssetTypes = new ProjectAssetTypes("asset");
+    //       static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
+    //	/**
+    //	* Returns an enum reference by its name/value
+    //	* @param {string} val
+    //	* @returns ENUM
+    //	*/
+    //	static fromString(val: string): ProjectAssetTypes
+    //	{
+    //		switch (val)
+    //		{
+    //			case "behaviour":
+    //				return ProjectAssetTypes.BEHAVIOUR;
+    //			case "asset":
+    //				return ProjectAssetTypes.ASSET;
+    //			case "group":
+    //				return ProjectAssetTypes.GROUP;
+    //		}
+    //		return null;
+    //	}
+    //}
     var ProjectEvents = (function () {
         function ProjectEvents(v) {
             this.value = v;
@@ -3340,7 +3336,7 @@ var Animate;
         */
         Project.prototype.getAssetByID = function (id) {
             for (var i = 0; i < this._assets.length; i++)
-                if (this._assets[i].id == id)
+                if (this._assets[i].entry._id == id)
                     return this._assets[i];
             return null;
         };
@@ -3351,7 +3347,7 @@ var Animate;
         */
         Project.prototype.getAssetByShallowId = function (id) {
             for (var i = 0; i < this._assets.length; i++)
-                if (this._assets[i].shallowId == id)
+                if (this._assets[i].entry.shallowId == id)
                     return this._assets[i];
             return null;
         };
@@ -3373,7 +3369,7 @@ var Animate;
         */
         Project.prototype.getBehaviourById = function (id) {
             for (var i = 0; i < this._behaviours.length; i++)
-                if (this._behaviours[i].id == id)
+                if (this._behaviours[i].entry._id == id)
                     return this._behaviours[i];
             return null;
         };
@@ -3384,7 +3380,7 @@ var Animate;
         */
         Project.prototype.getBehaviourByShallowId = function (id) {
             for (var i = 0; i < this._behaviours.length; i++)
-                if (this._behaviours[i].shallowId == id)
+                if (this._behaviours[i].entry.shallowId == id)
                     return this._behaviours[i];
             return null;
         };
@@ -3463,7 +3459,7 @@ var Animate;
             if (type == ResourceType.ASSET)
                 url = Animate.DB.API + "/assets/" + details.username + "/" + projId + "/" + id;
             else if (type == ResourceType.CONTAINER)
-                url = Animate.DB.API + "/behaviours/" + details.username + "/" + projId + "/" + id;
+                url = Animate.DB.API + "/containers/" + details.username + "/" + projId + "/" + id;
             else if (type == ResourceType.GROUP)
                 url = Animate.DB.API + "/groups/" + details.username + "/" + projId + "/" + id;
             Animate.Utils.put(url, { name: name }).done(function (data) {
@@ -3490,7 +3486,7 @@ var Animate;
             if (type == ResourceType.ASSET)
                 url = Animate.DB.API + "/assets/" + details.username + "/" + projId;
             else if (type == ResourceType.CONTAINER)
-                url = Animate.DB.API + "/behaviours/" + details.username + "/" + projId;
+                url = Animate.DB.API + "/containers/" + details.username + "/" + projId;
             else if (type == ResourceType.GROUP)
                 url = Animate.DB.API + "/groups/" + details.username + "/" + projId;
             Animate.Utils.post(url, { name: name }).done(function (data) {
@@ -3562,17 +3558,17 @@ var Animate;
             // Create a multidimension array and pass each of the behaviours
             for (var i = 0, l = behavioursIds.length; i < l; i++)
                 for (var ii = 0, l = behaviours.length; ii < l; ii++)
-                    if (behavioursIds[i] == behaviours[ii].id) {
+                    if (behavioursIds[i] == behaviours[ii].entry._id) {
                         var json = null;
                         var canvas = Animate.CanvasTab.getSingleton().getTabCanvas(behavioursIds[i]);
                         if (canvas)
                             json = canvas.buildDataObject();
                         else {
-                            json = behaviours[ii].json;
-                            json.properties = behaviours[ii]._properties.tokenize();
+                            json = behaviours[ii].entry.json;
+                            json.properties = behaviours[ii].properties.tokenize();
                         }
                         var jsonStr = json.toString();
-                        ids.push(behaviours[ii].id);
+                        ids.push(behaviours[ii].entry._id);
                         jsons.push(jsonStr);
                     }
             var loader = new Animate.AnimateLoader();
@@ -3589,14 +3585,14 @@ var Animate;
             var behaviours = this._behaviours;
             for (var i = 0, l = behaviours.length; i < l; i++)
                 if (!behaviours[i].saved)
-                    ids.push(behaviours[i].id);
+                    ids.push(behaviours[i].entry._id);
             this.saveBehaviours(ids);
             // Assets
             ids.splice(0, ids.length);
             var assets = this._assets;
             for (var i = 0, l = assets.length; i < l; i++)
                 if (!assets[i].saved)
-                    ids.push(assets[i].id);
+                    ids.push(assets[i].entry._id);
             this.saveAssets(ids);
             // Groups
             ids.splice(0, ids.length);
@@ -3819,7 +3815,7 @@ var Animate;
             var loader = new Animate.AnimateLoader();
             loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Animate.Asset.getNewLocalId() });
+            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Animate.ProjectResource.generateLocalId() });
         };
         /**
         * This will save a group of asset's variables to the server in JSON.
@@ -3840,8 +3836,8 @@ var Animate;
                 ev.asset = asset;
                 pm.emit(ev);
                 jsons.push(JSON.stringify(asset.properties.tokenize()));
-                ids.push(asset.id);
-                shallowIds.push(asset.shallowId);
+                ids.push(asset.entry._id);
+                shallowIds.push(asset.entry.shallowId);
             }
             var loader = new Animate.AnimateLoader();
             loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
@@ -3876,7 +3872,7 @@ var Animate;
             var loader = new Animate.AnimateLoader();
             loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: Animate.Asset.getNewLocalId() });
+            loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: Animate.ProjectResource.generateLocalId() });
         };
         /**
         * This function is used to delete assets.
@@ -3957,7 +3953,7 @@ var Animate;
                         for (var i = 0, l = data.length; i < l; i++) {
                             var len = this._behaviours.length;
                             for (var ii = 0; ii < len; ii++)
-                                if (this._behaviours[ii].id == data[i]) {
+                                if (this._behaviours[ii].entry._id == data[i]) {
                                     var behaviour = this._behaviours[ii];
                                     behaviour.dispose();
                                     this._behaviours.splice(ii, 1);
@@ -3974,8 +3970,8 @@ var Animate;
                         //Create new behaviours which we fetched from the DB.
                         for (var i = 0, l = data.length; i < l; i++) {
                             var dbEntry = data[i];
-                            var b = new Animate.BehaviourContainer(dbEntry["name"], dbEntry["_id"], dbEntry["shallowId"]);
-                            b.json = Animate.CanvasToken.fromDatabase(dbEntry["json"], dbEntry["_id"]);
+                            var b = new Animate.BehaviourContainer({ name: dbEntry["name"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
+                            b.entry.json = Animate.CanvasToken.fromDatabase(dbEntry["json"], dbEntry["_id"]);
                             b.setProperties(dbEntry.json.properties);
                             this._behaviours.push(b);
                             //Create the GUI elements
@@ -3987,11 +3983,11 @@ var Animate;
                     else if (loader.url == "/project/save-behaviours") {
                         for (var i = 0; i < this._behaviours.length; i++)
                             for (ii = 0, l = data.length; ii < l; ii++)
-                                if (this._behaviours[i].id == data[ii]) {
+                                if (this._behaviours[i].entry._id == data[ii]) {
                                     // Make sure the JSON is updated in the behaviour
                                     var canvas = Animate.CanvasTab.getSingleton().getTabCanvas(data[ii]);
                                     if (canvas)
-                                        this._behaviours[i].json = canvas.buildDataObject();
+                                        this._behaviours[i].entry.json = canvas.buildDataObject();
                                     //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
                                     break;
                                 }
@@ -4012,7 +4008,7 @@ var Animate;
                         for (var i = 0, l = data.length; i < l; i++) {
                             var len = this._assets.length;
                             for (var ii = 0; ii < len; ii++)
-                                if (this._assets[ii].id == data[i]) {
+                                if (this._assets[ii].entry._id == data[i]) {
                                     ev.asset = this._assets[ii];
                                     this.emit(ev);
                                     //Notify the destruction of an asset
@@ -4044,12 +4040,12 @@ var Animate;
                     else if (loader.url == "/project/save-groups") {
                     }
                     else if (loader.url == "/project/create-asset" || loader.url == "/project/copy-asset") {
-                        var asset = new Animate.Asset(data.name, data.className, data.json, data._id, data.shallowId);
+                        var asset = new Animate.Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
                         this._assets.push(asset);
                         //Create the GUI elements
                         Animate.TreeViewScene.getSingleton().addAssetInstance(asset, false);
                         //Notify the creation of an asset
-                        pManager.assetCreated(asset.name, asset);
+                        pManager.assetCreated(asset.entry.name, asset);
                         //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
                         var eSet = asset.properties;
                         var variables = eSet.variables;
@@ -4061,13 +4057,13 @@ var Animate;
                     else if (loader.url == "/project/save-assets") {
                         for (var ii = 0; ii < data.length; ii++)
                             for (var i = 0; i < this._assets.length; i++)
-                                if (this._assets[i].id == data[ii])
+                                if (this._assets[i].entry._id == data[ii])
                                     this.emit(new Animate.AssetEvent(ProjectEvents.ASSET_SAVED, this._assets[i]));
                     }
                     else if (loader.url == "/project/update-assets") {
                         for (var ii = 0; ii < data.length; ii++)
                             for (var i = 0; i < this._assets.length; i++)
-                                if (this._assets[i].id == data[ii]._id) {
+                                if (this._assets[i].entry._id == data[ii]._id) {
                                     this._assets[i].update(data[ii].name, data[ii].className, data[ii].json);
                                     this.emit(new Animate.AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i]));
                                 }
@@ -4076,7 +4072,7 @@ var Animate;
                         //Update behaviours which we fetched from the DB.
                         for (var ii = 0, l = data.length; ii < l; ii++) {
                             for (var i = 0, len = this._behaviours.length; i < len; i++)
-                                if (this._behaviours[i].id == data[ii]._id) {
+                                if (this._behaviours[i].entry._id == data[ii]._id) {
                                     this._behaviours[i].update(data[ii].name, Animate.CanvasToken.fromDatabase(data[ii].json, data[ii]._id));
                                     //Update the GUI elements
                                     Animate.TreeViewScene.getSingleton().updateBehaviour(this._behaviours[i]);
@@ -4093,7 +4089,7 @@ var Animate;
                         //Create new _assets which we fetched from the DB.
                         for (var i = 0, l = data.length; i < l; i++) {
                             var dbEntry = data[i];
-                            var asset = new Animate.Asset(dbEntry["name"], dbEntry["className"], dbEntry["json"], dbEntry["_id"], dbEntry["shallowId"]);
+                            var asset = new Animate.Asset({ name: dbEntry["name"], className: dbEntry["className"], json: dbEntry["json"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
                             //Create the GUI elements
                             if (Animate.TreeViewScene.getSingleton().addAssetInstance(asset))
                                 this._assets.push(asset);
@@ -4103,7 +4099,7 @@ var Animate;
                         //Notify the creation of an asset
                         var len = this._assets.length;
                         for (var i = 0; i < len; i++)
-                            pManager.assetCreated(this._assets[i].name, this._assets[i]);
+                            pManager.assetCreated(this._assets[i].entry.name, this._assets[i]);
                         //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
                         for (var i = 0; i < len; i++) {
                             var eSet = this._assets[i].properties;
@@ -9834,7 +9830,7 @@ var Animate;
         __extends(BehaviourInstance, _super);
         function BehaviourInstance(parent, behaviourContainer, createPotrals) {
             if (createPotrals === void 0) { createPotrals = true; }
-            var text = (behaviourContainer.name !== undefined ? behaviourContainer.name : "Instance");
+            var text = (behaviourContainer.entry.name !== undefined ? behaviourContainer.entry.name : "Instance");
             this._behaviourContainer = behaviourContainer;
             // Call super-class constructor
             _super.call(this, parent, text);
@@ -9853,9 +9849,9 @@ var Animate;
                                 this.addPortal(children[ci].portaltype, portals[ii].name, portals[ii].value, portals[ii].dataType, false);
                         }
                 }
-                else if (this._behaviourContainer.json != null) {
+                else if (this._behaviourContainer.entry.json != null) {
                     //Parse the saved object and get the portal data
-                    var jsonObj = this._behaviourContainer.json;
+                    var jsonObj = this._behaviourContainer.entry.json;
                     if (jsonObj && jsonObj.items) {
                         for (var i in jsonObj.items) {
                             var item = null;
@@ -9877,7 +9873,7 @@ var Animate;
         * Called when a behaviour is disposed
         */
         BehaviourInstance.prototype.onContainerDeleted = function (response, event) {
-            if (event.container.name == this._behaviourContainer.name) {
+            if (event.container.entry.name == this._behaviourContainer.entry.name) {
                 var parent = this.element.parent().data("component");
                 if (parent && parent.removeItem)
                     parent.removeItem(this);
@@ -9899,7 +9895,7 @@ var Animate;
                     type = Animate.PortalType.PRODUCT;
                 else if (event.portal.type == Animate.PortalType.PRODUCT)
                     type = Animate.PortalType.PARAMETER;
-                if (event.container.name == this._behaviourContainer.name)
+                if (event.container.entry.name == this._behaviourContainer.entry.name)
                     this.addPortal(type, event.portal.name, event.portal.value, event.portal.dataType, true);
             }
             else if (response == Animate.EditorEvents.PORTAL_REMOVED) {
@@ -10041,7 +10037,7 @@ var Animate;
             var loader = new Animate.AnimateLoader();
             loader.on(Animate.LoaderEvents.COMPLETE, onServer);
             loader.on(Animate.LoaderEvents.FAILED, onServer);
-            loader.load("/project/initialize-behaviour-script", { projectId: Animate.User.get.project.entry._id, containerId: this.parent.behaviourContainer.shallowId, behaviourId: behaviour.id });
+            loader.load("/project/initialize-behaviour-script", { projectId: Animate.User.get.project.entry._id, containerId: this.parent.behaviourContainer.entry.shallowId, behaviourId: behaviour.id });
             //When we 
             function onServer(response, event, sender) {
                 loader = null;
@@ -10131,7 +10127,7 @@ var Animate;
             this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
             this.mX = 0;
             this.mY = 0;
-            this.name = behaviourContainer.name;
+            this.name = behaviourContainer.entry.name;
             this._behaviourContainer = behaviourContainer;
             behaviourContainer.canvas = this;
             //Define proxies
@@ -10226,11 +10222,11 @@ var Animate;
         Canvas.prototype.addAssetAtLocation = function (asset, x, y) {
             var node = this.createNode(Animate.PluginManager.getSingleton().getTemplate("Asset"), x, y);
             node.asset = asset;
-            node.parameters[0].value = { selected: asset.shallowId, classname: "" };
+            node.parameters[0].value = { selected: asset.entry.shallowId, classname: "" };
             //Add a reference to this canvas's scene assets
             if (asset) {
-                node.text = asset.name;
-                node.alias = asset.name;
+                node.text = asset.entry.name;
+                node.alias = asset.entry.name;
             }
             this.buildSceneReferences();
         };
@@ -10405,8 +10401,8 @@ var Animate;
         Canvas.prototype.getAssetList = function (asset, assetMap) {
             if (!asset)
                 return;
-            if (assetMap.indexOf(asset.shallowId) == -1)
-                assetMap.push(asset.shallowId);
+            if (assetMap.indexOf(asset.entry.shallowId) == -1)
+                assetMap.push(asset.entry.shallowId);
             var project = Animate.User.get.project;
             var properties = asset.properties.variables;
             for (var i = 0, l = properties.length; i < l; i++)
@@ -10657,12 +10653,12 @@ var Animate;
             if (container == thisContainer)
                 return true;
             // Get the most updated JSON
-            canvas = Animate.CanvasTab.getSingleton().getTabCanvas(container.id);
+            canvas = Animate.CanvasTab.getSingleton().getTabCanvas(container.entry._id);
             if (canvas && !canvas._behaviourContainer.saved)
                 json = canvas.buildDataObject();
             else
-                json = container.json;
-            if (!container.json)
+                json = container.entry.json;
+            if (!container.entry.json)
                 return false;
             // Go through each of the items to see if got any instance that might refer to this container
             var items = json.items;
@@ -10670,7 +10666,7 @@ var Animate;
                 if (items[i].type == "BehaviourInstance") {
                     var childContainer = project.getBehaviourByShallowId(items[i].containerId);
                     if (childContainer && this.isCyclicDependency(childContainer, ref)) {
-                        ref = childContainer.name;
+                        ref = childContainer.entry.name;
                         return true;
                     }
                 }
@@ -10997,8 +10993,8 @@ var Animate;
         */
         Canvas.prototype.buildDataObject = function (items) {
             if (items === void 0) { items = null; }
-            var data = new Animate.CanvasToken(this.behaviourContainer.shallowId);
-            data.name = this._behaviourContainer.name;
+            var data = new Animate.CanvasToken(this.behaviourContainer.entry.shallowId);
+            data.name = this._behaviourContainer.entry.name;
             data.properties = this._behaviourContainer.properties.tokenize();
             if (items == null)
                 items = this.children;
@@ -11024,7 +11020,7 @@ var Animate;
                         data.items[i].alias = (items[i].alias ? items[i].alias : "");
                     }
                     if (items[i] instanceof Animate.BehaviourAsset)
-                        data.items[i].assetID = (items[i].asset ? items[i].asset.shallowId : 0);
+                        data.items[i].assetID = (items[i].asset ? items[i].asset.entry.shallowId : 0);
                     else if (items[i] instanceof Animate.BehaviourScript) {
                         //First initialize the script node to make sure we have a DB entry
                         items[i].initializeDB();
@@ -11036,7 +11032,7 @@ var Animate;
                         data.items[i].behaviourID = (items[i].originalNode ? items[i].originalNode.id : "");
                     }
                     else if (items[i] instanceof Animate.BehaviourInstance)
-                        data.items[i].containerId = (items[i].behaviourContainer ? items[i].behaviourContainer.shallowId : 0);
+                        data.items[i].containerId = (items[i].behaviourContainer ? items[i].behaviourContainer.entry.shallowId : 0);
                     if (items[i] instanceof Animate.BehaviourPortal) {
                         data.items[i].portalType = items[i].portaltype;
                         data.items[i].dataType = items[i].dataType;
@@ -11086,8 +11082,8 @@ var Animate;
             var pManager = Animate.PluginManager.getSingleton();
             if (dataToken)
                 jsonObj = dataToken;
-            else if (this._behaviourContainer.json !== null)
-                jsonObj = this._behaviourContainer.json;
+            else if (this._behaviourContainer.entry.json !== null)
+                jsonObj = this._behaviourContainer.entry.json;
             //Cleanup the 
             if (clearItems)
                 while (this.children.length > 0)
@@ -11952,9 +11948,9 @@ var Animate;
                         if (node instanceof Animate.TreeNodeGroup)
                             promise = Animate.RenameForm.get.renameObject(node, node.text, node.id, Animate.ResourceType.GROUP);
                         else if (node instanceof Animate.TreeNodeBehaviour)
-                            promise = Animate.RenameForm.get.renameObject(node.behaviour, node.text, node.behaviour.id, Animate.ResourceType.BEHAVIOUR);
+                            promise = Animate.RenameForm.get.renameObject(node.behaviour.entry, node.text, node.behaviour.entry._id, Animate.ResourceType.BEHAVIOUR);
                         else if (node instanceof Animate.TreeNodeAssetInstance)
-                            promise = Animate.RenameForm.get.renameObject(node.asset, node.text, node.asset.id, Animate.ResourceType.ASSET);
+                            promise = Animate.RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, Animate.ResourceType.ASSET);
                         if (promise) {
                             promise.then(function (token) {
                                 node.text = token.newName;
@@ -11973,7 +11969,7 @@ var Animate;
         TreeViewScene.prototype.addAssetInstance = function (asset, collapse) {
             if (collapse === void 0) { collapse = true; }
             //Add all the asset nodes 
-            var classNode = this.findNode("className", asset.className);
+            var classNode = this.findNode("className", asset.entry.className);
             if (classNode != null) {
                 var instanceNode = new Animate.TreeNodeAssetInstance(classNode.assetClass, asset);
                 classNode.addNode(instanceNode, collapse);
@@ -12000,10 +11996,10 @@ var Animate;
             node.behaviour = behaviour;
             if (node != null) {
                 //First we try and get the tab
-                var tabPair = Animate.CanvasTab.getSingleton().getTab(behaviour.name);
+                var tabPair = Animate.CanvasTab.getSingleton().getTab(behaviour.entry.name);
                 //Tab was not found - check if its because its unsaved
                 if (tabPair == null)
-                    tabPair = Animate.CanvasTab.getSingleton().getTab("*" + behaviour.name);
+                    tabPair = Animate.CanvasTab.getSingleton().getTab("*" + behaviour.entry.name);
                 //If we have a tab then rename it to the same as the node
                 if (tabPair) {
                     tabPair.tabSelector.element.trigger("click");
@@ -12065,23 +12061,23 @@ var Animate;
             //COPY
             if (this._contextNode && event.item == this._contextCopy) {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.get.project.copyAsset(this._contextNode.asset.id);
+                    Animate.User.get.project.copyAsset(this._contextNode.asset.entry._id);
             }
             else if (this._contextNode && event.item == this._contextAddInstance)
                 Animate.User.get.project.createAsset("New " + this._contextNode.assetClass.name, this._contextNode.assetClass.name);
             else if (this._contextNode && event.item.text == "Save") {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.get.project.saveAssets([this._contextNode.asset.id]);
+                    Animate.User.get.project.saveAssets([this._contextNode.asset.entry._id]);
                 if (this._contextNode instanceof Animate.TreeNodeGroup)
                     Animate.User.get.project.saveGroups([this._contextNode.groupID]);
                 else if (this._contextNode instanceof Animate.TreeNodeBehaviour)
-                    Animate.User.get.project.saveBehaviours([this._contextNode.behaviour.id]);
+                    Animate.User.get.project.saveBehaviours([this._contextNode.behaviour.entry._id]);
             }
             else if (this._contextNode && event.item.text == "Add Group")
                 Animate.User.get.project.createGroup("New Group");
             else if (this._contextNode && event.item.text == "Update") {
                 if (this._contextNode instanceof Animate.TreeNodeAssetInstance) {
-                    Animate.User.get.project.updateAssets([this._contextNode.asset.id]);
+                    Animate.User.get.project.updateAssets([this._contextNode.asset.entry._id]);
                 }
                 else if (this._contextNode == this._groupsNode) {
                     while (this._groupsNode.children.length > 0)
@@ -12101,11 +12097,11 @@ var Animate;
                     var ids = [];
                     for (var i = 0, l = nodes.length; i < l; i++)
                         if (nodes[i] instanceof Animate.TreeNodeAssetInstance)
-                            ids.push(nodes[i].asset.id);
+                            ids.push(nodes[i].asset.entry._id);
                     Animate.User.get.project.updateAssets(ids);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeBehaviour) {
-                    Animate.User.get.project.updateBehaviours([this._contextNode.behaviour.id]);
+                    Animate.User.get.project.updateBehaviours([this._contextNode.behaviour.entry._id]);
                 }
             }
         };
@@ -12185,7 +12181,7 @@ var Animate;
             var len = project.behaviours.length;
             if (event.resourceType == Animate.ResourceType.CONTAINER)
                 for (var i = 0; i < len; i++)
-                    if (project.behaviours[i].name == event.name) {
+                    if (project.behaviours[i].entry.name == event.name) {
                         event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
                         return;
                     }
@@ -12250,7 +12246,7 @@ var Animate;
                     selectedNodes.push(this.selectedNodes[i]);
                 i = selectedNodes.length;
                 while (i--) {
-                    if (selectedNodes[i].asset.id == data.id)
+                    if (selectedNodes[i].asset.id == data.entry._id)
                         selectedNodes[i].dispose();
                 }
                 this._contextNode = null;
@@ -12876,7 +12872,7 @@ var Animate;
         */
         function TreeNodeAssetInstance(assetClass, asset) {
             // Call super-class constructor
-            _super.call(this, (jQuery.trim(asset.name) == "" ? "New " + assetClass.name : asset.name), "media/variable.png", false);
+            _super.call(this, (jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name), "media/variable.png", false);
             this.asset = asset;
             this.canDelete = true;
             this.canCopy = true;
@@ -12894,7 +12890,7 @@ var Animate;
         * Called when the node is selected
         */
         TreeNodeAssetInstance.prototype.onSelect = function () {
-            Animate.PropertyGrid.getSingleton().editableObject(this.asset.properties, this.text + "  [" + this.asset.shallowId + "]", this, "media/variable.png");
+            Animate.PropertyGrid.getSingleton().editableObject(this.asset.properties, this.text + "  [" + this.asset.entry.shallowId + "]", this, "media/variable.png");
             Animate.PluginManager.getSingleton().emit(new Animate.AssetEvent(Animate.EditorEvents.ASSET_SELECTED, this.asset));
         };
         /**
@@ -12978,7 +12974,7 @@ var Animate;
         */
         function TreeNodeBehaviour(behaviour) {
             // Call super-class constructor
-            _super.call(this, behaviour.name, "media/variable.png", false);
+            _super.call(this, behaviour.entry.name, "media/variable.png", false);
             this.element.addClass("behaviour-to-canvas");
             this.canDelete = true;
             this.canUpdate = true;
@@ -13037,7 +13033,7 @@ var Animate;
                     this.originalText = val;
                     jQuery(".text:first", this.element).text((this.behaviour.saved ? "" : "*") + this.originalText);
                 }
-                this.behaviour.name = this.originalText;
+                this.behaviour.entry.name = this.originalText;
             },
             enumerable: true,
             configurable: true
@@ -13143,14 +13139,14 @@ var Animate;
             if (comp instanceof Animate.TreeNodeAssetInstance || comp instanceof TreeNodeGroup) {
                 var added = null;
                 if (comp instanceof Animate.TreeNodeAssetInstance)
-                    added = this.addNode(new Animate.TreeNodeGroupInstance(comp.asset.shallowId, comp.asset.name));
+                    added = this.addNode(new Animate.TreeNodeGroupInstance(comp.asset.entry.shallowId, comp.asset.entry.name));
                 else
                     added = this.addNode(new Animate.TreeNodeGroupInstance(comp.groupID, comp.text));
                 this.expand();
                 this.treeview.selectNode(added);
                 this.save(false);
                 var identifier = this.json.assets.length;
-                this.json.assets[identifier] = { id: added.instanceID, name: (comp instanceof Animate.TreeNodeAssetInstance ? comp.asset.name : comp.text) };
+                this.json.assets[identifier] = { id: added.instanceID, name: (comp instanceof Animate.TreeNodeAssetInstance ? comp.asset.entry.name : comp.text) };
             }
         };
         /**
@@ -13955,7 +13951,7 @@ var Animate;
                 var saveDataObj = canvas.buildDataObject();
                 //Now get the project to save it.
                 Animate.User.get.project.on(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
-                Animate.User.get.project.saveBehaviours([canvas.behaviourContainer.id]);
+                Animate.User.get.project.saveBehaviours([canvas.behaviourContainer.entry._id]);
             }
             else {
                 var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", canvas.behaviourContainer);
@@ -14003,7 +13999,7 @@ var Animate;
         CanvasTab.prototype.getTabCanvas = function (behaviourID) {
             var tabs = this.tabs;
             for (var i = 0, l = tabs.length; i < l; i++)
-                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Animate.Canvas && tabs[i].page.children[0].behaviourContainer.id == behaviourID) {
+                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Animate.Canvas && tabs[i].page.children[0].behaviourContainer.entry._id == behaviourID) {
                     var canvas = tabs[i].page.children[0];
                     return canvas;
                 }
@@ -14740,13 +14736,13 @@ var Animate;
             selector.append("<option value='' " + (selectedID == 0 || isNaN(selectedID) ? "selected='selected'" : "") + "></option>");
             //Sort alphabetically
             nodes = nodes.sort(function (a, b) {
-                var textA = a.asset.name.toUpperCase();
-                var textB = b.asset.name.toUpperCase();
+                var textA = a.asset.entry.name.toUpperCase();
+                var textB = b.asset.entry.name.toUpperCase();
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             var len = nodes.length;
             for (var i = 0; i < len; i++)
-                selector.append("<option title='" + nodes[i].asset.shallowId + " : " + nodes[i].asset.className + "' value='" + nodes[i].asset.shallowId + "' " + (selectedID == nodes[i].asset.shallowId ? "selected='selected'" : "") + ">" + nodes[i].asset.name + "</option>");
+                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (selectedID == nodes[i].asset.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>");
             var that = this;
             //Functions to deal with user interactions with JQuery
             var onSelect = function (e) {
@@ -14811,23 +14807,23 @@ var Animate;
             var nodes = Animate.TreeViewScene.getSingleton().getAssets(className);
             //Sort alphabetically
             nodes = nodes.sort(function (a, b) {
-                var textA = a.asset.name.toUpperCase();
-                var textB = b.asset.name.toUpperCase();
+                var textA = a.asset.entry.name.toUpperCase();
+                var textB = b.asset.entry.name.toUpperCase();
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             // Fill the select with assets
             for (var i = 0, l = nodes.length; i < l; i++) {
                 if (i == 0) {
-                    assetId = nodes[i].asset.shallowId;
+                    assetId = nodes[i].asset.entry.shallowId;
                     asset = nodes[i].asset;
                 }
-                selector.append("<option title='" + nodes[i].asset.shallowId + " : " + nodes[i].asset.className + "' value='" + nodes[i].asset.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].asset.name + "</option>");
+                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>");
             }
             // Fill the already selected items 
             for (var i = 0, l = selectedIDs.length; i < l; i++) {
                 var selectedAsset = Animate.User.get.project.getAssetByShallowId(selectedIDs[i]);
                 if (selectedAsset)
-                    items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.className + "' value='" + selectedAsset.shallowId + "'>" + selectedAsset.name + "</option>");
+                    items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.entry.className + "' value='" + selectedAsset.entry.shallowId + "'>" + selectedAsset.entry.name + "</option>");
             }
             // When we select an asset
             var onSelect = function (e) {
@@ -14851,7 +14847,7 @@ var Animate;
             var onAdd = function (e) {
                 if (asset && selectedIDs.indexOf(assetId) == -1) {
                     selectedIDs.push(assetId);
-                    items.append("<option title='" + assetId + " : " + asset.className + "' value='" + asset.shallowId + "'>" + asset.name + "</option>");
+                    items.append("<option title='" + assetId + " : " + asset.entry.className + "' value='" + asset.entry.shallowId + "'>" + asset.entry.name + "</option>");
                     that.notify(propertyName, { className: propertyValue.className, selectedAssets: selectedIDs }, objectType);
                 }
             };
@@ -18746,6 +18742,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/compiler-directives/If.ts" />
 /// <reference path="lib/core/Enums.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
+/// <reference path="lib/core/ProjectResource.ts" />
 /// <reference path="lib/core/UserPlan.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />

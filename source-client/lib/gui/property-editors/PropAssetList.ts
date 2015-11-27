@@ -47,8 +47,8 @@ module Animate
 			//Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
-				var textA = a.asset.name.toUpperCase();
-				var textB = b.asset.name.toUpperCase();
+                var textA = a.asset.entry.name.toUpperCase();
+                var textB = b.asset.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
@@ -58,11 +58,11 @@ module Animate
 			{
 				if ( i == 0 )
 				{
-					assetId = nodes[i].asset.shallowId;
+                    assetId = nodes[i].asset.entry.shallowId;
 					asset = nodes[i].asset;
 				}
 
-				selector.append( "<option title='" + nodes[i].asset.shallowId + " : " + nodes[i].asset.className + "' value='" + nodes[i].asset.shallowId + "' " + ( i == 0 ?  "selected='selected'" : "" ) +">" + nodes[i].asset.name + "</option>" );
+                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>" );
 			}
 
 			// Fill the already selected items 
@@ -70,7 +70,7 @@ module Animate
 			{
 				var selectedAsset = User.get.project.getAssetByShallowId( selectedIDs[i] );
 				if ( selectedAsset )
-					items.append( "<option title='" + selectedIDs[i] + " : " + selectedAsset.className + "' value='" + selectedAsset.shallowId + "'>" + selectedAsset.name + "</option>" );
+                    items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.entry.className + "' value='" + selectedAsset.entry.shallowId + "'>" + selectedAsset.entry.name + "</option>" );
 			}
 
 			// When we select an asset
@@ -106,7 +106,7 @@ module Animate
 				{
 					selectedIDs.push( assetId );
 
-					items.append( "<option title='" + assetId + " : " + asset.className + "' value='" + asset.shallowId + "'>" + asset.name + "</option>");
+                    items.append("<option title='" + assetId + " : " + asset.entry.className + "' value='" + asset.entry.shallowId + "'>" + asset.entry.name + "</option>");
 
 					that.notify( propertyName, { className: propertyValue.className, selectedAssets: selectedIDs }, objectType );
 				}

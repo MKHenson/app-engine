@@ -316,6 +316,34 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+    * A base class for all project resources
+    */
+    class ProjectResource<T> extends EventDispatcher {
+        private static shallowIds;
+        entry: T;
+        saved: boolean;
+        protected _properties: EditableSet;
+        protected _options: {
+            [s: string]: any;
+        };
+        constructor(entry: T);
+        static generateLocalId(): number;
+        dispose(): void;
+        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
+        createOption(name: string, val: any): void;
+        /** Destroys an option */
+        removeOption(name: string): void;
+        /**  Update the value of an option */
+        updateOption(name: string, val: any): void;
+        /** Returns the value of an option */
+        getOption(name: string): any;
+        properties: EditableSet;
+        setProperties(val: Array<EditableSetToken>): any;
+        setProperties(val: EditableSet): any;
+    }
+}
+declare module Animate {
     enum UserPlan {
         Free = 1,
         Bronze = 2,
@@ -945,23 +973,14 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class Asset extends EventDispatcher {
-        private static shallowIds;
-        id: string;
-        shallowId: number;
-        name: string;
-        private _className;
-        saved: boolean;
-        private _properties;
-        private _options;
+    class Asset extends ProjectResource<Engine.IAsset> {
         /**
         * @param {string} name The name of the asset
         * @param {string} className The name of the "class" or "template" that this asset belongs to
         * @param {any} json The JSON with all the asset properties
         * @param {string} id The id of this asset
         */
-        constructor(name?: string, className?: string, json?: any, id?: string, shallowId?: number);
-        static getNewLocalId(): number;
+        constructor(entry?: Engine.IAsset);
         /** Writes this assset to a readable string */
         toString(): string;
         /**
@@ -975,16 +994,6 @@ declare module Animate {
         * Disposes and cleans up the data of this asset
         */
         dispose(): void;
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
-        createOption(name: string, val: any): void;
-        /** Destroys an option */
-        removeOption(name: string): void;
-        /**  Update the value of an option */
-        updateOption(name: string, val: any): void;
-        /** Returns the value of an option */
-        getOption(name: string): any;
-        className: string;
-        properties: EditableSet;
     }
 }
 declare module Animate {
@@ -1027,21 +1036,12 @@ declare module Animate {
     * database and retrieved when we work with Animate. A behaviour is
     * essentially a piece of code that executes script logic.
     */
-    class BehaviourContainer extends EventDispatcher {
-        private static shallowIds;
-        private _id;
-        shallowId: number;
-        private _name;
+    class BehaviourContainer extends ProjectResource<Engine.IContainer> {
         canvas: Canvas;
-        json: CanvasToken;
-        saved: boolean;
-        _properties: EditableSet;
-        private _options;
         /**
         * {string} name The name of the container
         */
-        constructor(name: string, id: string, shallowId: number);
-        static getNewLocalId(): number;
+        constructor(entry?: Engine.IContainer);
         /**
         * This will download and update all data of the asset.
         * @param {string} name The name of the behaviour
@@ -1052,17 +1052,6 @@ declare module Animate {
         * This will cleanup the behaviour.
         */
         dispose(): void;
-        id: string;
-        name: string;
-        properties: EditableSet;
-        setProperties(val: Array<EditableSetToken>): any;
-        setProperties(val: EditableSet): any;
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
-        createOption(name: string, val: any): void;
-        /**  Update the value of an option */
-        updateOption(name: string, val: any): void;
-        /** Returns the value of an option */
-        getOption(name: string): any;
     }
 }
 declare module Animate {
@@ -1388,18 +1377,6 @@ declare module Animate {
         GROUP = 1,
         ASSET = 2,
         CONTAINER = 3,
-    }
-    class ProjectAssetTypes extends ENUM {
-        constructor(v: string);
-        static BEHAVIOUR: ProjectAssetTypes;
-        static ASSET: ProjectAssetTypes;
-        static GROUP: ProjectAssetTypes;
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns ENUM
-        */
-        static fromString(val: string): ProjectAssetTypes;
     }
     class ProjectEvents {
         value: string;
@@ -5628,7 +5605,7 @@ declare module Animate {
         object: IRenamable;
     }
     interface IRenamable {
-        name: string;
+        name?: string;
     }
     /**
     * Event used to describe re-naming of objects. Listen for either

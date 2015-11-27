@@ -52,14 +52,14 @@ module Animate
 			//Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
-				var textA = a.asset.name.toUpperCase();
-				var textB = b.asset.name.toUpperCase();
+                var textA = a.asset.entry.name.toUpperCase();
+                var textB = b.asset.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
 			var len: number = nodes.length;
 			for ( var i = 0; i < len; i++ )
-				selector.append( "<option title='" + nodes[i].asset.shallowId + " : " + nodes[i].asset.className + "' value='" + nodes[i].asset.shallowId + "' " + ( selectedID == nodes[i].asset.shallowId ? "selected='selected'" : "" ) + ">" + nodes[i].asset.name + "</option>" );
+                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (selectedID == nodes[i].asset.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>" );
 			
 			var that = this;
 

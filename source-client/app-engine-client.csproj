@@ -97,6 +97,7 @@
     <TypeScriptCompile Include="lib\core\loaders\LoaderBase.ts" />
     <TypeScriptCompile Include="lib\core\loaders\BinaryLoader.ts" />
     <TypeScriptCompile Include="lib\core\PageLoader.ts" />
+    <TypeScriptCompile Include="lib\core\ProjectResource.ts" />
     <TypeScriptCompile Include="lib\core\PropertyGridEditor.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IComponent.d.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IDockItem.d.ts" />

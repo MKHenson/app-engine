@@ -199,9 +199,9 @@ module Animate
                         if (node instanceof TreeNodeGroup)
                             promise = RenameForm.get.renameObject(node, node.text, node.id, ResourceType.GROUP);
                         else if (node instanceof TreeNodeBehaviour)
-                            promise = RenameForm.get.renameObject(node.behaviour, node.text, node.behaviour.id, ResourceType.BEHAVIOUR);
+                            promise = RenameForm.get.renameObject(node.behaviour.entry, node.text, node.behaviour.entry._id, ResourceType.BEHAVIOUR);
                         else if (node instanceof TreeNodeAssetInstance)
-                            promise = RenameForm.get.renameObject(node.asset, node.text, node.asset.id, ResourceType.ASSET);
+                            promise = RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, ResourceType.ASSET);
 
                         if (promise)
                         {
@@ -225,7 +225,7 @@ module Animate
 		addAssetInstance( asset : Asset, collapse : boolean = true )
 		{
 			//Add all the asset nodes 
-			var classNode: TreeNodeAssetClass = <TreeNodeAssetClass>this.findNode( "className", asset.className )
+            var classNode: TreeNodeAssetClass = <TreeNodeAssetClass>this.findNode("className", asset.entry.className )
 
 			if ( classNode != null )
 			{
@@ -262,11 +262,11 @@ module Animate
 			if ( node != null )
 			{
 				//First we try and get the tab
-				var tabPair : TabPair = CanvasTab.getSingleton().getTab( behaviour.name );
+                var tabPair: TabPair = CanvasTab.getSingleton().getTab(behaviour.entry.name );
 
 				//Tab was not found - check if its because its unsaved
 				if ( tabPair == null )
-					tabPair = CanvasTab.getSingleton().getTab( "*" + behaviour.name );
+                    tabPair = CanvasTab.getSingleton().getTab("*" + behaviour.entry.name );
 
 				//If we have a tab then rename it to the same as the node
 				if ( tabPair )
@@ -350,7 +350,7 @@ module Animate
 			if ( this._contextNode && event.item == this._contextCopy )
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
-					User.get.project.copyAsset((<TreeNodeAssetInstance>this._contextNode).asset.id );
+                    User.get.project.copyAsset((<TreeNodeAssetInstance>this._contextNode).asset.entry._id );
 			}
 			//ADD INSTANCE
 			else if ( this._contextNode && event.item == this._contextAddInstance )
@@ -359,11 +359,11 @@ module Animate
 			else if ( this._contextNode && event.item.text == "Save" )
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
-					User.get.project.saveAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id] );
+                    User.get.project.saveAssets([(<TreeNodeAssetInstance>this._contextNode).asset.entry._id] );
 				if ( this._contextNode instanceof TreeNodeGroup )
 					User.get.project.saveGroups([ (<TreeNodeGroup>this._contextNode).groupID ] );
 				else if ( this._contextNode instanceof TreeNodeBehaviour )
-					User.get.project.saveBehaviours( [ (<TreeNodeBehaviour>this._contextNode).behaviour.id] );				
+                    User.get.project.saveBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.entry._id] );				
 			}
 			//ADD GROUP NODE
 			else if ( this._contextNode && event.item.text == "Add Group" )
@@ -373,7 +373,7 @@ module Animate
 			{
 				if ( this._contextNode instanceof TreeNodeAssetInstance )
 				{
-					User.get.project.updateAssets( [(<TreeNodeAssetInstance>this._contextNode).asset.id]);
+                    User.get.project.updateAssets([(<TreeNodeAssetInstance>this._contextNode).asset.entry._id]);
 				}
 				//Update all groups
 				else if ( this._contextNode == this._groupsNode )
@@ -400,13 +400,13 @@ module Animate
 					var ids = [];
 					for ( var i = 0, l = nodes.length; i < l; i++ )
 						if ( nodes[i] instanceof TreeNodeAssetInstance )
-							ids.push( ( <TreeNodeAssetInstance>nodes[i] ).asset.id );
+                            ids.push((<TreeNodeAssetInstance>nodes[i]).asset.entry._id );
 
 					User.get.project.updateAssets( ids );
 				}
 				else if ( this._contextNode instanceof TreeNodeBehaviour )
 				{
-					User.get.project.updateBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.id] );
+                    User.get.project.updateBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.entry._id] );
 				}
 			}
 		}
@@ -509,7 +509,7 @@ module Animate
             var len = project.behaviours.length;
             if (event.resourceType == ResourceType.CONTAINER)
 				for ( var i = 0; i < len; i++ )
-					if (project.behaviours[i].name == event.name )
+                    if (project.behaviours[i].entry.name == event.name )
                     {
                         event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
 						return;
@@ -593,7 +593,7 @@ module Animate
 				i = selectedNodes.length;
 				while ( i-- )
 				{
-					if ( selectedNodes[i].asset.id == data.id )
+                    if (selectedNodes[i].asset.id == data.entry._id )
 						selectedNodes[i].dispose();
 				}
 				this._contextNode = null;

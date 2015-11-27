@@ -18,7 +18,7 @@ module Animate
 		constructor( assetClass: AssetClass, asset : Asset )
 		{
 			// Call super-class constructor
-			super( ( jQuery.trim( asset.name ) == "" ? "New " + assetClass.name : asset.name ), "media/variable.png", false );
+            super((jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name ), "media/variable.png", false );
 
 			this.asset = asset;
 			this.canDelete = true;
@@ -42,7 +42,7 @@ module Animate
 		*/
 		onSelect()
 		{
-			PropertyGrid.getSingleton().editableObject( this.asset.properties, this.text + "  [" + this.asset.shallowId + "]", this, "media/variable.png" );
+            PropertyGrid.getSingleton().editableObject(this.asset.properties, this.text + "  [" + this.asset.entry.shallowId + "]", this, "media/variable.png" );
 			PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, this.asset ) );
 		}
 

@@ -7,34 +7,34 @@ module Animate
         ASSET,
         CONTAINER
     }
-	export class ProjectAssetTypes extends ENUM
-	{
-		constructor(v: string) { super(v); }
+	//export class ProjectAssetTypes extends ENUM
+	//{
+	//	constructor(v: string) { super(v); }
 
-		static BEHAVIOUR: ProjectAssetTypes = new ProjectAssetTypes("behaviour");
-		static ASSET: ProjectAssetTypes = new ProjectAssetTypes("asset");
-        static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
+	//	static BEHAVIOUR: ProjectAssetTypes = new ProjectAssetTypes("behaviour");
+	//	static ASSET: ProjectAssetTypes = new ProjectAssetTypes("asset");
+ //       static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
  
-		/**
-		* Returns an enum reference by its name/value
-		* @param {string} val
-		* @returns ENUM
-		*/
-		static fromString(val: string): ProjectAssetTypes
-		{
-			switch (val)
-			{
-				case "behaviour":
-					return ProjectAssetTypes.BEHAVIOUR;
-				case "asset":
-					return ProjectAssetTypes.ASSET;
-				case "group":
-					return ProjectAssetTypes.GROUP;
-			}
+	//	/**
+	//	* Returns an enum reference by its name/value
+	//	* @param {string} val
+	//	* @returns ENUM
+	//	*/
+	//	static fromString(val: string): ProjectAssetTypes
+	//	{
+	//		switch (val)
+	//		{
+	//			case "behaviour":
+	//				return ProjectAssetTypes.BEHAVIOUR;
+	//			case "asset":
+	//				return ProjectAssetTypes.ASSET;
+	//			case "group":
+	//				return ProjectAssetTypes.GROUP;
+	//		}
 
-			return null;
-		}
-	}
+	//		return null;
+	//	}
+	//}
 
 	export class ProjectEvents
 	{
@@ -176,7 +176,7 @@ module Animate
 		getAssetByID( id: string ): Asset
 		{
 			for ( var i = 0; i < this._assets.length; i++ )
-				if ( this._assets[i].id == id )
+                if (this._assets[i].entry._id == id )
 					return this._assets[i];
 
 			return null;
@@ -190,7 +190,7 @@ module Animate
 		getAssetByShallowId( id: number ): Asset
 		{
 			for ( var i = 0; i < this._assets.length; i++ )
-				if ( this._assets[i].shallowId == id )
+                if (this._assets[i].entry.shallowId == id )
 					return this._assets[i];
 
 			return null;
@@ -219,7 +219,7 @@ module Animate
 		getBehaviourById( id: string ): BehaviourContainer
 		{
 			for ( var i = 0; i < this._behaviours.length; i++ )
-				if ( this._behaviours[i].id == id )
+                if (this._behaviours[i].entry._id == id )
 					return this._behaviours[i];
 
 			return null;
@@ -233,7 +233,7 @@ module Animate
 		getBehaviourByShallowId( id: number ): BehaviourContainer
 		{
 			for ( var i = 0; i < this._behaviours.length; i++ )
-				if ( this._behaviours[i].shallowId == id )
+                if (this._behaviours[i].entry.shallowId == id )
 					return this._behaviours[i];
 
 			return null;
@@ -337,11 +337,11 @@ module Animate
             if (type == ResourceType.ASSET)
                 url = `${DB.API}/assets/${details.username}/${projId}/${id}`;
             else if (type == ResourceType.CONTAINER)
-                url = `${DB.API}/behaviours/${details.username}/${projId}/${id}`;
+                url = `${DB.API}/containers/${details.username}/${projId}/${id}`;
             else if (type == ResourceType.GROUP)
                 url = `${DB.API}/groups/${details.username}/${projId}/${id}`;
             
-            Utils.put(url, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
+            Utils.put(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -373,11 +373,11 @@ module Animate
             if (type == ResourceType.ASSET)
                 url = `${DB.API}/assets/${details.username}/${projId}`;
             else if (type == ResourceType.CONTAINER)
-                url = `${DB.API}/behaviours/${details.username}/${projId}`;
+                url = `${DB.API}/containers/${details.username}/${projId}`;
             else if (type == ResourceType.GROUP)
                 url = `${DB.API}/groups/${details.username}/${projId}`;
-            
-            Utils.post(url, <Engine.IAsset | Engine.IBehaviour | Engine.IGroup>{ name: name }).done(function (data: ModepressAddons.ICreateResource)
+
+            Utils.post(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).done(function (data: ModepressAddons.ICreateResource)
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
@@ -483,7 +483,7 @@ module Animate
 			// Create a multidimension array and pass each of the behaviours
 			for ( var i = 0, l = behavioursIds.length; i < l; i++ )
 				for ( var ii = 0, l = behaviours.length; ii < l; ii++ )
-					if ( behavioursIds[i] == behaviours[ii].id )
+                    if (behavioursIds[i] == behaviours[ii].entry._id )
 					{
 						var json: CanvasToken = null;
 						var canvas : Canvas = CanvasTab.getSingleton().getTabCanvas( behavioursIds[i] );
@@ -491,12 +491,12 @@ module Animate
 							json = canvas.buildDataObject();
 						else
 						{
-							json = behaviours[ii].json;
-							json.properties = behaviours[ii]._properties.tokenize();
+                            json = behaviours[ii].entry.json;
+							json.properties = behaviours[ii].properties.tokenize();
 						}
 
 						var jsonStr: string = json.toString();
-						ids.push( behaviours[ii].id );
+                        ids.push(behaviours[ii].entry._id );
 						jsons.push( jsonStr );
 					}
 
@@ -516,7 +516,7 @@ module Animate
 			var behaviours: Array<BehaviourContainer> = this._behaviours;
 			for ( var i = 0, l = behaviours.length; i < l; i++ )
 				if ( !behaviours[i].saved )
-					ids.push( behaviours[i].id );
+                    ids.push(behaviours[i].entry._id );
 			this.saveBehaviours( ids );
 
 			// Assets
@@ -524,7 +524,7 @@ module Animate
 			var assets: Array<Asset> = this._assets;
 			for ( var i = 0, l = assets.length; i < l; i++ )
 				if ( !assets[i].saved )
-					ids.push( assets[i].id );
+                    ids.push(assets[i].entry._id );
 			this.saveAssets( ids );
 
 			// Groups
@@ -794,8 +794,8 @@ module Animate
 		{
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Asset.getNewLocalId() } );
+            loader.on(LoaderEvents.FAILED, this.onServer, this);
+            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: ProjectResource.generateLocalId() });
 		}
 
 		/**
@@ -821,9 +821,9 @@ module Animate
 				ev.asset = asset;
 				pm.emit( ev );
 
-				jsons.push( JSON.stringify( asset.properties.tokenize() ) );
-				ids.push( asset.id );
-				shallowIds.push( asset.shallowId );
+                jsons.push(JSON.stringify(asset.properties.tokenize()));
+                ids.push(asset.entry._id);
+                shallowIds.push(asset.entry.shallowId );
 			}
 
 			var loader = new AnimateLoader();
@@ -864,8 +864,8 @@ module Animate
 		{
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: Asset.getNewLocalId() } );
+            loader.on(LoaderEvents.FAILED, this.onServer, this);
+            loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: ProjectResource.generateLocalId() });
 		}
 
 		/**
@@ -974,7 +974,7 @@ module Animate
 						{
 							var len = this._behaviours.length;
 							for ( var ii = 0; ii < len; ii++ )
-								if ( this._behaviours[ii].id == data[i] )
+                                if (this._behaviours[ii].entry._id == data[i] )
 								{
 									var behaviour : BehaviourContainer = this._behaviours[ii];
 									behaviour.dispose();									
@@ -1010,9 +1010,9 @@ module Animate
 						//Create new behaviours which we fetched from the DB.
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
-							var dbEntry = data[i];
-							var b: BehaviourContainer = new BehaviourContainer( dbEntry["name"], dbEntry["_id"], dbEntry["shallowId"] );
-							b.json = CanvasToken.fromDatabase( dbEntry["json"], dbEntry["_id"]  );
+                            var dbEntry = data[i];
+                            var b: BehaviourContainer = new BehaviourContainer({ name: dbEntry["name"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
+                            b.entry.json = CanvasToken.fromDatabase( dbEntry["json"], dbEntry["_id"]  );
 							b.setProperties( dbEntry.json.properties );
 							this._behaviours.push( b );
 
@@ -1029,12 +1029,12 @@ module Animate
 					{
 						for ( var i = 0; i < this._behaviours.length; i++ )
 							for ( ii = 0, l = data.length; ii < l; ii++ )
-								if ( this._behaviours[i].id == data[ii] )
+                                if (this._behaviours[i].entry._id == data[ii] )
 								{
 									// Make sure the JSON is updated in the behaviour
 									var canvas: Canvas = CanvasTab.getSingleton().getTabCanvas( data[ii] );
 									if ( canvas )
-										this._behaviours[i].json = canvas.buildDataObject();
+                                        this._behaviours[i].entry.json = canvas.buildDataObject();
 
 									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
@@ -1064,7 +1064,7 @@ module Animate
 						{
 							var len = this._assets.length;
 							for ( var ii = 0; ii < len; ii++ )
-								if ( this._assets[ii].id == data[i] )
+                                if (this._assets[ii].entry._id == data[i] )
 								{
 									ev.asset = this._assets[ii];
 									this.emit( ev );
@@ -1204,15 +1204,15 @@ module Animate
 					}
 					//Create a new Behaviour
 					else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
-					{
-						var asset = new Asset( data.name, data.className, data.json, data._id, data.shallowId );
+                    {
+                        var asset = new Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
 						this._assets.push( asset );
 
 						//Create the GUI elements
 						TreeViewScene.getSingleton().addAssetInstance( asset, false );
 
 						//Notify the creation of an asset
-						pManager.assetCreated( asset.name, asset );
+                        pManager.assetCreated(asset.entry.name, asset );
 
 						//Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
 						var eSet: EditableSet = asset.properties;
@@ -1230,7 +1230,7 @@ module Animate
 					{
 						for ( var ii = 0; ii < data.length; ii++ )
 							for ( var i = 0; i < this._assets.length; i++ )							
-								if ( this._assets[i].id == data[ii] )
+                                if (this._assets[i].entry._id == data[ii] )
 									this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
 
 						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
@@ -1240,7 +1240,7 @@ module Animate
 					{
 						for ( var ii = 0; ii < data.length; ii++ )
 							for ( var i = 0; i < this._assets.length; i++ )
-								if ( this._assets[i].id == data[ii]._id )
+                                if (this._assets[i].entry._id == data[ii]._id )
 								{
 									this._assets[i].update( data[ii].name, data[ii].className, data[ii].json );
 									this.emit( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
@@ -1255,7 +1255,7 @@ module Animate
 						for ( var ii = 0, l = data.length; ii < l; ii++ )
 						{
 							for ( var i = 0, len = this._behaviours.length; i < len; i++ )
-								if ( this._behaviours[i].id == data[ii]._id )
+                                if (this._behaviours[i].entry._id == data[ii]._id )
 								{
 									this._behaviours[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
 									
@@ -1279,8 +1279,8 @@ module Animate
 						//Create new _assets which we fetched from the DB.
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
-							var dbEntry = data[i];
-							var asset = new Asset( dbEntry["name"], dbEntry["className"], dbEntry["json"], dbEntry["_id"], dbEntry["shallowId"] );
+                            var dbEntry = data[i];
+                            var asset = new Asset({ name: dbEntry["name"], className: dbEntry["className"], json: dbEntry["json"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
 						
 							//Create the GUI elements
 							if ( TreeViewScene.getSingleton().addAssetInstance( asset ) )
@@ -1292,7 +1292,7 @@ module Animate
 						//Notify the creation of an asset
 						var len = this._assets.length;
 						for ( var i = 0; i < len; i++ )
-							pManager.assetCreated( this._assets[i].name, this._assets[i] );
+                            pManager.assetCreated(this._assets[i].entry.name, this._assets[i] );
 
 						//Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
 						for ( var i = 0; i < len; i++ )

@@ -19,6 +19,7 @@
 /// <reference path="lib/core/compiler-directives/If.ts" />
 /// <reference path="lib/core/Enums.ts" />
 /// <reference path="lib/core/EventDispatcher.ts" />
+/// <reference path="lib/core/ProjectResource.ts" />
 /// <reference path="lib/core/UserPlan.ts" />
 /// <reference path="lib/core/EditorEvents.ts" />
 /// <reference path="lib/core/AssetClass.ts" />

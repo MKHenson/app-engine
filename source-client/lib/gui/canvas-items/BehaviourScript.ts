@@ -126,7 +126,7 @@ module Animate
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, onServer );
 			loader.on( LoaderEvents.FAILED, onServer );
-            loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).behaviourContainer.shallowId, behaviourId: behaviour.id });
+            loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).behaviourContainer.entry.shallowId, behaviourId: behaviour.id });
 			
 			//When we 
 			function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )

@@ -82,7 +82,7 @@
     <TypeScriptCompile Include="lib\models\UserModel.ts" />
     <TypeScriptCompile Include="lib\new-models\FileModel.ts" />
     <TypeScriptCompile Include="lib\new-models\GroupModel.ts" />
-    <TypeScriptCompile Include="lib\new-models\BehaviourModel.ts" />
+    <TypeScriptCompile Include="lib\new-models\ContainerModel.ts" />
     <TypeScriptCompile Include="lib\new-models\BuildModel.ts" />
     <TypeScriptCompile Include="lib\new-models\UserDetailsModel.ts" />
     <TypeScriptCompile Include="lib\new-models\ProjectModel.ts" />

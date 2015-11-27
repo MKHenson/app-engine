@@ -368,7 +368,7 @@ module Animate
 			var template: AssetTemplate = null;
 
 			// Assign any of the options / missing variables for classes that are updated in code but not in the DB
-			var aClass: AssetClass = this.getAssetClass( asset.className  );
+            var aClass: AssetClass = this.getAssetClass(asset.entry.className  );
 
 			// Get all the variables for this class
 			var topClass = aClass;

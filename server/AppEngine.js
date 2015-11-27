@@ -12,7 +12,7 @@ var PermissionController_1 = require("./new-controllers/PermissionController");
 var FileController_1 = require("./new-controllers/FileController");
 var BuildController_1 = require("./new-controllers/BuildController");
 var AssetModel_1 = require("./new-models/AssetModel");
-var BehaviourModel_1 = require("./new-models/BehaviourModel");
+var ContainerModel_1 = require("./new-models/ContainerModel");
 var GroupModel_1 = require("./new-models/GroupModel");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -33,7 +33,7 @@ var AppEngine = (function (_super) {
             new PluginController_1.PluginController(server, config, e),
             new ResourceController_1.ResourceController("/app-engine/assets", new AssetModel_1.AssetModel(), server, config, e),
             new ResourceController_1.ResourceController("/app-engine/groups", new GroupModel_1.GroupModel(), server, config, e),
-            new ResourceController_1.ResourceController("/app-engine/behaviours", new BehaviourModel_1.BehaviourModel(), server, config, e),
+            new ResourceController_1.ResourceController("/app-engine/containers", new ContainerModel_1.ContainerModel(), server, config, e),
             new FileController_1.FileController(server, config, e),
             new ProjectController_1.ProjectController(server, config, e),
             new BuildController_1.BuildController(server, config, e)

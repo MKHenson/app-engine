@@ -9,7 +9,7 @@ import {PermissionController} from "./new-controllers/PermissionController";
 import {FileController} from "./new-controllers/FileController";
 import {BuildController} from "./new-controllers/BuildController";
 import {AssetModel} from "./new-models/AssetModel";
-import {BehaviourModel} from "./new-models/BehaviourModel";
+import {ContainerModel} from "./new-models/ContainerModel";
 import {GroupModel} from "./new-models/GroupModel";
 
 /**
@@ -35,7 +35,7 @@ export default class AppEngine extends Controller
             new PluginController(server, config, e),
             new ResourceController("/app-engine/assets", new AssetModel(), server, config, e),
             new ResourceController("/app-engine/groups", new GroupModel(), server, config, e),
-            new ResourceController("/app-engine/behaviours", new BehaviourModel(), server, config, e),
+            new ResourceController("/app-engine/containers", new ContainerModel(), server, config, e),
             new FileController(server, config, e),
             new ProjectController(server, config, e),
             new BuildController(server, config, e)

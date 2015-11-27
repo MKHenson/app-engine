@@ -1,7 +1,7 @@
 module Animate
 {
     export interface IRenameToken { newName: string; oldName: string; object: IRenamable; };
-    export interface IRenamable { name: string; };
+    export interface IRenamable { name?: string; };
 
     /**
     * Event used to describe re-naming of objects. Listen for either
