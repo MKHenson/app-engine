@@ -52,12 +52,12 @@ module Animate
 		static BUILD_SAVED: ProjectEvents = new ProjectEvents( "build_saved" );
 		static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
 		static BEHAVIOURS_LOADED: ProjectEvents = new ProjectEvents("behaviours_loaded");
-		static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
+		//static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
 		static BEHAVIOUR_UPDATED: ProjectEvents = new ProjectEvents("behaviour_updated");
 		static BEHAVIOURS_UPDATED: ProjectEvents = new ProjectEvents("behaviours_updated");
 		static BEHAVIOURS_SAVED: ProjectEvents = new ProjectEvents("behaviours_saved");
 		static BEHAVIOUR_SAVED: ProjectEvents = new ProjectEvents("behaviour_saved");
-		static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
+		//static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
 		static ASSET_SAVED: ProjectEvents = new ProjectEvents("asset_saved");
 		static ASSET_UPDATED: ProjectEvents = new ProjectEvents("asset_updated");
 		static ASSETS_UPDATED: ProjectEvents = new ProjectEvents("assets_updated");
@@ -82,10 +82,15 @@ module Animate
 		//static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
 
+    /**
+	* A simple project event. Always related to a project resource (null if not)
+	*/
 	export class ProjectEvent extends Event
-	{
-		constructor(type: string, data?: any)
-		{
+    {
+        public resouce: ProjectResource<any>;
+        constructor(type: string, data: ProjectResource<any> )
+        {
+            this.resouce = data;
 			super(type, data);
 		}
 	}
@@ -138,6 +143,7 @@ module Animate
 		private _behaviours: Array<BehaviourContainer>;
         private _assets: Array<Asset>;
         private _files: Array<Engine.IFile>;
+        private _groups: Array<GroupArray>;
 
 		/**
 		* @param{string} id The database id of this project
@@ -165,7 +171,8 @@ module Animate
 			//this.mVisibility = "";
 			this._behaviours = [];
 			this._assets = [];
-			this._files = [];
+            this._files = [];
+            this._groups = [];
 		}
 
 		/**
@@ -208,7 +215,21 @@ module Animate
 					return this._files[i];
 
 			return null;
-		}
+        }
+
+        /**
+		* Gets a group by its ID
+		* @param {string} id The ID of the group
+		* @returns {GroupArray} The group whose id matches the id parameter or null
+		*/
+        getGroup(id: string): GroupArray
+        {
+            for (var i = 0; i < this._groups.length; i++)
+                if (this._groups[i].entry._id == id)
+                    return this._groups[i];
+
+            return null;
+        }
 
 
 		/**
@@ -296,7 +317,7 @@ module Animate
         }
 
         /**
-		* This function is used to fetch the _files associated with a project.
+		* This function is used to fetch the files associated with a project.
 		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
 		*/
         loadFiles(mode: string = "project"): JQueryPromise<ModepressAddons.IGetFiles>
@@ -381,21 +402,28 @@ module Animate
             {
                 if (data.error)
                     return d.reject(new Error(data.message));
+
+                var resource: ProjectResource<any>;
+
+                if (type == ResourceType.ASSET)
+                {
+                    resource = new Asset(<Engine.IAsset>data.data);
+                    this._assets.push(<Asset>resource);
+                }
+                else if (type == ResourceType.CONTAINER)
+                {
+                    resource = new BehaviourContainer(<Engine.IContainer>data.data);
+                    that._behaviours.push(<BehaviourContainer>resource);
+                }
+                else if (type == ResourceType.GROUP)
+                {
+                    resource = new GroupArray(<Engine.IGroup>data.data);
+                    that._groups.push(<GroupArray>resource);
+                }
                 
-                // TODO: Factory to create resources?
-                that.emit(new ProjectEvent("resource-created", data.data));
-
-                //	var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
-                //	this._behaviours.push( behaviour );
-
-                //	//Create the GUI elements
-                //	var node: TreeNodeBehaviour = TreeViewScene.getSingleton().addContainer( behaviour );
-                //	node.save( false );
-                //	var tabPair = CanvasTab.getSingleton().addSpecialTab(behaviour.name, CanvasTabType.CANVAS, behaviour );
-                //	jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
-                //	tabPair.name = node.element.text();
-
-                //	this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
+                
+                that.emit(new ProjectEvent("resource-created", resource));
+                
 
                 return d.resolve(data);
 
@@ -1205,23 +1233,23 @@ module Animate
 					//Create a new Behaviour
 					else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
                     {
-                        var asset = new Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
-						this._assets.push( asset );
+      //                  var asset = new Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
+						//this._assets.push( asset );
 
-						//Create the GUI elements
-						TreeViewScene.getSingleton().addAssetInstance( asset, false );
+						////Create the GUI elements
+						//TreeViewScene.getSingleton().addAssetInstance( asset, false );
 
-						//Notify the creation of an asset
-                        pManager.assetCreated(asset.entry.name, asset );
+						////Notify the creation of an asset
+      //                  pManager.assetCreated(asset.entry.name, asset );
 
-						//Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
-						var eSet: EditableSet = asset.properties;
-						var variables: Array<PropertyGridVariable> = eSet.variables;
-						for ( var ii: number = 0, len = variables.length; ii < len; ii++ )
-							pManager.assetEdited( asset, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
+						////Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
+						//var eSet: EditableSet = asset.properties;
+						//var variables: Array<PropertyGridVariable> = eSet.variables;
+						//for ( var ii: number = 0, len = variables.length; ii < len; ii++ )
+						//	pManager.assetEdited( asset, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
 
-						//pManager.assetLoaded( asset );
-						pManager.emit( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
+						////pManager.assetLoaded( asset );
+						//pManager.emit( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
 
 						//this.emit(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
 					}
@@ -1359,6 +1387,7 @@ module Animate
         get behaviours(): Array<BehaviourContainer> { return this._behaviours; }
         get files(): Array<Engine.IFile> { return this._files; }
         get assets(): Array<Asset> { return this._assets; }
+        get groups(): Array<GroupArray> { return this._groups; }
         
 		/**
 		* This will cleanup the project and remove all data associated with it.
@@ -1401,7 +1430,8 @@ module Animate
 			this._behaviours = [];
 			this._assets = [];
 			//this.buildId = null;
-			this._files = [];
+            this._files = [];
+            this._groups = [];
 		}
 
         get plugins(): Array<Engine.IPlugin> { return this.entry.$plugins; }

@@ -74,10 +74,10 @@
     <TypeScriptCompile Include="definitions\jquery.scrollTo.d.ts" />
     <TypeScriptCompile Include="definitions\jqueryui.d.ts" />
     <TypeScriptCompile Include="definitions\JSColor.d.ts" />
-    <TypeScriptCompile Include="lib\core\Asset.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\Asset.ts" />
     <TypeScriptCompile Include="lib\core\AssetClass.ts" />
     <TypeScriptCompile Include="lib\core\AssetTemplate.ts" />
-    <TypeScriptCompile Include="lib\core\BehaviourContainer.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\Container.ts" />
     <TypeScriptCompile Include="lib\core\BehaviourDefinition.ts" />
     <TypeScriptCompile Include="lib\core\BehaviourManager.ts" />
     <TypeScriptCompile Include="lib\core\CanvasToken.ts" />
@@ -89,8 +89,9 @@
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
     <TypeScriptCompile Include="lib\core\Enums.ts" />
     <TypeScriptCompile Include="lib\core\file-visualizers\ImageVisualizer.ts" />
-    <TypeScriptCompile Include="lib\core\File.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\File.ts" />
     <TypeScriptCompile Include="lib\core\FileUploader.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\GroupArray.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.d.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IPreviewFactory.d.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ISettingsPage.d.ts" />

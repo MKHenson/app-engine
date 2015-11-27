@@ -15,6 +15,7 @@ module Animate
 		private _dataTypes: Array<string>;
         private scriptTemplate: BehaviourDefinition;
         private _previewVisualizers: Array<IPreviewFactory>;
+        private _resourceCreated: any;
 
 		constructor()
 		{
@@ -31,8 +32,8 @@ module Animate
 			this.behaviourTemplates = new Array<BehaviourDefinition>();
 			this._assetTemplates = new Array<AssetTemplate>();
 			this._converters = new Array<TypeConverter>();
-			this._dataTypes = new Array<string>( "asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum" );
-
+            this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
+            this._resourceCreated = this.onResourceCreated.bind(this);
 			//Create some standard templates	
 			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", false, false, false, false,
 				[
@@ -57,7 +58,24 @@ module Animate
             BehaviourPicker.getSingleton().list.addItem("Script");
 
             this._previewVisualizers = [new ImageVisualizer()];
-		}
+        }
+
+        onResourceCreated(type: string, event: ProjectEvent)
+        {
+            var resource = event.resouce;
+
+            if (resource instanceof Asset)
+            {
+                //Notify the creation of an asset
+                this.assetCreated(resource.entry.name, resource);
+
+                //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
+                var eSet: EditableSet = resource.properties;
+                var variables: Array<PropertyGridVariable> = eSet.variables;
+                for (var ii: number = 0, len = variables.length; ii < len; ii++)
+                    this.assetEdited(resource, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
+            }
+        }
 
 		/**
 		* Updates an assets value as well as any components displaying the asset.
@@ -156,20 +174,7 @@ module Animate
 
 			return;
 		}
-
-		/**
-		* Call this function to unload all the plugins.
-		*/
-		unloadAll()
-		{
-			//Cleanup all the previous plugins
-			for ( var i = 0; i < this._plugins.length; i++ )
-				this.unloadPlugin( this._plugins[i] );
-
-			this._plugins.splice( 0, this._plugins.length );
-			this._loadedPlugins.splice( 0, this._loadedPlugins.length );
-		}
-
+        
 		/**
 		* Call this function to unload a plugin
 		* @param {IPlugin} plugin The IPlugin object that is to be loaded
@@ -398,12 +403,29 @@ module Animate
 			this.emit( new AssetCreatedEvent( asset, name ) );
 		}
 
+        /**
+		* Called when the project is reset by either creating a new one or opening an older one.
+		*/
+        projectReset(project: Project)
+        {
+            //Cleanup all the previous plugins
+            for (var i = 0; i < this._plugins.length; i++)
+                this.unloadPlugin(this._plugins[i]);
+
+            this._plugins.splice(0, this._plugins.length);
+            this._loadedPlugins.splice(0, this._loadedPlugins.length);
+
+           project.off("resource-created", this._resourceCreated);
+        }
+
 		/**
 		* This function is called by Animate when everything has been loaded and the user is able to begin their session.
 		*/
-		callReady()
+        projectReady(project: Project)
 		{
-			this.emit( new Event( EditorEvents.EDITOR_READY, null ) );
+            this.emit(new Event(EditorEvents.EDITOR_READY, null));
+
+            project.on("resource-created", this._resourceCreated);
 
             // TODO: Determine what to do with user plans
             if (User.get.meta.plan == UserPlan.Free)
@@ -421,7 +443,10 @@ module Animate
 					this.behaviourTemplates.push( this.scriptTemplate );
 					BehaviourPicker.getSingleton().list.addItem( this.scriptTemplate.behaviourName );
 				}
-			}
+            }
+
+            
+           
 		}
         
 		/**

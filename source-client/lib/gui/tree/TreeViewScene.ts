@@ -23,7 +23,7 @@ module Animate
 		private _contextNode: TreeNode;
 		private _curProj: Project;
 		private _shortcutProxy: any;
-
+        private _resourceCreated: any;
 
 		constructor( parent? : Component )
 		{
@@ -77,8 +77,8 @@ module Animate
 			this.element.on( "mousemove", this.onMouseMove.bind( this ) );
 
 			this._quickAdd.element.detach();
-			this._quickCopy.element.detach();
-
+            this._quickCopy.element.detach();
+            this._resourceCreated = this.onResourceCreated.bind(this);
             RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
@@ -127,8 +127,10 @@ module Animate
 		/**
 		* Called when the project is loaded and ready.
 		*/
-		projectReady()
-		{
+        projectReady(project: Project)
+        {
+            project.on("resource-created", this._resourceCreated, this);
+
 			//Add all the asset nodes 
 			var assetTemplates = PluginManager.getSingleton().assetTemplates;
 			var assetClass: AssetClass;
@@ -153,13 +155,38 @@ module Animate
 			this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
 			this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
             //RenameForm.get.on("renamed", this.onObjectRenamed, this);
-		}
+
+        }
+
+        /**
+        * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever 
+        * any form of resource is created. I.e. try to get rid of addAssetInstance
+        * Called whenever a project resource is created
+        */
+        onResourceCreated(type: string, event: ProjectEvent)
+        {
+            var r = event.resouce;
+            if (r instanceof Asset)
+                this.addAssetInstance(r, false);
+            else if (r instanceof BehaviourContainer)
+            {
+                var node: TreeNodeBehaviour = this.addContainer( r );
+                node.save(false);
+                var tabPair = CanvasTab.getSingleton().addSpecialTab(r.entry.name, CanvasTabType.CANVAS, r);
+                jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
+                tabPair.name = node.element.text();
+            }
+
+            // Todo: Do something when a group node is created
+        }
 
 		/**
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
-		projectReset()
-		{
+        projectReset(project: Project)
+        {
+            project.off("resource-created", this._resourceCreated, this);
+
 			if ( this._curProj )
 			{
 				this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
@@ -224,7 +251,7 @@ module Animate
 		*/
 		addAssetInstance( asset : Asset, collapse : boolean = true )
 		{
-			//Add all the asset nodes 
+			// Add all the asset nodes 
             var classNode: TreeNodeAssetClass = <TreeNodeAssetClass>this.findNode("className", asset.entry.className )
 
 			if ( classNode != null )

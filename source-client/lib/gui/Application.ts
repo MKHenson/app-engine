@@ -147,11 +147,14 @@ module Animate
 		*  This is called when a project is unloaded and we need to reset the GUI.
 		*/
 		projectReset()
-		{
+        {
+            var user = User.get;
+
 			PropertyGrid.getSingleton().projectReset();
 			Logger.getSingleton().clearItems();
-			TreeViewScene.getSingleton().projectReset();
-			CanvasTab.getSingleton().projectReset();
+            TreeViewScene.getSingleton().projectReset(user.project);
+            CanvasTab.getSingleton().projectReset();
+            
 
 			//Must be called after reset
             var user = User.get;
@@ -162,7 +165,7 @@ module Animate
 			}
 
 			//Unload all the plugins
-			PluginManager.getSingleton().unloadAll();
+            PluginManager.getSingleton().projectReset(user.project);
 		}
 
 		/**
@@ -182,14 +185,14 @@ module Animate
 			//Create the page title
             document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
 
-			TreeViewScene.getSingleton().projectReady();
+            TreeViewScene.getSingleton().projectReady(project);
 
 		}
 
 		/**
 		* This is called when a project has loaded all its behaviours.
 		*/
-		onBehavioursLoaded( response: ProjectEvents, event: ProjectEvent, sender? : EventDispatcher ) : void
+        onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
         {
             var that = this;
             var project: Project = User.get.project;
@@ -205,7 +208,7 @@ module Animate
 		/**
 		* This is called when a project has loaded all its assets.
 		*/
-		onAssetsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
+        onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
 		{
             var project: Project = User.get.project;
 			project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
@@ -217,7 +220,7 @@ module Animate
 		/**
 		* This is called when a project has loaded all its files.
 		*/
-		onFilesLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
+        onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
 		{
             var project: Project = User.get.project;
 			//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
@@ -229,7 +232,7 @@ module Animate
 		/**
 		* This is called when a project has loaded all its groups.
 		*/
-		onGroupsLoaded( response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher ) : void
+        onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
 		{
             var project = User.get.project;
 			project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
@@ -237,7 +240,7 @@ module Animate
 			project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
 			project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
 
-			PluginManager.getSingleton().callReady();
+            PluginManager.getSingleton().projectReady(project);
 		}
 
 		/**

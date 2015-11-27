@@ -1527,6 +1527,7 @@ var Animate;
             this._assetTemplates = new Array();
             this._converters = new Array();
             this._dataTypes = new Array("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
+            this._resourceCreated = this.onResourceCreated.bind(this);
             //Create some standard templates	
             this.behaviourTemplates.push(new Animate.BehaviourDefinition("Asset", false, false, false, false, [
                 new Animate.PortalTemplate("Asset In", Animate.PortalType.PARAMETER, Animate.ParameterType.ASSET, ":"),
@@ -1545,6 +1546,18 @@ var Animate;
             Animate.BehaviourPicker.getSingleton().list.addItem("Script");
             this._previewVisualizers = [new Animate.ImageVisualizer()];
         }
+        PluginManager.prototype.onResourceCreated = function (type, event) {
+            var resource = event.resouce;
+            if (resource instanceof Animate.Asset) {
+                //Notify the creation of an asset
+                this.assetCreated(resource.entry.name, resource);
+                //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
+                var eSet = resource.properties;
+                var variables = eSet.variables;
+                for (var ii = 0, len = variables.length; ii < len; ii++)
+                    this.assetEdited(resource, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
+            }
+        };
         /**
         * Updates an assets value as well as any components displaying the asset.
         * For example the property grid or scene view.
@@ -1620,16 +1633,6 @@ var Animate;
                     this._assetTemplates.push(atemplates[i]);
             }
             return;
-        };
-        /**
-        * Call this function to unload all the plugins.
-        */
-        PluginManager.prototype.unloadAll = function () {
-            //Cleanup all the previous plugins
-            for (var i = 0; i < this._plugins.length; i++)
-                this.unloadPlugin(this._plugins[i]);
-            this._plugins.splice(0, this._plugins.length);
-            this._loadedPlugins.splice(0, this._loadedPlugins.length);
         };
         /**
         * Call this function to unload a plugin
@@ -1811,10 +1814,22 @@ var Animate;
             this.emit(new Animate.AssetCreatedEvent(asset, name));
         };
         /**
+        * Called when the project is reset by either creating a new one or opening an older one.
+        */
+        PluginManager.prototype.projectReset = function (project) {
+            //Cleanup all the previous plugins
+            for (var i = 0; i < this._plugins.length; i++)
+                this.unloadPlugin(this._plugins[i]);
+            this._plugins.splice(0, this._plugins.length);
+            this._loadedPlugins.splice(0, this._loadedPlugins.length);
+            project.off("resource-created", this._resourceCreated);
+        };
+        /**
         * This function is called by Animate when everything has been loaded and the user is able to begin their session.
         */
-        PluginManager.prototype.callReady = function () {
+        PluginManager.prototype.projectReady = function (project) {
             this.emit(new Animate.Event(Animate.EditorEvents.EDITOR_READY, null));
+            project.on("resource-created", this._resourceCreated);
             // TODO: Determine what to do with user plans
             if (Animate.User.get.meta.plan == Animate.UserPlan.Free) {
                 if (this.behaviourTemplates.indexOf(this.scriptTemplate) != -1) {
@@ -2423,6 +2438,158 @@ var Animate;
 var Animate;
 (function (Animate) {
     /**
+    * Each project has a list of behaviours. These are saved into the
+    * database and retrieved when we work with Animate. A behaviour is
+    * essentially a piece of code that executes script logic.
+    */
+    var BehaviourContainer = (function (_super) {
+        __extends(BehaviourContainer, _super);
+        //public json: CanvasToken;
+        /**
+        * {string} name The name of the container
+        */
+        function BehaviourContainer(entry) {
+            // Call super-class constructor
+            _super.call(this, entry);
+            //this._id = id;
+            //this.shallowId = shallowId;
+            //this._name = name;
+            //this.json = null;
+            this.canvas = null;
+            this._properties.addVar("Start On Load", true, Animate.ParameterType.BOOL, "Container Properties", null);
+            this._properties.addVar("Unload On Exit", true, Animate.ParameterType.BOOL, "Container Properties", null);
+        }
+        /**
+        * This will download and update all data of the asset.
+        * @param {string} name The name of the behaviour
+        * @param {CanvasToken} json Its data object
+        */
+        BehaviourContainer.prototype.update = function (name, json) {
+            this.entry.name = name;
+            this.entry.json = json;
+            //this._name = name;
+            this.saved = true;
+            //this.json = json;
+        };
+        /**
+        * This will cleanup the behaviour.
+        */
+        BehaviourContainer.prototype.dispose = function () {
+            Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_DELETED, this));
+            //Call super
+            _super.prototype.dispose.call(this);
+            //this._properties = null;
+            //this._id = null;
+            //this._name = null;
+            //this.json = null;
+            this.canvas = null;
+            //this.saved = null;
+            //this._options = null;
+        };
+        return BehaviourContainer;
+    })(Animate.ProjectResource);
+    Animate.BehaviourContainer = BehaviourContainer;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * A simple array resource for wrapping ids
+    */
+    var GroupArray = (function (_super) {
+        __extends(GroupArray, _super);
+        /**
+        * @param {string} name The name of the asset
+        * @param {string} className The name of the "class" or "template" that this asset belongs to
+        * @param {any} json The JSON with all the asset properties
+        * @param {string} id The id of this asset
+        */
+        function GroupArray(entry) {
+            // Call super-class constructor
+            _super.call(this, entry);
+            this.items = [];
+            if (entry.items)
+                this.items = entry.items;
+        }
+        /**
+        * Disposes and cleans up the data of this asset
+        */
+        GroupArray.prototype.dispose = function () {
+            //Call super
+            _super.prototype.dispose.call(this);
+        };
+        return GroupArray;
+    })(Animate.ProjectResource);
+    Animate.GroupArray = GroupArray;
+})(Animate || (Animate = {}));
+//module Animate
+//{
+//	/**
+//	* A small object that represents a file that is associated with a project.
+//	*/
+//	export class File
+//	{
+//		public id: string;
+//		public name: string;
+//		public path: string;
+//		public global: boolean;
+//		public preview_path: string;
+//		public tags: Array<string>;
+//		public extension: string;
+//		public size: number;
+//		public createdOn: number;
+//		public lastModified: number;
+//		public favourite: boolean;
+//		/**
+//		* @param {string} name The name of the file
+//		* @param {string} path The path of the file on the server
+//		* @param {Array<string>} tags Keywords associated with the file to help search for it.This is a string 
+//		* with values separated by commas
+//		* @param {number} createdOn The date this file was created on
+//		* @param {number} lastModified The date this file was last modified
+//		* @param {string} id The id of the file
+//		* @param {number} size The size of the file
+//		* @param {boolean} favourite Is this file a favourite
+//		* @param {string} preview_path The path of the file thumbnail on the server
+//		* @param {boolean} global Is this file globally accessible
+//		*/
+//		constructor( name: string, path: string, tags: Array<string>, id: string, createdOn: number, lastModified: number, size: number, favourite: boolean, preview_path: string, global: boolean )
+//		{
+//			this.id = id;
+//			this.name = name;
+//			this.path = path;
+//			this.global = global;
+//			this.preview_path = preview_path;
+//			this.tags = tags;
+//			this.extension = "";
+//			var splitData = path.split( "." );
+//			if ( splitData.length > 0 )
+//				this.extension = splitData[splitData.length - 1].toLowerCase();
+//			else
+//				this.extension = "";
+//			this.size = ( isNaN( size ) ? 0 : size );
+//			this.createdOn = createdOn;
+//			this.lastModified = lastModified;
+//			this.favourite = favourite;
+//		}
+//		/**
+//		* Disposes and cleans the object
+//		*/
+//		dispose()
+//		{
+//			this.id = null;
+//			this.name = null;
+//			this.path = null;
+//			this.path = null;
+//			this.global = null;
+//			this.preview_path = null;
+//			this.extension = null;
+//			this.tags = null;
+//		}
+//	}
+//} 
+var Animate;
+(function (Animate) {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -2476,61 +2643,6 @@ var Animate;
         return AssetTemplate;
     })();
     Animate.AssetTemplate = AssetTemplate;
-})(Animate || (Animate = {}));
-var Animate;
-(function (Animate) {
-    /**
-    * Each project has a list of behaviours. These are saved into the
-    * database and retrieved when we work with Animate. A behaviour is
-    * essentially a piece of code that executes script logic.
-    */
-    var BehaviourContainer = (function (_super) {
-        __extends(BehaviourContainer, _super);
-        //public json: CanvasToken;
-        /**
-        * {string} name The name of the container
-        */
-        function BehaviourContainer(entry) {
-            // Call super-class constructor
-            _super.call(this, entry);
-            //this._id = id;
-            //this.shallowId = shallowId;
-            //this._name = name;
-            //this.json = null;
-            this.canvas = null;
-            this._properties.addVar("Start On Load", true, Animate.ParameterType.BOOL, "Container Properties", null);
-            this._properties.addVar("Unload On Exit", true, Animate.ParameterType.BOOL, "Container Properties", null);
-        }
-        /**
-        * This will download and update all data of the asset.
-        * @param {string} name The name of the behaviour
-        * @param {CanvasToken} json Its data object
-        */
-        BehaviourContainer.prototype.update = function (name, json) {
-            this.entry.name = name;
-            this.entry.json = json;
-            //this._name = name;
-            this.saved = true;
-            //this.json = json;
-        };
-        /**
-        * This will cleanup the behaviour.
-        */
-        BehaviourContainer.prototype.dispose = function () {
-            Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_DELETED, this));
-            //Call super
-            _super.prototype.dispose.call(this);
-            //this._properties = null;
-            //this._id = null;
-            //this._name = null;
-            //this.json = null;
-            this.canvas = null;
-            //this.saved = null;
-            //this._options = null;
-        };
-        return BehaviourContainer;
-    })(Animate.ProjectResource);
-    Animate.BehaviourContainer = BehaviourContainer;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -2738,72 +2850,6 @@ var Animate;
     })();
     Animate.DB = DB;
 })(Animate || (Animate = {}));
-//module Animate
-//{
-//	/**
-//	* A small object that represents a file that is associated with a project.
-//	*/
-//	export class File
-//	{
-//		public id: string;
-//		public name: string;
-//		public path: string;
-//		public global: boolean;
-//		public preview_path: string;
-//		public tags: Array<string>;
-//		public extension: string;
-//		public size: number;
-//		public createdOn: number;
-//		public lastModified: number;
-//		public favourite: boolean;
-//		/**
-//		* @param {string} name The name of the file
-//		* @param {string} path The path of the file on the server
-//		* @param {Array<string>} tags Keywords associated with the file to help search for it.This is a string 
-//		* with values separated by commas
-//		* @param {number} createdOn The date this file was created on
-//		* @param {number} lastModified The date this file was last modified
-//		* @param {string} id The id of the file
-//		* @param {number} size The size of the file
-//		* @param {boolean} favourite Is this file a favourite
-//		* @param {string} preview_path The path of the file thumbnail on the server
-//		* @param {boolean} global Is this file globally accessible
-//		*/
-//		constructor( name: string, path: string, tags: Array<string>, id: string, createdOn: number, lastModified: number, size: number, favourite: boolean, preview_path: string, global: boolean )
-//		{
-//			this.id = id;
-//			this.name = name;
-//			this.path = path;
-//			this.global = global;
-//			this.preview_path = preview_path;
-//			this.tags = tags;
-//			this.extension = "";
-//			var splitData = path.split( "." );
-//			if ( splitData.length > 0 )
-//				this.extension = splitData[splitData.length - 1].toLowerCase();
-//			else
-//				this.extension = "";
-//			this.size = ( isNaN( size ) ? 0 : size );
-//			this.createdOn = createdOn;
-//			this.lastModified = lastModified;
-//			this.favourite = favourite;
-//		}
-//		/**
-//		* Disposes and cleans the object
-//		*/
-//		dispose()
-//		{
-//			this.id = null;
-//			this.name = null;
-//			this.path = null;
-//			this.path = null;
-//			this.global = null;
-//			this.preview_path = null;
-//			this.extension = null;
-//			this.tags = null;
-//		}
-//	}
-//} 
 var Animate;
 (function (Animate) {
     /**
@@ -3267,12 +3313,12 @@ var Animate;
         ProjectEvents.BUILD_SAVED = new ProjectEvents("build_saved");
         ProjectEvents.BEHAVIOUR_DELETING = new ProjectEvents("behaviour_deleting");
         ProjectEvents.BEHAVIOURS_LOADED = new ProjectEvents("behaviours_loaded");
-        ProjectEvents.BEHAVIOUR_CREATED = new ProjectEvents("behaviour_created");
+        //static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
         ProjectEvents.BEHAVIOUR_UPDATED = new ProjectEvents("behaviour_updated");
         ProjectEvents.BEHAVIOURS_UPDATED = new ProjectEvents("behaviours_updated");
         ProjectEvents.BEHAVIOURS_SAVED = new ProjectEvents("behaviours_saved");
         ProjectEvents.BEHAVIOUR_SAVED = new ProjectEvents("behaviour_saved");
-        ProjectEvents.ASSET_CREATED = new ProjectEvents("asset_created");
+        //static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
         ProjectEvents.ASSET_SAVED = new ProjectEvents("asset_saved");
         ProjectEvents.ASSET_UPDATED = new ProjectEvents("asset_updated");
         ProjectEvents.ASSETS_UPDATED = new ProjectEvents("assets_updated");
@@ -3288,9 +3334,13 @@ var Animate;
         return ProjectEvents;
     })();
     Animate.ProjectEvents = ProjectEvents;
+    /**
+    * A simple project event. Always related to a project resource (null if not)
+    */
     var ProjectEvent = (function (_super) {
         __extends(ProjectEvent, _super);
         function ProjectEvent(type, data) {
+            this.resouce = data;
             _super.call(this, type, data);
         }
         return ProjectEvent;
@@ -3328,6 +3378,7 @@ var Animate;
             this._behaviours = [];
             this._assets = [];
             this._files = [];
+            this._groups = [];
         }
         /**
         * Gets an asset by its ID
@@ -3360,6 +3411,17 @@ var Animate;
             for (var i = 0; i < this._files.length; i++)
                 if (this._files[i]._id == id)
                     return this._files[i];
+            return null;
+        };
+        /**
+        * Gets a group by its ID
+        * @param {string} id The ID of the group
+        * @returns {GroupArray} The group whose id matches the id parameter or null
+        */
+        Project.prototype.getGroup = function (id) {
+            for (var i = 0; i < this._groups.length; i++)
+                if (this._groups[i].entry._id == id)
+                    return this._groups[i];
             return null;
         };
         /**
@@ -3426,7 +3488,7 @@ var Animate;
             return d.promise();
         };
         /**
-        * This function is used to fetch the _files associated with a project.
+        * This function is used to fetch the files associated with a project.
         * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
         */
         Project.prototype.loadFiles = function (mode) {
@@ -3492,17 +3554,20 @@ var Animate;
             Animate.Utils.post(url, { name: name }).done(function (data) {
                 if (data.error)
                     return d.reject(new Error(data.message));
-                // TODO: Factory to create resources?
-                that.emit(new ProjectEvent("resource-created", data.data));
-                //	var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
-                //	this._behaviours.push( behaviour );
-                //	//Create the GUI elements
-                //	var node: TreeNodeBehaviour = TreeViewScene.getSingleton().addContainer( behaviour );
-                //	node.save( false );
-                //	var tabPair = CanvasTab.getSingleton().addSpecialTab(behaviour.name, CanvasTabType.CANVAS, behaviour );
-                //	jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
-                //	tabPair.name = node.element.text();
-                //	this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
+                var resource;
+                if (type == ResourceType.ASSET) {
+                    resource = new Animate.Asset(data.data);
+                    this._assets.push(resource);
+                }
+                else if (type == ResourceType.CONTAINER) {
+                    resource = new Animate.BehaviourContainer(data.data);
+                    that._behaviours.push(resource);
+                }
+                else if (type == ResourceType.GROUP) {
+                    resource = new Animate.GroupArray(data.data);
+                    that._groups.push(resource);
+                }
+                that.emit(new ProjectEvent("resource-created", resource));
                 return d.resolve(data);
             }).fail(function (err) {
                 d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
@@ -4040,19 +4105,6 @@ var Animate;
                     else if (loader.url == "/project/save-groups") {
                     }
                     else if (loader.url == "/project/create-asset" || loader.url == "/project/copy-asset") {
-                        var asset = new Animate.Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
-                        this._assets.push(asset);
-                        //Create the GUI elements
-                        Animate.TreeViewScene.getSingleton().addAssetInstance(asset, false);
-                        //Notify the creation of an asset
-                        pManager.assetCreated(asset.entry.name, asset);
-                        //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
-                        var eSet = asset.properties;
-                        var variables = eSet.variables;
-                        for (var ii = 0, len = variables.length; ii < len; ii++)
-                            pManager.assetEdited(asset, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
-                        //pManager.assetLoaded( asset );
-                        pManager.emit(new Animate.AssetEvent(Animate.EditorEvents.ASSET_LOADED, asset));
                     }
                     else if (loader.url == "/project/save-assets") {
                         for (var ii = 0; ii < data.length; ii++)
@@ -4137,6 +4189,11 @@ var Animate;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(Project.prototype, "groups", {
+            get: function () { return this._groups; },
+            enumerable: true,
+            configurable: true
+        });
         /**
         * This will cleanup the project and remove all data associated with it.
         */
@@ -4172,6 +4229,7 @@ var Animate;
             this._assets = [];
             //this.buildId = null;
             this._files = [];
+            this._groups = [];
         };
         Object.defineProperty(Project.prototype, "plugins", {
             get: function () { return this.entry.$plugins; },
@@ -8105,9 +8163,10 @@ var Animate;
         *  This is called when a project is unloaded and we need to reset the GUI.
         */
         Application.prototype.projectReset = function () {
+            var user = Animate.User.get;
             Animate.PropertyGrid.getSingleton().projectReset();
             Animate.Logger.getSingleton().clearItems();
-            Animate.TreeViewScene.getSingleton().projectReset();
+            Animate.TreeViewScene.getSingleton().projectReset(user.project);
             Animate.CanvasTab.getSingleton().projectReset();
             //Must be called after reset
             var user = Animate.User.get;
@@ -8115,7 +8174,7 @@ var Animate;
                 user.project.reset();
             }
             //Unload all the plugins
-            Animate.PluginManager.getSingleton().unloadAll();
+            Animate.PluginManager.getSingleton().projectReset(user.project);
         };
         /**
         * This is called when a project is created. This is used
@@ -8129,7 +8188,7 @@ var Animate;
             project.loadBehaviours();
             //Create the page title
             document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-            Animate.TreeViewScene.getSingleton().projectReady();
+            Animate.TreeViewScene.getSingleton().projectReady(project);
         };
         /**
         * This is called when a project has loaded all its behaviours.
@@ -8169,7 +8228,7 @@ var Animate;
             project.off(Animate.ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this);
             project.off(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
             project.on(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
-            Animate.PluginManager.getSingleton().callReady();
+            Animate.PluginManager.getSingleton().projectReady(project);
         };
         /**
         * When the project data is all saved to the DB
@@ -11857,6 +11916,7 @@ var Animate;
             this.element.on("mousemove", this.onMouseMove.bind(this));
             this._quickAdd.element.detach();
             this._quickCopy.element.detach();
+            this._resourceCreated = this.onResourceCreated.bind(this);
             Animate.RenameForm.get.on("renaming", this.onRenameCheck, this);
         }
         TreeViewScene.prototype.onShortcutClick = function (e) {
@@ -11891,7 +11951,8 @@ var Animate;
         /**
         * Called when the project is loaded and ready.
         */
-        TreeViewScene.prototype.projectReady = function () {
+        TreeViewScene.prototype.projectReady = function (project) {
+            project.on("resource-created", this._resourceCreated, this);
             //Add all the asset nodes 
             var assetTemplates = Animate.PluginManager.getSingleton().assetTemplates;
             var assetClass;
@@ -11915,9 +11976,28 @@ var Animate;
             //RenameForm.get.on("renamed", this.onObjectRenamed, this);
         };
         /**
+        * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever
+        * any form of resource is created. I.e. try to get rid of addAssetInstance
+        * Called whenever a project resource is created
+        */
+        TreeViewScene.prototype.onResourceCreated = function (type, event) {
+            var r = event.resouce;
+            if (r instanceof Animate.Asset)
+                this.addAssetInstance(r, false);
+            else if (r instanceof Animate.BehaviourContainer) {
+                var node = this.addContainer(r);
+                node.save(false);
+                var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(r.entry.name, Animate.CanvasTabType.CANVAS, r);
+                jQuery(".text", tabPair.tabSelector.element).text(node.element.text());
+                tabPair.name = node.element.text();
+            }
+            // Todo: Do something when a group node is created
+        };
+        /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
-        TreeViewScene.prototype.projectReset = function () {
+        TreeViewScene.prototype.projectReset = function (project) {
+            project.off("resource-created", this._resourceCreated, this);
             if (this._curProj) {
                 this._curProj.off(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this);
                 this._curProj.off(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
@@ -11968,7 +12048,7 @@ var Animate;
         */
         TreeViewScene.prototype.addAssetInstance = function (asset, collapse) {
             if (collapse === void 0) { collapse = true; }
-            //Add all the asset nodes 
+            // Add all the asset nodes 
             var classNode = this.findNode("className", asset.entry.className);
             if (classNode != null) {
                 var instanceNode = new Animate.TreeNodeAssetInstance(classNode.assetClass, asset);
@@ -18308,7 +18388,7 @@ var Animate;
             project.entry = this.$selectedProject;
             Animate.Toolbar.getSingleton().newProject();
             Animate.CanvasTab.getSingleton().projectReady();
-            Animate.TreeViewScene.getSingleton().projectReady();
+            Animate.TreeViewScene.getSingleton().projectReady(project);
             //project.load();
             // Make sure the title tells us which project is open
             document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
@@ -18751,15 +18831,16 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/PluginManager.ts" />
 /// <reference path="lib/core/ImportExport.ts" />
 /// <reference path="lib/core/PropertyGridEditor.ts" />
-/// <reference path="lib/core/Asset.ts" />
+/// <reference path="lib/core/project-resources/Asset.ts" />
+/// <reference path="lib/core/project-resources/Container.ts" />
+/// <reference path="lib/core/project-resources/GroupArray.ts" />
+/// <reference path="lib/core/project-resources/File.ts" />
 /// <reference path="lib/core/AssetClass.ts" />
 /// <reference path="lib/core/AssetTemplate.ts" />
-/// <reference path="lib/core/BehaviourContainer.ts" />
 /// <reference path="lib/core/BehaviourDefinition.ts" />
 /// <reference path="lib/core/DataToken.ts" />
 /// <reference path="lib/core/CanvasToken.ts" />
 /// <reference path="lib/core/DB.ts" />
-/// <reference path="lib/core/File.ts" />
 /// <reference path="lib/core/interfaces/IComponent.d.ts" />
 /// <reference path="lib/core/interfaces/IPlugin.d.ts" />
 /// <reference path="lib/core/interfaces/ICanvasItem.d.ts" />
@@ -19085,6 +19166,88 @@ var Animate;
     })();
     Animate.FileUploader = FileUploader;
 })(Animate || (Animate = {}));
+//module Animate
+//{
+//	/**
+//	* This form is used to create or edit Portals.
+//	*/
+//	export class NewBehaviourForm extends OkCancelForm
+//	{
+//		public static _singleton: NewBehaviourForm;
+//		private name: LabelVal;
+//		private warning: Label;
+//		private createProxy: any;
+//		constructor()
+//		{
+//			if ( NewBehaviourForm._singleton != null )
+//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
+//			NewBehaviourForm._singleton = this;
+//			// Call super-class constructor
+//			super( 400, 250, false, true, "Please enter a name" );
+//			this.element.addClass( "new-behaviour-form" );
+//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
+//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
+//			//Create the proxies
+//			this.createProxy = this.onCreated.bind( this );
+//		}
+//		/** Shows the window. */
+//		show()
+//		{
+//			( <Label>this.name.val ).text = "";
+//			this.warning.textfield.element.css( "color", "" );
+//			this.warning.text = "Please enter a behaviour name.";
+//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//			super.show();
+//			( <Label>this.name.val).textfield.element.focus();
+//		}
+//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//		and pass the text either for the ok or cancel buttons. */
+//		OnButtonClick( e )
+//		{
+//			if ( jQuery( e.target ).text() == "Ok" )
+//			{
+//				//Check if the values are valid
+//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//				this.warning.textfield.element.css( "color", "" );
+//				//Check for special chars
+//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
+//				if ( message != null )
+//				{
+//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
+//					this.warning.textfield.element.css( "color", "#FF0000" );
+//					this.warning.text = message;
+//					return;
+//				}
+//				//Create the Behaviour in the DB
+//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
+//				return;
+//			}
+//			super.OnButtonClick( e );
+//		}
+//		/** Called when we create a behaviour.*/
+//		onCreated( response: ProjectEvents, event : ProjectEvent )
+//		{
+//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//			if ( response == ProjectEvents.FAILED )
+//			{
+//				this.warning.textfield.element.css( "color", "#FF0000" );
+//				this.warning.text = event.message;
+//				return;
+//			}
+//			this.hide();
+//		}
+//		/** Gets the singleton instance. */
+//		static getSingleton()
+//		{
+//			if ( !NewBehaviourForm._singleton )
+//				new NewBehaviourForm();
+//			return NewBehaviourForm._singleton;
+//		}
+//	}
+//} 
 //module Animate
 //{
 //	export class Splash2 extends Window
@@ -20175,88 +20338,6 @@ var Animate;
 //			if (!Splash2._singleton)
 //				new Splash2();
 //			return Splash2._singleton;
-//		}
-//	}
-//} 
-//module Animate
-//{
-//	/**
-//	* This form is used to create or edit Portals.
-//	*/
-//	export class NewBehaviourForm extends OkCancelForm
-//	{
-//		public static _singleton: NewBehaviourForm;
-//		private name: LabelVal;
-//		private warning: Label;
-//		private createProxy: any;
-//		constructor()
-//		{
-//			if ( NewBehaviourForm._singleton != null )
-//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
-//			NewBehaviourForm._singleton = this;
-//			// Call super-class constructor
-//			super( 400, 250, false, true, "Please enter a name" );
-//			this.element.addClass( "new-behaviour-form" );
-//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
-//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
-//			//Create the proxies
-//			this.createProxy = this.onCreated.bind( this );
-//		}
-//		/** Shows the window. */
-//		show()
-//		{
-//			( <Label>this.name.val ).text = "";
-//			this.warning.textfield.element.css( "color", "" );
-//			this.warning.text = "Please enter a behaviour name.";
-//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//			super.show();
-//			( <Label>this.name.val).textfield.element.focus();
-//		}
-//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-//		and pass the text either for the ok or cancel buttons. */
-//		OnButtonClick( e )
-//		{
-//			if ( jQuery( e.target ).text() == "Ok" )
-//			{
-//				//Check if the values are valid
-//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//				this.warning.textfield.element.css( "color", "" );
-//				//Check for special chars
-//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
-//				if ( message != null )
-//				{
-//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
-//					this.warning.textfield.element.css( "color", "#FF0000" );
-//					this.warning.text = message;
-//					return;
-//				}
-//				//Create the Behaviour in the DB
-//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
-//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
-//				return;
-//			}
-//			super.OnButtonClick( e );
-//		}
-//		/** Called when we create a behaviour.*/
-//		onCreated( response: ProjectEvents, event : ProjectEvent )
-//		{
-//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
-//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//			if ( response == ProjectEvents.FAILED )
-//			{
-//				this.warning.textfield.element.css( "color", "#FF0000" );
-//				this.warning.text = event.message;
-//				return;
-//			}
-//			this.hide();
-//		}
-//		/** Gets the singleton instance. */
-//		static getSingleton()
-//		{
-//			if ( !NewBehaviourForm._singleton )
-//				new NewBehaviourForm();
-//			return NewBehaviourForm._singleton;
 //		}
 //	}
 //} 

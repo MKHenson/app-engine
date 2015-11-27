@@ -212,7 +212,7 @@
 
             Toolbar.getSingleton().newProject();
             CanvasTab.getSingleton().projectReady();
-            TreeViewScene.getSingleton().projectReady();
+            TreeViewScene.getSingleton().projectReady(project);
             
 
             //project.load();

@@ -755,7 +755,9 @@ declare module Animate {
         private _dataTypes;
         private scriptTemplate;
         private _previewVisualizers;
+        private _resourceCreated;
         constructor();
+        onResourceCreated(type: string, event: ProjectEvent): void;
         /**
         * Updates an assets value as well as any components displaying the asset.
         * For example the property grid or scene view.
@@ -778,10 +780,6 @@ declare module Animate {
         * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
         */
         preparePlugin(pluginDefinition: Engine.IPlugin, createPluginReference?: boolean): void;
-        /**
-        * Call this function to unload all the plugins.
-        */
-        unloadAll(): void;
         /**
         * Call this function to unload a plugin
         * @param {IPlugin} plugin The IPlugin object that is to be loaded
@@ -846,9 +844,13 @@ declare module Animate {
         */
         assetCreated(name: string, asset: Asset): void;
         /**
+        * Called when the project is reset by either creating a new one or opening an older one.
+        */
+        projectReset(project: Project): void;
+        /**
         * This function is called by Animate when everything has been loaded and the user is able to begin their session.
         */
-        callReady(): void;
+        projectReady(project: Project): void;
         /**
         * This function generates an html node that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
@@ -998,6 +1000,49 @@ declare module Animate {
 }
 declare module Animate {
     /**
+    * Each project has a list of behaviours. These are saved into the
+    * database and retrieved when we work with Animate. A behaviour is
+    * essentially a piece of code that executes script logic.
+    */
+    class BehaviourContainer extends ProjectResource<Engine.IContainer> {
+        canvas: Canvas;
+        /**
+        * {string} name The name of the container
+        */
+        constructor(entry?: Engine.IContainer);
+        /**
+        * This will download and update all data of the asset.
+        * @param {string} name The name of the behaviour
+        * @param {CanvasToken} json Its data object
+        */
+        update(name: string, json: CanvasToken): void;
+        /**
+        * This will cleanup the behaviour.
+        */
+        dispose(): void;
+    }
+}
+declare module Animate {
+    /**
+    * A simple array resource for wrapping ids
+    */
+    class GroupArray extends ProjectResource<Engine.IGroup> {
+        items: Array<number>;
+        /**
+        * @param {string} name The name of the asset
+        * @param {string} className The name of the "class" or "template" that this asset belongs to
+        * @param {any} json The JSON with all the asset properties
+        * @param {string} id The id of this asset
+        */
+        constructor(entry?: Engine.IGroup);
+        /**
+        * Disposes and cleans up the data of this asset
+        */
+        dispose(): void;
+    }
+}
+declare module Animate {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -1028,30 +1073,6 @@ declare module Animate {
         * Finds a class by its name. Returns null if nothing is found
         */
         findClass(name: string): AssetClass;
-    }
-}
-declare module Animate {
-    /**
-    * Each project has a list of behaviours. These are saved into the
-    * database and retrieved when we work with Animate. A behaviour is
-    * essentially a piece of code that executes script logic.
-    */
-    class BehaviourContainer extends ProjectResource<Engine.IContainer> {
-        canvas: Canvas;
-        /**
-        * {string} name The name of the container
-        */
-        constructor(entry?: Engine.IContainer);
-        /**
-        * This will download and update all data of the asset.
-        * @param {string} name The name of the behaviour
-        * @param {CanvasToken} json Its data object
-        */
-        update(name: string, json: CanvasToken): void;
-        /**
-        * This will cleanup the behaviour.
-        */
-        dispose(): void;
     }
 }
 declare module Animate {
@@ -1391,12 +1412,10 @@ declare module Animate {
         static BUILD_SAVED: ProjectEvents;
         static BEHAVIOUR_DELETING: ProjectEvents;
         static BEHAVIOURS_LOADED: ProjectEvents;
-        static BEHAVIOUR_CREATED: ProjectEvents;
         static BEHAVIOUR_UPDATED: ProjectEvents;
         static BEHAVIOURS_UPDATED: ProjectEvents;
         static BEHAVIOURS_SAVED: ProjectEvents;
         static BEHAVIOUR_SAVED: ProjectEvents;
-        static ASSET_CREATED: ProjectEvents;
         static ASSET_SAVED: ProjectEvents;
         static ASSET_UPDATED: ProjectEvents;
         static ASSETS_UPDATED: ProjectEvents;
@@ -1410,8 +1429,12 @@ declare module Animate {
         static GROUP_CREATED: ProjectEvents;
         static GROUPS_LOADED: ProjectEvents;
     }
+    /**
+    * A simple project event. Always related to a project resource (null if not)
+    */
     class ProjectEvent extends Event {
-        constructor(type: string, data?: any);
+        resouce: ProjectResource<any>;
+        constructor(type: string, data: ProjectResource<any>);
     }
     /**
     * The build class defined in the database
@@ -1444,6 +1467,7 @@ declare module Animate {
         private _behaviours;
         private _assets;
         private _files;
+        private _groups;
         /**
         * @param{string} id The database id of this project
         */
@@ -1467,6 +1491,12 @@ declare module Animate {
         */
         getFile(id: string): Engine.IFile;
         /**
+        * Gets a group by its ID
+        * @param {string} id The ID of the group
+        * @returns {GroupArray} The group whose id matches the id parameter or null
+        */
+        getGroup(id: string): GroupArray;
+        /**
         * Gets a {BehaviourContainer} by its ID
         * @param {string} id The ID of the BehaviourContainer
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
@@ -1485,7 +1515,7 @@ declare module Animate {
         */
         updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
         /**
-        * This function is used to fetch the _files associated with a project.
+        * This function is used to fetch the files associated with a project.
         * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
         */
         loadFiles(mode?: string): JQueryPromise<ModepressAddons.IGetFiles>;
@@ -1648,6 +1678,7 @@ declare module Animate {
         behaviours: Array<BehaviourContainer>;
         files: Array<Engine.IFile>;
         assets: Array<Asset>;
+        groups: Array<GroupArray>;
         /**
         * This will cleanup the project and remove all data associated with it.
         */
@@ -3773,17 +3804,24 @@ declare module Animate {
         private _contextNode;
         private _curProj;
         private _shortcutProxy;
+        private _resourceCreated;
         constructor(parent?: Component);
         onShortcutClick(e: any): void;
         onMouseMove(e: any): void;
         /**
         * Called when the project is loaded and ready.
         */
-        projectReady(): void;
+        projectReady(project: Project): void;
+        /**
+        * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever
+        * any form of resource is created. I.e. try to get rid of addAssetInstance
+        * Called whenever a project resource is created
+        */
+        onResourceCreated(type: string, event: ProjectEvent): void;
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
-        projectReset(): void;
+        projectReset(project: Project): void;
         /**
         * Catch the key down events.
         * @param e The event passed by jQuery
