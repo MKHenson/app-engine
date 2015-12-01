@@ -138,9 +138,9 @@ module Animate
 		/**
 		* {BehaviourContainer} container The container associated with this event
 		*/
-		public container: BehaviourContainer;
+		public container: Container;
 
-		constructor( eventName: EditorEvents, container: BehaviourContainer )
+		constructor( eventName: EditorEvents, container: Container )
 		{
 			super( eventName, null );
 			this.container = container;
@@ -156,7 +156,7 @@ module Animate
 		/**
 		* {BehaviourContainer} container The container associated with this event
 		*/
-		public container: BehaviourContainer;
+		public container: Container;
 
 		/**
 		* {any} token The data being read or written to
@@ -168,7 +168,7 @@ module Animate
 		*/
 		public sceneReferences: { groups: Array<string>; assets: Array<number> };
 
-		constructor( eventName: EditorEvents, container: BehaviourContainer, token: any, sceneReferences?: { groups: Array<string>; assets: Array<number> } )
+		constructor( eventName: EditorEvents, container: Container, token: any, sceneReferences?: { groups: Array<string>; assets: Array<number> } )
 		{
 			super( eventName, null );
 			this.container = container;
@@ -272,9 +272,9 @@ module Animate
 		/**
 		* {BehaviourContainer} container The container assocaited with this event
 		*/
-		public container: BehaviourContainer;
+		public container: Container;
 
-		constructor( eventName: EditorEvents, asset: Asset, container: BehaviourContainer )
+		constructor( eventName: EditorEvents, asset: Asset, container: Container )
 		{
 			super( eventName, asset );
 			this.container = container;
@@ -288,11 +288,11 @@ module Animate
 	export class PluginPortalEvent extends Event
 	{
 		public oldName: string;
-		public container: BehaviourContainer;
+		public container: Container;
 		public portal: Portal;
 		public canvas: Canvas;
 
-		constructor( eventName: EditorEvents, oldName: string, container: BehaviourContainer, portal: Portal, canvas: Canvas )
+		constructor( eventName: EditorEvents, oldName: string, container: Container, portal: Portal, canvas: Canvas )
 		{
 			super( eventName, null );
 			this.oldName = oldName;

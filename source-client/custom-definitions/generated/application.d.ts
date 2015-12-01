@@ -458,8 +458,8 @@ declare module Animate {
         /**
         * {BehaviourContainer} container The container associated with this event
         */
-        container: BehaviourContainer;
-        constructor(eventName: EditorEvents, container: BehaviourContainer);
+        container: Container;
+        constructor(eventName: EditorEvents, container: Container);
     }
     /**
     * Events associated with BehaviourContainers and either reading from, or writing to, a data token
@@ -468,7 +468,7 @@ declare module Animate {
         /**
         * {BehaviourContainer} container The container associated with this event
         */
-        container: BehaviourContainer;
+        container: Container;
         /**
         * {any} token The data being read or written to
         */
@@ -480,7 +480,7 @@ declare module Animate {
             groups: Array<string>;
             assets: Array<number>;
         };
-        constructor(eventName: EditorEvents, container: BehaviourContainer, token: any, sceneReferences?: {
+        constructor(eventName: EditorEvents, container: Container, token: any, sceneReferences?: {
             groups: Array<string>;
             assets: Array<number>;
         });
@@ -544,18 +544,18 @@ declare module Animate {
         /**
         * {BehaviourContainer} container The container assocaited with this event
         */
-        container: BehaviourContainer;
-        constructor(eventName: EditorEvents, asset: Asset, container: BehaviourContainer);
+        container: Container;
+        constructor(eventName: EditorEvents, asset: Asset, container: Container);
     }
     /**
     * Portal associated events
     */
     class PluginPortalEvent extends Event {
         oldName: string;
-        container: BehaviourContainer;
+        container: Container;
         portal: Portal;
         canvas: Canvas;
-        constructor(eventName: EditorEvents, oldName: string, container: BehaviourContainer, portal: Portal, canvas: Canvas);
+        constructor(eventName: EditorEvents, oldName: string, container: Container, portal: Portal, canvas: Canvas);
     }
 }
 declare module Animate {
@@ -694,19 +694,28 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IAjaxError {
+        message: string;
+        status: number;
+    }
     class Utils {
+        private static _withCredentials;
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
-        static post(url: string, data: any): JQueryXHR;
+        static post<T>(url: string, data: any): Promise<T>;
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
-        static put(url: string, data: any): JQueryXHR;
+        static get<T>(url: string): Promise<T>;
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        static put<T>(url: string, data: any): Promise<T>;
         /**
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
-        static delete(url: string, data?: any): JQueryXHR;
+        static delete<T>(url: string, data?: any): Promise<T>;
         static getMousePos(evt: any, id: any): any;
         /**
         * Use this function to check if a value contains characters that break things.
@@ -769,11 +778,12 @@ declare module Animate {
         updateAssetValue(asset: Asset, propName: string, propValue: any, notifyEditor?: boolean): void;
         /**
         * Attempts to download a plugin by its URL and insert it onto the page.
-        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable
+        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
+        * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
         * @param {IPlugin} pluginDefinition The plugin to load
-        * @returns {JQueryPromise<Engine.IPlugin>}
+        * @returns {Promise<Engine.IPlugin>}
         */
-        loadPlugin(pluginDefinition: Engine.IPlugin): JQueryPromise<Engine.IPlugin>;
+        loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>;
         /**
         * This funtcion is used to load a plugin.
         * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
@@ -1000,11 +1010,10 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * Each project has a list of behaviours. These are saved into the
-    * database and retrieved when we work with Animate. A behaviour is
-    * essentially a piece of code that executes script logic.
+    * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
+    * essentially a piece of code that executes behaviour nodes and plugin logic when activated.
     */
-    class BehaviourContainer extends ProjectResource<Engine.IContainer> {
+    class Container extends ProjectResource<Engine.IContainer> {
         canvas: Canvas;
         /**
         * {string} name The name of the container
@@ -1398,6 +1407,7 @@ declare module Animate {
         GROUP = 1,
         ASSET = 2,
         CONTAINER = 3,
+        FILE = 4,
     }
     class ProjectEvents {
         value: string;
@@ -1501,39 +1511,52 @@ declare module Animate {
         * @param {string} id The ID of the BehaviourContainer
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
         */
-        getBehaviourById(id: string): BehaviourContainer;
+        getBehaviourById(id: string): Container;
         /**
         * Gets a {BehaviourContainer} by its shallow or local ID
         * @param {string} id The local ID of the BehaviourContainer
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
         */
-        getBehaviourByShallowId(id: number): BehaviourContainer;
+        getBehaviourByShallowId(id: number): Container;
         /**
         * Attempts to update the project details base on the token provided
         * @returns {Engine.IProject} The project token
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
-        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>;
+        updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>;
         /**
         * This function is used to fetch the files associated with a project.
         * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
         */
-        loadFiles(mode?: string): JQueryPromise<ModepressAddons.IGetFiles>;
+        loadFiles(mode?: string): Promise<ModepressAddons.IGetFiles>;
+        /**
+        * Internal function to create a resource wrapper
+        * @param {T} entry The database entry
+        * @param {ResourceType} type The type of resource to create
+        * @returns {ProjectResource<any>}
+        */
+        private createResourceInstance<T>(entry, type?);
+        /**
+        * This function is used to fetch the project resources associated with a project.
+        * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+        */
+        loadResources(type?: ResourceType): Promise<Modepress.IGetArrayResponse<any>>;
         /**
         * Use this to rename the project, a behaviour, group or asset.
         * @param {string} name The new name of the object
         * @param {string} id The id of the object we are renaming.
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns {Promise<Modepress.IResponse>}
         */
-        renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>;
+        renameObject(name: string, id: string, type: ResourceType): Promise<Modepress.IResponse>;
         /**
         * Creates a new project resource.
         * @param {string} name The new name of the object
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns { Promise<ProjectResource<any>>}
         */
-        createResource(name: string, type: ResourceType): JQueryPromise<ModepressAddons.ICreateResource>;
+        createResource(name: string, type: ResourceType): Promise<ProjectResource<any>>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -1597,10 +1620,6 @@ declare module Animate {
         */
         saveFile(fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean): void;
         /**
-        * This function is used to fetch the beaviours of a project.
-        */
-        loadBehaviours(): void;
-        /**
         * This function is used to create a new group. This will make
         * a call the server. If the server sends a fail message then no new group
         * will be created. You can use the event GROUP_CREATED to hook into
@@ -1608,10 +1627,6 @@ declare module Animate {
         * @param {string} name The proposed name of the group.
         */
         createGroup(name: string): void;
-        /**
-        * This function is used to fetch the groups of a project.
-        */
-        loadGroups(): void;
         /**
         * This will save the current state of the groups to the server
         * @param {Array<string>} groupIds The array of group ID's we are trying to save.
@@ -1663,10 +1678,6 @@ declare module Animate {
         */
         deleteAssets(assetIDs: Array<string>): void;
         /**
-        * This function is used to fetch the _assets of a project.
-        */
-        loadAssets(): void;
-        /**
         * Loads the project from data sent from the server
         * @param {any} data The data sent from the server
         */
@@ -1675,7 +1686,7 @@ declare module Animate {
         * This function is called whenever we get a resonse from the server
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-        behaviours: Array<BehaviourContainer>;
+        containers: Array<Container>;
         files: Array<Engine.IFile>;
         assets: Array<Asset>;
         groups: Array<GroupArray>;
@@ -1720,17 +1731,17 @@ declare module Animate {
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
-        * @returns {JQueryPromise<boolean>}
+        * @returns {Promise<boolean>}
         */
-        authenticated(): JQueryPromise<boolean>;
+        authenticated(): Promise<boolean>;
         /**
         * Tries to log the user in asynchronously.
         * @param {string} user The username of the user.
         * @param {string} password The password of the user.
         * @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
-        login(user: string, password: string, rememberMe: boolean): JQueryPromise<UsersInterface.IAuthenticationResponse>;
+        login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse>;
         /**
         * Tries to register a new user.
         * @param {string} user The username of the user.
@@ -1738,54 +1749,54 @@ declare module Animate {
         * @param {string} email The email of the user.
         * @param {string} captcha The captcha of the login screen
         * @param {string} captha_challenge The captha_challenge of the login screen
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
-        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): JQueryPromise<UsersInterface.IAuthenticationResponse>;
+        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): Promise<UsersInterface.IAuthenticationResponse>;
         /**
         * This function is used to resend a user's activation code
         * @param {string} user
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
-        resendActivation(user: string): JQueryPromise<UsersInterface.IResponse>;
+        resendActivation(user: string): Promise<UsersInterface.IResponse>;
         /**
         * This function is used to reset a user's password.
         * @param {string} user
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
-        resetPassword(user: string): JQueryPromise<UsersInterface.IResponse>;
+        resetPassword(user: string): Promise<UsersInterface.IResponse>;
         /**
         * Attempts to log the user out
-        * @return {JQueryPromise<UsersInterface.IResponse>}
+        * @return {Promise<UsersInterface.IResponse>}
         */
-        logout(): JQueryPromise<UsersInterface.IResponse>;
+        logout(): Promise<UsersInterface.IResponse>;
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
-        * @return {JQueryPromise<ModepressAddons.IGetProjects>}
+        * @return {Promise<ModepressAddons.IGetProjects>}
         */
-        getProjectList(index: number, limit: number): JQueryPromise<ModepressAddons.IGetProjects>;
+        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects>;
         /**
         * Creates a new user projects
         * @param {string} name The name of the project
         * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
-        * @return {JQueryPromise<ModepressAddons.ICreateProject>}
+        * @return {Promise<ModepressAddons.ICreateProject>}
         */
-        newProject(name: string, plugins: Array<string>, description?: string): JQueryPromise<ModepressAddons.ICreateProject>;
+        newProject(name: string, plugins: Array<string>, description?: string): Promise<ModepressAddons.ICreateProject>;
         /**
         * Removes a project by its id
         * @param {string} pid The id of the project to remove
-        * @return {JQueryPromise<Modepress.IResponse>}
+        * @return {Promise<Modepress.IResponse>}
         */
-        removeProject(pid: string): JQueryPromise<Modepress.IResponse>;
+        removeProject(pid: string): Promise<Modepress.IResponse>;
         /**
         * Attempts to update the user's details base on the token provided
         * @returns {Engine.IUserMeta} The user details token
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
-        updateDetails(token: Engine.IUserMeta): JQueryPromise<UsersInterface.IResponse>;
+        updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>;
         /**
         * @type public mfunc copyProject
         * Use this function to duplicate a project
@@ -3137,31 +3148,6 @@ declare module Animate {
         */
         projectReset(): void;
         /**
-        * This is called when a project is created. This is used
-        * so we can orgaise all the elements that need to be populated.
-        */
-        projectReady(): void;
-        /**
-        * This is called when a project has loaded all its behaviours.
-        */
-        onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * This is called when a project has loaded all its assets.
-        */
-        onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * This is called when a project has loaded all its files.
-        */
-        onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * This is called when a project has loaded all its groups.
-        */
-        onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
-        /**
-        * When the project data is all saved to the DB
-        */
-        onSaveAll(event: any, data: any): void;
-        /**
         * Gets the singleton instance
         */
         static getInstance(domElement?: string): Application;
@@ -3442,7 +3428,7 @@ declare module Animate {
     */
     class BehaviourInstance extends Behaviour {
         private _behaviourContainer;
-        constructor(parent: Component, behaviourContainer: BehaviourContainer, createPotrals?: boolean);
+        constructor(parent: Component, behaviourContainer: Container, createPotrals?: boolean);
         /**
         * Called when a behaviour is disposed
         */
@@ -3455,7 +3441,7 @@ declare module Animate {
         * Diposes and cleans up this component and all its child Components
         */
         dispose(): void;
-        behaviourContainer: BehaviourContainer;
+        behaviourContainer: Container;
     }
 }
 declare module Animate {
@@ -3522,7 +3508,7 @@ declare module Animate {
         * @param {Component} parent The parent component to add this canvas to
         * @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
-        constructor(parent: Component, behaviourContainer: BehaviourContainer);
+        constructor(parent: Component, behaviourContainer: Container);
         onStartingDrag(e: any, ui: any): void;
         /**
         * When an item is finished being dragged
@@ -3603,7 +3589,7 @@ declare module Animate {
         * is the actual behaviour container
         * @returns {Behaviour}
         */
-        createNode(template: BehaviourDefinition, x: number, y: number, container?: BehaviourContainer): Behaviour;
+        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container): Behaviour;
         /**
         * Catch the key down events.
         * @param {any} e The jQuery event object
@@ -3674,7 +3660,7 @@ declare module Animate {
         * This function is called to make sure the canvas min width and min height variables are set
         */
         checkDimensions(): void;
-        behaviourContainer: BehaviourContainer;
+        behaviourContainer: Container;
         containerReferences: {
             groups: Array<string>;
             assets: Array<number>;
@@ -3841,7 +3827,7 @@ declare module Animate {
         * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
         * @param {BehaviourContainer} behaviour The hehaviour object we need to update
         */
-        updateBehaviour(behaviour: BehaviourContainer): void;
+        updateBehaviour(behaviour: Container): void;
         /**
         * Called when we select a menu item.
         */
@@ -3919,12 +3905,6 @@ declare module Animate {
         * @returns <TreeViewScene> The singleton instance
         */
         static getSingleton(): TreeViewScene;
-        /**
-        * This will add a node to the treeview to represent the containers.
-        * @param {BehaviourContainer} behaviour The behaviour we are associating with the node
-        * @returns {TreeNodeBehaviour}
-        */
-        addContainer(behaviour: BehaviourContainer): TreeNodeBehaviour;
         /**
         * This will add a node to the treeview to represent the behaviours available to developers
         * @param {BehaviourDefinition} template
@@ -4125,11 +4105,11 @@ declare module Animate {
     */
     class TreeNodeBehaviour extends TreeNode {
         saved: boolean;
-        behaviour: BehaviourContainer;
+        behaviour: Container;
         /**
         * @param {BehaviourContainer} behaviour The container we are associating with this node
         */
-        constructor(behaviour: BehaviourContainer);
+        constructor(behaviour: Container);
         /**
         * Called when the node is selected
         */
@@ -4521,19 +4501,15 @@ declare module Animate {
         */
         onTabSelected(tab: TabPair): void;
         /**
-        * @type public mfunc projectReady
         * When we start a new project we load the welcome page.
-        * @extends <CanvasTab>
+        * @param {Project} project
         */
-        projectReady(): void;
+        projectReady(project: Project): void;
         /**
-        * @type public mfunc projectReset
         * Called when the project is reset by either creating a new one or opening an older one.
-        * @extends <CanvasTab>
         */
         projectReset(): void;
         /**
-        * @type public mfunc onNewsLoaded
         * When the news has been loaded from webinate.
         */
         onNewsLoaded(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
@@ -5652,10 +5628,11 @@ declare module Animate {
     class RenameFormEvent extends Event {
         cancel: boolean;
         name: string;
+        oldName: string;
         object: IRenamable;
         reason: string;
         resourceType: ResourceType;
-        constructor(type: string, name: string, object: IRenamable, rt: ResourceType);
+        constructor(type: string, name: string, oldName: string, object: IRenamable, rt: ResourceType);
     }
     /**
     * This form is used to rename objects
@@ -5663,11 +5640,10 @@ declare module Animate {
     class RenameForm extends Window {
         private static _singleton;
         private object;
-        private $errorMsg;
+        $errorMsg: string;
         private $loading;
         private $name;
         private _projectElm;
-        private _deferred;
         private _resourceId;
         private _type;
         constructor();
@@ -5687,7 +5663,7 @@ declare module Animate {
         * @param {string} curName
         * @extends {RenameForm}
         */
-        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): JQueryPromise<IRenameToken>;
+        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): Promise<IRenameToken>;
         /**
         * @type public mfunc OnButtonClick
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
@@ -5695,7 +5671,7 @@ declare module Animate {
         * @param {any} e
         * @extends {RenameForm}
         */
-        ok(): JQueryDeferred<IRenameToken>;
+        ok(): any;
         /**
         * Gets the singleton instance.
         * @returns {RenameForm}
@@ -5816,7 +5792,7 @@ declare module Animate {
         /**
         * This is called when we have loaded and initialized a new project.
         */
-        newProject(): void;
+        newProject(project: Project): void;
         /**
         * Called when we click one of the top toolbar tabs.
         * @param {any} e
@@ -5845,7 +5821,7 @@ declare module Animate {
         /**
         * Shows the rename form - and creates a new behaviour if valid
         */
-        newBehaviour(): void;
+        newContainer(): void;
         /**
         * When we click the delete button
         */
@@ -5947,6 +5923,13 @@ declare module Animate {
         goState(state: string, digest?: boolean): void;
         removeProject(messageBoxAnswer: string): void;
         openProject(project: Engine.IProject): void;
+        /**
+        * When the project data is all saved to the DB
+        */
+        private onSaveAll(event, data);
+        /**
+        * Attempts to load the project and setup the scene
+        */
         loadScene(): void;
         fetchProjects(index: number, limit: number): void;
         selectProject(project: Engine.IProject): void;

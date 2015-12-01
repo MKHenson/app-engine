@@ -5,9 +5,9 @@ module Animate
 	*/
 	export class BehaviourInstance extends Behaviour
 	{
-		private _behaviourContainer: BehaviourContainer;
+		private _behaviourContainer: Container;
 
-		constructor( parent : Component, behaviourContainer : BehaviourContainer, createPotrals : boolean = true )
+		constructor( parent : Component, behaviourContainer : Container, createPotrals : boolean = true )
 		{
             var text: string = (behaviourContainer.entry.name !== undefined ? behaviourContainer.entry.name : "Instance" );
 
@@ -157,6 +157,6 @@ module Animate
 			super.dispose();
 		}
 
-		get behaviourContainer(): BehaviourContainer { return this._behaviourContainer; }
+		get behaviourContainer(): Container { return this._behaviourContainer; }
 	}
 }

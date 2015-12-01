@@ -168,88 +168,90 @@ module Animate
             PluginManager.getSingleton().projectReset(user.project);
 		}
 
-		/**
-		* This is called when a project is created. This is used
-		* so we can orgaise all the elements that need to be populated.
-		*/
-		projectReady()
-		{
-			Toolbar.getSingleton().newProject();
+		///**
+		//* This is called when a project is created. This is used
+		//* so we can orgaise all the elements that need to be populated.
+		//*/
+		//projectReady()
+		//{
+  //          var project: Project = User.get.project;
+		//	//project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+		//	//project.loadBehaviours();
+            
+  //          // load each of the different resources
+  //          var project: Project = User.get.project;
+  //          project.loadResources()
+  //          project.off(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
+  //          project.on(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
+  //          //Create the page title
+  //          document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
+  //          Toolbar.getSingleton().newProject(project);
+  //          CanvasTab.getSingleton().projectReady(project);
+  //          TreeViewScene.getSingleton().projectReady(project);
+  //          PluginManager.getSingleton().projectReady(project);
+		//}
 
-			CanvasTab.getSingleton().projectReady();
-
-            var project: Project = User.get.project;
-			project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
-			project.loadBehaviours();
-
-			//Create the page title
-            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-
-            TreeViewScene.getSingleton().projectReady(project);
-
-		}
-
-		/**
-		* This is called when a project has loaded all its behaviours.
-		*/
-        onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-        {
-            var that = this;
-            var project: Project = User.get.project;
-			project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+		///**
+		//* This is called when a project has loaded all its behaviours.
+		//*/
+  //      onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+  //      {
+  //          var that = this;
+  //          var project: Project = User.get.project;
+		//	project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 			
-            //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-            project.loadFiles().then(function ()
-            {
-                that.onFilesLoaded(null, null, null);
-            });
-		}
+  //          //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+  //          project.loadFiles().then(function ()
+  //          {
+  //              that.onFilesLoaded(null, null, null);
+  //          });
+		//}
 
-		/**
-		* This is called when a project has loaded all its assets.
-		*/
-        onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		{
-            var project: Project = User.get.project;
-			project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+		///**
+		//* This is called when a project has loaded all its assets.
+		//*/
+  //      onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+		//{
+  //          var project: Project = User.get.project;
+		//	project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
 
-			project.on( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
-			project.loadGroups();
-		}
+		//	project.on( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+		//	project.loadGroups();
+		//}
 
-		/**
-		* This is called when a project has loaded all its files.
-		*/
-        onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		{
-            var project: Project = User.get.project;
-			//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+		///**
+		//* This is called when a project has loaded all its files.
+		//*/
+  //      onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+		//{
+  //          var project: Project = User.get.project;
+		//	//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
 
-			project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
-			project.loadAssets();
-		}
+		//	project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+		//	project.loadAssets();
+		//}
 
-		/**
-		* This is called when a project has loaded all its groups.
-		*/
-        onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		{
-            var project = User.get.project;
-			project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+		///**
+		//* This is called when a project has loaded all its groups.
+		//*/
+  //      onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+		//{
+  //          var project = User.get.project;
+		//	project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
 
-			project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
-			project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+		//	project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+		//	project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
 
-            PluginManager.getSingleton().projectReady(project);
-		}
+  //          PluginManager.getSingleton().projectReady(project);
+		//}
 
-		/**
-		* When the project data is all saved to the DB
-		*/
-		onSaveAll( event, data ) : void
-		{
-			CanvasTab.getSingleton().saveAll();
-		}
+		///**
+		//* When the project data is all saved to the DB
+		//*/
+		//onSaveAll( event, data ) : void
+		//{
+		//	CanvasTab.getSingleton().saveAll();
+		//}
 
 		/**
 		* Gets the singleton instance

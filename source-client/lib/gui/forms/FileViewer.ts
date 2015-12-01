@@ -571,9 +571,9 @@ module Animate
 
                         file.previewUrl = tokens[1].url;
 
-                    }).fail(function (err: JQueryXHR)
+                    }).catch(function (err: IAjaxError)
                     {
-                        Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, null, LogType.ERROR);
+                        Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
                     });                    
                 }
             });
@@ -704,9 +704,9 @@ module Animate
 
                 Compiler.digest(that._browserElm, that);
 
-            }).fail(function (err: JQueryXHR)
+            }).catch(function (err: IAjaxError)
             {
-                that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.responseText}`;
+                that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.message}`;
                 Compiler.digest(that._browserElm, that);
             });
         }

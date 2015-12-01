@@ -204,14 +204,17 @@ module Animate
 
             Animate.FileViewer.get.choose('img').then(function(file)
             {
-                User.get.updateDetails({ image: (file ? file.url : null) }).fail(function (err: Error)
-                {
-                    (<any>that).$errorMsgUserImg = err.message;
-
-                }).always(function ()
+                User.get.updateDetails({ image: (file ? file.url : null) }).then(function ()
                 {
                     that.$loading = false;
                     Compiler.digest(that._userElm, that, false);
+
+                }).catch(function (err: Error)
+                {
+                    (<any>that).$errorMsgUserImg = err.message;
+                    that.$loading = false;
+                    Compiler.digest(that._userElm, that, false);
+
                 });
             });
         }
@@ -228,12 +231,14 @@ module Animate
 
             Animate.FileViewer.get.choose('img').then(function (file)
             {
-                project.updateDetails({ image: (file ? file.url : null) }).fail(function (err: Error)
+                project.updateDetails({ image: (file ? file.url : null) }).then(function ()
+                {
+                    that.$loading = false;
+                    Compiler.digest(that._projectElm, that, false);
+
+                }).catch(function (err: Error)
                 {
                     (<any>that).$errorMsgProjImg = err.message;
-
-                }).always(function ()
-                {
                     that.$loading = false;
                     Compiler.digest(that._projectElm, that, false);
                 });
@@ -249,19 +254,19 @@ module Animate
                 project = User.get.project;
             this.$loading = true;
             this.$errorMsg = "";
-            
-            project.updateDetails(token).fail(function (err: Error)
-            {
-                that.$errorMsg = err.message;
 
-            }).done(function ()
+            project.updateDetails(token).then(function ()
             {
                 // Update the project object
                 for (var i in token)
                     project.entry[i] = token[i];
 
-            }).always(function ()
+                that.$loading = false;
+                Compiler.digest(that._projectElm, that, false);
+
+            }).catch(function (err: Error)
             {
+                that.$errorMsg = err.message;
                 that.$loading = false;
                 Compiler.digest(that._projectElm, that, false);
             });
@@ -324,11 +329,13 @@ module Animate
             this.$loading = true;
             this.$errorMsg = "";
 
-            user.updateDetails(<Engine.IUserMeta>{ bio : bio }).fail(function (err: Error)
+            user.updateDetails(<Engine.IUserMeta>{ bio : bio }).catch(function (err: Error)
             {
                 that.$errorMsg = err.message;
+                that.$loading = false;
+                Compiler.digest(that._userElm, that, false);
 
-            }).always(function ()
+            }).then(function ()
             {
                 that.$loading = false;
                 Compiler.digest(that._userElm, that, false);

@@ -6,6 +6,7 @@
 	<div style="position:relative;">
 		<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedProject ? '70%' : '') }">
 			<div class="project-items">
+				<div class="error bad-input" en-if="ctrl.$errorMsg && ctrl.$errorMsg != ''">{{ctrl.$errorMsg}}</div>
 				<div class="project-item img-preview unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.selectProject(project)">
 					<div class="preview-child">
 						<div class="background-tiles inner ng-scope">

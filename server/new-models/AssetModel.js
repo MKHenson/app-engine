@@ -19,7 +19,7 @@ var AssetModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("className", "", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("json", "", 1));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("json", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }

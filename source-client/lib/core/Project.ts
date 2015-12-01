@@ -5,7 +5,8 @@ module Animate
         BEHAVIOUR,
         GROUP,
         ASSET,
-        CONTAINER
+        CONTAINER,
+        FILE
     }
 	//export class ProjectAssetTypes extends ENUM
 	//{
@@ -140,7 +141,7 @@ module Animate
 		//public mRating: number;
 		//public mImgPath: string;
 		//public mVisibility: string;
-		private _behaviours: Array<BehaviourContainer>;
+		private _behaviours: Array<Container>;
         private _assets: Array<Asset>;
         private _files: Array<Engine.IFile>;
         private _groups: Array<GroupArray>;
@@ -237,7 +238,7 @@ module Animate
 		* @param {string} id The ID of the BehaviourContainer
 		* @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
 		*/
-		getBehaviourById( id: string ): BehaviourContainer
+		getBehaviourById( id: string ): Container
 		{
 			for ( var i = 0; i < this._behaviours.length; i++ )
                 if (this._behaviours[i].entry._id == id )
@@ -251,7 +252,7 @@ module Animate
 		* @param {string} id The local ID of the BehaviourContainer
 		* @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
 		*/
-		getBehaviourByShallowId( id: number ): BehaviourContainer
+		getBehaviourByShallowId( id: number ): Container
 		{
 			for ( var i = 0; i < this._behaviours.length; i++ )
                 if (this._behaviours[i].entry.shallowId == id )
@@ -260,84 +261,171 @@ module Animate
 			return null;
         }
 
-  //      /**
-		//* Attempts to load all assets and resources into the project
-  //      * @returns {JQueryPromise<UsersInterface.IResponse>}
-		//*/
-  //      load(): JQueryPromise<UsersInterface.IResponse>
-  //      {
-  //          var d = jQuery.Deferred<UsersInterface.IResponse>();
-
-  //          // TODO: Load all things when opening a project
-  //          jQuery.getJSON(`${DB.USERS}/users/resend-activation/${user}`).done(function (data: UsersInterface.IResponse)
-  //          {
-  //              if (data.error)
-  //                  return d.reject(new Error(data.message));
-
-  //              return d.resolve(data);
-
-  //          }).fail(function (err: JQueryXHR)
-  //          {
-  //              d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-  //          })
-
-  //          return d.promise();
-  //      }
-
-
         /**
 		* Attempts to update the project details base on the token provided
         * @returns {Engine.IProject} The project token 
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        updateDetails(token: Engine.IProject): JQueryPromise<UsersInterface.IResponse>
+        updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IResponse>();
             var entry = this.entry;
-
-            Utils.put(`${DB.API}/projects/${this.entry.user}/${this.entry._id}`, token).then(function (data: UsersInterface.IResponse)
+            var that = this;
+            return new Promise<UsersInterface.IResponse>(function(resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                else
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/projects/${that.entry.user}/${that.entry._id}`, token).then(function (data)
                 {
-                    for (var i in token)
-                        if (entry.hasOwnProperty(i))
-                            entry[i] = token[i];
-                }
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else
+                    {
+                        for (var i in token)
+                            if (entry.hasOwnProperty(i))
+                                entry[i] = token[i];
+                    }
 
-                return d.resolve(data);
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
-
-            return d.promise();
         }
 
         /**
 		* This function is used to fetch the files associated with a project.
 		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
 		*/
-        loadFiles(mode: string = "project"): JQueryPromise<ModepressAddons.IGetFiles>
+        loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
         {
-            var d = jQuery.Deferred<ModepressAddons.IGetFiles>();
             var that = this;
-            jQuery.getJSON(`${DB.API}/files/${this.entry.user}/${this.entry._id}`).done(function (data: ModepressAddons.IGetFiles)
+            return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
+                Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                that.files = data.data;
-                return d.resolve(data);
+                    that.files = data.data;
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
+        }
 
-            return d.promise();
+        /**
+		* Internal function to create a resource wrapper
+		* @param {T} entry The database entry
+        * @param {ResourceType} type The type of resource to create
+        * @returns {ProjectResource<any>}
+		*/
+        private createResourceInstance<T>(entry: T, type?: ResourceType): ProjectResource<any>
+        {
+            var resource: ProjectResource<any>;
+
+            if (type == ResourceType.ASSET)
+            {
+                resource = new Asset(entry);
+                this._assets.push(<Asset>resource);
+            }
+            else if (type == ResourceType.CONTAINER)
+            {
+                resource = new Container(entry);
+                this._behaviours.push(<Container>resource);
+            }
+            else if (type == ResourceType.GROUP)
+            {
+                resource = new GroupArray(entry);
+                this._groups.push(<GroupArray>resource);
+            }
+            else if (type == ResourceType.FILE)
+            {
+                this._files.push(entry);
+            }
+
+            if (resource)
+            {
+                this.emit(new ProjectEvent("resource-created", resource));
+                return resource;
+            }
+            return null;
+        }
+
+        /**
+		* This function is used to fetch the project resources associated with a project.
+		* @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+		*/
+        loadResources(type?: ResourceType): Promise<Modepress.IGetArrayResponse<any>>
+        {
+            var that = this;
+            var arr: Array<Promise<Modepress.IGetArrayResponse<any>>> = [];
+
+            if (!type)
+            {
+                arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
+            }
+            else
+            {
+                if (type == ResourceType.FILE)
+                    arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
+                else if (type == ResourceType.ASSET)
+                    arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
+                else if (type == ResourceType.CONTAINER)
+                    arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
+                else if (type == ResourceType.GROUP)
+                    arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
+            }
+
+            return new Promise(function (resolve, reject)
+            {
+                Promise.all(arr).then(function (data)
+                {
+                    // Check for any errors
+                    for (var i = 0, l = data.length; i < l; i++)
+                        if (data[i].error)
+                            return reject(new Error(data[i].message));
+
+                    if (!type)
+                    {
+                        for (var i = 0, l = data[0].data.length; i < l; i++)
+                            that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE);
+                        for (var i = 0, l = data[1].data.length; i < l; i++)
+                            that.createResourceInstance<Engine.IAsset>(data[1].data[i], ResourceType.ASSET);
+                        for (var i = 0, l = data[2].data.length; i < l; i++)
+                            that.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER);
+                        for (var i = 0, l = data[3].data.length; i < l; i++)
+                            that.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP);
+                    }
+                    else
+                    {
+                        if (type == ResourceType.FILE)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE);
+                        else if (type == ResourceType.ASSET)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance<Engine.IAsset>(data[0].data[i], ResourceType.ASSET);
+                        else if (type == ResourceType.CONTAINER)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance<Engine.IContainer>(data[0].data[i], ResourceType.CONTAINER);
+                        else if (type == ResourceType.GROUP)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP);
+                    }
+                    
+                    return resolve(data);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
         }
 
         /**
@@ -345,11 +433,10 @@ module Animate
 		* @param {string} name The new name of the object
 		* @param {string} id The id of the object we are renaming.
 		* @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns {Promise<Modepress.IResponse>}
 		*/
-        renameObject(name: string, id: string, type: ResourceType): JQueryPromise<Modepress.IResponse>
+        renameObject(name: string, id: string, type: ResourceType): Promise<Modepress.IResponse>
         {
-            var d = jQuery.Deferred<Modepress.IResponse>();
             var that = this;
             var details = User.get.userEntry;
             var projId = this.entry._id;
@@ -362,30 +449,30 @@ module Animate
             else if (type == ResourceType.GROUP)
                 url = `${DB.API}/groups/${details.username}/${projId}/${id}`;
             
-            Utils.put(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).done(function (data: Modepress.IResponse)
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                
-                return d.resolve(data);
+                Utils.put<Modepress.IResponse>(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                    return resolve(data);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
-
-            return d.promise();
         }
 
         /**
         * Creates a new project resource. 
         * @param {string} name The new name of the object
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns { Promise<ProjectResource<any>>}
         */
-        createResource(name: string, type: ResourceType): JQueryPromise<ModepressAddons.ICreateResource>
+        createResource(name: string, type: ResourceType): Promise<ProjectResource<any>>
         {
-            var d = jQuery.Deferred<ModepressAddons.ICreateResource>();
             var that = this;
             var details = User.get.userEntry;
             var projId = this.entry._id;
@@ -398,41 +485,28 @@ module Animate
             else if (type == ResourceType.GROUP)
                 url = `${DB.API}/groups/${details.username}/${projId}`;
 
-            Utils.post(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).done(function (data: ModepressAddons.ICreateResource)
+            return new Promise<ProjectResource<any>>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                var resource: ProjectResource<any>;
-
-                if (type == ResourceType.ASSET)
+                Utils.post<ModepressAddons.ICreateResource>(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).then(function (data)
                 {
-                    resource = new Asset(<Engine.IAsset>data.data);
-                    this._assets.push(<Asset>resource);
-                }
-                else if (type == ResourceType.CONTAINER)
-                {
-                    resource = new BehaviourContainer(<Engine.IContainer>data.data);
-                    that._behaviours.push(<BehaviourContainer>resource);
-                }
-                else if (type == ResourceType.GROUP)
-                {
-                    resource = new GroupArray(<Engine.IGroup>data.data);
-                    that._groups.push(<GroupArray>resource);
-                }
-                
-                
-                that.emit(new ProjectEvent("resource-created", resource));
-                
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                return d.resolve(data);
+                    var resource : ProjectResource<any>;
+                    if (type == ResourceType.ASSET)
+                        resource = that.createResourceInstance(<Engine.IAsset>data.data, ResourceType.ASSET);
+                    else if (type == ResourceType.CONTAINER)
+                        resource = that.createResourceInstance(<Engine.IContainer>data.data, ResourceType.CONTAINER);
+                    else if (type == ResourceType.GROUP)
+                        resource = that.createResourceInstance(<Engine.IGroup>data.data, ResourceType.GROUP);
+                    
+                    return resolve(resource);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
-
-            return d.promise();
         }
        
 
@@ -506,7 +580,7 @@ module Animate
 			var ids: Array<string> = [];
 			var jsons: Array<string> = [];
 
-			var behaviours: Array<BehaviourContainer> = this._behaviours;
+			var behaviours: Array<Container> = this._behaviours;
 
 			// Create a multidimension array and pass each of the behaviours
 			for ( var i = 0, l = behavioursIds.length; i < l; i++ )
@@ -541,7 +615,7 @@ module Animate
 		{
 			// Behaviours
 			var ids: Array<string> = [];
-			var behaviours: Array<BehaviourContainer> = this._behaviours;
+			var behaviours: Array<Container> = this._behaviours;
 			for ( var i = 0, l = behaviours.length; i < l; i++ )
 				if ( !behaviours[i].saved )
                     ids.push(behaviours[i].entry._id );
@@ -723,16 +797,16 @@ module Animate
 		}
 
 
-		/**
-		* This function is used to fetch the beaviours of a project. 
-		*/
-		loadBehaviours()
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/get-behaviours", { projectId: this.entry._id } );
-		}
+		///**
+		//* This function is used to fetch the beaviours of a project. 
+		//*/
+		//loadBehaviours()
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/get-behaviours", { projectId: this.entry._id } );
+		//}
 
 		/**
 		* This function is used to create a new group. This will make
@@ -749,16 +823,16 @@ module Animate
             loader.load("/project/create-group", { projectId: this.entry._id, name: name } );
 		}
 
-		/**
-		* This function is used to fetch the groups of a project. 
-		*/
-		loadGroups()
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/get-groups", { projectId: this.entry._id } );
-		}
+		///**
+		//* This function is used to fetch the groups of a project. 
+		//*/
+		//loadGroups()
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/get-groups", { projectId: this.entry._id } );
+		//}
 
 		/**
 		* This will save the current state of the groups to the server
@@ -908,16 +982,16 @@ module Animate
             loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs } );
 		}
 
-		/**
-		* This function is used to fetch the _assets of a project. 
-		*/
-		loadAssets()
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/get-assets", { projectId: this.entry._id } );
-		}
+		///**
+		//* This function is used to fetch the _assets of a project. 
+		//*/
+		//loadAssets()
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/get-assets", { projectId: this.entry._id } );
+		//}
 
 
 		/**
@@ -1004,7 +1078,7 @@ module Animate
 							for ( var ii = 0; ii < len; ii++ )
                                 if (this._behaviours[ii].entry._id == data[i] )
 								{
-									var behaviour : BehaviourContainer = this._behaviours[ii];
+									var behaviour : Container = this._behaviours[ii];
 									behaviour.dispose();									
 									this._behaviours.splice( ii, 1 );
 									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
@@ -1027,32 +1101,32 @@ module Animate
 
 					//	this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_CREATED, "Behaviour created", LoaderEvents.COMPLETE, behaviour ) );
 					//}
-					else if ( loader.url == "/project/get-behaviours" )
-					{
-						//Cleanup behaviourssaveAll
-						for ( var i = 0; i < this._behaviours.length; i++ )
-							this._behaviours[i].dispose();
+					//else if ( loader.url == "/project/get-behaviours" )
+					//{
+					//	//Cleanup behaviourssaveAll
+					//	for ( var i = 0; i < this._behaviours.length; i++ )
+					//		this._behaviours[i].dispose();
 
-						this._behaviours.splice( 0, this._behaviours.length );
+					//	this._behaviours.splice( 0, this._behaviours.length );
 
-						//Create new behaviours which we fetched from the DB.
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-                            var dbEntry = data[i];
-                            var b: BehaviourContainer = new BehaviourContainer({ name: dbEntry["name"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
-                            b.entry.json = CanvasToken.fromDatabase( dbEntry["json"], dbEntry["_id"]  );
-							b.setProperties( dbEntry.json.properties );
-							this._behaviours.push( b );
+					//	//Create new behaviours which we fetched from the DB.
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+     //                       var dbEntry = data[i];
+     //                       var b: Container = new Container({ name: dbEntry["name"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
+     //                       b.entry.json = CanvasToken.fromDatabase( dbEntry["json"], dbEntry["_id"]  );
+					//		b.setProperties( dbEntry.json.properties );
+					//		this._behaviours.push( b );
 
-							//Create the GUI elements
-							TreeViewScene.getSingleton().addContainer( b );
+					//		//Create the GUI elements
+					//		TreeViewScene.getSingleton().addContainer( b );
 
-							//Update the GUI elements
-							TreeViewScene.getSingleton().updateBehaviour( b );
-							//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
-						}
-						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
-					}
+					//		//Update the GUI elements
+					//		TreeViewScene.getSingleton().updateBehaviour( b );
+					//		//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, b ) );
+					//	}
+					//	//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
+					//}
 					else if ( loader.url == "/project/save-behaviours" )
 					{
 						for ( var i = 0; i < this._behaviours.length; i++ )
@@ -1384,7 +1458,7 @@ module Animate
 			//	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         }
 
-        get behaviours(): Array<BehaviourContainer> { return this._behaviours; }
+        get containers(): Array<Container> { return this._behaviours; }
         get files(): Array<Engine.IFile> { return this._files; }
         get assets(): Array<Asset> { return this._assets; }
         get groups(): Array<GroupArray> { return this._groups; }

@@ -62,7 +62,7 @@ module Animate
 		/**
 		* This is called when we have loaded and initialized a new project.
 		*/
-		newProject()
+        newProject(project: Project)
         {
             this.$itemSelected = false;
             this._copyPasteToken = null;
@@ -171,12 +171,26 @@ module Animate
         /**
         * Shows the rename form - and creates a new behaviour if valid
         */
-        newBehaviour()
+        newContainer()
         {
+            var that = this;
+
             // Todo: This must be NewBehaviourForm
             RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER).then(function (token)
             {
-                User.get.project.createResource(token.newName, ResourceType.CONTAINER);
+                User.get.project.createResource(token.newName, ResourceType.CONTAINER).then(function(resource)
+                {
+                    // The container is created - so lets open it up
+                    var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
+                    jQuery(".text", tabPair.tabSelector.element).text(resource.entry.name);
+                    tabPair.name = resource.entry.name;
+
+                }).catch(function (err: Error)
+                {
+                    RenameForm.get.$errorMsg = (err.message.indexOf("urred while creating the resource") == -1 ? err.message : `The name '${token.newName}' is taken, please use another`);
+                    that.newContainer();
+
+                });
             });
         }
        

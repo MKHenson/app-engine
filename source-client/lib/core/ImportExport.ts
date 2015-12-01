@@ -79,10 +79,10 @@ module Animate
 			var canvasToken: CanvasToken= null;
 
 			//Get all the behaviours and build them into the export object
-			var i = project.behaviours.length;
+			var i = project.containers.length;
 			while ( i-- )
 			{
-                var behaviour: BehaviourContainer = project.behaviours[i];
+                var behaviour: Container = project.containers[i];
                 if (behaviour.entry.json === null)
 					continue;
 

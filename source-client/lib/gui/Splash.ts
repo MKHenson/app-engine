@@ -92,7 +92,7 @@
                 Recaptcha.reload();                
             }
            
-            that.$user.authenticated().done(function( val )
+            that.$user.authenticated().then(function( val )
             {
                 that.$loading = false;
                 if (!val)
@@ -100,7 +100,7 @@
                 else
                     that.goState("welcome", true);
 
-            }).fail(function (err)
+            }).catch(function (err: Error)
             {
                 that.$loading = false;
                 that.goState("login", true);
@@ -153,13 +153,13 @@
                 return;
             
             var that = this;
-            this.$user.removeProject(this.$selectedProject._id).done(function ()
+            this.$user.removeProject(this.$selectedProject._id).then(function ()
             {
                 that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
                 that.$selectedProject = null;
                 Animate.Compiler.digest(that._welcomeElm, that);
 
-            }).fail(function (err: Error)
+            }).catch(function (err: Error)
             {
                 MessageBox.show(err.message);
             });
@@ -183,11 +183,12 @@
 
             // Go through each plugin and load it
             for (var i = 0, l = project.$plugins.length; i < l; i++)
-                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).fail(function (err: Error)
+                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).catch(function (err: Error)
                 {
                     that.$errorMsg = err.message;
+                    Animate.Compiler.digest(that._splashElm, that, true);
 
-                }).always(function ()
+                }).then(function ()
                 {
                     Animate.Compiler.digest(that._splashElm, that, true);
 
@@ -205,26 +206,51 @@
                 });
         }
 
+        /**
+		* When the project data is all saved to the DB
+		*/
+        private onSaveAll(event, data): void
+        {
+            CanvasTab.getSingleton().saveAll();
+        }
+
+        /**
+		* Attempts to load the project and setup the scene
+		*/
         loadScene()
         {
+            var that = this;
             var project = this.$user.project;
-            project.entry = this.$selectedProject;
+            project.entry = this.$selectedProject;           
 
-            Toolbar.getSingleton().newProject();
-            CanvasTab.getSingleton().projectReady();
+            // Notify of new project
+            Toolbar.getSingleton().newProject(project);
+            CanvasTab.getSingleton().projectReady(project);
             TreeViewScene.getSingleton().projectReady(project);
+            PluginManager.getSingleton().projectReady(project);
+
+            // Attempts to load all the project resources
+            project.loadResources().then(function ()
+            {
+                // TODO : Not sure if im keeping this here...
+                project.off(ProjectEvents.SAVED_ALL, that.onSaveAll, that);
+                project.on(ProjectEvents.SAVED_ALL, that.onSaveAll, that);
             
+                // Make sure the title tells us which project is open
+                document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
+                
+                // Log 
+                Logger.getSingleton().logMessage(`Project '${that.$selectedProject.name}' has been opened`, null, LogType.MESSAGE);
 
-            //project.load();
+                // Remove splash
+                that._splashElm.detach();
+                Application.bodyComponent.addChild(Application.getInstance());
 
-            // Make sure the title tells us which project is open
-            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-            
-            Logger.getSingleton().logMessage(`Project '${this.$selectedProject.name}' has been opened`, null, LogType.MESSAGE);
-
-            // Attach the DOM
-            this._splashElm.detach();
-            Application.bodyComponent.addChild(Application.getInstance());
+            }).catch(function (err: Error)
+            {
+                that.$errorMsg = err.message;
+                Animate.Compiler.digest(that._splashElm, that, true);
+            });
         }
 
         /*
@@ -244,13 +270,13 @@
             {
                 that.$pager.last = projects.count || 1;
                 that.$projects = projects.data;
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that);
+                Animate.Compiler.digest(that._welcomeElm, that);
 
-            }).fail(function (err: Error)
+            }).catch(function (err: Error)
             {
                 that.$errorMsg = err.message;
-
-            }).done(function ()
-            {
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that);
                 Animate.Compiler.digest(that._welcomeElm, that);
@@ -431,7 +457,7 @@
                 // Start Loading the plugins
                 that.openProject(that.$selectedProject);
 
-            }).fail(function (err: Error)
+            }).catch(function (err: Error)
             {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
@@ -487,17 +513,14 @@
                         that.$errorRed = false;
 
                     that.$errorMsg = data.message;
-                    
-                })
-                .fail(this.loginError.bind(that))
-                .done(function ()
-                {
+
                     that.$loading = false;
                     if (that.$user.isLoggedIn)
                         that.goState("welcome", true)
                     else
                         Compiler.digest(that._splashElm, that, true);
-                });
+                })
+                .catch(this.loginError.bind(that));
         }
 
         /**
@@ -514,7 +537,7 @@
             that.$loading = true;
             this.$user.register(user, password, email, captcha, challenge)
                 .then(this.loginSuccess.bind(that))
-                .fail(function (err: Error)
+                .catch(function (err: Error)
                 {
                     that.$errorRed = true;
                     that.$errorMsg = err.message;
@@ -549,7 +572,7 @@
             that.$loading = true;
             this.$user.resendActivation(user)
                 .then(this.loginSuccess.bind(that))
-                .fail(this.loginError.bind(that));
+                .catch(this.loginError.bind(that));
         }
 
         /**
@@ -576,7 +599,7 @@
             that.$loading = true;
             this.$user.resetPassword(user)
                 .then(this.loginSuccess.bind(that))
-                .fail(this.loginError.bind(that));
+                .catch(this.loginError.bind(that));
         }
 
         /**
@@ -590,14 +613,12 @@
             {
                 that.$loading = false;
                 that.$errorMsg = "";
-            })
-            .fail(this.loginError.bind(that))
-            .always(function ()
-            {
+
                 Application.getInstance().projectReset();
                 that.$loading = false;
                 that.goState("login", true);
-            });
+            })
+            .catch(this.loginError.bind(that));
         }
         
         /**

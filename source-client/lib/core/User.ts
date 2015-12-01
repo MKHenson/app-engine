@@ -74,51 +74,49 @@ module Animate
         /**
 		* Checks if a user is logged in or not. This checks the server using 
 		* cookie and session data from the browser.
-		* @returns {JQueryPromise<boolean>}
+		* @returns {Promise<boolean>}
 		*/
-        authenticated(): JQueryPromise<boolean>
+        authenticated(): Promise<boolean>
         {
-            var d = jQuery.Deferred<boolean>();
+            this._isLoggedIn = false;
+
             var that = this;
-            var response: UsersInterface.IAuthenticationResponse;
-            that._isLoggedIn = false;
-
-            jQuery.getJSON(`${DB.USERS}/users/authenticated`).then(function (data: UsersInterface.IAuthenticationResponse)
+            return new Promise<boolean>(function (resolve, reject)
             {
-                response = data;
-
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                if (data.authenticated)
+                Utils.get<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/authenticated`).then(function (data)
                 {
-                    that.userEntry = <UsersInterface.IUserEntry>data.user;
-                    that._isLoggedIn = true;
-                    return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
-                }
-                else
+                    if (data.error)
+                        return reject(new Error(data.message));
+
+                    if (data.authenticated)
+                    {
+                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                        that._isLoggedIn = true;
+                        return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
+                    }
+                    else
+                    {
+                        that._isLoggedIn = false;
+                        that.resetMeta();
+                        return resolve(false);
+                    }
+
+                    return resolve(data.authenticated);
+
+                }).then(function (data: ModepressAddons.IGetDetails)
                 {
-                    that._isLoggedIn = false;
-                    that.resetMeta();
-                    return d.resolve(false);
-                }
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                return d.resolve(data.authenticated);
+                    that.meta = data.data;
+                    return resolve(true);
 
-            }).then(function (data: ModepressAddons.IGetDetails)
-            {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                that.meta = data.data;
-                return d.resolve(true);
-
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
-
-            return d.promise(); 
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
+            
         }
 
         /**
@@ -126,54 +124,53 @@ module Animate
 		* @param {string} user The username of the user.
 		* @param {string} password The password of the user.
 		* @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 		*/
-        login(user: string, password: string, rememberMe: boolean): JQueryPromise<UsersInterface.IAuthenticationResponse>
+        login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IAuthenticationResponse>(),
-                that = this,
-                token: UsersInterface.ILoginToken = {
+            var  token: UsersInterface.ILoginToken = {
                     username: user,
                     password: password,
                     rememberMe: rememberMe
                 },
                 response: UsersInterface.IAuthenticationResponse;
 
-            jQuery.post(`${DB.USERS}/users/login`, token).then(function (data: UsersInterface.IAuthenticationResponse)
+            var that = this;
+            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
             {
-                response = data;
-
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                if (data.authenticated)
+                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/login`, token).then(function (data)
                 {
-                    that._isLoggedIn = true;
-                    that.userEntry = <UsersInterface.IUserEntry>data.user;
-                    return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
-                }
-                else
+                    response = data;
+                    if (data.error)
+                        return reject(new Error(data.message));
+
+                    if (data.authenticated)
+                    {
+                        that._isLoggedIn = true;
+                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                        return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
+                    }
+                    else
+                    {
+                        that._isLoggedIn = false;
+                        that.resetMeta();
+                        return resolve(data);
+                    }
+
+                }).then(function (data: ModepressAddons.IGetDetails)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
+
+                    that.meta = data.data;
+                    return resolve(response);
+
+                }).catch(function (err: IAjaxError)
                 {
                     that._isLoggedIn = false;
-                    that.resetMeta();
-                    return d.resolve(response);
-                }
-
-            }).then(function (data: ModepressAddons.IGetDetails)
-            {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                that.meta = data.data;
-                return d.resolve(response);
-
-            }).fail(function (err: JQueryXHR)
-            {
-                that._isLoggedIn = false;
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
-
-            return d.promise();
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
         /**
@@ -183,12 +180,11 @@ module Animate
 		* @param {string} email The email of the user.
 		* @param {string} captcha The captcha of the login screen
 		* @param {string} captha_challenge The captha_challenge of the login screen
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 		*/
-        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): JQueryPromise<UsersInterface.IAuthenticationResponse>
+        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): Promise<UsersInterface.IAuthenticationResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IAuthenticationResponse>(),
-                that = this,
+            var that = this,
                 token: UsersInterface.IRegisterToken = {
                     username: user,
                     password: password,
@@ -197,110 +193,112 @@ module Animate
                     challenge: captha_challenge
                 };
 
-            jQuery.post(`${DB.USERS}/users/register`, token).done(function (data: UsersInterface.IAuthenticationResponse)
-            {
-                if (data.error)
-                    return d.reject(new Error(data.message));
 
-                if (data.authenticated)
+            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
+            {
+                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/register`, token).then(function (data)
                 {
-                    that._isLoggedIn = false;
-                    that.userEntry = <UsersInterface.IUserEntry>data.user;
-                }
-                else
-                    that._isLoggedIn = false;
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                return d.resolve(data);
+                    if (data.authenticated)
+                    {
+                        that._isLoggedIn = false;
+                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                    }
+                    else
+                        that._isLoggedIn = false;
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
+                    return resolve(data);
 
-            return d.promise();
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
         }
 
         /**
 		* This function is used to resend a user's activation code
 		* @param {string} user 
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        resendActivation(user: string): JQueryPromise<UsersInterface.IResponse>
+        resendActivation(user: string): Promise<UsersInterface.IResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IResponse>(),
-                that = this;
-            
-            jQuery.getJSON(`${DB.USERS}/users/resend-activation/${user}`).done(function (data: UsersInterface.IResponse)
-            {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                
-                return d.resolve(data);
+            var that = this;
 
-            }).fail(function (err: JQueryXHR)
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/resend-activation/${user}`).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-            return d.promise();
+                    return resolve(data);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
         /**
 		* This function is used to reset a user's password.
 		* @param {string} user 
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        resetPassword(user: string): JQueryPromise<UsersInterface.IResponse>
+        resetPassword(user: string): Promise<UsersInterface.IResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IResponse>(),
-                that = this;
+            var  that = this;
 
-            jQuery.getJSON(`${DB.USERS}/users/request-password-reset/${user}`).done(function (data: UsersInterface.IResponse)
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/request-password-reset/${user}`).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                return d.resolve(data);
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
-
-            return d.promise();
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
         /**
 		* Attempts to log the user out
-        * @return {JQueryPromise<UsersInterface.IResponse>}
+        * @return {Promise<UsersInterface.IResponse>}
 		*/
-        logout(): JQueryPromise<UsersInterface.IResponse>
+        logout(): Promise<UsersInterface.IResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IResponse>(),
-                that = this;
+            var that = this;
 
-            jQuery.getJSON(`${DB.USERS}/users/logout`).done(function (data: UsersInterface.IResponse)
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/logout`).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                that.userEntry = { username: "" };
-                that.meta = <Engine.IUserMeta>{
-                    bio: "",
-                    plan: UserPlan.Free,
-                    imgURL: "media/blank-user.png",
-                    maxNumProjects: 0
-                };
+                    that.userEntry = { username: "" };
+                    that.meta = <Engine.IUserMeta>{
+                        bio: "",
+                        plan: UserPlan.Free,
+                        imgURL: "media/blank-user.png",
+                        maxNumProjects: 0
+                    };
 
-                that._isLoggedIn = false;
-                return d.resolve(data);
+                    that._isLoggedIn = false;
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
-
-            return d.promise();
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
 		/**
@@ -308,37 +306,37 @@ module Animate
 		* it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
-        * @return {JQueryPromise<ModepressAddons.IGetProjects>}
+        * @return {Promise<ModepressAddons.IGetProjects>}
 		*/
-        getProjectList(index: number, limit: number): JQueryPromise<ModepressAddons.IGetProjects>
+        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects>
         {
-            var d = jQuery.Deferred<ModepressAddons.IGetProjects>(),
-                that = this;
+            var that = this;
 
-            jQuery.getJSON(`${DB.API}/projects/${this.userEntry.username}?verbose=true&index=${index}&limit=${limit}`).done(function (data: ModepressAddons.IGetProjects)
+            return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-
-                // Assign the actual plugins
-                for (var i = 0, l = data.data.length; i < l; i++)
+                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/projects/${that.userEntry.username}?verbose=true&index=${index}&limit=${limit}`).then(function (data)
                 {
-                    var project = data.data[i];
-                    var plugins: Array<Engine.IPlugin> = [];
-                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
-                        plugins.push(getPluginByID(project.plugins[ii]));
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                    project.$plugins = plugins;
-                }
+                    // Assign the actual plugins
+                    for (var i = 0, l = data.data.length; i < l; i++)
+                    {
+                        var project = data.data[i];
+                        var plugins: Array<Engine.IPlugin> = [];
+                        for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                            plugins.push(getPluginByID(project.plugins[ii]));
 
-                return d.resolve(data);
+                        project.$plugins = plugins;
+                    }
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
+                    return resolve(data);
 
-            return d.promise();
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
         /**
@@ -346,95 +344,97 @@ module Animate
         * @param {string} name The name of the project
         * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
-        * @return {JQueryPromise<ModepressAddons.ICreateProject>}
+        * @return {Promise<ModepressAddons.ICreateProject>}
 		*/
-        newProject(name: string, plugins: Array<string>, description: string = ""): JQueryPromise<ModepressAddons.ICreateProject>
+        newProject(name: string, plugins: Array<string>, description: string = ""): Promise<ModepressAddons.ICreateProject>
         {
-            var d = jQuery.Deferred<ModepressAddons.ICreateProject>(),
-                that = this,
+            var  that = this,
                 token: Engine.IProject  = {
                     name: name,
                     description: description,
                     plugins: plugins
                 };
 
-            jQuery.post(`${DB.API}/projects/create`, token).done(function (data: ModepressAddons.ICreateProject)
+            return new Promise<ModepressAddons.ICreateProject>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
+                Utils.post<ModepressAddons.ICreateProject>(`${DB.API}/projects/create`, token).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                // Assign the actual plugins
-                var project = data.data;
-                var plugins: Array<Engine.IPlugin> = [];
-                for (var ii = 0, il = project.plugins.length; ii < il; ii++)
-                    plugins.push(getPluginByID(project.plugins[ii]));
+                    // Assign the actual plugins
+                    var project = data.data;
+                    var plugins: Array<Engine.IPlugin> = [];
+                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                        plugins.push(getPluginByID(project.plugins[ii]));
 
-                project.$plugins = plugins;
-                
-                return d.resolve(data);
+                    project.$plugins = plugins;
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-            })
+                    return resolve(data);
 
-            return d.promise();
+                }).catch(function (err: IAjaxError)
+                {
+                    reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                })
+            });
         }
 
         /**
 		* Removes a project by its id
         * @param {string} pid The id of the project to remove
-        * @return {JQueryPromise<Modepress.IResponse>}
+        * @return {Promise<Modepress.IResponse>}
 		*/
-        removeProject(pid: string): JQueryPromise<Modepress.IResponse>
+        removeProject(pid: string): Promise<Modepress.IResponse>
         {
-            var d = jQuery.Deferred<Modepress.IResponse>(),
-                that = this;
+            var that = this;
 
-            jQuery.ajax({ url: `${DB.API}/projects/${that.userEntry.username}/${pid}`, type: 'DELETE', dataType: "json" }).done(function (data: Modepress.IResponse)
+            return new Promise<Modepress.IResponse>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
+                Utils.delete<Modepress.IResponse>(`${DB.API}/projects/${that.userEntry.username}/${pid}`).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
 
-                return d.resolve(data);
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
-
-            return d.promise();
+            
         }
         
         /**
 		* Attempts to update the user's details base on the token provided
         * @returns {Engine.IUserMeta} The user details token 
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        updateDetails(token: Engine.IUserMeta): JQueryPromise<UsersInterface.IResponse>
+        updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>
         {
-            var d = jQuery.Deferred<UsersInterface.IResponse>();
             var meta = this.meta;
+            var that = this;
 
-            Utils.put(`${DB.API}/user-details/${this.userEntry.username}`, token).then(function (data: UsersInterface.IResponse)
+            return new Promise<Modepress.IResponse>(function (resolve, reject)
             {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                else
+                Utils.put(`${DB.API}/user-details/${that.userEntry.username}`, token).then(function (data: UsersInterface.IResponse)
                 {
-                    for (var i in token)
-                        if (meta.hasOwnProperty(i))
-                            meta[i] = token[i];
-                }
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else
+                    {
+                        for (var i in token)
+                            if (meta.hasOwnProperty(i))
+                                meta[i] = token[i];
+                    }
 
-                return d.resolve(data);
+                    return resolve(data);
 
-            }).fail(function (err: JQueryXHR)
-            {
-                d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
             });
-
-            return d.promise();
         }
 
 

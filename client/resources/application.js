@@ -1385,6 +1385,7 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
+    ;
     var Utils = (function () {
         function Utils() {
         }
@@ -1392,22 +1393,106 @@ var Animate;
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         Utils.post = function (url, data) {
+            return new Promise(function (resolve, reject) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (xhttp.readyState == 4) {
+                        if (xhttp.status == 200) {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject({ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+                xhttp.open("POST", url, true);
+                var str;
+                if (data) {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+            });
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "post", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "post", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+        };
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        Utils.get = function (url) {
+            return new Promise(function (resolve, reject) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (xhttp.readyState == 4) {
+                        if (xhttp.status == 200) {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject({ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+                xhttp.open("GET", url, true);
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send();
+            });
         };
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         Utils.put = function (url, data) {
+            return new Promise(function (resolve, reject) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (xhttp.readyState == 4) {
+                        if (xhttp.status == 200) {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject({ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+                xhttp.open("PUT", url, true);
+                var str;
+                if (data) {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+            });
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         };
         /**
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
         Utils.delete = function (url, data) {
+            return new Promise(function (resolve, reject) {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (xhttp.readyState == 4) {
+                        if (xhttp.status == 200) {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject({ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+                xhttp.open("DELETE", url, true);
+                var str;
+                if (data) {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+            });
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         };
         /*Gets the local mouse position of an event on a given dom element.*/
         Utils.getMousePos = function (evt, id) {
@@ -1462,6 +1547,7 @@ var Animate;
             }
             return undefined;
         };
+        Utils._withCredentials = true;
         return Utils;
     })();
     Animate.Utils = Utils;
@@ -1581,23 +1667,29 @@ var Animate;
         };
         /**
         * Attempts to download a plugin by its URL and insert it onto the page.
-        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable
+        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
+        * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
         * @param {IPlugin} pluginDefinition The plugin to load
-        * @returns {JQueryPromise<Engine.IPlugin>}
+        * @returns {Promise<Engine.IPlugin>}
         */
         PluginManager.prototype.loadPlugin = function (pluginDefinition) {
-            var d = jQuery.Deferred();
             if (pluginDefinition.$loaded)
-                return d.resolve();
-            jQuery.ajax({ dataType: "script", url: pluginDefinition.url }).done(function () {
-                pluginDefinition.$loaded = true;
-                pluginDefinition.$instance = __newPlugin;
-                return d.resolve(pluginDefinition);
-            }).fail(function (err) {
-                pluginDefinition.$loaded = false;
-                d.reject(new Error("An error occurred while downloading a plugin. " + err.status + ": " + err.responseText));
+                return Promise.resolve();
+            return new Promise(function (resolve, reject) {
+                var script = document.createElement('script');
+                script.onerror = function (ev) {
+                    pluginDefinition.$loaded = false;
+                    return reject(new Error("Could not download plugin"));
+                };
+                script.onload = function (ev) {
+                    pluginDefinition.$loaded = true;
+                    pluginDefinition.$instance = __newPlugin;
+                    return resolve(pluginDefinition);
+                };
+                script.async = true;
+                script.src = pluginDefinition.url;
+                document.head.appendChild(script);
             });
-            return d.promise();
         };
         /**
         * This funtcion is used to load a plugin.
@@ -1973,9 +2065,9 @@ var Animate;
             dataToken.data = {};
             var canvasToken = null;
             //Get all the behaviours and build them into the export object
-            var i = project.behaviours.length;
+            var i = project.containers.length;
             while (i--) {
-                var behaviour = project.behaviours[i];
+                var behaviour = project.containers[i];
                 if (behaviour.entry.json === null)
                     continue;
                 canvasToken = behaviour.entry.json;
@@ -2438,17 +2530,16 @@ var Animate;
 var Animate;
 (function (Animate) {
     /**
-    * Each project has a list of behaviours. These are saved into the
-    * database and retrieved when we work with Animate. A behaviour is
-    * essentially a piece of code that executes script logic.
+    * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
+    * essentially a piece of code that executes behaviour nodes and plugin logic when activated.
     */
-    var BehaviourContainer = (function (_super) {
-        __extends(BehaviourContainer, _super);
+    var Container = (function (_super) {
+        __extends(Container, _super);
         //public json: CanvasToken;
         /**
         * {string} name The name of the container
         */
-        function BehaviourContainer(entry) {
+        function Container(entry) {
             // Call super-class constructor
             _super.call(this, entry);
             //this._id = id;
@@ -2464,7 +2555,7 @@ var Animate;
         * @param {string} name The name of the behaviour
         * @param {CanvasToken} json Its data object
         */
-        BehaviourContainer.prototype.update = function (name, json) {
+        Container.prototype.update = function (name, json) {
             this.entry.name = name;
             this.entry.json = json;
             //this._name = name;
@@ -2474,7 +2565,7 @@ var Animate;
         /**
         * This will cleanup the behaviour.
         */
-        BehaviourContainer.prototype.dispose = function () {
+        Container.prototype.dispose = function () {
             Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_DELETED, this));
             //Call super
             _super.prototype.dispose.call(this);
@@ -2486,9 +2577,9 @@ var Animate;
             //this.saved = null;
             //this._options = null;
         };
-        return BehaviourContainer;
+        return Container;
     })(Animate.ProjectResource);
-    Animate.BehaviourContainer = BehaviourContainer;
+    Animate.Container = Container;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -3271,6 +3362,7 @@ var Animate;
         ResourceType[ResourceType["GROUP"] = 1] = "GROUP";
         ResourceType[ResourceType["ASSET"] = 2] = "ASSET";
         ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
+        ResourceType[ResourceType["FILE"] = 4] = "FILE";
     })(Animate.ResourceType || (Animate.ResourceType = {}));
     var ResourceType = Animate.ResourceType;
     //export class ProjectAssetTypes extends ENUM
@@ -3446,46 +3538,28 @@ var Animate;
                     return this._behaviours[i];
             return null;
         };
-        //      /**
-        //* Attempts to load all assets and resources into the project
-        //      * @returns {JQueryPromise<UsersInterface.IResponse>}
-        //*/
-        //      load(): JQueryPromise<UsersInterface.IResponse>
-        //      {
-        //          var d = jQuery.Deferred<UsersInterface.IResponse>();
-        //          // TODO: Load all things when opening a project
-        //          jQuery.getJSON(`${DB.USERS}/users/resend-activation/${user}`).done(function (data: UsersInterface.IResponse)
-        //          {
-        //              if (data.error)
-        //                  return d.reject(new Error(data.message));
-        //              return d.resolve(data);
-        //          }).fail(function (err: JQueryXHR)
-        //          {
-        //              d.reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`));
-        //          })
-        //          return d.promise();
-        //      }
         /**
         * Attempts to update the project details base on the token provided
         * @returns {Engine.IProject} The project token
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
         Project.prototype.updateDetails = function (token) {
-            var d = jQuery.Deferred();
             var entry = this.entry;
-            Animate.Utils.put(Animate.DB.API + "/projects/" + this.entry.user + "/" + this.entry._id, token).then(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                else {
-                    for (var i in token)
-                        if (entry.hasOwnProperty(i))
-                            entry[i] = token[i];
-                }
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.put(Animate.DB.API + "/projects/" + that.entry.user + "/" + that.entry._id, token).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else {
+                        for (var i in token)
+                            if (entry.hasOwnProperty(i))
+                                entry[i] = token[i];
+                    }
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * This function is used to fetch the files associated with a project.
@@ -3493,27 +3567,115 @@ var Animate;
         */
         Project.prototype.loadFiles = function (mode) {
             if (mode === void 0) { mode = "project"; }
-            var d = jQuery.Deferred();
             var that = this;
-            jQuery.getJSON(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                that.files = data.data;
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.API + "/files/" + that.entry.user + "/" + that.entry._id).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    that.files = data.data;
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
+        };
+        /**
+        * Internal function to create a resource wrapper
+        * @param {T} entry The database entry
+        * @param {ResourceType} type The type of resource to create
+        * @returns {ProjectResource<any>}
+        */
+        Project.prototype.createResourceInstance = function (entry, type) {
+            var resource;
+            if (type == ResourceType.ASSET) {
+                resource = new Animate.Asset(entry);
+                this._assets.push(resource);
+            }
+            else if (type == ResourceType.CONTAINER) {
+                resource = new Animate.Container(entry);
+                this._behaviours.push(resource);
+            }
+            else if (type == ResourceType.GROUP) {
+                resource = new Animate.GroupArray(entry);
+                this._groups.push(resource);
+            }
+            else if (type == ResourceType.FILE) {
+                this._files.push(entry);
+            }
+            if (resource) {
+                this.emit(new ProjectEvent("resource-created", resource));
+                return resource;
+            }
+            return null;
+        };
+        /**
+        * This function is used to fetch the project resources associated with a project.
+        * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+        */
+        Project.prototype.loadResources = function (type) {
+            var that = this;
+            var arr = [];
+            if (!type) {
+                arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
+            }
+            else {
+                if (type == ResourceType.FILE)
+                    arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
+                else if (type == ResourceType.ASSET)
+                    arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
+                else if (type == ResourceType.CONTAINER)
+                    arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
+                else if (type == ResourceType.GROUP)
+                    arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
+            }
+            return new Promise(function (resolve, reject) {
+                Promise.all(arr).then(function (data) {
+                    // Check for any errors
+                    for (var i = 0, l = data.length; i < l; i++)
+                        if (data[i].error)
+                            return reject(new Error(data[i].message));
+                    if (!type) {
+                        for (var i = 0, l = data[0].data.length; i < l; i++)
+                            that.createResourceInstance(data[0].data[i], ResourceType.FILE);
+                        for (var i = 0, l = data[1].data.length; i < l; i++)
+                            that.createResourceInstance(data[1].data[i], ResourceType.ASSET);
+                        for (var i = 0, l = data[2].data.length; i < l; i++)
+                            that.createResourceInstance(data[2].data[i], ResourceType.CONTAINER);
+                        for (var i = 0, l = data[3].data.length; i < l; i++)
+                            that.createResourceInstance(data[3].data[i], ResourceType.GROUP);
+                    }
+                    else {
+                        if (type == ResourceType.FILE)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance(data[0].data[i], ResourceType.FILE);
+                        else if (type == ResourceType.ASSET)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance(data[0].data[i], ResourceType.ASSET);
+                        else if (type == ResourceType.CONTAINER)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance(data[0].data[i], ResourceType.CONTAINER);
+                        else if (type == ResourceType.GROUP)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                that.createResourceInstance(data[0].data[i], ResourceType.GROUP);
+                    }
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
+            });
         };
         /**
         * Use this to rename the project, a behaviour, group or asset.
         * @param {string} name The new name of the object
         * @param {string} id The id of the object we are renaming.
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns {Promise<Modepress.IResponse>}
         */
         Project.prototype.renameObject = function (name, id, type) {
-            var d = jQuery.Deferred();
             var that = this;
             var details = Animate.User.get.userEntry;
             var projId = this.entry._id;
@@ -3524,23 +3686,23 @@ var Animate;
                 url = Animate.DB.API + "/containers/" + details.username + "/" + projId + "/" + id;
             else if (type == ResourceType.GROUP)
                 url = Animate.DB.API + "/groups/" + details.username + "/" + projId + "/" + id;
-            Animate.Utils.put(url, { name: name }).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.put(url, { name: name }).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    return resolve(data);
+                }).catch(function (err) {
+                    reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Creates a new project resource.
         * @param {string} name The new name of the object
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {JQueryPromise<Modepress.IResponse>}
+        * @returns { Promise<ProjectResource<any>>}
         */
         Project.prototype.createResource = function (name, type) {
-            var d = jQuery.Deferred();
             var that = this;
             var details = Animate.User.get.userEntry;
             var projId = this.entry._id;
@@ -3551,28 +3713,22 @@ var Animate;
                 url = Animate.DB.API + "/containers/" + details.username + "/" + projId;
             else if (type == ResourceType.GROUP)
                 url = Animate.DB.API + "/groups/" + details.username + "/" + projId;
-            Animate.Utils.post(url, { name: name }).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                var resource;
-                if (type == ResourceType.ASSET) {
-                    resource = new Animate.Asset(data.data);
-                    this._assets.push(resource);
-                }
-                else if (type == ResourceType.CONTAINER) {
-                    resource = new Animate.BehaviourContainer(data.data);
-                    that._behaviours.push(resource);
-                }
-                else if (type == ResourceType.GROUP) {
-                    resource = new Animate.GroupArray(data.data);
-                    that._groups.push(resource);
-                }
-                that.emit(new ProjectEvent("resource-created", resource));
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.post(url, { name: name }).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    var resource;
+                    if (type == ResourceType.ASSET)
+                        resource = that.createResourceInstance(data.data, ResourceType.ASSET);
+                    else if (type == ResourceType.CONTAINER)
+                        resource = that.createResourceInstance(data.data, ResourceType.CONTAINER);
+                    else if (type == ResourceType.GROUP)
+                        resource = that.createResourceInstance(data.data, ResourceType.GROUP);
+                    return resolve(resource);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         ///**
         //* Use this to rename a behaviour, group or asset.
@@ -3796,15 +3952,16 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global });
         };
-        /**
-        * This function is used to fetch the beaviours of a project.
-        */
-        Project.prototype.loadBehaviours = function () {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/get-behaviours", { projectId: this.entry._id });
-        };
+        ///**
+        //* This function is used to fetch the beaviours of a project. 
+        //*/
+        //loadBehaviours()
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/get-behaviours", { projectId: this.entry._id } );
+        //}
         /**
         * This function is used to create a new group. This will make
         * a call the server. If the server sends a fail message then no new group
@@ -3818,15 +3975,16 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/create-group", { projectId: this.entry._id, name: name });
         };
-        /**
-        * This function is used to fetch the groups of a project.
-        */
-        Project.prototype.loadGroups = function () {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/get-groups", { projectId: this.entry._id });
-        };
+        ///**
+        //* This function is used to fetch the groups of a project. 
+        //*/
+        //loadGroups()
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/get-groups", { projectId: this.entry._id } );
+        //}
         /**
         * This will save the current state of the groups to the server
         * @param {Array<string>} groupIds The array of group ID's we are trying to save.
@@ -3949,15 +4107,16 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs });
         };
-        /**
-        * This function is used to fetch the _assets of a project.
-        */
-        Project.prototype.loadAssets = function () {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/get-assets", { projectId: this.entry._id });
-        };
+        ///**
+        //* This function is used to fetch the _assets of a project. 
+        //*/
+        //loadAssets()
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/get-assets", { projectId: this.entry._id } );
+        //}
         /**
         * Loads the project from data sent from the server
         * @param {any} data The data sent from the server
@@ -4025,24 +4184,6 @@ var Animate;
                                     //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
                                     break;
                                 }
-                        }
-                    }
-                    else if (loader.url == "/project/get-behaviours") {
-                        //Cleanup behaviourssaveAll
-                        for (var i = 0; i < this._behaviours.length; i++)
-                            this._behaviours[i].dispose();
-                        this._behaviours.splice(0, this._behaviours.length);
-                        //Create new behaviours which we fetched from the DB.
-                        for (var i = 0, l = data.length; i < l; i++) {
-                            var dbEntry = data[i];
-                            var b = new Animate.BehaviourContainer({ name: dbEntry["name"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
-                            b.entry.json = Animate.CanvasToken.fromDatabase(dbEntry["json"], dbEntry["_id"]);
-                            b.setProperties(dbEntry.json.properties);
-                            this._behaviours.push(b);
-                            //Create the GUI elements
-                            Animate.TreeViewScene.getSingleton().addContainer(b);
-                            //Update the GUI elements
-                            Animate.TreeViewScene.getSingleton().updateBehaviour(b);
                         }
                     }
                     else if (loader.url == "/project/save-behaviours") {
@@ -4174,7 +4315,7 @@ var Animate;
             //else
             //	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         };
-        Object.defineProperty(Project.prototype, "behaviours", {
+        Object.defineProperty(Project.prototype, "containers", {
             get: function () { return this._behaviours; },
             enumerable: true,
             configurable: true
@@ -4324,75 +4465,75 @@ var Animate;
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
-        * @returns {JQueryPromise<boolean>}
+        * @returns {Promise<boolean>}
         */
         User.prototype.authenticated = function () {
-            var d = jQuery.Deferred();
+            this._isLoggedIn = false;
             var that = this;
-            var response;
-            that._isLoggedIn = false;
-            jQuery.getJSON(Animate.DB.USERS + "/users/authenticated").then(function (data) {
-                response = data;
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                if (data.authenticated) {
-                    that.userEntry = data.user;
-                    that._isLoggedIn = true;
-                    return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
-                }
-                else {
-                    that._isLoggedIn = false;
-                    that.resetMeta();
-                    return d.resolve(false);
-                }
-                return d.resolve(data.authenticated);
-            }).then(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                that.meta = data.data;
-                return d.resolve(true);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.USERS + "/users/authenticated").then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    if (data.authenticated) {
+                        that.userEntry = data.user;
+                        that._isLoggedIn = true;
+                        return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
+                    }
+                    else {
+                        that._isLoggedIn = false;
+                        that.resetMeta();
+                        return resolve(false);
+                    }
+                    return resolve(data.authenticated);
+                }).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    that.meta = data.data;
+                    return resolve(true);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Tries to log the user in asynchronously.
         * @param {string} user The username of the user.
         * @param {string} password The password of the user.
         * @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
         User.prototype.login = function (user, password, rememberMe) {
-            var d = jQuery.Deferred(), that = this, token = {
+            var token = {
                 username: user,
                 password: password,
                 rememberMe: rememberMe
             }, response;
-            jQuery.post(Animate.DB.USERS + "/users/login", token).then(function (data) {
-                response = data;
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                if (data.authenticated) {
-                    that._isLoggedIn = true;
-                    that.userEntry = data.user;
-                    return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
-                }
-                else {
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.post(Animate.DB.USERS + "/users/login", token).then(function (data) {
+                    response = data;
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    if (data.authenticated) {
+                        that._isLoggedIn = true;
+                        that.userEntry = data.user;
+                        return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
+                    }
+                    else {
+                        that._isLoggedIn = false;
+                        that.resetMeta();
+                        return resolve(data);
+                    }
+                }).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    that.meta = data.data;
+                    return resolve(response);
+                }).catch(function (err) {
                     that._isLoggedIn = false;
-                    that.resetMeta();
-                    return d.resolve(response);
-                }
-            }).then(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                that.meta = data.data;
-                return d.resolve(response);
-            }).fail(function (err) {
-                that._isLoggedIn = false;
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Tries to register a new user.
@@ -4401,178 +4542,186 @@ var Animate;
         * @param {string} email The email of the user.
         * @param {string} captcha The captcha of the login screen
         * @param {string} captha_challenge The captha_challenge of the login screen
-        * @returns {JQueryPromise<UsersInterface.IAuthenticationResponse>}
+        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
         User.prototype.register = function (user, password, email, captcha, captha_challenge) {
-            var d = jQuery.Deferred(), that = this, token = {
+            var that = this, token = {
                 username: user,
                 password: password,
                 email: email,
                 captcha: captcha,
                 challenge: captha_challenge
             };
-            jQuery.post(Animate.DB.USERS + "/users/register", token).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                if (data.authenticated) {
-                    that._isLoggedIn = false;
-                    that.userEntry = data.user;
-                }
-                else
-                    that._isLoggedIn = false;
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.post(Animate.DB.USERS + "/users/register", token).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    if (data.authenticated) {
+                        that._isLoggedIn = false;
+                        that.userEntry = data.user;
+                    }
+                    else
+                        that._isLoggedIn = false;
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * This function is used to resend a user's activation code
         * @param {string} user
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
         User.prototype.resendActivation = function (user) {
-            var d = jQuery.Deferred(), that = this;
-            jQuery.getJSON(Animate.DB.USERS + "/users/resend-activation/" + user).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.USERS + "/users/resend-activation/" + user).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * This function is used to reset a user's password.
         * @param {string} user
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
         User.prototype.resetPassword = function (user) {
-            var d = jQuery.Deferred(), that = this;
-            jQuery.getJSON(Animate.DB.USERS + "/users/request-password-reset/" + user).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.USERS + "/users/request-password-reset/" + user).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Attempts to log the user out
-        * @return {JQueryPromise<UsersInterface.IResponse>}
+        * @return {Promise<UsersInterface.IResponse>}
         */
         User.prototype.logout = function () {
-            var d = jQuery.Deferred(), that = this;
-            jQuery.getJSON(Animate.DB.USERS + "/users/logout").done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                that.userEntry = { username: "" };
-                that.meta = {
-                    bio: "",
-                    plan: Animate.UserPlan.Free,
-                    imgURL: "media/blank-user.png",
-                    maxNumProjects: 0
-                };
-                that._isLoggedIn = false;
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.USERS + "/users/logout").then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    that.userEntry = { username: "" };
+                    that.meta = {
+                        bio: "",
+                        plan: Animate.UserPlan.Free,
+                        imgURL: "media/blank-user.png",
+                        maxNumProjects: 0
+                    };
+                    that._isLoggedIn = false;
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
-        * @return {JQueryPromise<ModepressAddons.IGetProjects>}
+        * @return {Promise<ModepressAddons.IGetProjects>}
         */
         User.prototype.getProjectList = function (index, limit) {
-            var d = jQuery.Deferred(), that = this;
-            jQuery.getJSON(Animate.DB.API + "/projects/" + this.userEntry.username + "?verbose=true&index=" + index + "&limit=" + limit).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                // Assign the actual plugins
-                for (var i = 0, l = data.data.length; i < l; i++) {
-                    var project = data.data[i];
-                    var plugins = [];
-                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
-                        plugins.push(getPluginByID(project.plugins[ii]));
-                    project.$plugins = plugins;
-                }
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(Animate.DB.API + "/projects/" + that.userEntry.username + "?verbose=true&index=" + index + "&limit=" + limit).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    // Assign the actual plugins
+                    for (var i = 0, l = data.data.length; i < l; i++) {
+                        var project = data.data[i];
+                        var plugins = [];
+                        for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                            plugins.push(getPluginByID(project.plugins[ii]));
+                        project.$plugins = plugins;
+                    }
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Creates a new user projects
         * @param {string} name The name of the project
         * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
         * @param {string} description [Optional] A short description
-        * @return {JQueryPromise<ModepressAddons.ICreateProject>}
+        * @return {Promise<ModepressAddons.ICreateProject>}
         */
         User.prototype.newProject = function (name, plugins, description) {
             if (description === void 0) { description = ""; }
-            var d = jQuery.Deferred(), that = this, token = {
+            var that = this, token = {
                 name: name,
                 description: description,
                 plugins: plugins
             };
-            jQuery.post(Animate.DB.API + "/projects/create", token).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                // Assign the actual plugins
-                var project = data.data;
-                var plugins = [];
-                for (var ii = 0, il = project.plugins.length; ii < il; ii++)
-                    plugins.push(getPluginByID(project.plugins[ii]));
-                project.$plugins = plugins;
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.post(Animate.DB.API + "/projects/create", token).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    // Assign the actual plugins
+                    var project = data.data;
+                    var plugins = [];
+                    for (var ii = 0, il = project.plugins.length; ii < il; ii++)
+                        plugins.push(getPluginByID(project.plugins[ii]));
+                    project.$plugins = plugins;
+                    return resolve(data);
+                }).catch(function (err) {
+                    reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Removes a project by its id
         * @param {string} pid The id of the project to remove
-        * @return {JQueryPromise<Modepress.IResponse>}
+        * @return {Promise<Modepress.IResponse>}
         */
         User.prototype.removeProject = function (pid) {
-            var d = jQuery.Deferred(), that = this;
-            jQuery.ajax({ url: Animate.DB.API + "/projects/" + that.userEntry.username + "/" + pid, type: 'DELETE', dataType: "json" }).done(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.delete(Animate.DB.API + "/projects/" + that.userEntry.username + "/" + pid).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         /**
         * Attempts to update the user's details base on the token provided
         * @returns {Engine.IUserMeta} The user details token
-        * @returns {JQueryPromise<UsersInterface.IResponse>}
+        * @returns {Promise<UsersInterface.IResponse>}
         */
         User.prototype.updateDetails = function (token) {
-            var d = jQuery.Deferred();
             var meta = this.meta;
-            Animate.Utils.put(Animate.DB.API + "/user-details/" + this.userEntry.username, token).then(function (data) {
-                if (data.error)
-                    return d.reject(new Error(data.message));
-                else {
-                    for (var i in token)
-                        if (meta.hasOwnProperty(i))
-                            meta[i] = token[i];
-                }
-                return d.resolve(data);
-            }).fail(function (err) {
-                d.reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.responseText));
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.put(Animate.DB.API + "/user-details/" + that.userEntry.username, token).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else {
+                        for (var i in token)
+                            if (meta.hasOwnProperty(i))
+                                meta[i] = token[i];
+                    }
+                    return resolve(data);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
             });
-            return d.promise();
         };
         ///**
         //* Use this function to rename a project
@@ -6533,6 +6682,7 @@ var Animate;
             node.treeview = this;
             node.element.addClass("tree-node-top");
             jQuery(".selectable", node.element).addClass("first-selectable");
+            jQuery(".selectable", node.element).addClass("background-view-light");
             var toRet = Animate.Component.prototype.addChild.call(this, node);
             this.fixDiv.remove();
             this.element.append(this.fixDiv);
@@ -8176,66 +8326,79 @@ var Animate;
             //Unload all the plugins
             Animate.PluginManager.getSingleton().projectReset(user.project);
         };
-        /**
-        * This is called when a project is created. This is used
-        * so we can orgaise all the elements that need to be populated.
-        */
-        Application.prototype.projectReady = function () {
-            Animate.Toolbar.getSingleton().newProject();
-            Animate.CanvasTab.getSingleton().projectReady();
-            var project = Animate.User.get.project;
-            project.on(Animate.ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this);
-            project.loadBehaviours();
-            //Create the page title
-            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-            Animate.TreeViewScene.getSingleton().projectReady(project);
-        };
-        /**
-        * This is called when a project has loaded all its behaviours.
-        */
-        Application.prototype.onBehavioursLoaded = function (response, event, sender) {
-            var that = this;
-            var project = Animate.User.get.project;
-            project.off(Animate.ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this);
-            //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-            project.loadFiles().then(function () {
-                that.onFilesLoaded(null, null, null);
-            });
-        };
-        /**
-        * This is called when a project has loaded all its assets.
-        */
-        Application.prototype.onAssetsLoaded = function (response, event, sender) {
-            var project = Animate.User.get.project;
-            project.off(Animate.ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this);
-            project.on(Animate.ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this);
-            project.loadGroups();
-        };
-        /**
-        * This is called when a project has loaded all its files.
-        */
-        Application.prototype.onFilesLoaded = function (response, event, sender) {
-            var project = Animate.User.get.project;
-            //project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-            project.on(Animate.ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this);
-            project.loadAssets();
-        };
-        /**
-        * This is called when a project has loaded all its groups.
-        */
-        Application.prototype.onGroupsLoaded = function (response, event, sender) {
-            var project = Animate.User.get.project;
-            project.off(Animate.ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this);
-            project.off(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
-            project.on(Animate.ProjectEvents.SAVED_ALL, this.onSaveAll, this);
-            Animate.PluginManager.getSingleton().projectReady(project);
-        };
-        /**
-        * When the project data is all saved to the DB
-        */
-        Application.prototype.onSaveAll = function (event, data) {
-            Animate.CanvasTab.getSingleton().saveAll();
-        };
+        ///**
+        //* This is called when a project is created. This is used
+        //* so we can orgaise all the elements that need to be populated.
+        //*/
+        //projectReady()
+        //{
+        //          var project: Project = User.get.project;
+        //	//project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+        //	//project.loadBehaviours();
+        //          // load each of the different resources
+        //          var project: Project = User.get.project;
+        //          project.loadResources()
+        //          project.off(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
+        //          project.on(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
+        //          //Create the page title
+        //          document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
+        //          Toolbar.getSingleton().newProject(project);
+        //          CanvasTab.getSingleton().projectReady(project);
+        //          TreeViewScene.getSingleton().projectReady(project);
+        //          PluginManager.getSingleton().projectReady(project);
+        //}
+        ///**
+        //* This is called when a project has loaded all its behaviours.
+        //*/
+        //      onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+        //      {
+        //          var that = this;
+        //          var project: Project = User.get.project;
+        //	project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
+        //          //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+        //          project.loadFiles().then(function ()
+        //          {
+        //              that.onFilesLoaded(null, null, null);
+        //          });
+        //}
+        ///**
+        //* This is called when a project has loaded all its assets.
+        //*/
+        //      onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+        //{
+        //          var project: Project = User.get.project;
+        //	project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+        //	project.on( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+        //	project.loadGroups();
+        //}
+        ///**
+        //* This is called when a project has loaded all its files.
+        //*/
+        //      onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+        //{
+        //          var project: Project = User.get.project;
+        //	//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
+        //	project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
+        //	project.loadAssets();
+        //}
+        ///**
+        //* This is called when a project has loaded all its groups.
+        //*/
+        //      onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
+        //{
+        //          var project = User.get.project;
+        //	project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
+        //	project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+        //	project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
+        //          PluginManager.getSingleton().projectReady(project);
+        //}
+        ///**
+        //* When the project data is all saved to the DB
+        //*/
+        //onSaveAll( event, data ) : void
+        //{
+        //	CanvasTab.getSingleton().saveAll();
+        //}
         /**
         * Gets the singleton instance
         */
@@ -11984,13 +12147,8 @@ var Animate;
             var r = event.resouce;
             if (r instanceof Animate.Asset)
                 this.addAssetInstance(r, false);
-            else if (r instanceof Animate.BehaviourContainer) {
-                var node = this.addContainer(r);
-                node.save(false);
-                var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(r.entry.name, Animate.CanvasTabType.CANVAS, r);
-                jQuery(".text", tabPair.tabSelector.element).text(node.element.text());
-                tabPair.name = node.element.text();
-            }
+            else if (r instanceof Animate.Container)
+                this._sceneNode.addNode(new Animate.TreeNodeBehaviour(r));
             // Todo: Do something when a group node is created
         };
         /**
@@ -12162,12 +12320,12 @@ var Animate;
                 else if (this._contextNode == this._groupsNode) {
                     while (this._groupsNode.children.length > 0)
                         this._groupsNode.children[0].dispose();
-                    Animate.User.get.project.loadGroups();
+                    Animate.User.get.project.loadResources(Animate.ResourceType.GROUP);
                 }
                 else if (this._contextNode == this._sceneNode) {
                     while (this._sceneNode.children.length > 0)
                         this._sceneNode.children[0].dispose();
-                    Animate.User.get.project.loadBehaviours();
+                    Animate.User.get.project.loadResources(Animate.ResourceType.CONTAINER);
                 }
                 else if (this._contextNode instanceof Animate.TreeNodeGroup) {
                     Animate.User.get.project.updateGroups([this._contextNode.groupID]);
@@ -12258,10 +12416,10 @@ var Animate;
             //if (event.tag.object.type == "project" )
             //	return;
             var project = Animate.User.get.project;
-            var len = project.behaviours.length;
+            var len = project.containers.length;
             if (event.resourceType == Animate.ResourceType.CONTAINER)
                 for (var i = 0; i < len; i++)
-                    if (project.behaviours[i].entry.name == event.name) {
+                    if (project.containers[i].entry.name == event.name) {
                         event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
                         return;
                     }
@@ -12516,16 +12674,17 @@ var Animate;
                 new TreeViewScene();
             return TreeViewScene._singleton;
         };
-        /**
-        * This will add a node to the treeview to represent the containers.
-        * @param {BehaviourContainer} behaviour The behaviour we are associating with the node
-        * @returns {TreeNodeBehaviour}
-        */
-        TreeViewScene.prototype.addContainer = function (behaviour) {
-            var toRet = new Animate.TreeNodeBehaviour(behaviour);
-            this._sceneNode.addNode(toRet);
-            return toRet;
-        };
+        ///**
+        //* This will add a node to the treeview to represent the containers.
+        //* @param {BehaviourContainer} behaviour The behaviour we are associating with the node
+        //* @returns {TreeNodeBehaviour} 
+        //*/
+        //addContainer(behaviour: Container): TreeNodeBehaviour
+        //{
+        //	var toRet: TreeNodeBehaviour = new TreeNodeBehaviour( behaviour );
+        //	this._sceneNode.addNode( toRet );
+        //	return toRet;
+        //}
         /**
         * This will add a node to the treeview to represent the behaviours available to developers
         * @param {BehaviourDefinition} template
@@ -12724,7 +12883,7 @@ var Animate;
             * @returns {boolean} If the component is selected or not.
             */
             get: function () {
-                if (this.element.hasClass("tree-node-selected"))
+                if (this.element.hasClass("selected"))
                     return true;
                 else
                     return false;
@@ -12736,9 +12895,9 @@ var Animate;
             set: function (val) {
                 //Check if setting the variable
                 if (val)
-                    jQuery(" > .selectable", this.element).addClass("tree-node-selected").addClass("tree-node-selected");
+                    jQuery(" > .selectable", this.element).addClass("selected").addClass("reg-gradient");
                 else
-                    jQuery(" > .selectable", this.element).removeClass("tree-node-selected").removeClass("tree-node-selected");
+                    jQuery(" > .selectable", this.element).removeClass("selected").removeClass("reg-gradient");
             },
             enumerable: true,
             configurable: true
@@ -14131,20 +14290,17 @@ var Animate;
             Animate.Tab.prototype.onTabSelected.call(this, tab);
         };
         /**
-        * @type public mfunc projectReady
         * When we start a new project we load the welcome page.
-        * @extends <CanvasTab>
+        * @param {Project} project
         */
-        CanvasTab.prototype.projectReady = function () {
+        CanvasTab.prototype.projectReady = function (project) {
             var loader = new Animate.AnimateLoader();
             loader.on(Animate.LoaderEvents.COMPLETE, this.onNewsLoaded, this);
             loader.on(Animate.LoaderEvents.FAILED, this.onNewsLoaded, this);
             loader.load("/misc/get-news-tab", {});
         };
         /**
-        * @type public mfunc projectReset
         * Called when the project is reset by either creating a new one or opening an older one.
-        * @extends <CanvasTab>
         */
         CanvasTab.prototype.projectReset = function () {
             this._currentCanvas = null;
@@ -14152,7 +14308,6 @@ var Animate;
             this.clear();
         };
         /**
-        * @type public mfunc onNewsLoaded
         * When the news has been loaded from webinate.
         */
         CanvasTab.prototype.onNewsLoaded = function (response, event, sender) {
@@ -15446,7 +15601,7 @@ var Animate;
         __extends(ToolBarButton, _super);
         function ToolBarButton(text, image, pushButton, parent) {
             if (pushButton === void 0) { pushButton = false; }
-            _super.call(this, "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text'>" + text + "</div></div>", parent);
+            _super.call(this, "<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent);
             this._pushButton = pushButton;
             this._radioMode = false;
             this._proxyDown = this.onClick.bind(this);
@@ -15537,7 +15692,7 @@ var Animate;
             if (delta === void 0) { delta = 1; }
             _super.call(this, "<div class='toolbar-button tooltip scrolling-number'></div>", parent);
             var container = this.addChild("<div class='number-holder'></div>");
-            this.addChild("<div class='tooltip-text'>" + text + "</div>");
+            this.addChild("<div class='tooltip-text tooltip-text-bg'>" + text + "</div>");
             this.defaultVal = defaultVal;
             this.minValue = minValue;
             this.maxValue = maxValue;
@@ -15743,7 +15898,7 @@ var Animate;
         function ToolbarColorPicker(parent, text, color) {
             _super.call(this, "<div class='toolbar-button tooltip'></div>", parent);
             this.numberInput = this.addChild("<input class='toolbar-color' value='#ff0000'></input>");
-            this.addChild("<div class='tooltip-text'>" + text + "</div>");
+            this.addChild("<div class='tooltip-text tooltip-text-bg'>" + text + "</div>");
             this.picker = new jscolor.color(document.getElementById(this.numberInput.id));
             this.picker.fromString(color);
         }
@@ -15786,7 +15941,7 @@ var Animate;
         * @param {string} text The text to use in the item.
         */
         function ToolbarItem(img, text, parent) {
-            _super.call(this, "<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text'>" + text + "</div></div>", parent);
+            _super.call(this, "<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent);
             this.img = img;
             this.text = text;
         }
@@ -16223,9 +16378,11 @@ var Animate;
             this.$loading = true;
             this.$errorMsgUserImg = "";
             Animate.FileViewer.get.choose('img').then(function (file) {
-                Animate.User.get.updateDetails({ image: (file ? file.url : null) }).fail(function (err) {
+                Animate.User.get.updateDetails({ image: (file ? file.url : null) }).then(function () {
+                    that.$loading = false;
+                    Animate.Compiler.digest(that._userElm, that, false);
+                }).catch(function (err) {
                     that.$errorMsgUserImg = err.message;
-                }).always(function () {
                     that.$loading = false;
                     Animate.Compiler.digest(that._userElm, that, false);
                 });
@@ -16240,9 +16397,11 @@ var Animate;
             var project = Animate.User.get.project;
             this.$errorMsgProjImg = "";
             Animate.FileViewer.get.choose('img').then(function (file) {
-                project.updateDetails({ image: (file ? file.url : null) }).fail(function (err) {
+                project.updateDetails({ image: (file ? file.url : null) }).then(function () {
+                    that.$loading = false;
+                    Animate.Compiler.digest(that._projectElm, that, false);
+                }).catch(function (err) {
                     that.$errorMsgProjImg = err.message;
-                }).always(function () {
                     that.$loading = false;
                     Animate.Compiler.digest(that._projectElm, that, false);
                 });
@@ -16255,13 +16414,14 @@ var Animate;
             var that = this, project = Animate.User.get.project;
             this.$loading = true;
             this.$errorMsg = "";
-            project.updateDetails(token).fail(function (err) {
-                that.$errorMsg = err.message;
-            }).done(function () {
+            project.updateDetails(token).then(function () {
                 // Update the project object
                 for (var i in token)
                     project.entry[i] = token[i];
-            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._projectElm, that, false);
+            }).catch(function (err) {
+                that.$errorMsg = err.message;
                 that.$loading = false;
                 Animate.Compiler.digest(that._projectElm, that, false);
             });
@@ -16314,9 +16474,11 @@ var Animate;
             var that = this, user = this.$user;
             this.$loading = true;
             this.$errorMsg = "";
-            user.updateDetails({ bio: bio }).fail(function (err) {
+            user.updateDetails({ bio: bio }).catch(function (err) {
                 that.$errorMsg = err.message;
-            }).always(function () {
+                that.$loading = false;
+                Animate.Compiler.digest(that._userElm, that, false);
+            }).then(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._userElm, that, false);
             });
@@ -17103,8 +17265,8 @@ var Animate;
                         if (token.error)
                             Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
                         file.previewUrl = tokens[1].url;
-                    }).fail(function (err) {
-                        Animate.Logger.getSingleton().logMessage("An error occurred while connecting to the server. " + err.status + ": " + err.responseText, null, Animate.LogType.ERROR);
+                    }).catch(function (err) {
+                        Animate.Logger.getSingleton().logMessage("An error occurred while connecting to the server. " + err.status + ": " + err.message, null, Animate.LogType.ERROR);
                     });
                 }
             });
@@ -17203,8 +17365,8 @@ var Animate;
                             that.$selectedFile[i] = token[i];
                 }
                 Animate.Compiler.digest(that._browserElm, that);
-            }).fail(function (err) {
-                that.$errorMsg = "An error occurred while connecting to the server. " + err.status + ": " + err.responseText;
+            }).catch(function (err) {
+                that.$errorMsg = "An error occurred while connecting to the server. " + err.status + ": " + err.message;
                 Animate.Compiler.digest(that._browserElm, that);
             });
         };
@@ -17491,10 +17653,11 @@ var Animate;
     */
     var RenameFormEvent = (function (_super) {
         __extends(RenameFormEvent, _super);
-        function RenameFormEvent(type, name, object, rt) {
+        function RenameFormEvent(type, name, oldName, object, rt) {
             _super.call(this, type, name);
             this.cancel = false;
             this.name = name;
+            this.oldName = oldName;
             this.object = object;
             this.resourceType = rt;
         }
@@ -17515,18 +17678,14 @@ var Animate;
             this.$name = "";
             this.$errorMsg = "";
             this.$loading = false;
-            this._deferred = null;
             // Fetch & compile the HTML
             this._projectElm = jQuery("#rename-content").remove().clone();
             this.content.element.append(this._projectElm);
             Animate.Compiler.build(this._projectElm, this, false);
-            //this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
             this.object = null;
-            //this.warning = new Label( "Please enter a name and click Ok.", this.okCancelContent );
         }
         RenameForm.prototype.hide = function () {
             _super.prototype.hide.call(this);
-            this._deferred = null;
         };
         /**
          * Shows the window by adding it to a parent.
@@ -17552,19 +17711,17 @@ var Animate;
         * @extends {RenameForm}
         */
         RenameForm.prototype.renameObject = function (object, curName, id, type) {
-            var d = jQuery.Deferred();
-            this.object = object;
-            //(<Label>this.name.val).text = curName;
-            //this.warning.textfield.element.css( "color", "" );
-            //this.warning.text = "Please enter a name and click Ok.";
-            //( <Label>this.name.val ).textfield.element.removeClass( "red-border" );
             _super.prototype.show.call(this, undefined, undefined, undefined, true);
-            Animate.Compiler.digest(this._projectElm, this);
-            //( <InputBox>this.name.val ).focus();
+            this.object = object;
             this._resourceId = id;
             this._type = type;
-            this._deferred = d;
-            return d.promise();
+            var that = this;
+            Animate.Compiler.digest(this._projectElm, this);
+            return new Promise(function (resolve, reject) {
+                that.on("renamed", function (type, event) {
+                    return resolve({ newName: event.name, oldName: event.oldName, object: event.object });
+                });
+            });
         };
         /**
         * @type public mfunc OnButtonClick
@@ -17577,7 +17734,13 @@ var Animate;
             var name = this.$name;
             var that = this;
             var proj = Animate.User.get.project;
-            var event = new RenameFormEvent("renaming", name, this.object, this._type);
+            var prevName = (this.object ? this.object.name : "");
+            if (name.trim() == "") {
+                this.$errorMsg = "Name cannot be empty";
+                Animate.Compiler.digest(this._projectElm, this);
+                return;
+            }
+            var event = new RenameFormEvent("renaming", name, prevName, this.object, this._type);
             this.$loading = true;
             this.$errorMsg = "";
             // Dispatch an event notifying listeners of the renaming object
@@ -17587,93 +17750,23 @@ var Animate;
                 Animate.Compiler.digest(this._projectElm, this);
                 return;
             }
-            if (!this._resourceId)
-                return that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+            if (!this._resourceId) {
+                that.hide();
+                return that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
+            }
             // Attempt to connect to the DB and update the object
             proj.renameObject(name, this._resourceId, this._type).then(function (resp) {
-                that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+                that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
                 that.hide();
-            }).fail(function (err) {
+                that.$loading = false;
+                Animate.Compiler.digest(that._projectElm, that);
+            }).catch(function (err) {
                 that.$errorMsg = err.message;
-            }).always(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._projectElm, that);
             });
-            //if ( jQuery( e.target ).text() == "Ok" )
-            //{
-            //	//Check if the values are valid
-            //	(<Label>this.name.val).textfield.element.removeClass( "red-border" );
-            //	this.warning.textfield.element.css( "color", "" );
-            //	//Check for special chars
-            //	var message = Utils.checkForSpecialChars( (<Label>this.name.val).text );
-            //	if ( message != null )
-            //	{
-            //		( <Label>this.name.val ).textfield.element.addClass( "red-border" );
-            //		this.warning.textfield.element.css( "color", "#FF0000" );
-            //		this.warning.text = message;
-            //		return;
-            //	}
-            //	var name : string = ( <Label>this.name.val ).text;
-            //	//Dispatch an event notifying listeners of the renamed object
-            //	var event: RenameFormEvent  = new RenameFormEvent("renaming", name, this.object)
-            //	this.emit(event );
-            //             if (event.cancel)
-            //             {
-            //                 event.reason;
-            //                 return;
-            //             }
-            //	if ( this.object instanceof Behaviour )
-            //	{
-            //		OkCancelForm.prototype.OnButtonClick.call( this, e );
-            //                 (<Behaviour>this.object).onRenamed(name);
-            //		//Dispatch an event notifying listeners of the renamed object
-            //                 this.emit(new RenameFormEvent("renamed", name, this.object));
-            //		this.object = null;
-            //		return;
-            //	}
-            //	var user = User.get;
-            //	//Create the Behaviour in the DB
-            //	if ( user.project )
-            //	{
-            //		user.project.on(ProjectEvents.FAILED, this.onRenamed, this );
-            //		user.project.on(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
-            //		if ( this.object instanceof TreeNodeGroup )
-            //			user.project.renameObject(name, (<TreeNodeGroup>this.object).groupID, ProjectAssetTypes.GROUP );
-            //		else if ( this.object instanceof Asset )
-            //			user.project.renameObject( name, this.object.id, ProjectAssetTypes.ASSET );
-            //		else if ( this.object instanceof BehaviourContainer )
-            //			user.project.renameObject( name, this.object.id, ProjectAssetTypes.BEHAVIOUR );
-            //	}
-            //	return;
-            //}
-            //super.OnButtonClick( e );
         };
         Object.defineProperty(RenameForm, "get", {
-            ///**
-            //* Called when we create a behaviour.
-            //* @param {any} response 
-            //* @param {any} data 
-            //*/
-            //onRenamed(response: ProjectEvents, data: ProjectEvent )
-            //{
-            //	var user : User = User.get;
-            //	if ( user.project )
-            //	{
-            //		user.project.off(ProjectEvents.FAILED, this.onRenamed, this );
-            //		user.project.off(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
-            //	}
-            //	//if ( response == ProjectEvents.FAILED )
-            //	//{
-            //	//	this.warning.textfield.element.css( "color", "#FF0000" );
-            //	//	this.warning.text = data.message;
-            //	//	return;
-            //	//}
-            //	//Dispatch an event notifying listeners of the renamed object
-            //	//var name = ( <Label>this.name.val ).text;
-            //          this.emit(new RenameFormEvent("renamed", name, this.object)  );
-            //	this.object = null;
-            //	this.hide();
-            //}
             /**
             * Gets the singleton instance.
             * @returns {RenameForm}
@@ -17859,10 +17952,10 @@ var Animate;
             BehaviourPicker._singleton = this;
             // Call super-class constructor
             _super.call(this, 200, 250);
-            this.element.addClass("reg-gradient");
+            this.element.addClass("tooltip-text-bg");
             this.element.addClass("behaviour-picker");
-            this._input = new Animate.InputBox(this, "Behaviour Name");
-            this._list = new Animate.List(this);
+            this._input = new Animate.InputBox(this.content, "Behaviour Name");
+            this._list = new Animate.List(this.content);
             this._X = 0;
             this._Y = 0;
             //Hook listeners
@@ -18017,7 +18110,7 @@ var Animate;
         /**
         * This is called when we have loaded and initialized a new project.
         */
-        Toolbar.prototype.newProject = function () {
+        Toolbar.prototype.newProject = function (project) {
             this.$itemSelected = false;
             this._copyPasteToken = null;
             Animate.Compiler.digest(this._mainElm, this);
@@ -18101,10 +18194,19 @@ var Animate;
         /**
         * Shows the rename form - and creates a new behaviour if valid
         */
-        Toolbar.prototype.newBehaviour = function () {
+        Toolbar.prototype.newContainer = function () {
+            var that = this;
             // Todo: This must be NewBehaviourForm
             Animate.RenameForm.get.renameObject(null, "", null, Animate.ResourceType.CONTAINER).then(function (token) {
-                Animate.User.get.project.createResource(token.newName, Animate.ResourceType.CONTAINER);
+                Animate.User.get.project.createResource(token.newName, Animate.ResourceType.CONTAINER).then(function (resource) {
+                    // The container is created - so lets open it up
+                    var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(resource.entry.name, Animate.CanvasTabType.CANVAS, resource);
+                    jQuery(".text", tabPair.tabSelector.element).text(resource.entry.name);
+                    tabPair.name = resource.entry.name;
+                }).catch(function (err) {
+                    Animate.RenameForm.get.$errorMsg = (err.message.indexOf("urred while creating the resource") == -1 ? err.message : "The name '" + token.newName + "' is taken, please use another");
+                    that.newContainer();
+                });
             });
         };
         /**
@@ -18299,13 +18401,13 @@ var Animate;
                 Animate.Compiler.digest(this._splashElm, that, true);
                 Recaptcha.reload();
             }
-            that.$user.authenticated().done(function (val) {
+            that.$user.authenticated().then(function (val) {
                 that.$loading = false;
                 if (!val)
                     that.goState("login", true);
                 else
                     that.goState("welcome", true);
-            }).fail(function (err) {
+            }).catch(function (err) {
                 that.$loading = false;
                 that.goState("login", true);
             });
@@ -18346,11 +18448,11 @@ var Animate;
             if (messageBoxAnswer == "No")
                 return;
             var that = this;
-            this.$user.removeProject(this.$selectedProject._id).done(function () {
+            this.$user.removeProject(this.$selectedProject._id).then(function () {
                 that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
                 that.$selectedProject = null;
                 Animate.Compiler.digest(that._welcomeElm, that);
-            }).fail(function (err) {
+            }).catch(function (err) {
                 Animate.MessageBox.show(err.message);
             });
         };
@@ -18368,9 +18470,10 @@ var Animate;
             that.goState("loading-project", true);
             // Go through each plugin and load it
             for (var i = 0, l = project.$plugins.length; i < l; i++)
-                Animate.PluginManager.getSingleton().loadPlugin(project.$plugins[i]).fail(function (err) {
+                Animate.PluginManager.getSingleton().loadPlugin(project.$plugins[i]).catch(function (err) {
                     that.$errorMsg = err.message;
-                }).always(function () {
+                    Animate.Compiler.digest(that._splashElm, that, true);
+                }).then(function () {
                     Animate.Compiler.digest(that._splashElm, that, true);
                     // Check if all plugins are loaded
                     numLoaded++;
@@ -18383,19 +18486,40 @@ var Animate;
                     }
                 });
         };
+        /**
+        * When the project data is all saved to the DB
+        */
+        Splash.prototype.onSaveAll = function (event, data) {
+            Animate.CanvasTab.getSingleton().saveAll();
+        };
+        /**
+        * Attempts to load the project and setup the scene
+        */
         Splash.prototype.loadScene = function () {
+            var that = this;
             var project = this.$user.project;
             project.entry = this.$selectedProject;
-            Animate.Toolbar.getSingleton().newProject();
-            Animate.CanvasTab.getSingleton().projectReady();
+            // Notify of new project
+            Animate.Toolbar.getSingleton().newProject(project);
+            Animate.CanvasTab.getSingleton().projectReady(project);
             Animate.TreeViewScene.getSingleton().projectReady(project);
-            //project.load();
-            // Make sure the title tells us which project is open
-            document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-            Animate.Logger.getSingleton().logMessage("Project '" + this.$selectedProject.name + "' has been opened", null, Animate.LogType.MESSAGE);
-            // Attach the DOM
-            this._splashElm.detach();
-            Animate.Application.bodyComponent.addChild(Animate.Application.getInstance());
+            Animate.PluginManager.getSingleton().projectReady(project);
+            // Attempts to load all the project resources
+            project.loadResources().then(function () {
+                // TODO : Not sure if im keeping this here...
+                project.off(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
+                project.on(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
+                // Make sure the title tells us which project is open
+                document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
+                // Log 
+                Animate.Logger.getSingleton().logMessage("Project '" + that.$selectedProject.name + "' has been opened", null, Animate.LogType.MESSAGE);
+                // Remove splash
+                that._splashElm.detach();
+                Animate.Application.bodyComponent.addChild(Animate.Application.getInstance());
+            }).catch(function (err) {
+                that.$errorMsg = err.message;
+                Animate.Compiler.digest(that._splashElm, that, true);
+            });
         };
         /*
         * Fetches a list of user projects
@@ -18411,9 +18535,11 @@ var Animate;
             that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects) {
                 that.$pager.last = projects.count || 1;
                 that.$projects = projects.data;
-            }).fail(function (err) {
+                that.$loading = false;
+                Animate.Compiler.digest(that._splashElm, that);
+                Animate.Compiler.digest(that._welcomeElm, that);
+            }).catch(function (err) {
                 that.$errorMsg = err.message;
-            }).done(function () {
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that);
                 Animate.Compiler.digest(that._welcomeElm, that);
@@ -18557,7 +18683,7 @@ var Animate;
                 that.$projects.push(data.data);
                 // Start Loading the plugins
                 that.openProject(that.$selectedProject);
-            }).fail(function (err) {
+            }).catch(function (err) {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
                 that.$loading = false;
@@ -18602,15 +18728,13 @@ var Animate;
                 else
                     that.$errorRed = false;
                 that.$errorMsg = data.message;
-            })
-                .fail(this.loginError.bind(that))
-                .done(function () {
                 that.$loading = false;
                 if (that.$user.isLoggedIn)
                     that.goState("welcome", true);
                 else
                     Animate.Compiler.digest(that._splashElm, that, true);
-            });
+            })
+                .catch(this.loginError.bind(that));
         };
         /**
         * Attempts to register a new user
@@ -18625,7 +18749,7 @@ var Animate;
             that.$loading = true;
             this.$user.register(user, password, email, captcha, challenge)
                 .then(this.loginSuccess.bind(that))
-                .fail(function (err) {
+                .catch(function (err) {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
                 that.$loading = false;
@@ -18652,7 +18776,7 @@ var Animate;
             that.$loading = true;
             this.$user.resendActivation(user)
                 .then(this.loginSuccess.bind(that))
-                .fail(this.loginError.bind(that));
+                .catch(this.loginError.bind(that));
         };
         /**
         * Attempts to reset the users password
@@ -18672,7 +18796,7 @@ var Animate;
             that.$loading = true;
             this.$user.resetPassword(user)
                 .then(this.loginSuccess.bind(that))
-                .fail(this.loginError.bind(that));
+                .catch(this.loginError.bind(that));
         };
         /**
         * Attempts to resend the activation code
@@ -18683,13 +18807,11 @@ var Animate;
             this.$user.logout().then(function () {
                 that.$loading = false;
                 that.$errorMsg = "";
-            })
-                .fail(this.loginError.bind(that))
-                .always(function () {
                 Animate.Application.getInstance().projectReset();
                 that.$loading = false;
                 that.goState("login", true);
-            });
+            })
+                .catch(this.loginError.bind(that));
         };
         /**
         * Initializes the spash screen
@@ -19166,88 +19288,6 @@ var Animate;
     })();
     Animate.FileUploader = FileUploader;
 })(Animate || (Animate = {}));
-//module Animate
-//{
-//	/**
-//	* This form is used to create or edit Portals.
-//	*/
-//	export class NewBehaviourForm extends OkCancelForm
-//	{
-//		public static _singleton: NewBehaviourForm;
-//		private name: LabelVal;
-//		private warning: Label;
-//		private createProxy: any;
-//		constructor()
-//		{
-//			if ( NewBehaviourForm._singleton != null )
-//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
-//			NewBehaviourForm._singleton = this;
-//			// Call super-class constructor
-//			super( 400, 250, false, true, "Please enter a name" );
-//			this.element.addClass( "new-behaviour-form" );
-//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
-//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
-//			//Create the proxies
-//			this.createProxy = this.onCreated.bind( this );
-//		}
-//		/** Shows the window. */
-//		show()
-//		{
-//			( <Label>this.name.val ).text = "";
-//			this.warning.textfield.element.css( "color", "" );
-//			this.warning.text = "Please enter a behaviour name.";
-//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//			super.show();
-//			( <Label>this.name.val).textfield.element.focus();
-//		}
-//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-//		and pass the text either for the ok or cancel buttons. */
-//		OnButtonClick( e )
-//		{
-//			if ( jQuery( e.target ).text() == "Ok" )
-//			{
-//				//Check if the values are valid
-//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//				this.warning.textfield.element.css( "color", "" );
-//				//Check for special chars
-//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
-//				if ( message != null )
-//				{
-//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
-//					this.warning.textfield.element.css( "color", "#FF0000" );
-//					this.warning.text = message;
-//					return;
-//				}
-//				//Create the Behaviour in the DB
-//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
-//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
-//				return;
-//			}
-//			super.OnButtonClick( e );
-//		}
-//		/** Called when we create a behaviour.*/
-//		onCreated( response: ProjectEvents, event : ProjectEvent )
-//		{
-//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
-//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//			if ( response == ProjectEvents.FAILED )
-//			{
-//				this.warning.textfield.element.css( "color", "#FF0000" );
-//				this.warning.text = event.message;
-//				return;
-//			}
-//			this.hide();
-//		}
-//		/** Gets the singleton instance. */
-//		static getSingleton()
-//		{
-//			if ( !NewBehaviourForm._singleton )
-//				new NewBehaviourForm();
-//			return NewBehaviourForm._singleton;
-//		}
-//	}
-//} 
 //module Animate
 //{
 //	export class Splash2 extends Window
@@ -20338,6 +20378,88 @@ var Animate;
 //			if (!Splash2._singleton)
 //				new Splash2();
 //			return Splash2._singleton;
+//		}
+//	}
+//} 
+//module Animate
+//{
+//	/**
+//	* This form is used to create or edit Portals.
+//	*/
+//	export class NewBehaviourForm extends OkCancelForm
+//	{
+//		public static _singleton: NewBehaviourForm;
+//		private name: LabelVal;
+//		private warning: Label;
+//		private createProxy: any;
+//		constructor()
+//		{
+//			if ( NewBehaviourForm._singleton != null )
+//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
+//			NewBehaviourForm._singleton = this;
+//			// Call super-class constructor
+//			super( 400, 250, false, true, "Please enter a name" );
+//			this.element.addClass( "new-behaviour-form" );
+//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
+//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
+//			//Create the proxies
+//			this.createProxy = this.onCreated.bind( this );
+//		}
+//		/** Shows the window. */
+//		show()
+//		{
+//			( <Label>this.name.val ).text = "";
+//			this.warning.textfield.element.css( "color", "" );
+//			this.warning.text = "Please enter a behaviour name.";
+//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//			super.show();
+//			( <Label>this.name.val).textfield.element.focus();
+//		}
+//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//		and pass the text either for the ok or cancel buttons. */
+//		OnButtonClick( e )
+//		{
+//			if ( jQuery( e.target ).text() == "Ok" )
+//			{
+//				//Check if the values are valid
+//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//				this.warning.textfield.element.css( "color", "" );
+//				//Check for special chars
+//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
+//				if ( message != null )
+//				{
+//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
+//					this.warning.textfield.element.css( "color", "#FF0000" );
+//					this.warning.text = message;
+//					return;
+//				}
+//				//Create the Behaviour in the DB
+//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
+//				return;
+//			}
+//			super.OnButtonClick( e );
+//		}
+//		/** Called when we create a behaviour.*/
+//		onCreated( response: ProjectEvents, event : ProjectEvent )
+//		{
+//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//			if ( response == ProjectEvents.FAILED )
+//			{
+//				this.warning.textfield.element.css( "color", "#FF0000" );
+//				this.warning.text = event.message;
+//				return;
+//			}
+//			this.hide();
+//		}
+//		/** Gets the singleton instance. */
+//		static getSingleton()
+//		{
+//			if ( !NewBehaviourForm._singleton )
+//				new NewBehaviourForm();
+//			return NewBehaviourForm._singleton;
 //		}
 //	}
 //} 

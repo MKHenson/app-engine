@@ -37,11 +37,11 @@ module Animate
 			// Call super-class constructor
 			super( 200, 250 );
 
-			this.element.addClass( "reg-gradient" );
+            this.element.addClass( "tooltip-text-bg" );
 			this.element.addClass( "behaviour-picker" );
 
-			this._input = new InputBox( this, "Behaviour Name" );
-			this._list = new List( this );
+            this._input = new InputBox(this.content, "Behaviour Name");
+            this._list = new List(this.content );
 			this._X = 0;
 			this._Y = 0;
 

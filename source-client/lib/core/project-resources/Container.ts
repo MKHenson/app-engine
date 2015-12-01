@@ -1,11 +1,10 @@
 module Animate
 {
 	/**
-	* Each project has a list of behaviours. These are saved into the 
-	* database and retrieved when we work with Animate. A behaviour is
-	* essentially a piece of code that executes script logic.
+	* Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
+	* essentially a piece of code that executes behaviour nodes and plugin logic when activated. 
 	*/
-    export class BehaviourContainer extends ProjectResource<Engine.IContainer>
+    export class Container extends ProjectResource<Engine.IContainer>
 	{
 		//private _id: string;
 		//public shallowId: number;

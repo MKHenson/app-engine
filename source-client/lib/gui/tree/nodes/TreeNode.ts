@@ -189,9 +189,9 @@ module Animate
 		{
 			//Check if setting the variable
 			if ( val )
-				jQuery( " > .selectable", this.element ).addClass( "tree-node-selected" ).addClass("tree-node-selected");
+				jQuery( " > .selectable", this.element ).addClass( "selected" ).addClass("reg-gradient");
 			else
-				jQuery( " > .selectable", this.element ).removeClass( "tree-node-selected" ).removeClass( "tree-node-selected" );
+                jQuery(" > .selectable", this.element).removeClass("selected").removeClass( "reg-gradient" );
 		}
 
 		/**
@@ -200,7 +200,7 @@ module Animate
 		*/
 		get selected() : boolean
 		{
-			if ( this.element.hasClass( "tree-node-selected" ) )
+			if ( this.element.hasClass( "selected" ) )
 				return true;
 			else
 				return false;

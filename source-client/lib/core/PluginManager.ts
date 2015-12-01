@@ -105,30 +105,35 @@ module Animate
 
         /**
 		* Attempts to download a plugin by its URL and insert it onto the page. 
-        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable
+        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
+        * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
 		* @param {IPlugin} pluginDefinition The plugin to load
-        * @returns {JQueryPromise<Engine.IPlugin>} 
+        * @returns {Promise<Engine.IPlugin>} 
 		*/
-        loadPlugin(pluginDefinition: Engine.IPlugin): JQueryPromise<Engine.IPlugin>
+        loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>
         {
-            var d = jQuery.Deferred<Engine.IPlugin>();
-
             if (pluginDefinition.$loaded)
-                return d.resolve();
-                
-            jQuery.ajax({ dataType: "script", url: pluginDefinition.url }).done(function()
-            {
-                pluginDefinition.$loaded = true;
-                pluginDefinition.$instance = __newPlugin;
-                return d.resolve(pluginDefinition);
+                return Promise.resolve();
 
-            }).fail(function (err: JQueryXHR)
+            return new Promise<Engine.IPlugin>(function (resolve, reject)
             {
-                pluginDefinition.$loaded = false;
-                d.reject(new Error(`An error occurred while downloading a plugin. ${err.status}: ${err.responseText}`));
-            })
+                var script = document.createElement('script');
+                script.onerror = function (ev)
+                {
+                    pluginDefinition.$loaded = false;
+                    return reject(new Error(`Could not download plugin`));
+                }
+                script.onload = function (ev)
+                {
+                    pluginDefinition.$loaded = true;
+                    pluginDefinition.$instance = __newPlugin;
+                    return resolve(pluginDefinition);
+                }
 
-            return d.promise();
+                script.async = true; 
+                script.src = pluginDefinition.url;
+                document.head.appendChild(script);
+            });
         }
         
 		/**

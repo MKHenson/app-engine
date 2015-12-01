@@ -1,32 +1,157 @@
 ﻿module Animate
 {
+    export interface IAjaxError { message: string; status: number; };
     export class Utils
     {
+        private static _withCredentials: boolean = true;
+
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
-        static post(url: string, data: any): JQueryXHR
+        static post<T>(url: string, data: any): Promise<T>
         {
+            return new Promise(function(resolve, reject)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function ()
+                {
+                    if (xhttp.readyState == 4)
+                    {
+                        if (xhttp.status == 200)
+                        {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject(<IAjaxError>{ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+                
+                xhttp.open("POST", url, true);
+
+                var str;
+                if (data)
+                {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+
+            });
+
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "post", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "post", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         }
 
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
-        static put(url: string, data: any): JQueryXHR
+        static get<T>(url: string): Promise<T>
         {
+            return new Promise(function (resolve, reject)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function ()
+                {
+                    if (xhttp.readyState == 4)
+                    {
+                        if (xhttp.status == 200)
+                        {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject(<IAjaxError>{ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+
+                xhttp.open("GET", url, true);
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send();
+            });
+        }
+
+        /**
+        * A predefined shorthand method for calling put methods that use JSON communication
+        */
+        static put<T>(url: string, data: any): Promise<T>
+        {
+            return new Promise(function (resolve, reject)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function ()
+                {
+                    if (xhttp.readyState == 4)
+                    {
+                        if (xhttp.status == 200)
+                        {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject(<IAjaxError>{ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+
+
+                xhttp.open("PUT", url, true);
+
+                var str;
+                if (data)
+                {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+                
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+
+            });
+
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "put", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         }
 
         /**
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
-        static delete(url: string, data?: any): JQueryXHR
+        static delete<T>(url: string, data?: any): Promise<T>
         {
+            return new Promise(function (resolve, reject)
+            {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function ()
+                {
+                    if (xhttp.readyState == 4)
+                    {
+                        if (xhttp.status == 200)
+                        {
+                            var json = JSON.parse(xhttp.responseText);
+                            return resolve(json);
+                        }
+                        else
+                            return reject(<IAjaxError>{ message: xhttp.statusText, status: xhttp.status });
+                    }
+                };
+
+                xhttp.open("DELETE", url, true);
+
+                var str;
+                if (data)
+                {
+                    str = JSON.stringify(data);
+                    xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                }
+
+                xhttp.withCredentials = Utils._withCredentials;
+                xhttp.send(str);
+
+            });
+
             // Associate the uploaded preview with the file
-            return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
+            //return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         }
 
 		/*Gets the local mouse position of an event on a given dom element.*/

@@ -757,6 +757,54 @@ Please only put css rules in here for layout related requirements.
 }
 
 /**
+* Tree + nodes
+*/
+.tree-node {
+    margin-left: 25px;
+    cursor: pointer;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.tree-node .selectable {
+    pointer-events: all !important;
+    display: inline-block;
+}
+.tree-node img {
+    pointer-events: none;
+    margin-right: 3px;
+}
+.tree-node .text {
+    pointer-events: none;
+    margin-right: 15px;
+}
+.tree-node .text {
+    color: inherit;
+}
+.tree-node-button {
+    width: 15px;
+    height: 15px;
+    padding-left: 5px;
+    display: inline-block;
+}
+.tree-node-top {
+    margin-left: 0px !important;
+}
+.tree-node-top > .first-selectable {
+    margin: 5px;
+}
+.tree-node-topp:first-child {
+    margin: 0 -5px 0 5px;
+}
+.first-selectable {
+    display: block !important;
+    margin: 10px 5px 0px 5px;
+    padding: 6px 3px;
+    border-radius: 5px;
+    pointer-events: all !important;
+}
+
+/**
 ======================================================
 				CSS LAYOUT DEFINITIONS
 ======================================================
@@ -927,7 +975,7 @@ body {
 }
 .no-items {
     font-weight: bold;
-    margin-top: 25%;
+    margin-top: 10%;
     text-align: center;
     font-size: 40px;
 }
@@ -1348,6 +1396,23 @@ span.date {
     height:45px;
     padding:10px 15px;
 }
+
+/**
+*  BEHAVIOUR PICKER
+*  =========================
+*/
+.behaviour-picker .list-box {
+    width: 100%;
+    height: calc(100% - 30px);
+}
+.behaviour-picker {
+    z-index: 9999;
+    padding: 3px;
+}
+.behaviour-picker .list-box .list {
+    overflow: auto;
+}
+
 /**
 *  FILE VIEWER
 *  =========================
@@ -1603,7 +1668,7 @@ a{
 .background-view-light {
     background:#eee;
 }
-.tooltip-text {
+.tooltip-text-bg {
     background: #607DA0;
 }
 a:active, a:hover {
@@ -1764,7 +1829,7 @@ html .bad-input {
 .close-but:hover {
     color: #fff;
 }
-.selected:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .tree-node-selected, .project-selected, .drag-targets {
+.selected:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .project-selected, .drag-targets {
     background: #5EA4EA;
     color: #fff !important;
     text-shadow: none !important;
@@ -2130,7 +2195,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .filter-item:active{ color:#111; }
 .filter-item-selected{ color:#111 !important; font-weight: bold; }
 
-.treeview-scene{ }
+
 .quick-button{ pointer-events: all; display:inline; height:16px; margin-left:15px;}
 .quick-button img{ pointer-events: none; height:16px; }
 
@@ -2236,23 +2301,13 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .selected-projects{ width:98%; overflow:auto; height:40px; }
 .project-dep{ float:left; margin:0 8px 2px 0; padding:3px; cursor:pointer; }
 
-.tree{}
-.tree-node{ margin-left:25px; clear:both; cursor:pointer; min-width:230px; pointer-events:none; white-space: nowrap; overflow: hidden; }
-.tree-node .selectable{ pointer-events:all !important; display:inline-block; }
-.tree-node img { pointer-events: none; margin-right:3px; }
-.tree-node .text { pointer-events: none; color:#444; margin-right:15px; }
-.tree-node-selected{ border:0 !important; }
-.tree-node-selected .text{ color:#FFF !important; }
-.tree-node-button{ width:15px; height:15px; float:left; padding-left:5px; }
-.top-node{}
-.tree-node-top{ margin-left:0px !important; }
-.tree-node-topp:first-child { background:#444; margin: 0 -5px 0 5px; }
-.first-selectable, .property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:6px 3px; float:none !important;
--webkit-border-radius: 5px; border-radius: 5px; pointer-events:all !important; }
 
 
-.first-selectable .text { color:#000 !important; text-shadow:#fff 1px 1px 0px; }
-.tree-node-selected{ }
+
+
+
+
+.property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:6px 3px; float:none !important; -webkit-border-radius: 5px; border-radius: 5px; pointer-events:all !important; }
 .list-view-field select{ border:none; width:100%; box-sizing: border-box; }
 
 .portal{ width:9px; height:10px; position:absolute; background:#aaa; }
@@ -2275,9 +2330,8 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .link{ position:absolute; top:0px; left:0px; z-index:0; min-width:4px; min-height:4px; }
 .list-box{ width:100px; height:100px; margin:0; padding:0; border:0; }
-.behaviour-picker .list-box{ width:100%; height:225px; }
-.behaviour-picker{ z-index:9999; padding:3px; }
- .behaviour-picker .list-box .list { overflow: auto; }
+
+
 .list{ width:100%; height:100%; border:none; background:none; box-sizing: border-box; }
 .list:nth-last-child(2) { border-right: 1px solid #ccc; }
 .user-privileges .list:first-child { border-left: 1px solid #ccc; }
@@ -2343,10 +2397,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .tab-selected .tab-close{ color:#04508C; }
 
-.tree .selected{ background:none; text-shadow:none !important; }
-.tree-node .selected:hover{ text-shadow: none !important; }
-.tree-node-button{ color:#000 !important; }
-
 .tab-close .text{ pointer-events: none; }
 input, select{ color:#666; }
 .behaviour-picker .list{ color:#fff; }
@@ -2375,6 +2425,12 @@ input, select{ color:#666; }
 
 .behaviour-asset {
     background: #E2B31F;
+}
+.behaviour-asset:hover {
+    background: #d1a61e;
+}
+.behaviour-asset:active {
+    background: #bb951b;
 }
 
 .behaviour-script {

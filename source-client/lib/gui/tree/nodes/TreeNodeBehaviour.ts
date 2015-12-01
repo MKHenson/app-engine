@@ -6,12 +6,12 @@ module Animate
 	export class TreeNodeBehaviour extends TreeNode
 	{
 		public saved: boolean;
-		public behaviour: BehaviourContainer;
+		public behaviour: Container;
 
 		/**
 		* @param {BehaviourContainer} behaviour The container we are associating with this node
 		*/
-		constructor( behaviour: BehaviourContainer )
+		constructor( behaviour: Container )
 		{
 			// Call super-class constructor
             super(behaviour.entry.name, "media/variable.png", false );

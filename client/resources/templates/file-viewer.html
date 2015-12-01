@@ -9,7 +9,7 @@
 			<div class="tool-bar-group background-view-light">
 				<div class="toolbar-button tooltip" en-click="ctrl.$onlyFavourites = !ctrl.$onlyFavourites; ctrl.$pager.invalidate()" en-class="{ selected : ctrl.$onlyFavourites}">
 					<div class="icon" style="background-image:url('media/star.png')"></div>
-					<div class="tooltip-text">Favourite</div>
+					<div class="tooltip-text tooltip-text-bg">Favourite</div>
 				</div>
 			</div>
 			<div id="file-search-mode" class="tool-bar-group background-view-light"></div>
@@ -17,7 +17,7 @@
 		<div class="tool-bar-group background-view-light" en-class="{ disabled : ctrl.selectedEntities.length == 0 }">
 			<div class="toolbar-button tooltip" en-click="ctrl.confirmDelete()">
 				<div class="icon" style="background-image:url('media/remove-asset.png')"></div>
-				<div class="tooltip-text">Remove</div>
+				<div class="tooltip-text tooltip-text-bg">Remove</div>
 			</div>
 		</div>
 		<div class="file-search">

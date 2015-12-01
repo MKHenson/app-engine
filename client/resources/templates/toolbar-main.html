@@ -4,11 +4,11 @@
 			<div>
 				<img src="media/animate-home.png">
 			</div>
-			<div class="tooltip-text">Home</div>
+			<div class="tooltip-text tooltip-text-bg">Home</div>
 		</div>
 		<div class="toolbar-button tooltip" en-click="Animate.User.get.project.saveAll()">
 			<div><img src="media/save.png"></div>
-			<div class="tooltip-text">Save</div>
+			<div class="tooltip-text tooltip-text-bg">Save</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
@@ -16,24 +16,24 @@
 			<div>
 				<img src="media/copy.png">
 			</div>
-			<div class="tooltip-text">Copy</div>
+			<div class="tooltip-text tooltip-text-bg">Copy</div>
 		</div>
 		<div class="toolbar-button tooltip" en-click="ctrl.onDuplicate(true)" en-class="{ disabled : !ctrl.$itemSelected }">
 			<div>
 				<img src="media/cut.png">
 			</div>
-			<div class="tooltip-text">Cut</div>
+			<div class="tooltip-text tooltip-text-bg">Cut</div>
 		</div>
 		<div class="toolbar-button tooltip" en-click="ctrl.onPaste()" en-class="{ disabled : !ctrl._copyPasteToken }">
 			<div>
 				<img src="media/paste.png">
-			</div><div class="tooltip-text">Paste</div>
+			</div><div class="tooltip-text tooltip-text-bg">Paste</div>
 		</div>
 		<div class="toolbar-button tooltip" en-click="ctrl.onDelete()" en-class="{ disabled : !ctrl.$itemSelected }">
 			<div>
 				<img src="media/delete.png">
 			</div>
-			<div class="tooltip-text">Delete</div>
+			<div class="tooltip-text tooltip-text-bg">Delete</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
@@ -41,7 +41,7 @@
 			<div>
 				<img src="media/snap.png">
 			</div>
-			<div class="tooltip-text">Snapping</div>
+			<div class="tooltip-text tooltip-text-bg">Snapping</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
@@ -49,28 +49,28 @@
 			<div>
 				<img src="media/play.png">
 			</div>
-			<div class="tooltip-text">Run</div>
+			<div class="tooltip-text tooltip-text-bg">Run</div>
 		</div><div class="toolbar-button tooltip" en-click="Animate.BuildOptionsForm.getSingleton().show()">
 			<div>
 				<img src="media/build.png">
-			</div><div class="tooltip-text">Settings</div>
+			</div><div class="tooltip-text tooltip-text-bg">Settings</div>
 		</div>
 		<div class="toolbar-button tooltip" en-click="Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML )">
 			<div>
 				<img src="media/html.png">
 			</div>
-			<div class="tooltip-text">HTML</div>
+			<div class="tooltip-text tooltip-text-bg">HTML</div>
 		</div><div class="toolbar-button tooltip" en-click="Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS )">
 			<div>
 				<img src="media/css.png">
-			</div><div class="tooltip-text">CSS</div>
+			</div><div class="tooltip-text tooltip-text-bg">CSS</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
-		<div class="toolbar-button tooltip" en-click="ctrl.newBehaviour()">
+		<div class="toolbar-button tooltip" en-click="ctrl.newContainer()">
 			<div>
 				<img src="media/add-behaviour.png">
-			</div><div class="tooltip-text">New Behaviour</div>
+			</div><div class="tooltip-text tooltip-text-bg">New Behaviour</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
@@ -78,7 +78,7 @@
 			<div>
 				<img src="media/privaledges.png">
 			</div>
-			<div class="tooltip-text">Privileges</div>
+			<div class="tooltip-text tooltip-text-bg">Privileges</div>
 		</div>
 	</div>
 	<div class="tool-bar-group background-view-light">
@@ -86,7 +86,7 @@
 			<div>
 				<img src="media/plug-detailed.png">
 			</div>
-			<div class="tooltip-text">File Manager</div>
+			<div class="tooltip-text tooltip-text-bg">File Manager</div>
 		</div>
 	</div>
 	<div class="fix"></div>

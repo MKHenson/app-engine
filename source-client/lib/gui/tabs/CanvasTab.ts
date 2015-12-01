@@ -265,11 +265,10 @@ module Animate
 		}
 
 		/**
-		* @type public mfunc projectReady
 		* When we start a new project we load the welcome page.
-		* @extends <CanvasTab>
+        * @param {Project} project
 		*/
-		projectReady()
+        projectReady(project: Project)
 		{
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
@@ -278,9 +277,7 @@ module Animate
 		}
 
 		/**
-		* @type public mfunc projectReset
 		* Called when the project is reset by either creating a new one or opening an older one.
-		* @extends <CanvasTab>
 		*/
 		projectReset()
 		{
@@ -290,7 +287,6 @@ module Animate
 		}
 
 		/**
-		* @type public mfunc onNewsLoaded
 		* When the news has been loaded from webinate.
 		*/
 		onNewsLoaded( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )

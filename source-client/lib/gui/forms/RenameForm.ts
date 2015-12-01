@@ -10,16 +10,18 @@ module Animate
 	export class RenameFormEvent extends Event
 	{
 		cancel: boolean;
-		name: string;
+        name: string;
+        oldName: string;
         object: IRenamable;
         reason: string;
         resourceType: ResourceType;
 
-        constructor(type: string, name: string, object: IRenamable, rt : ResourceType )
+        constructor(type: string, name: string, oldName: string, object: IRenamable, rt : ResourceType )
 		{
             super(type, name);
 			this.cancel = false;
-			this.name = name;
+            this.name = name;
+            this.oldName = oldName;
             this.object = object;
             this.resourceType = rt;
 		}
@@ -31,14 +33,11 @@ module Animate
     export class RenameForm extends Window
 	{
 		private static _singleton: RenameForm;
-		//public name: LabelVal;
-		//public warning: Label;
         private object: IRenamable;
-        private $errorMsg: string;
+        public $errorMsg: string;
         private $loading: boolean;
         private $name: string;
         private _projectElm: JQuery;
-        private _deferred: JQueryDeferred<IRenameToken>;
         private _resourceId: string;
         private _type: ResourceType;
 
@@ -54,22 +53,17 @@ module Animate
             this.$name = "";
             this.$errorMsg = "";
             this.$loading = false;
-            this._deferred = null;
 
             // Fetch & compile the HTML
             this._projectElm = jQuery("#rename-content").remove().clone();
             this.content.element.append(this._projectElm);
             Compiler.build(this._projectElm, this, false); 
-            
-			//this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
 			this.object = null;
-			//this.warning = new Label( "Please enter a name and click Ok.", this.okCancelContent );
         }
 
         hide()
         {
             super.hide();
-            this._deferred = null;
         }
 
         /**
@@ -92,24 +86,22 @@ module Animate
 		* @param {string} curName 
 		* @extends {RenameForm}
 		*/
-        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): JQueryPromise<IRenameToken>
+        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): Promise<IRenameToken>
         {
-            var d = jQuery.Deferred<IRenameToken>();
-			this.object = object;
-
-			//(<Label>this.name.val).text = curName;
-
-			//this.warning.textfield.element.css( "color", "" );
-			//this.warning.text = "Please enter a name and click Ok.";
-            //( <Label>this.name.val ).textfield.element.removeClass( "red-border" );
             super.show(undefined, undefined, undefined, true);
-            Compiler.digest(this._projectElm, this);
-            
-			//( <InputBox>this.name.val ).focus();
+            this.object = object;
             this._resourceId = id;
             this._type = type;
-            this._deferred = d;
-            return d.promise();
+            var that = this;
+            Compiler.digest(this._projectElm, this);
+            
+            return new Promise<IRenameToken>(function (resolve, reject)
+            {
+                that.on("renamed", function (type, event: RenameFormEvent)
+                {
+                    return resolve(<IRenameToken>{ newName: event.name, oldName: event.oldName, object: event.object });
+                });
+            });
 		}
 
 		/**
@@ -124,7 +116,16 @@ module Animate
             var name: string = this.$name;
             var that = this;
             var proj = User.get.project;
-            var event: RenameFormEvent = new RenameFormEvent("renaming", name, this.object, this._type)
+            var prevName = (this.object ? this.object.name : "");
+
+            if (name.trim() == "")
+            {
+                this.$errorMsg = "Name cannot be empty";
+                Compiler.digest(this._projectElm, this);
+                return;
+            }
+
+            var event: RenameFormEvent = new RenameFormEvent("renaming", name, prevName, this.object, this._type);
             this.$loading = true;
             this.$errorMsg = "";
 
@@ -138,114 +139,28 @@ module Animate
             }
 
             if (!this._resourceId)
-                return that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+            {
+                that.hide();
+                return that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
+            }
             
             // Attempt to connect to the DB and update the object
             proj.renameObject(name, this._resourceId, this._type).then(function (resp)
             {
-                that._deferred.resolve({ newName: name, oldName: this.object.name, object: this.object });
+                that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type ));
                 that.hide();
-
-            }).fail(function (err: Error)
-            {
-                that.$errorMsg = err.message;
-
-            }).always(function ()
-            {
                 that.$loading = false;
                 Compiler.digest(that._projectElm, that);
+
+            }).catch(function (err: Error)
+            {
+                that.$errorMsg = err.message;
+                that.$loading = false;
+                Compiler.digest(that._projectElm, that);
+
             });
-            
-			//if ( jQuery( e.target ).text() == "Ok" )
-			//{
-			//	//Check if the values are valid
-			//	(<Label>this.name.val).textfield.element.removeClass( "red-border" );
-			//	this.warning.textfield.element.css( "color", "" );
-
-			//	//Check for special chars
-			//	var message = Utils.checkForSpecialChars( (<Label>this.name.val).text );
-			//	if ( message != null )
-			//	{
-			//		( <Label>this.name.val ).textfield.element.addClass( "red-border" );
-			//		this.warning.textfield.element.css( "color", "#FF0000" );
-			//		this.warning.text = message;
-			//		return;
-			//	}
-
-			//	var name : string = ( <Label>this.name.val ).text;
-
-			//	//Dispatch an event notifying listeners of the renamed object
-			//	var event: RenameFormEvent  = new RenameFormEvent("renaming", name, this.object)
-			//	this.emit(event );
-   //             if (event.cancel)
-   //             {
-   //                 event.reason;
-   //                 return;
-   //             }
-
-			//	if ( this.object instanceof Behaviour )
-			//	{
-			//		OkCancelForm.prototype.OnButtonClick.call( this, e );
-   //                 (<Behaviour>this.object).onRenamed(name);
-
-			//		//Dispatch an event notifying listeners of the renamed object
-   //                 this.emit(new RenameFormEvent("renamed", name, this.object));
-			//		this.object = null;
-			//		return;
-			//	}
-
-			//	var user = User.get;
-
-			//	//Create the Behaviour in the DB
-			//	if ( user.project )
-			//	{
-			//		user.project.on(ProjectEvents.FAILED, this.onRenamed, this );
-			//		user.project.on(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
-
-			//		if ( this.object instanceof TreeNodeGroup )
-			//			user.project.renameObject(name, (<TreeNodeGroup>this.object).groupID, ProjectAssetTypes.GROUP );
-			//		else if ( this.object instanceof Asset )
-			//			user.project.renameObject( name, this.object.id, ProjectAssetTypes.ASSET );
-			//		else if ( this.object instanceof BehaviourContainer )
-			//			user.project.renameObject( name, this.object.id, ProjectAssetTypes.BEHAVIOUR );
-			//	}
-			//	return;
-			//}
-
-
-			//super.OnButtonClick( e );
 		}
-
-		///**
-		//* Called when we create a behaviour.
-		//* @param {any} response 
-		//* @param {any} data 
-		//*/
-		//onRenamed(response: ProjectEvents, data: ProjectEvent )
-		//{
-		//	var user : User = User.get;
-            
-		//	if ( user.project )
-		//	{
-		//		user.project.off(ProjectEvents.FAILED, this.onRenamed, this );
-		//		user.project.off(ProjectEvents.OBJECT_RENAMED, this.onRenamed, this );
-		//	}
-
-		//	//if ( response == ProjectEvents.FAILED )
-		//	//{
-		//	//	this.warning.textfield.element.css( "color", "#FF0000" );
-		//	//	this.warning.text = data.message;
-		//	//	return;
-		//	//}
-
-		//	//Dispatch an event notifying listeners of the renamed object
-		//	//var name = ( <Label>this.name.val ).text;
-  //          this.emit(new RenameFormEvent("renamed", name, this.object)  );
-		//	this.object = null;
-
-		//	this.hide();
-		//}
-
+		
 		/**
 		* Gets the singleton instance.
 		* @returns {RenameForm} 

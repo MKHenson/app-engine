@@ -52,7 +52,7 @@
             super( "<div class='toolbar-button tooltip scrolling-number'></div>", parent );
 
 			var container : IComponent = this.addChild( "<div class='number-holder'></div>" );
-			this.addChild( "<div class='tooltip-text'>" + text + "</div>" );
+            this.addChild( "<div class='tooltip-text tooltip-text-bg'>" + text + "</div>" );
 
 			this.defaultVal = defaultVal;
 			this.minValue = minValue;

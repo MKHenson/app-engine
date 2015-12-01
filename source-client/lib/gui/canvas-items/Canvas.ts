@@ -45,7 +45,7 @@ module Animate
 		private mX: number;
 		private mY: number;
 		public name: string;
-		private _behaviourContainer: BehaviourContainer;
+		private _behaviourContainer: Container;
 
 		private _containerReferences: { groups: Array<string>; assets: Array<number>; };
 
@@ -57,7 +57,7 @@ module Animate
 		* @param {Component} parent The parent component to add this canvas to
 		* @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
-		constructor( parent: Component, behaviourContainer: BehaviourContainer ) 
+		constructor( parent: Component, behaviourContainer: Container ) 
 		{
 			// Call super-class constructor
 			super( "<div class='canvas' tabindex='0'></div>", parent );
@@ -775,7 +775,7 @@ module Animate
 		/**
 		* Iteratively goes through each container to check if its pointing to this behaviour
 		*/
-		private isCyclicDependency( container : BehaviourContainer, ref : string ) : boolean
+		private isCyclicDependency( container : Container, ref : string ) : boolean
 		{
             var project = User.get.project;
 			var thisContainer = this._behaviourContainer;
@@ -822,7 +822,7 @@ module Animate
 		* is the actual behaviour container
 		* @returns {Behaviour} 
 		*/
-		createNode( template: BehaviourDefinition, x: number, y: number, container?: BehaviourContainer ): Behaviour
+		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container ): Behaviour
 		{
 			var toAdd: Behaviour = null;
 
@@ -1630,7 +1630,7 @@ module Animate
 
 		
 
-		get behaviourContainer(): BehaviourContainer { return this._behaviourContainer; }
+		get behaviourContainer(): Container { return this._behaviourContainer; }
 		get containerReferences(): { groups: Array<string>; assets: Array<number> } { return this._containerReferences; }
 	}
 }

@@ -14,7 +14,7 @@ module Animate
 		*/
 		constructor( img: string, text: string, parent?: Component )
 		{
-            super( "<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text'>" + text + "</div></div>", parent );
+            super("<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent );
 			this.img = img;
 			this.text = text;
 		}

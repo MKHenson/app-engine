@@ -164,7 +164,8 @@ module Animate
 		{
 			node.treeview = this;
 			node.element.addClass( "tree-node-top" );
-			jQuery( ".selectable", node.element ).addClass( "first-selectable" );
+            jQuery(".selectable", node.element).addClass("first-selectable");
+            jQuery(".selectable", node.element).addClass("background-view-light");
 			var toRet = Component.prototype.addChild.call( this, node );
 
 

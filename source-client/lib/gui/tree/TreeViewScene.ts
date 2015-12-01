@@ -168,14 +168,8 @@ module Animate
             var r = event.resouce;
             if (r instanceof Asset)
                 this.addAssetInstance(r, false);
-            else if (r instanceof BehaviourContainer)
-            {
-                var node: TreeNodeBehaviour = this.addContainer( r );
-                node.save(false);
-                var tabPair = CanvasTab.getSingleton().addSpecialTab(r.entry.name, CanvasTabType.CANVAS, r);
-                jQuery( ".text", tabPair.tabSelector.element ).text( node.element.text() );
-                tabPair.name = node.element.text();
-            }
+            else if (r instanceof Container)
+                this._sceneNode.addNode(new TreeNodeBehaviour(r));
 
             // Todo: Do something when a group node is created
         }
@@ -217,7 +211,7 @@ module Animate
 				//If f2 pressed
 				if ( jQuery( e.target ).is( "input" ) == false && e.keyCode == 113 )
                 {
-                    var promise: JQueryPromise<IRenameToken>;
+                    var promise: Promise<IRenameToken>;
                     var node = this.selectedNode;
 
 					//Unselect all other items
@@ -282,7 +276,7 @@ module Animate
 		* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
 		* @param {BehaviourContainer} behaviour The hehaviour object we need to update
 		*/
-		updateBehaviour( behaviour : BehaviourContainer )
+		updateBehaviour( behaviour : Container )
 		{
 			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", behaviour );
 			node.behaviour = behaviour;
@@ -408,14 +402,14 @@ module Animate
 					while ( this._groupsNode.children.length > 0 )
 						this._groupsNode.children[0].dispose();
 
-					User.get.project.loadGroups();
+                    User.get.project.loadResources(ResourceType.GROUP);
 				}
 				//Update the scene
 				else if ( this._contextNode == this._sceneNode )
 				{
 					while ( this._sceneNode.children.length > 0 )
-						this._sceneNode.children[0].dispose();
-					User.get.project.loadBehaviours();
+                        this._sceneNode.children[0].dispose();
+                    User.get.project.loadResources(ResourceType.CONTAINER);
 				}
 				else if ( this._contextNode instanceof TreeNodeGroup )
 				{
@@ -533,10 +527,10 @@ module Animate
 			//if (event.tag.object.type == "project" )
 			//	return;
 			var project = User.get.project;
-            var len = project.behaviours.length;
+            var len = project.containers.length;
             if (event.resourceType == ResourceType.CONTAINER)
 				for ( var i = 0; i < len; i++ )
-                    if (project.behaviours[i].entry.name == event.name )
+                    if (project.containers[i].entry.name == event.name )
                     {
                         event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
 						return;
@@ -774,8 +768,7 @@ module Animate
 					this._contextCopy.element.show();
 				else
 					this._contextCopy.element.hide();
-
-
+                
 				//Show / hide the update option
 				if ( component.canUpdate )
 					this._contextRefresh.element.show();
@@ -873,18 +866,18 @@ module Animate
 		}
 
 
-		/**
-		* This will add a node to the treeview to represent the containers.
-		* @param {BehaviourContainer} behaviour The behaviour we are associating with the node
-		* @returns {TreeNodeBehaviour} 
-		*/
-		addContainer(behaviour: BehaviourContainer): TreeNodeBehaviour
-		{
-			var toRet: TreeNodeBehaviour = new TreeNodeBehaviour( behaviour );
-			this._sceneNode.addNode( toRet );
+		///**
+		//* This will add a node to the treeview to represent the containers.
+		//* @param {BehaviourContainer} behaviour The behaviour we are associating with the node
+		//* @returns {TreeNodeBehaviour} 
+		//*/
+		//addContainer(behaviour: Container): TreeNodeBehaviour
+		//{
+		//	var toRet: TreeNodeBehaviour = new TreeNodeBehaviour( behaviour );
+		//	this._sceneNode.addNode( toRet );
 
-			return toRet;
-		}
+		//	return toRet;
+		//}
 
 		/**
 		* This will add a node to the treeview to represent the behaviours available to developers
