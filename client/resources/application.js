@@ -9265,12 +9265,15 @@ var Animate;
     var Behaviour = (function (_super) {
         __extends(Behaviour, _super);
         function Behaviour(parent, text, html) {
-            if (html === void 0) { html = "<div class='behaviour reg-gradient'></div>"; }
+            if (html === void 0) { html = "<div class='behaviour reg-gradient'><div class='text'>" + text + "</div></div>"; }
             // Call super-class constructor
-            _super.call(this, text, parent, html);
-            var th = this.textfield.element.height();
-            var tw = this.textfield.element.width();
-            this.element.css({ width: (tw + 20) + "px", height: (th + 20) + "px", margin: "" });
+            _super.call(this, html, parent);
+            //var th = this.textfield.element.height();
+            //var tw = this.textfield.element.width();
+            this._fontSize = 7;
+            var tw = this._fontSize * text.length + 20;
+            var th = this._fontSize + 20;
+            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
             this._originalName = text;
             this._alias = text;
             this._canGhost = true;
@@ -9354,10 +9357,13 @@ var Animate;
         Behaviour.prototype.css = function (propertyName, value) {
             //Call super
             var toRet = this.element.css(propertyName, value);
-            var h = this.element.height();
-            var th = this.textfield.element.height();
+            //var h = this.element.height();
+            //var th = this.textfield.element.height();
             this._requiresUpdated = true;
-            this.textfield.element.css("top", h / 2 - th / 2);
+            //this.textfield.element.css( "top", h / 2 - th / 2 );
+            var tw = this._fontSize * this.text.length + 20;
+            var th = this._fontSize + 20;
+            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
             return toRet;
         };
         /**
@@ -9368,48 +9374,89 @@ var Animate;
                 return;
             this._requiresUpdated = false;
             //First get the size of a portal.
-            var portalSize = (this._portals.length > 0 ? this._portals[0].element.width() : 10);
+            var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
             var portalSpacing = 5;
-            this.element.css({ width: "1000px", height: "1000px" });
-            this.textfield.element.css({ width: "auto", "float": "left" });
-            var th = this.textfield.element.height();
-            var tw = this.textfield.element.width();
-            var topPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length);
-            var btmPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
-            var totalPortalSpacing = portalSize + 5;
+            //this.element.css( { width: "1000px", height: "1000px" });
+            //this.textfield.element.css( { width: "auto", "float": "left" });
+            //var th: number = this.textfield.element.height();
+            //var tw: number = this.textfield.element.width();
+            var tw = this._fontSize * this.text.length + 20;
+            var th = this._fontSize + 20;
+            var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length);
+            var maxVertPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
+            var totalPortalSpacing = portalSize + portalSpacing;
+            var maxHorSize = totalPortalSpacing * maxHorPortals;
+            var maxVertSize = totalPortalSpacing * maxVertPortals;
             var padding = 10;
-            tw = tw + padding > totalPortalSpacing * topPortals ? tw + padding : totalPortalSpacing * topPortals;
-            th = th + padding > totalPortalSpacing * btmPortals ? th + padding : totalPortalSpacing * btmPortals;
+            // If the portals increase the size - the update the dimensions
+            tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
+            th = th + padding > maxVertSize ? th + padding : maxVertSize;
             //Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
-            tw = Math.ceil((tw + 1) / 10) * 10;
-            th = Math.ceil((th + 1) / 10) * 10;
+            tw = Math.ceil((tw) / 10) * 10;
+            th = Math.ceil((th) / 10) * 10;
             this.css({ width: tw + "px", height: th + "px" });
-            this.textfield.element.css({ width: "100%", height: "auto", "float": "none" });
-            var width = this.element.width();
-            var height = this.element.height();
+            //this.textfield.element.css( { width: "100%", height: "auto", "float": "none" });
+            var width = this.element.outerWidth();
+            var height = this.element.outerHeight();
             //Position the portals
-            for (var i = 0; i < this._parameters.length; i++)
-                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i) + "px", top: -portalSize - 1 + "px" });
-            for (var i = 0; i < this._outputs.length; i++)
-                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i) + "px", left: width + "px" });
-            for (var i = 0; i < this._inputs.length; i++)
-                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i) + "px", left: -portalSize + "px" });
-            for (var i = 0; i < this._products.length; i++)
-                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i) + "px", top: height + "px" });
+            for (var i = 0; i < this._parameters.length; i++) {
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (-portalSize - bSize) + "px" });
+            }
+            for (var i = 0; i < this._outputs.length; i++) {
+                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-right-width'));
+                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (width - hSize) + "px" });
+            }
+            for (var i = 0; i < this._inputs.length; i++) {
+                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (-portalSize - hSize) + "px" });
+            }
+            for (var i = 0; i < this._products.length; i++) {
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-bottom-width'));
+                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (height - bSize) + "px" });
+            }
         };
         Object.defineProperty(Behaviour.prototype, "text", {
             /** Gets the text of the behaviour */
-            get: function () { return this.textfield.element.text(); },
+            get: function () { return jQuery(".text", this.element).text(); },
             /**
             * sets the label text
             */
             set: function (value) {
                 //Call super
                 //this._originalName = value;
-                this.textfield.element.text(value);
+                //this.textfield.element.text(value);
+                jQuery(".text", this.element).text(value);
                 this._requiresUpdated = true;
                 if (value !== undefined)
                     this.updateDimensions();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Behaviour.prototype, "selected", {
+            /**
+            * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+            */
+            get: function () {
+                if (this.element.hasClass("selected"))
+                    return true;
+                else
+                    return false;
+            },
+            /**
+            * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+            */
+            set: function (val) {
+                if (val)
+                    this.element.addClass("selected");
+                else
+                    this.element.removeClass("selected");
+                this.updateDimensions();
             },
             enumerable: true,
             configurable: true
@@ -9491,7 +9538,7 @@ var Animate;
             configurable: true
         });
         return Behaviour;
-    })(Animate.Button);
+    })(Animate.Component);
     Animate.Behaviour = Behaviour;
 })(Animate || (Animate = {}));
 var Animate;
@@ -9660,8 +9707,8 @@ var Animate;
             this.isInInputMode = false;
             this.stageClickProxy = jQuery.proxy(this.onStageClick, this);
             this.input = jQuery("<textarea rows='10' cols='30'></textarea>");
-            this.textfield.element.css({ width: "95%", height: "95%", left: 0, top: 0 });
-            this.textfield.element.text(text);
+            this.element.css({ width: "95%", height: "95%", left: 0, top: 0 });
+            this.element.text(text);
             this.element.on("mousedown", jQuery.proxy(this.onResizeStart, this));
             this.mStartX = null;
             this.mStartY = null;
@@ -9718,15 +9765,15 @@ var Animate;
             this.input.data("dragEnabled", false);
             jQuery("body").on("click", this.stageClickProxy);
             this.isInInputMode = true;
-            this.input.css({ width: this.textfield.element.width(), height: this.textfield.element.height() });
+            this.input.css({ width: this.element.width(), height: this.element.height() });
             jQuery("body").append(this.input);
             this.input.css({
                 position: "absolute", left: this.element.offset().left + "px",
                 top: this.element.offset().top + "px", width: this.element.width() + "px",
                 height: this.element.height() + "px", "z-index": 9999
             });
-            this.textfield.element.detach();
-            this.input.val(this.textfield.element.text());
+            this.element.detach();
+            this.input.val(this.element.text());
             this.input.focus();
             this.input.select();
         };
@@ -9740,11 +9787,11 @@ var Animate;
             jQuery("body").off("click", this.stageClickProxy);
             this.element.css({ width: this.input.width() + "px", height: this.input.height() + "px" });
             this.input.detach();
-            this.element.append(this.textfield.element);
+            this.element.append(this.element);
             this.input.data("dragEnabled", true);
             this.text = this.input.val();
             //this.textfield.element.text( this.input.val() );
-            this.textfield.element.css({ width: "95%", height: "95%", top: 0, left: 0 });
+            this.element.css({ width: "95%", height: "95%", top: 0, left: 0 });
         };
         /**This will cleanup the component.*/
         BehaviourComment.prototype.dispose = function () {
@@ -9960,10 +10007,10 @@ var Animate;
         Portal.prototype.addLink = function (link) {
             if (jQuery.inArray(link, this._links) == -1)
                 this._links.push(link);
-            if (this.type == PortalType.PARAMETER || this.type == PortalType.PRODUCT)
-                this.element.css("background-color", "#E2B31F");
+            if (this._links.length > 0)
+                this.element.addClass("active");
             else
-                this.element.css("background-color", "#A41CC9");
+                this.element.removeClass("active");
         };
         /**
         * Removes a link from the portal.
@@ -9974,7 +10021,7 @@ var Animate;
                 return link;
             this._links.splice(this._links.indexOf(link), 1);
             if (this._links.length == 0)
-                this.element.css("background-color", "");
+                this.element.removeClass("active");
             return link;
         };
         /**
@@ -11851,7 +11898,7 @@ var Animate;
                 //graphics.stroke();
                 graphics.lineWidth = 3;
                 if (element.data("selected"))
-                    graphics.strokeStyle = "#84FF00";
+                    graphics.strokeStyle = "#FF0000";
                 else
                     graphics.strokeStyle = "#A41CC9";
                 graphics.stroke();
@@ -11869,7 +11916,7 @@ var Animate;
                 //Draw pipe lines
                 graphics.lineWidth = 2;
                 if (element.data("selected"))
-                    graphics.strokeStyle = "#84FF00";
+                    graphics.strokeStyle = "#FF0000";
                 else
                     graphics.strokeStyle = "#E2B31F";
                 graphics.stroke();

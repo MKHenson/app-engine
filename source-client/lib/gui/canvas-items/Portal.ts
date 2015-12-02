@@ -229,10 +229,11 @@ module Animate
 			if ( jQuery.inArray( link, this._links ) == -1 )
 				this._links.push( link );
 
-			if ( this.type == PortalType.PARAMETER || this.type == PortalType.PRODUCT )
-				this.element.css( "background-color", "#E2B31F" );
-			else
-				this.element.css( "background-color", "#A41CC9" );
+            if (this._links.length > 0)
+                this.element.addClass("active");
+            else
+                this.element.removeClass("active");
+			
 		}
 
 		/**
@@ -247,7 +248,7 @@ module Animate
 			this._links.splice( this._links.indexOf( link ), 1 );
 
 			if ( this._links.length == 0 )
-				this.element.css( "background-color", "" );
+                this.element.removeClass("active");
 
 			return link;
 		}

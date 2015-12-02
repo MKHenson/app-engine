@@ -1411,6 +1411,8 @@ span.date {
 }
 .behaviour-picker .list-box .list {
     overflow: auto;
+    height:100%; 
+    border:none;
 }
 
 /**
@@ -1626,6 +1628,62 @@ span.date {
 .f-selected.img-favourite {
     background-position: 0 -15px;
 }
+
+/**
+*  BEHAVIOURS & PORTALS
+*  =========================
+*/
+.behaviour {
+    cursor:pointer; 
+    z-index:1; 
+    position:absolute;
+    text-align:center;
+    box-sizing:border-box;
+}
+.behaviour-comment textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+.behaviour-shortcut {
+    opacity: 0.7;
+}
+.behaviour .text {
+    display:inline-block;
+    vertical-align:middle;
+}
+.behaviour::before {
+    content:'';
+    height:100%;
+    display:inline-block;
+    vertical-align:middle;
+}
+
+.portal.output {
+    border-left: none !important;
+}
+.portal.input {
+    border-right: none !important;
+}
+.portal.parameter {
+    border-bottom: none !important;
+}
+.portal.product {
+    border-top: none !important;
+}
+.behaviour.selected .portal {
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
+    border-left: 1px solid red;
+    border-right: 1px solid red;
+}
+.portal {
+    width: 9px;
+    height: 10px;
+    position: absolute;
+    box-sizing: border-box;
+}
+
 /**
 ======================================================
 				COLORS
@@ -1837,6 +1895,52 @@ html .bad-input {
 .red-highlight:hover {
     color:red;
 }
+.behaviour.selected {
+    border: 2px solid red;
+}
+.behaviour.selected .portal {
+    background:red;
+}
+.portal {
+    background: #aaa;
+}
+.behaviour .text {
+    color:#fff;
+}
+.behaviour-portal {
+    background: #A41CC9;
+}
+.behaviour-portal:hover {
+    background: #961eb6;
+}
+.behaviour-portal:active {
+    background: #8b19aa;
+}
+.behaviour-asset {
+    background: #E2B31F;
+}
+.behaviour-asset:hover {
+    background: #d1a61e;
+}
+.behaviour-asset:active {
+    background: #bb951b;
+}
+.behaviour-script {
+    background: #1DA18F;
+}
+.behaviour-script:hover {
+    background: #198f7f;
+}
+.behaviour-script:active {
+    background: #16786a;
+}
+.output.active, .input.active {
+    background: #A41CC9;
+}
+.parameter.active, .product.active {
+    background: #E2B31F;
+}
+
 /**
 ======================================================
  TODO: Specific colors that need to be generalized!
@@ -2012,15 +2116,14 @@ html .bad-input {
 
 .disabled{ opacity:0.4; pointer-events: none; }
 
-.behaviour-picker .list{ height:100%; border:none; }
+
 
 .button img{ margin-right:5px; margin-left:-5px; }
-.button .textfield, .behaviour .textfield { position: absolute; pointer-events: none; }
-.button, .behaviour, .tab-close{ cursor:pointer; z-index:1; }
-.behaviour{ position: absolute; }
-.behaviour-comment .textfield{ text-align:left; overflow:hidden; padding: 4px; box-sizing: border-box; }
-.behaviour-comment textarea{ width:100%; height:100%; border:none;  }
-.behaviour-shortcut{ opacity:0.7; }
+.button .textfield { position: absolute; pointer-events: none; }
+.button, .tab-close{ cursor:pointer; z-index:1; }
+
+
+
 
 
 iframe{ z-index:0; }
@@ -2310,7 +2413,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .property-grid-group{ background:#eee; display:block !important; margin:10px 5px 0px 5px; color:#000; padding:6px 3px; float:none !important; -webkit-border-radius: 5px; border-radius: 5px; pointer-events:all !important; }
 .list-view-field select{ border:none; width:100%; box-sizing: border-box; }
 
-.portal{ width:9px; height:10px; position:absolute; background:#aaa; }
+
 .output, .input{  }
 .parameter, .product{ }
 
@@ -2419,23 +2522,7 @@ input, select{ color:#666; }
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#76a00c', endColorstr='#406a08',GradientType=0 ); /* IE6-9 */
 }
 
-.behaviour-portal {
-    background: #A41CC9;
-}
 
-.behaviour-asset {
-    background: #E2B31F;
-}
-.behaviour-asset:hover {
-    background: #d1a61e;
-}
-.behaviour-asset:active {
-    background: #bb951b;
-}
-
-.behaviour-script {
-    background: #1DA18F;
-}
 
 .behaviour-bad {
     background: #C91C1C;

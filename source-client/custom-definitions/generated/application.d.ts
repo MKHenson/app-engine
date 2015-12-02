@@ -3163,7 +3163,7 @@ declare module Animate {
     /**
     * Behaviours are the base class for all nodes placed on a <Canvas>
     */
-    class Behaviour extends Button implements ICanvasItem, IRenamable {
+    class Behaviour extends Component implements ICanvasItem, IRenamable {
         private _originalName;
         private _alias;
         private _canGhost;
@@ -3173,6 +3173,7 @@ declare module Animate {
         private _outputs;
         private _inputs;
         private _portals;
+        private _fontSize;
         constructor(parent: Component, text: string, html?: string);
         /**
         * Adds a portal to this behaviour.
@@ -3208,6 +3209,13 @@ declare module Animate {
         * sets the label text
         */
         text: string;
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        selected: boolean;
         /**
         * Diposes and cleans up this component and all its child components
         */

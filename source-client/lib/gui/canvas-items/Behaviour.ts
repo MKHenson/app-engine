@@ -3,7 +3,7 @@ module Animate
 	/**
 	* Behaviours are the base class for all nodes placed on a <Canvas>
 	*/
-    export class Behaviour extends Button implements ICanvasItem, IRenamable
+    export class Behaviour extends Component implements ICanvasItem, IRenamable
 	{
 		private _originalName: string;
 		private _alias: string;
@@ -13,16 +13,20 @@ module Animate
 		private _products: Array<Portal>;
 		private _outputs: Array<Portal>;
 		private _inputs: Array<Portal>;
-		private _portals: Array<Portal>;
-		
-		constructor( parent : Component, text : string, html : string = "<div class='behaviour reg-gradient'></div>" )
+        private _portals: Array<Portal>;
+        private _fontSize: number;
+        constructor(parent: Component, text: string, html: string = `<div class='behaviour reg-gradient'><div class='text'>${text}</div></div>` )
 		{
-			// Call super-class constructor
-			super( text, parent, html );
+            // Call super-class constructor
+            super(html, parent);
 
-			var th = this.textfield.element.height();
-			var tw = this.textfield.element.width();
-			this.element.css( { width: ( tw + 20 ) + "px", height: ( th + 20 ) + "px", margin : "" });
+			//var th = this.textfield.element.height();
+            //var tw = this.textfield.element.width();
+            this._fontSize = 7;
+            var tw = this._fontSize * text.length + 20;
+            var th = this._fontSize + 20;
+            
+            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
 
 			this._originalName = text;
 			this._alias = text;
@@ -129,11 +133,15 @@ module Animate
 			//Call super
 			var toRet = this.element.css( propertyName, value );
 
-			var h = this.element.height();
-			var th = this.textfield.element.height();
+			//var h = this.element.height();
+			//var th = this.textfield.element.height();
 			this._requiresUpdated = true;
 
-			this.textfield.element.css( "top", h / 2 - th / 2 );
+			//this.textfield.element.css( "top", h / 2 - th / 2 );
+            
+            var tw = this._fontSize * this.text.length + 20;
+            var th = this._fontSize + 20;
+            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
 
 			return toRet;
 		}
@@ -147,43 +155,64 @@ module Animate
 				return;
 
 			this._requiresUpdated = false;
-
-			//First get the size of a portal.
-			var portalSize = (this._portals.length > 0 ? this._portals[0].element.width() : 10 );
+            
+            //First get the size of a portal.
+            var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
 			var portalSpacing = 5;
 
-			this.element.css( { width: "1000px", height: "1000px" });
-			this.textfield.element.css( { width: "auto", "float": "left" });
-
-			var th: number = this.textfield.element.height();
-			var tw: number = this.textfield.element.width();
-
-			var topPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length );
-			var btmPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length );
-			var totalPortalSpacing = portalSize + 5;
+			//this.element.css( { width: "1000px", height: "1000px" });
+			//this.textfield.element.css( { width: "auto", "float": "left" });
+			//var th: number = this.textfield.element.height();
+			//var tw: number = this.textfield.element.width();
+            
+            var tw = this._fontSize * this.text.length + 20;
+            var th = this._fontSize + 20;
+            
+			var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length );
+			var maxVertPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length );
+            var totalPortalSpacing = portalSize + portalSpacing;
+            var maxHorSize = totalPortalSpacing * maxHorPortals;
+            var maxVertSize = totalPortalSpacing * maxVertPortals;
 			var padding = 10;
 
-			tw = tw + padding > totalPortalSpacing * topPortals ? tw + padding : totalPortalSpacing * topPortals;
-			th = th + padding > totalPortalSpacing * btmPortals ? th + padding : totalPortalSpacing * btmPortals;
+            // If the portals increase the size - the update the dimensions
+            tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
+            th = th + padding > maxVertSize ? th + padding : maxVertSize;
 
 			//Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
-			tw = Math.ceil( ( tw + 1 ) / 10 ) * 10;
-			th = Math.ceil( ( th + 1 ) / 10 ) * 10;
+			tw = Math.ceil( ( tw ) / 10 ) * 10;
+			th = Math.ceil( ( th ) / 10 ) * 10;
 			this.css( { width: tw + "px", height: th + "px" });
-			this.textfield.element.css( { width: "100%", height: "auto", "float": "none" });
+			//this.textfield.element.css( { width: "100%", height: "auto", "float": "none" });
 
-			var width = this.element.width();
-			var height = this.element.height();
+            var width = this.element.outerWidth();
+            var height = this.element.outerHeight();
 
 			//Position the portals
-			for (var i = 0; i < this._parameters.length; i++ )
-				this._parameters[i].element.css( { left: ( ( portalSize + portalSpacing ) * i ) + "px", top: -portalSize - 1 + "px" });
-			for (var i = 0; i < this._outputs.length; i++ )
-				this._outputs[i].element.css( { top: ( ( portalSize + portalSpacing ) * i ) + "px", left: width + "px" });
-			for (var i = 0; i < this._inputs.length; i++ )
-				this._inputs[i].element.css( { top: ( ( portalSize + portalSpacing ) * i ) + "px", left: -portalSize + "px" });
-			for (var i = 0; i < this._products.length; i++ )
-				this._products[i].element.css( { left: ( ( portalSize + portalSpacing ) * i ) + "px", top: height + "px" });
+            for (var i = 0; i < this._parameters.length; i++)
+            {
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (-portalSize - bSize) + "px"});
+            }
+            for (var i = 0; i < this._outputs.length; i++)
+            {
+                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-right-width'));
+                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (width - hSize) + "px" });
+            }
+            for (var i = 0; i < this._inputs.length; i++)
+            {
+                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (-portalSize - hSize) + "px" });
+            }
+            for (var i = 0; i < this._products.length; i++)
+            {
+                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
+                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-bottom-width'));
+                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (height - bSize) + "px" });
+            }
 
 		}
 
@@ -194,17 +223,42 @@ module Animate
 		{
 			//Call super
 			//this._originalName = value;
-			this.textfield.element.text(value);
+            //this.textfield.element.text(value);
+            jQuery(".text", this.element).text(value);
 			this._requiresUpdated = true;
 
 			if ( value !== undefined )
 				this.updateDimensions();
 
 			
-		}
+        }
+        
+        /**
+		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+		*/
+        get selected(): boolean
+        {
+            if (this.element.hasClass("selected"))
+                return true;
+            else
+                return false;
+        }
+
+		/**
+		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+		*/
+        set selected(val: boolean)
+        {
+            if (val)
+                this.element.addClass("selected");
+            else
+                this.element.removeClass("selected");
+
+            this.updateDimensions();
+        }
 
 		/** Gets the text of the behaviour */
-		get text(): string { return this.textfield.element.text(); }
+        get text(): string { return jQuery(".text", this.element).text(); }
 
 		/**
 		* Diposes and cleans up this component and all its child components

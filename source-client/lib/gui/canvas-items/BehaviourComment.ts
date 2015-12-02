@@ -31,8 +31,8 @@ module Animate
 			this.stageClickProxy = jQuery.proxy( this.onStageClick, this );
 			this.input = jQuery( "<textarea rows='10' cols='30'></textarea>" );
 
-			this.textfield.element.css( { width: "95%", height: "95%", left: 0, top: 0 });
-			this.textfield.element.text( text );
+			this.element.css( { width: "95%", height: "95%", left: 0, top: 0 });
+			this.element.text( text );
 
 			this.element.on( "mousedown", jQuery.proxy( this.onResizeStart, this ) );
 			this.mStartX = null;
@@ -111,7 +111,7 @@ module Animate
 
 			jQuery( "body" ).on( "click", this.stageClickProxy );
 			this.isInInputMode = true;
-			this.input.css( { width: this.textfield.element.width(), height: this.textfield.element.height() });
+			this.input.css( { width: this.element.width(), height: this.element.height() });
 
 			jQuery( "body" ).append( this.input );
 			this.input.css( {
@@ -120,8 +120,8 @@ module Animate
 				height: this.element.height() + "px", "z-index": 9999
 			});
 
-			this.textfield.element.detach();
-			this.input.val( this.textfield.element.text() );
+			this.element.detach();
+			this.input.val( this.element.text() );
 			this.input.focus();
 			this.input.select();
 		}
@@ -141,13 +141,13 @@ module Animate
 			this.element.css( { width: this.input.width() + "px", height: this.input.height() + "px" });
 
 			this.input.detach();
-			this.element.append( this.textfield.element );
+			this.element.append( this.element );
 
 			this.input.data( "dragEnabled", true );
 
 			this.text = this.input.val();
 			//this.textfield.element.text( this.input.val() );
-			this.textfield.element.css( { width: "95%", height: "95%", top: 0, left: 0 });
+			this.element.css( { width: "95%", height: "95%", top: 0, left: 0 });
 
 
 		}

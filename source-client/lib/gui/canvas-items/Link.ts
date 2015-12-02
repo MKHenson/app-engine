@@ -455,7 +455,7 @@ module Animate
 				//graphics.stroke();
 				graphics.lineWidth = 3;
 				if ( element.data( "selected" ) )
-					graphics.strokeStyle = "#84FF00";
+					graphics.strokeStyle = "#FF0000";
 				else
 					graphics.strokeStyle = "#A41CC9";
 				graphics.stroke();
@@ -476,7 +476,7 @@ module Animate
 				//Draw pipe lines
 				graphics.lineWidth = 2;
 				if ( element.data( "selected" ) )
-					graphics.strokeStyle = "#84FF00";
+					graphics.strokeStyle = "#FF0000";
 				else
 					graphics.strokeStyle = "#E2B31F";
 
