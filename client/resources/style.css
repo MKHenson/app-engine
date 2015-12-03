@@ -684,15 +684,72 @@ Please only put css rules in here for layout related requirements.
 .tab-selector .text {
     pointer-events: none;
     padding: 0 10px;
+    display: inline-block;
 }
-
 .tabs-drop-button
 { 
     cursor:pointer; 
-    position:absolute; 
+    float:right; 
     height:100%; 
     width:14px; 
     text-align:center; 
+}
+.tab-close {
+    cursor: pointer;
+    z-index: 1;
+}
+.tab {
+    width: 300px;
+    height: 300px;
+}
+.tabs-div {
+    width: 100%;
+    height: 25px;
+    position: relative;
+    overflow: hidden;
+}
+.tab-selector {
+    cursor: pointer;
+    float: left;
+    height: 20px;
+    margin: 5px 1px 0 0;
+    position: relative;
+    padding: 0 0 0 5px;
+    overflow: hidden;
+}
+.tab-page {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+}
+.tab-selected {
+    position: relative;
+    -webkit-border-radius: 0px 0px 0px 0px !important;
+    border-radius: 0px 0px 0px 0px !important;
+}
+.tab-close {
+    display: inline-block;
+    padding: 0 7px;
+    text-align: center;
+    height: 100%;
+}
+.tab-selector {
+    -webkit-border-radius: 0px 5px 0px 0px;
+    border-radius: 0px 5px 0px 0px;
+}
+.tab-selected {
+    height: 25px !important;
+    margin: 0 !important;
+    line-height: 25px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
+    padding: 0 0 0 20px;
+}
+.tab-selector.tab-selected .text {
+    padding: 0 20px 0 0;
+}
+.tab-close .text {
+    pointer-events: none;
 }
 
 /**
@@ -812,14 +869,6 @@ Please only put css rules in here for layout related requirements.
 
 	eg: How to format a list or table
 **/
-
-/**body .tab pre span,  body .tab pre div { 
-    font-family: 'Monaco', 'Menlo', 'Droid Sans Mono', 'Courier New', monospace !important; 
-    font-size: 12px !important; 
-    font-weight: 400 !important; 
-    letter-spacing: 0 !important; 
-}*/
-
 html, body, #stage { 
     width:100%; 
     height:100%; 
@@ -1260,6 +1309,9 @@ body {
     z-index: 1;
     height: 20px;
     margin: 5px 1px 0 0;
+}
+.tab-container {
+    position: relative;
 }
 .toolbar-tab-selected {
     font-weight: bold;
@@ -1728,6 +1780,7 @@ a{
 }
 .tooltip-text-bg {
     background: #607DA0;
+    color:#fff;
 }
 a:active, a:hover {
   border-bottom:1px solid #ccc;
@@ -1874,7 +1927,6 @@ html .bad-input {
 .build-options-form .tab-selected {
     background-color: #fff !important;
 }
-
 .tab-selector .text {
     color: #fff;
 }
@@ -1886,11 +1938,6 @@ html .bad-input {
 }
 .close-but:hover {
     color: #fff;
-}
-.selected:hover, .plugin-item:hover, .selected, .selected-three, .project-browser-item:hover, .preview .project:hover, .project-selected, .drag-targets {
-    background: #5EA4EA;
-    color: #fff !important;
-    text-shadow: none !important;
 }
 .red-highlight:hover {
     color:red;
@@ -1948,11 +1995,9 @@ html .bad-input {
 **/
 .toolbar-tab {
     background-color: #5988BD;
-    color: #fff;
 }
 .toolbar-tab-selected, .tab-selected {
     background-color: #FFF !important;
-    color: #04508C;
 }
 .toolbar-tab:hover {
     background-color: #44464D;
@@ -2120,7 +2165,8 @@ html .bad-input {
 
 .button img{ margin-right:5px; margin-left:-5px; }
 .button .textfield { position: absolute; pointer-events: none; }
-.button, .tab-close{ cursor:pointer; z-index:1; }
+.button { cursor:pointer; z-index:1; }
+
 
 
 
@@ -2184,7 +2230,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .property-grid-header{ padding:5px; }
 .property-grid-group-header{ color:#000; margin:3px 3px 8px 3px; text-shadow:1px 1px 0px white; }
 .property-grid-group .content{ padding:0 10px 10px 10px; }
-.property-grid-label{ width:40%; float:left; font-size:10px; min-width: 50px; white-space: nowrap; overflow: hidden; }
+.property-grid-label{ width:40%; float:left; min-width: 50px; white-space: nowrap; overflow: hidden; }
 .property-grid-value{ width:60%; float:left; margin-bottom:3px; font-size:10px; }
 .eye-picker img{ height:18px; width:18px; margin-left:2px; cursor:pointer; }
 .eye-picker{ float:right; width:10%; height:20px; text-align: center; }
@@ -2426,7 +2472,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tab-container{ position:relative; }
+
 
 /* .window-content .tab-button img{ width:auto; height:auto; } */
 
@@ -2463,19 +2509,8 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .tool-icon-upper{}
 
 
-
-
-
-.tab{ width:300px; height:300px; }
-.tabs-div{ width:100%; height:25px; position:relative; overflow:hidden; }
 .pages-div{ position:relative; }
-.tab-selector{ cursor:pointer; float:left; height:20px; margin:5px 1px 0 0; position:relative; padding-left: 5px; padding-right:5px; }
 
-.tab-page{ width:100%; height:100%; overflow:auto; position:relative; }
-.tab-selected { position:relative; -webkit-border-radius: 0px 0px 0px 0px !important; border-radius: 0px 0px 0px 0px !important; }
-
-
-.tab-close{ float:right; margin-top:1px;width:13px; height:13px; margin-left:10px; text-align:center; border:none !important; }
 
 
 
@@ -2485,22 +2520,8 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 
-.tab-selector {
-    -webkit-border-radius: 0px 5px 0px 0px;
-    border-radius: 0px 5px 0px 0px;
-}
-.tab-selected {
-    font-weight: bold;
-    height: 25px !important;
-    margin: 0 !important;
-    line-height: 25px;
-}
 
-.tab-close{ color:#04508C; }
 
-.tab-selected .tab-close{ color:#04508C; }
-
-.tab-close .text{ pointer-events: none; }
 input, select{ color:#666; }
 .behaviour-picker .list{ color:#fff; }
 

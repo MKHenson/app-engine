@@ -199,12 +199,6 @@ module Animate
 		{
 			this.element.css( "overflow", "hidden" );
 			Component.prototype.update.call( this );
-
-			this.dropButton.element.css( {
-				left:
-				( this.dropButton.element.parent().width() - this.dropButton.element.width() ) + "px", top: "0px"
-			});
-
 			var tabs = this._tabs;
 			var len = tabs.length;
 			for ( var i = 0; i < len; i++ )
@@ -230,10 +224,10 @@ module Animate
 			}
 
 			var page : Component = new Component( "<div class='tab-page background'></div>", this.pagesDiv );
-            var tab: Component = new Component("<div class='tab-selector background-dark tab-selected'><div class='text'>" + (val instanceof TabPair ? val.name : val) + "</div></div>", this._tabsDiv );
+            var tab: Component = new Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'>" + (val instanceof TabPair ? val.name : val) + "</div></div>", this._tabsDiv );
 			if ( canClose )
 			{
-				new Component( "<div class='tab-close'>X</div>", tab );
+                new Component( "<div class='tab-close black-tint'>X</div>", tab );
 				tab.element.data( "canClose", true );
 			}
 

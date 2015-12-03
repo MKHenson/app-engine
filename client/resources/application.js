@@ -6901,9 +6901,6 @@ var Animate;
         Tab.prototype.update = function () {
             this.element.css("overflow", "hidden");
             Animate.Component.prototype.update.call(this);
-            this.dropButton.element.css({
-                left: (this.dropButton.element.parent().width() - this.dropButton.element.width()) + "px", top: "0px"
-            });
             var tabs = this._tabs;
             var len = tabs.length;
             for (var i = 0; i < len; i++)
@@ -6916,9 +6913,9 @@ var Animate;
                 this.selectedTab.page.element.detach();
             }
             var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
-            var tab = new Animate.Component("<div class='tab-selector background-dark tab-selected'><div class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</div></div>", this._tabsDiv);
+            var tab = new Animate.Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</div></div>", this._tabsDiv);
             if (canClose) {
-                new Animate.Component("<div class='tab-close'>X</div>", tab);
+                new Animate.Component("<div class='tab-close black-tint'>X</div>", tab);
                 tab.element.data("canClose", true);
             }
             var toAdd = null;
