@@ -1737,6 +1737,19 @@ span.date {
 }
 
 /**
+* TAB EDITORS
+*/
+.ace_editor * {
+    font-family: monospace;
+}
+.ace_gutter {
+    z-index:0 !important;
+}
+.ace_scroller * {
+    z-index: 0;
+}
+
+/**
 ======================================================
 				COLORS
 ======================================================

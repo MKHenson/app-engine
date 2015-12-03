@@ -17,7 +17,7 @@ export class BuildModel extends Model
         this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new SchemaFactory.text("notes", ""));
         this.defaultSchema.add(new SchemaFactory.text("version", "0.0.1"));
-        this.defaultSchema.add(new SchemaFactory.text("html", ""));
+        this.defaultSchema.add(new SchemaFactory.html("html", "", SchemaFactory.html.defaultTags, SchemaFactory.html.defaultAllowedAttributes));
         this.defaultSchema.add(new SchemaFactory.bool("public", false));
         this.defaultSchema.add(new SchemaFactory.text("css", ""));
         this.defaultSchema.add(new SchemaFactory.text("liveHTML", ""));

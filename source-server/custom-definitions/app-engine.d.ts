@@ -112,6 +112,7 @@
         notes?: string;
         version?: string;
         public?: boolean;
+        html?: string;
         css?: string;
         liveHTML?: string;
         liveLink?: string;
@@ -120,9 +121,7 @@
         totalVoters?: number;
         createdOn?: number;
         lastModified?: number;
-    }
-
-  
+    }  
 
     /**
     * An interface that is used to describe users files

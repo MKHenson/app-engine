@@ -190,7 +190,7 @@ module Animate
         newFolder()
         {
             var that = this;
-            var details = User.get.userEntry;
+            var details = User.get.entry;
             var folderName: string = $("#new-folder-name").val();
             var mediaURL = DB.USERS + "/media";
 
@@ -355,7 +355,7 @@ module Animate
         updateContent(index: number, limit: number)
         {
             var that = this;
-            var details = User.get.userEntry;
+            var details = User.get.entry;
             var project = User.get.project;
             var command = "";
             that.$loading = true;
@@ -504,7 +504,7 @@ module Animate
 		*/
         onDrop(e: JQueryEventObject)
         {
-            var details = User.get.userEntry;
+            var details = User.get.entry;
 
             if (this.visible)
             {
@@ -542,7 +542,7 @@ module Animate
         uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement)
         {
             var that = FileViewer._singleton;
-            var details = User.get.userEntry;
+            var details = User.get.entry;
             var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
 
@@ -600,7 +600,7 @@ module Animate
             this.$newFolder = false;
             this.selectedEntity = null;
             var that = this,
-                details = User.get.userEntry,
+                details = User.get.entry,
                 extensions = this.extensions,
                 apiUrl = "";
 
@@ -682,7 +682,7 @@ module Animate
         updateFile(token: Engine.IFile)
         {
             var that = this,
-                details = User.get.userEntry;
+                details = User.get.entry;
 
             that.$loading = true;
             that.$errorMsg = "";

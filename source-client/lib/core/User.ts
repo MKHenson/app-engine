@@ -36,7 +36,7 @@ module Animate
     export class User extends EventDispatcher
 	{
         private static _singleton = null;
-        public userEntry: UsersInterface.IUserEntry;
+        public entry: UsersInterface.IUserEntry;
         public meta: Engine.IUserMeta;
         public project: Project;
 		private _isLoggedIn: boolean;
@@ -50,7 +50,7 @@ module Animate
             EventDispatcher.call(this);
 
             // Create the default entry
-            this.userEntry = { username : "" };
+            this.entry = { username : "" };
             this.resetMeta();
 
             this.project = new Project();
@@ -90,7 +90,7 @@ module Animate
 
                     if (data.authenticated)
                     {
-                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                        that.entry = <UsersInterface.IUserEntry>data.user;
                         that._isLoggedIn = true;
                         return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                     }
@@ -147,7 +147,7 @@ module Animate
                     if (data.authenticated)
                     {
                         that._isLoggedIn = true;
-                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                        that.entry = <UsersInterface.IUserEntry>data.user;
                         return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                     }
                     else
@@ -204,7 +204,7 @@ module Animate
                     if (data.authenticated)
                     {
                         that._isLoggedIn = false;
-                        that.userEntry = <UsersInterface.IUserEntry>data.user;
+                        that.entry = <UsersInterface.IUserEntry>data.user;
                     }
                     else
                         that._isLoggedIn = false;
@@ -283,7 +283,7 @@ module Animate
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    that.userEntry = { username: "" };
+                    that.entry = { username: "" };
                     that.meta = <Engine.IUserMeta>{
                         bio: "",
                         plan: UserPlan.Free,
@@ -314,7 +314,7 @@ module Animate
 
             return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject)
             {
-                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/projects/${that.userEntry.username}?verbose=true&index=${index}&limit=${limit}`).then(function (data)
+                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/projects/${that.entry.username}?verbose=true&index=${index}&limit=${limit}`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -390,7 +390,7 @@ module Animate
 
             return new Promise<Modepress.IResponse>(function (resolve, reject)
             {
-                Utils.delete<Modepress.IResponse>(`${DB.API}/projects/${that.userEntry.username}/${pid}`).then(function (data)
+                Utils.delete<Modepress.IResponse>(`${DB.API}/projects/${that.entry.username}/${pid}`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -417,7 +417,7 @@ module Animate
 
             return new Promise<Modepress.IResponse>(function (resolve, reject)
             {
-                Utils.put(`${DB.API}/user-details/${that.userEntry.username}`, token).then(function (data: UsersInterface.IResponse)
+                Utils.put(`${DB.API}/user-details/${that.entry.username}`, token).then(function (data: UsersInterface.IResponse)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -611,7 +611,7 @@ module Animate
 				}
 				else if ( loader.url == "/user/log-out" )
 				{
-                    this.userEntry.username = "";
+                    this.entry.username = "";
 					this._isLoggedIn = false;
 					//this.dispatchEvent( new UserEvent( UserEvents.LOGGED_OUT, event.message, event.return_type, data ) );
 				}
@@ -630,12 +630,12 @@ module Animate
                     //this.project = new Project(data.project.entry._id, data.project.name, data.build );
 					//this.emit( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
 				}
-				else if ( loader.url == "/project/open" )
-				{
+				//else if ( loader.url == "/project/open" )
+				//{
                     //this.project = new Project(data.project.entry._id, data.project.name, null );
-					this.project.loadFromData( data );
+					//this.project.loadFromData( data );
 					//this.emit( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
-				}
+				//}
 				//else if ( loader.url == "/project/delete" )
 				//	this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
 				//else if ( loader.url == "/project/copy" )
@@ -657,12 +657,12 @@ module Animate
 				{
 					if ( data.loggedIn )
 					{
-                        this.userEntry.username = data.username;
-                        this.userEntry.meta.bio = data.bio;
-                        this.userEntry.meta.plan = data.plan;
-                        this.userEntry.meta.maxNumProjects = data.maxProjects;
-                        this.userEntry.meta.imgURL = ( data.image == "" || data.image == null ? "media/blank-user.png" : data.image );
-                        this.userEntry.meta.createdOn = data.createdOn;
+                        this.entry.username = data.username;
+                        this.entry.meta.bio = data.bio;
+                        this.entry.meta.plan = data.plan;
+                        this.entry.meta.maxNumProjects = data.maxProjects;
+                        this.entry.meta.imgURL = ( data.image == "" || data.image == null ? "media/blank-user.png" : data.image );
+                        this.entry.meta.createdOn = data.createdOn;
 						this._isLoggedIn = true;
 
 						//this.planLevel = 0;

@@ -113,7 +113,7 @@
 //			this.leftTop.addChild( "<div><div class='proj-info-left'><img src='media/project-item.png'/></div>" +
 //				"<div class='proj-info-right'>" +
 //                "<div class='name'>Name: " + User.get.project.entry.name + "</div>" +
-//                "<div class='owner'>User: " + User.get.userEntry.username + "</div>" +
+//                "<div class='owner'>User: " + User.get.entry.username + "</div>" +
 //                "<div class='created-by'>Last Updated: " + new Date(User.get.project.entry.lastModified ).toDateString() + "</div>" +
 //				"</div></div><div class='fix'></div>" );
 

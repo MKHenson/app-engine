@@ -97,24 +97,50 @@ module Animate
 	}
 
 	/**
-	* The build class defined in the database
+	* A wrapper for project builds
 	*/
-	export declare class Build
-	{
-		public name: string;
-		public projectId: string;
-		public state: string;
-		public html: string;
-		public css: string;
-		public file: string;
-		public filePath: string;
-		public visibility: string;
-		public rating: number;
-		public build_notes: string;
-		public version: string;
-		public createdOn: number;
-		public lastModified: number;
-		public _id: string;
+	export class Build
+    {
+        public entry: Engine.IBuild;
+
+        /**
+	    * Creates an intance of the build
+        * @param {Engine.IBuild} entry The entry token from the DB
+	    */
+        constructor(entry: Engine.IBuild)
+        {
+            this.entry = entry;
+        }
+
+        /**
+	    * Attempts to update the build with new data
+        * @param {Engine.IBuild} token The update token data
+	    */
+        update(token: Engine.IBuild): Promise<boolean>
+        {
+            var entry = this.entry;
+            var that = this;
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/builds/${that.entry.user}/${that.entry.projectId}/${that.entry._id}`, token).then(function (data)
+                {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else
+                    {
+                        for (var i in token)
+                            if (entry.hasOwnProperty(i))
+                                entry[i] = token[i];
+                    }
+
+                    return resolve(true);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
+        }
 	}
 
 	/**
@@ -128,11 +154,11 @@ module Animate
 
 		//public _id: string;
 		//public buildId: string;
-		public mSaved: boolean;
+		public saved: boolean;
 		//public mName: string;
 		//public mDescription: string;
 		//public mTags: string;
-        public mCurBuild: Build;
+        public curBuild: Build;
         //private _plugins: Array<Engine.IPlugin>;
 		//public created: number;
 		//public lastModified: number;
@@ -141,9 +167,9 @@ module Animate
 		//public mRating: number;
 		//public mImgPath: string;
 		//public mVisibility: string;
-		private _behaviours: Array<Container>;
+		private _containers: Array<Container>;
         private _assets: Array<Asset>;
-        private _files: Array<Engine.IFile>;
+        private _files: Array<FileResource>;
         private _groups: Array<GroupArray>;
 
 		/**
@@ -156,7 +182,7 @@ module Animate
 
 			//this._id = id;
 			//this.buildId = "";
-			this.mSaved = true;
+			this.saved = true;
 			//this.mName = name;
 			//this.mDescription = "";
 			//this.mTags = "";
@@ -170,7 +196,7 @@ module Animate
 			//this.mRating = 0;
 			//this.mImgPath = "";
 			//this.mVisibility = "";
-			this._behaviours = [];
+			this._containers = [];
 			this._assets = [];
             this._files = [];
             this._groups = [];
@@ -207,12 +233,12 @@ module Animate
 		/**
 		* Gets a file by its ID
 		* @param {string} id The ID of the file
-		* @returns {Engine.IFile} The file whose id matches the id parameter or null
+		* @returns {FileResource} The file whose id matches the id parameter or null
 		*/
-        getFile(id: string): Engine.IFile
+        getFile(id: string): FileResource
 		{
-			for ( var i = 0; i < this._files.length; i++ )
-				if ( this._files[i]._id == id )
+            for (var i = 0; i < this._files.length; i++)
+                if (this._files[i].entry._id == id)
 					return this._files[i];
 
 			return null;
@@ -240,9 +266,9 @@ module Animate
 		*/
 		getBehaviourById( id: string ): Container
 		{
-			for ( var i = 0; i < this._behaviours.length; i++ )
-                if (this._behaviours[i].entry._id == id )
-					return this._behaviours[i];
+			for ( var i = 0; i < this._containers.length; i++ )
+                if (this._containers[i].entry._id == id )
+					return this._containers[i];
 
 			return null;
 		}
@@ -254,9 +280,9 @@ module Animate
 		*/
 		getBehaviourByShallowId( id: number ): Container
 		{
-			for ( var i = 0; i < this._behaviours.length; i++ )
-                if (this._behaviours[i].entry.shallowId == id )
-					return this._behaviours[i];
+			for ( var i = 0; i < this._containers.length; i++ )
+                if (this._containers[i].entry.shallowId == id )
+					return this._containers[i];
 
 			return null;
         }
@@ -292,22 +318,56 @@ module Animate
             });
         }
 
+  //      /**
+		//* This function is used to fetch the files associated with a project.
+		//* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+  //      * @returns {Promise<ModepressAddons.IGetFiles>}
+		//*/
+  //      loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
+  //      {
+  //          var that = this;
+  //          return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
+  //          {
+  //              Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
+  //              {
+  //                  if (data.error)
+  //                      return reject(new Error(data.message));
+
+  //                  that.files = data.data;
+  //                  return resolve(data);
+
+  //              }).catch(function (err: IAjaxError)
+  //              {
+  //                  return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+  //              });
+  //          });
+  //      }
+
         /**
-		* This function is used to fetch the files associated with a project.
-		* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+		* Loads a previously selected build, or creates one if none are selected
+        * @returns {Promise<Build>}
 		*/
-        loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
+        loadBuild(): Promise<Build>
         {
             var that = this;
-            return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
+            var username = User.get.entry.username;
+            return new Promise<Build>(function (resolve, reject)
             {
-                Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
+                var promise: Promise<any>;
+
+                // If the project has a build then load it - otherwise create a new one
+                if (that.entry.build && that.entry.build != "")
+                    promise = Utils.get(`${DB.API}/builds/${username}/${that.entry._id}/${that.entry.build}`);
+                else
+                    promise = Utils.post(`${DB.API}/builds/${username}/${that.entry._id}`, null);
+                
+                promise.then(function (data: ModepressAddons.IGetBuilds)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    that.files = data.data;
-                    return resolve(data);
+                    that.curBuild = new Build(data.data[0]);
+                    return resolve(that.curBuild);
 
                 }).catch(function (err: IAjaxError)
                 {
@@ -334,7 +394,7 @@ module Animate
             else if (type == ResourceType.CONTAINER)
             {
                 resource = new Container(entry);
-                this._behaviours.push(<Container>resource);
+                this._containers.push(<Container>resource);
             }
             else if (type == ResourceType.GROUP)
             {
@@ -343,29 +403,31 @@ module Animate
             }
             else if (type == ResourceType.FILE)
             {
-                this._files.push(entry);
+                resource = new FileResource(entry);
+                this._files.push(resource);
             }
-
-            if (resource)
-            {
-                this.emit(new ProjectEvent("resource-created", resource));
-                return resource;
-            }
-            return null;
+            
+            this.emit(new ProjectEvent("resource-created", resource));
+            return resource;
         }
 
         /**
 		* This function is used to fetch the project resources associated with a project.
 		* @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+        * @returns {Promise<Array<ProjectResource<any>>}
 		*/
-        loadResources(type?: ResourceType): Promise<Modepress.IGetArrayResponse<any>>
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>
         {
             var that = this;
             var arr: Array<Promise<Modepress.IGetArrayResponse<any>>> = [];
 
             if (!type)
             {
+                this._assets.splice(0, this._assets.length);
+                this._files.splice(0, this._files.length);
+                this._containers.splice(0, this._containers.length);
+                this._groups.splice(0, this._groups.length);
+
                 arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
                 arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
                 arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
@@ -374,16 +436,28 @@ module Animate
             else
             {
                 if (type == ResourceType.FILE)
+                {
+                    this._files.splice(0, this._files.length);
                     arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
+                }
                 else if (type == ResourceType.ASSET)
+                {
+                    this._assets.splice(0, this._assets.length);
                     arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
+                }
                 else if (type == ResourceType.CONTAINER)
+                {
+                    this._containers.splice(0, this._containers.length);
                     arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
+                }
                 else if (type == ResourceType.GROUP)
+                {
+                    this._groups.splice(0, this._groups.length);
                     arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
+                }
             }
 
-            return new Promise(function (resolve, reject)
+            return new Promise<Array<ProjectResource<any>>>(function (resolve, reject)
             {
                 Promise.all(arr).then(function (data)
                 {
@@ -392,34 +466,36 @@ module Animate
                         if (data[i].error)
                             return reject(new Error(data[i].message));
 
+                    var createdResources: Array<ProjectResource<any>> = [];
+
                     if (!type)
                     {
                         for (var i = 0, l = data[0].data.length; i < l; i++)
-                            that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE);
+                            createdResources.push( that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE) );
                         for (var i = 0, l = data[1].data.length; i < l; i++)
-                            that.createResourceInstance<Engine.IAsset>(data[1].data[i], ResourceType.ASSET);
+                            createdResources.push(that.createResourceInstance<Engine.IAsset>(data[1].data[i], ResourceType.ASSET));
                         for (var i = 0, l = data[2].data.length; i < l; i++)
-                            that.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER);
+                            createdResources.push(that.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER));
                         for (var i = 0, l = data[3].data.length; i < l; i++)
-                            that.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP);
+                            createdResources.push(that.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP));
                     }
                     else
                     {
                         if (type == ResourceType.FILE)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE);
+                                createdResources.push(that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE));
                         else if (type == ResourceType.ASSET)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance<Engine.IAsset>(data[0].data[i], ResourceType.ASSET);
+                                createdResources.push(that.createResourceInstance<Engine.IAsset>(data[0].data[i], ResourceType.ASSET));
                         else if (type == ResourceType.CONTAINER)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance<Engine.IContainer>(data[0].data[i], ResourceType.CONTAINER);
+                                createdResources.push(that.createResourceInstance<Engine.IContainer>(data[0].data[i], ResourceType.CONTAINER));
                         else if (type == ResourceType.GROUP)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP);
+                                createdResources.push(that.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP));
                     }
                     
-                    return resolve(data);
+                    return resolve(createdResources);
 
                 }).catch(function (err: IAjaxError)
                 {
@@ -438,7 +514,7 @@ module Animate
         renameObject(name: string, id: string, type: ResourceType): Promise<Modepress.IResponse>
         {
             var that = this;
-            var details = User.get.userEntry;
+            var details = User.get.entry;
             var projId = this.entry._id;
             var url: string;
 
@@ -474,7 +550,7 @@ module Animate
         createResource(name: string, type: ResourceType): Promise<ProjectResource<any>>
         {
             var that = this;
-            var details = User.get.userEntry;
+            var details = User.get.entry;
             var projId = this.entry._id;
             var url : string;
 
@@ -580,7 +656,7 @@ module Animate
 			var ids: Array<string> = [];
 			var jsons: Array<string> = [];
 
-			var behaviours: Array<Container> = this._behaviours;
+			var behaviours: Array<Container> = this._containers;
 
 			// Create a multidimension array and pass each of the behaviours
 			for ( var i = 0, l = behavioursIds.length; i < l; i++ )
@@ -615,7 +691,7 @@ module Animate
 		{
 			// Behaviours
 			var ids: Array<string> = [];
-			var behaviours: Array<Container> = this._behaviours;
+			var behaviours: Array<Container> = this._containers;
 			for ( var i = 0, l = behaviours.length; i < l; i++ )
 				if ( !behaviours[i].saved )
                     ids.push(behaviours[i].entry._id );
@@ -638,8 +714,10 @@ module Animate
 			this.saveGroups( ids );
             
 			Animate.CanvasTab.getSingleton().saveAll();
-			this.saveHTML();
-			this.saveCSS();
+			
+            // TODO: Make sure these are saved
+            //this.saveHTML();
+			//this.saveCSS();
 		}
 
 		///**
@@ -664,32 +742,32 @@ module Animate
 		//}
 
 
-		/**
-		* Saves the HTML from the HTML tab to the server
-		*/
-		saveHTML()
-		{
-            var html: string = (HTMLTab.singleton ? HTMLTab.singleton.editor.getValue() : this.mCurBuild.html );
-			var loader = new AnimateLoader();
-			this.mCurBuild.html = html;
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-html", { projectId: this.entry._id, html: html } );
-		}
+		///**
+		//* Saves the HTML from the HTML tab to the server
+		//*/
+		//saveHTML()
+		//{
+  //          var html: string = (HTMLTab.singleton ? HTMLTab.singleton.editor.getValue() : this.curBuild.entry.html );
+  //          var loader = new AnimateLoader();
+  //          this.curBuild.entry.html = html;
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-html", { projectId: this.entry._id, html: html } );
+		//}
 
 
-		/**
-		* Saves the HTML from the HTML tab to the server
-		*/
-		saveCSS()
-		{
-			var css: string = ( CSSTab.singleton ? CSSTab.singleton.editor.getValue() : this.mCurBuild.css );
-			var loader = new AnimateLoader();
-			this.mCurBuild.css = css;
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-css", { projectId: this.entry._id, css: css } );
-		}
+		///**
+		//* Saves the HTML from the HTML tab to the server
+		//*/
+		//saveCSS()
+  //      {
+  //          var css: string = (CSSTab.singleton ? CSSTab.singleton.editor.getValue() : this.curBuild.entry.css);
+  //          var loader = new AnimateLoader();
+  //          this.curBuild.entry.css = css;
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-css", { projectId: this.entry._id, css: css } );
+		//}
 
 
 		/**
@@ -994,13 +1072,13 @@ module Animate
 		//}
 
 
-		/**
-		* Loads the project from data sent from the server
-		* @param {any} data The data sent from the server
-		*/
-		loadFromData( data : any )
-		{
-			this.mSaved = true;
+		///**
+		//* Loads the project from data sent from the server
+		//* @param {any} data The data sent from the server
+		//*/
+		//loadFromData( data : any )
+		//{
+		//	this.saved = true;
 			//this.buildId = data.project.buildId;
 			//this.created = data.project.createdOn;
 			//this.lastModified = data.project.lastModified;
@@ -1035,10 +1113,10 @@ module Animate
 			//	//}
 			//}
 
-			this.mCurBuild = data.build;
+			//this.curBuild = data.build;
 			//this.mDescription = data.project.description;
 			//this.mTags = data.project.tags;
-		}
+		//}
 
 
 		/**
@@ -1059,7 +1137,7 @@ module Animate
 					//Sets the current build
 					if ( loader.url == "/project/select-build" )
 					{
-						this.mCurBuild = data.build;
+						this.curBuild = data.build;
 						//this.emit( new ProjectEvent( ProjectEvents.BUILD_SELECTED, data.message, LoaderEvents.fromString( data.return_type ),  this.mCurBuild ) );
 					}
 					//Updates the current build
@@ -1074,13 +1152,13 @@ module Animate
 						//Update behaviours ids which we fetched from the DB.
 						for ( var i = 0, l = data.length; i < l; i++ )
 						{
-							var len = this._behaviours.length;
+							var len = this._containers.length;
 							for ( var ii = 0; ii < len; ii++ )
-                                if (this._behaviours[ii].entry._id == data[i] )
+                                if (this._containers[ii].entry._id == data[i] )
 								{
-									var behaviour : Container = this._behaviours[ii];
+									var behaviour : Container = this._containers[ii];
 									behaviour.dispose();									
-									this._behaviours.splice( ii, 1 );
+									this._containers.splice( ii, 1 );
 									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
 									break;
 								}
@@ -1129,14 +1207,14 @@ module Animate
 					//}
 					else if ( loader.url == "/project/save-behaviours" )
 					{
-						for ( var i = 0; i < this._behaviours.length; i++ )
+						for ( var i = 0; i < this._containers.length; i++ )
 							for ( ii = 0, l = data.length; ii < l; ii++ )
-                                if (this._behaviours[i].entry._id == data[ii] )
+                                if (this._containers[i].entry._id == data[ii] )
 								{
 									// Make sure the JSON is updated in the behaviour
 									var canvas: Canvas = CanvasTab.getSingleton().getTabCanvas( data[ii] );
 									if ( canvas )
-                                        this._behaviours[i].entry.json = canvas.buildDataObject();
+                                        this._containers[i].entry.json = canvas.buildDataObject();
 
 									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
@@ -1144,18 +1222,18 @@ module Animate
 
 						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
 					}
-					else if ( loader.url == "/project/save-html" )
-					{
-						//this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
-						if ( HTMLTab.singleton )
-							HTMLTab.singleton.save();
-					}
-					else if ( loader.url == "/project/save-css" )
-					{
-						//this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
-						if ( CSSTab.singleton )
-							CSSTab.singleton.save();
-					}
+					//else if ( loader.url == "/project/save-html" )
+					//{
+					//	//this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+					//	if ( HTMLTab.singleton )
+					//		HTMLTab.singleton.save();
+					//}
+					//else if ( loader.url == "/project/save-css" )
+					//{
+					//	//this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
+					//	if ( CSSTab.singleton )
+					//		CSSTab.singleton.save();
+					//}
 					//Delete an asset
 					else if ( loader.url == "/project/delete-assets" )
 					{
@@ -1356,13 +1434,13 @@ module Animate
 						//Update behaviours which we fetched from the DB.
 						for ( var ii = 0, l = data.length; ii < l; ii++ )
 						{
-							for ( var i = 0, len = this._behaviours.length; i < len; i++ )
-                                if (this._behaviours[i].entry._id == data[ii]._id )
+							for ( var i = 0, len = this._containers.length; i < len; i++ )
+                                if (this._containers[i].entry._id == data[ii]._id )
 								{
-									this._behaviours[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
+									this._containers[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
 									
 									//Update the GUI elements
-									TreeViewScene.getSingleton().updateBehaviour( this._behaviours[i] );
+									TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
 									//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}
@@ -1458,7 +1536,7 @@ module Animate
 			//	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         }
 
-        get containers(): Array<Container> { return this._behaviours; }
+        get containers(): Array<Container> { return this._containers; }
         get files(): Array<Engine.IFile> { return this._files; }
         get assets(): Array<Asset> { return this._assets; }
         get groups(): Array<GroupArray> { return this._groups; }
@@ -1473,11 +1551,11 @@ module Animate
 			var event: Event;
 
 			//Cleanup behaviours
-			var i = this._behaviours.length;
+			var i = this._containers.length;
 			while ( i-- )
 			{
 				//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
-				this._behaviours[i].dispose();
+				this._containers[i].dispose();
 			}
 
 			i = this._assets.length;
@@ -1498,10 +1576,10 @@ module Animate
 			//this.created = null;
 			//this.lastModified = null;
 			//this._id = null;
-			this.mSaved = true;
+			this.saved = true;
 			//this.mName = null;
 			//this.mDescription = null;
-			this._behaviours = [];
+			this._containers = [];
 			this._assets = [];
 			//this.buildId = null;
             this._files = [];

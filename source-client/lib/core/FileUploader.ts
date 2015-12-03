@@ -171,7 +171,7 @@
         {
             if (!url)
             {
-                var details = User.get.userEntry;
+                var details = User.get.entry;
                 url = `${DB.USERS}/media/upload/${details.username}-bucket${(parentFile ? "/" + parentFile : "")}`;
             }
 

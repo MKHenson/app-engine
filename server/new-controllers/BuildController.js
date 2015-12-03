@@ -29,7 +29,8 @@ var BuildController = (function (_super) {
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
         // Define the routes
         router.get("/:user/:project/:id?", [modepress_api_1.canEdit, this.getBuilds.bind(this)]);
-        router.post("/create/:user/:project", [modepress_api_1.canEdit, this.create.bind(this)]);
+        router.post("/:user/:project", [modepress_api_1.canEdit, this.create.bind(this)]);
+        router.put("/:user/:project/:id", [modepress_api_1.canEdit, this.edit.bind(this)]);
         // Register the path
         e.use("/app-engine/builds", router);
     }
@@ -163,6 +164,48 @@ var BuildController = (function (_super) {
         });
     };
     /**
+    * Attempts to update a build's data
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    BuildController.prototype.edit = function (req, res, next) {
+        res.setHeader('Content-Type', 'application/json');
+        var that = this;
+        var model = that.getModel("en-builds");
+        var project = req.params.project;
+        var id = req.params.id;
+        var search = {};
+        var token = req.body;
+        // Verify the resource ID
+        if (!modepress_api_1.isValidID(id))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid resource ID" }));
+        // Verify the project ID
+        if (!modepress_api_1.isValidID(project))
+            return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        search._id = new mongodb.ObjectID(id);
+        search.projectId = new mongodb.ObjectID(project);
+        model.update(search, token).then(function (instance) {
+            if (instance.error) {
+                winston.error(instance.tokens[0].error, { process: process.pid });
+                return res.end(JSON.stringify({
+                    error: true,
+                    message: instance.tokens[0].error
+                }));
+            }
+            res.end(JSON.stringify({
+                error: false,
+                message: "[" + instance.tokens.length + "] Build updated"
+            }));
+        }).catch(function (error) {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify({
+                error: true,
+                message: error.message
+            }));
+        });
+    };
+    /**
     * Creates a new build for a user in a specific project.
     * @param {express.Request} req
     * @param {express.Response} res
@@ -179,7 +222,9 @@ var BuildController = (function (_super) {
         that.createBuild(target, new mongodb.ObjectID(project)).then(function (instance) {
             return res.end(JSON.stringify({
                 error: false,
-                message: "Created new build for user '" + target + "'"
+                message: "Created new build for user '" + target + "'",
+                count: 1,
+                data: that.getSanitizedData([instance], true)
             }));
         }).catch(function (err) {
             winston.error(err.message, { process: process.pid });

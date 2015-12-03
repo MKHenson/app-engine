@@ -19,7 +19,7 @@ var BuildModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("notes", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("version", "0.0.1"));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("html", ""));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.html("html", "", modepress_api_1.SchemaFactory.html.defaultTags, modepress_api_1.SchemaFactory.html.defaultAllowedAttributes));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("public", false));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("css", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("liveHTML", ""));

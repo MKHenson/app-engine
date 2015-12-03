@@ -64,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="custom-definitions\engine-definitions.d.ts" />
-    <TypeScriptCompile Include="definitions\AceEditor.d.ts" />
+    <TypeScriptCompile Include="definitions\ace.d.ts" />
     <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="definitions\angular.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />

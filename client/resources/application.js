@@ -2612,72 +2612,23 @@ var Animate;
     })(Animate.ProjectResource);
     Animate.GroupArray = GroupArray;
 })(Animate || (Animate = {}));
-//module Animate
-//{
-//	/**
-//	* A small object that represents a file that is associated with a project.
-//	*/
-//	export class File
-//	{
-//		public id: string;
-//		public name: string;
-//		public path: string;
-//		public global: boolean;
-//		public preview_path: string;
-//		public tags: Array<string>;
-//		public extension: string;
-//		public size: number;
-//		public createdOn: number;
-//		public lastModified: number;
-//		public favourite: boolean;
-//		/**
-//		* @param {string} name The name of the file
-//		* @param {string} path The path of the file on the server
-//		* @param {Array<string>} tags Keywords associated with the file to help search for it.This is a string 
-//		* with values separated by commas
-//		* @param {number} createdOn The date this file was created on
-//		* @param {number} lastModified The date this file was last modified
-//		* @param {string} id The id of the file
-//		* @param {number} size The size of the file
-//		* @param {boolean} favourite Is this file a favourite
-//		* @param {string} preview_path The path of the file thumbnail on the server
-//		* @param {boolean} global Is this file globally accessible
-//		*/
-//		constructor( name: string, path: string, tags: Array<string>, id: string, createdOn: number, lastModified: number, size: number, favourite: boolean, preview_path: string, global: boolean )
-//		{
-//			this.id = id;
-//			this.name = name;
-//			this.path = path;
-//			this.global = global;
-//			this.preview_path = preview_path;
-//			this.tags = tags;
-//			this.extension = "";
-//			var splitData = path.split( "." );
-//			if ( splitData.length > 0 )
-//				this.extension = splitData[splitData.length - 1].toLowerCase();
-//			else
-//				this.extension = "";
-//			this.size = ( isNaN( size ) ? 0 : size );
-//			this.createdOn = createdOn;
-//			this.lastModified = lastModified;
-//			this.favourite = favourite;
-//		}
-//		/**
-//		* Disposes and cleans the object
-//		*/
-//		dispose()
-//		{
-//			this.id = null;
-//			this.name = null;
-//			this.path = null;
-//			this.path = null;
-//			this.global = null;
-//			this.preview_path = null;
-//			this.extension = null;
-//			this.tags = null;
-//		}
-//	}
-//} 
+var Animate;
+(function (Animate) {
+    /**
+    * A wrapper for DB file instances
+    */
+    var FileResource = (function (_super) {
+        __extends(FileResource, _super);
+        /**
+        * @param {IFile} entry The DB entry of this file
+        */
+        function FileResource(entry) {
+            _super.call(this, entry);
+        }
+        return FileResource;
+    })(Animate.ProjectResource);
+    Animate.FileResource = FileResource;
+})(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
     /**
@@ -3439,6 +3390,42 @@ var Animate;
     })(Animate.Event);
     Animate.ProjectEvent = ProjectEvent;
     /**
+    * A wrapper for project builds
+    */
+    var Build = (function () {
+        /**
+        * Creates an intance of the build
+        * @param {Engine.IBuild} entry The entry token from the DB
+        */
+        function Build(entry) {
+            this.entry = entry;
+        }
+        /**
+        * Attempts to update the build with new data
+        * @param {Engine.IBuild} token The update token data
+        */
+        Build.prototype.update = function (token) {
+            var entry = this.entry;
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.put(Animate.DB.API + "/builds/" + that.entry.user + "/" + that.entry.projectId + "/" + that.entry._id, token).then(function (data) {
+                    if (data.error)
+                        return reject(new Error(data.message));
+                    else {
+                        for (var i in token)
+                            if (entry.hasOwnProperty(i))
+                                entry[i] = token[i];
+                    }
+                    return resolve(true);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
+            });
+        };
+        return Build;
+    })();
+    Animate.Build = Build;
+    /**
     * A project class is an object that is owned by a user.
     * The project has functions which are useful for comunicating data to the server when
     * loading and saving data in the scene.
@@ -3453,7 +3440,7 @@ var Animate;
             _super.call(this);
             //this._id = id;
             //this.buildId = "";
-            this.mSaved = true;
+            this.saved = true;
             //this.mName = name;
             //this.mDescription = "";
             //this.mTags = "";
@@ -3467,7 +3454,7 @@ var Animate;
             //this.mRating = 0;
             //this.mImgPath = "";
             //this.mVisibility = "";
-            this._behaviours = [];
+            this._containers = [];
             this._assets = [];
             this._files = [];
             this._groups = [];
@@ -3497,11 +3484,11 @@ var Animate;
         /**
         * Gets a file by its ID
         * @param {string} id The ID of the file
-        * @returns {Engine.IFile} The file whose id matches the id parameter or null
+        * @returns {FileResource} The file whose id matches the id parameter or null
         */
         Project.prototype.getFile = function (id) {
             for (var i = 0; i < this._files.length; i++)
-                if (this._files[i]._id == id)
+                if (this._files[i].entry._id == id)
                     return this._files[i];
             return null;
         };
@@ -3522,9 +3509,9 @@ var Animate;
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
         */
         Project.prototype.getBehaviourById = function (id) {
-            for (var i = 0; i < this._behaviours.length; i++)
-                if (this._behaviours[i].entry._id == id)
-                    return this._behaviours[i];
+            for (var i = 0; i < this._containers.length; i++)
+                if (this._containers[i].entry._id == id)
+                    return this._containers[i];
             return null;
         };
         /**
@@ -3533,9 +3520,9 @@ var Animate;
         * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
         */
         Project.prototype.getBehaviourByShallowId = function (id) {
-            for (var i = 0; i < this._behaviours.length; i++)
-                if (this._behaviours[i].entry.shallowId == id)
-                    return this._behaviours[i];
+            for (var i = 0; i < this._containers.length; i++)
+                if (this._containers[i].entry.shallowId == id)
+                    return this._containers[i];
             return null;
         };
         /**
@@ -3561,19 +3548,47 @@ var Animate;
                 });
             });
         };
+        //      /**
+        //* This function is used to fetch the files associated with a project.
+        //* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+        //      * @returns {Promise<ModepressAddons.IGetFiles>}
+        //*/
+        //      loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
+        //      {
+        //          var that = this;
+        //          return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
+        //          {
+        //              Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
+        //              {
+        //                  if (data.error)
+        //                      return reject(new Error(data.message));
+        //                  that.files = data.data;
+        //                  return resolve(data);
+        //              }).catch(function (err: IAjaxError)
+        //              {
+        //                  return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+        //              });
+        //          });
+        //      }
         /**
-        * This function is used to fetch the files associated with a project.
-        * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+        * Loads a previously selected build, or creates one if none are selected
+        * @returns {Promise<Build>}
         */
-        Project.prototype.loadFiles = function (mode) {
-            if (mode === void 0) { mode = "project"; }
+        Project.prototype.loadBuild = function () {
             var that = this;
+            var username = Animate.User.get.entry.username;
             return new Promise(function (resolve, reject) {
-                Animate.Utils.get(Animate.DB.API + "/files/" + that.entry.user + "/" + that.entry._id).then(function (data) {
+                var promise;
+                // If the project has a build then load it - otherwise create a new one
+                if (that.entry.build && that.entry.build != "")
+                    promise = Animate.Utils.get(Animate.DB.API + "/builds/" + username + "/" + that.entry._id + "/" + that.entry.build);
+                else
+                    promise = Animate.Utils.post(Animate.DB.API + "/builds/" + username + "/" + that.entry._id, null);
+                promise.then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
-                    that.files = data.data;
-                    return resolve(data);
+                    that.curBuild = new Build(data.data[0]);
+                    return resolve(that.curBuild);
                 }).catch(function (err) {
                     return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
                 });
@@ -3593,44 +3608,54 @@ var Animate;
             }
             else if (type == ResourceType.CONTAINER) {
                 resource = new Animate.Container(entry);
-                this._behaviours.push(resource);
+                this._containers.push(resource);
             }
             else if (type == ResourceType.GROUP) {
                 resource = new Animate.GroupArray(entry);
                 this._groups.push(resource);
             }
             else if (type == ResourceType.FILE) {
-                this._files.push(entry);
+                resource = new Animate.FileResource(entry);
+                this._files.push(resource);
             }
-            if (resource) {
-                this.emit(new ProjectEvent("resource-created", resource));
-                return resource;
-            }
-            return null;
+            this.emit(new ProjectEvent("resource-created", resource));
+            return resource;
         };
         /**
         * This function is used to fetch the project resources associated with a project.
         * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+        * @returns {Promise<Array<ProjectResource<any>>}
         */
         Project.prototype.loadResources = function (type) {
             var that = this;
             var arr = [];
             if (!type) {
+                this._assets.splice(0, this._assets.length);
+                this._files.splice(0, this._files.length);
+                this._containers.splice(0, this._containers.length);
+                this._groups.splice(0, this._groups.length);
                 arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
             }
             else {
-                if (type == ResourceType.FILE)
+                if (type == ResourceType.FILE) {
+                    this._files.splice(0, this._files.length);
                     arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
-                else if (type == ResourceType.ASSET)
+                }
+                else if (type == ResourceType.ASSET) {
+                    this._assets.splice(0, this._assets.length);
                     arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
-                else if (type == ResourceType.CONTAINER)
+                }
+                else if (type == ResourceType.CONTAINER) {
+                    this._containers.splice(0, this._containers.length);
                     arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
-                else if (type == ResourceType.GROUP)
+                }
+                else if (type == ResourceType.GROUP) {
+                    this._groups.splice(0, this._groups.length);
                     arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
+                }
             }
             return new Promise(function (resolve, reject) {
                 Promise.all(arr).then(function (data) {
@@ -3638,31 +3663,32 @@ var Animate;
                     for (var i = 0, l = data.length; i < l; i++)
                         if (data[i].error)
                             return reject(new Error(data[i].message));
+                    var createdResources = [];
                     if (!type) {
                         for (var i = 0, l = data[0].data.length; i < l; i++)
-                            that.createResourceInstance(data[0].data[i], ResourceType.FILE);
+                            createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.FILE));
                         for (var i = 0, l = data[1].data.length; i < l; i++)
-                            that.createResourceInstance(data[1].data[i], ResourceType.ASSET);
+                            createdResources.push(that.createResourceInstance(data[1].data[i], ResourceType.ASSET));
                         for (var i = 0, l = data[2].data.length; i < l; i++)
-                            that.createResourceInstance(data[2].data[i], ResourceType.CONTAINER);
+                            createdResources.push(that.createResourceInstance(data[2].data[i], ResourceType.CONTAINER));
                         for (var i = 0, l = data[3].data.length; i < l; i++)
-                            that.createResourceInstance(data[3].data[i], ResourceType.GROUP);
+                            createdResources.push(that.createResourceInstance(data[3].data[i], ResourceType.GROUP));
                     }
                     else {
                         if (type == ResourceType.FILE)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance(data[0].data[i], ResourceType.FILE);
+                                createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.FILE));
                         else if (type == ResourceType.ASSET)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance(data[0].data[i], ResourceType.ASSET);
+                                createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.ASSET));
                         else if (type == ResourceType.CONTAINER)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance(data[0].data[i], ResourceType.CONTAINER);
+                                createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.CONTAINER));
                         else if (type == ResourceType.GROUP)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                that.createResourceInstance(data[0].data[i], ResourceType.GROUP);
+                                createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.GROUP));
                     }
-                    return resolve(data);
+                    return resolve(createdResources);
                 }).catch(function (err) {
                     return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
                 });
@@ -3677,7 +3703,7 @@ var Animate;
         */
         Project.prototype.renameObject = function (name, id, type) {
             var that = this;
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             var projId = this.entry._id;
             var url;
             if (type == ResourceType.ASSET)
@@ -3704,7 +3730,7 @@ var Animate;
         */
         Project.prototype.createResource = function (name, type) {
             var that = this;
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             var projId = this.entry._id;
             var url;
             if (type == ResourceType.ASSET)
@@ -3775,7 +3801,7 @@ var Animate;
                 return;
             var ids = [];
             var jsons = [];
-            var behaviours = this._behaviours;
+            var behaviours = this._containers;
             // Create a multidimension array and pass each of the behaviours
             for (var i = 0, l = behavioursIds.length; i < l; i++)
                 for (var ii = 0, l = behaviours.length; ii < l; ii++)
@@ -3803,7 +3829,7 @@ var Animate;
         Project.prototype.saveAll = function () {
             // Behaviours
             var ids = [];
-            var behaviours = this._behaviours;
+            var behaviours = this._containers;
             for (var i = 0, l = behaviours.length; i < l; i++)
                 if (!behaviours[i].saved)
                     ids.push(behaviours[i].entry._id);
@@ -3823,8 +3849,9 @@ var Animate;
                     ids.push(groups[i].groupID);
             this.saveGroups(ids);
             Animate.CanvasTab.getSingleton().saveAll();
-            this.saveHTML();
-            this.saveCSS();
+            // TODO: Make sure these are saved
+            //this.saveHTML();
+            //this.saveCSS();
         };
         ///**
         //* This function is used to create a new behaviour. This will make
@@ -3845,28 +3872,30 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : BehaviourContainer.getNewLocalId() } );
         //}
-        /**
-        * Saves the HTML from the HTML tab to the server
-        */
-        Project.prototype.saveHTML = function () {
-            var html = (Animate.HTMLTab.singleton ? Animate.HTMLTab.singleton.editor.getValue() : this.mCurBuild.html);
-            var loader = new Animate.AnimateLoader();
-            this.mCurBuild.html = html;
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-html", { projectId: this.entry._id, html: html });
-        };
-        /**
-        * Saves the HTML from the HTML tab to the server
-        */
-        Project.prototype.saveCSS = function () {
-            var css = (Animate.CSSTab.singleton ? Animate.CSSTab.singleton.editor.getValue() : this.mCurBuild.css);
-            var loader = new Animate.AnimateLoader();
-            this.mCurBuild.css = css;
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-css", { projectId: this.entry._id, css: css });
-        };
+        ///**
+        //* Saves the HTML from the HTML tab to the server
+        //*/
+        //saveHTML()
+        //{
+        //          var html: string = (HTMLTab.singleton ? HTMLTab.singleton.editor.getValue() : this.curBuild.entry.html );
+        //          var loader = new AnimateLoader();
+        //          this.curBuild.entry.html = html;
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-html", { projectId: this.entry._id, html: html } );
+        //}
+        ///**
+        //* Saves the HTML from the HTML tab to the server
+        //*/
+        //saveCSS()
+        //      {
+        //          var css: string = (CSSTab.singleton ? CSSTab.singleton.editor.getValue() : this.curBuild.entry.css);
+        //          var loader = new AnimateLoader();
+        //          this.curBuild.entry.css = css;
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-css", { projectId: this.entry._id, css: css } );
+        //}
         /**
         * This function is used to delete behaviours.
         * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
@@ -4117,45 +4146,46 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/get-assets", { projectId: this.entry._id } );
         //}
-        /**
-        * Loads the project from data sent from the server
-        * @param {any} data The data sent from the server
-        */
-        Project.prototype.loadFromData = function (data) {
-            this.mSaved = true;
-            //this.buildId = data.project.buildId;
-            //this.created = data.project.createdOn;
-            //this.lastModified = data.project.lastModified;
-            //this.mName = data.project.name;
-            //this.mRating = data.project.rating;
-            //this.mCategory = data.project.category;
-            //this.mSubCategory = data.project.sub_category;
-            //this.mImgPath = data.project.image;
-            //this.mVisibility = data.project.visibility;
-            //var pluginIds = data.project.plugins;
-            //if ( !pluginIds )
-            //	this._plugins = [];
-            //else
-            //{
-            //             this._plugins = [];
-            //             for (var i = 0, l = pluginIds.length; i < l; i++)
-            //                 this._plugins.push(getPluginByID[pluginIds[i]]);
-            //	//var i = __plugins.length;
-            //	//while ( i-- )
-            //	//{
-            //	//	var ii: number = pluginIds.length;
-            //	//	while ( ii-- )
-            //	//		if ( pluginIds[ii] == __plugins[i]._id )
-            //	//		{
-            //	//			this._plugins.push( __plugins[i] );
-            //	//			break;
-            //	//		}
-            //	//}
-            //}
-            this.mCurBuild = data.build;
-            //this.mDescription = data.project.description;
-            //this.mTags = data.project.tags;
-        };
+        ///**
+        //* Loads the project from data sent from the server
+        //* @param {any} data The data sent from the server
+        //*/
+        //loadFromData( data : any )
+        //{
+        //	this.saved = true;
+        //this.buildId = data.project.buildId;
+        //this.created = data.project.createdOn;
+        //this.lastModified = data.project.lastModified;
+        //this.mName = data.project.name;
+        //this.mRating = data.project.rating;
+        //this.mCategory = data.project.category;
+        //this.mSubCategory = data.project.sub_category;
+        //this.mImgPath = data.project.image;
+        //this.mVisibility = data.project.visibility;
+        //var pluginIds = data.project.plugins;
+        //if ( !pluginIds )
+        //	this._plugins = [];
+        //else
+        //{
+        //             this._plugins = [];
+        //             for (var i = 0, l = pluginIds.length; i < l; i++)
+        //                 this._plugins.push(getPluginByID[pluginIds[i]]);
+        //	//var i = __plugins.length;
+        //	//while ( i-- )
+        //	//{
+        //	//	var ii: number = pluginIds.length;
+        //	//	while ( ii-- )
+        //	//		if ( pluginIds[ii] == __plugins[i]._id )
+        //	//		{
+        //	//			this._plugins.push( __plugins[i] );
+        //	//			break;
+        //	//		}
+        //	//}
+        //}
+        //this.curBuild = data.build;
+        //this.mDescription = data.project.description;
+        //this.mTags = data.project.tags;
+        //}
         /**
         * This function is called whenever we get a resonse from the server
         */
@@ -4168,45 +4198,35 @@ var Animate;
                 if (event.return_type == Animate.AnimateLoaderResponses.SUCCESS) {
                     //Sets the current build
                     if (loader.url == "/project/select-build") {
-                        this.mCurBuild = data.build;
+                        this.curBuild = data.build;
                     }
                     else if (loader.url == "/project/save-build") {
                     }
                     else if (loader.url == "/project/delete-behaviours") {
                         //Update behaviours ids which we fetched from the DB.
                         for (var i = 0, l = data.length; i < l; i++) {
-                            var len = this._behaviours.length;
+                            var len = this._containers.length;
                             for (var ii = 0; ii < len; ii++)
-                                if (this._behaviours[ii].entry._id == data[i]) {
-                                    var behaviour = this._behaviours[ii];
+                                if (this._containers[ii].entry._id == data[i]) {
+                                    var behaviour = this._containers[ii];
                                     behaviour.dispose();
-                                    this._behaviours.splice(ii, 1);
+                                    this._containers.splice(ii, 1);
                                     //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
                                     break;
                                 }
                         }
                     }
                     else if (loader.url == "/project/save-behaviours") {
-                        for (var i = 0; i < this._behaviours.length; i++)
+                        for (var i = 0; i < this._containers.length; i++)
                             for (ii = 0, l = data.length; ii < l; ii++)
-                                if (this._behaviours[i].entry._id == data[ii]) {
+                                if (this._containers[i].entry._id == data[ii]) {
                                     // Make sure the JSON is updated in the behaviour
                                     var canvas = Animate.CanvasTab.getSingleton().getTabCanvas(data[ii]);
                                     if (canvas)
-                                        this._behaviours[i].entry.json = canvas.buildDataObject();
+                                        this._containers[i].entry.json = canvas.buildDataObject();
                                     //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
                                     break;
                                 }
-                    }
-                    else if (loader.url == "/project/save-html") {
-                        //this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
-                        if (Animate.HTMLTab.singleton)
-                            Animate.HTMLTab.singleton.save();
-                    }
-                    else if (loader.url == "/project/save-css") {
-                        //this.emit( new ProjectEvent( ProjectEvents.CSS_SAVED, "CSS saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
-                        if (Animate.CSSTab.singleton)
-                            Animate.CSSTab.singleton.save();
                     }
                     else if (loader.url == "/project/delete-assets") {
                         dispatchEvent = new Animate.AssetEvent(Animate.EditorEvents.ASSET_DESTROYED, null);
@@ -4264,11 +4284,11 @@ var Animate;
                     else if (loader.url == "/project/update-behaviours") {
                         //Update behaviours which we fetched from the DB.
                         for (var ii = 0, l = data.length; ii < l; ii++) {
-                            for (var i = 0, len = this._behaviours.length; i < len; i++)
-                                if (this._behaviours[i].entry._id == data[ii]._id) {
-                                    this._behaviours[i].update(data[ii].name, Animate.CanvasToken.fromDatabase(data[ii].json, data[ii]._id));
+                            for (var i = 0, len = this._containers.length; i < len; i++)
+                                if (this._containers[i].entry._id == data[ii]._id) {
+                                    this._containers[i].update(data[ii].name, Animate.CanvasToken.fromDatabase(data[ii].json, data[ii]._id));
                                     //Update the GUI elements
-                                    Animate.TreeViewScene.getSingleton().updateBehaviour(this._behaviours[i]);
+                                    Animate.TreeViewScene.getSingleton().updateBehaviour(this._containers[i]);
                                     //this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
                                     break;
                                 }
@@ -4316,7 +4336,7 @@ var Animate;
             //	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         };
         Object.defineProperty(Project.prototype, "containers", {
-            get: function () { return this._behaviours; },
+            get: function () { return this._containers; },
             enumerable: true,
             configurable: true
         });
@@ -4343,10 +4363,10 @@ var Animate;
             var pManager = Animate.PluginManager.getSingleton();
             var event;
             //Cleanup behaviours
-            var i = this._behaviours.length;
+            var i = this._containers.length;
             while (i--) {
                 //this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
-                this._behaviours[i].dispose();
+                this._containers[i].dispose();
             }
             i = this._assets.length;
             event = new Animate.AssetEvent(Animate.EditorEvents.ASSET_DESTROYED, null);
@@ -4363,10 +4383,10 @@ var Animate;
             //this.created = null;
             //this.lastModified = null;
             //this._id = null;
-            this.mSaved = true;
+            this.saved = true;
             //this.mName = null;
             //this.mDescription = null;
-            this._behaviours = [];
+            this._containers = [];
             this._assets = [];
             //this.buildId = null;
             this._files = [];
@@ -4446,7 +4466,7 @@ var Animate;
             // Call super-class constructor
             Animate.EventDispatcher.call(this);
             // Create the default entry
-            this.userEntry = { username: "" };
+            this.entry = { username: "" };
             this.resetMeta();
             this.project = new Animate.Project();
             this._isLoggedIn = false;
@@ -4475,7 +4495,7 @@ var Animate;
                     if (data.error)
                         return reject(new Error(data.message));
                     if (data.authenticated) {
-                        that.userEntry = data.user;
+                        that.entry = data.user;
                         that._isLoggedIn = true;
                         return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
                     }
@@ -4516,7 +4536,7 @@ var Animate;
                         return reject(new Error(data.message));
                     if (data.authenticated) {
                         that._isLoggedIn = true;
-                        that.userEntry = data.user;
+                        that.entry = data.user;
                         return jQuery.getJSON(Animate.DB.API + "/user-details/" + data.user.username);
                     }
                     else {
@@ -4558,7 +4578,7 @@ var Animate;
                         return reject(new Error(data.message));
                     if (data.authenticated) {
                         that._isLoggedIn = false;
-                        that.userEntry = data.user;
+                        that.entry = data.user;
                     }
                     else
                         that._isLoggedIn = false;
@@ -4612,7 +4632,7 @@ var Animate;
                 Animate.Utils.get(Animate.DB.USERS + "/users/logout").then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
-                    that.userEntry = { username: "" };
+                    that.entry = { username: "" };
                     that.meta = {
                         bio: "",
                         plan: Animate.UserPlan.Free,
@@ -4636,7 +4656,7 @@ var Animate;
         User.prototype.getProjectList = function (index, limit) {
             var that = this;
             return new Promise(function (resolve, reject) {
-                Animate.Utils.get(Animate.DB.API + "/projects/" + that.userEntry.username + "?verbose=true&index=" + index + "&limit=" + limit).then(function (data) {
+                Animate.Utils.get(Animate.DB.API + "/projects/" + that.entry.username + "?verbose=true&index=" + index + "&limit=" + limit).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
                     // Assign the actual plugins
@@ -4691,7 +4711,7 @@ var Animate;
         User.prototype.removeProject = function (pid) {
             var that = this;
             return new Promise(function (resolve, reject) {
-                Animate.Utils.delete(Animate.DB.API + "/projects/" + that.userEntry.username + "/" + pid).then(function (data) {
+                Animate.Utils.delete(Animate.DB.API + "/projects/" + that.entry.username + "/" + pid).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
                     return resolve(data);
@@ -4709,7 +4729,7 @@ var Animate;
             var meta = this.meta;
             var that = this;
             return new Promise(function (resolve, reject) {
-                Animate.Utils.put(Animate.DB.API + "/user-details/" + that.userEntry.username, token).then(function (data) {
+                Animate.Utils.put(Animate.DB.API + "/user-details/" + that.entry.username, token).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
                     else {
@@ -4847,25 +4867,21 @@ var Animate;
                     this._isLoggedIn = true;
                 }
                 else if (loader.url == "/user/log-out") {
-                    this.userEntry.username = "";
+                    this.entry.username = "";
                     this._isLoggedIn = false;
                 }
                 else if (loader.url == "/project/create") {
-                }
-                else if (loader.url == "/project/open") {
-                    //this.project = new Project(data.project.entry._id, data.project.name, null );
-                    this.project.loadFromData(data);
                 }
                 else if (loader.url == "/project/rename") {
                 }
                 else if (loader.url.match(/authenticated/)) {
                     if (data.loggedIn) {
-                        this.userEntry.username = data.username;
-                        this.userEntry.meta.bio = data.bio;
-                        this.userEntry.meta.plan = data.plan;
-                        this.userEntry.meta.maxNumProjects = data.maxProjects;
-                        this.userEntry.meta.imgURL = (data.image == "" || data.image == null ? "media/blank-user.png" : data.image);
-                        this.userEntry.meta.createdOn = data.createdOn;
+                        this.entry.username = data.username;
+                        this.entry.meta.bio = data.bio;
+                        this.entry.meta.plan = data.plan;
+                        this.entry.meta.maxNumProjects = data.maxProjects;
+                        this.entry.meta.imgURL = (data.image == "" || data.image == null ? "media/blank-user.png" : data.image);
+                        this.entry.meta.createdOn = data.createdOn;
                         this._isLoggedIn = true;
                     }
                 }
@@ -8718,7 +8734,7 @@ var Animate;
 //			this.leftTop.addChild( "<div><div class='proj-info-left'><img src='media/project-item.png'/></div>" +
 //				"<div class='proj-info-right'>" +
 //                "<div class='name'>Name: " + User.get.project.entry.name + "</div>" +
-//                "<div class='owner'>User: " + User.get.userEntry.username + "</div>" +
+//                "<div class='owner'>User: " + User.get.entry.username + "</div>" +
 //                "<div class='created-by'>Last Updated: " + new Date(User.get.project.entry.lastModified ).toDateString() + "</div>" +
 //				"</div></div><div class='fix'></div>" );
 //			this.pluginList.clear();
@@ -13545,43 +13561,56 @@ var Animate;
         function HTMLTab(name) {
             // Call super-class constructor
             _super.call(this, null, null, name);
-            this.originalName = name;
-            this.proxyChange = jQuery.proxy(this.onChange, this);
-            this.proxyMessageBox = jQuery.proxy(this.onMessage, this);
-            this.saved = true;
-            this.close = false;
+            this._originalName = name;
+            this._proxyChange = jQuery.proxy(this.onChange, this);
+            this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
+            this._saved = true;
+            this._close = false;
             this._editor = null;
         }
-        /**
-        * When the server responds after a save.
-        * @param {ProjectEvents} response
-        * @param {ProjectEvent} event
-        */
-        HTMLTab.prototype.onServer = function (response, event) {
-            Animate.User.get.project.off(Animate.ProjectEvents.FAILED, this.onServer, this);
-            Animate.User.get.project.off(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
-            if (response == Animate.ProjectEvents.FAILED) {
-                this.saved = false;
-            }
-            else {
-                this.save();
-                if (this.close)
-                    Animate.CanvasTab.getSingleton().removeTab(this, true);
-            }
-        };
+        ///**
+        //* When the server responds after a save.
+        //* @param {ProjectEvents} response 
+        //* @param {ProjectEvent} event 
+        //*/
+        //onServer(response: ProjectEvents, event: ProjectEvent)
+        //{
+        //	User.get.project.off(ProjectEvents.FAILED, this.onServer, this);
+        //	User.get.project.off(ProjectEvents.HTML_SAVED, this.onServer, this);
+        //	if (response == ProjectEvents.FAILED)
+        //	{
+        //		this._saved = false;
+        //		//MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
+        //	}
+        //	else
+        //	{
+        //		this.save();
+        //		if (this._close)
+        //			CanvasTab.getSingleton().removeTab(this, true);
+        //	}
+        //}
         /**
         * When we acknowledge the message box.
         * @param {string} val
         */
         HTMLTab.prototype.onMessage = function (val) {
             if (val == "Yes") {
-                this.close = true;
-                Animate.User.get.project.on(Animate.ProjectEvents.FAILED, this.onServer, this);
-                Animate.User.get.project.on(Animate.ProjectEvents.HTML_SAVED, this.onServer, this);
-                Animate.User.get.project.saveHTML();
+                var that = this;
+                var editor = that.editor;
+                that._close = true;
+                // Update the build html
+                Animate.User.get.project.curBuild.update({ html: editor.getValue() }).then(function () {
+                    that.name = that._originalName;
+                    jQuery(".text", that.tabSelector.element).text(that.name);
+                    that._saved = true;
+                    if (that._close)
+                        Animate.CanvasTab.getSingleton().removeTab(that, true);
+                }).catch(function (err) {
+                    Animate.Logger.getSingleton().logMessage("Could not update the build HTML: '" + err.message + "'", null, Animate.LogType.ERROR);
+                });
             }
             else {
-                this.saved = true;
+                this._saved = true;
                 Animate.CanvasTab.getSingleton().removeTab(this, true);
             }
         };
@@ -13590,8 +13619,8 @@ var Animate;
         * @param {any} e
         */
         HTMLTab.prototype.onChange = function (e) {
-            this.saved = false;
-            this.name = "*" + this.originalName;
+            this._saved = false;
+            this.name = "*" + this._originalName;
             this.text = this.name;
         };
         /**
@@ -13599,16 +13628,16 @@ var Animate;
         * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
         HTMLTab.prototype.onRemove = function (data) {
-            if (!this.saved) {
+            if (!this._saved) {
                 data.cancel = true;
-                Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this.proxyMessageBox, this);
+                Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
                 return;
             }
-            this._editor.off("change", this.proxyChange);
+            this._editor.off("change", this._proxyChange);
             this._editor.destroy();
             this._editor = null;
-            this.proxyChange = null;
-            this.proxyMessageBox = null;
+            this._proxyChange = null;
+            this._proxyMessageBox = null;
             HTMLTab.singleton = null;
             this._editor = null;
         };
@@ -13618,15 +13647,16 @@ var Animate;
         HTMLTab.prototype.onResize = function () {
             this._editor.resize();
         };
-        /**
-        * A helper function to save the script
-        * @returns {any}
-        */
-        HTMLTab.prototype.save = function () {
-            this.name = this.originalName;
-            jQuery(".text", this.tabSelector.element).text(this.name);
-            this.saved = true;
-        };
+        ///**
+        //* A helper function to save the script
+        //* @returns {any} 
+        //*/
+        //save()
+        //{
+        //	this.name = this._originalName;
+        //	jQuery(".text", this.tabSelector.element).text(this.name);
+        //	this._saved = true;
+        //}
         /**
         * Called when the pair has been added to the tab
         */
@@ -13637,10 +13667,10 @@ var Animate;
             editor.setTheme("ace/theme/chrome");
             editor.getSession().setMode("ace/mode/html");
             this._editor = editor;
-            editor.setValue(Animate.User.get.project.mCurBuild.html);
-            this._editor.selection.moveCursorFileStart();
+            editor.setValue(Animate.User.get.project.curBuild.entry.html);
+            editor.selection.moveCursorFileStart();
             // Ctrl + S
-            this._editor.commands.addCommand({
+            editor.commands.addCommand({
                 name: "save",
                 bindKey: {
                     win: "Ctrl-S",
@@ -13649,7 +13679,7 @@ var Animate;
                 },
                 exec: function () { Animate.User.get.project.saveAll(); }
             });
-            editor.on("change", this.proxyChange);
+            editor.on("change", this._proxyChange);
         };
         Object.defineProperty(HTMLTab.prototype, "editor", {
             get: function () { return this._editor; },
@@ -13673,43 +13703,56 @@ var Animate;
         function CSSTab(name) {
             // Call super-class constructor
             _super.call(this, null, null, name);
-            this.originalName = name;
-            this.proxyChange = jQuery.proxy(this.onChange, this);
-            this.proxyMessageBox = jQuery.proxy(this.onMessage, this);
-            this.saved = true;
-            this.close = false;
+            this._originalName = name;
+            this._proxyChange = jQuery.proxy(this.onChange, this);
+            this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
+            this._saved = true;
+            this._close = false;
             this._editor = null;
         }
-        /**
-        * When the server responds after a save.
-        * @param {ProjectEvents} response
-        * @param {ProjectEvent} event
-        */
-        CSSTab.prototype.onServer = function (response, event) {
-            Animate.User.get.project.off(Animate.ProjectEvents.FAILED, this.onServer, this);
-            Animate.User.get.project.off(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
-            if (response == Animate.ProjectEvents.FAILED) {
-                this.saved = false;
-            }
-            else {
-                this.save();
-                if (this.close)
-                    Animate.CanvasTab.getSingleton().removeTab(this, true);
-            }
-        };
+        ///**
+        //* When the server responds after a save.
+        //* @param {ProjectEvents} response 
+        //* @param {ProjectEvent} event 
+        //*/
+        //onServer(response: ProjectEvents, event: ProjectEvent)
+        //{
+        //          User.get.project.off(ProjectEvents.FAILED, this.onServer, this);
+        //          User.get.project.off(ProjectEvents.CSS_SAVED, this.onServer, this);
+        //	if (response == ProjectEvents.FAILED)
+        //	{
+        //		this._saved = false;
+        //		//MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
+        //	}
+        //	else
+        //	{
+        //		//this.save();
+        //		if (this._close)
+        //			CanvasTab.getSingleton().removeTab(this, true);
+        //	}
+        //}
         /**
         * When we acknowledge the message box.
         * @param {string} val
         */
         CSSTab.prototype.onMessage = function (val) {
             if (val == "Yes") {
-                this.close = true;
-                Animate.User.get.project.on(Animate.ProjectEvents.FAILED, this.onServer, this);
-                Animate.User.get.project.on(Animate.ProjectEvents.CSS_SAVED, this.onServer, this);
-                Animate.User.get.project.saveCSS();
+                var that = this;
+                var editor = that.editor;
+                that._close = true;
+                // Update the build html
+                Animate.User.get.project.curBuild.update({ css: editor.getValue() }).then(function () {
+                    that.name = that._originalName;
+                    jQuery(".text", that.tabSelector.element).text(that.name);
+                    that._saved = true;
+                    if (that._close)
+                        Animate.CanvasTab.getSingleton().removeTab(that, true);
+                }).catch(function (err) {
+                    Animate.Logger.getSingleton().logMessage("Could not update the build CSS: '" + err.message + "'", null, Animate.LogType.ERROR);
+                });
             }
             else {
-                this.saved = true;
+                this._saved = true;
                 Animate.CanvasTab.getSingleton().removeTab(this, true);
             }
         };
@@ -13718,8 +13761,8 @@ var Animate;
         * @param {any} e
         */
         CSSTab.prototype.onChange = function (e) {
-            this.saved = false;
-            this.name = "*" + this.originalName;
+            this._saved = false;
+            this.name = "*" + this._originalName;
             this.text = this.name;
         };
         /**
@@ -13727,16 +13770,16 @@ var Animate;
         * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
         CSSTab.prototype.onRemove = function (data) {
-            if (!this.saved) {
+            if (!this._saved) {
                 data.cancel = true;
-                Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this.proxyMessageBox, this);
+                Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
                 return;
             }
-            this._editor.off("change", this.proxyChange);
+            this._editor.off("change", this._proxyChange);
             this._editor.destroy();
             this._editor = null;
-            this.proxyChange = null;
-            this.proxyMessageBox = null;
+            this._proxyChange = null;
+            this._proxyMessageBox = null;
             CSSTab.singleton = null;
             this._editor = null;
         };
@@ -13746,15 +13789,16 @@ var Animate;
         CSSTab.prototype.onResize = function () {
             this._editor.resize();
         };
-        /**
-        * A helper function to save the script
-        * @returns {any}
-        */
-        CSSTab.prototype.save = function () {
-            this.name = this.originalName;
-            jQuery(".text", this.tabSelector.element).text(this.name);
-            this.saved = true;
-        };
+        ///**
+        //* A helper function to save the script
+        //* @returns {any} 
+        //*/
+        //save()
+        //{
+        //	this.name = this._originalName;
+        //	jQuery( ".text", this.tabSelector.element ).text( this.name );
+        //	this._saved = true;
+        //}
         /**
         * Called when the pair has been added to the tab
         */
@@ -13765,7 +13809,7 @@ var Animate;
             editor.setTheme("ace/theme/chrome");
             editor.getSession().setMode("ace/mode/css");
             this._editor = editor;
-            editor.setValue(Animate.User.get.project.mCurBuild.css);
+            editor.setValue(Animate.User.get.project.curBuild.entry.css);
             this._editor.selection.moveCursorFileStart();
             // Ctrl + S
             this._editor.commands.addCommand({
@@ -13777,7 +13821,7 @@ var Animate;
                 },
                 exec: function () { Animate.User.get.project.saveAll(); }
             });
-            editor.on("change", this.proxyChange);
+            editor.on("change", this._proxyChange);
         };
         Object.defineProperty(CSSTab.prototype, "editor", {
             get: function () { return this._editor; },
@@ -16573,10 +16617,10 @@ var Animate;
                 }
                 var user = Animate.User.get;
                 var project = Animate.User.get.project;
-                var build = project.mCurBuild;
+                var build = project.curBuild;
                 project.on(Animate.ProjectEvents.FAILED, this._buildProxy, this);
                 project.on(Animate.ProjectEvents.BUILD_SAVED, this._buildProxy, this);
-                project.saveBuild(this._notes.val.text, this._visibility.val.selectedItem, build.html, build.css);
+                project.saveBuild(this._notes.val.text, this._visibility.val.selectedItem, build.entry.html, build.entry.css);
             }
             else if (target == this._selectBuild) {
                 ////Check if the values are valid
@@ -16666,12 +16710,12 @@ var Animate;
         * @param {Build} data
         */
         BuildOptionsForm.prototype.updateFields = function (data) {
-            var versionParts = data.version.split(".");
+            var versionParts = data.entry.version.split(".");
             this._buildVerMaj.val.text = versionParts[0];
             this._buildVerMid.val.text = versionParts[1];
             this._buildVerMin.val.text = versionParts[2];
-            this._notes.val.text = data.build_notes;
-            this._visibility.val.selectedItem = (data.visibility == "Public" ? "Public" : "Private");
+            this._notes.val.text = data.entry.notes;
+            this._visibility.val.selectedItem = (data.entry.public ? "Public" : "Private");
             //this.initializeLoader();
         };
         /**
@@ -17026,7 +17070,7 @@ var Animate;
         */
         FileViewer.prototype.newFolder = function () {
             var that = this;
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             var folderName = $("#new-folder-name").val();
             var mediaURL = Animate.DB.USERS + "/media";
             // Empty names not allowed
@@ -17156,7 +17200,7 @@ var Animate;
         */
         FileViewer.prototype.updateContent = function (index, limit) {
             var that = this;
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             var project = Animate.User.get.project;
             var command = "";
             that.$loading = true;
@@ -17261,7 +17305,7 @@ var Animate;
         * Called when we are no longer dragging items.
         */
         FileViewer.prototype.onDrop = function (e) {
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             if (this.visible) {
                 if (jQuery(".file-items", this.element).hasClass("drag-here"))
                     jQuery(".file-items", this.element).removeClass("drag-here");
@@ -17289,7 +17333,7 @@ var Animate;
         */
         FileViewer.prototype.uploadPreview = function (file, preview) {
             var that = FileViewer._singleton;
-            var details = Animate.User.get.userEntry;
+            var details = Animate.User.get.entry;
             var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
             // Create the uploader
@@ -17337,7 +17381,7 @@ var Animate;
             this.$loading = false;
             this.$newFolder = false;
             this.selectedEntity = null;
-            var that = this, details = Animate.User.get.userEntry, extensions = this.extensions, apiUrl = "";
+            var that = this, details = Animate.User.get.entry, extensions = this.extensions, apiUrl = "";
             // Call update and redraw the elements
             this.$pager.invalidate();
             var onChanged = function () {
@@ -17393,7 +17437,7 @@ var Animate;
         * @param {IFile} token The file token to update with
         */
         FileViewer.prototype.updateFile = function (token) {
-            var that = this, details = Animate.User.get.userEntry;
+            var that = this, details = Animate.User.get.entry;
             that.$loading = true;
             that.$errorMsg = "";
             that.$confirmDelete = false;
@@ -18548,15 +18592,20 @@ var Animate;
             Animate.CanvasTab.getSingleton().projectReady(project);
             Animate.TreeViewScene.getSingleton().projectReady(project);
             Animate.PluginManager.getSingleton().projectReady(project);
+            Animate.Logger.getSingleton().logMessage("Loading project '" + that.$selectedProject.name + "'...", null, Animate.LogType.MESSAGE);
             // Attempts to load all the project resources
-            project.loadResources().then(function () {
+            project.loadResources().then(function (resources) {
+                Animate.Logger.getSingleton().logMessage("Loaded [" + resources.length + "] resources", null, Animate.LogType.MESSAGE);
+                return project.loadBuild();
+            }).then(function (build) {
+                Animate.Logger.getSingleton().logMessage("Loaded project build '" + build.entry.name + " - v" + build.entry.version + "'", null, Animate.LogType.MESSAGE);
                 // TODO : Not sure if im keeping this here...
                 project.off(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
                 project.on(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
                 // Log 
-                Animate.Logger.getSingleton().logMessage("Project '" + that.$selectedProject.name + "' has been opened", null, Animate.LogType.MESSAGE);
+                Animate.Logger.getSingleton().logMessage("Project '" + that.$selectedProject.name + "' has successfully been opened", null, Animate.LogType.MESSAGE);
                 // Remove splash
                 that._splashElm.detach();
                 Animate.Application.bodyComponent.addChild(Animate.Application.getInstance());
@@ -18974,7 +19023,7 @@ jQuery(document).ready(function () {
 /// <reference path="./definitions/jqueryui.d.ts" />
 /// <reference path="./definitions/jquery.scrollTo.d.ts" />
 /// <reference path="./definitions/JSColor.d.ts" />
-/// <reference path="./definitions/AceEditor.d.ts" />
+/// <reference path="./definitions/ace.d.ts" />
 /// <reference path="./definitions/es6-promise.d.ts" />
 /// <reference path="./definitions/FileUploader.d.ts" />
 /// <reference path="./definitions/Recaptcha.d.ts" />
@@ -19243,7 +19292,7 @@ var Animate;
         */
         FileUploader.prototype.upload = function (form, url, identifier, parentFile) {
             if (!url) {
-                var details = Animate.User.get.userEntry;
+                var details = Animate.User.get.entry;
                 url = Animate.DB.USERS + "/media/upload/" + details.username + "-bucket" + (parentFile ? "/" + parentFile : "");
             }
             var that = this;
@@ -19332,6 +19381,88 @@ var Animate;
     })();
     Animate.FileUploader = FileUploader;
 })(Animate || (Animate = {}));
+//module Animate
+//{
+//	/**
+//	* This form is used to create or edit Portals.
+//	*/
+//	export class NewBehaviourForm extends OkCancelForm
+//	{
+//		public static _singleton: NewBehaviourForm;
+//		private name: LabelVal;
+//		private warning: Label;
+//		private createProxy: any;
+//		constructor()
+//		{
+//			if ( NewBehaviourForm._singleton != null )
+//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
+//			NewBehaviourForm._singleton = this;
+//			// Call super-class constructor
+//			super( 400, 250, false, true, "Please enter a name" );
+//			this.element.addClass( "new-behaviour-form" );
+//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
+//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
+//			//Create the proxies
+//			this.createProxy = this.onCreated.bind( this );
+//		}
+//		/** Shows the window. */
+//		show()
+//		{
+//			( <Label>this.name.val ).text = "";
+//			this.warning.textfield.element.css( "color", "" );
+//			this.warning.text = "Please enter a behaviour name.";
+//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//			super.show();
+//			( <Label>this.name.val).textfield.element.focus();
+//		}
+//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//		and pass the text either for the ok or cancel buttons. */
+//		OnButtonClick( e )
+//		{
+//			if ( jQuery( e.target ).text() == "Ok" )
+//			{
+//				//Check if the values are valid
+//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//				this.warning.textfield.element.css( "color", "" );
+//				//Check for special chars
+//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
+//				if ( message != null )
+//				{
+//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
+//					this.warning.textfield.element.css( "color", "#FF0000" );
+//					this.warning.text = message;
+//					return;
+//				}
+//				//Create the Behaviour in the DB
+//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
+//				return;
+//			}
+//			super.OnButtonClick( e );
+//		}
+//		/** Called when we create a behaviour.*/
+//		onCreated( response: ProjectEvents, event : ProjectEvent )
+//		{
+//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//			if ( response == ProjectEvents.FAILED )
+//			{
+//				this.warning.textfield.element.css( "color", "#FF0000" );
+//				this.warning.text = event.message;
+//				return;
+//			}
+//			this.hide();
+//		}
+//		/** Gets the singleton instance. */
+//		static getSingleton()
+//		{
+//			if ( !NewBehaviourForm._singleton )
+//				new NewBehaviourForm();
+//			return NewBehaviourForm._singleton;
+//		}
+//	}
+//} 
 //module Animate
 //{
 //	export class Splash2 extends Window
@@ -20422,88 +20553,6 @@ var Animate;
 //			if (!Splash2._singleton)
 //				new Splash2();
 //			return Splash2._singleton;
-//		}
-//	}
-//} 
-//module Animate
-//{
-//	/**
-//	* This form is used to create or edit Portals.
-//	*/
-//	export class NewBehaviourForm extends OkCancelForm
-//	{
-//		public static _singleton: NewBehaviourForm;
-//		private name: LabelVal;
-//		private warning: Label;
-//		private createProxy: any;
-//		constructor()
-//		{
-//			if ( NewBehaviourForm._singleton != null )
-//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
-//			NewBehaviourForm._singleton = this;
-//			// Call super-class constructor
-//			super( 400, 250, false, true, "Please enter a name" );
-//			this.element.addClass( "new-behaviour-form" );
-//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
-//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
-//			//Create the proxies
-//			this.createProxy = this.onCreated.bind( this );
-//		}
-//		/** Shows the window. */
-//		show()
-//		{
-//			( <Label>this.name.val ).text = "";
-//			this.warning.textfield.element.css( "color", "" );
-//			this.warning.text = "Please enter a behaviour name.";
-//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//			super.show();
-//			( <Label>this.name.val).textfield.element.focus();
-//		}
-//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-//		and pass the text either for the ok or cancel buttons. */
-//		OnButtonClick( e )
-//		{
-//			if ( jQuery( e.target ).text() == "Ok" )
-//			{
-//				//Check if the values are valid
-//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//				this.warning.textfield.element.css( "color", "" );
-//				//Check for special chars
-//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
-//				if ( message != null )
-//				{
-//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
-//					this.warning.textfield.element.css( "color", "#FF0000" );
-//					this.warning.text = message;
-//					return;
-//				}
-//				//Create the Behaviour in the DB
-//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
-//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
-//				return;
-//			}
-//			super.OnButtonClick( e );
-//		}
-//		/** Called when we create a behaviour.*/
-//		onCreated( response: ProjectEvents, event : ProjectEvent )
-//		{
-//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
-//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//			if ( response == ProjectEvents.FAILED )
-//			{
-//				this.warning.textfield.element.css( "color", "#FF0000" );
-//				this.warning.text = event.message;
-//				return;
-//			}
-//			this.hide();
-//		}
-//		/** Gets the singleton instance. */
-//		static getSingleton()
-//		{
-//			if ( !NewBehaviourForm._singleton )
-//				new NewBehaviourForm();
-//			return NewBehaviourForm._singleton;
 //		}
 //	}
 //} 

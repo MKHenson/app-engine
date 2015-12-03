@@ -2,7 +2,7 @@
 /// <reference path="../../source-client/definitions/jqueryui.d.ts" />
 /// <reference path="../../source-client/definitions/jquery.scrollTo.d.ts" />
 /// <reference path="../../source-client/definitions/JSColor.d.ts" />
-/// <reference path="../../source-client/definitions/AceEditor.d.ts" />
+/// <reference path="../../source-client/definitions/ace.d.ts" />
 /// <reference path="../../source-client/definitions/es6-promise.d.ts" />
 /// <reference path="../../source-client/definitions/FileUploader.d.ts" />
 /// <reference path="../../source-client/definitions/Recaptcha.d.ts" />
@@ -1052,6 +1052,17 @@ declare module Animate {
 }
 declare module Animate {
     /**
+    * A wrapper for DB file instances
+    */
+    class FileResource extends ProjectResource<Engine.IFile> {
+        /**
+        * @param {IFile} entry The DB entry of this file
+        */
+        constructor(entry: Engine.IFile);
+    }
+}
+declare module Animate {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -1447,23 +1458,20 @@ declare module Animate {
         constructor(type: string, data: ProjectResource<any>);
     }
     /**
-    * The build class defined in the database
+    * A wrapper for project builds
     */
     class Build {
-        name: string;
-        projectId: string;
-        state: string;
-        html: string;
-        css: string;
-        file: string;
-        filePath: string;
-        visibility: string;
-        rating: number;
-        build_notes: string;
-        version: string;
-        createdOn: number;
-        lastModified: number;
-        _id: string;
+        entry: Engine.IBuild;
+        /**
+        * Creates an intance of the build
+        * @param {Engine.IBuild} entry The entry token from the DB
+        */
+        constructor(entry: Engine.IBuild);
+        /**
+        * Attempts to update the build with new data
+        * @param {Engine.IBuild} token The update token data
+        */
+        update(token: Engine.IBuild): Promise<boolean>;
     }
     /**
     * A project class is an object that is owned by a user.
@@ -1472,9 +1480,9 @@ declare module Animate {
     */
     class Project extends EventDispatcher {
         entry: Engine.IProject;
-        mSaved: boolean;
-        mCurBuild: Build;
-        private _behaviours;
+        saved: boolean;
+        curBuild: Build;
+        private _containers;
         private _assets;
         private _files;
         private _groups;
@@ -1497,9 +1505,9 @@ declare module Animate {
         /**
         * Gets a file by its ID
         * @param {string} id The ID of the file
-        * @returns {Engine.IFile} The file whose id matches the id parameter or null
+        * @returns {FileResource} The file whose id matches the id parameter or null
         */
-        getFile(id: string): Engine.IFile;
+        getFile(id: string): FileResource;
         /**
         * Gets a group by its ID
         * @param {string} id The ID of the group
@@ -1525,10 +1533,10 @@ declare module Animate {
         */
         updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>;
         /**
-        * This function is used to fetch the files associated with a project.
-        * @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
+        * Loads a previously selected build, or creates one if none are selected
+        * @returns {Promise<Build>}
         */
-        loadFiles(mode?: string): Promise<ModepressAddons.IGetFiles>;
+        loadBuild(): Promise<Build>;
         /**
         * Internal function to create a resource wrapper
         * @param {T} entry The database entry
@@ -1539,9 +1547,9 @@ declare module Animate {
         /**
         * This function is used to fetch the project resources associated with a project.
         * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Modepress.IGetArrayResponse<any>>}
+        * @returns {Promise<Array<ProjectResource<any>>}
         */
-        loadResources(type?: ResourceType): Promise<Modepress.IGetArrayResponse<any>>;
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>;
         /**
         * Use this to rename the project, a behaviour, group or asset.
         * @param {string} name The new name of the object
@@ -1574,14 +1582,6 @@ declare module Animate {
         * This function is used to save the behaviors, groups and _assets or the DB
         */
         saveAll(): void;
-        /**
-        * Saves the HTML from the HTML tab to the server
-        */
-        saveHTML(): void;
-        /**
-        * Saves the HTML from the HTML tab to the server
-        */
-        saveCSS(): void;
         /**
         * This function is used to delete behaviours.
         * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
@@ -1678,11 +1678,6 @@ declare module Animate {
         */
         deleteAssets(assetIDs: Array<string>): void;
         /**
-        * Loads the project from data sent from the server
-        * @param {any} data The data sent from the server
-        */
-        loadFromData(data: any): void;
-        /**
         * This function is called whenever we get a resonse from the server
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
@@ -1719,7 +1714,7 @@ declare module Animate {
     */
     class User extends EventDispatcher {
         private static _singleton;
-        userEntry: UsersInterface.IUserEntry;
+        entry: UsersInterface.IUserEntry;
         meta: Engine.IUserMeta;
         project: Project;
         private _isLoggedIn;
@@ -4238,11 +4233,11 @@ declare module Animate {
     */
     class HTMLTab extends TabPair {
         static singleton: HTMLTab;
-        private originalName;
-        private proxyChange;
-        private proxyMessageBox;
-        private saved;
-        private close;
+        private _originalName;
+        private _proxyChange;
+        private _proxyMessageBox;
+        private _saved;
+        private _close;
         private _editor;
         /**
         * @param {string} name The name of the tab
@@ -4251,12 +4246,6 @@ declare module Animate {
         */
         constructor(name: string);
         /**
-        * When the server responds after a save.
-        * @param {ProjectEvents} response
-        * @param {ProjectEvent} event
-        */
-        onServer(response: ProjectEvents, event: ProjectEvent): void;
-        /**
         * When we acknowledge the message box.
         * @param {string} val
         */
@@ -4276,15 +4265,10 @@ declare module Animate {
         */
         onResize(): void;
         /**
-        * A helper function to save the script
-        * @returns {any}
-        */
-        save(): void;
-        /**
         * Called when the pair has been added to the tab
         */
         onAdded(): void;
-        editor: AceEditor;
+        editor: AceAjax.Editor;
     }
 }
 declare module Animate {
@@ -4293,22 +4277,16 @@ declare module Animate {
     */
     class CSSTab extends TabPair {
         static singleton: CSSTab;
-        private originalName;
-        private proxyChange;
-        private proxyMessageBox;
-        private saved;
-        private close;
+        private _originalName;
+        private _proxyChange;
+        private _proxyMessageBox;
+        private _saved;
+        private _close;
         private _editor;
         /**
         * @param {string} name The name of the tab
         */
         constructor(name: string);
-        /**
-        * When the server responds after a save.
-        * @param {ProjectEvents} response
-        * @param {ProjectEvent} event
-        */
-        onServer(response: ProjectEvents, event: ProjectEvent): void;
         /**
         * When we acknowledge the message box.
         * @param {string} val
@@ -4329,15 +4307,10 @@ declare module Animate {
         */
         onResize(): void;
         /**
-        * A helper function to save the script
-        * @returns {any}
-        */
-        save(): void;
-        /**
         * Called when the pair has been added to the tab
         */
         onAdded(): void;
-        editor: AceEditor;
+        editor: AceAjax.Editor;
     }
 }
 declare module Animate {

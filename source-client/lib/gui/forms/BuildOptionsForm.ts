@@ -433,11 +433,11 @@ module Animate
 
                 var user: User = User.get;
                 var project: Project = User.get.project;
-				var build = project.mCurBuild;
+				var build = project.curBuild;
 
 				project.on( ProjectEvents.FAILED, this._buildProxy, this );
-				project.on( ProjectEvents.BUILD_SAVED, this._buildProxy, this );
-				project.saveBuild( (<Label>this._notes.val).text, (<ComboBox>this._visibility.val).selectedItem, build.html, build.css );
+                project.on(ProjectEvents.BUILD_SAVED, this._buildProxy, this);
+                project.saveBuild((<Label>this._notes.val).text, (<ComboBox>this._visibility.val).selectedItem, build.entry.html, build.entry.css);
 			}
 			else if ( target == this._selectBuild )
 			{
@@ -550,14 +550,14 @@ module Animate
 		* @param {Build} data 
 		*/
 		updateFields( data: Build )
-		{
-			var versionParts = data.version.split(".");
+        {
+            var versionParts = data.entry.version.split(".");
 
 			( <Label>this._buildVerMaj.val ).text = versionParts[0];
 			( <Label>this._buildVerMid.val ).text = versionParts[1];
-			( <Label>this._buildVerMin.val ).text = versionParts[2];
-			(<Label>this._notes.val).text = data.build_notes;
-            (<ComboBox>this._visibility.val).selectedItem = ( data.visibility == "Public" ? "Public" : "Private" );
+            (<Label>this._buildVerMin.val).text = versionParts[2];
+            (<Label>this._notes.val).text = data.entry.notes;
+            (<ComboBox>this._visibility.val).selectedItem = (data.entry.public ? "Public" : "Private");
 			//this.initializeLoader();
 		}
 

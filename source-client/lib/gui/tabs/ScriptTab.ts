@@ -13,7 +13,7 @@ module Animate
 		public saved: boolean;
 		private close: boolean;
 		private userDefinedChange: boolean;
-		private _editor: AceEditor;
+        private _editor: AceAjax.Editor;
 		private curFunction: string;
 		private scripts: any;
 		private right: Component;
@@ -305,7 +305,7 @@ module Animate
 
 			helpers.html( toAdd );
 
-			var editor :AceEditor = this._editor;
+            var editor: AceAjax.Editor = this._editor;
 			jQuery( ".script-helper", helpers ).on( "click", function ( e )
 			{
 				editor.insert( scripts[jQuery( e.currentTarget ).attr( "script" )] );
