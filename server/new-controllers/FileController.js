@@ -38,7 +38,7 @@ var FileController = (function (_super) {
     */
     FileController.prototype.editFileDetails = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var that = this;
         // Verify the resource ID
         if (!modepress_api_1.isValidID(req.params.id))
@@ -71,7 +71,7 @@ var FileController = (function (_super) {
     */
     FileController.prototype.getFiles = function (query, index, limit, verbose) {
         if (verbose === void 0) { verbose = true; }
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var that = this;
         var count = 0;
         return new Promise(function (resolve, reject) {
@@ -162,7 +162,7 @@ var FileController = (function (_super) {
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesUploaded = function (event) {
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var files = event.files;
         var promises = [];
         // Add an IFile reference for each file thats added
@@ -193,7 +193,7 @@ var FileController = (function (_super) {
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
     FileController.prototype.onFilesRemoved = function (event) {
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         // Remove each IFile reference
         var removeQuery = [];
         for (var i = 0, l = event.files.length; i < l; i++)

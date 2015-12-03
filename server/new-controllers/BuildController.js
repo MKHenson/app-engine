@@ -217,14 +217,24 @@ var BuildController = (function (_super) {
         var target = req.params.user;
         var project = req.params.project;
         var model = that.getModel("en-builds");
+        var setAsCurrent = (req.query["set-current"] ? true : false);
         if (!modepress_api_1.isValidID(project))
             return res.end(JSON.stringify({ error: true, message: "Please use a valid project ID" }));
+        var newBuild;
         that.createBuild(target, new mongodb.ObjectID(project)).then(function (instance) {
+            newBuild = instance;
+            if (setAsCurrent)
+                return that.getModel("en-projects").update({ _id: new mongodb.ObjectID(project) }, { build: instance._id });
+            else
+                return Promise.resolve();
+        }).then(function (updateToken) {
+            if (updateToken.error)
+                return Promise.reject(new Error(updateToken.tokens[0].error.toString()));
             return res.end(JSON.stringify({
                 error: false,
                 message: "Created new build for user '" + target + "'",
                 count: 1,
-                data: that.getSanitizedData([instance], true)
+                data: that.getSanitizedData([newBuild], true)
             }));
         }).catch(function (err) {
             winston.error(err.message, { process: process.pid });

@@ -10,6 +10,8 @@ import * as mongodb from "mongodb";
 */
 export class ResourceController extends Controller
 {
+    private _model: Model;
+
 	/**
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
@@ -19,6 +21,8 @@ export class ResourceController extends Controller
     constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express, r?: express.Router )
     {
         super([model]);
+
+        this._model = model;
 
         var router = r;
         if (!r)
@@ -47,7 +51,7 @@ export class ResourceController extends Controller
     protected create(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
 
         var newResource: Engine.IResource = req.body;
@@ -91,7 +95,7 @@ export class ResourceController extends Controller
     protected editResource(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var project: string = req.params.project;
         var id: string = req.params.id;
@@ -143,7 +147,7 @@ export class ResourceController extends Controller
     protected removeResources(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var project : string = req.params.project;
         var ids : string = req.params.ids;
@@ -200,7 +204,7 @@ export class ResourceController extends Controller
     protected getResources(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var count = 0;
 
