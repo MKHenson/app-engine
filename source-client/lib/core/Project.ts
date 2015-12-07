@@ -359,7 +359,7 @@ module Animate
                 if (that.entry.build && that.entry.build != "")
                     promise = Utils.get(`${DB.API}/builds/${username}/${that.entry._id}/${that.entry.build}`);
                 else
-                    promise = Utils.post(`${DB.API}/builds/${username}/${that.entry._id}`, null);
+                    promise = Utils.post(`${DB.API}/builds/${username}/${that.entry._id}?set-current=true`, null);
                 
                 promise.then(function (data: ModepressAddons.IGetBuilds)
                 {

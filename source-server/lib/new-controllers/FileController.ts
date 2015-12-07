@@ -45,7 +45,7 @@ export class FileController extends Controller
     protected editFileDetails(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var that = this;
         
         // Verify the resource ID
@@ -87,7 +87,7 @@ export class FileController extends Controller
     */
     private getFiles(query: any, index: number, limit: number, verbose: boolean = true ): Promise<ModepressAddons.IGetFiles>
     {
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var that = this;
         var count = 0;
 
@@ -208,7 +208,7 @@ export class FileController extends Controller
     */
     private onFilesUploaded(event: UsersInterface.SocketEvents.IFilesAddedEvent)
     {
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         var files = event.files;
         var promises: Array<Promise<ModelInstance<Engine.IFile>>> = [];
         
@@ -249,7 +249,7 @@ export class FileController extends Controller
     */
     private onFilesRemoved(event: UsersInterface.SocketEvents.IFilesRemovedEvent)
     {
-        var model = this._models[0];
+        var model = this.getModel("en-files");
         
         // Remove each IFile reference
         var removeQuery = [];

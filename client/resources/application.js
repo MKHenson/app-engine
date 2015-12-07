@@ -3583,7 +3583,7 @@ var Animate;
                 if (that.entry.build && that.entry.build != "")
                     promise = Animate.Utils.get(Animate.DB.API + "/builds/" + username + "/" + that.entry._id + "/" + that.entry.build);
                 else
-                    promise = Animate.Utils.post(Animate.DB.API + "/builds/" + username + "/" + that.entry._id, null);
+                    promise = Animate.Utils.post(Animate.DB.API + "/builds/" + username + "/" + that.entry._id + "?set-current=true", null);
                 promise.then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -19350,88 +19350,6 @@ var Animate;
 })(Animate || (Animate = {}));
 //module Animate
 //{
-//	/**
-//	* This form is used to create or edit Portals.
-//	*/
-//	export class NewBehaviourForm extends OkCancelForm
-//	{
-//		public static _singleton: NewBehaviourForm;
-//		private name: LabelVal;
-//		private warning: Label;
-//		private createProxy: any;
-//		constructor()
-//		{
-//			if ( NewBehaviourForm._singleton != null )
-//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
-//			NewBehaviourForm._singleton = this;
-//			// Call super-class constructor
-//			super( 400, 250, false, true, "Please enter a name" );
-//			this.element.addClass( "new-behaviour-form" );
-//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
-//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
-//			//Create the proxies
-//			this.createProxy = this.onCreated.bind( this );
-//		}
-//		/** Shows the window. */
-//		show()
-//		{
-//			( <Label>this.name.val ).text = "";
-//			this.warning.textfield.element.css( "color", "" );
-//			this.warning.text = "Please enter a behaviour name.";
-//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//			super.show();
-//			( <Label>this.name.val).textfield.element.focus();
-//		}
-//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-//		and pass the text either for the ok or cancel buttons. */
-//		OnButtonClick( e )
-//		{
-//			if ( jQuery( e.target ).text() == "Ok" )
-//			{
-//				//Check if the values are valid
-//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
-//				this.warning.textfield.element.css( "color", "" );
-//				//Check for special chars
-//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
-//				if ( message != null )
-//				{
-//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
-//					this.warning.textfield.element.css( "color", "#FF0000" );
-//					this.warning.text = message;
-//					return;
-//				}
-//				//Create the Behaviour in the DB
-//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
-//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
-//				return;
-//			}
-//			super.OnButtonClick( e );
-//		}
-//		/** Called when we create a behaviour.*/
-//		onCreated( response: ProjectEvents, event : ProjectEvent )
-//		{
-//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
-//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
-//			if ( response == ProjectEvents.FAILED )
-//			{
-//				this.warning.textfield.element.css( "color", "#FF0000" );
-//				this.warning.text = event.message;
-//				return;
-//			}
-//			this.hide();
-//		}
-//		/** Gets the singleton instance. */
-//		static getSingleton()
-//		{
-//			if ( !NewBehaviourForm._singleton )
-//				new NewBehaviourForm();
-//			return NewBehaviourForm._singleton;
-//		}
-//	}
-//} 
-//module Animate
-//{
 //	export class Splash2 extends Window
 //	{
 //		private static _singleton: Splash2;
@@ -20520,6 +20438,88 @@ var Animate;
 //			if (!Splash2._singleton)
 //				new Splash2();
 //			return Splash2._singleton;
+//		}
+//	}
+//} 
+//module Animate
+//{
+//	/**
+//	* This form is used to create or edit Portals.
+//	*/
+//	export class NewBehaviourForm extends OkCancelForm
+//	{
+//		public static _singleton: NewBehaviourForm;
+//		private name: LabelVal;
+//		private warning: Label;
+//		private createProxy: any;
+//		constructor()
+//		{
+//			if ( NewBehaviourForm._singleton != null )
+//				throw new Error( "The NewBehaviourForm class is a singleton. You need to call the NewBehaviourForm.getSingleton() function." );
+//			NewBehaviourForm._singleton = this;
+//			// Call super-class constructor
+//			super( 400, 250, false, true, "Please enter a name" );
+//			this.element.addClass( "new-behaviour-form" );
+//			this.name = new LabelVal( this.okCancelContent, "Name", new InputBox( null, "" ) );
+//			this.warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
+//			//Create the proxies
+//			this.createProxy = this.onCreated.bind( this );
+//		}
+//		/** Shows the window. */
+//		show()
+//		{
+//			( <Label>this.name.val ).text = "";
+//			this.warning.textfield.element.css( "color", "" );
+//			this.warning.text = "Please enter a behaviour name.";
+//			( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//			super.show();
+//			( <Label>this.name.val).textfield.element.focus();
+//		}
+//		/** Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//		and pass the text either for the ok or cancel buttons. */
+//		OnButtonClick( e )
+//		{
+//			if ( jQuery( e.target ).text() == "Ok" )
+//			{
+//				//Check if the values are valid
+//				( <Label>this.name.val).textfield.element.removeClass( "red-border" );
+//				this.warning.textfield.element.css( "color", "" );
+//				//Check for special chars
+//				var message = Utils.checkForSpecialChars( ( <Label>this.name.val).text );
+//				if ( message != null )
+//				{
+//					(<Label>this.name.val).textfield.element.addClass( "red-border" );
+//					this.warning.textfield.element.css( "color", "#FF0000" );
+//					this.warning.text = message;
+//					return;
+//				}
+//				//Create the Behaviour in the DB
+//                User.get.project.on( ProjectEvents.FAILED, this.createProxy );
+//				User.get.project.on( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//				User.get.project.createBehaviour( ( <Label>this.name.val).text );
+//				return;
+//			}
+//			super.OnButtonClick( e );
+//		}
+//		/** Called when we create a behaviour.*/
+//		onCreated( response: ProjectEvents, event : ProjectEvent )
+//		{
+//			User.get.project.off( ProjectEvents.FAILED, this.createProxy );
+//			User.get.project.off( ProjectEvents.BEHAVIOUR_CREATED, this.createProxy );
+//			if ( response == ProjectEvents.FAILED )
+//			{
+//				this.warning.textfield.element.css( "color", "#FF0000" );
+//				this.warning.text = event.message;
+//				return;
+//			}
+//			this.hide();
+//		}
+//		/** Gets the singleton instance. */
+//		static getSingleton()
+//		{
+//			if ( !NewBehaviourForm._singleton )
+//				new NewBehaviourForm();
+//			return NewBehaviourForm._singleton;
 //		}
 //	}
 //} 

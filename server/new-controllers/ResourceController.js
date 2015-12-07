@@ -22,6 +22,7 @@ var ResourceController = (function (_super) {
     */
     function ResourceController(restUrl, model, server, config, e, r) {
         _super.call(this, [model]);
+        this._model = model;
         var router = r;
         if (!r) {
             router = express.Router();
@@ -44,7 +45,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.create = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var newResource = req.body;
         // Set the user parameter
@@ -78,7 +79,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.editResource = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var project = req.params.project;
         var id = req.params.id;
@@ -120,7 +121,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.removeResources = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var project = req.params.project;
         var ids = req.params.ids;
@@ -164,7 +165,7 @@ var ResourceController = (function (_super) {
     */
     ResourceController.prototype.getResources = function (req, res, next) {
         res.setHeader('Content-Type', 'application/json');
-        var model = this._models[0];
+        var model = this._model;
         var that = this;
         var count = 0;
         var findToken = {};
