@@ -112,6 +112,7 @@
 
 
 /// <reference path="lib/gui/tabs/CanvasTabPair.ts" />
+/// <reference path="lib/gui/tabs/EditorPair.ts" />
 /// <reference path="lib/gui/tabs/HTMLTab.ts" />
 /// <reference path="lib/gui/tabs/CSSTab.ts" />
 /// <reference path="lib/gui/tabs/ScriptTab.ts" />

@@ -2074,9 +2074,11 @@ declare module Animate {
         constructor(parent: Component);
         /**
         * Adds an HTML item
-        * @returns {JQuery} A jQuery object containing the HTML.
+        * @returns {string} img The URL of the image
+        * @returns {string} val The text of the item
+        * @returns {boolean} prepend True if you want to prepend as opposed to append
         */
-        addItem(img: string, val: string): JQuery;
+        addItem(img: string, val: string, prepend?: boolean): JQuery;
         /**
         * Removes an  item from this list
         * @param {JQuery} item The jQuery object we are removing
@@ -4229,27 +4231,41 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * A tab pair that manages the build HTML
+    * A tab pair that uses the ace editor
     */
-    class HTMLTab extends TabPair {
-        static singleton: HTMLTab;
+    abstract class EditorPair extends TabPair {
         private _originalName;
         private _proxyChange;
         private _proxyMessageBox;
         private _saved;
-        private _close;
+        protected _close: boolean;
         private _editor;
+        private _loadingGif;
+        private _savedSpan;
         /**
         * @param {string} name The name of the tab
-        * @param {Label} tab The label of the pair
-        * @param {Component} page The page of the pair
         */
         constructor(name: string);
         /**
         * When we acknowledge the message box.
         * @param {string} val
         */
-        onMessage(val: any): void;
+        onMessage(val: string): void;
+        /**
+        * Gets if this tab pair has been saved or not
+        * @returns {boolean}
+        */
+        protected isSaved: boolean;
+        /**
+        * Sets if this tab pair has been saved or not
+        * @param {boolean} val
+        */
+        protected saved(val: boolean): void;
+        /**
+        * Sets if this tab pair is busy loading
+        * @param {boolean} val
+        */
+        protected loading(val: boolean): void;
         /**
         * Called when the editor changes
         * @param {any} e
@@ -4257,60 +4273,97 @@ declare module Animate {
         onChange(e: any): void;
         /**
         * Called by the tab class when the pair is to be removed.
-        * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove(data: any): void;
+        onRemove(event: TabEvent): void;
         /**
-        * Called when the editor is resized
+        * Called when the tab is resized
         */
         onResize(): void;
         /**
-        * Called when the pair has been added to the tab
+        * Saves the content of the editor
+        */
+        abstract save(): any;
+        /**
+        * Gets the script content once added to the stage
+        */
+        abstract initialize(): {
+            content: string;
+            contentType: string;
+        };
+        /**
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
         */
         onAdded(): void;
+        /**
+        * Gets the ace editor
+        * @returns {AceAjax.Editor}
+        */
         editor: AceAjax.Editor;
+    }
+}
+declare module Animate {
+    /**
+    * A tab pair that manages the build HTML
+    */
+    class HTMLTab extends EditorPair {
+        static singleton: HTMLTab;
+        /**
+        * @param {string} name The name of the tab
+        */
+        constructor(name: string);
+        /**
+        * Called when the editor needs to save its content
+        */
+        save(): void;
+        /**
+         * Gets the script initial values
+         */
+        initialize(): {
+            content: string;
+            contentType: string;
+        };
+        /**
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
+        */
+        onAdded(): void;
+        /**
+        * Called by the tab class when the pair is to be removed.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        */
+        onRemove(event: TabEvent): void;
     }
 }
 declare module Animate {
     /**
     * A tab pair that manages the build CSS
     */
-    class CSSTab extends TabPair {
+    class CSSTab extends EditorPair {
         static singleton: CSSTab;
-        private _originalName;
-        private _proxyChange;
-        private _proxyMessageBox;
-        private _saved;
-        private _close;
-        private _editor;
         /**
         * @param {string} name The name of the tab
         */
         constructor(name: string);
         /**
-        * When we acknowledge the message box.
-        * @param {string} val
+        * Called when the editor needs to save its content
         */
-        onMessage(val: any): void;
+        save(): void;
         /**
-        * Called when the editor changes
-        * @param {any} e
+        * Gets the script initial values
         */
-        onChange(e: any): void;
+        initialize(): {
+            content: string;
+            contentType: string;
+        };
         /**
-        * Called by the tab class when the pair is to be removed.
-        * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
-        */
-        onRemove(data: any): void;
-        /**
-        * Called when the editor is resized
-        */
-        onResize(): void;
-        /**
-        * Called when the pair has been added to the tab
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
         */
         onAdded(): void;
-        editor: AceAjax.Editor;
+        /**
+        * Called by the tab class when the pair is to be removed.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        */
+        onRemove(event: TabEvent): void;
     }
 }
 declare module Animate {

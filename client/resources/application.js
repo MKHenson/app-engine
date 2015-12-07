@@ -5479,12 +5479,17 @@ var Animate;
         }
         /**
         * Adds an HTML item
-        * @returns {JQuery} A jQuery object containing the HTML.
+        * @returns {string} img The URL of the image
+        * @returns {string} val The text of the item
+        * @returns {boolean} prepend True if you want to prepend as opposed to append
         */
-        MenuList.prototype.addItem = function (img, val) {
+        MenuList.prototype.addItem = function (img, val, prepend) {
             var toRet = jQuery("<div class='menu-list-item light-hover'>" + (img ? "<img src='" + img + "' />" : "") + "<span class='menu-list-text'>" + val + "</span></div>");
             this._items.push(toRet);
-            this.element.append(toRet);
+            if (!prepend)
+                this.element.append(toRet);
+            else
+                this.element.prepend(toRet);
             return toRet;
         };
         /**
@@ -5660,7 +5665,7 @@ var Animate;
                 this.element.data("preview").addClass("fade-animation");
             }
             val = ("<span class='date'>" + new Date(Date.now()).toLocaleDateString() + "</span>") + val;
-            var toAdd = this.addItem(img, val);
+            var toAdd = this.addItem(img, val, true);
             toAdd.data("tag", tag);
             return toAdd;
         };
@@ -6870,8 +6875,7 @@ var Animate;
         Tab.prototype.onClick = function (e) {
             var targ = jQuery(e.target);
             if (targ.is(jQuery(".tab-close"))) {
-                var text = targ.parent().text();
-                text = text.substring(0, text.length - 1);
+                var text = jQuery(".content", targ.parent()).text();
                 var tabPair = this.getTab(text);
                 if (this.onTabPairClosing(tabPair))
                     this.removeTab(tabPair, true);
@@ -6929,7 +6933,7 @@ var Animate;
                 this.selectedTab.page.element.detach();
             }
             var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
-            var tab = new Animate.Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'>" + (val instanceof Animate.TabPair ? val.name : val) + "</div></div>", this._tabsDiv);
+            var tab = new Animate.Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div></div>", this._tabsDiv);
             if (canClose) {
                 new Animate.Component("<div class='tab-close black-tint'>X</div>", tab);
                 tab.element.data("canClose", true);
@@ -13549,87 +13553,85 @@ var Animate;
 var Animate;
 (function (Animate) {
     /**
-    * A tab pair that manages the build HTML
+    * A tab pair that uses the ace editor
     */
-    var HTMLTab = (function (_super) {
-        __extends(HTMLTab, _super);
+    var EditorPair = (function (_super) {
+        __extends(EditorPair, _super);
         /**
         * @param {string} name The name of the tab
-        * @param {Label} tab The label of the pair
-        * @param {Component} page The page of the pair
         */
-        function HTMLTab(name) {
+        function EditorPair(name) {
             // Call super-class constructor
             _super.call(this, null, null, name);
             this._originalName = name;
             this._proxyChange = jQuery.proxy(this.onChange, this);
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
+            this._loadingGif = jQuery("<img src='media/small-buff.gif' />");
+            this._savedSpan = jQuery("<span>*</span>");
             this._saved = true;
             this._close = false;
             this._editor = null;
         }
-        ///**
-        //* When the server responds after a save.
-        //* @param {ProjectEvents} response 
-        //* @param {ProjectEvent} event 
-        //*/
-        //onServer(response: ProjectEvents, event: ProjectEvent)
-        //{
-        //	User.get.project.off(ProjectEvents.FAILED, this.onServer, this);
-        //	User.get.project.off(ProjectEvents.HTML_SAVED, this.onServer, this);
-        //	if (response == ProjectEvents.FAILED)
-        //	{
-        //		this._saved = false;
-        //		//MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
-        //	}
-        //	else
-        //	{
-        //		this.save();
-        //		if (this._close)
-        //			CanvasTab.getSingleton().removeTab(this, true);
-        //	}
-        //}
         /**
         * When we acknowledge the message box.
         * @param {string} val
         */
-        HTMLTab.prototype.onMessage = function (val) {
+        EditorPair.prototype.onMessage = function (val) {
             if (val == "Yes") {
-                var that = this;
-                var editor = that.editor;
-                that._close = true;
-                // Update the build html
-                Animate.User.get.project.curBuild.update({ html: editor.getValue() }).then(function () {
-                    that.name = that._originalName;
-                    jQuery(".text", that.tabSelector.element).text(that.name);
-                    that._saved = true;
-                    if (that._close)
-                        Animate.CanvasTab.getSingleton().removeTab(that, true);
-                }).catch(function (err) {
-                    Animate.Logger.getSingleton().logMessage("Could not update the build HTML: '" + err.message + "'", null, Animate.LogType.ERROR);
-                });
+                this._close = true;
+                this.save();
             }
             else {
                 this._saved = true;
                 Animate.CanvasTab.getSingleton().removeTab(this, true);
             }
         };
+        Object.defineProperty(EditorPair.prototype, "isSaved", {
+            /**
+            * Gets if this tab pair has been saved or not
+            * @returns {boolean}
+            */
+            get: function () {
+                return this._saved;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        /**
+        * Sets if this tab pair has been saved or not
+        * @param {boolean} val
+        */
+        EditorPair.prototype.saved = function (val) {
+            this._saved = val;
+            if (!val)
+                jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
+            else
+                this._savedSpan.detach();
+        };
+        /**
+        * Sets if this tab pair is busy loading
+        * @param {boolean} val
+        */
+        EditorPair.prototype.loading = function (val) {
+            if (val)
+                jQuery(".text", this.tabSelector.element).prepend(this._loadingGif);
+            else
+                this._loadingGif.detach();
+        };
         /**
         * Called when the editor changes
         * @param {any} e
         */
-        HTMLTab.prototype.onChange = function (e) {
-            this._saved = false;
-            this.name = "*" + this._originalName;
-            this.text = this.name;
+        EditorPair.prototype.onChange = function (e) {
+            this.saved(false);
         };
         /**
         * Called by the tab class when the pair is to be removed.
-        * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        HTMLTab.prototype.onRemove = function (data) {
+        EditorPair.prototype.onRemove = function (event) {
             if (!this._saved) {
-                data.cancel = true;
+                event.cancel = true;
                 Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
                 return;
             }
@@ -13638,36 +13640,26 @@ var Animate;
             this._editor = null;
             this._proxyChange = null;
             this._proxyMessageBox = null;
-            HTMLTab.singleton = null;
             this._editor = null;
         };
         /**
-        * Called when the editor is resized
+        * Called when the tab is resized
         */
-        HTMLTab.prototype.onResize = function () {
+        EditorPair.prototype.onResize = function () {
             this._editor.resize();
         };
-        ///**
-        //* A helper function to save the script
-        //* @returns {any} 
-        //*/
-        //save()
-        //{
-        //	this.name = this._originalName;
-        //	jQuery(".text", this.tabSelector.element).text(this.name);
-        //	this._saved = true;
-        //}
         /**
-        * Called when the pair has been added to the tab
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
         */
-        HTMLTab.prototype.onAdded = function () {
-            HTMLTab.singleton = this;
+        EditorPair.prototype.onAdded = function () {
             var comp = new Animate.Component("<pre style='position:absolute; margin: 0; top: 0; bottom: 0; left: 0; right: 0;'></pre>", this.page);
+            var that = this;
             var editor = ace.edit(comp.id);
-            editor.setTheme("ace/theme/chrome");
-            editor.getSession().setMode("ace/mode/html");
+            var options = this.initialize();
             this._editor = editor;
-            editor.setValue(Animate.User.get.project.curBuild.entry.html);
+            editor.setTheme("ace/theme/chrome");
+            editor.getSession().setMode(options.contentType);
+            editor.setValue(options.content);
             editor.selection.moveCursorFileStart();
             // Ctrl + S
             editor.commands.addCommand({
@@ -13677,17 +13669,77 @@ var Animate;
                     mac: "Command-S",
                     sender: "editor|cli"
                 },
-                exec: function () { Animate.User.get.project.saveAll(); }
+                exec: function () { that.save(); }
             });
             editor.on("change", this._proxyChange);
         };
-        Object.defineProperty(HTMLTab.prototype, "editor", {
+        Object.defineProperty(EditorPair.prototype, "editor", {
+            /**
+            * Gets the ace editor
+            * @returns {AceAjax.Editor}
+            */
             get: function () { return this._editor; },
             enumerable: true,
             configurable: true
         });
-        return HTMLTab;
+        return EditorPair;
     })(Animate.TabPair);
+    Animate.EditorPair = EditorPair;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * A tab pair that manages the build HTML
+    */
+    var HTMLTab = (function (_super) {
+        __extends(HTMLTab, _super);
+        /**
+        * @param {string} name The name of the tab
+        */
+        function HTMLTab(name) {
+            // Call super-class constructor
+            _super.call(this, name);
+        }
+        /**
+        * Called when the editor needs to save its content
+        */
+        HTMLTab.prototype.save = function () {
+            var that = this;
+            var editor = that.editor;
+            this.loading(true);
+            // Update the build html
+            Animate.User.get.project.curBuild.update({ html: editor.getValue() }).then(function () {
+                that.loading(false);
+                that.saved(true);
+                if (that._close)
+                    Animate.CanvasTab.getSingleton().removeTab(that, true);
+            }).catch(function (err) {
+                that.loading(false);
+                Animate.Logger.getSingleton().logMessage("Could not update the build HTML: '" + err.message + "'", null, Animate.LogType.ERROR);
+            });
+        };
+        /**
+         * Gets the script initial values
+         */
+        HTMLTab.prototype.initialize = function () { return { content: Animate.User.get.project.curBuild.entry.html, contentType: "ace/mode/html" }; };
+        /**
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
+        */
+        HTMLTab.prototype.onAdded = function () {
+            HTMLTab.singleton = this;
+            _super.prototype.onAdded.call(this);
+        };
+        /**
+        * Called by the tab class when the pair is to be removed.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        */
+        HTMLTab.prototype.onRemove = function (event) {
+            _super.prototype.onRemove.call(this, event);
+            if (!event.cancel)
+                HTMLTab.singleton = null;
+        };
+        return HTMLTab;
+    })(Animate.EditorPair);
     Animate.HTMLTab = HTMLTab;
 })(Animate || (Animate = {}));
 var Animate;
@@ -13702,134 +13754,48 @@ var Animate;
         */
         function CSSTab(name) {
             // Call super-class constructor
-            _super.call(this, null, null, name);
-            this._originalName = name;
-            this._proxyChange = jQuery.proxy(this.onChange, this);
-            this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
-            this._saved = true;
-            this._close = false;
-            this._editor = null;
+            _super.call(this, name);
         }
-        ///**
-        //* When the server responds after a save.
-        //* @param {ProjectEvents} response 
-        //* @param {ProjectEvent} event 
-        //*/
-        //onServer(response: ProjectEvents, event: ProjectEvent)
-        //{
-        //          User.get.project.off(ProjectEvents.FAILED, this.onServer, this);
-        //          User.get.project.off(ProjectEvents.CSS_SAVED, this.onServer, this);
-        //	if (response == ProjectEvents.FAILED)
-        //	{
-        //		this._saved = false;
-        //		//MessageBox.show("Problem saving the data, server responded with:'" + event.message + "'", Array<string>("Ok"), null, null);
-        //	}
-        //	else
-        //	{
-        //		//this.save();
-        //		if (this._close)
-        //			CanvasTab.getSingleton().removeTab(this, true);
-        //	}
-        //}
         /**
-        * When we acknowledge the message box.
-        * @param {string} val
+        * Called when the editor needs to save its content
         */
-        CSSTab.prototype.onMessage = function (val) {
-            if (val == "Yes") {
-                var that = this;
-                var editor = that.editor;
-                that._close = true;
-                // Update the build html
-                Animate.User.get.project.curBuild.update({ css: editor.getValue() }).then(function () {
-                    that.name = that._originalName;
-                    jQuery(".text", that.tabSelector.element).text(that.name);
-                    that._saved = true;
-                    if (that._close)
-                        Animate.CanvasTab.getSingleton().removeTab(that, true);
-                }).catch(function (err) {
-                    Animate.Logger.getSingleton().logMessage("Could not update the build CSS: '" + err.message + "'", null, Animate.LogType.ERROR);
-                });
-            }
-            else {
-                this._saved = true;
-                Animate.CanvasTab.getSingleton().removeTab(this, true);
-            }
+        CSSTab.prototype.save = function () {
+            var that = this;
+            var editor = that.editor;
+            this.loading(true);
+            // Update the build css
+            Animate.User.get.project.curBuild.update({ css: editor.getValue() }).then(function () {
+                that.loading(false);
+                that.saved(true);
+                if (that._close)
+                    Animate.CanvasTab.getSingleton().removeTab(that, true);
+            }).catch(function (err) {
+                that.loading(false);
+                Animate.Logger.getSingleton().logMessage("Could not update the build CSS: '" + err.message + "'", null, Animate.LogType.ERROR);
+            });
         };
         /**
-        * Called when the editor changes
-        * @param {any} e
+        * Gets the script initial values
         */
-        CSSTab.prototype.onChange = function (e) {
-            this._saved = false;
-            this.name = "*" + this._originalName;
-            this.text = this.name;
-        };
+        CSSTab.prototype.initialize = function () { return { content: Animate.User.get.project.curBuild.entry.css, contentType: "ace/mode/css" }; };
         /**
-        * Called by the tab class when the pair is to be removed.
-        * @param {any} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
-        */
-        CSSTab.prototype.onRemove = function (data) {
-            if (!this._saved) {
-                data.cancel = true;
-                Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
-                return;
-            }
-            this._editor.off("change", this._proxyChange);
-            this._editor.destroy();
-            this._editor = null;
-            this._proxyChange = null;
-            this._proxyMessageBox = null;
-            CSSTab.singleton = null;
-            this._editor = null;
-        };
-        /**
-        * Called when the editor is resized
-        */
-        CSSTab.prototype.onResize = function () {
-            this._editor.resize();
-        };
-        ///**
-        //* A helper function to save the script
-        //* @returns {any} 
-        //*/
-        //save()
-        //{
-        //	this.name = this._originalName;
-        //	jQuery( ".text", this.tabSelector.element ).text( this.name );
-        //	this._saved = true;
-        //}
-        /**
-        * Called when the pair has been added to the tab
+        * Called when the pair has been added to the tab. The ace editor is added and initialized
         */
         CSSTab.prototype.onAdded = function () {
             CSSTab.singleton = this;
-            var comp = new Animate.Component("<pre style='position:absolute; margin: 0; top: 0; bottom: 0; left: 0; right: 0;'></pre>", this.page);
-            var editor = ace.edit(comp.id);
-            editor.setTheme("ace/theme/chrome");
-            editor.getSession().setMode("ace/mode/css");
-            this._editor = editor;
-            editor.setValue(Animate.User.get.project.curBuild.entry.css);
-            this._editor.selection.moveCursorFileStart();
-            // Ctrl + S
-            this._editor.commands.addCommand({
-                name: "save",
-                bindKey: {
-                    win: "Ctrl-S",
-                    mac: "Command-S",
-                    sender: "editor|cli"
-                },
-                exec: function () { Animate.User.get.project.saveAll(); }
-            });
-            editor.on("change", this._proxyChange);
+            _super.prototype.onAdded.call(this);
         };
-        Object.defineProperty(CSSTab.prototype, "editor", {
-            get: function () { return this._editor; },
-            enumerable: true,
-            configurable: true
-        });
+        /**
+        * Called by the tab class when the pair is to be removed.
+        * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
+        */
+        CSSTab.prototype.onRemove = function (event) {
+            _super.prototype.onRemove.call(this, event);
+            if (!event.cancel)
+                CSSTab.singleton = null;
+        };
         return CSSTab;
-    })(Animate.TabPair);
+    })(Animate.EditorPair);
     Animate.CSSTab = CSSTab;
 })(Animate || (Animate = {}));
 var Animate;
@@ -19124,6 +19090,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/tree/nodes/TreeNodeGroupInstance.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodePluginBehaviour.ts" />
 /// <reference path="lib/gui/tabs/CanvasTabPair.ts" />
+/// <reference path="lib/gui/tabs/EditorPair.ts" />
 /// <reference path="lib/gui/tabs/HTMLTab.ts" />
 /// <reference path="lib/gui/tabs/CSSTab.ts" />
 /// <reference path="lib/gui/tabs/ScriptTab.ts" />

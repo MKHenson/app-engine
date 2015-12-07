@@ -27,13 +27,18 @@ module Animate
 
 		/** 
 		* Adds an HTML item
-		* @returns {JQuery} A jQuery object containing the HTML.
+		* @returns {string} img The URL of the image
+        * @returns {string} val The text of the item
+        * @returns {boolean} prepend True if you want to prepend as opposed to append
 		*/
-		addItem( img : string, val : string ) : JQuery
+        addItem(img: string, val: string, prepend?: boolean): JQuery
 		{
             var toRet = jQuery( "<div class='menu-list-item light-hover'>" + ( img ? "<img src='" + img + "' />" : "" ) + "<span class='menu-list-text'>" + val + "</span></div>" );
-			this._items.push( toRet );
-			this.element.append( toRet );
+            this._items.push(toRet);
+            if (!prepend)
+                this.element.append(toRet);
+            else
+                this.element.prepend(toRet);
 			return toRet;
 		}
 

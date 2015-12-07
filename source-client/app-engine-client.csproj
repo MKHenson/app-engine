@@ -125,6 +125,7 @@
     <TypeScriptCompile Include="lib\gui\property-editors\PropAssetList.ts" />
     <TypeScriptCompile Include="lib\gui\property-editors\PropOptionsWindow.ts" />
     <TypeScriptCompile Include="lib\gui\property-editors\PropNumber.ts" />
+    <TypeScriptCompile Include="lib\gui\tabs\EditorPair.ts" />
     <TypeScriptCompile Include="lib\gui\tabs\SceneTab.ts" />
     <TypeScriptCompile Include="lib\gui\ProjectBrowser.ts" />
     <TypeScriptCompile Include="lib\gui\PluginBrowser.ts" />

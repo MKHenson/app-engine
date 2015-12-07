@@ -134,10 +134,8 @@ module Animate
 		{
 			var targ = jQuery( e.target );
 			if ( targ.is( jQuery( ".tab-close" ) ) )
-			{
-				var text = targ.parent().text();
-				text = text.substring( 0, text.length - 1 );
-
+            {
+                var text = jQuery(".content", targ.parent()).text();
 				var tabPair = this.getTab( text );
 				if ( this.onTabPairClosing( tabPair ) )
 					this.removeTab( tabPair, true );
@@ -224,7 +222,7 @@ module Animate
 			}
 
 			var page : Component = new Component( "<div class='tab-page background'></div>", this.pagesDiv );
-            var tab: Component = new Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'>" + (val instanceof TabPair ? val.name : val) + "</div></div>", this._tabsDiv );
+            var tab: Component = new Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof TabPair ? val.name : val) + "</span></div></div>", this._tabsDiv );
 			if ( canClose )
 			{
                 new Component( "<div class='tab-close black-tint'>X</div>", tab );

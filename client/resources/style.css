@@ -748,6 +748,10 @@ Please only put css rules in here for layout related requirements.
 .tab-selector.tab-selected .text {
     padding: 0 20px 0 0;
 }
+.tab-selector img {
+    height: 16px;
+    margin: 0 5px 0 0;
+}
 .tab-close .text {
     pointer-events: none;
 }
