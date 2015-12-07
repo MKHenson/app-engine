@@ -1063,6 +1063,17 @@ declare module Animate {
 }
 declare module Animate {
     /**
+    * A wrapper for DB script instances
+    */
+    class ScriptResource extends ProjectResource<Engine.IScript> {
+        /**
+        * @param {IScript} entry The DB entry of this script
+        */
+        constructor(entry: Engine.IScript);
+    }
+}
+declare module Animate {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -1419,6 +1430,7 @@ declare module Animate {
         ASSET = 2,
         CONTAINER = 3,
         FILE = 4,
+        SCRIPT = 5,
     }
     class ProjectEvents {
         value: string;
@@ -1485,6 +1497,7 @@ declare module Animate {
         private _containers;
         private _assets;
         private _files;
+        private _scripts;
         private _groups;
         /**
         * @param{string} id The database id of this project
@@ -1682,7 +1695,8 @@ declare module Animate {
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
         containers: Array<Container>;
-        files: Array<Engine.IFile>;
+        files: Array<FileResource>;
+        scripts: Array<ScriptResource>;
         assets: Array<Asset>;
         groups: Array<GroupArray>;
         /**

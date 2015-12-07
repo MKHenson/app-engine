@@ -89,7 +89,8 @@
     <TypeScriptCompile Include="lib\core\EditorEvents.ts" />
     <TypeScriptCompile Include="lib\core\Enums.ts" />
     <TypeScriptCompile Include="lib\core\file-visualizers\ImageVisualizer.ts" />
-    <TypeScriptCompile Include="lib\core\project-resources\File.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\ScriptResource.ts" />
+    <TypeScriptCompile Include="lib\core\project-resources\FileResource.ts" />
     <TypeScriptCompile Include="lib\core\FileUploader.ts" />
     <TypeScriptCompile Include="lib\core\project-resources\GroupArray.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.d.ts" />

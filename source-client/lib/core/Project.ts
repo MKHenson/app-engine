@@ -6,7 +6,8 @@ module Animate
         GROUP,
         ASSET,
         CONTAINER,
-        FILE
+        FILE,
+        SCRIPT
     }
 	//export class ProjectAssetTypes extends ENUM
 	//{
@@ -170,6 +171,7 @@ module Animate
 		private _containers: Array<Container>;
         private _assets: Array<Asset>;
         private _files: Array<FileResource>;
+        private _scripts: Array<ScriptResource>;
         private _groups: Array<GroupArray>;
 
 		/**
@@ -199,6 +201,7 @@ module Animate
 			this._containers = [];
 			this._assets = [];
             this._files = [];
+            this._scripts = [];
             this._groups = [];
 		}
 
@@ -382,7 +385,7 @@ module Animate
         * @param {ResourceType} type The type of resource to create
         * @returns {ProjectResource<any>}
 		*/
-        private createResourceInstance<T>(entry: T, type?: ResourceType): ProjectResource<any>
+        private createResourceInstance<T>(entry: T, type?: ResourceType): ProjectResource<T>
         {
             var resource: ProjectResource<any>;
 
@@ -390,6 +393,11 @@ module Animate
             {
                 resource = new Asset(entry);
                 this._assets.push(<Asset>resource);
+            }
+            else if (type == ResourceType.SCRIPT)
+            {
+                resource = new ScriptResource(<any>entry);
+                this._scripts.push(resource);
             }
             else if (type == ResourceType.CONTAINER)
             {
@@ -406,6 +414,7 @@ module Animate
                 resource = new FileResource(entry);
                 this._files.push(resource);
             }
+            
             
             this.emit(new ProjectEvent("resource-created", resource));
             return resource;
@@ -425,6 +434,7 @@ module Animate
             {
                 this._assets.splice(0, this._assets.length);
                 this._files.splice(0, this._files.length);
+                this._scripts.splice(0, this._scripts.length);
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
 
@@ -432,6 +442,7 @@ module Animate
                 arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
                 arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
                 arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/scripts/${this.entry.user}/${this.entry._id}`));
             }
             else
             {
@@ -454,6 +465,11 @@ module Animate
                 {
                     this._groups.splice(0, this._groups.length);
                     arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
+                }
+                else if (type == ResourceType.SCRIPT)
+                {
+                    this._scripts.splice(0, this._scripts.length);
+                    arr.push(Utils.get(`${DB.API}/scripts/${this.entry.user}/${this.entry._id}`));
                 }
             }
 
@@ -478,6 +494,8 @@ module Animate
                             createdResources.push(that.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER));
                         for (var i = 0, l = data[3].data.length; i < l; i++)
                             createdResources.push(that.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP));
+                        for (var i = 0, l = data[4].data.length; i < l; i++)
+                            createdResources.push(that.createResourceInstance<Engine.IScript>(data[4].data[i], ResourceType.SCRIPT));
                     }
                     else
                     {
@@ -493,6 +511,9 @@ module Animate
                         else if (type == ResourceType.GROUP)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
                                 createdResources.push(that.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP));
+                        else if (type == ResourceType.SCRIPT)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                createdResources.push(that.createResourceInstance<Engine.IScript>(data[0].data[i], ResourceType.SCRIPT));
                     }
                     
                     return resolve(createdResources);
@@ -575,6 +596,8 @@ module Animate
                         resource = that.createResourceInstance(<Engine.IContainer>data.data, ResourceType.CONTAINER);
                     else if (type == ResourceType.GROUP)
                         resource = that.createResourceInstance(<Engine.IGroup>data.data, ResourceType.GROUP);
+                    else if (type == ResourceType.SCRIPT)
+                        resource = that.createResourceInstance(<Engine.IScript>data.data, ResourceType.SCRIPT);
                     
                     return resolve(resource);
 
@@ -790,7 +813,7 @@ module Animate
 
 
 		///**
-		//* This function is used to fetch the _files associated with a project.
+		//* This function is used to fetch the files associated with a project.
 		//* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
 		//*/
 		//loadFiles( mode: string = "project" )
@@ -1537,7 +1560,8 @@ module Animate
         }
 
         get containers(): Array<Container> { return this._containers; }
-        get files(): Array<Engine.IFile> { return this._files; }
+        get files(): Array<FileResource> { return this._files; }
+        get scripts(): Array<ScriptResource> { return this._scripts; }
         get assets(): Array<Asset> { return this._assets; }
         get groups(): Array<GroupArray> { return this._groups; }
         

@@ -2632,6 +2632,23 @@ var Animate;
 var Animate;
 (function (Animate) {
     /**
+    * A wrapper for DB script instances
+    */
+    var ScriptResource = (function (_super) {
+        __extends(ScriptResource, _super);
+        /**
+        * @param {IScript} entry The DB entry of this script
+        */
+        function ScriptResource(entry) {
+            _super.call(this, entry);
+        }
+        return ScriptResource;
+    })(Animate.ProjectResource);
+    Animate.ScriptResource = ScriptResource;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -3314,6 +3331,7 @@ var Animate;
         ResourceType[ResourceType["ASSET"] = 2] = "ASSET";
         ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
         ResourceType[ResourceType["FILE"] = 4] = "FILE";
+        ResourceType[ResourceType["SCRIPT"] = 5] = "SCRIPT";
     })(Animate.ResourceType || (Animate.ResourceType = {}));
     var ResourceType = Animate.ResourceType;
     //export class ProjectAssetTypes extends ENUM
@@ -3457,6 +3475,7 @@ var Animate;
             this._containers = [];
             this._assets = [];
             this._files = [];
+            this._scripts = [];
             this._groups = [];
         }
         /**
@@ -3606,6 +3625,10 @@ var Animate;
                 resource = new Animate.Asset(entry);
                 this._assets.push(resource);
             }
+            else if (type == ResourceType.SCRIPT) {
+                resource = new Animate.ScriptResource(entry);
+                this._scripts.push(resource);
+            }
             else if (type == ResourceType.CONTAINER) {
                 resource = new Animate.Container(entry);
                 this._containers.push(resource);
@@ -3632,12 +3655,14 @@ var Animate;
             if (!type) {
                 this._assets.splice(0, this._assets.length);
                 this._files.splice(0, this._files.length);
+                this._scripts.splice(0, this._scripts.length);
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
                 arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
                 arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(Animate.DB.API + "/scripts/" + this.entry.user + "/" + this.entry._id));
             }
             else {
                 if (type == ResourceType.FILE) {
@@ -3656,6 +3681,10 @@ var Animate;
                     this._groups.splice(0, this._groups.length);
                     arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
                 }
+                else if (type == ResourceType.SCRIPT) {
+                    this._scripts.splice(0, this._scripts.length);
+                    arr.push(Animate.Utils.get(Animate.DB.API + "/scripts/" + this.entry.user + "/" + this.entry._id));
+                }
             }
             return new Promise(function (resolve, reject) {
                 Promise.all(arr).then(function (data) {
@@ -3673,6 +3702,8 @@ var Animate;
                             createdResources.push(that.createResourceInstance(data[2].data[i], ResourceType.CONTAINER));
                         for (var i = 0, l = data[3].data.length; i < l; i++)
                             createdResources.push(that.createResourceInstance(data[3].data[i], ResourceType.GROUP));
+                        for (var i = 0, l = data[4].data.length; i < l; i++)
+                            createdResources.push(that.createResourceInstance(data[4].data[i], ResourceType.SCRIPT));
                     }
                     else {
                         if (type == ResourceType.FILE)
@@ -3687,6 +3718,9 @@ var Animate;
                         else if (type == ResourceType.GROUP)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
                                 createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.GROUP));
+                        else if (type == ResourceType.SCRIPT)
+                            for (var i = 0, l = data[0].data.length; i < l; i++)
+                                createdResources.push(that.createResourceInstance(data[0].data[i], ResourceType.SCRIPT));
                     }
                     return resolve(createdResources);
                 }).catch(function (err) {
@@ -3750,6 +3784,8 @@ var Animate;
                         resource = that.createResourceInstance(data.data, ResourceType.CONTAINER);
                     else if (type == ResourceType.GROUP)
                         resource = that.createResourceInstance(data.data, ResourceType.GROUP);
+                    else if (type == ResourceType.SCRIPT)
+                        resource = that.createResourceInstance(data.data, ResourceType.SCRIPT);
                     return resolve(resource);
                 }).catch(function (err) {
                     return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
@@ -3911,7 +3947,7 @@ var Animate;
             loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids });
         };
         ///**
-        //* This function is used to fetch the _files associated with a project.
+        //* This function is used to fetch the files associated with a project.
         //* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
         //*/
         //loadFiles( mode: string = "project" )
@@ -4342,6 +4378,11 @@ var Animate;
         });
         Object.defineProperty(Project.prototype, "files", {
             get: function () { return this._files; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Project.prototype, "scripts", {
+            get: function () { return this._scripts; },
             enumerable: true,
             configurable: true
         });
@@ -19015,7 +19056,8 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/project-resources/Asset.ts" />
 /// <reference path="lib/core/project-resources/Container.ts" />
 /// <reference path="lib/core/project-resources/GroupArray.ts" />
-/// <reference path="lib/core/project-resources/File.ts" />
+/// <reference path="lib/core/project-resources/FileResource.ts" />
+/// <reference path="lib/core/project-resources/ScriptResource.ts" />
 /// <reference path="lib/core/AssetClass.ts" />
 /// <reference path="lib/core/AssetTemplate.ts" />
 /// <reference path="lib/core/BehaviourDefinition.ts" />

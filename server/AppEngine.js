@@ -13,6 +13,7 @@ var FileController_1 = require("./new-controllers/FileController");
 var BuildController_1 = require("./new-controllers/BuildController");
 var AssetModel_1 = require("./new-models/AssetModel");
 var ContainerModel_1 = require("./new-models/ContainerModel");
+var ScriptModel_1 = require("./new-models/ScriptModel");
 var GroupModel_1 = require("./new-models/GroupModel");
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -34,6 +35,7 @@ var AppEngine = (function (_super) {
             new ResourceController_1.ResourceController("/app-engine/assets", new AssetModel_1.AssetModel(), server, config, e),
             new ResourceController_1.ResourceController("/app-engine/groups", new GroupModel_1.GroupModel(), server, config, e),
             new ResourceController_1.ResourceController("/app-engine/containers", new ContainerModel_1.ContainerModel(), server, config, e),
+            new ResourceController_1.ResourceController("/app-engine/scripts", new ScriptModel_1.ScriptModel(), server, config, e),
             new FileController_1.FileController(server, config, e),
             new ProjectController_1.ProjectController(server, config, e),
             new BuildController_1.BuildController(server, config, e)

@@ -10,6 +10,7 @@ import {FileController} from "./new-controllers/FileController";
 import {BuildController} from "./new-controllers/BuildController";
 import {AssetModel} from "./new-models/AssetModel";
 import {ContainerModel} from "./new-models/ContainerModel";
+import {ScriptModel} from "./new-models/ScriptModel";
 import {GroupModel} from "./new-models/GroupModel";
 
 /**
@@ -36,6 +37,7 @@ export default class AppEngine extends Controller
             new ResourceController("/app-engine/assets", new AssetModel(), server, config, e),
             new ResourceController("/app-engine/groups", new GroupModel(), server, config, e),
             new ResourceController("/app-engine/containers", new ContainerModel(), server, config, e),
+            new ResourceController("/app-engine/scripts", new ScriptModel(), server, config, e),
             new FileController(server, config, e),
             new ProjectController(server, config, e),
             new BuildController(server, config, e)

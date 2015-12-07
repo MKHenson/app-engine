@@ -12,6 +12,17 @@
     }
 
     /**
+    * The interface for working with scripts
+    */
+    export interface IScript extends IResource
+    {
+        onEnter: string;
+        onInitialize: string;
+        onDispose: string;
+        onFrame: string;
+    }
+
+    /**
     * An interface that is used to describe the assets model
     */
     export interface IAsset extends IResource
@@ -121,7 +132,9 @@
         totalVoters?: number;
         createdOn?: number;
         lastModified?: number;
-    }  
+    }
+
+  
 
     /**
     * An interface that is used to describe users files

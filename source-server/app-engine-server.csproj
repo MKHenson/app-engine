@@ -79,6 +79,7 @@
     <TypeScriptCompile Include="lib\models\PluginModel.ts" />
     <TypeScriptCompile Include="lib\models\ProjectModel.ts" />
     <TypeScriptCompile Include="lib\models\UserModel.ts" />
+    <TypeScriptCompile Include="lib\new-models\ScriptModel.ts" />
     <TypeScriptCompile Include="lib\new-models\FileModel.ts" />
     <TypeScriptCompile Include="lib\new-models\GroupModel.ts" />
     <TypeScriptCompile Include="lib\new-models\ContainerModel.ts" />
