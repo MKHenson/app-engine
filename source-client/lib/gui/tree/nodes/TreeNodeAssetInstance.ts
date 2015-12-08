@@ -63,40 +63,45 @@ module Animate
 
 				PluginManager.getSingleton().assetEdited( this.asset, data.propertyName, data.propertyValue, oldValue, data.propertyType );
 
-				this.text = this.text;
+                //this.text = this.text;
+                this.modified = true;
 			}
 		}
 
-		/**
-		* Sets the text of the node
-		* @param {string} val The text to set
-		*/
-		set text( val: string )
-		{
-			this.originalText = val;
-			jQuery( ".text:first", this.element ).text( ( this.asset.saved ? "" : "*" ) + this.originalText );
-		}
+		///**
+		//* Sets the text of the node
+		//* @param {string} val The text to set
+		//*/
+		//set text( val: string )
+		//{
+		//	this.originalText = val;
+		//	jQuery( ".text:first", this.element ).text( ( this.asset.saved ? "" : "*" ) + this.originalText );
+		//}
 
-		/**
-		* Gets the text of the node
-		* @returns {string} The text of the node
-		*/
-		get text(): string
-		{
-			return this.originalText;
-		}
+		///**
+		//* Gets the text of the node
+		//* @returns {string} The text of the node
+		//*/
+		//get text(): string
+		//{
+		//	return this.originalText;
+		//}
 
 		
 		/**
 		* When we click ok on the portal form
 		*/
 		save( val : boolean = true )
-		{
+        {
+            if (val !== this.saved)
+                this.modified = !val;
+     
+
 			if ( !val )
 			{
 				this.saved = val;
 				this.asset.saved = val;
-				this.text = this.text;
+				//this.text = this.text;
 				return;
 			}
 
@@ -106,7 +111,7 @@ module Animate
 			this.asset.saved = true;
 			this.saved = this.asset.saved;
 
-			this.text = this.text;
+			//this.text = this.text;
 
 			if ( this.asset.properties == null )
 				this.asset.properties = this.assetClass.buildVariables();

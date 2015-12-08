@@ -5,13 +5,13 @@ module Animate
 	*/
 	export class BehaviourInstance extends Behaviour
 	{
-		private _behaviourContainer: Container;
+		private _container: Container;
 
-		constructor( parent : Component, behaviourContainer : Container, createPotrals : boolean = true )
+		constructor( parent : Component, container : Container, createPotrals : boolean = true )
 		{
-            var text: string = (behaviourContainer.entry.name !== undefined ? behaviourContainer.entry.name : "Instance" );
+            var text: string = (container.entry.name !== undefined ? container.entry.name : "Instance" );
 
-			this._behaviourContainer = behaviourContainer;
+			this._container = container;
 
 			// Call super-class constructor
 			super( parent, text );
@@ -21,9 +21,9 @@ module Animate
 			{
 				//Now that its created we need to create the starting portals. If the canvas exists we use that as a 
 				//reference, otherwise we use the json
-				if ( this._behaviourContainer.canvas )
+				if ( this._container.canvas )
 				{
-					var children = this._behaviourContainer.canvas.children;
+					var children = this._container.canvas.children;
 					var ci = children.length;
 					while ( ci-- )
 						if ( children[ci] instanceof BehaviourPortal )
@@ -39,10 +39,10 @@ module Animate
 									portals[ii].dataType, false );
 						}
 				}
-                else if (this._behaviourContainer.entry.json != null )
+                else if (this._container.entry.json != null )
 				{
 					//Parse the saved object and get the portal data
-                    var jsonObj: CanvasToken = this._behaviourContainer.entry.json;
+                    var jsonObj: CanvasToken = this._container.entry.json;
 
 					if ( jsonObj && jsonObj.items )
 					{
@@ -77,7 +77,7 @@ module Animate
 		*/
 		onContainerDeleted( response: EditorEvents, event: ContainerEvent )
 		{
-            if (event.container.entry.name == this._behaviourContainer.entry.name )
+            if (event.container.entry.name == this._container.entry.name )
 			{
 				var parent: Canvas = <Canvas>this.element.parent().data( "component" );
 				if ( parent && parent.removeItem )
@@ -106,7 +106,7 @@ module Animate
 					type = PortalType.PARAMETER;
 
 
-                if (event.container.entry.name == this._behaviourContainer.entry.name )
+                if (event.container.entry.name == this._container.entry.name )
 					this.addPortal( type, event.portal.name, event.portal.value, event.portal.dataType, true );
 			}
 			else if ( response == EditorEvents.PORTAL_REMOVED )
@@ -151,12 +151,12 @@ module Animate
 			PluginManager.getSingleton().off( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
 			PluginManager.getSingleton().off( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
 
-			this._behaviourContainer = null;
+			this._container = null;
 
 			//Call super
 			super.dispose();
 		}
 
-		get behaviourContainer(): Container { return this._behaviourContainer; }
+		get container(): Container { return this._container; }
 	}
 }

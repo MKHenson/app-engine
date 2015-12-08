@@ -131,12 +131,12 @@ module Animate
 	}
 
 	/**
-	* BehaviourContainer associated events
+	* ContainerEvent associated events
 	*/
 	export class ContainerEvent extends Event
 	{
 		/**
-		* {BehaviourContainer} container The container associated with this event
+		* {Container} container The container associated with this event
 		*/
 		public container: Container;
 
@@ -149,12 +149,12 @@ module Animate
 
 	
 	/**
-	* Events associated with BehaviourContainers and either reading from, or writing to, a data token
+	* Events associated with Containers and either reading from, or writing to, a data token
 	*/
 	export class ContainerDataEvent extends Event
 	{
 		/**
-		* {BehaviourContainer} container The container associated with this event
+		* {Container} container The container associated with this event
 		*/
 		public container: Container;
 
@@ -265,12 +265,12 @@ module Animate
 	
 
 	/**
-	* Events assocaited with Assets in relation to BehaviourContainers
+	* Events assocaited with Assets in relation to Containers
 	*/
 	export class AssetContainerEvent extends AssetEvent
 	{
 		/**
-		* {BehaviourContainer} container The container assocaited with this event
+		* {Container} container The container assocaited with this event
 		*/
 		public container: Container;
 

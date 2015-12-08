@@ -45,7 +45,7 @@ module Animate
 		private mX: number;
 		private mY: number;
 		public name: string;
-		private _behaviourContainer: Container;
+		private _container: Container;
 
 		private _containerReferences: { groups: Array<string>; assets: Array<number>; };
 
@@ -55,9 +55,9 @@ module Animate
 
 		/**
 		* @param {Component} parent The parent component to add this canvas to
-		* @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
+		* @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
-		constructor( parent: Component, behaviourContainer: Container ) 
+		constructor( parent: Component, container: Container ) 
 		{
 			// Call super-class constructor
 			super( "<div class='canvas' tabindex='0'></div>", parent );
@@ -72,9 +72,9 @@ module Animate
 			this.element.on( "dblclick", jQuery.proxy( this.onDoubleClick, this ) );
 			this.mX = 0;
 			this.mY = 0;
-            this.name = behaviourContainer.entry.name;
-			this._behaviourContainer = behaviourContainer;
-			behaviourContainer.canvas = this;
+            this.name = container.entry.name;
+			this._container = container;
+			container.canvas = this;
 
 			//Define proxies
 			this.mContextProxy = this.onContext.bind( this );
@@ -233,7 +233,7 @@ module Animate
 			this.mX = null;
 			this.mY = null;
 			this.name = null;
-			this._behaviourContainer = null;
+			this._container = null;
 			this.keyProxy = null;
 			this.mContextProxy = null;
 			this.mContextNode = null;
@@ -251,7 +251,7 @@ module Animate
 		removeAsset( asset: Asset )
 		{
 			var pManager: PluginManager = PluginManager.getSingleton();
-			var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._behaviourContainer );
+			var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._container );
             var project: Project = User.get.project;
 
 			for ( var i = 0, l = this.children.length; i < l; i++ )
@@ -321,7 +321,7 @@ module Animate
 
 						//Notify of change
 						if ( toRemove[i] instanceof BehaviourPortal )
-							PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._behaviourContainer, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
+							PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._container, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
 
 						toRemove[i].dispose();
 
@@ -505,8 +505,8 @@ module Animate
 			}
 
 			var pManager: PluginManager = PluginManager.getSingleton();
-			var addEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._behaviourContainer );
-			var removeEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._behaviourContainer );
+			var addEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._container );
+			var removeEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._container );
 
 			// Notify of asset removals
 			for ( var i = 0, l = this._containerReferences.assets.length; i < l; i++ )
@@ -621,7 +621,7 @@ module Animate
 					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, behaviour, "" );
 
 					//Notify of change
-					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._behaviourContainer, portal, this ) );
+					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._container, portal, this ) );
 
 					return;
 				}
@@ -650,7 +650,7 @@ module Animate
 					newNode.css( { "left": this.mX + "px", "top": this.mY + "px", "position": "absolute" });
 
 					//Notify of change
-					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._behaviourContainer, newNode.portals[0], this ) );
+					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._container, newNode.portals[0], this ) );
 				}
 
 				//Notify of change
@@ -765,10 +765,19 @@ module Animate
 				return;
 
 			var template = PluginManager.getSingleton().getTemplate( event.behaviourName );
+            var that = this;
 
 			if ( template )
-			{
-				this.createNode( template, this.mX, this.mY );
+            {
+                if (template.behaviourName == "Script")
+                {
+                    RenameForm.get.renameObject(null, "Script", null, ResourceType.SCRIPT).then(function (data)
+                    {
+                        that.createNode(template, that.mX, that.mY, null, data.newName);
+                    });
+                }
+                else
+                    that.createNode(template, that.mX, that.mY );
 			}
 		}
 
@@ -778,7 +787,7 @@ module Animate
 		private isCyclicDependency( container : Container, ref : string ) : boolean
 		{
             var project = User.get.project;
-			var thisContainer = this._behaviourContainer;
+			var thisContainer = this._container;
 			var json: CanvasToken = null;
 			var canvas: Canvas = null;
 
@@ -789,7 +798,7 @@ module Animate
 
 			// Get the most updated JSON
             canvas = CanvasTab.getSingleton().getTabCanvas(container.entry._id );
-			if ( canvas && !canvas._behaviourContainer.saved )
+			if ( canvas && !canvas._container.saved )
 				json = canvas.buildDataObject();
 			else
                 json = container.entry.json;
@@ -818,11 +827,12 @@ module Animate
 		* @param {BehaviourDefinition} template The definition of the node
 		* @param {number} x The x position of where the node shoule be placed
 		* @param {number} y The y position of where the node shoule be placed
-		* @param {BehaviourContainer} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
+		* @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
 		* is the actual behaviour container
+        * @param {string} name The name of the node
 		* @returns {Behaviour} 
 		*/
-		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container ): Behaviour
+		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour
 		{
 			var toAdd: Behaviour = null;
 
@@ -839,8 +849,8 @@ module Animate
 			}
 			else if ( template.behaviourName == "Asset" )
 				toAdd = new BehaviourAsset( this, template.behaviourName );
-			else if ( template.behaviourName == "Script" )
-				toAdd = new BehaviourScript( this, 0, template.behaviourName );
+            else if (template.behaviourName == "Script")
+                toAdd = new BehaviourScript(this, null, name );
 			else
 				toAdd = new Behaviour( this, template.behaviourName );
 
@@ -888,7 +898,6 @@ module Animate
 
 			toAdd.element.css( { left: x + "px", top: y + "px" });
 			toAdd.element.addClass( "scale-in-animation" );
-
 			toAdd.updateDimensions();
 
 			//Notify of change
@@ -997,8 +1006,8 @@ module Animate
 			//If an instance, then open it
 			else if ( comp instanceof BehaviourInstance )
 			{
-				var tree: TreeViewScene = TreeViewScene.getSingleton();
-				var node: TreeNode = tree.findNode( "behaviour", comp._behaviourContainer );
+                var tree: TreeViewScene = TreeViewScene.getSingleton();
+                var node: TreeNode = tree.findNode("behaviour", (<BehaviourInstance>comp).container);
 				tree.selectNode( node );
 				( <TreeViewScene>tree ).onDblClick( null );
 				return;
@@ -1250,15 +1259,15 @@ module Animate
 		*/
 		buildDataObject( items: Array<IComponent> = null ): CanvasToken
 		{
-            var data: CanvasToken = new CanvasToken(this.behaviourContainer.entry.shallowId );
-            data.name = this._behaviourContainer.entry.name;
-			data.properties = this._behaviourContainer.properties.tokenize();
+            var data: CanvasToken = new CanvasToken(this.container.entry.shallowId );
+            data.name = this._container.entry.name;
+			data.properties = this._container.properties.tokenize();
 
 			if ( items == null )
 				items = this.children;
 
 			//Let the plugins save their data			
-			PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._behaviourContainer, data.plugins, this._containerReferences ) );
+			PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._container, data.plugins, this._containerReferences ) );
 
 
 			//Create a multidimension array and pass each of the project dependencies
@@ -1290,16 +1299,16 @@ module Animate
 					else if ( items[i] instanceof BehaviourScript )
 					{
 						//First initialize the script node to make sure we have a DB entry
-						( <BehaviourScript>items[i] ).initializeDB();
-						if ( ( <BehaviourScript>items[i] ).shallowId === 0 ) continue;
-						data.items[i].shallowId = ( <BehaviourScript>items[i] ).shallowId;
+						//( <BehaviourScript>items[i] ).initializeDB();
+						//if ( ( <BehaviourScript>items[i] ).shallowId === 0 ) continue;
+                        data.items[i].scriptId = (<BehaviourScript>items[i]).scriptId;
 					}
 					else if ( items[i] instanceof BehaviourShortcut )
 					{
 						data.items[i].behaviourID = ( ( <BehaviourShortcut>items[i] ).originalNode ? ( <BehaviourShortcut>items[i] ).originalNode.id : "" );
 					}
 					else if ( items[i] instanceof BehaviourInstance )
-                        data.items[i].containerId = ((<BehaviourInstance>items[i]).behaviourContainer ? (<BehaviourInstance>items[i]).behaviourContainer.entry.shallowId : 0 );
+                        data.items[i].containerId = ((<BehaviourInstance>items[i]).container ? (<BehaviourInstance>items[i]).container.entry.shallowId : 0 );
 
 					if ( items[i] instanceof BehaviourPortal )
 					{
@@ -1363,8 +1372,8 @@ module Animate
 
 			if ( dataToken )
 				jsonObj = dataToken;
-            else if (this._behaviourContainer.entry.json !== null )
-                jsonObj = this._behaviourContainer.entry.json;
+            else if (this._container.entry.json !== null )
+                jsonObj = this._container.entry.json;
 
 			//Cleanup the 
 			if ( clearItems )
@@ -1412,7 +1421,7 @@ module Animate
 					else if ( jsonObj.items[i].type == "BehaviourAsset" )
 						item = new BehaviourAsset( this, jsonObj.items[i].name );
 					else if ( jsonObj.items[i].type == "BehaviourScript" )
-						item = new BehaviourScript( this, jsonObj.items[i].shallowId, jsonObj.items[i].name, !clearItems );
+                        item = new BehaviourScript(this, jsonObj.items[i].scriptId, jsonObj.items[i].name, !clearItems );
 					else if ( jsonObj.items[i].type == "BehaviourInstance" )
 					{
                         var project = User.get.project;
@@ -1579,7 +1588,7 @@ module Animate
 
 			//Let the plugins open their data
 			if ( jsonObj && jsonObj.plugins )				
-				pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._behaviourContainer, jsonObj.plugins ) );
+				pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._container, jsonObj.plugins ) );
 
 			this.checkDimensions();
 			this.buildSceneReferences();
@@ -1630,7 +1639,7 @@ module Animate
 
 		
 
-		get behaviourContainer(): Container { return this._behaviourContainer; }
+		get container(): Container { return this._container; }
 		get containerReferences(): { groups: Array<string>; assets: Array<number> } { return this._containerReferences; }
 	}
 }

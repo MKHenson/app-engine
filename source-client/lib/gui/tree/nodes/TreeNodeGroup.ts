@@ -49,7 +49,7 @@ module Animate
 			var project : Project = User.get.project;
 
 			this.saved = true;
-			this.text = this.originalText;
+			//this.text = this.originalText;
 			this.name = name;
 			this.json = json;
 
@@ -73,24 +73,24 @@ module Animate
 				}
 		}
 
-		/**
-		* Sets the text of the node
-		* @param {string} val The text to set
-		*/
-		set text( val: string )
-		{
-			this.originalText = val;
-			jQuery( ".text:first", this.element ).text( ( this.saved ? "" : "*" ) + this.originalText );
-		}
+		///**
+		//* Sets the text of the node
+		//* @param {string} val The text to set
+		//*/
+		//set text( val: string )
+		//{
+		//	this.originalText = val;
+		//	jQuery( ".text:first", this.element ).text( ( this.saved ? "" : "*" ) + this.originalText );
+		//}
 
-		/**
-		* Gets the text of the node
-		* @returns {string} The text of the node
-		*/
-		get text(): string
-		{
-			return this.originalText;
-		}
+		///**
+		//* Gets the text of the node
+		//* @returns {string} The text of the node
+		//*/
+		//get text(): string
+		//{
+		//	return this.originalText;
+		//}
 
 
 		/** 
@@ -98,8 +98,8 @@ module Animate
 		*/
 		save( val )
 		{
-			this.saved = val;
-			this.text = this.text;
+            this.saved = val;
+            this.modified = !val;
 		}
 
 		/**

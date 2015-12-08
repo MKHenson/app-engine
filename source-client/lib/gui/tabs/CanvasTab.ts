@@ -96,12 +96,12 @@ module Animate
 			var canvas : Canvas = <Canvas>tabPair.page.children[0];
 			if ( canvas instanceof Canvas )
 			{
-				var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.behaviourContainer );
+				var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
 
 				//Set the context node to be this node
 				TreeViewScene.getSingleton().contextNode = node;
 
-				if ( node && node.saved == false && !canvas.behaviourContainer.disposed )
+				if ( node && node.saved == false && !canvas.container.disposed )
 				{
 					this.closingTabPair = tabPair;
 					MessageBox.show( "Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this );
@@ -134,11 +134,11 @@ module Animate
 
 				//Now get the project to save it.
 				User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
-                User.get.project.saveBehaviours([canvas.behaviourContainer.entry._id] );
+                User.get.project.saveBehaviours([canvas.container.entry._id] );
 			}
 			else
 			{
-				var node : TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.behaviourContainer );
+				var node : TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
 				node.save( true );
 				this.removeTab( this.closingTabPair, true );
 				this.closingTabPair = null;
@@ -173,9 +173,9 @@ module Animate
 			if ( response == ProjectEvents.BEHAVIOUR_SAVED )
 			{
 				var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
-				if ( canvas.behaviourContainer == event.tag )
+				if ( canvas.container == event.tag )
 				{
-					var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.behaviourContainer );
+					var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
 					if ( node )
 						node.save( true );
 
@@ -194,7 +194,7 @@ module Animate
 		{
 			var tabs : Array<TabPair> = this.tabs;
 			for ( var i = 0, l = tabs.length; i < l; i++ )
-                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && (<Canvas>tabs[i].page.children[0]).behaviourContainer.entry._id == behaviourID )
+                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && (<Canvas>tabs[i].page.children[0]).container.entry._id == behaviourID )
 				{
 					var canvas: Canvas = <Canvas>tabs[i].page.children[0];
 					return canvas;
@@ -216,7 +216,7 @@ module Animate
 			//Remove prev we need to notify the plugins of added or removed assets
 			if ( this._currentCanvas && !this._currentCanvas.disposed )
 			{	
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.behaviourContainer );
+				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.container );
 
 				//Tell the plugins to remove the current assets
 				var references = this._currentCanvas.containerReferences;
@@ -238,12 +238,12 @@ module Animate
 				var canvas: Canvas = <Canvas>this._currentCanvas.element.data( "component" );
 				canvas.onSelected();
 
-				var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.behaviourContainer );
+				var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
 				if ( node )
 					TreeViewScene.getSingleton().selectNode( node );
 
 				//Now we need to notify the plugins of added assets
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._currentCanvas.behaviourContainer );
+				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._currentCanvas.container );
 
 				//Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;
@@ -255,7 +255,7 @@ module Animate
 				}
 
 				//We tell the plugins we've selected a behaviour container
-				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, canvas.behaviourContainer ) );
+				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, canvas.container ) );
 			}
 			else
 				//We tell the plugins we've selected a behaviour container
@@ -354,7 +354,7 @@ module Animate
 			if ( canvas )
 			{
 				var pManager: PluginManager = PluginManager.getSingleton();
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.behaviourContainer );
+				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
 
 				//Remove prev we need to notify the plugins of added or removed assets		
                 var project = User.get.project;
@@ -369,7 +369,7 @@ module Animate
 					pManager.emit( contEvent );
 				}
 
-				canvas.behaviourContainer.canvas = null;
+				canvas.container.canvas = null;
 				canvas.off(CanvasEvents.MODIFIED, this.onCanvasModified, this );
 			}
 
@@ -381,7 +381,7 @@ module Animate
 		*/
 		onCanvasModified( response : CanvasEvents, event : CanvasEvent, sender? : EventDispatcher )
 		{
-			var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", event.canvas.behaviourContainer );
+			var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", event.canvas.container );
 
 			if ( node )
 				node.save( false );

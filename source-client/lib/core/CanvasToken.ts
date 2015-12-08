@@ -34,7 +34,9 @@ module Animate
 		public alias: string = "";
 
 		// Asset items
-		public assetID: number = 0;
+        public assetID: number = 0;
+        // Script items
+        public scriptId: any;
 
 		// Script items
 		public shallowId: number = 0;
@@ -79,7 +81,8 @@ module Animate
 				this.assetID = token.assetID;
 
 				// Script items
-				this.shallowId = token.shallowId;
+                this.shallowId = token.shallowId;
+                this.scriptId = token.scriptId;
 
 				this.containerId = token.containerId;
 

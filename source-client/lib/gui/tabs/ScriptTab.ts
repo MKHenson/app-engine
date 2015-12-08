@@ -125,7 +125,6 @@ module Animate
 				"<div title='Called each time the behaviour is entered from an input gate' class='function-button function-pushed' function='onEnter'>On Enter</div>" +
 				"<div title='Called each frame as long as the script is active' class='function-button' function='onFrame'>On Frame</div>" +
 				"<div title='Called when the script needs to be cleaned up and destroyed' class='function-button' function='onDispose'>On Dispose</div>" +
-
 				"<div class='script-helpers'></div>" +
 				"</div>";
 
@@ -158,7 +157,7 @@ module Animate
 
 
 			var loader = new AnimateLoader();
-			var shallowId: number = this.scriptNode.shallowId;
+            var scriptId: string = this.scriptNode.scriptId;
 			var tab : ScriptTab = this;
 
 			//When we return from the server
@@ -202,8 +201,7 @@ module Animate
 			//Get the current scripts
 			loader.on( LoaderEvents.COMPLETE, onServer );
 			loader.on( LoaderEvents.FAILED, onServer );
-
-            loader.load("/project/get-behaviour-scripts", { projectId: User.get.project.entry._id, shallowId: shallowId });
+            loader.load("/project/get-behaviour-scripts", { projectId: User.get.project.entry._id, _id: scriptId });
 
 			this.onSelected();
 		}
@@ -408,7 +406,7 @@ module Animate
 				onInitialize: this.onInitialize,
 				onDispose: this.onDispose,
 				onFrame: this.onFrame,
-				shallowId: this.scriptNode.shallowId
+                _id: this.scriptNode.scriptId
 			});
 		}
 	}

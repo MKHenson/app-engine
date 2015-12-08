@@ -263,9 +263,9 @@ module Animate
 
 
 		/**
-		* Gets a {BehaviourContainer} by its ID
-		* @param {string} id The ID of the BehaviourContainer
-		* @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
+		* Gets a {Container} by its ID
+		* @param {string} id The ID of the Container
+		* @returns {Container} The Container whose id matches the id parameter or null
 		*/
 		getBehaviourById( id: string ): Container
 		{
@@ -277,9 +277,9 @@ module Animate
 		}
 
 		/**
-		* Gets a {BehaviourContainer} by its shallow or local ID
-		* @param {string} id The local ID of the BehaviourContainer
-		* @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
+		* Gets a {Container} by its shallow or local ID
+		* @param {string} id The local ID of the Container
+		* @returns {Container} The Container whose id matches the id parameter or null
 		*/
 		getBehaviourByShallowId( id: number ): Container
 		{
@@ -568,7 +568,7 @@ module Animate
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource(name: string, type: ResourceType): Promise<ProjectResource<any>>
+        createResource<T>(name: string, type: ResourceType, data : T ): Promise<ProjectResource<T>>
         {
             var that = this;
             var details = User.get.entry;
@@ -582,22 +582,22 @@ module Animate
             else if (type == ResourceType.GROUP)
                 url = `${DB.API}/groups/${details.username}/${projId}`;
 
-            return new Promise<ProjectResource<any>>(function (resolve, reject)
+            return new Promise<ProjectResource<T>>(function (resolve, reject)
             {
-                Utils.post<ModepressAddons.ICreateResource>(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).then(function (data)
+                Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     var resource : ProjectResource<any>;
                     if (type == ResourceType.ASSET)
-                        resource = that.createResourceInstance(<Engine.IAsset>data.data, ResourceType.ASSET);
+                        resource = that.createResourceInstance<T>(data.data, ResourceType.ASSET);
                     else if (type == ResourceType.CONTAINER)
-                        resource = that.createResourceInstance(<Engine.IContainer>data.data, ResourceType.CONTAINER);
+                        resource = that.createResourceInstance<T>(data.data, ResourceType.CONTAINER);
                     else if (type == ResourceType.GROUP)
-                        resource = that.createResourceInstance(<Engine.IGroup>data.data, ResourceType.GROUP);
+                        resource = that.createResourceInstance<T>(data.data, ResourceType.GROUP);
                     else if (type == ResourceType.SCRIPT)
-                        resource = that.createResourceInstance(<Engine.IScript>data.data, ResourceType.SCRIPT);
+                        resource = that.createResourceInstance<T>(data.data, ResourceType.SCRIPT);
                     
                     return resolve(resource);
 
@@ -761,7 +761,7 @@ module Animate
 		//	var loader = new AnimateLoader();
 		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
 		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
-  //          loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : BehaviourContainer.getNewLocalId() } );
+  //          loader.load("/project/create-behaviour", { projectId: this.entry._id, name : name, shallowId : Container.getNewLocalId() } );
 		//}
 
 
@@ -1190,7 +1190,7 @@ module Animate
 					////Create a new Behaviour
 					//else if ( loader.url == "/project/create-behaviour" )
 					//{
-					//	var behaviour: BehaviourContainer = new BehaviourContainer( data.name, data.id, data.shallowId );
+					//	var behaviour: Container = new Container( data.name, data.id, data.shallowId );
 					//	this._behaviours.push( behaviour );
 
 					//	//Create the GUI elements

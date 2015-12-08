@@ -17,7 +17,9 @@ module Animate
 			this.canDelete = true;
 		}
 
-		/**This will cleanup the component.*/
+		/**
+        * This will cleanup the component
+        */
 		dispose()
 		{
 			var parentGroupNode: TreeNodeGroup = <TreeNodeGroup>this.parent;

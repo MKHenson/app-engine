@@ -5,63 +5,80 @@ module Animate
 	* database entries and so need to be cleaned up properly when modified by the user.
 	*/
 	export class BehaviourScript extends Behaviour
-	{		
-		public shallowId: number;
-		public scriptTab: ScriptTab;
-		
+    {
+        public scriptId: string;
+        public scriptTab: ScriptTab;
+        private _loading: JQuery;
 
-		constructor( parent: Component, shallowId: number, text : string = "Script", copied : boolean = false)
+		constructor( parent: Component, scriptId: string, text : string, copied : boolean = false)
 		{
 			// Call super-class constructor
-			super( parent, text );
+            super(parent, text);
+
+            // TODO: What do we do about shallow IDs?
+            ProjectResource.generateLocalId()
 			
-			var behaviour: BehaviourScript = this;
-			var element = this.element;
-            var plan: UserPlan = User.get.meta.plan;
-			this.scriptTab = null;
-			this.shallowId = shallowId;
+            this.scriptTab = null;
+            this.scriptId = scriptId;
+            this._loading = jQuery("<img src='media/script-buffer.gif' />");
+            var element = this.element,
+                that = this,
+                project = User.get.project,
+                promise: Promise<ProjectResource<Engine.IScript>>;
+            
+           
 
-			if ( plan.toString() != DB.PLAN_FREE )
-				element.addClass( "behaviour-script" );
-			else
-			{
-				element.addClass( "behaviour-bad" );
-				this.tooltip = "Script will not be exported. You need to upgrade your account for this feature.";
-			}
+            element.addClass("behaviour-script");
+            this._loading.insertBefore(jQuery(".text", element));
 
+            if (scriptId && copied)
+                // TODO: Copy the behaviour instead of create
+                promise = project.createResource<Engine.IScript>(text, ResourceType.SCRIPT, { name: text });
+            else
+                promise = project.createResource<Engine.IScript>(text, ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
+            
+        
+            promise.then(function (data: ScriptResource)
+            {
+                Logger.getSingleton().logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
+                that._loading.detach();
+                that.scriptId = data.entry._id;
 
-			//If this was copied we need to make a duplicate in the database and use that
-			if ( shallowId !== 0 && copied )
-			{
-				var that = this;
+            }).catch(function (err: Error)
+            {
+                Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+            });
 
-				var behaviour: BehaviourScript = this;
+			////If this was copied we need to make a duplicate in the database and use that
+			//if ( shallowId !== 0 && copied )
+			//{
+			//	var that = this;
+                
+			//	//try to create the database entry of this node
+			//	var loader = new AnimateLoader();
+			//	loader.on( LoaderEvents.COMPLETE, onServer );
+			//	loader.on( LoaderEvents.FAILED, onServer );
+   //             loader.load("/project/copy-script", { projectId: User.get.project.entry._id, originalId: shallowId, shallowId: that.shallowId });
 
-				//try to create the database entry of this node
-				var loader = new AnimateLoader();
-				loader.on( LoaderEvents.COMPLETE, onServer );
-				loader.on( LoaderEvents.FAILED, onServer );
-                loader.load("/project/copy-script", { projectId: User.get.project.entry._id, originalId: shallowId, shallowId: behaviour.shallowId });
+			//	//When we have copied the script
+			//	function onServer( response: LoaderEvents, event: AnimateLoaderEvent )
+			//	{
+			//		loader = null;
 
-				//When we have copied the script
-				function onServer( response: LoaderEvents, event: AnimateLoaderEvent )
-				{
-					loader = null;
+			//		if ( response == LoaderEvents.COMPLETE )
+			//		{
+			//			if ( event.return_type == AnimateLoaderResponses.ERROR )
+			//			{
+			//				MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
+			//				return;
+			//			}
 
-					if ( response == LoaderEvents.COMPLETE )
-					{
-						if ( event.return_type == AnimateLoaderResponses.ERROR )
-						{
-							MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
-							return;
-						}
-
-						that.shallowId = event.data.shallowId;
-					}
-				}
-			}
-			else if ( shallowId === 0 )
-				this.initializeDB();
+			//			that.shallowId = event.data.shallowId;
+			//		}
+			//	}
+			//}
+			//else if ( shallowId === 0 )
+			//	this.initializeDB();
 		}
 
 
@@ -70,84 +87,84 @@ module Animate
 		* @param <string> name The new name of the behaviour
 		*/
 		onRenamed( name ) 
-		{
+        {
 			if ( this.scriptTab )
 				this.scriptTab.rename( name );
 		}
 
-		/**
-		* Called when the behaviour is about to be deleted
-		*/
-		onDelete()
-		{
-			if ( this.scriptTab )
-			{
-				this.scriptTab.saved = true;
-				CanvasTab.getSingleton().removeTab( this.scriptTab, true );
-			}
+		///**
+		//* Called when the behaviour is about to be deleted
+		//*/
+		//onDelete()
+		//{
+		//	if ( this.scriptTab )
+		//	{
+		//		this.scriptTab.saved = true;
+		//		CanvasTab.getSingleton().removeTab( this.scriptTab, true );
+		//	}
 
-			var behaviour = this;
-			if ( this.shallowId === 0 )
-				return;
+			//var behaviour = this;
+			//if ( this.shallowId === 0 )
+			//	return;
 
-			//try to create the database entry of this node
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, onServer );
-			loader.on( LoaderEvents.FAILED, onServer );
-            loader.load("/project/delete-scripts", { projectId: User.get.project.entry._id, ids: [this.shallowId] });
+			////try to create the database entry of this node
+			//var loader = new AnimateLoader();
+			//loader.on( LoaderEvents.COMPLETE, onServer );
+			//loader.on( LoaderEvents.FAILED, onServer );
+   //         loader.load("/project/delete-scripts", { projectId: User.get.project.entry._id, ids: [this.shallowId] });
 			
-			//When we 
-			function onServer( response: LoaderEvents, event : AnimateLoaderEvent)
-			{
-				loader = null;
-				if ( response == LoaderEvents.COMPLETE )
-				{
-					if (event.return_type == AnimateLoaderResponses.ERROR )
-					{
-						MessageBox.show(event.message, Array<string>("Ok"), null, null );
-						return;
-					}
-				}
-			}
-		}
+			////When we 
+			//function onServer( response: LoaderEvents, event : AnimateLoaderEvent)
+			//{
+			//	loader = null;
+			//	if ( response == LoaderEvents.COMPLETE )
+			//	{
+			//		if (event.return_type == AnimateLoaderResponses.ERROR )
+			//		{
+			//			MessageBox.show(event.message, Array<string>("Ok"), null, null );
+			//			return;
+			//		}
+			//	}
+			//}
+		//}
 
-		/**
-		* this function is called when a container is getting saved. It basically initializes the node in the database.
-		*/
-		initializeDB( onComplete? : ( success : boolean ) =>  void )
-		{
-			var behaviour = this;
-			if ( behaviour.shallowId !== 0 )
-				return;
+		///**
+		//* this function is called when a container is getting saved. It basically initializes the node in the database.
+		//*/
+		//initializeDB( onComplete? : ( success : boolean ) =>  void )
+		//{
+		//	var behaviour = this;
+		//	if ( behaviour.shallowId !== 0 )
+		//		return;
 
-			var that = this;
+		//	var that = this;
 
-			//try to create the database entry of this node
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, onServer );
-			loader.on( LoaderEvents.FAILED, onServer );
-            loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).behaviourContainer.entry.shallowId, behaviourId: behaviour.id });
+		//	//try to create the database entry of this node
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, onServer );
+		//	loader.on( LoaderEvents.FAILED, onServer );
+  //          loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).container.entry.shallowId, behaviourId: behaviour.id });
 			
-			//When we 
-			function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )
-			{
-				loader = null;
-				if ( response == LoaderEvents.COMPLETE )
-				{
-					if (event.return_type == AnimateLoaderResponses.ERROR )
-					{
-						MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
-						if ( onComplete )
-							onComplete( false );
-						return;
-					}
+		//	//When we 
+		//	function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )
+		//	{
+		//		loader = null;
+		//		if ( response == LoaderEvents.COMPLETE )
+		//		{
+		//			if (event.return_type == AnimateLoaderResponses.ERROR )
+		//			{
+		//				MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
+		//				if ( onComplete )
+		//					onComplete( false );
+		//				return;
+		//			}
 
-					that.shallowId = event.data.shallowId;
-					if ( onComplete )
-						onComplete( true );
-				}
-			}
-		}
+		//			that.shallowId = event.data.shallowId;
+		//			if ( onComplete )
+		//				onComplete( true );
+		//		}
+		//	}
+		//}
 
 
 
@@ -156,16 +173,21 @@ module Animate
 		*/
 		edit()
 		{
-			if ( this.shallowId === 0 )
-				this.initializeDB();
+			//if ( this.shallowId === 0 )
+			//	this.initializeDB();
 
-			var tabName : string = this.id + " - " + this.alias;
-			if ( CanvasTab.getSingleton().getTab( tabName ) )
-				return CanvasTab.getSingleton().selectTab( CanvasTab.getSingleton().getTab( tabName ) );
-			if ( CanvasTab.getSingleton().getTab( "*" + tabName ) )
-				return CanvasTab.getSingleton().selectTab( CanvasTab.getSingleton().getTab( "*" + tabName ) );
+            if (this.scriptTab)
+                CanvasTab.getSingleton().selectTab(this.scriptTab);
+            else
+                this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab("", CanvasTabType.SCRIPT, this);
 
-			this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab( "", CanvasTabType.SCRIPT, this );
+			//var tabName : string = this.id + " - " + this.alias;
+			//if ( CanvasTab.getSingleton().getTab( tabName ) )
+			//	return CanvasTab.getSingleton().selectTab( CanvasTab.getSingleton().getTab( tabName ) );
+			//if ( CanvasTab.getSingleton().getTab( "*" + tabName ) )
+			//	return CanvasTab.getSingleton().selectTab( CanvasTab.getSingleton().getTab( "*" + tabName ) );
+
+			//this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab( "", CanvasTabType.SCRIPT, this );
 		}
 
 		/**

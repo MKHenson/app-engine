@@ -156,7 +156,7 @@ module Animate
 
 				this.element.data( "preview" ).addClass( "fade-animation" );
             }
-            val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() }</span>` + val;
+            val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() } ${new Date(Date.now()).toLocaleTimeString()}</span>` + val;
 			var toAdd = this.addItem( img, val, true );
 			toAdd.data( "tag", tag );
 			return toAdd;

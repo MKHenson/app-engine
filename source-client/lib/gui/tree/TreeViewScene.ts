@@ -274,27 +274,27 @@ module Animate
 
 		/**
 		* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-		* @param {BehaviourContainer} behaviour The hehaviour object we need to update
+		* @param {Container} container The hehaviour object we need to update
 		*/
-		updateBehaviour( behaviour : Container )
+		updateBehaviour( container : Container )
 		{
-			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", behaviour );
-			node.behaviour = behaviour;
+			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", container );
+			node.behaviour = container;
 			if ( node != null )
 			{
 				//First we try and get the tab
-                var tabPair: TabPair = CanvasTab.getSingleton().getTab(behaviour.entry.name );
+                var tabPair: TabPair = CanvasTab.getSingleton().getTab(container.entry.name );
 
 				//Tab was not found - check if its because its unsaved
 				if ( tabPair == null )
-                    tabPair = CanvasTab.getSingleton().getTab("*" + behaviour.entry.name );
+                    tabPair = CanvasTab.getSingleton().getTab("*" + container.entry.name );
 
 				//If we have a tab then rename it to the same as the node
 				if ( tabPair )
 				{
 					tabPair.tabSelector.element.trigger( "click" );
 					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
-					canvas.behaviourContainer = behaviour;
+					canvas.container = container;
 					CanvasTab.getSingleton().selectTab( tabPair );
 					canvas.openFromDataObject();
 					canvas.checkDimensions();
@@ -554,7 +554,7 @@ module Animate
   //              data.object.name = data.name;
 
   //              var node: TreeNode = null;
-  //              if (data.object instanceof BehaviourContainer)
+  //              if (data.object instanceof Container)
   //                  node = this._sceneNode.findNode("behaviour", data.object);
   //              else if (data.object instanceof Asset)
   //                  node = this._assetsNode.findNode("asset", data.object);
@@ -868,7 +868,7 @@ module Animate
 
 		///**
 		//* This will add a node to the treeview to represent the containers.
-		//* @param {BehaviourContainer} behaviour The behaviour we are associating with the node
+		//* @param {Container} behaviour The behaviour we are associating with the node
 		//* @returns {TreeNodeBehaviour} 
 		//*/
 		//addContainer(behaviour: Container): TreeNodeBehaviour

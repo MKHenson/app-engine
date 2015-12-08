@@ -178,7 +178,7 @@ module Animate
             // Todo: This must be NewBehaviourForm
             RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER).then(function (token)
             {
-                User.get.project.createResource(token.newName, ResourceType.CONTAINER).then(function(resource)
+                User.get.project.createResource(token.newName, ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
                 {
                     // The container is created - so lets open it up
                     var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);

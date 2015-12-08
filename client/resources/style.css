@@ -1340,7 +1340,7 @@ body {
 *  ===============================
 */
 span.date {
-    margin: 0 20px 0 0;
+    margin: 0 35px 0 0;
 }
 .logger-warning {
     position: absolute;
@@ -1948,7 +1948,7 @@ html .bad-input {
     color: #fff;
 }
 .tab-selector.tab-selected .text {
-    color: #86A1C3;
+    color: #467ABB;
 }
 .close-but {
     color: #bbb;

@@ -16,10 +16,10 @@
     */
     export interface IScript extends IResource
     {
-        onEnter: string;
-        onInitialize: string;
-        onDispose: string;
-        onFrame: string;
+        onEnter?: string;
+        onInitialize?: string;
+        onDispose?: string;
+        onFrame?: string;
     }
 
     /**
@@ -166,7 +166,7 @@
 declare module ModepressAddons
 {
     export interface ICreateProject extends Modepress.IGetResponse<Engine.IProject> { }
-    export interface ICreateResource extends Modepress.IGetResponse<Engine.IResource> { }
+    export interface ICreateResource<T> extends Modepress.IGetResponse<T> { }
     export interface ICreateAsset extends Modepress.IGetResponse<Engine.IAsset> { }
     export interface ICreateBehaviour extends Modepress.IGetResponse<Engine.IContainer> { }
     export interface ICreateFile extends Modepress.IGetResponse<Engine.IFile> { }

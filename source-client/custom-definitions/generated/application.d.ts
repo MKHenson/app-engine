@@ -452,21 +452,21 @@ declare module Animate {
         constructor(token: any);
     }
     /**
-    * BehaviourContainer associated events
+    * ContainerEvent associated events
     */
     class ContainerEvent extends Event {
         /**
-        * {BehaviourContainer} container The container associated with this event
+        * {Container} container The container associated with this event
         */
         container: Container;
         constructor(eventName: EditorEvents, container: Container);
     }
     /**
-    * Events associated with BehaviourContainers and either reading from, or writing to, a data token
+    * Events associated with Containers and either reading from, or writing to, a data token
     */
     class ContainerDataEvent extends Event {
         /**
-        * {BehaviourContainer} container The container associated with this event
+        * {Container} container The container associated with this event
         */
         container: Container;
         /**
@@ -538,11 +538,11 @@ declare module Animate {
         constructor(asset: Asset, oldName: string);
     }
     /**
-    * Events assocaited with Assets in relation to BehaviourContainers
+    * Events assocaited with Assets in relation to Containers
     */
     class AssetContainerEvent extends AssetEvent {
         /**
-        * {BehaviourContainer} container The container assocaited with this event
+        * {Container} container The container assocaited with this event
         */
         container: Container;
         constructor(eventName: EditorEvents, asset: Asset, container: Container);
@@ -1165,6 +1165,7 @@ declare module Animate {
         name: string;
         alias: string;
         assetID: number;
+        scriptId: any;
         shallowId: number;
         containerId: number;
         behaviourID: string;
@@ -1528,15 +1529,15 @@ declare module Animate {
         */
         getGroup(id: string): GroupArray;
         /**
-        * Gets a {BehaviourContainer} by its ID
-        * @param {string} id The ID of the BehaviourContainer
-        * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
+        * Gets a {Container} by its ID
+        * @param {string} id The ID of the Container
+        * @returns {Container} The Container whose id matches the id parameter or null
         */
         getBehaviourById(id: string): Container;
         /**
-        * Gets a {BehaviourContainer} by its shallow or local ID
-        * @param {string} id The local ID of the BehaviourContainer
-        * @returns {BehaviourContainer} The BehaviourContainer whose id matches the id parameter or null
+        * Gets a {Container} by its shallow or local ID
+        * @param {string} id The local ID of the Container
+        * @returns {Container} The Container whose id matches the id parameter or null
         */
         getBehaviourByShallowId(id: number): Container;
         /**
@@ -1577,7 +1578,7 @@ declare module Animate {
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource(name: string, type: ResourceType): Promise<ProjectResource<any>>;
+        createResource<T>(name: string, type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -3446,8 +3447,8 @@ declare module Animate {
     * A behaviour node that represents a Behaviour Container
     */
     class BehaviourInstance extends Behaviour {
-        private _behaviourContainer;
-        constructor(parent: Component, behaviourContainer: Container, createPotrals?: boolean);
+        private _container;
+        constructor(parent: Component, container: Container, createPotrals?: boolean);
         /**
         * Called when a behaviour is disposed
         */
@@ -3460,7 +3461,7 @@ declare module Animate {
         * Diposes and cleans up this component and all its child Components
         */
         dispose(): void;
-        behaviourContainer: Container;
+        container: Container;
     }
 }
 declare module Animate {
@@ -3469,26 +3470,19 @@ declare module Animate {
     * database entries and so need to be cleaned up properly when modified by the user.
     */
     class BehaviourScript extends Behaviour {
-        shallowId: number;
+        scriptId: string;
         scriptTab: ScriptTab;
-        constructor(parent: Component, shallowId: number, text?: string, copied?: boolean);
+        private _loading;
+        constructor(parent: Component, scriptId: string, text: string, copied?: boolean);
         /**
         * Called when the behaviour is renamed
         * @param <string> name The new name of the behaviour
         */
         onRenamed(name: any): void;
         /**
-        * Called when the behaviour is about to be deleted
-        */
-        onDelete(): void;
-        /**
-        * this function is called when a container is getting saved. It basically initializes the node in the database.
-        */
-        initializeDB(onComplete?: (success: boolean) => void): void;
-        /**
         * This function will open a script tab
         */
-        edit(): TabPair;
+        edit(): void;
         /**
         * Diposes and cleans up this component and all its child Components
         */
@@ -3518,16 +3512,16 @@ declare module Animate {
         private mX;
         private mY;
         name: string;
-        private _behaviourContainer;
+        private _container;
         private _containerReferences;
         private _proxyMoving;
         private _proxyStartDrag;
         private _proxyStopDrag;
         /**
         * @param {Component} parent The parent component to add this canvas to
-        * @param {BehaviourContainer} behaviourContainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
+        * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
-        constructor(parent: Component, behaviourContainer: Container);
+        constructor(parent: Component, container: Container);
         onStartingDrag(e: any, ui: any): void;
         /**
         * When an item is finished being dragged
@@ -3604,11 +3598,12 @@ declare module Animate {
         * @param {BehaviourDefinition} template The definition of the node
         * @param {number} x The x position of where the node shoule be placed
         * @param {number} y The y position of where the node shoule be placed
-        * @param {BehaviourContainer} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
+        * @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
         * is the actual behaviour container
+        * @param {string} name The name of the node
         * @returns {Behaviour}
         */
-        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container): Behaviour;
+        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container, name?: string): Behaviour;
         /**
         * Catch the key down events.
         * @param {any} e The jQuery event object
@@ -3679,7 +3674,7 @@ declare module Animate {
         * This function is called to make sure the canvas min width and min height variables are set
         */
         checkDimensions(): void;
-        behaviourContainer: Container;
+        container: Container;
         containerReferences: {
             groups: Array<string>;
             assets: Array<number>;
@@ -3844,9 +3839,9 @@ declare module Animate {
         updateAssetInstance(asset: Asset): void;
         /**
         * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-        * @param {BehaviourContainer} behaviour The hehaviour object we need to update
+        * @param {Container} container The hehaviour object we need to update
         */
-        updateBehaviour(behaviour: Container): void;
+        updateBehaviour(container: Container): void;
         /**
         * Called when we select a menu item.
         */
@@ -3948,7 +3943,7 @@ declare module Animate {
     * This is the base class for all tree node classes
     */
     class TreeNode extends Component implements IRenamable {
-        private mText;
+        protected mText: string;
         private img;
         private _expanded;
         private hasExpandButton;
@@ -3956,6 +3951,8 @@ declare module Animate {
         canFocus: boolean;
         canUpdate: boolean;
         treeview: TreeView;
+        private _modified;
+        private _modifiedStar;
         /**
         * @param {string} text The text to use for this node
         * @param {string} img An optional image to use (image src text)
@@ -3963,9 +3960,16 @@ declare module Animate {
         */
         constructor(text: any, img?: string, hasExpandButton?: boolean);
         /**
-        * @type public mfunc dispose
+        * Gets if this tree node is in a modified state
+        * @returns {boolean}
+        */
+        /**
+        * Sets if this tree node is in a modified state
+        * @param {boolean} val
+        */
+        protected modified: boolean;
+        /**
         * This will cleanup the component.
-        * @extends {TreeNode}
         */
         dispose(): void;
         /**
@@ -4040,7 +4044,6 @@ declare module Animate {
         * @returns {TreeNode}
         */
         removeNode(node: TreeNode): TreeNode;
-        originalText: string;
         name: string;
     }
 }
@@ -4100,15 +4103,6 @@ declare module Animate {
         */
         onPropertyGridEdited(response: PropertyGridEvents, data: PropertyGridEvent, sender?: EventDispatcher): void;
         /**
-        * Gets the text of the node
-        * @returns {string} The text of the node
-        */
-        /**
-        * Sets the text of the node
-        * @param {string} val The text to set
-        */
-        text: string;
-        /**
         * When we click ok on the portal form
         */
         save(val?: boolean): void;
@@ -4126,9 +4120,9 @@ declare module Animate {
         saved: boolean;
         behaviour: Container;
         /**
-        * @param {BehaviourContainer} behaviour The container we are associating with this node
+        * @param {Container} behaviour The container we are associating with this node
         */
-        constructor(behaviour: Container);
+        constructor(container: Container);
         /**
         * Called when the node is selected
         */
@@ -4137,7 +4131,9 @@ declare module Animate {
         * When we click ok on the portal form
         */
         onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent, sender?: EventDispatcher): void;
-        /** Notifies if this node is saved or unsaved. */
+        /**
+        * Notifies if this node is saved or unsaved.
+        */
         save(val: boolean): void;
         /**
         * Gets the text of the node
@@ -4148,7 +4144,9 @@ declare module Animate {
         * @param {string} val The text to set
         */
         text: string;
-        /**This will cleanup the component.*/
+        /**
+        * This will cleanup the component
+        */
         dispose(): void;
     }
 }
@@ -4189,15 +4187,6 @@ declare module Animate {
         */
         removeInstance(id: string): void;
         /**
-        * Gets the text of the node
-        * @returns {string} The text of the node
-        */
-        /**
-        * Sets the text of the node
-        * @param {string} val The text to set
-        */
-        text: string;
-        /**
         * Notifies if this node is saved or unsaved.
         */
         save(val: any): void;
@@ -4219,7 +4208,9 @@ declare module Animate {
         private _instanceID;
         canDelete: boolean;
         constructor(instanceID: any, name: string);
-        /**This will cleanup the component.*/
+        /**
+        * This will cleanup the component
+        */
         dispose(): void;
         instanceID: any;
     }
@@ -4231,7 +4222,9 @@ declare module Animate {
     class TreeNodePluginBehaviour extends TreeNode {
         private _template;
         constructor(template: BehaviourDefinition);
-        /**This will cleanup the component.*/
+        /**
+        * This will cleanup the component
+        */
         dispose(): void;
         template: BehaviourDefinition;
     }

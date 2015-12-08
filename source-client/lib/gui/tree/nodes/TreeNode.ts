@@ -5,7 +5,7 @@ module Animate
 	*/
     export class TreeNode extends Component implements IRenamable
 	{
-		private mText: string;
+		protected mText: string;
 		private img: string;
 		private _expanded: boolean;
 		private hasExpandButton: boolean;
@@ -13,8 +13,10 @@ module Animate
 		public canFocus: boolean;
 		public canUpdate: boolean;
 
-		public treeview: TreeView;
-
+        public treeview: TreeView;
+        private _modified: boolean;
+        private _modifiedStar: JQuery;
+         
 		/**
 		* @param {string} text The text to use for this node
 		* @param {string} img An optional image to use (image src text)
@@ -30,7 +32,9 @@ module Animate
 			this.mText = text;
 			this.img = img;
 			this._expanded = false;
-			this.hasExpandButton = hasExpandButton;
+            this.hasExpandButton = hasExpandButton;
+            this._modified = false;
+            this._modifiedStar = jQuery("<span>*</span>");
 
 			// Call super-class constructor
 			super( "<div class='tree-node'><div class='selectable'>" + ( this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "" ) + this.img + "<span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null );
@@ -41,15 +45,37 @@ module Animate
 			this.treeview = null;
 			this.canDelete = false;
 			this.canFocus = true;
-		}
+        }
+
+        /**
+		* Gets if this tree node is in a modified state
+		* @returns {boolean}
+		*/
+        protected get modified(): boolean
+        {
+            return this._modified;
+        }
+
+        /**
+		* Sets if this tree node is in a modified state
+		* @param {boolean} val
+		*/
+        protected set modified(val: boolean)
+        {
+            this._modified = val;
+            if (val)
+                this._modifiedStar.insertBefore(jQuery(".text:first", this.element));
+            else
+                this._modifiedStar.detach();
+        }
 
 		/**
-		* @type public mfunc dispose
 		* This will cleanup the component.
-		* @extends {TreeNode}
 		*/
 		dispose()
-		{
+        {
+            this._modifiedStar.remove();
+
 			if ( this.treeview )
 			{
 				if ( this.treeview.selectedNodes.indexOf( this ) != -1 )
@@ -59,6 +85,7 @@ module Animate
 					this.treeview.selectedNode = null;
 			}
 
+            this._modifiedStar = null;
 			this.mText = null;
 			this.img = null;
 			this._expanded = null;
@@ -282,8 +309,8 @@ module Animate
 			return toRet;
 		}
 
-		get originalText(): string { return this.mText; }
-        set originalText(val: string) { this.mText = val; }
+		//get originalText(): string { return this.mText; }
+  //      set originalText(val: string) { this.mText = val; }
         get name(): string { return this.mText; }
 	}
 }

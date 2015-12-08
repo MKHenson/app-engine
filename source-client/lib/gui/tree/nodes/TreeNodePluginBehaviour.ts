@@ -18,7 +18,9 @@ module Animate
 			this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
 		}
 
-		/**This will cleanup the component.*/
+		/**
+        * This will cleanup the component
+        */
 		dispose()
 		{
 			this._template.dispose();
