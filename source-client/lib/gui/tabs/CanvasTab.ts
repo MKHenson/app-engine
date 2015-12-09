@@ -41,7 +41,7 @@ module Animate
 			this.mDocker = null;
 
 			//Add the main tab
-			BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
+			//BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
 		}
 
 		/**
@@ -92,57 +92,57 @@ module Animate
 		* @returns {boolean} Returns false if the tab needs to be saved. Otherwise true.
 		*/
 		onTabPairClosing( tabPair : TabPair ) :boolean
-		{
-			var canvas : Canvas = <Canvas>tabPair.page.children[0];
-			if ( canvas instanceof Canvas )
-			{
-				var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
+        {
+            if (tabPair instanceof CanvasTabPair)
+            {
+                var canvas = tabPair.canvas;
+                if (tabPair.modified && !canvas.container.disposed)
+                {
+                    this.closingTabPair = tabPair;
+                    MessageBox.show("Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this);
+                    return false;
+                }
+                else
+                    PluginManager.getSingleton().emit(new ContainerEvent(EditorEvents.CONTAINER_SELECTED, null));
 
-				//Set the context node to be this node
-				TreeViewScene.getSingleton().contextNode = node;
-
-				if ( node && node.saved == false && !canvas.container.disposed )
-				{
-					this.closingTabPair = tabPair;
-					MessageBox.show( "Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this );
-					return false;
-				}
-				else
-				{
-					//We tell the plugins we've selected a behaviour container
-					//PluginManager.getSingleton().containerSelected( null );
-					PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
-				}
-			}
+            }
 
 			return true;
 		}
 
 		/**
-		*  The response of the message box.
+		* After being asked if we want to save changes to a container
 		* @param {string} choice The choice of the message box. It can be either Yes or No
 		*/
 		onMessage( choice : string )
 		{
-			var canvas: Canvas = ( <CanvasTabPair>this.closingTabPair ).canvas;
+			var canvas: Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
 
 			//Save the canvas
 			if ( choice == "Yes" )
 			{
 				//We need to build an array of the canvas objects we are trying to save.
-				var saveDataObj: CanvasToken = canvas.buildDataObject();
+                var token = canvas.buildDataObject();
+                canvas.container.entry.json = token;
+                User.get.project.saveResources(ResourceType.CONTAINER, canvas.container.entry._id).then(function ()
+                {
+                    this.removeTab(this.closingTabPair, true);
+					this.closingTabPair = null;
+
+                }).catch(function (err: Error)
+                {
+                    Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                });
 
 				//Now get the project to save it.
-				User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
-                User.get.project.saveBehaviours([canvas.container.entry._id] );
+				//User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+    //            User.get.project.saveBehaviours([canvas.container.entry._id] );
 			}
 			else
 			{
-				var node : TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
-				node.save( true );
+                this._currentCanvas.container.saved = true;  
 				this.removeTab( this.closingTabPair, true );
 				this.closingTabPair = null;
-
 			}
 		}
 
@@ -162,28 +162,31 @@ module Animate
 				}
 		}
 
-		/**
-		* When the behaviour was saved on request of the message box - we close the tab that represents it.
-		* @param <string> response 
-		* @param <object> behaviour 
-		*/
-		onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
-		{
-			User.get.project.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
-			if ( response == ProjectEvents.BEHAVIOUR_SAVED )
-			{
-				var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
-				if ( canvas.container == event.tag )
-				{
-					var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
-					if ( node )
-						node.save( true );
+		///**
+		//* When the behaviour was saved on request of the message box - we close the tab that represents it.
+		//* @param <string> response 
+		//* @param <object> behaviour 
+		//*/
+		//onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
+		//{
+		//	User.get.project.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+		//	if ( response == ProjectEvents.BEHAVIOUR_SAVED )
+		//	{
+		//		var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
+		//		if ( canvas.container == event.tag )
+		//		{
+		//			var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
+  //                  if (node)
+  //                  {
+  //                      this._currentCanvas.container.saved = true;
+  //                      node.modified = false;
+  //                  }
 
-					this.removeTab( this.closingTabPair, true );
-					this.closingTabPair = null;
-				}
-			}
-		}
+		//			this.removeTab( this.closingTabPair, true );
+		//			this.closingTabPair = null;
+		//		}
+		//	}
+		//}
 
 		/**
 		* You can use this function to fetch a tab's canvas by a behaviour local ID
@@ -345,14 +348,9 @@ module Animate
 		removeTab( val: TabPair, dispose: boolean ): TabPair
 		removeTab( val: any, dispose: boolean ): TabPair
 		{
-			var canvas: Canvas = null;
-			if ( val instanceof CanvasTabPair )
-				canvas = ( <CanvasTabPair>val ).canvas;
-			//else
-				//canvas = this.getTabCanvas( val );
-
-			if ( canvas )
-			{
+            if (val instanceof CanvasTabPair)
+            {
+				var canvas = ( <CanvasTabPair>val ).canvas;
 				var pManager: PluginManager = PluginManager.getSingleton();
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
 
@@ -381,23 +379,20 @@ module Animate
 		*/
 		onCanvasModified( response : CanvasEvents, event : CanvasEvent, sender? : EventDispatcher )
 		{
-			var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", event.canvas.container );
-
-			if ( node )
-				node.save( false );
+            this._currentCanvas.container.saved = false;
 		}
 
-		/**
-		* Removes an item from the tab
-		*/
-		removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent ) : void
-		{
-			//Add the main tab
-			if ( event.tag.result == BehaviourManagerEvents.SUCCESS )
-			{
-				super.removeTab(event.name, true );
-			}
-		}
+		///**
+		//* Removes an item from the tab
+		//*/
+		//removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent ) : void
+		//{
+		//	//Add the main tab
+		//	if ( event.tag.result == BehaviourManagerEvents.SUCCESS )
+		//	{
+		//		super.removeTab(event.name, true );
+		//	}
+		//}
 
 
 		/**
@@ -422,12 +417,9 @@ module Animate
 
 				this._currentCanvas = canvas;
 				(<Behaviour>canvas.children[0]).updateDimensions();
-
-				//PluginManager.getSingleton().containerCreated( tabContent );
+                
 				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_CREATED, tabContent ) );
-
-				//PluginManager.getSingleton().containerSelected( tabContent );
-				PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
+				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
 				return toRet;
 			}
 			else if ( type == CanvasTabType.BLANK )

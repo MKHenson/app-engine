@@ -9,14 +9,40 @@ module Animate
 	{
 		public tabSelector: Component;
 		public page: Component;
-		public name: string;
+        public name: string;
+        private _savedSpan: JQuery;
+        private _modified: boolean;
 
 		constructor( tab: Component, page : Component, name : string )
 		{
-			this.tabSelector = tab;
+            this.tabSelector = tab;
+            this._modified = false;
 			this.page = page;
-			this.name = name;
-		}
+            this.name = name;
+            this._savedSpan = jQuery("<span class='modified'>*</span>");
+        }
+
+        /**
+        * Gets if this tab pair has been modified or not
+        * @returns {boolean}
+        */
+        public get modified(): boolean
+        {
+            return this._modified;
+        }
+
+        /**
+        * Sets if this tab pair has been modified or not
+        * @param {boolean} val
+        */
+        public set modified(val: boolean)
+        {
+            this._modified = val;
+            if (val)
+                jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
+            else
+                this._savedSpan.detach();
+        }
 
 		/**
 		* Called when the editor is resized
@@ -53,20 +79,20 @@ module Animate
 		* Gets the label text of the pair
 		*/
 		get text(): string { return jQuery( ".text", this.tabSelector.element ).text(); }
-
-	
-
+        
 		/**
 		* Cleans up the references 
 		*/
 		dispose() : void
 		{
 			this.tabSelector.dispose();
-			this.page.dispose();
+            this.page.dispose();
+            this._savedSpan.remove();
 
 			this.tabSelector = null;
 			this.page = null;
-			this.name = null;
+            this.name = null;
+            this._savedSpan = null;
 		}
 	}
 }

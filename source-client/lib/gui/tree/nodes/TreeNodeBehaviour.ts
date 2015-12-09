@@ -5,8 +5,7 @@ module Animate
 	*/
 	export class TreeNodeBehaviour extends TreeNode
 	{
-		public saved: boolean;
-		public behaviour: Container;
+		private _container: Container;
 
 		/**
 		* @param {Container} behaviour The container we are associating with this node
@@ -17,103 +16,61 @@ module Animate
             super(container.entry.name, "media/variable.png", false );
 
 			this.element.addClass( "behaviour-to-canvas" );
-
 			this.canDelete = true;
 			this.canUpdate = true;
-			this.saved = true;
-			this.behaviour = container;
-
+            this._container = container;
 			this.element.draggable( { opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-			PropertyGrid.getSingleton().on( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
-		}
+
+            this._container.on("modified", this.onContainerModified, this);
+            PropertyGrid.getSingleton().on(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
+        }
+
+        /**
+		* Whenever the container is modified, we show this with a *
+		*/
+        onContainerModified(type: string, event: Event, sender: EventDispatcher)
+        {
+            this.modified = !this._container.saved;
+        }
 
 		/**
 		* Called when the node is selected
 		*/
 		onSelect()
-		{
-			PropertyGrid.getSingleton().editableObject( this.behaviour.properties, this.text, this, "media/variable.png" );
+        {
+            PropertyGrid.getSingleton().editableObject(this._container.properties, this.text, this._container, "media/variable.png");
 		}
 
 		/**
-		* When we click ok on the portal form
+		* Whenever a container property is changed by the editor
 		*/
 		onPropertyGridEdited( response: PropertyGridEvents, event : PropertyGridEvent, sender? : EventDispatcher )
 		{
-			if ( event.id == this )
+            if (event.id == this._container)
 			{
-				this.save( false );
-				this.behaviour.properties.updateValue(event.propertyName, event.propertyValue);
+                this._container.saved = false;
+                this._container.properties.updateValue(event.propertyName, event.propertyValue);
 			}
-		}
+        }
 
-		/** 
-        * Notifies if this node is saved or unsaved. 
+        /**
+        * Gets the container of this node
+        * @returns {Container}
         */
-		save( val : boolean )
-		{
-			this.saved = val;
-			this.behaviour.saved = val;
-            //this.text = this.originalText;
-            this.modified = !val;
-		}
-
-		/**
-		* Sets the text of the node
-		* @param {string} val The text to set
-		*/
-		set text( val: string )
-		{
-			//First we try and get the tab
-            var tabPair: TabPair = CanvasTab.getSingleton().getTab(this.text);
-
-            this.mText = val;
-            jQuery(".text:first", this.element).text(val);
-
-			//Tab was not found - check if its because its unsaved
-			//if ( tabPair == null )
-			//	tabPair = CanvasTab.getSingleton().getTab( "*" + this.originalText );
-
-			//If we have a tab then rename it to the same as the node
-			if ( tabPair )
-			{
-				//this.originalText = val;
-                //jQuery(".text:first", this.element).text((this.behaviour.saved ? "" : "*") + this.originalText);
-                tabPair.text = val;
-                tabPair.name = val;
-				//jQuery( ".text", tabPair.tabSelector.element ).text( ( this.behaviour.saved ? "" : "*" ) + this.originalText );
-				//tabPair.name = ( this.behaviour.saved ? "" : "*" ) + this.originalText;
-			}
-			//else
-			//{
-				//this.originalText = val;
-			//	jQuery( ".text:first", this.element ).text( ( this.behaviour.saved ? "" : "*" ) + this.originalText );
-			//}
-
-            //this.behaviour.entry.name = this.originalText;
-            this.behaviour.entry.name = val;
-		}
-
-		/**
-		* Gets the text of the node
-		* @returns {string} The text of the node
-		*/
-		get text(): string
-		{
-            return this.mText;
-		}
-
-
+        public get container(): Container { return this._container; }
+        
 		/**
         * This will cleanup the component
         */
 		dispose()
-		{
+        {
+            this._container.off("modified", this.onContainerModified, this);
+
 			if ( this.element.hasClass( "draggable" ) )
 				this.element.draggable( "destroy" );
 
 			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
-			this.behaviour = null;
+            this._container = null;
 
 			//Call super
 			super.dispose();

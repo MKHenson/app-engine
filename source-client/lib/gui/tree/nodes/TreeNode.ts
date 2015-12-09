@@ -51,7 +51,7 @@ module Animate
 		* Gets if this tree node is in a modified state
 		* @returns {boolean}
 		*/
-        protected get modified(): boolean
+        public get modified(): boolean
         {
             return this._modified;
         }
@@ -60,7 +60,7 @@ module Animate
 		* Sets if this tree node is in a modified state
 		* @param {boolean} val
 		*/
-        protected set modified(val: boolean)
+        public set modified(val: boolean)
         {
             this._modified = val;
             if (val)
@@ -308,9 +308,7 @@ module Animate
 
 			return toRet;
 		}
-
-		//get originalText(): string { return this.mText; }
-  //      set originalText(val: string) { this.mText = val; }
+        
         get name(): string { return this.mText; }
 	}
 }

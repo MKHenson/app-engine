@@ -145,7 +145,7 @@ module Animate
 				}
 
 			this._curProj = User.get.project;
-			this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+			//this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
 			this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
 			this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
 			this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
@@ -183,7 +183,7 @@ module Animate
 
 			if ( this._curProj )
 			{
-				this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+				//this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
 				this._curProj.off( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
 				this._curProj.off( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
 				this._curProj.off( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
@@ -220,7 +220,7 @@ module Animate
                         if (node instanceof TreeNodeGroup)
                             promise = RenameForm.get.renameObject(node, node.text, node.id, ResourceType.GROUP);
                         else if (node instanceof TreeNodeBehaviour)
-                            promise = RenameForm.get.renameObject(node.behaviour.entry, node.text, node.behaviour.entry._id, ResourceType.BEHAVIOUR);
+                            promise = RenameForm.get.renameObject(node.container.entry, node.text, node.container.entry._id, ResourceType.BEHAVIOUR);
                         else if (node instanceof TreeNodeAssetInstance)
                             promise = RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, ResourceType.ASSET);
 
@@ -272,46 +272,50 @@ module Animate
 				node.save();
 		}
 
-		/**
-		* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-		* @param {Container} container The hehaviour object we need to update
-		*/
-		updateBehaviour( container : Container )
-		{
-			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", container );
-			node.behaviour = container;
-			if ( node != null )
-			{
-				//First we try and get the tab
-                var tabPair: TabPair = CanvasTab.getSingleton().getTab(container.entry.name );
+		///**
+		//* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
+		//* @param {Container} container The hehaviour object we need to update
+		//*/
+		//updateBehaviour( container : Container )
+		//{
+		//	var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", container );
+		//	node.behaviour = container;
+		//	if ( node != null )
+		//	{
+		//		//First we try and get the tab
+  //              var tabPair: TabPair = CanvasTab.getSingleton().getTab(container.entry.name );
 
-				//Tab was not found - check if its because its unsaved
-				if ( tabPair == null )
-                    tabPair = CanvasTab.getSingleton().getTab("*" + container.entry.name );
+		//		//Tab was not found - check if its because its unsaved
+		//		if ( tabPair == null )
+  //                  tabPair = CanvasTab.getSingleton().getTab("*" + container.entry.name );
 
-				//If we have a tab then rename it to the same as the node
-				if ( tabPair )
-				{
-					tabPair.tabSelector.element.trigger( "click" );
-					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
-					canvas.container = container;
-					CanvasTab.getSingleton().selectTab( tabPair );
-					canvas.openFromDataObject();
-					canvas.checkDimensions();
-				}
+		//		//If we have a tab then rename it to the same as the node
+		//		if ( tabPair )
+		//		{
+		//			tabPair.tabSelector.element.trigger( "click" );
+		//			var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
+		//			canvas.container = container;
+		//			CanvasTab.getSingleton().selectTab( tabPair );
+		//			canvas.openFromDataObject();
+		//			canvas.checkDimensions();
+		//		}
 
-				node.save( true );
-			}
-		}
+		//		node.save( true );
+		//	}
+		//}
 
 
 		/**
 		* Called when we select a menu item. 
 		*/
 		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) 
-		{
+        {
+            var promise: Promise<any>;
+            var project = User.get.project;
+            var context = this._contextNode;
+
 			//DELETE
-			if ( this._contextNode && event.item.text == "Delete" )
+			if ( context && event.item.text == "Delete" )
 			{
 				this._quickAdd.element.off( "click", this._shortcutProxy );
 				this._quickCopy.element.off( "click", this._shortcutProxy );
@@ -319,7 +323,7 @@ module Animate
 				this._quickAdd.element.detach();
 				this._quickCopy.element.detach();
 
-				if ( this._contextNode instanceof TreeNodeBehaviour )
+				if ( context instanceof TreeNodeBehaviour )
 				{
 					var selectedNodes = [];
 					var i = this.selectedNodes.length;
@@ -332,9 +336,9 @@ module Animate
 					while ( i-- )
 						behaviours.push( selectedNodes[i].behaviour.id );
 
-					User.get.project.deleteBehaviours( behaviours );
+					project.deleteBehaviours( behaviours );
 				}
-				else if ( this._contextNode instanceof TreeNodeAssetInstance )
+				else if ( context instanceof TreeNodeAssetInstance )
 				{
 					var selectedNodes = [];
 					var i = this.selectedNodes.length;
@@ -348,9 +352,9 @@ module Animate
 					while ( i-- )
 						assets.push( selectedNodes[i].asset.id );
 
-					User.get.project.deleteAssets( assets );
+					project.deleteAssets( assets );
 				}
-				else if ( this._contextNode instanceof TreeNodeGroup )
+				else if ( context instanceof TreeNodeGroup )
 				{
 					var selectedNodes = [];
 					var i = this.selectedNodes.length;
@@ -362,73 +366,72 @@ module Animate
 					while ( i-- )
 						groups.push( selectedNodes[i].groupID );
 
-					User.get.project.deleteGroups( groups );
+					project.deleteGroups( groups );
 				}
-				else if ( this._contextNode instanceof TreeNodeGroupInstance )
-					this._contextNode.dispose();
+				else if ( context instanceof TreeNodeGroupInstance )
+					context.dispose();
 			}
 			//COPY
-			if ( this._contextNode && event.item == this._contextCopy )
+			if ( context && event.item == this._contextCopy )
 			{
-				if ( this._contextNode instanceof TreeNodeAssetInstance )
-                    User.get.project.copyAsset((<TreeNodeAssetInstance>this._contextNode).asset.entry._id );
+				if ( context instanceof TreeNodeAssetInstance )
+                    project.copyAsset(context.asset.entry._id );
 			}
 			//ADD INSTANCE
-			else if ( this._contextNode && event.item == this._contextAddInstance )
-				User.get.project.createAsset("New " + (<TreeNodeAssetClass>this._contextNode).assetClass.name, (<TreeNodeAssetClass>this._contextNode).assetClass.name );
+            else if (context && context instanceof TreeNodeAssetClass && event.item == this._contextAddInstance )
+				project.createAsset("New " + context.assetClass.name, context.assetClass.name );
 			//SAVE
-			else if ( this._contextNode && event.item.text == "Save" )
+			else if ( context && event.item.text == "Save" )
 			{
-				if ( this._contextNode instanceof TreeNodeAssetInstance )
-                    User.get.project.saveAssets([(<TreeNodeAssetInstance>this._contextNode).asset.entry._id] );
-				if ( this._contextNode instanceof TreeNodeGroup )
-					User.get.project.saveGroups([ (<TreeNodeGroup>this._contextNode).groupID ] );
-				else if ( this._contextNode instanceof TreeNodeBehaviour )
-                    User.get.project.saveBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.entry._id] );				
+				if ( context instanceof TreeNodeAssetInstance )
+                    //project.saveAssets([context.asset.entry._id] );
+                    promise = project.saveResources(ResourceType.ASSET, context.asset.entry._id);
+                if (context instanceof TreeNodeGroup)
+                    //project.saveGroups([context.groupID]);
+                    promise = project.saveResources(ResourceType.GROUP, context.groupID);
+
+                else if (context instanceof TreeNodeBehaviour)
+                    //project.saveBehaviours([context.container.entry._id] );				
+                    promise = project.saveResources(ResourceType.CONTAINER, context.container.entry._id);
 			}
 			//ADD GROUP NODE
-			else if ( this._contextNode && event.item.text == "Add Group" )
-				User.get.project.createGroup( "New Group");
+			else if ( context && event.item.text == "Add Group" )
+                //project.createGroup( "New Group");
+                promise = project.createResource<Engine.IGroup>(ResourceType.GROUP, { name: "New Group" });
 			//UPDATE
-			else if ( this._contextNode && event.item.text == "Update" )
+			else if ( context && event.item.text == "Update" )
 			{
-				if ( this._contextNode instanceof TreeNodeAssetInstance )
-				{
-                    User.get.project.updateAssets([(<TreeNodeAssetInstance>this._contextNode).asset.entry._id]);
-				}
+				if ( context instanceof TreeNodeAssetInstance )
+                    project.updateAssets([context.asset.entry._id]);
 				//Update all groups
-				else if ( this._contextNode == this._groupsNode )
+				else if ( context == this._groupsNode )
 				{
 					while ( this._groupsNode.children.length > 0 )
 						this._groupsNode.children[0].dispose();
 
-                    User.get.project.loadResources(ResourceType.GROUP);
+                    project.loadResources(ResourceType.GROUP);
 				}
 				//Update the scene
-				else if ( this._contextNode == this._sceneNode )
+				else if ( context == this._sceneNode )
 				{
 					while ( this._sceneNode.children.length > 0 )
                         this._sceneNode.children[0].dispose();
-                    User.get.project.loadResources(ResourceType.CONTAINER);
+                    project.loadResources(ResourceType.CONTAINER);
 				}
-				else if ( this._contextNode instanceof TreeNodeGroup )
+				else if ( context instanceof TreeNodeGroup )
+                    project.updateGroups([context.groupID]);
+				else if ( context instanceof TreeNodeAssetClass )
 				{
-					User.get.project.updateGroups( [( <TreeNodeGroup>this._contextNode ).groupID ] );
-				}
-				else if ( this._contextNode instanceof TreeNodeAssetClass )
-				{
-					var nodes = this._contextNode.getAllNodes( TreeNodeAssetInstance );
+					var nodes = context.getAllNodes( TreeNodeAssetInstance );
 					var ids = [];
 					for ( var i = 0, l = nodes.length; i < l; i++ )
 						if ( nodes[i] instanceof TreeNodeAssetInstance )
                             ids.push((<TreeNodeAssetInstance>nodes[i]).asset.entry._id );
 
-					User.get.project.updateAssets( ids );
+					project.updateAssets( ids );
 				}
-				else if ( this._contextNode instanceof TreeNodeBehaviour )
-				{
-                    User.get.project.updateBehaviours([(<TreeNodeBehaviour>this._contextNode).behaviour.entry._id] );
-				}
+				else if ( context instanceof TreeNodeBehaviour )
+                    project.updateBehaviours([context.container.entry._id]);
 			}
 		}
 
@@ -450,7 +453,7 @@ module Animate
 					CanvasTab.getSingleton().selectTab( tabPair );
 				else
 				{
-					var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).behaviour );
+					var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).container );
 					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
 					canvas.openFromDataObject();
 					canvas.checkDimensions();
@@ -571,25 +574,25 @@ module Animate
   //          }
 		//}
 
-		/**
-		* When the database returns from its command.
-		* @param {ProjectEvents} response The loader response
-		* @param {Event} data The data sent from the server
-		*/
-		onBehaviourResponse(response: ProjectEvents, event: ProjectEvent )
-		{
-			var proj = User.get.project;
-			//SAVE
-			if (response == ProjectEvents.BEHAVIOUR_SAVED )
-			{
-				//If we have the behaviour
-				if ( event.tag )
-				{
-					var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode("behaviour", event.tag );
-					node.save( true );
-				}
-			}
-		}
+		///**
+		//* When the database returns from its command.
+		//* @param {ProjectEvents} response The loader response
+		//* @param {Event} data The data sent from the server
+		//*/
+		//onBehaviourResponse(response: ProjectEvents, event: ProjectEvent )
+		//{
+		//	var proj = User.get.project;
+		//	//SAVE
+		//	if (response == ProjectEvents.BEHAVIOUR_SAVED )
+		//	{
+		//		//If we have the behaviour
+		//		if ( event.tag )
+		//		{
+		//			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode("behaviour", event.tag );
+		//			node.save( true );
+		//		}
+		//	}
+		//}
 
 
 		/**
@@ -666,7 +669,7 @@ module Animate
 				while ( i-- )
 				{
 					if (selectedNodes[i] instanceof TreeNodeBehaviour &&
-							(<TreeNodeBehaviour>selectedNodes[i]).behaviour == event.tag)
+							(<TreeNodeBehaviour>selectedNodes[i]).container == event.tag)
 					{
 						var tabPair : TabPair = CanvasTab.getSingleton().getTab( selectedNodes[i].text );
 						if ( tabPair )

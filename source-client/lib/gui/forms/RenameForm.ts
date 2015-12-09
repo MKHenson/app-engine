@@ -145,7 +145,7 @@ module Animate
             }
             
             // Attempt to connect to the DB and update the object
-            proj.renameObject(name, this._resourceId, this._type).then(function (resp)
+            proj.editResource<Engine.IResource>(this._resourceId, { name: name }, this._type).then(function (resp)
             {
                 that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type ));
                 that.hide();

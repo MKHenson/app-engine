@@ -178,11 +178,11 @@ module Animate
             // Todo: This must be NewBehaviourForm
             RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER).then(function (token)
             {
-                User.get.project.createResource(token.newName, ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
+                User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
                 {
                     // The container is created - so lets open it up
                     var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
-                    jQuery(".text", tabPair.tabSelector.element).text(resource.entry.name);
+                    jQuery(".content", tabPair.tabSelector.element).text(resource.entry.name);
                     tabPair.name = resource.entry.name;
 
                 }).catch(function (err: Error)
@@ -229,7 +229,13 @@ module Animate
 			btmContainer.element.data( "tab", topTab );
 
 			return btmContainer;
-		}
+        }
+
+        saveAll()
+        {
+            Animate.User.get.project.saveAll();
+            Animate.CanvasTab.getSingleton().saveAll();
+        }
 
 		/**
 		* Called when the key is pushed down
@@ -238,7 +244,7 @@ module Animate
 		onKeyDown( event : any )
 		{
             if (event.data == 'Ctrl+s')
-                Animate.User.get.project.saveAll()
+                this.saveAll();
             else if (event.data == 'Ctrl+c')
                 this.onDuplicate(false);
 			if ( event.data == 'Ctrl+x' )

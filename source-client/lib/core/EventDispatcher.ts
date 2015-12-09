@@ -19,7 +19,7 @@ module Animate
     }
 
     export type EventType = ENUM | string;
-    export type EventCallback = (response: EventType, event: Event, sender?: EventDispatcher) => void;
+    export type EventCallback = (type: EventType, event: Event, sender?: EventDispatcher) => void;
 
 	/**
 	* Internal class only used internally by the {EventDispatcher}

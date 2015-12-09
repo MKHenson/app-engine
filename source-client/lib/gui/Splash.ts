@@ -205,15 +205,7 @@
                     }
                 });
         }
-
-        /**
-		* When the project data is all saved to the DB
-		*/
-        private onSaveAll(event, data): void
-        {
-            CanvasTab.getSingleton().saveAll();
-        }
-
+        
         /**
 		* Attempts to load the project and setup the scene
 		*/
@@ -240,11 +232,7 @@
             }).then( function(build)
             {
                 Logger.getSingleton().logMessage(`Loaded project build '${build.entry.name} - v${build.entry.version}'`, null, LogType.MESSAGE);
-
-                // TODO : Not sure if im keeping this here...
-                project.off(ProjectEvents.SAVED_ALL, that.onSaveAll, that);
-                project.on(ProjectEvents.SAVED_ALL, that.onSaveAll, that);
-            
+                            
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
                 

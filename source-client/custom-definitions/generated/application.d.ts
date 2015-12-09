@@ -261,7 +261,7 @@ declare module Animate {
         toString(): string;
     }
     type EventType = ENUM | string;
-    type EventCallback = (response: EventType, event: Event, sender?: EventDispatcher) => void;
+    type EventCallback = (type: EventType, event: Event, sender?: EventDispatcher) => void;
     /**
     * Internal class only used internally by the {EventDispatcher}
     */
@@ -322,12 +322,21 @@ declare module Animate {
     class ProjectResource<T> extends EventDispatcher {
         private static shallowIds;
         entry: T;
-        saved: boolean;
+        private _saved;
         protected _properties: EditableSet;
         protected _options: {
             [s: string]: any;
         };
         constructor(entry: T);
+        /**
+        * Gets if this resource is saved
+        * @returns {boolean}
+        */
+        /**
+        * Sets if this resource is saved
+        * @param {boolean} val
+        */
+        saved: boolean;
         static generateLocalId(): number;
         dispose(): void;
         /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
@@ -729,25 +738,6 @@ declare module Animate {
         */
         static validateEmail(email: string): boolean;
         static getObjectClass(obj: any): any;
-    }
-}
-declare module Animate {
-    class BehaviourManagerEvents extends ENUM {
-        constructor(v: string);
-        static CONTAINER_SAVED: BehaviourManagerEvents;
-        static SUCCESS: BehaviourManagerEvents;
-    }
-    class BehaviourManagerEvent extends Event {
-        name: string;
-        constructor(eventName: BehaviourManagerEvents, name: string);
-    }
-    class BehaviourManager extends EventDispatcher {
-        private static _singleton;
-        constructor();
-        /**
-        * Gets the singleton instance.
-        */
-        static getSingleton(): BehaviourManager;
     }
 }
 declare module Animate {
@@ -1446,10 +1436,12 @@ declare module Animate {
         static BUILD_SAVED: ProjectEvents;
         static BEHAVIOUR_DELETING: ProjectEvents;
         static BEHAVIOURS_LOADED: ProjectEvents;
+        static BEHAVIOUR_CREATED: ProjectEvents;
         static BEHAVIOUR_UPDATED: ProjectEvents;
         static BEHAVIOURS_UPDATED: ProjectEvents;
         static BEHAVIOURS_SAVED: ProjectEvents;
         static BEHAVIOUR_SAVED: ProjectEvents;
+        static ASSET_CREATED: ProjectEvents;
         static ASSET_SAVED: ProjectEvents;
         static ASSET_UPDATED: ProjectEvents;
         static ASSETS_UPDATED: ProjectEvents;
@@ -1500,6 +1492,7 @@ declare module Animate {
         private _files;
         private _scripts;
         private _groups;
+        private _restPaths;
         /**
         * @param{string} id The database id of this project
         */
@@ -1565,20 +1558,30 @@ declare module Animate {
         */
         loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>;
         /**
-        * Use this to rename the project, a behaviour, group or asset.
-        * @param {string} name The new name of the object
+        * Use this to edit the properties of a resource
         * @param {string} id The id of the object we are renaming.
+        * @param {T} data The new data for the resource
         * @param {ResourceType} type The type of resource we are renaming
         * @returns {Promise<Modepress.IResponse>}
         */
-        renameObject(name: string, id: string, type: ResourceType): Promise<Modepress.IResponse>;
+        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>;
+        /**
+        * Use this to edit the properties of a resource
+        * @param {ResourceType} type The type of resource we are renaming
+        * @param {string} id The id of the object we are renaming.
+        * @returns {Promise<Modepress.IResponse>}
+        */
+        saveResources<T>(type: ResourceType, id?: string): Promise<boolean>;
+        /**
+        * This function is used to all project resources
+        */
+        saveAll(): Promise<boolean>;
         /**
         * Creates a new project resource.
-        * @param {string} name The new name of the object
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(name: string, type: ResourceType, data: T): Promise<ProjectResource<T>>;
+        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -1587,15 +1590,6 @@ declare module Animate {
         * This function is used to update the current build data
         */
         saveBuild(notes: string, visibility: string, html: string, css: string): void;
-        /**
-        * This function is used to save an array of behaviors to the DB
-        * @param { Array<string>} behavioursIds This is the array behaviour ids we are saving.
-        */
-        saveBehaviours(behavioursIds: Array<string>): void;
-        /**
-        * This function is used to save the behaviors, groups and _assets or the DB
-        */
-        saveAll(): void;
         /**
         * This function is used to delete behaviours.
         * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
@@ -1634,19 +1628,6 @@ declare module Animate {
         */
         saveFile(fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean): void;
         /**
-        * This function is used to create a new group. This will make
-        * a call the server. If the server sends a fail message then no new group
-        * will be created. You can use the event GROUP_CREATED to hook into
-        * a successful DB entry created.
-        * @param {string} name The proposed name of the group.
-        */
-        createGroup(name: string): void;
-        /**
-        * This will save the current state of the groups to the server
-        * @param {Array<string>} groupIds The array of group ID's we are trying to save.
-        */
-        saveGroups(groupIds: Array<string>): void;
-        /**
         * Deletes groups from the project
         * @param {Array<string>} groupIds The array of group IDs to delete
         */
@@ -1666,11 +1647,6 @@ declare module Animate {
         * @param {string} className The class of the asset.
         */
         createAsset(name: string, className: string): void;
-        /**
-        * This will save a group of asset's variables to the server in JSON.
-        * @param {Array<string>} assetIds An array of asset ids of the assets we want to save
-        */
-        saveAssets(assetIds: Array<string>): void;
         /**
         * This will download an asset's variables from the server.
         * @param {Array<string>} assetIds An array of assets we are updating
@@ -2636,7 +2612,18 @@ declare module Animate {
         tabSelector: Component;
         page: Component;
         name: string;
+        private _savedSpan;
+        private _modified;
         constructor(tab: Component, page: Component, name: string);
+        /**
+        * Gets if this tab pair has been modified or not
+        * @returns {boolean}
+        */
+        /**
+        * Sets if this tab pair has been modified or not
+        * @param {boolean} val
+        */
+        modified: boolean;
         /**
         * Called when the editor is resized
         */
@@ -3838,11 +3825,6 @@ declare module Animate {
         */
         updateAssetInstance(asset: Asset): void;
         /**
-        * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-        * @param {Container} container The hehaviour object we need to update
-        */
-        updateBehaviour(container: Container): void;
-        /**
         * Called when we select a menu item.
         */
         onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
@@ -3872,12 +3854,6 @@ declare module Animate {
         * if against the data.object and data.name variables.
         */
         onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        onBehaviourResponse(response: ProjectEvents, event: ProjectEvent): void;
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The type of event
@@ -3967,7 +3943,7 @@ declare module Animate {
         * Sets if this tree node is in a modified state
         * @param {boolean} val
         */
-        protected modified: boolean;
+        modified: boolean;
         /**
         * This will cleanup the component.
         */
@@ -4117,33 +4093,28 @@ declare module Animate {
     *  A tree node class for behaviour container objects.
     */
     class TreeNodeBehaviour extends TreeNode {
-        saved: boolean;
-        behaviour: Container;
+        private _container;
         /**
         * @param {Container} behaviour The container we are associating with this node
         */
         constructor(container: Container);
         /**
+        * Whenever the container is modified, we show this with a *
+        */
+        onContainerModified(type: string, event: Event, sender: EventDispatcher): void;
+        /**
         * Called when the node is selected
         */
         onSelect(): void;
         /**
-        * When we click ok on the portal form
+        * Whenever a container property is changed by the editor
         */
         onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent, sender?: EventDispatcher): void;
         /**
-        * Notifies if this node is saved or unsaved.
+        * Gets the container of this node
+        * @returns {Container}
         */
-        save(val: boolean): void;
-        /**
-        * Gets the text of the node
-        * @returns {string} The text of the node
-        */
-        /**
-        * Sets the text of the node
-        * @param {string} val The text to set
-        */
-        text: string;
+        container: Container;
         /**
         * This will cleanup the component
         */
@@ -4230,9 +4201,19 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+    * A Tab pair for the canvas tabs
+    */
     class CanvasTabPair extends TabPair {
         canvas: Canvas;
         constructor(canvas: Canvas, name: string);
+        /**
+        * Whenever the container is modified, we show this with a *
+        */
+        onContainerModified(type: string, event: Event, sender: EventDispatcher): void;
+        /**
+        * Cleans up the pair
+        */
         dispose(): void;
     }
 }
@@ -4244,11 +4225,9 @@ declare module Animate {
         private _originalName;
         private _proxyChange;
         private _proxyMessageBox;
-        private _saved;
         protected _close: boolean;
         private _editor;
         private _loadingGif;
-        private _savedSpan;
         /**
         * @param {string} name The name of the tab
         */
@@ -4258,16 +4237,6 @@ declare module Animate {
         * @param {string} val
         */
         onMessage(val: string): void;
-        /**
-        * Gets if this tab pair has been saved or not
-        * @returns {boolean}
-        */
-        protected isSaved: boolean;
-        /**
-        * Sets if this tab pair has been saved or not
-        * @param {boolean} val
-        */
-        protected saved(val: boolean): void;
         /**
         * Sets if this tab pair is busy loading
         * @param {boolean} val
@@ -4515,7 +4484,7 @@ declare module Animate {
         */
         onTabPairClosing(tabPair: TabPair): boolean;
         /**
-        *  The response of the message box.
+        * After being asked if we want to save changes to a container
         * @param {string} choice The choice of the message box. It can be either Yes or No
         */
         onMessage(choice: string): void;
@@ -4524,12 +4493,6 @@ declare module Animate {
         * @param {Asset} asset The asset we are removing
         */
         removeAsset(asset: Asset): void;
-        /**
-        * When the behaviour was saved on request of the message box - we close the tab that represents it.
-        * @param <string> response
-        * @param <object> behaviour
-        */
-        onBehaviourSaved(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void;
         /**
         * You can use this function to fetch a tab's canvas by a behaviour local ID
         * @param {number} behaviourID The local id of the container
@@ -4579,10 +4542,6 @@ declare module Animate {
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
         */
         onCanvasModified(response: CanvasEvents, event: CanvasEvent, sender?: EventDispatcher): void;
-        /**
-        * Removes an item from the tab
-        */
-        removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent): void;
         /**
         * Adds an item to the tab
         * @param {string} text The text of the new tab
@@ -5874,6 +5833,7 @@ declare module Animate {
         * @returns {Component} Returns the {Component} object representing the tab
         */
         createTab(text: string, isSelected?: boolean): Component;
+        saveAll(): void;
         /**
         * Called when the key is pushed down
         * @param {any} event
@@ -5964,10 +5924,6 @@ declare module Animate {
         goState(state: string, digest?: boolean): void;
         removeProject(messageBoxAnswer: string): void;
         openProject(project: Engine.IProject): void;
-        /**
-        * When the project data is all saved to the DB
-        */
-        private onSaveAll(event, data);
         /**
         * Attempts to load the project and setup the scene
         */

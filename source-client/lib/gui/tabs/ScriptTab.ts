@@ -151,8 +151,8 @@ module Animate
 					win: "Ctrl-S",
 					mac: "Command-S",
 					sender: "editor|cli"
-				},
-                exec: function () { Animate.User.get.project.saveAll() }
+                },
+                exec: function () { Toolbar.getSingleton().saveAll() }
 			});
 
 

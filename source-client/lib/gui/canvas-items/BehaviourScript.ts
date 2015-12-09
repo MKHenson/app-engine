@@ -33,9 +33,9 @@ module Animate
 
             if (scriptId && copied)
                 // TODO: Copy the behaviour instead of create
-                promise = project.createResource<Engine.IScript>(text, ResourceType.SCRIPT, { name: text });
+                promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text });
             else
-                promise = project.createResource<Engine.IScript>(text, ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
+                promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
             
         
             promise.then(function (data: ScriptResource)

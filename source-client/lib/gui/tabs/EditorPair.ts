@@ -8,12 +8,10 @@
         private _originalName: string;
         private _proxyChange: any;
         private _proxyMessageBox: any;
-        private _saved: boolean;
         protected _close: boolean;
         private _editor: AceAjax.Editor;
         private _loadingGif: JQuery;
-        private _savedSpan: JQuery;
-
+        
 		/**
 		* @param {string} name The name of the tab
 		*/
@@ -26,9 +24,8 @@
             this._proxyChange = jQuery.proxy(this.onChange, this);
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
             this._loadingGif = jQuery("<img src='media/small-buff.gif' />");
-            this._savedSpan = jQuery("<span>*</span>");
 
-            this._saved = true;
+            
             this._close = false;
             this._editor = null;
         }
@@ -46,33 +43,11 @@
             }
             else
             {
-                this._saved = true;
+                this.modified = false;
                 CanvasTab.getSingleton().removeTab(this, true);
             }
         }
-
-        /**
-		* Gets if this tab pair has been saved or not
-		* @returns {boolean}
-		*/
-        protected get isSaved(): boolean
-        {
-            return this._saved;
-        }
-
-        /**
-		* Sets if this tab pair has been saved or not
-		* @param {boolean} val
-		*/
-        protected saved(val: boolean)
-        {
-            this._saved = val;
-            if (!val)
-                jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
-            else
-                this._savedSpan.detach();
-        }
-
+        
         /**
 		* Sets if this tab pair is busy loading
 		* @param {boolean} val
@@ -91,7 +66,7 @@
 		*/
         onChange(e)
         {
-            this.saved(false);
+            this.modified = false;
         }
 
 		/**
@@ -100,7 +75,7 @@
 		*/
         onRemove(event: TabEvent)
         {
-            if (!this._saved)
+            if (this.modified)
             {
                 event.cancel = true;
                 MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);

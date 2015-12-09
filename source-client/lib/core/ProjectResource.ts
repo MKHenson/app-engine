@@ -7,7 +7,7 @@
     {
         private static shallowIds: number = 0;
         public entry: T;
-        public saved: boolean;
+        private _saved: boolean;
         protected _properties: EditableSet;
         protected _options: { [s: string]: any; };
 
@@ -22,9 +22,28 @@
             if (resource.shallowId && resource.shallowId > ProjectResource.shallowIds)
                 ProjectResource.shallowIds = resource.shallowId + 1;
 
-            this.saved = true;
+            this._saved = true;
             this._options = {};
             this._properties = new EditableSet();
+        }
+
+        /**
+        * Gets if this resource is saved
+        * @returns {boolean}
+        */
+        get saved(): boolean
+        {
+            return this._saved
+        }
+
+        /**
+        * Sets if this resource is saved
+        * @param {boolean} val
+        */
+        set saved(val: boolean)
+        {
+            this._saved = val;
+            this.emit(new Event("modified"));
         }
 
         static generateLocalId(): number

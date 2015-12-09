@@ -54,12 +54,12 @@ module Animate
 		static BUILD_SAVED: ProjectEvents = new ProjectEvents( "build_saved" );
 		static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
 		static BEHAVIOURS_LOADED: ProjectEvents = new ProjectEvents("behaviours_loaded");
-		//static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
+		static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
 		static BEHAVIOUR_UPDATED: ProjectEvents = new ProjectEvents("behaviour_updated");
 		static BEHAVIOURS_UPDATED: ProjectEvents = new ProjectEvents("behaviours_updated");
 		static BEHAVIOURS_SAVED: ProjectEvents = new ProjectEvents("behaviours_saved");
 		static BEHAVIOUR_SAVED: ProjectEvents = new ProjectEvents("behaviour_saved");
-		//static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
+		static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
 		static ASSET_SAVED: ProjectEvents = new ProjectEvents("asset_saved");
 		static ASSET_UPDATED: ProjectEvents = new ProjectEvents("asset_updated");
 		static ASSETS_UPDATED: ProjectEvents = new ProjectEvents("assets_updated");
@@ -173,36 +173,44 @@ module Animate
         private _files: Array<FileResource>;
         private _scripts: Array<ScriptResource>;
         private _groups: Array<GroupArray>;
+        private _restPaths: { [type: number]: { url: string; array: Array<ProjectResource<any>> }; }
 
 		/**
 		* @param{string} id The database id of this project
 		*/
-		constructor()// id: string, name: string, build: Build )
-		{
-			// Call super-class constructor
-			super();
+        constructor()// id: string, name: string, build: Build )
+        {
+            // Call super-class constructor
+            super();
 
-			//this._id = id;
-			//this.buildId = "";
-			this.saved = true;
-			//this.mName = name;
-			//this.mDescription = "";
-			//this.mTags = "";
-			//this.mRequest = "";
-			//this.mCurBuild = build;
-			//this._plugins = [];
-			//this.created = Date.now();
-			//this.lastModified = Date.now();
-			//this.mCategory = "";
-			//this.mSubCategory = "";
-			//this.mRating = 0;
-			//this.mImgPath = "";
-			//this.mVisibility = "";
-			this._containers = [];
-			this._assets = [];
+            //this._id = id;
+            //this.buildId = "";
+            this.saved = true;
+            //this.mName = name;
+            //this.mDescription = "";
+            //this.mTags = "";
+            //this.mRequest = "";
+            //this.mCurBuild = build;
+            //this._plugins = [];
+            //this.created = Date.now();
+            //this.lastModified = Date.now();
+            //this.mCategory = "";
+            //this.mSubCategory = "";
+            //this.mRating = 0;
+            //this.mImgPath = "";
+            //this.mVisibility = "";
+            this._containers = [];
+            this._assets = [];
             this._files = [];
             this._scripts = [];
             this._groups = [];
+
+            this._restPaths = {};
+            this._restPaths[ResourceType.FILE] = { url: `${DB.API}/files`, array: this._files };
+            this._restPaths[ResourceType.ASSET] = { url: `${DB.API}/assets`, array: this._assets };
+            this._restPaths[ResourceType.CONTAINER] = { url: `${DB.API}/containers`, array: this._containers };
+            this._restPaths[ResourceType.GROUP] = { url: `${DB.API}/groups`, array: this._groups };
+            this._restPaths[ResourceType.SCRIPT] = { url: `${DB.API}/scripts`, array: this._scripts };
 		}
 
 		/**
@@ -429,6 +437,7 @@ module Animate
         {
             var that = this;
             var arr: Array<Promise<Modepress.IGetArrayResponse<any>>> = [];
+            var paths = this._restPaths;
 
             if (!type)
             {
@@ -438,39 +447,16 @@ module Animate
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
 
-                arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${DB.API}/scripts/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${paths[ResourceType.FILE].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${paths[ResourceType.ASSET].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${paths[ResourceType.CONTAINER].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${paths[ResourceType.GROUP].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${paths[ResourceType.SCRIPT].url}/${this.entry.user}/${this.entry._id}`));
             }
             else
             {
-                if (type == ResourceType.FILE)
-                {
-                    this._files.splice(0, this._files.length);
-                    arr.push(Utils.get(`${DB.API}/files/${this.entry.user}/${this.entry._id}`));
-                }
-                else if (type == ResourceType.ASSET)
-                {
-                    this._assets.splice(0, this._assets.length);
-                    arr.push(Utils.get(`${DB.API}/assets/${this.entry.user}/${this.entry._id}`));
-                }
-                else if (type == ResourceType.CONTAINER)
-                {
-                    this._containers.splice(0, this._containers.length);
-                    arr.push(Utils.get(`${DB.API}/containers/${this.entry.user}/${this.entry._id}`));
-                }
-                else if (type == ResourceType.GROUP)
-                {
-                    this._groups.splice(0, this._groups.length);
-                    arr.push(Utils.get(`${DB.API}/groups/${this.entry.user}/${this.entry._id}`));
-                }
-                else if (type == ResourceType.SCRIPT)
-                {
-                    this._scripts.splice(0, this._scripts.length);
-                    arr.push(Utils.get(`${DB.API}/scripts/${this.entry.user}/${this.entry._id}`));
-                }
+                arr.push(Utils.get(`${paths[type].url}/${this.entry.user}/${this.entry._id}`));
+                paths[type].array.splice(0, paths[type].array.length);
             }
 
             return new Promise<Array<ProjectResource<any>>>(function (resolve, reject)
@@ -526,34 +512,44 @@ module Animate
         }
 
         /**
-		* Use this to rename the project, a behaviour, group or asset.
-		* @param {string} name The new name of the object
+		* Use this to edit the properties of a resource
 		* @param {string} id The id of the object we are renaming.
+        * @param {T} data The new data for the resource
 		* @param {ResourceType} type The type of resource we are renaming
         * @returns {Promise<Modepress.IResponse>}
 		*/
-        renameObject(name: string, id: string, type: ResourceType): Promise<Modepress.IResponse>
+        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>
         {
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
-            var url: string;
+            var paths = this._restPaths;
+            var url: string = `${paths[type].url}/${details.username}/${projId}/${id}`;
+            var array = paths[type].array;
+            var resource: ProjectResource<Engine.IResource>;
 
-            if (type == ResourceType.ASSET)
-                url = `${DB.API}/assets/${details.username}/${projId}/${id}`;
-            else if (type == ResourceType.CONTAINER)
-                url = `${DB.API}/containers/${details.username}/${projId}/${id}`;
-            else if (type == ResourceType.GROUP)
-                url = `${DB.API}/groups/${details.username}/${projId}/${id}`;
-            
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id)
+                {
+                    resource = array[i];
+                    break;
+                }
+
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
+
             return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                Utils.put<Modepress.IResponse>(url, <Engine.IAsset | Engine.IContainer | Engine.IGroup>{ name: name }).then(function (data)
+                Utils.put<Modepress.IResponse>(url, data).then(function (response)
                 {
-                    if (data.error)
-                        return reject(new Error(data.message));
+                    if (response.error)
+                        return reject(new Error(response.message));
 
-                    return resolve(data);
+                    for (var t in data)
+                        if (resource.entry.hasOwnProperty(t))
+                            resource.entry[t] = data[t];
+
+                    return resolve(response);
 
                 }).catch(function (err: IAjaxError)
                 {
@@ -563,25 +559,105 @@ module Animate
         }
 
         /**
+		* Use this to edit the properties of a resource
+        * @param {ResourceType} type The type of resource we are renaming
+		* @param {string} id The id of the object we are renaming.
+        * @returns {Promise<Modepress.IResponse>}
+		*/
+        saveResources<T>(type: ResourceType, id?: string): Promise<boolean>
+        {
+            var paths = this._restPaths;
+            var promises: Array<Promise<boolean>> = [];
+            var that = this;
+            var details = User.get.entry;
+            var projId = this.entry._id;
+            var resources: Array<ProjectResource<Engine.IResource>> = paths[type].array;
+
+            // Creates a promise that updates the resource data and sets saved property when successful
+            var saveResource = function (url: string, resource: ProjectResource<Engine.IResource>): Promise<boolean>
+            {
+                return new Promise<boolean>(function (resolve, reject)
+                {
+                    Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
+                    {
+                        if (response.error)
+                            return reject(new Error(response.message));
+
+                        resource.saved = true;
+                        return resolve(true);
+
+                    }).catch(function (err: IAjaxError)
+                    {
+                        reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                    });
+                });
+            }
+
+            // Go through each resource
+            for (var i: number = 0, l = resources.length; i < l; i++)
+            {
+                // Its saved - do nothing
+                if (resources[i].saved)
+                    continue;
+
+                if (id !== undefined && resources[i].entry._id == id)
+                {
+                    promises.push(saveResource(`${paths[type].url}/${details.username}/${projId}/${resources[i].entry._id}`, resources[i] ));
+                    break;
+                }
+                else if (id == undefined)
+                    promises.push(saveResource(`${paths[type].url}/${details.username}/${projId}/${resources[i].entry._id}`, resources[i]));
+
+            }
+
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                Promise.all(promises).then(function (data)
+                {
+                    resolve(true);
+
+                }).catch(function (err: Error)
+                {
+                    reject(err);
+                });
+            });
+        }
+
+        /**
+		* This function is used to all project resources
+		*/
+        saveAll()
+        {
+            var promises: Array<Promise<boolean>> = [];
+            for (var i in this._restPaths)
+                promises.push(this.saveResources(i));
+
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                Promise.all(promises).then(function (data)
+                {
+                    resolve(true);
+
+                }).catch(function (err: Error)
+                {
+                    reject(err);
+                });
+            });
+        }
+
+        /**
         * Creates a new project resource. 
-        * @param {string} name The new name of the object
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(name: string, type: ResourceType, data : T ): Promise<ProjectResource<T>>
+        createResource<T>(type: ResourceType, data : T ): Promise<ProjectResource<T>>
         {
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
-            var url : string;
-
-            if (type == ResourceType.ASSET)
-                url = `${DB.API}/assets/${details.username}/${projId}`;
-            else if (type == ResourceType.CONTAINER)
-                url = `${DB.API}/containers/${details.username}/${projId}`;
-            else if (type == ResourceType.GROUP)
-                url = `${DB.API}/groups/${details.username}/${projId}`;
-
+            var paths = this._restPaths;
+            var url: string = `${paths[type].url}/${details.username}/${projId}`;
+            
             return new Promise<ProjectResource<T>>(function (resolve, reject)
             {
                 Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data)
@@ -608,6 +684,9 @@ module Animate
             });
         }
        
+
+
+
 
 
 
@@ -667,81 +746,81 @@ module Animate
 		}
 		
 
-		/**
-		* This function is used to save an array of behaviors to the DB
-		* @param { Array<string>} behavioursIds This is the array behaviour ids we are saving. 
-		*/
-		saveBehaviours( behavioursIds: Array<string> ): void
-		{
-			if ( behavioursIds.length == 0 )
-				return;
+		///**
+		//* This function is used to save an array of behaviors to the DB
+		//* @param { Array<string>} behavioursIds This is the array behaviour ids we are saving. 
+		//*/
+		//saveBehaviours( behavioursIds: Array<string> ): void
+		//{
+		//	if ( behavioursIds.length == 0 )
+		//		return;
 
-			var ids: Array<string> = [];
-			var jsons: Array<string> = [];
+		//	var ids: Array<string> = [];
+		//	var jsons: Array<string> = [];
 
-			var behaviours: Array<Container> = this._containers;
+		//	var behaviours: Array<Container> = this._containers;
 
-			// Create a multidimension array and pass each of the behaviours
-			for ( var i = 0, l = behavioursIds.length; i < l; i++ )
-				for ( var ii = 0, l = behaviours.length; ii < l; ii++ )
-                    if (behavioursIds[i] == behaviours[ii].entry._id )
-					{
-						var json: CanvasToken = null;
-						var canvas : Canvas = CanvasTab.getSingleton().getTabCanvas( behavioursIds[i] );
-						if ( canvas )
-							json = canvas.buildDataObject();
-						else
-						{
-                            json = behaviours[ii].entry.json;
-							json.properties = behaviours[ii].properties.tokenize();
-						}
+		//	// Create a multidimension array and pass each of the behaviours
+		//	for ( var i = 0, l = behavioursIds.length; i < l; i++ )
+		//		for ( var ii = 0, l = behaviours.length; ii < l; ii++ )
+  //                  if (behavioursIds[i] == behaviours[ii].entry._id )
+		//			{
+		//				var json: CanvasToken = null;
+		//				var canvas : Canvas = CanvasTab.getSingleton().getTabCanvas( behavioursIds[i] );
+		//				if ( canvas )
+		//					json = canvas.buildDataObject();
+		//				else
+		//				{
+  //                          json = behaviours[ii].entry.json;
+		//					json.properties = behaviours[ii].properties.tokenize();
+		//				}
 
-						var jsonStr: string = json.toString();
-                        ids.push(behaviours[ii].entry._id );
-						jsons.push( jsonStr );
-					}
+		//				var jsonStr: string = json.toString();
+  //                      ids.push(behaviours[ii].entry._id );
+		//				jsons.push( jsonStr );
+		//			}
 
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-behaviours", { projectId: this.entry._id, ids: ids, data : jsons } );
-		}
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-behaviours", { projectId: this.entry._id, ids: ids, data : jsons } );
+		//}
 
-		/**
-		* This function is used to save the behaviors, groups and _assets or the DB
-		*/
-		saveAll()
-		{
-			// Behaviours
-			var ids: Array<string> = [];
-			var behaviours: Array<Container> = this._containers;
-			for ( var i = 0, l = behaviours.length; i < l; i++ )
-				if ( !behaviours[i].saved )
-                    ids.push(behaviours[i].entry._id );
-			this.saveBehaviours( ids );
+		///**
+		//* This function is used to save the behaviors, groups and _assets or the DB
+		//*/
+		//saveAll()
+  //      {
+			//// Behaviours
+			//var ids: Array<string> = [];
+			//var behaviours: Array<Container> = this._containers;
+			//for ( var i = 0, l = behaviours.length; i < l; i++ )
+			//	if ( !behaviours[i].saved )
+   //                 ids.push(behaviours[i].entry._id );
+			//this.saveBehaviours( ids );
 
-			// Assets
-			ids.splice( 0, ids.length );
-			var assets: Array<Asset> = this._assets;
-			for ( var i = 0, l = assets.length; i < l; i++ )
-				if ( !assets[i].saved )
-                    ids.push(assets[i].entry._id );
-			this.saveAssets( ids );
+			//// Assets
+			//ids.splice( 0, ids.length );
+			//var assets: Array<Asset> = this._assets;
+			//for ( var i = 0, l = assets.length; i < l; i++ )
+			//	if ( !assets[i].saved )
+   //                 ids.push(assets[i].entry._id );
+			//this.saveAssets( ids );
 
-			// Groups
-			ids.splice( 0, ids.length );
-			var groups: Array<TreeNodeGroup> = TreeViewScene.getSingleton().getGroups();
-			for ( var i = 0, l = groups.length; i < l; i++ )
-				if ( !groups[i].saved )
-					ids.push( groups[i].groupID );
-			this.saveGroups( ids );
+			//// Groups
+			//ids.splice( 0, ids.length );
+			//var groups: Array<TreeNodeGroup> = TreeViewScene.getSingleton().getGroups();
+			//for ( var i = 0, l = groups.length; i < l; i++ )
+			//	if ( !groups[i].saved )
+			//		ids.push( groups[i].groupID );
+			//this.saveGroups( ids );
             
-			Animate.CanvasTab.getSingleton().saveAll();
+			// Animate.CanvasTab.getSingleton().saveAll();
 			
             // TODO: Make sure these are saved
             //this.saveHTML();
 			//this.saveCSS();
-		}
+		//}
 
 		///**
 		//* This function is used to create a new behaviour. This will make
@@ -909,20 +988,20 @@ module Animate
   //          loader.load("/project/get-behaviours", { projectId: this.entry._id } );
 		//}
 
-		/**
-		* This function is used to create a new group. This will make
-		* a call the server. If the server sends a fail message then no new group
-		* will be created. You can use the event GROUP_CREATED to hook into
-		* a successful DB entry created.
-		* @param {string} name The proposed name of the group.
-		*/
-		createGroup( name: string )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/create-group", { projectId: this.entry._id, name: name } );
-		}
+		///**
+		//* This function is used to create a new group. This will make
+		//* a call the server. If the server sends a fail message then no new group
+		//* will be created. You can use the event GROUP_CREATED to hook into
+		//* a successful DB entry created.
+		//* @param {string} name The proposed name of the group.
+		//*/
+		//createGroup( name: string )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/create-group", { projectId: this.entry._id, name: name } );
+		//}
 
 		///**
 		//* This function is used to fetch the groups of a project. 
@@ -935,30 +1014,30 @@ module Animate
   //          loader.load("/project/get-groups", { projectId: this.entry._id } );
 		//}
 
-		/**
-		* This will save the current state of the groups to the server
-		* @param {Array<string>} groupIds The array of group ID's we are trying to save.
-		*/
-		saveGroups( groupIds: Array<string> )
-		{
-			if ( groupIds.length == 0 )
-				return;
+		///**
+		//* This will save the current state of the groups to the server
+		//* @param {Array<string>} groupIds The array of group ID's we are trying to save.
+		//*/
+		//saveGroups( groupIds: Array<string> )
+		//{
+		//	if ( groupIds.length == 0 )
+		//		return;
 
-			var group: TreeNodeGroup = null;
-			var ids : Array<string> = [];
-			var jsons: Array<string> = [];
-			for ( var i = 0, l = groupIds.length; i < l; i++ )
-			{
-				group = TreeViewScene.getSingleton().getGroupByID( groupIds[i] );
-				jsons.push( JSON.stringify( group.json ) );
-				ids.push( group.groupID );
-			}
+		//	var group: TreeNodeGroup = null;
+		//	var ids : Array<string> = [];
+		//	var jsons: Array<string> = [];
+		//	for ( var i = 0, l = groupIds.length; i < l; i++ )
+		//	{
+		//		group = TreeViewScene.getSingleton().getGroupByID( groupIds[i] );
+		//		jsons.push( JSON.stringify( group.json ) );
+		//		ids.push( group.groupID );
+		//	}
 
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
-		}
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
+		//}
 
 		/**
 		* Deletes groups from the project
@@ -1001,39 +1080,39 @@ module Animate
             loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: ProjectResource.generateLocalId() });
 		}
 
-		/**
-		* This will save a group of asset's variables to the server in JSON.
-		* @param {Array<string>} assetIds An array of asset ids of the assets we want to save
-		*/
-		saveAssets( assetIds : Array<string> )
-		{
-			if ( assetIds.length == 0 )
-				return;
+		///**
+		//* This will save a group of asset's variables to the server in JSON.
+		//* @param {Array<string>} assetIds An array of asset ids of the assets we want to save
+		//*/
+		//saveAssets( assetIds : Array<string> )
+		//{
+		//	if ( assetIds.length == 0 )
+		//		return;
 
-			var pm: PluginManager = PluginManager.getSingleton();
-			var ev: AssetEvent = new AssetEvent( EditorEvents.ASSET_SAVING, null );
-			var asset: Asset = null;
-			var ids: Array<string> = [];
-			var shallowIds: Array<number> = [];
-			var jsons: Array<string> = [];
-			for ( var i = 0, l = assetIds.length; i < l; i++ )
-			{
-				asset = this.getAssetByID( assetIds[i] );
+		//	var pm: PluginManager = PluginManager.getSingleton();
+		//	var ev: AssetEvent = new AssetEvent( EditorEvents.ASSET_SAVING, null );
+		//	var asset: Asset = null;
+		//	var ids: Array<string> = [];
+		//	var shallowIds: Array<number> = [];
+		//	var jsons: Array<string> = [];
+		//	for ( var i = 0, l = assetIds.length; i < l; i++ )
+		//	{
+		//		asset = this.getAssetByID( assetIds[i] );
 
-				// Tell plugins about asset saving
-				ev.asset = asset;
-				pm.emit( ev );
+		//		// Tell plugins about asset saving
+		//		ev.asset = asset;
+		//		pm.emit( ev );
 
-                jsons.push(JSON.stringify(asset.properties.tokenize()));
-                ids.push(asset.entry._id);
-                shallowIds.push(asset.entry.shallowId );
-			}
+  //              jsons.push(JSON.stringify(asset.properties.tokenize()));
+  //              ids.push(asset.entry._id);
+  //              shallowIds.push(asset.entry.shallowId );
+		//	}
 
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons } );
-		}
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons } );
+		//}
 
 		/**
 		* This will download an asset's variables from the server.
@@ -1228,23 +1307,23 @@ module Animate
 					//	}
 					//	//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_LOADED, "Behaviours loaded", LoaderEvents.COMPLETE, null ) );
 					//}
-					else if ( loader.url == "/project/save-behaviours" )
-					{
-						for ( var i = 0; i < this._containers.length; i++ )
-							for ( ii = 0, l = data.length; ii < l; ii++ )
-                                if (this._containers[i].entry._id == data[ii] )
-								{
-									// Make sure the JSON is updated in the behaviour
-									var canvas: Canvas = CanvasTab.getSingleton().getTabCanvas( data[ii] );
-									if ( canvas )
-                                        this._containers[i].entry.json = canvas.buildDataObject();
+					//else if ( loader.url == "/project/save-behaviours" )
+					//{
+					//	for ( var i = 0; i < this._containers.length; i++ )
+					//		for ( ii = 0, l = data.length; ii < l; ii++ )
+     //                           if (this._containers[i].entry._id == data[ii] )
+					//			{
+					//				// Make sure the JSON is updated in the behaviour
+					//				var canvas: Canvas = CanvasTab.getSingleton().getTabCanvas( data[ii] );
+					//				if ( canvas )
+     //                                   this._containers[i].entry.json = canvas.buildDataObject();
 
-									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
-									break;
-								}
+					//				//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+					//				break;
+					//			}
 
-						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
-					}
+					//	//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_SAVED, "Behaviours saved", LoaderEvents.COMPLETE, null ) );
+					//}
 					//else if ( loader.url == "/project/save-html" )
 					//{
 					//	//this.emit( new ProjectEvent( ProjectEvents.HTML_SAVED, "HTML saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
@@ -1398,16 +1477,16 @@ module Animate
 						//this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
 					}
 					//Entered if we have saved some groups
-					else if ( loader.url == "/project/save-groups" )
-					{
+					//else if ( loader.url == "/project/save-groups" )
+					//{
 						//for ( var i = 0, l = data.length; i < l; i++ )
 							///this.emit(new ProjectEvent(ProjectEvents.GROUP_SAVED, "Group saved", LoaderEvents.COMPLETE, data[i] ) );
 
 						//this.emit(new ProjectEvent(ProjectEvents.GROUPS_SAVED, "Groups saved", LoaderEvents.COMPLETE, null ) );
-					}
+					//}
 					//Create a new Behaviour
-					else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
-                    {
+					//else if ( loader.url == "/project/create-asset" || loader.url == "/project/copy-asset" )
+                    //{
       //                  var asset = new Asset({ name: data.name, className: data.className, json: data.json, _id: data._id, shallowId: data.shallowId });
 						//this._assets.push( asset );
 
@@ -1427,17 +1506,17 @@ module Animate
 						//pManager.emit( new AssetEvent( EditorEvents.ASSET_LOADED, asset ) );
 
 						//this.emit(new ProjectEvent(ProjectEvents.ASSET_CREATED, "Asset created", LoaderEvents.COMPLETE, asset ) );
-					}
-					//Save the asset
-					else if ( loader.url == "/project/save-assets" )
-					{
-						for ( var ii = 0; ii < data.length; ii++ )
-							for ( var i = 0; i < this._assets.length; i++ )							
-                                if (this._assets[i].entry._id == data[ii] )
-									this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
+					//}
+					////Save the asset
+					//else if ( loader.url == "/project/save-assets" )
+					//{
+					//	for ( var ii = 0; ii < data.length; ii++ )
+					//		for ( var i = 0; i < this._assets.length; i++ )							
+     //                           if (this._assets[i].entry._id == data[ii] )
+					//				this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
 
-						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
-					}
+					//	//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null  ));
+					//}
 					//Update / download asset details
 					else if ( loader.url == "/project/update-assets" )
 					{
@@ -1446,7 +1525,7 @@ module Animate
                                 if (this._assets[i].entry._id == data[ii]._id )
 								{
 									this._assets[i].update( data[ii].name, data[ii].className, data[ii].json );
-									this.emit( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
+									//this.emit( new AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i] )) ;
 								}
 
 						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
@@ -1463,7 +1542,7 @@ module Animate
 									this._containers[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
 									
 									//Update the GUI elements
-									TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
+									//TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
 									//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
 									break;
 								}

@@ -49,7 +49,6 @@ module Animate
 			var project : Project = User.get.project;
 
 			this.saved = true;
-			//this.text = this.originalText;
 			this.name = name;
 			this.json = json;
 
@@ -72,26 +71,6 @@ module Animate
 					return;
 				}
 		}
-
-		///**
-		//* Sets the text of the node
-		//* @param {string} val The text to set
-		//*/
-		//set text( val: string )
-		//{
-		//	this.originalText = val;
-		//	jQuery( ".text:first", this.element ).text( ( this.saved ? "" : "*" ) + this.originalText );
-		//}
-
-		///**
-		//* Gets the text of the node
-		//* @returns {string} The text of the node
-		//*/
-		//get text(): string
-		//{
-		//	return this.originalText;
-		//}
-
 
 		/** 
 		* Notifies if this node is saved or unsaved. 

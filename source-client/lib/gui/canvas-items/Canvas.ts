@@ -185,7 +185,7 @@ module Animate
 				else if ( comp instanceof TreeNodePluginBehaviour )
 					this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this.mX, this.mY );
 				else if ( comp instanceof TreeNodeBehaviour )
-					this.createNode( PluginManager.getSingleton().getTemplate( "Instance" ), this.mX, this.mY, ( <TreeNodeBehaviour>comp ).behaviour );
+					this.createNode( PluginManager.getSingleton().getTemplate( "Instance" ), this.mX, this.mY, ( <TreeNodeBehaviour>comp ).container );
 			}
 		}
 

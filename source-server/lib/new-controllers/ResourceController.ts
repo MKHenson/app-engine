@@ -70,7 +70,7 @@ export class ResourceController extends Controller
         // Save it in the DB
         model.createInstance<Engine.IResource>(newResource).then(function(instance)
         {
-            return res.end(JSON.stringify(<ModepressAddons.ICreateResource>{
+            return res.end(JSON.stringify(<ModepressAddons.ICreateResource<any>>{
                 error: false,
                 message: `New resource '${newResource.name}' created`,
                 data: instance.schema.generateCleanData(false, instance._id)

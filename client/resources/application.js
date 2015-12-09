@@ -959,10 +959,29 @@ var Animate;
             // Make sure the ID is always really high - i.e. dont allow for duplicates
             if (resource.shallowId && resource.shallowId > ProjectResource.shallowIds)
                 ProjectResource.shallowIds = resource.shallowId + 1;
-            this.saved = true;
+            this._saved = true;
             this._options = {};
             this._properties = new Animate.EditableSet();
         }
+        Object.defineProperty(ProjectResource.prototype, "saved", {
+            /**
+            * Gets if this resource is saved
+            * @returns {boolean}
+            */
+            get: function () {
+                return this._saved;
+            },
+            /**
+            * Sets if this resource is saved
+            * @param {boolean} val
+            */
+            set: function (val) {
+                this._saved = val;
+                this.emit(new Animate.Event("modified"));
+            },
+            enumerable: true,
+            configurable: true
+        });
         ProjectResource.generateLocalId = function () {
             Animate.Asset.shallowIds++;
             return Animate.Asset.shallowIds;
@@ -1552,48 +1571,45 @@ var Animate;
     })();
     Animate.Utils = Utils;
 })(Animate || (Animate = {}));
-var Animate;
-(function (Animate) {
-    var BehaviourManagerEvents = (function (_super) {
-        __extends(BehaviourManagerEvents, _super);
-        function BehaviourManagerEvents(v) {
-            _super.call(this, v);
-        }
-        BehaviourManagerEvents.CONTAINER_SAVED = new BehaviourManagerEvents("behaviour_manager_container_saved");
-        BehaviourManagerEvents.SUCCESS = new BehaviourManagerEvents("behaviour_manager_success");
-        return BehaviourManagerEvents;
-    })(Animate.ENUM);
-    Animate.BehaviourManagerEvents = BehaviourManagerEvents;
-    var BehaviourManagerEvent = (function (_super) {
-        __extends(BehaviourManagerEvent, _super);
-        function BehaviourManagerEvent(eventName, name) {
-            _super.call(this, eventName, name);
-            this.name = name;
-        }
-        return BehaviourManagerEvent;
-    })(Animate.Event);
-    Animate.BehaviourManagerEvent = BehaviourManagerEvent;
-    var BehaviourManager = (function (_super) {
-        __extends(BehaviourManager, _super);
-        function BehaviourManager() {
-            if (BehaviourManager._singleton != null)
-                throw new Error("The BehaviourManager class is a singleton. You need to call the BehaviourManager.getSingleton() function.");
-            BehaviourManager._singleton = this;
-            // Call super-class constructor
-            _super.call(this);
-        }
-        /**
-        * Gets the singleton instance.
-        */
-        BehaviourManager.getSingleton = function () {
-            if (!BehaviourManager._singleton)
-                new BehaviourManager();
-            return BehaviourManager._singleton;
-        };
-        return BehaviourManager;
-    })(Animate.EventDispatcher);
-    Animate.BehaviourManager = BehaviourManager;
-})(Animate || (Animate = {}));
+//module Animate
+//{
+//	//export class BehaviourManagerEvents extends ENUM
+//	//{
+//	//	constructor( v: string ) { super( v ); }
+//	//	static CONTAINER_SAVED: BehaviourManagerEvents = new BehaviourManagerEvents( "behaviour_manager_container_saved" );
+//	//	static SUCCESS: BehaviourManagerEvents = new BehaviourManagerEvents( "behaviour_manager_success" );
+//	//}
+//	export class BehaviourManagerEvent extends Event
+//	{
+//		public name: string;
+//		constructor(type: string, name : string )
+//		{
+//            super(type, name);
+//			this.name = name;
+//		}
+//	}
+//	export class BehaviourManager extends EventDispatcher
+//	{
+//		private static _singleton: BehaviourManager;
+//		constructor()
+//		{
+//			if ( BehaviourManager._singleton != null )
+//				throw new Error( "The BehaviourManager class is a singleton. You need to call the BehaviourManager.getSingleton() function." );
+//			BehaviourManager._singleton = this;
+//			// Call super-class constructor
+//			super();
+//		}
+//		/**
+//		* Gets the singleton instance.
+//		*/
+//		static getSingleton(): BehaviourManager
+//		{
+//			if ( !BehaviourManager._singleton )
+//				new BehaviourManager();
+//			return BehaviourManager._singleton;
+//		}
+//	}
+//} 
 var Animate;
 (function (Animate) {
     /**
@@ -3375,12 +3391,12 @@ var Animate;
         ProjectEvents.BUILD_SAVED = new ProjectEvents("build_saved");
         ProjectEvents.BEHAVIOUR_DELETING = new ProjectEvents("behaviour_deleting");
         ProjectEvents.BEHAVIOURS_LOADED = new ProjectEvents("behaviours_loaded");
-        //static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
+        ProjectEvents.BEHAVIOUR_CREATED = new ProjectEvents("behaviour_created");
         ProjectEvents.BEHAVIOUR_UPDATED = new ProjectEvents("behaviour_updated");
         ProjectEvents.BEHAVIOURS_UPDATED = new ProjectEvents("behaviours_updated");
         ProjectEvents.BEHAVIOURS_SAVED = new ProjectEvents("behaviours_saved");
         ProjectEvents.BEHAVIOUR_SAVED = new ProjectEvents("behaviour_saved");
-        //static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
+        ProjectEvents.ASSET_CREATED = new ProjectEvents("asset_created");
         ProjectEvents.ASSET_SAVED = new ProjectEvents("asset_saved");
         ProjectEvents.ASSET_UPDATED = new ProjectEvents("asset_updated");
         ProjectEvents.ASSETS_UPDATED = new ProjectEvents("assets_updated");
@@ -3478,6 +3494,12 @@ var Animate;
             this._files = [];
             this._scripts = [];
             this._groups = [];
+            this._restPaths = {};
+            this._restPaths[ResourceType.FILE] = { url: Animate.DB.API + "/files", array: this._files };
+            this._restPaths[ResourceType.ASSET] = { url: Animate.DB.API + "/assets", array: this._assets };
+            this._restPaths[ResourceType.CONTAINER] = { url: Animate.DB.API + "/containers", array: this._containers };
+            this._restPaths[ResourceType.GROUP] = { url: Animate.DB.API + "/groups", array: this._groups };
+            this._restPaths[ResourceType.SCRIPT] = { url: Animate.DB.API + "/scripts", array: this._scripts };
         }
         /**
         * Gets an asset by its ID
@@ -3653,39 +3675,22 @@ var Animate;
         Project.prototype.loadResources = function (type) {
             var that = this;
             var arr = [];
+            var paths = this._restPaths;
             if (!type) {
                 this._assets.splice(0, this._assets.length);
                 this._files.splice(0, this._files.length);
                 this._scripts.splice(0, this._scripts.length);
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
-                arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
-                arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
-                arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
-                arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
-                arr.push(Animate.Utils.get(Animate.DB.API + "/scripts/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(paths[ResourceType.FILE].url + "/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(paths[ResourceType.ASSET].url + "/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(paths[ResourceType.CONTAINER].url + "/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(paths[ResourceType.GROUP].url + "/" + this.entry.user + "/" + this.entry._id));
+                arr.push(Animate.Utils.get(paths[ResourceType.SCRIPT].url + "/" + this.entry.user + "/" + this.entry._id));
             }
             else {
-                if (type == ResourceType.FILE) {
-                    this._files.splice(0, this._files.length);
-                    arr.push(Animate.Utils.get(Animate.DB.API + "/files/" + this.entry.user + "/" + this.entry._id));
-                }
-                else if (type == ResourceType.ASSET) {
-                    this._assets.splice(0, this._assets.length);
-                    arr.push(Animate.Utils.get(Animate.DB.API + "/assets/" + this.entry.user + "/" + this.entry._id));
-                }
-                else if (type == ResourceType.CONTAINER) {
-                    this._containers.splice(0, this._containers.length);
-                    arr.push(Animate.Utils.get(Animate.DB.API + "/containers/" + this.entry.user + "/" + this.entry._id));
-                }
-                else if (type == ResourceType.GROUP) {
-                    this._groups.splice(0, this._groups.length);
-                    arr.push(Animate.Utils.get(Animate.DB.API + "/groups/" + this.entry.user + "/" + this.entry._id));
-                }
-                else if (type == ResourceType.SCRIPT) {
-                    this._scripts.splice(0, this._scripts.length);
-                    arr.push(Animate.Utils.get(Animate.DB.API + "/scripts/" + this.entry.user + "/" + this.entry._id));
-                }
+                arr.push(Animate.Utils.get(paths[type].url + "/" + this.entry.user + "/" + this.entry._id));
+                paths[type].array.splice(0, paths[type].array.length);
             }
             return new Promise(function (resolve, reject) {
                 Promise.all(arr).then(function (data) {
@@ -3730,50 +3735,112 @@ var Animate;
             });
         };
         /**
-        * Use this to rename the project, a behaviour, group or asset.
-        * @param {string} name The new name of the object
+        * Use this to edit the properties of a resource
         * @param {string} id The id of the object we are renaming.
+        * @param {T} data The new data for the resource
         * @param {ResourceType} type The type of resource we are renaming
         * @returns {Promise<Modepress.IResponse>}
         */
-        Project.prototype.renameObject = function (name, id, type) {
+        Project.prototype.editResource = function (id, data, type) {
             var that = this;
             var details = Animate.User.get.entry;
             var projId = this.entry._id;
-            var url;
-            if (type == ResourceType.ASSET)
-                url = Animate.DB.API + "/assets/" + details.username + "/" + projId + "/" + id;
-            else if (type == ResourceType.CONTAINER)
-                url = Animate.DB.API + "/containers/" + details.username + "/" + projId + "/" + id;
-            else if (type == ResourceType.GROUP)
-                url = Animate.DB.API + "/groups/" + details.username + "/" + projId + "/" + id;
+            var paths = this._restPaths;
+            var url = paths[type].url + "/" + details.username + "/" + projId + "/" + id;
+            var array = paths[type].array;
+            var resource;
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id) {
+                    resource = array[i];
+                    break;
+                }
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
             return new Promise(function (resolve, reject) {
-                Animate.Utils.put(url, { name: name }).then(function (data) {
-                    if (data.error)
-                        return reject(new Error(data.message));
-                    return resolve(data);
+                Animate.Utils.put(url, data).then(function (response) {
+                    if (response.error)
+                        return reject(new Error(response.message));
+                    for (var t in data)
+                        if (resource.entry.hasOwnProperty(t))
+                            resource.entry[t] = data[t];
+                    return resolve(response);
                 }).catch(function (err) {
                     reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
                 });
             });
         };
         /**
-        * Creates a new project resource.
-        * @param {string} name The new name of the object
+        * Use this to edit the properties of a resource
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns { Promise<ProjectResource<any>>}
+        * @param {string} id The id of the object we are renaming.
+        * @returns {Promise<Modepress.IResponse>}
         */
-        Project.prototype.createResource = function (name, type, data) {
+        Project.prototype.saveResources = function (type, id) {
+            var paths = this._restPaths;
+            var promises = [];
             var that = this;
             var details = Animate.User.get.entry;
             var projId = this.entry._id;
-            var url;
-            if (type == ResourceType.ASSET)
-                url = Animate.DB.API + "/assets/" + details.username + "/" + projId;
-            else if (type == ResourceType.CONTAINER)
-                url = Animate.DB.API + "/containers/" + details.username + "/" + projId;
-            else if (type == ResourceType.GROUP)
-                url = Animate.DB.API + "/groups/" + details.username + "/" + projId;
+            var resources = paths[type].array;
+            // Creates a promise that updates the resource data and sets saved property when successful
+            var saveResource = function (url, resource) {
+                return new Promise(function (resolve, reject) {
+                    Animate.Utils.put(url, resource.entry).then(function (response) {
+                        if (response.error)
+                            return reject(new Error(response.message));
+                        resource.saved = true;
+                        return resolve(true);
+                    }).catch(function (err) {
+                        reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                    });
+                });
+            };
+            // Go through each resource
+            for (var i = 0, l = resources.length; i < l; i++) {
+                // Its saved - do nothing
+                if (resources[i].saved)
+                    continue;
+                if (id !== undefined && resources[i].entry._id == id) {
+                    promises.push(saveResource(paths[type].url + "/" + details.username + "/" + projId + "/" + resources[i].entry._id, resources[i]));
+                    break;
+                }
+                else if (id == undefined)
+                    promises.push(saveResource(paths[type].url + "/" + details.username + "/" + projId + "/" + resources[i].entry._id, resources[i]));
+            }
+            return new Promise(function (resolve, reject) {
+                Promise.all(promises).then(function (data) {
+                    resolve(true);
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+        };
+        /**
+        * This function is used to all project resources
+        */
+        Project.prototype.saveAll = function () {
+            var promises = [];
+            for (var i in this._restPaths)
+                promises.push(this.saveResources(i));
+            return new Promise(function (resolve, reject) {
+                Promise.all(promises).then(function (data) {
+                    resolve(true);
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+        };
+        /**
+        * Creates a new project resource.
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns { Promise<ProjectResource<any>>}
+        */
+        Project.prototype.createResource = function (type, data) {
+            var that = this;
+            var details = Animate.User.get.entry;
+            var projId = this.entry._id;
+            var paths = this._restPaths;
+            var url = paths[type].url + "/" + details.username + "/" + projId;
             return new Promise(function (resolve, reject) {
                 Animate.Utils.post(url, data).then(function (data) {
                     if (data.error)
@@ -3829,67 +3896,71 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/save-build", { projectId: this.entry._id, buildId: this.entry.build, notes: notes, visibility: visibility, html: html, css: css });
         };
-        /**
-        * This function is used to save an array of behaviors to the DB
-        * @param { Array<string>} behavioursIds This is the array behaviour ids we are saving.
-        */
-        Project.prototype.saveBehaviours = function (behavioursIds) {
-            if (behavioursIds.length == 0)
-                return;
-            var ids = [];
-            var jsons = [];
-            var behaviours = this._containers;
-            // Create a multidimension array and pass each of the behaviours
-            for (var i = 0, l = behavioursIds.length; i < l; i++)
-                for (var ii = 0, l = behaviours.length; ii < l; ii++)
-                    if (behavioursIds[i] == behaviours[ii].entry._id) {
-                        var json = null;
-                        var canvas = Animate.CanvasTab.getSingleton().getTabCanvas(behavioursIds[i]);
-                        if (canvas)
-                            json = canvas.buildDataObject();
-                        else {
-                            json = behaviours[ii].entry.json;
-                            json.properties = behaviours[ii].properties.tokenize();
-                        }
-                        var jsonStr = json.toString();
-                        ids.push(behaviours[ii].entry._id);
-                        jsons.push(jsonStr);
-                    }
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-behaviours", { projectId: this.entry._id, ids: ids, data: jsons });
-        };
-        /**
-        * This function is used to save the behaviors, groups and _assets or the DB
-        */
-        Project.prototype.saveAll = function () {
-            // Behaviours
-            var ids = [];
-            var behaviours = this._containers;
-            for (var i = 0, l = behaviours.length; i < l; i++)
-                if (!behaviours[i].saved)
-                    ids.push(behaviours[i].entry._id);
-            this.saveBehaviours(ids);
-            // Assets
-            ids.splice(0, ids.length);
-            var assets = this._assets;
-            for (var i = 0, l = assets.length; i < l; i++)
-                if (!assets[i].saved)
-                    ids.push(assets[i].entry._id);
-            this.saveAssets(ids);
-            // Groups
-            ids.splice(0, ids.length);
-            var groups = Animate.TreeViewScene.getSingleton().getGroups();
-            for (var i = 0, l = groups.length; i < l; i++)
-                if (!groups[i].saved)
-                    ids.push(groups[i].groupID);
-            this.saveGroups(ids);
-            Animate.CanvasTab.getSingleton().saveAll();
-            // TODO: Make sure these are saved
-            //this.saveHTML();
-            //this.saveCSS();
-        };
+        ///**
+        //* This function is used to save an array of behaviors to the DB
+        //* @param { Array<string>} behavioursIds This is the array behaviour ids we are saving. 
+        //*/
+        //saveBehaviours( behavioursIds: Array<string> ): void
+        //{
+        //	if ( behavioursIds.length == 0 )
+        //		return;
+        //	var ids: Array<string> = [];
+        //	var jsons: Array<string> = [];
+        //	var behaviours: Array<Container> = this._containers;
+        //	// Create a multidimension array and pass each of the behaviours
+        //	for ( var i = 0, l = behavioursIds.length; i < l; i++ )
+        //		for ( var ii = 0, l = behaviours.length; ii < l; ii++ )
+        //                  if (behavioursIds[i] == behaviours[ii].entry._id )
+        //			{
+        //				var json: CanvasToken = null;
+        //				var canvas : Canvas = CanvasTab.getSingleton().getTabCanvas( behavioursIds[i] );
+        //				if ( canvas )
+        //					json = canvas.buildDataObject();
+        //				else
+        //				{
+        //                          json = behaviours[ii].entry.json;
+        //					json.properties = behaviours[ii].properties.tokenize();
+        //				}
+        //				var jsonStr: string = json.toString();
+        //                      ids.push(behaviours[ii].entry._id );
+        //				jsons.push( jsonStr );
+        //			}
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-behaviours", { projectId: this.entry._id, ids: ids, data : jsons } );
+        //}
+        ///**
+        //* This function is used to save the behaviors, groups and _assets or the DB
+        //*/
+        //saveAll()
+        //      {
+        //// Behaviours
+        //var ids: Array<string> = [];
+        //var behaviours: Array<Container> = this._containers;
+        //for ( var i = 0, l = behaviours.length; i < l; i++ )
+        //	if ( !behaviours[i].saved )
+        //                 ids.push(behaviours[i].entry._id );
+        //this.saveBehaviours( ids );
+        //// Assets
+        //ids.splice( 0, ids.length );
+        //var assets: Array<Asset> = this._assets;
+        //for ( var i = 0, l = assets.length; i < l; i++ )
+        //	if ( !assets[i].saved )
+        //                 ids.push(assets[i].entry._id );
+        //this.saveAssets( ids );
+        //// Groups
+        //ids.splice( 0, ids.length );
+        //var groups: Array<TreeNodeGroup> = TreeViewScene.getSingleton().getGroups();
+        //for ( var i = 0, l = groups.length; i < l; i++ )
+        //	if ( !groups[i].saved )
+        //		ids.push( groups[i].groupID );
+        //this.saveGroups( ids );
+        // Animate.CanvasTab.getSingleton().saveAll();
+        // TODO: Make sure these are saved
+        //this.saveHTML();
+        //this.saveCSS();
+        //}
         ///**
         //* This function is used to create a new behaviour. This will make
         //* a call the server. If the server sends a fail message no new behaviour
@@ -4028,19 +4099,20 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/get-behaviours", { projectId: this.entry._id } );
         //}
-        /**
-        * This function is used to create a new group. This will make
-        * a call the server. If the server sends a fail message then no new group
-        * will be created. You can use the event GROUP_CREATED to hook into
-        * a successful DB entry created.
-        * @param {string} name The proposed name of the group.
-        */
-        Project.prototype.createGroup = function (name) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/create-group", { projectId: this.entry._id, name: name });
-        };
+        ///**
+        //* This function is used to create a new group. This will make
+        //* a call the server. If the server sends a fail message then no new group
+        //* will be created. You can use the event GROUP_CREATED to hook into
+        //* a successful DB entry created.
+        //* @param {string} name The proposed name of the group.
+        //*/
+        //createGroup( name: string )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/create-group", { projectId: this.entry._id, name: name } );
+        //}
         ///**
         //* This function is used to fetch the groups of a project. 
         //*/
@@ -4051,26 +4123,28 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/get-groups", { projectId: this.entry._id } );
         //}
-        /**
-        * This will save the current state of the groups to the server
-        * @param {Array<string>} groupIds The array of group ID's we are trying to save.
-        */
-        Project.prototype.saveGroups = function (groupIds) {
-            if (groupIds.length == 0)
-                return;
-            var group = null;
-            var ids = [];
-            var jsons = [];
-            for (var i = 0, l = groupIds.length; i < l; i++) {
-                group = Animate.TreeViewScene.getSingleton().getGroupByID(groupIds[i]);
-                jsons.push(JSON.stringify(group.json));
-                ids.push(group.groupID);
-            }
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data: jsons });
-        };
+        ///**
+        //* This will save the current state of the groups to the server
+        //* @param {Array<string>} groupIds The array of group ID's we are trying to save.
+        //*/
+        //saveGroups( groupIds: Array<string> )
+        //{
+        //	if ( groupIds.length == 0 )
+        //		return;
+        //	var group: TreeNodeGroup = null;
+        //	var ids : Array<string> = [];
+        //	var jsons: Array<string> = [];
+        //	for ( var i = 0, l = groupIds.length; i < l; i++ )
+        //	{
+        //		group = TreeViewScene.getSingleton().getGroupByID( groupIds[i] );
+        //		jsons.push( JSON.stringify( group.json ) );
+        //		ids.push( group.groupID );
+        //	}
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
+        //}
         /**
         * Deletes groups from the project
         * @param {Array<string>} groupIds The array of group IDs to delete
@@ -4106,33 +4180,35 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Animate.ProjectResource.generateLocalId() });
         };
-        /**
-        * This will save a group of asset's variables to the server in JSON.
-        * @param {Array<string>} assetIds An array of asset ids of the assets we want to save
-        */
-        Project.prototype.saveAssets = function (assetIds) {
-            if (assetIds.length == 0)
-                return;
-            var pm = Animate.PluginManager.getSingleton();
-            var ev = new Animate.AssetEvent(Animate.EditorEvents.ASSET_SAVING, null);
-            var asset = null;
-            var ids = [];
-            var shallowIds = [];
-            var jsons = [];
-            for (var i = 0, l = assetIds.length; i < l; i++) {
-                asset = this.getAssetByID(assetIds[i]);
-                // Tell plugins about asset saving
-                ev.asset = asset;
-                pm.emit(ev);
-                jsons.push(JSON.stringify(asset.properties.tokenize()));
-                ids.push(asset.entry._id);
-                shallowIds.push(asset.entry.shallowId);
-            }
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons });
-        };
+        ///**
+        //* This will save a group of asset's variables to the server in JSON.
+        //* @param {Array<string>} assetIds An array of asset ids of the assets we want to save
+        //*/
+        //saveAssets( assetIds : Array<string> )
+        //{
+        //	if ( assetIds.length == 0 )
+        //		return;
+        //	var pm: PluginManager = PluginManager.getSingleton();
+        //	var ev: AssetEvent = new AssetEvent( EditorEvents.ASSET_SAVING, null );
+        //	var asset: Asset = null;
+        //	var ids: Array<string> = [];
+        //	var shallowIds: Array<number> = [];
+        //	var jsons: Array<string> = [];
+        //	for ( var i = 0, l = assetIds.length; i < l; i++ )
+        //	{
+        //		asset = this.getAssetByID( assetIds[i] );
+        //		// Tell plugins about asset saving
+        //		ev.asset = asset;
+        //		pm.emit( ev );
+        //              jsons.push(JSON.stringify(asset.properties.tokenize()));
+        //              ids.push(asset.entry._id);
+        //              shallowIds.push(asset.entry.shallowId );
+        //	}
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons } );
+        //}
         /**
         * This will download an asset's variables from the server.
         * @param {Array<string>} assetIds An array of assets we are updating
@@ -4253,18 +4329,6 @@ var Animate;
                                 }
                         }
                     }
-                    else if (loader.url == "/project/save-behaviours") {
-                        for (var i = 0; i < this._containers.length; i++)
-                            for (ii = 0, l = data.length; ii < l; ii++)
-                                if (this._containers[i].entry._id == data[ii]) {
-                                    // Make sure the JSON is updated in the behaviour
-                                    var canvas = Animate.CanvasTab.getSingleton().getTabCanvas(data[ii]);
-                                    if (canvas)
-                                        this._containers[i].entry.json = canvas.buildDataObject();
-                                    //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_SAVED, "Behaviour saved", LoaderEvents.COMPLETE, this._behaviours[i] ) );
-                                    break;
-                                }
-                    }
                     else if (loader.url == "/project/delete-assets") {
                         dispatchEvent = new Animate.AssetEvent(Animate.EditorEvents.ASSET_DESTROYED, null);
                         var ev = new Animate.AssetEvent(ProjectEvents.ASSET_DELETING, null);
@@ -4300,22 +4364,11 @@ var Animate;
                             var grp = data[i];
                         }
                     }
-                    else if (loader.url == "/project/save-groups") {
-                    }
-                    else if (loader.url == "/project/create-asset" || loader.url == "/project/copy-asset") {
-                    }
-                    else if (loader.url == "/project/save-assets") {
-                        for (var ii = 0; ii < data.length; ii++)
-                            for (var i = 0; i < this._assets.length; i++)
-                                if (this._assets[i].entry._id == data[ii])
-                                    this.emit(new Animate.AssetEvent(ProjectEvents.ASSET_SAVED, this._assets[i]));
-                    }
                     else if (loader.url == "/project/update-assets") {
                         for (var ii = 0; ii < data.length; ii++)
                             for (var i = 0; i < this._assets.length; i++)
                                 if (this._assets[i].entry._id == data[ii]._id) {
                                     this._assets[i].update(data[ii].name, data[ii].className, data[ii].json);
-                                    this.emit(new Animate.AssetEvent(ProjectEvents.ASSET_UPDATED, this._assets[i]));
                                 }
                     }
                     else if (loader.url == "/project/update-behaviours") {
@@ -4325,7 +4378,7 @@ var Animate;
                                 if (this._containers[i].entry._id == data[ii]._id) {
                                     this._containers[i].update(data[ii].name, Animate.CanvasToken.fromDatabase(data[ii].json, data[ii]._id));
                                     //Update the GUI elements
-                                    Animate.TreeViewScene.getSingleton().updateBehaviour(this._containers[i]);
+                                    //TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
                                     //this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
                                     break;
                                 }
@@ -7081,9 +7134,33 @@ var Animate;
     var TabPair = (function () {
         function TabPair(tab, page, name) {
             this.tabSelector = tab;
+            this._modified = false;
             this.page = page;
             this.name = name;
+            this._savedSpan = jQuery("<span class='modified'>*</span>");
         }
+        Object.defineProperty(TabPair.prototype, "modified", {
+            /**
+            * Gets if this tab pair has been modified or not
+            * @returns {boolean}
+            */
+            get: function () {
+                return this._modified;
+            },
+            /**
+            * Sets if this tab pair has been modified or not
+            * @param {boolean} val
+            */
+            set: function (val) {
+                this._modified = val;
+                if (val)
+                    jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
+                else
+                    this._savedSpan.detach();
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
         * Called when the editor is resized
         */
@@ -7123,9 +7200,11 @@ var Animate;
         TabPair.prototype.dispose = function () {
             this.tabSelector.dispose();
             this.page.dispose();
+            this._savedSpan.remove();
             this.tabSelector = null;
             this.page = null;
             this.name = null;
+            this._savedSpan = null;
         };
         return TabPair;
     })();
@@ -10292,9 +10371,9 @@ var Animate;
             this._loading.insertBefore(jQuery(".text", element));
             if (scriptId && copied)
                 // TODO: Copy the behaviour instead of create
-                promise = project.createResource(text, Animate.ResourceType.SCRIPT, { name: text });
+                promise = project.createResource(Animate.ResourceType.SCRIPT, { name: text });
             else
-                promise = project.createResource(text, Animate.ResourceType.SCRIPT, { name: text, projectId: project.entry._id });
+                promise = project.createResource(Animate.ResourceType.SCRIPT, { name: text, projectId: project.entry._id });
             promise.then(function (data) {
                 Animate.Logger.getSingleton().logMessage("Created behaviour script '" + text + "'", null, Animate.LogType.MESSAGE);
                 that._loading.detach();
@@ -10562,7 +10641,7 @@ var Animate;
                 else if (comp instanceof Animate.TreeNodePluginBehaviour)
                     this.createNode(comp.template, this.mX, this.mY);
                 else if (comp instanceof Animate.TreeNodeBehaviour)
-                    this.createNode(Animate.PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, comp.behaviour);
+                    this.createNode(Animate.PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, comp.container);
             }
         };
         /**
@@ -12264,7 +12343,7 @@ var Animate;
                     this._assetsNode.addNode(toRet);
                 }
             this._curProj = Animate.User.get.project;
-            this._curProj.on(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this);
+            //this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
             this._curProj.on(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
             this._curProj.on(Animate.ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this);
             this._curProj.on(Animate.ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this);
@@ -12294,7 +12373,7 @@ var Animate;
         TreeViewScene.prototype.projectReset = function (project) {
             project.off("resource-created", this._resourceCreated, this);
             if (this._curProj) {
-                this._curProj.off(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this);
+                //this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
                 this._curProj.off(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
                 this._curProj.off(Animate.ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this);
                 this._curProj.off(Animate.ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this);
@@ -12323,7 +12402,7 @@ var Animate;
                         if (node instanceof Animate.TreeNodeGroup)
                             promise = Animate.RenameForm.get.renameObject(node, node.text, node.id, Animate.ResourceType.GROUP);
                         else if (node instanceof Animate.TreeNodeBehaviour)
-                            promise = Animate.RenameForm.get.renameObject(node.behaviour.entry, node.text, node.behaviour.entry._id, Animate.ResourceType.BEHAVIOUR);
+                            promise = Animate.RenameForm.get.renameObject(node.container.entry, node.text, node.container.entry._id, Animate.ResourceType.BEHAVIOUR);
                         else if (node instanceof Animate.TreeNodeAssetInstance)
                             promise = Animate.RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, Animate.ResourceType.ASSET);
                         if (promise) {
@@ -12362,42 +12441,48 @@ var Animate;
             if (node != null)
                 node.save();
         };
-        /**
-        * Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
-        * @param {Container} container The hehaviour object we need to update
-        */
-        TreeViewScene.prototype.updateBehaviour = function (container) {
-            var node = this.findNode("behaviour", container);
-            node.behaviour = container;
-            if (node != null) {
-                //First we try and get the tab
-                var tabPair = Animate.CanvasTab.getSingleton().getTab(container.entry.name);
-                //Tab was not found - check if its because its unsaved
-                if (tabPair == null)
-                    tabPair = Animate.CanvasTab.getSingleton().getTab("*" + container.entry.name);
-                //If we have a tab then rename it to the same as the node
-                if (tabPair) {
-                    tabPair.tabSelector.element.trigger("click");
-                    var canvas = tabPair.canvas;
-                    canvas.container = container;
-                    Animate.CanvasTab.getSingleton().selectTab(tabPair);
-                    canvas.openFromDataObject();
-                    canvas.checkDimensions();
-                }
-                node.save(true);
-            }
-        };
+        ///**
+        //* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
+        //* @param {Container} container The hehaviour object we need to update
+        //*/
+        //updateBehaviour( container : Container )
+        //{
+        //	var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode( "behaviour", container );
+        //	node.behaviour = container;
+        //	if ( node != null )
+        //	{
+        //		//First we try and get the tab
+        //              var tabPair: TabPair = CanvasTab.getSingleton().getTab(container.entry.name );
+        //		//Tab was not found - check if its because its unsaved
+        //		if ( tabPair == null )
+        //                  tabPair = CanvasTab.getSingleton().getTab("*" + container.entry.name );
+        //		//If we have a tab then rename it to the same as the node
+        //		if ( tabPair )
+        //		{
+        //			tabPair.tabSelector.element.trigger( "click" );
+        //			var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
+        //			canvas.container = container;
+        //			CanvasTab.getSingleton().selectTab( tabPair );
+        //			canvas.openFromDataObject();
+        //			canvas.checkDimensions();
+        //		}
+        //		node.save( true );
+        //	}
+        //}
         /**
         * Called when we select a menu item.
         */
         TreeViewScene.prototype.onContextSelect = function (response, event, sender) {
+            var promise;
+            var project = Animate.User.get.project;
+            var context = this._contextNode;
             //DELETE
-            if (this._contextNode && event.item.text == "Delete") {
+            if (context && event.item.text == "Delete") {
                 this._quickAdd.element.off("click", this._shortcutProxy);
                 this._quickCopy.element.off("click", this._shortcutProxy);
                 this._quickAdd.element.detach();
                 this._quickCopy.element.detach();
-                if (this._contextNode instanceof Animate.TreeNodeBehaviour) {
+                if (context instanceof Animate.TreeNodeBehaviour) {
                     var selectedNodes = [];
                     var i = this.selectedNodes.length;
                     while (i--)
@@ -12406,9 +12491,9 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         behaviours.push(selectedNodes[i].behaviour.id);
-                    Animate.User.get.project.deleteBehaviours(behaviours);
+                    project.deleteBehaviours(behaviours);
                 }
-                else if (this._contextNode instanceof Animate.TreeNodeAssetInstance) {
+                else if (context instanceof Animate.TreeNodeAssetInstance) {
                     var selectedNodes = [];
                     var i = this.selectedNodes.length;
                     while (i--)
@@ -12417,9 +12502,9 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         assets.push(selectedNodes[i].asset.id);
-                    Animate.User.get.project.deleteAssets(assets);
+                    project.deleteAssets(assets);
                 }
-                else if (this._contextNode instanceof Animate.TreeNodeGroup) {
+                else if (context instanceof Animate.TreeNodeGroup) {
                     var selectedNodes = [];
                     var i = this.selectedNodes.length;
                     while (i--)
@@ -12428,56 +12513,57 @@ var Animate;
                     i = selectedNodes.length;
                     while (i--)
                         groups.push(selectedNodes[i].groupID);
-                    Animate.User.get.project.deleteGroups(groups);
+                    project.deleteGroups(groups);
                 }
-                else if (this._contextNode instanceof Animate.TreeNodeGroupInstance)
-                    this._contextNode.dispose();
+                else if (context instanceof Animate.TreeNodeGroupInstance)
+                    context.dispose();
             }
             //COPY
-            if (this._contextNode && event.item == this._contextCopy) {
-                if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.get.project.copyAsset(this._contextNode.asset.entry._id);
+            if (context && event.item == this._contextCopy) {
+                if (context instanceof Animate.TreeNodeAssetInstance)
+                    project.copyAsset(context.asset.entry._id);
             }
-            else if (this._contextNode && event.item == this._contextAddInstance)
-                Animate.User.get.project.createAsset("New " + this._contextNode.assetClass.name, this._contextNode.assetClass.name);
-            else if (this._contextNode && event.item.text == "Save") {
-                if (this._contextNode instanceof Animate.TreeNodeAssetInstance)
-                    Animate.User.get.project.saveAssets([this._contextNode.asset.entry._id]);
-                if (this._contextNode instanceof Animate.TreeNodeGroup)
-                    Animate.User.get.project.saveGroups([this._contextNode.groupID]);
-                else if (this._contextNode instanceof Animate.TreeNodeBehaviour)
-                    Animate.User.get.project.saveBehaviours([this._contextNode.behaviour.entry._id]);
+            else if (context && context instanceof Animate.TreeNodeAssetClass && event.item == this._contextAddInstance)
+                project.createAsset("New " + context.assetClass.name, context.assetClass.name);
+            else if (context && event.item.text == "Save") {
+                if (context instanceof Animate.TreeNodeAssetInstance)
+                    //project.saveAssets([context.asset.entry._id] );
+                    promise = project.saveResources(Animate.ResourceType.ASSET, context.asset.entry._id);
+                if (context instanceof Animate.TreeNodeGroup)
+                    //project.saveGroups([context.groupID]);
+                    promise = project.saveResources(Animate.ResourceType.GROUP, context.groupID);
+                else if (context instanceof Animate.TreeNodeBehaviour)
+                    //project.saveBehaviours([context.container.entry._id] );				
+                    promise = project.saveResources(Animate.ResourceType.CONTAINER, context.container.entry._id);
             }
-            else if (this._contextNode && event.item.text == "Add Group")
-                Animate.User.get.project.createGroup("New Group");
-            else if (this._contextNode && event.item.text == "Update") {
-                if (this._contextNode instanceof Animate.TreeNodeAssetInstance) {
-                    Animate.User.get.project.updateAssets([this._contextNode.asset.entry._id]);
-                }
-                else if (this._contextNode == this._groupsNode) {
+            else if (context && event.item.text == "Add Group")
+                //project.createGroup( "New Group");
+                promise = project.createResource(Animate.ResourceType.GROUP, { name: "New Group" });
+            else if (context && event.item.text == "Update") {
+                if (context instanceof Animate.TreeNodeAssetInstance)
+                    project.updateAssets([context.asset.entry._id]);
+                else if (context == this._groupsNode) {
                     while (this._groupsNode.children.length > 0)
                         this._groupsNode.children[0].dispose();
-                    Animate.User.get.project.loadResources(Animate.ResourceType.GROUP);
+                    project.loadResources(Animate.ResourceType.GROUP);
                 }
-                else if (this._contextNode == this._sceneNode) {
+                else if (context == this._sceneNode) {
                     while (this._sceneNode.children.length > 0)
                         this._sceneNode.children[0].dispose();
-                    Animate.User.get.project.loadResources(Animate.ResourceType.CONTAINER);
+                    project.loadResources(Animate.ResourceType.CONTAINER);
                 }
-                else if (this._contextNode instanceof Animate.TreeNodeGroup) {
-                    Animate.User.get.project.updateGroups([this._contextNode.groupID]);
-                }
-                else if (this._contextNode instanceof Animate.TreeNodeAssetClass) {
-                    var nodes = this._contextNode.getAllNodes(Animate.TreeNodeAssetInstance);
+                else if (context instanceof Animate.TreeNodeGroup)
+                    project.updateGroups([context.groupID]);
+                else if (context instanceof Animate.TreeNodeAssetClass) {
+                    var nodes = context.getAllNodes(Animate.TreeNodeAssetInstance);
                     var ids = [];
                     for (var i = 0, l = nodes.length; i < l; i++)
                         if (nodes[i] instanceof Animate.TreeNodeAssetInstance)
                             ids.push(nodes[i].asset.entry._id);
-                    Animate.User.get.project.updateAssets(ids);
+                    project.updateAssets(ids);
                 }
-                else if (this._contextNode instanceof Animate.TreeNodeBehaviour) {
-                    Animate.User.get.project.updateBehaviours([this._contextNode.behaviour.entry._id]);
-                }
+                else if (context instanceof Animate.TreeNodeBehaviour)
+                    project.updateBehaviours([context.container.entry._id]);
             }
         };
         /**
@@ -12492,7 +12578,7 @@ var Animate;
                 if (tabPair)
                     Animate.CanvasTab.getSingleton().selectTab(tabPair);
                 else {
-                    var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, Animate.CanvasTabType.CANVAS, this.selectedNode.behaviour);
+                    var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, Animate.CanvasTabType.CANVAS, this.selectedNode.container);
                     var canvas = tabPair.canvas;
                     canvas.openFromDataObject();
                     canvas.checkDimensions();
@@ -12589,22 +12675,25 @@ var Animate;
         //              }
         //          }
         //}
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        TreeViewScene.prototype.onBehaviourResponse = function (response, event) {
-            var proj = Animate.User.get.project;
-            //SAVE
-            if (response == Animate.ProjectEvents.BEHAVIOUR_SAVED) {
-                //If we have the behaviour
-                if (event.tag) {
-                    var node = this.findNode("behaviour", event.tag);
-                    node.save(true);
-                }
-            }
-        };
+        ///**
+        //* When the database returns from its command.
+        //* @param {ProjectEvents} response The loader response
+        //* @param {Event} data The data sent from the server
+        //*/
+        //onBehaviourResponse(response: ProjectEvents, event: ProjectEvent )
+        //{
+        //	var proj = User.get.project;
+        //	//SAVE
+        //	if (response == ProjectEvents.BEHAVIOUR_SAVED )
+        //	{
+        //		//If we have the behaviour
+        //		if ( event.tag )
+        //		{
+        //			var node: TreeNodeBehaviour = <TreeNodeBehaviour>this.findNode("behaviour", event.tag );
+        //			node.save( true );
+        //		}
+        //	}
+        //}
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The type of event
@@ -12659,7 +12748,7 @@ var Animate;
                 i = selectedNodes.length;
                 while (i--) {
                     if (selectedNodes[i] instanceof Animate.TreeNodeBehaviour &&
-                        selectedNodes[i].behaviour == event.tag) {
+                        selectedNodes[i].container == event.tag) {
                         var tabPair = Animate.CanvasTab.getSingleton().getTab(selectedNodes[i].text);
                         if (tabPair)
                             Animate.CanvasTab.getSingleton().removeTab(tabPair, true);
@@ -13134,8 +13223,6 @@ var Animate;
             return toRet;
         };
         Object.defineProperty(TreeNode.prototype, "name", {
-            //get originalText(): string { return this.mText; }
-            //      set originalText(val: string) { this.mText = val; }
             get: function () { return this.mText; },
             enumerable: true,
             configurable: true
@@ -13301,27 +13388,9 @@ var Animate;
                 var oldValue = this.asset.properties.getVar(data.propertyName).value;
                 this.asset.properties.updateValue(data.propertyName, data.propertyValue);
                 Animate.PluginManager.getSingleton().assetEdited(this.asset, data.propertyName, data.propertyValue, oldValue, data.propertyType);
-                //this.text = this.text;
                 this.modified = true;
             }
         };
-        ///**
-        //* Sets the text of the node
-        //* @param {string} val The text to set
-        //*/
-        //set text( val: string )
-        //{
-        //	this.originalText = val;
-        //	jQuery( ".text:first", this.element ).text( ( this.asset.saved ? "" : "*" ) + this.originalText );
-        //}
-        ///**
-        //* Gets the text of the node
-        //* @returns {string} The text of the node
-        //*/
-        //get text(): string
-        //{
-        //	return this.originalText;
-        //}
         /**
         * When we click ok on the portal form
         */
@@ -13332,14 +13401,12 @@ var Animate;
             if (!val) {
                 this.saved = val;
                 this.asset.saved = val;
-                //this.text = this.text;
                 return;
             }
             if (this.saved)
                 return;
             this.asset.saved = true;
             this.saved = this.asset.saved;
-            //this.text = this.text;
             if (this.asset.properties == null)
                 this.asset.properties = this.assetClass.buildVariables();
         };
@@ -13375,70 +13442,38 @@ var Animate;
             this.element.addClass("behaviour-to-canvas");
             this.canDelete = true;
             this.canUpdate = true;
-            this.saved = true;
-            this.behaviour = container;
+            this._container = container;
             this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
+            this._container.on("modified", this.onContainerModified, this);
             Animate.PropertyGrid.getSingleton().on(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
         }
+        /**
+        * Whenever the container is modified, we show this with a *
+        */
+        TreeNodeBehaviour.prototype.onContainerModified = function (type, event, sender) {
+            this.modified = !this._container.saved;
+        };
         /**
         * Called when the node is selected
         */
         TreeNodeBehaviour.prototype.onSelect = function () {
-            Animate.PropertyGrid.getSingleton().editableObject(this.behaviour.properties, this.text, this, "media/variable.png");
+            Animate.PropertyGrid.getSingleton().editableObject(this._container.properties, this.text, this._container, "media/variable.png");
         };
         /**
-        * When we click ok on the portal form
+        * Whenever a container property is changed by the editor
         */
         TreeNodeBehaviour.prototype.onPropertyGridEdited = function (response, event, sender) {
-            if (event.id == this) {
-                this.save(false);
-                this.behaviour.properties.updateValue(event.propertyName, event.propertyValue);
+            if (event.id == this._container) {
+                this._container.saved = false;
+                this._container.properties.updateValue(event.propertyName, event.propertyValue);
             }
         };
-        /**
-        * Notifies if this node is saved or unsaved.
-        */
-        TreeNodeBehaviour.prototype.save = function (val) {
-            this.saved = val;
-            this.behaviour.saved = val;
-            //this.text = this.originalText;
-            this.modified = !val;
-        };
-        Object.defineProperty(TreeNodeBehaviour.prototype, "text", {
+        Object.defineProperty(TreeNodeBehaviour.prototype, "container", {
             /**
-            * Gets the text of the node
-            * @returns {string} The text of the node
+            * Gets the container of this node
+            * @returns {Container}
             */
-            get: function () {
-                return this.mText;
-            },
-            /**
-            * Sets the text of the node
-            * @param {string} val The text to set
-            */
-            set: function (val) {
-                //First we try and get the tab
-                var tabPair = Animate.CanvasTab.getSingleton().getTab(this.text);
-                this.mText = val;
-                jQuery(".text:first", this.element).text(val);
-                //Tab was not found - check if its because its unsaved
-                //if ( tabPair == null )
-                //	tabPair = CanvasTab.getSingleton().getTab( "*" + this.originalText );
-                //If we have a tab then rename it to the same as the node
-                if (tabPair) {
-                    //this.originalText = val;
-                    //jQuery(".text:first", this.element).text((this.behaviour.saved ? "" : "*") + this.originalText);
-                    tabPair.text = val;
-                    tabPair.name = val;
-                }
-                //else
-                //{
-                //this.originalText = val;
-                //	jQuery( ".text:first", this.element ).text( ( this.behaviour.saved ? "" : "*" ) + this.originalText );
-                //}
-                //this.behaviour.entry.name = this.originalText;
-                this.behaviour.entry.name = val;
-            },
+            get: function () { return this._container; },
             enumerable: true,
             configurable: true
         });
@@ -13446,10 +13481,11 @@ var Animate;
         * This will cleanup the component
         */
         TreeNodeBehaviour.prototype.dispose = function () {
+            this._container.off("modified", this.onContainerModified, this);
             if (this.element.hasClass("draggable"))
                 this.element.draggable("destroy");
             Animate.PropertyGrid.getSingleton().off(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
-            this.behaviour = null;
+            this._container = null;
             //Call super
             _super.prototype.dispose.call(this);
         };
@@ -13492,7 +13528,6 @@ var Animate;
                 this.children[0].dispose();
             var project = Animate.User.get.project;
             this.saved = true;
-            //this.text = this.originalText;
             this.name = name;
             this.json = json;
             for (var i in this.json.assets)
@@ -13511,23 +13546,6 @@ var Animate;
                     return;
                 }
         };
-        ///**
-        //* Sets the text of the node
-        //* @param {string} val The text to set
-        //*/
-        //set text( val: string )
-        //{
-        //	this.originalText = val;
-        //	jQuery( ".text:first", this.element ).text( ( this.saved ? "" : "*" ) + this.originalText );
-        //}
-        ///**
-        //* Gets the text of the node
-        //* @returns {string} The text of the node
-        //*/
-        //get text(): string
-        //{
-        //	return this.originalText;
-        //}
         /**
         * Notifies if this node is saved or unsaved.
         */
@@ -13641,13 +13659,27 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
+    /**
+    * A Tab pair for the canvas tabs
+    */
     var CanvasTabPair = (function (_super) {
         __extends(CanvasTabPair, _super);
         function CanvasTabPair(canvas, name) {
             _super.call(this, null, null, name);
             this.canvas = canvas;
+            this.canvas.container.on("modified", this.onContainerModified, this);
         }
+        /**
+        * Whenever the container is modified, we show this with a *
+        */
+        CanvasTabPair.prototype.onContainerModified = function (type, event, sender) {
+            this.modified = !this.canvas.container.saved;
+        };
+        /**
+        * Cleans up the pair
+        */
         CanvasTabPair.prototype.dispose = function () {
+            this.canvas.container.off("modified", this.onContainerModified, this);
             this.canvas = null;
             _super.prototype.dispose.call(this);
         };
@@ -13672,8 +13704,6 @@ var Animate;
             this._proxyChange = jQuery.proxy(this.onChange, this);
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
             this._loadingGif = jQuery("<img src='media/small-buff.gif' />");
-            this._savedSpan = jQuery("<span>*</span>");
-            this._saved = true;
             this._close = false;
             this._editor = null;
         }
@@ -13687,31 +13717,9 @@ var Animate;
                 this.save();
             }
             else {
-                this._saved = true;
+                this.modified = false;
                 Animate.CanvasTab.getSingleton().removeTab(this, true);
             }
-        };
-        Object.defineProperty(EditorPair.prototype, "isSaved", {
-            /**
-            * Gets if this tab pair has been saved or not
-            * @returns {boolean}
-            */
-            get: function () {
-                return this._saved;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-        * Sets if this tab pair has been saved or not
-        * @param {boolean} val
-        */
-        EditorPair.prototype.saved = function (val) {
-            this._saved = val;
-            if (!val)
-                jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
-            else
-                this._savedSpan.detach();
         };
         /**
         * Sets if this tab pair is busy loading
@@ -13728,14 +13736,14 @@ var Animate;
         * @param {any} e
         */
         EditorPair.prototype.onChange = function (e) {
-            this.saved(false);
+            this.modified = false;
         };
         /**
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
         EditorPair.prototype.onRemove = function (event) {
-            if (!this._saved) {
+            if (this.modified) {
                 event.cancel = true;
                 Animate.MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
                 return;
@@ -13815,7 +13823,7 @@ var Animate;
             // Update the build html
             Animate.User.get.project.curBuild.update({ html: editor.getValue() }).then(function () {
                 that.loading(false);
-                that.saved(true);
+                that.modified = true;
                 if (that._close)
                     Animate.CanvasTab.getSingleton().removeTab(that, true);
             }).catch(function (err) {
@@ -13871,7 +13879,7 @@ var Animate;
             // Update the build css
             Animate.User.get.project.curBuild.update({ css: editor.getValue() }).then(function () {
                 that.loading(false);
-                that.saved(true);
+                that.modified = true;
                 if (that._close)
                     Animate.CanvasTab.getSingleton().removeTab(that, true);
             }).catch(function (err) {
@@ -14005,7 +14013,7 @@ var Animate;
                     mac: "Command-S",
                     sender: "editor|cli"
                 },
-                exec: function () { Animate.User.get.project.saveAll(); }
+                exec: function () { Animate.Toolbar.getSingleton().saveAll(); }
             });
             var loader = new Animate.AnimateLoader();
             var scriptId = this.scriptNode.scriptId;
@@ -14277,7 +14285,7 @@ var Animate;
             this.closingTabPair = null;
             this.mDocker = null;
             //Add the main tab
-            Animate.BehaviourManager.getSingleton().on(Animate.BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this);
+            //BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
         }
         /**
         * This is called by a controlling ScreenManager class. An image string needs to be returned
@@ -14319,26 +14327,20 @@ var Animate;
         * @returns {boolean} Returns false if the tab needs to be saved. Otherwise true.
         */
         CanvasTab.prototype.onTabPairClosing = function (tabPair) {
-            var canvas = tabPair.page.children[0];
-            if (canvas instanceof Animate.Canvas) {
-                var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", canvas.container);
-                //Set the context node to be this node
-                Animate.TreeViewScene.getSingleton().contextNode = node;
-                if (node && node.saved == false && !canvas.container.disposed) {
+            if (tabPair instanceof Animate.CanvasTabPair) {
+                var canvas = tabPair.canvas;
+                if (tabPair.modified && !canvas.container.disposed) {
                     this.closingTabPair = tabPair;
                     Animate.MessageBox.show("Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this);
                     return false;
                 }
-                else {
-                    //We tell the plugins we've selected a behaviour container
-                    //PluginManager.getSingleton().containerSelected( null );
+                else
                     Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_SELECTED, null));
-                }
             }
             return true;
         };
         /**
-        *  The response of the message box.
+        * After being asked if we want to save changes to a container
         * @param {string} choice The choice of the message box. It can be either Yes or No
         */
         CanvasTab.prototype.onMessage = function (choice) {
@@ -14346,14 +14348,17 @@ var Animate;
             //Save the canvas
             if (choice == "Yes") {
                 //We need to build an array of the canvas objects we are trying to save.
-                var saveDataObj = canvas.buildDataObject();
-                //Now get the project to save it.
-                Animate.User.get.project.on(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
-                Animate.User.get.project.saveBehaviours([canvas.container.entry._id]);
+                var token = canvas.buildDataObject();
+                canvas.container.entry.json = token;
+                Animate.User.get.project.saveResources(Animate.ResourceType.CONTAINER, canvas.container.entry._id).then(function () {
+                    this.removeTab(this.closingTabPair, true);
+                    this.closingTabPair = null;
+                }).catch(function (err) {
+                    Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                });
             }
             else {
-                var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", canvas.container);
-                node.save(true);
+                this._currentCanvas.container.saved = true;
                 this.removeTab(this.closingTabPair, true);
                 this.closingTabPair = null;
             }
@@ -14371,24 +14376,30 @@ var Animate;
                         canvas.removeAsset(asset);
                 }
         };
-        /**
-        * When the behaviour was saved on request of the message box - we close the tab that represents it.
-        * @param <string> response
-        * @param <object> behaviour
-        */
-        CanvasTab.prototype.onBehaviourSaved = function (response, event, sender) {
-            Animate.User.get.project.off(Animate.ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this);
-            if (response == Animate.ProjectEvents.BEHAVIOUR_SAVED) {
-                var canvas = this.closingTabPair.canvas;
-                if (canvas.container == event.tag) {
-                    var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", canvas.container);
-                    if (node)
-                        node.save(true);
-                    this.removeTab(this.closingTabPair, true);
-                    this.closingTabPair = null;
-                }
-            }
-        };
+        ///**
+        //* When the behaviour was saved on request of the message box - we close the tab that represents it.
+        //* @param <string> response 
+        //* @param <object> behaviour 
+        //*/
+        //onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
+        //{
+        //	User.get.project.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
+        //	if ( response == ProjectEvents.BEHAVIOUR_SAVED )
+        //	{
+        //		var canvas : Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
+        //		if ( canvas.container == event.tag )
+        //		{
+        //			var node: TreeNodeBehaviour = <TreeNodeBehaviour>TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
+        //                  if (node)
+        //                  {
+        //                      this._currentCanvas.container.saved = true;
+        //                      node.modified = false;
+        //                  }
+        //			this.removeTab( this.closingTabPair, true );
+        //			this.closingTabPair = null;
+        //		}
+        //	}
+        //}
         /**
         * You can use this function to fetch a tab's canvas by a behaviour local ID
         * @param {number} behaviourID The local id of the container
@@ -14504,12 +14515,8 @@ var Animate;
             return toRet;
         };
         CanvasTab.prototype.removeTab = function (val, dispose) {
-            var canvas = null;
-            if (val instanceof Animate.CanvasTabPair)
-                canvas = val.canvas;
-            //else
-            //canvas = this.getTabCanvas( val );
-            if (canvas) {
+            if (val instanceof Animate.CanvasTabPair) {
+                var canvas = val.canvas;
                 var pManager = Animate.PluginManager.getSingleton();
                 var contEvent = new Animate.AssetContainerEvent(Animate.EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container);
                 //Remove prev we need to notify the plugins of added or removed assets		
@@ -14530,19 +14537,19 @@ var Animate;
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
         */
         CanvasTab.prototype.onCanvasModified = function (response, event, sender) {
-            var node = Animate.TreeViewScene.getSingleton().sceneNode.findNode("behaviour", event.canvas.container);
-            if (node)
-                node.save(false);
+            this._currentCanvas.container.saved = false;
         };
-        /**
-        * Removes an item from the tab
-        */
-        CanvasTab.prototype.removeTabConfirmed = function (response, event) {
-            //Add the main tab
-            if (event.tag.result == Animate.BehaviourManagerEvents.SUCCESS) {
-                _super.prototype.removeTab.call(this, event.name, true);
-            }
-        };
+        ///**
+        //* Removes an item from the tab
+        //*/
+        //removeTabConfirmed(response: BehaviourManagerEvents, event: BehaviourManagerEvent ) : void
+        //{
+        //	//Add the main tab
+        //	if ( event.tag.result == BehaviourManagerEvents.SUCCESS )
+        //	{
+        //		super.removeTab(event.name, true );
+        //	}
+        //}
         /**
         * Adds an item to the tab
         * @param {string} text The text of the new tab
@@ -14563,10 +14570,8 @@ var Animate;
                 canvas.on(Animate.CanvasEvents.MODIFIED, this.onCanvasModified, this);
                 this._currentCanvas = canvas;
                 canvas.children[0].updateDimensions();
-                //PluginManager.getSingleton().containerCreated( tabContent );
                 pManager.emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_CREATED, tabContent));
-                //PluginManager.getSingleton().containerSelected( tabContent );
-                Animate.PluginManager.getSingleton().emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_SELECTED, tabContent));
+                pManager.emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_SELECTED, tabContent));
                 return toRet;
             }
             else if (type == CanvasTabType.BLANK) {
@@ -17914,7 +17919,7 @@ var Animate;
                 return that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
             }
             // Attempt to connect to the DB and update the object
-            proj.renameObject(name, this._resourceId, this._type).then(function (resp) {
+            proj.editResource(this._resourceId, { name: name }, this._type).then(function (resp) {
                 that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
                 that.hide();
                 that.$loading = false;
@@ -18357,10 +18362,10 @@ var Animate;
             var that = this;
             // Todo: This must be NewBehaviourForm
             Animate.RenameForm.get.renameObject(null, "", null, Animate.ResourceType.CONTAINER).then(function (token) {
-                Animate.User.get.project.createResource(token.newName, Animate.ResourceType.CONTAINER, { name: token.newName }).then(function (resource) {
+                Animate.User.get.project.createResource(Animate.ResourceType.CONTAINER, { name: token.newName }).then(function (resource) {
                     // The container is created - so lets open it up
                     var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(resource.entry.name, Animate.CanvasTabType.CANVAS, resource);
-                    jQuery(".text", tabPair.tabSelector.element).text(resource.entry.name);
+                    jQuery(".content", tabPair.tabSelector.element).text(resource.entry.name);
                     tabPair.name = resource.entry.name;
                 }).catch(function (err) {
                     Animate.RenameForm.get.$errorMsg = (err.message.indexOf("urred while creating the resource") == -1 ? err.message : "The name '" + token.newName + "' is taken, please use another");
@@ -18397,13 +18402,17 @@ var Animate;
             btmContainer.element.data("tab", topTab);
             return btmContainer;
         };
+        Toolbar.prototype.saveAll = function () {
+            Animate.User.get.project.saveAll();
+            Animate.CanvasTab.getSingleton().saveAll();
+        };
         /**
         * Called when the key is pushed down
         * @param {any} event
         */
         Toolbar.prototype.onKeyDown = function (event) {
             if (event.data == 'Ctrl+s')
-                Animate.User.get.project.saveAll();
+                this.saveAll();
             else if (event.data == 'Ctrl+c')
                 this.onDuplicate(false);
             if (event.data == 'Ctrl+x')
@@ -18646,12 +18655,6 @@ var Animate;
                 });
         };
         /**
-        * When the project data is all saved to the DB
-        */
-        Splash.prototype.onSaveAll = function (event, data) {
-            Animate.CanvasTab.getSingleton().saveAll();
-        };
-        /**
         * Attempts to load the project and setup the scene
         */
         Splash.prototype.loadScene = function () {
@@ -18670,9 +18673,6 @@ var Animate;
                 return project.loadBuild();
             }).then(function (build) {
                 Animate.Logger.getSingleton().logMessage("Loaded project build '" + build.entry.name + " - v" + build.entry.version + "'", null, Animate.LogType.MESSAGE);
-                // TODO : Not sure if im keeping this here...
-                project.off(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
-                project.on(Animate.ProjectEvents.SAVED_ALL, that.onSaveAll, that);
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
                 // Log 

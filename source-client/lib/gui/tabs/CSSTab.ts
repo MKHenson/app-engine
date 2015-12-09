@@ -29,7 +29,7 @@ module Animate
             User.get.project.curBuild.update({ css: editor.getValue() }).then(function()
             {
                 that.loading(false);
-                that.saved(true);
+                that.modified = true;
 
                 if (that._close)
                     CanvasTab.getSingleton().removeTab(that, true);
