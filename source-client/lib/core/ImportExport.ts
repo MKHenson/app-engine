@@ -172,8 +172,8 @@ module Animate
 												containerToken.assets.push( assetID );
 
 												//It can also the be case that assets reference other assets. In those
-												//situations you will want the container to keep adding to all the assets
-												this.referenceCheckAsset( project.getAssetByShallowId( assetID ), containerToken );
+                                                //situations you will want the container to keep adding to all the assets
+                                                this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
 											}
 										}
 									}
@@ -189,8 +189,8 @@ module Animate
 													containerToken.assets.push( assetID );
 
 													//It can also the be case that assets reference other assets. In those
-													//situations you will want the container to keep adding to all the assets
-													this.referenceCheckAsset( project.getAssetByShallowId( assetID ), containerToken );
+                                                    //situations you will want the container to keep adding to all the assets
+                                                    this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
 												}
 											}
 										}
@@ -254,24 +254,16 @@ module Animate
 				}
 			}
 
-			//Get all the groups and build them into the export object
-			var groups : Array<TreeNodeGroup> = TreeViewScene.getSingleton().getGroups();
+            //Get all the groups and build them into the export object
+            var groups: Array<GroupArray> = project.groups;
 			for ( var i = 0, l = groups.length; i < l; i++ )
 			{
-				var group: TreeNodeGroup = groups[i];
-
-				//Check if we have valid json and items saved
-				if ( group )
-				{
-					var groupToken: GroupToken = <GroupToken > {};
-					dataToken.groups.push( groupToken );
-					groupToken.name = group.text;
-					groupToken.id = group.groupID;
-					groupToken.items = [];
-
-					for ( var ii = 0; ii < group.children.length; ii++ )
-						groupToken.items.push( (<TreeNodeGroupInstance>group.children[ii]).instanceID );
-				}
+				var group = groups[i];
+				var groupToken: GroupToken = <GroupToken>{};
+                dataToken.groups.push(groupToken);
+                groupToken.name = group.entry.name;
+                groupToken.id = group.entry._id;
+                groupToken.items = group.entry.items.slice(0, group.entry.items.length);
 			}
 
 			//Send the object to the plugins
@@ -309,8 +301,8 @@ module Animate
 						container.assets.push( assetID );
 
 						//It can also the be case that assets reference other assets. In those
-						//situations you will want the container to keep adding to all the assets							
-						this.referenceCheckAsset( project.getAssetByShallowId( assetID ), container );
+                        //situations you will want the container to keep adding to all the assets							
+                        this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
 					}
 				}
 				else if ( assetVars[i].type == ParameterType.ASSET_LIST )
@@ -325,8 +317,8 @@ module Animate
 								container.assets.push( assetID );
 
 								//It can also the be case that assets reference other assets. In those
-								//situations you will want the container to keep adding to all the assets							
-								this.referenceCheckAsset( project.getAssetByShallowId( assetID ), container );
+                                //situations you will want the container to keep adding to all the assets							
+                                this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
 							}
 						}
 					}
@@ -359,15 +351,15 @@ module Animate
 			var project = User.get.project;
 
 			// Add the group
-			if ( container.groups.indexOf( group.groupID ) == -1 )
-				container.groups.push( group.groupID );
+            if (container.groups.indexOf(group.resource.entry._id ))
+                container.groups.push(group.resource.entry._id );
 			
 
 			//Check all the group properties. If it contains another group, then we need to make sure its added to the container		
 			for ( var ii = 0; ii < group.children.length; ii++ )
-				if ( ( <TreeNodeGroupInstance>group.children[ii] ).instanceID )
+                if ((<TreeNodeGroupInstance>group.children[ii]).shallowId )
 				{
-					var assetID: number = ( <TreeNodeGroupInstance>group.children[ii] ).instanceID;
+                    var assetID: number = (<TreeNodeGroupInstance>group.children[ii]).shallowId;
 
 					//Check if the asset was added to the container
 					if ( container.assets.indexOf( assetID ) == -1 )
@@ -375,8 +367,8 @@ module Animate
 						container.assets.push( assetID );
 
 						//It can also the be case that assets reference other assets. In those
-						//situations you will want the container to keep adding to all the assets
-						this.referenceCheckAsset( project.getAssetByShallowId( assetID ), container );
+                        //situations you will want the container to keep adding to all the assets
+                        this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
 					}
 				}
 		}
@@ -416,8 +408,8 @@ module Animate
 				return "{{url}}uploads/" + urlParts[urlParts.length -1];
 			}
 			else if ( propType == ParameterType.HIDDEN_FILE )
-			{
-                var file: Engine.IFile = Animate.User.get.project.getFile( value );
+            {
+                var file: Engine.IFile = Animate.User.get.project.getResourceByShallowID(value, ResourceType.FILE);
 				if ( file )
                 {
                     var urlParts = file.url.split("/");
@@ -460,8 +452,8 @@ module Animate
 					{
 						Logger.getSingleton().clearItems();
 						var now: Date = new Date();
-						Logger.getSingleton().logMessage( "Build complete at " + new Date( Date.now() ).toDateString(), null, LogType.MESSAGE );
-						Logger.getSingleton().logMessage( "External link: " + event.tag.liveLink, null, LogType.MESSAGE );
+						Logger.logMessage( "Build complete at " + new Date( Date.now() ).toDateString(), null, LogType.MESSAGE );
+						Logger.logMessage( "External link: " + event.tag.liveLink, null, LogType.MESSAGE );
 
 						if ( this.runWhenDone )
 							window.open( event.tag.liveLink, 'Webinate Live!', 'width=900,height=860' ); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'

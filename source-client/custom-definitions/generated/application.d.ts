@@ -319,7 +319,7 @@ declare module Animate {
     /**
     * A base class for all project resources
     */
-    class ProjectResource<T> extends EventDispatcher {
+    class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
         private static shallowIds;
         entry: T;
         private _saved;
@@ -486,11 +486,11 @@ declare module Animate {
         * {{ groups: Array<string>; assets: Array<number> }} sceneReferences [Optional] An array of scene asset ID's associated with this container
         */
         sceneReferences: {
-            groups: Array<string>;
+            groups: Array<number>;
             assets: Array<number>;
         };
         constructor(eventName: EditorEvents, container: Container, token: any, sceneReferences?: {
-            groups: Array<string>;
+            groups: Array<number>;
             assets: Array<number>;
         });
     }
@@ -820,18 +820,6 @@ declare module Animate {
         */
         assetEdited(asset: Asset, propertyNam: string, newValue: any, oldValue: any, propertyType: ParameterType): void;
         /**
-        * Gets an asset by its ID
-        * @param {string} id The id of the asset
-        * @returns {Asset}
-        */
-        getAssetById(id: string): Asset;
-        /**
-        * Gets an asset by its local ID
-        * @param {string} id The local id of the asset
-        * @returns {Asset}
-        */
-        getAssetByShallowId(id: number): Asset;
-        /**
         * Gets an asset class by its name
         * @param {string} name The name of the asset class
         * @param {AssetClass}
@@ -1026,7 +1014,6 @@ declare module Animate {
     * A simple array resource for wrapping ids
     */
     class GroupArray extends ProjectResource<Engine.IGroup> {
-        items: Array<number>;
         /**
         * @param {string} name The name of the asset
         * @param {string} className The name of the "class" or "template" that this asset belongs to
@@ -1034,6 +1021,16 @@ declare module Animate {
         * @param {string} id The id of this asset
         */
         constructor(entry?: Engine.IGroup);
+        /**
+        * Adds a new reference to the group
+        * @param {number} shallowId
+        */
+        addReference(shallowId: number): void;
+        /**
+        * Removes a reference from the group
+        * @param {number} shallowId
+        */
+        removeReference(shallowId: number): void;
         /**
         * Disposes and cleans up the data of this asset
         */
@@ -1416,12 +1413,12 @@ declare module Animate {
 }
 declare module Animate {
     enum ResourceType {
-        BEHAVIOUR = 0,
-        GROUP = 1,
-        ASSET = 2,
-        CONTAINER = 3,
-        FILE = 4,
-        SCRIPT = 5,
+        BEHAVIOUR = 1,
+        GROUP = 2,
+        ASSET = 3,
+        CONTAINER = 4,
+        FILE = 5,
+        SCRIPT = 6,
     }
     class ProjectEvents {
         value: string;
@@ -1434,7 +1431,6 @@ declare module Animate {
         static HTML_SAVED: ProjectEvents;
         static CSS_SAVED: ProjectEvents;
         static BUILD_SAVED: ProjectEvents;
-        static BEHAVIOUR_DELETING: ProjectEvents;
         static BEHAVIOURS_LOADED: ProjectEvents;
         static BEHAVIOUR_CREATED: ProjectEvents;
         static BEHAVIOUR_UPDATED: ProjectEvents;
@@ -1445,13 +1441,10 @@ declare module Animate {
         static ASSET_SAVED: ProjectEvents;
         static ASSET_UPDATED: ProjectEvents;
         static ASSETS_UPDATED: ProjectEvents;
-        static ASSET_DELETING: ProjectEvents;
         static ASSETS_LOADED: ProjectEvents;
-        static GROUP_UPDATED: ProjectEvents;
         static GROUPS_UPDATED: ProjectEvents;
         static GROUP_SAVED: ProjectEvents;
         static GROUPS_SAVED: ProjectEvents;
-        static GROUP_DELETING: ProjectEvents;
         static GROUP_CREATED: ProjectEvents;
         static GROUPS_LOADED: ProjectEvents;
     }
@@ -1498,41 +1491,17 @@ declare module Animate {
         */
         constructor();
         /**
-        * Gets an asset by its ID
-        * @param {string} id The ID of the asset id
-        * @returns {Asset} The asset whose id matches the id parameter or null
+        * Gets a resource by its ID
+        * @param {string} id The ID of the resource
+        * @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
         */
-        getAssetByID(id: string): Asset;
+        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): T;
         /**
-        * Gets an asset by its shallow ID
-        * @param {string} id The shallow ID of the asset id
-        * @returns {Asset} The asset whose id matches the id parameter or null
+        * Gets a resource by its shallow ID
+        * @param {string} id The shallow ID of the resource
+        * @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
         */
-        getAssetByShallowId(id: number): Asset;
-        /**
-        * Gets a file by its ID
-        * @param {string} id The ID of the file
-        * @returns {FileResource} The file whose id matches the id parameter or null
-        */
-        getFile(id: string): FileResource;
-        /**
-        * Gets a group by its ID
-        * @param {string} id The ID of the group
-        * @returns {GroupArray} The group whose id matches the id parameter or null
-        */
-        getGroup(id: string): GroupArray;
-        /**
-        * Gets a {Container} by its ID
-        * @param {string} id The ID of the Container
-        * @returns {Container} The Container whose id matches the id parameter or null
-        */
-        getBehaviourById(id: string): Container;
-        /**
-        * Gets a {Container} by its shallow or local ID
-        * @param {string} id The local ID of the Container
-        * @returns {Container} The Container whose id matches the id parameter or null
-        */
-        getBehaviourByShallowId(id: number): Container;
+        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T;
         /**
         * Attempts to update the project details base on the token provided
         * @returns {Engine.IProject} The project token
@@ -1548,30 +1517,56 @@ declare module Animate {
         * Internal function to create a resource wrapper
         * @param {T} entry The database entry
         * @param {ResourceType} type The type of resource to create
-        * @returns {ProjectResource<any>}
+        * @returns {ProjectResource<T>}
         */
         private createResourceInstance<T>(entry, type?);
         /**
         * This function is used to fetch the project resources associated with a project.
-        * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<Array<ProjectResource<any>>}
         */
         loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>;
         /**
+        * This function is used to fetch a project resource by Id
+        * @param {string} id the Id of the resource to update
+        * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<T>}
+        */
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type: ResourceType): Promise<T>;
+        /**
         * Use this to edit the properties of a resource
-        * @param {string} id The id of the object we are renaming.
+        * @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
-        * @param {ResourceType} type The type of resource we are renaming
+        * @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse>}
         */
         editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>;
         /**
-        * Use this to edit the properties of a resource
-        * @param {ResourceType} type The type of resource we are renaming
-        * @param {string} id The id of the object we are renaming.
-        * @returns {Promise<Modepress.IResponse>}
+        * Use this to save the properties of a resource
+        * @param {string} id The id of the object we are saving.
+        * @param {ResourceType} type [Optional] The type of resource we are saving
+        * @returns {Promise<boolean>}
         */
-        saveResources<T>(type: ResourceType, id?: string): Promise<boolean>;
+        saveResource(id: string, type?: ResourceType): Promise<boolean>;
+        /**
+        * Use this to edit the properties of a resource
+        * @param {ResourceType} type The type of resource we are saving
+        * @returns {Promise<boolean>}
+        */
+        saveResources(type: ResourceType): Promise<boolean>;
+        /**
+        * Use this to delete a resource by its Id
+        * @param {string} id The id of the object we are deleting
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns {Promise<boolean>}
+        */
+        deleteResource(id: string, type: ResourceType): Promise<boolean>;
+        /**
+        * Deletes several resources in 1 function call
+        * @param {Array<string>} ids The ids An array of resource Ids
+        * @returns {Promise<boolean>}
+        */
+        deleteResources(ids: Array<string>): Promise<boolean>;
         /**
         * This function is used to all project resources
         */
@@ -1591,62 +1586,9 @@ declare module Animate {
         */
         saveBuild(notes: string, visibility: string, html: string, css: string): void;
         /**
-        * This function is used to delete behaviours.
-        * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
-        */
-        deleteBehaviours(behavioursIds: Array<string>): void;
-        /**
         * This function is used to import a user's file from another project or from the global _assets base
         */
         importFile(ids: Array<string>): void;
-        /**
-        * This function is used to delete files from a project and the database. The file asset will
-        * not be deleted if another project has a reference to it. The reference of this project to the file will be
-        * removed either way.
-        * @param {Array<string>} ids An array of file IDs to delete
-        */
-        deleteFiles(ids: Array<string>): void;
-        /**
-        * Use this function to create an empty data file for the user
-        * @param {string} name The name of file we are creating. Please note this is not a file name.
-        */
-        createEmptyFile(name: string): void;
-        /**
-        * Fills a data file with the contents of an XHR request
-        * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-        * @param {string} id The id of the file we are
-        * @param {ArrayBufferView} view The data to fill the file with
-        */
-        fillFile(id: string, view: ArrayBufferView): void;
-        /**
-        * Use this function to update file properties
-        * @param {string} fileId The file we are updating
-        * @param {string} name The new name of the file.
-        * @param {Array<string>} tags The new comma separated tags of the file.
-        * @param {bool} favourite If this file is a favourite
-        * @param {bool} global True or false if this file is shared globally
-        */
-        saveFile(fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean): void;
-        /**
-        * Deletes groups from the project
-        * @param {Array<string>} groupIds The array of group IDs to delete
-        */
-        deleteGroups(groupIds: Array<string>): void;
-        /**
-        * This will download all group variables from the server. If successful, the function will also get
-        * the asset treeview to update its contents
-        * @param {Array<string>} groupIds  groupIds The array of group IDs to update
-        */
-        updateGroups(groupIds: Array<string>): void;
-        /**
-        * This function is used to create a new asset on the server.
-        * If the server sends a fail message then no new asset
-        * will be created. You can use the event <Project.ASSET_CREATED> to hook into
-        * a successful DB entry created.
-        * @param {string} name The proposed name of the asset.
-        * @param {string} className The class of the asset.
-        */
-        createAsset(name: string, className: string): void;
         /**
         * This will download an asset's variables from the server.
         * @param {Array<string>} assetIds An array of assets we are updating
@@ -1662,11 +1604,6 @@ declare module Animate {
         * @param {string} assetId The asset object we are trying to copy
         */
         copyAsset(assetId: string): void;
-        /**
-        * This function is used to delete assets.
-        * @param {Array<string>} assetIDs The asset objects we are trying to delete
-        */
-        deleteAssets(assetIDs: Array<string>): void;
         /**
         * This function is called whenever we get a resonse from the server
         */
@@ -2150,7 +2087,7 @@ declare module Animate {
         * @param {any} tag An optional tag to associate with the log.
         * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
         */
-        logMessage(val: string, tag: any, type?: LogType): JQuery;
+        static logMessage(val: string, tag: any, type?: LogType): JQuery;
         /**
         * Clears all the log messages
         */
@@ -2533,12 +2470,12 @@ declare module Animate {
     * The Tab component will create a series of selectable tabs which open specific tab pages.
     */
     class Tab extends Component {
-        private _tabsDiv;
-        private pagesDiv;
-        private _tabs;
-        private selectedTab;
-        private dropButton;
         static contextMenu: ContextMenu;
+        private _tabSelectorsDiv;
+        private _pagesDiv;
+        private _tabPairs;
+        private _selectedPair;
+        private _dropButton;
         constructor(parent: Component);
         /**
         * When we click the tab
@@ -2609,12 +2546,13 @@ declare module Animate {
     * label and page as well as a few other things.
     */
     class TabPair {
+        tab: Tab;
         tabSelector: Component;
         page: Component;
         name: string;
         private _savedSpan;
         private _modified;
-        constructor(tab: Component, page: Component, name: string);
+        constructor(selector: Component, page: Component, name: string);
         /**
         * Gets if this tab pair has been modified or not
         * @returns {boolean}
@@ -3663,7 +3601,7 @@ declare module Animate {
         checkDimensions(): void;
         container: Container;
         containerReferences: {
-            groups: Array<string>;
+            groups: Array<number>;
             assets: Array<number>;
         };
     }
@@ -3789,9 +3727,7 @@ declare module Animate {
         private _quickCopy;
         private _quickAdd;
         private _contextNode;
-        private _curProj;
         private _shortcutProxy;
-        private _resourceCreated;
         constructor(parent?: Component);
         onShortcutClick(e: any): void;
         onMouseMove(e: any): void;
@@ -3820,11 +3756,6 @@ declare module Animate {
         */
         addAssetInstance(asset: Asset, collapse?: boolean): boolean;
         /**
-        * Update the asset node so that its saved.
-        * @param {Asset} asset The asset to associate with the node
-        */
-        updateAssetInstance(asset: Asset): void;
-        /**
         * Called when we select a menu item.
         */
         onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
@@ -3834,38 +3765,14 @@ declare module Animate {
         */
         onDblClick(e: any): void;
         /**
-        * Use this function to get an array of the groups in the scene.
-        * @returns {Array<TreeNodeGroup>} The array of group nodes
-        */
-        getGroups(): Array<TreeNodeGroup>;
-        /**
-        * Use this function to get a group by its ID
-        * @param {string} id The ID of the group
-        * @returns {TreeNodeGroup}
-        */
-        getGroupByID(id: string): TreeNodeGroup;
-        /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The loader response
         * @param {ProjectEvent} data The data sent from the server
         */
-        onGroupResponse(response: ProjectEvents, event: ProjectEvent): void;
         /** When the rename form is about to proceed. We can cancel it by externally checking
         * if against the data.object and data.name variables.
         */
         onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The type of event
-        * @param {AssetEvent} event The data sent from the server
-        */
-        onAssetResponse(response: ProjectEvents, event: AssetEvent): void;
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        onProjectResponse(response: ProjectEvents, event: ProjectEvent): void;
         /**
         * This function will get a list of asset instances based on their class name.
         * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
@@ -3920,14 +3827,15 @@ declare module Animate {
     */
     class TreeNode extends Component implements IRenamable {
         protected mText: string;
-        private img;
         private _expanded;
         private hasExpandButton;
         canDelete: boolean;
         canFocus: boolean;
         canUpdate: boolean;
+        canCopy: boolean;
         treeview: TreeView;
         private _modified;
+        private _loading;
         private _modifiedStar;
         /**
         * @param {string} text The text to use for this node
@@ -3944,6 +3852,15 @@ declare module Animate {
         * @param {boolean} val
         */
         modified: boolean;
+        /**
+        * Gets if this tree node is busy with a loading operation
+        * @returns {boolean}
+        */
+        /**
+        * Sets if this tree node is busy with a loading operation
+        * @param {boolean} val
+        */
+        loading: boolean;
         /**
         * This will cleanup the component.
         */
@@ -4000,7 +3917,7 @@ declare module Animate {
         /**
         * This will add a node to the treeview
         * @param {TreeNode} node The node to add
-        * @param {boolean} collapse True if you want to make this node collapse while adding the new node. The default is true
+        * @param {boolean} collapse True if you want to make this node collapse while adding the new node
         * @returns {TreeNode}
         */
         addNode(node: TreeNode, collapse?: boolean): TreeNode;
@@ -4021,6 +3938,32 @@ declare module Animate {
         */
         removeNode(node: TreeNode): TreeNode;
         name: string;
+    }
+}
+declare module Animate {
+    /**
+    * This node represents a project resource
+    */
+    class TreeNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNode {
+        resource: T;
+        private _dropProxy;
+        constructor(resource: T, text: string, img: string, hasExpand: boolean);
+        /**
+        * Called whenever the resource is modified
+        */
+        protected onDeleted(type: string, event: Event, sender: EventDispatcher): void;
+        /**
+        * Called whenever the resource is modified
+        */
+        protected onModified(type: string, event: Event, sender: EventDispatcher): void;
+        /**
+        * Called when a draggable object is dropped onto the node
+        */
+        protected onDropped(event: any, ui: any): void;
+        /**
+        * This will cleanup the component.
+        */
+        dispose(): void;
     }
 }
 declare module Animate {
@@ -4058,11 +4001,8 @@ declare module Animate {
     * Treenodes are added to the treeview class. This treenode contains a reference to the
     * AssetClass object defined by plugins.
     */
-    class TreeNodeAssetInstance extends TreeNode {
+    class TreeNodeAssetInstance extends TreeNodeResource<Asset> {
         assetClass: AssetClass;
-        asset: Asset;
-        canCopy: boolean;
-        saved: boolean;
         /**
         * @param {AssetClass} assetClass The name of the asset's template
         * @param {Asset} asset The asset itself
@@ -4079,10 +4019,6 @@ declare module Animate {
         */
         onPropertyGridEdited(response: PropertyGridEvents, data: PropertyGridEvent, sender?: EventDispatcher): void;
         /**
-        * When we click ok on the portal form
-        */
-        save(val?: boolean): void;
-        /**
         * This will cleanup the component.
         */
         dispose(): void;
@@ -4092,16 +4028,11 @@ declare module Animate {
     /**
     *  A tree node class for behaviour container objects.
     */
-    class TreeNodeBehaviour extends TreeNode {
-        private _container;
+    class TreeNodeBehaviour extends TreeNodeResource<Container> {
         /**
         * @param {Container} behaviour The container we are associating with this node
         */
         constructor(container: Container);
-        /**
-        * Whenever the container is modified, we show this with a *
-        */
-        onContainerModified(type: string, event: Event, sender: EventDispatcher): void;
         /**
         * Called when the node is selected
         */
@@ -4110,11 +4041,6 @@ declare module Animate {
         * Whenever a container property is changed by the editor
         */
         onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent, sender?: EventDispatcher): void;
-        /**
-        * Gets the container of this node
-        * @returns {Container}
-        */
-        container: Container;
         /**
         * This will cleanup the component
         */
@@ -4125,50 +4051,16 @@ declare module Animate {
     /**
     * This node represents a group asset. Goups are collections of objects - think of them as arrays.
     */
-    class TreeNodeGroup extends TreeNode {
-        groupID: string;
-        saved: boolean;
-        json: {
-            assets: Array<{
-                name: string;
-                id: string;
-            }>;
-        };
-        private dropProxy;
-        name: string;
-        constructor(id: string, name: string, json: {
-            assets: Array<{
-                name: string;
-                id: string;
-            }>;
-        }, treeview: TreeView);
+    class TreeNodeGroup extends TreeNodeResource<GroupArray> {
+        constructor(group: GroupArray);
         /**
         * This is called when we update the group with new data from the server.
         */
-        updateGroup(name: string, json: {
-            assets: Array<{
-                name: string;
-                id: string;
-            }>;
-        }): void;
-        /**
-        * This function is called when a child node is removed. We have to update
-        * the json object and make its no longer part of the data.
-        * @param id The ID of the object we need to remove.
-        */
-        removeInstance(id: string): void;
-        /**
-        * Notifies if this node is saved or unsaved.
-        */
-        save(val: any): void;
+        updateGroup(): void;
         /**
         * Called when a draggable object is dropped onto the canvas.
         */
-        onObjectDropped(event: any, ui: any): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
+        onDropped(event: any, ui: any): void;
     }
 }
 declare module Animate {
@@ -4177,13 +4069,13 @@ declare module Animate {
     */
     class TreeNodeGroupInstance extends TreeNode {
         private _instanceID;
-        canDelete: boolean;
-        constructor(instanceID: any, name: string);
+        private _group;
+        constructor(instanceID: number, name: string, group: GroupArray);
         /**
         * This will cleanup the component
         */
         dispose(): void;
-        instanceID: any;
+        shallowId: number;
     }
 }
 declare module Animate {
@@ -4205,8 +4097,12 @@ declare module Animate {
     * A Tab pair for the canvas tabs
     */
     class CanvasTabPair extends TabPair {
-        canvas: Canvas;
+        private _canvas;
         constructor(canvas: Canvas, name: string);
+        /**
+        * Whenever the container deleted
+        */
+        onContainerDeleted(type: string, event: Event, sender: EventDispatcher): void;
         /**
         * Whenever the container is modified, we show this with a *
         */
@@ -4215,6 +4111,10 @@ declare module Animate {
         * Cleans up the pair
         */
         dispose(): void;
+        /**
+        * @returns {Canvas}
+        */
+        canvas: Canvas;
     }
 }
 declare module Animate {

@@ -52,14 +52,14 @@ module Animate
 			//Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
-                var textA = a.asset.entry.name.toUpperCase();
-                var textB = b.asset.entry.name.toUpperCase();
+                var textA = a.resource.entry.name.toUpperCase();
+                var textB = b.resource.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
 			var len: number = nodes.length;
 			for ( var i = 0; i < len; i++ )
-                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (selectedID == nodes[i].asset.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>" );
+                selector.append("<option title='" + nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className + "' value='" + nodes[i].resource.entry.shallowId + "' " + (selectedID == nodes[i].resource.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].resource.entry.name + "</option>" );
 			
 			var that = this;
 
@@ -72,8 +72,8 @@ module Animate
             var onEye = function (e: JQueryEventObject  ) 
 			{
 				var val = parseInt( selector.val() );
-				
-				var asset: Asset = User.get.project.getAssetByShallowId( val );
+
+                var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 
 				if ( asset )
 					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "asset", asset ), true );

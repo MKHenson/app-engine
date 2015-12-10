@@ -2,7 +2,7 @@ module Animate
 {
     export enum ResourceType
     {
-        BEHAVIOUR,
+        BEHAVIOUR = 1,
         GROUP,
         ASSET,
         CONTAINER,
@@ -52,7 +52,7 @@ module Animate
 		static HTML_SAVED: ProjectEvents = new ProjectEvents( "html_saved" );
 		static CSS_SAVED: ProjectEvents = new ProjectEvents( "css_saved" );
 		static BUILD_SAVED: ProjectEvents = new ProjectEvents( "build_saved" );
-		static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
+		//static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
 		static BEHAVIOURS_LOADED: ProjectEvents = new ProjectEvents("behaviours_loaded");
 		static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
 		static BEHAVIOUR_UPDATED: ProjectEvents = new ProjectEvents("behaviour_updated");
@@ -63,13 +63,13 @@ module Animate
 		static ASSET_SAVED: ProjectEvents = new ProjectEvents("asset_saved");
 		static ASSET_UPDATED: ProjectEvents = new ProjectEvents("asset_updated");
 		static ASSETS_UPDATED: ProjectEvents = new ProjectEvents("assets_updated");
-		static ASSET_DELETING: ProjectEvents = new ProjectEvents("asset_deleting");
+		//static ASSET_DELETING: ProjectEvents = new ProjectEvents("asset_deleting");
 		static ASSETS_LOADED: ProjectEvents = new ProjectEvents("assets_deleted");
-		static GROUP_UPDATED: ProjectEvents = new ProjectEvents("group_updated");
+		//static GROUP_UPDATED: ProjectEvents = new ProjectEvents("group_updated");
 		static GROUPS_UPDATED: ProjectEvents = new ProjectEvents("groups_updated");
 		static GROUP_SAVED: ProjectEvents = new ProjectEvents("group_saved");
 		static GROUPS_SAVED: ProjectEvents = new ProjectEvents("groups_saved");
-		static GROUP_DELETING: ProjectEvents = new ProjectEvents("group_deleting");
+		//static GROUP_DELETING: ProjectEvents = new ProjectEvents("group_deleting");
 		static GROUP_CREATED: ProjectEvents = new ProjectEvents("group_created");
 		static GROUPS_LOADED: ProjectEvents = new ProjectEvents("groups_loaded");
 		//static FILE_CREATED: ProjectEvents = new ProjectEvents("file_created");
@@ -173,7 +173,7 @@ module Animate
         private _files: Array<FileResource>;
         private _scripts: Array<ScriptResource>;
         private _groups: Array<GroupArray>;
-        private _restPaths: { [type: number]: { url: string; array: Array<ProjectResource<any>> }; }
+        private _restPaths: { [type: number]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
 
 		/**
 		* @param{string} id The database id of this project
@@ -211,92 +211,142 @@ module Animate
             this._restPaths[ResourceType.CONTAINER] = { url: `${DB.API}/containers`, array: this._containers };
             this._restPaths[ResourceType.GROUP] = { url: `${DB.API}/groups`, array: this._groups };
             this._restPaths[ResourceType.SCRIPT] = { url: `${DB.API}/scripts`, array: this._scripts };
-		}
-
-		/**
-		* Gets an asset by its ID
-		* @param {string} id The ID of the asset id
-		* @returns {Asset} The asset whose id matches the id parameter or null
-		*/
-		getAssetByID( id: string ): Asset
-		{
-			for ( var i = 0; i < this._assets.length; i++ )
-                if (this._assets[i].entry._id == id )
-					return this._assets[i];
-
-			return null;
-		}
-
-		/**
-		* Gets an asset by its shallow ID
-		* @param {string} id The shallow ID of the asset id
-		* @returns {Asset} The asset whose id matches the id parameter or null
-		*/
-		getAssetByShallowId( id: number ): Asset
-		{
-			for ( var i = 0; i < this._assets.length; i++ )
-                if (this._assets[i].entry.shallowId == id )
-					return this._assets[i];
-
-			return null;
-		}
-
-		/**
-		* Gets a file by its ID
-		* @param {string} id The ID of the file
-		* @returns {FileResource} The file whose id matches the id parameter or null
-		*/
-        getFile(id: string): FileResource
-		{
-            for (var i = 0; i < this._files.length; i++)
-                if (this._files[i].entry._id == id)
-					return this._files[i];
-
-			return null;
         }
 
         /**
-		* Gets a group by its ID
-		* @param {string} id The ID of the group
-		* @returns {GroupArray} The group whose id matches the id parameter or null
+		* Gets a resource by its ID
+		* @param {string} id The ID of the resource
+		* @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
 		*/
-        getGroup(id: string): GroupArray
+        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): T
         {
-            for (var i = 0; i < this._groups.length; i++)
-                if (this._groups[i].entry._id == id)
-                    return this._groups[i];
+            var types = this._restPaths;
+            if (type)
+            {
+                for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[type].array, l = arr.length; i < l; i++)
+                    if (arr[i].entry._id == id)
+                        return <T>arr[i];
+            }
+            else
+            {
+                for (var t in types)
+                    for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[t].array, l = arr.length; i < l; i++)
+                        if (arr[i].entry._id == id)
+                            return <T>arr[i];
+            }
 
             return null;
         }
 
-
-		/**
-		* Gets a {Container} by its ID
-		* @param {string} id The ID of the Container
-		* @returns {Container} The Container whose id matches the id parameter or null
+        /**
+		* Gets a resource by its shallow ID
+		* @param {string} id The shallow ID of the resource
+		* @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
 		*/
-		getBehaviourById( id: string ): Container
-		{
-			for ( var i = 0; i < this._containers.length; i++ )
-                if (this._containers[i].entry._id == id )
-					return this._containers[i];
+        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T
+        {
+            var types = this._restPaths;
+            if (type)
+            {
+                for (var i = 0, arr = types[type].array, l = arr.length; i < l; i++)
+                    if (arr[i].entry.shallowId == id)
+                        return <T>arr[i];
+            }
+            else
+            {
+                for (var t in types)
+                    for (var i = 0, arr = types[t].array, l = arr.length; i < l; i++)
+                        if (arr[i].entry.shallowId == id)
+                            return <T>arr[i];
+            }
 
-			return null;
-		}
-
-		/**
-		* Gets a {Container} by its shallow or local ID
-		* @param {string} id The local ID of the Container
-		* @returns {Container} The Container whose id matches the id parameter or null
-		*/
-		getBehaviourByShallowId( id: number ): Container
-		{
-			for ( var i = 0; i < this._containers.length; i++ )
-                if (this._containers[i].entry.shallowId == id )
-					return this._containers[i];
-
-			return null;
+            return null;
         }
+
+		///**
+		//* Gets an asset by its ID
+		//* @param {string} id The ID of the asset id
+		//* @returns {Asset} The asset whose id matches the id parameter or null
+		//*/
+		//getAssetByID( id: string ): Asset
+		//{
+		//	for ( var i = 0; i < this._assets.length; i++ )
+  //              if (this._assets[i].entry._id == id )
+		//			return this._assets[i];
+
+		//	return null;
+		//}
+
+		///**
+		//* Gets an asset by its shallow ID
+		//* @param {string} id The shallow ID of the asset id
+		//* @returns {Asset} The asset whose id matches the id parameter or null
+		//*/
+		//getAssetByShallowId( id: number ): Asset
+		//{
+		//	for ( var i = 0; i < this._assets.length; i++ )
+  //              if (this._assets[i].entry.shallowId == id )
+		//			return this._assets[i];
+
+		//	return null;
+		//}
+
+		///**
+		//* Gets a file by its ID
+		//* @param {string} id The ID of the file
+		//* @returns {FileResource} The file whose id matches the id parameter or null
+		//*/
+  //      getFile(id: string): FileResource
+		//{
+  //          for (var i = 0; i < this._files.length; i++)
+  //              if (this._files[i].entry._id == id)
+		//			return this._files[i];
+
+		//	return null;
+  //      }
+
+  //      /**
+		//* Gets a group by its ID
+		//* @param {string} id The ID of the group
+		//* @returns {GroupArray} The group whose id matches the id parameter or null
+		//*/
+  //      getGroup(id: string): GroupArray
+  //      {
+  //          for (var i = 0; i < this._groups.length; i++)
+  //              if (this._groups[i].entry._id == id)
+  //                  return this._groups[i];
+
+  //          return null;
+  //      }
+
+
+		///**
+		//* Gets a {Container} by its ID
+		//* @param {string} id The ID of the Container
+		//* @returns {Container} The Container whose id matches the id parameter or null
+		//*/
+		//getBehaviourById( id: string ): Container
+		//{
+		//	for ( var i = 0; i < this._containers.length; i++ )
+  //              if (this._containers[i].entry._id == id )
+		//			return this._containers[i];
+
+		//	return null;
+		//}
+
+		///**
+		//* Gets a {Container} by its shallow or local ID
+		//* @param {string} id The local ID of the Container
+		//* @returns {Container} The Container whose id matches the id parameter or null
+		//*/
+		//getBehaviourByShallowId( id: number ): Container
+		//{
+		//	for ( var i = 0; i < this._containers.length; i++ )
+  //              if (this._containers[i].entry.shallowId == id )
+		//			return this._containers[i];
+
+		//	return null;
+  //      }
 
         /**
 		* Attempts to update the project details base on the token provided
@@ -328,31 +378,6 @@ module Animate
                 });
             });
         }
-
-  //      /**
-		//* This function is used to fetch the files associated with a project.
-		//* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
-  //      * @returns {Promise<ModepressAddons.IGetFiles>}
-		//*/
-  //      loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
-  //      {
-  //          var that = this;
-  //          return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
-  //          {
-  //              Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
-  //              {
-  //                  if (data.error)
-  //                      return reject(new Error(data.message));
-
-  //                  that.files = data.data;
-  //                  return resolve(data);
-
-  //              }).catch(function (err: IAjaxError)
-  //              {
-  //                  return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
-  //              });
-  //          });
-  //      }
 
         /**
 		* Loads a previously selected build, or creates one if none are selected
@@ -391,7 +416,7 @@ module Animate
 		* Internal function to create a resource wrapper
 		* @param {T} entry The database entry
         * @param {ResourceType} type The type of resource to create
-        * @returns {ProjectResource<any>}
+        * @returns {ProjectResource<T>}
 		*/
         private createResourceInstance<T>(entry: T, type?: ResourceType): ProjectResource<T>
         {
@@ -430,7 +455,7 @@ module Animate
 
         /**
 		* This function is used to fetch the project resources associated with a project.
-		* @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+		* @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<Array<ProjectResource<any>>}
 		*/
         loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>
@@ -512,10 +537,53 @@ module Animate
         }
 
         /**
+        * This function is used to fetch a project resource by Id
+        * @param {string} id the Id of the resource to update
+        * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<T>}
+        */
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type: ResourceType): Promise<T>
+        {
+            var that = this;
+            var paths = this._restPaths;
+            var array = paths[type].array;
+            var resource: T;
+
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id)
+                {
+                    resource = <T>array[i];
+                    break;
+                }
+
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
+
+            return new Promise<T>(function (resolve, reject)
+            {
+                Utils.get<Modepress.IGetResponse<T>>(`${paths[type].url}/${that.entry.user}/${that.entry._id}/${id}`).then(function (response)
+                {
+                    if (response.error)
+                        return reject(new Error(response.message));
+
+                    for (var t in response.data)
+                        if (resource.entry.hasOwnProperty(t))
+                            resource.entry[t] = response.data[t];
+
+                    return resolve(resource);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
+        }
+
+        /**
 		* Use this to edit the properties of a resource
-		* @param {string} id The id of the object we are renaming.
+		* @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
-		* @param {ResourceType} type The type of resource we are renaming
+		* @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse>}
 		*/
         editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>
@@ -559,56 +627,76 @@ module Animate
         }
 
         /**
-		* Use this to edit the properties of a resource
-        * @param {ResourceType} type The type of resource we are renaming
-		* @param {string} id The id of the object we are renaming.
-        * @returns {Promise<Modepress.IResponse>}
+		* Use this to save the properties of a resource
+		* @param {string} id The id of the object we are saving.
+        * @param {ResourceType} type [Optional] The type of resource we are saving
+        * @returns {Promise<boolean>}
 		*/
-        saveResources<T>(type: ResourceType, id?: string): Promise<boolean>
+        saveResource(id: string, type?: ResourceType): Promise<boolean>
         {
             var paths = this._restPaths;
-            var promises: Array<Promise<boolean>> = [];
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
-            var resources: Array<ProjectResource<Engine.IResource>> = paths[type].array;
+            var resource: ProjectResource<Engine.IResource>;
+            var url: string;
 
-            // Creates a promise that updates the resource data and sets saved property when successful
-            var saveResource = function (url: string, resource: ProjectResource<Engine.IResource>): Promise<boolean>
+            if (type)
             {
-                return new Promise<boolean>(function (resolve, reject)
+                url = paths[type].url;
+                for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++)
                 {
-                    Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
+                    if (arr[i].entry._id == id)
                     {
-                        if (response.error)
-                            return reject(new Error(response.message));
-
-                        resource.saved = true;
-                        return resolve(true);
-
-                    }).catch(function (err: IAjaxError)
-                    {
-                        reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
-                    });
-                });
-            }
-
-            // Go through each resource
-            for (var i: number = 0, l = resources.length; i < l; i++)
-            {
-                // Its saved - do nothing
-                if (resources[i].saved)
-                    continue;
-
-                if (id !== undefined && resources[i].entry._id == id)
-                {
-                    promises.push(saveResource(`${paths[type].url}/${details.username}/${projId}/${resources[i].entry._id}`, resources[i] ));
-                    break;
+                        url = paths[t].url;
+                        resource = arr[i];
+                        break;
+                    }
                 }
-                else if (id == undefined)
-                    promises.push(saveResource(`${paths[type].url}/${details.username}/${projId}/${resources[i].entry._id}`, resources[i]));
-
             }
+            else
+            {
+                for (var t in paths)
+                    for (var i = 0, arr = paths[t].array, l = arr.length; i < l && !url; i++)
+                    {
+                        if (arr[i].entry._id == id)
+                        {
+                            url = paths[t].url;
+                            resource = arr[i];
+                            break;
+                        }
+                    }
+            }
+
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
+                {
+                    if (response.error)
+                        return reject(new Error(response.message));
+
+                    resource.saved = true;
+                    return resolve(true);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
+        }
+
+        /**
+		* Use this to edit the properties of a resource
+        * @param {ResourceType} type The type of resource we are saving
+        * @returns {Promise<boolean>}
+		*/
+        saveResources(type: ResourceType): Promise<boolean>
+        {
+            var paths = this._restPaths;
+            var promises: Array<Promise<boolean>> = [];
+
+            for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++)
+                promises.push(this.saveResource(arr[i].entry._id, type));
 
             return new Promise<boolean>(function (resolve, reject)
             {
@@ -617,6 +705,84 @@ module Animate
                     resolve(true);
 
                 }).catch(function (err: Error)
+                {
+                    reject(err);
+                });
+            });
+        }
+
+        /**
+		* Use this to delete a resource by its Id
+		* @param {string} id The id of the object we are deleting
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns {Promise<boolean>}
+		*/
+        deleteResource(id: string, type: ResourceType): Promise<boolean>
+        {
+            var that = this;
+            var details = User.get.entry;
+            var projId = this.entry._id;
+            var paths = this._restPaths;
+            var url: string = `${paths[type].url}/${details.username}/${projId}/${id}`;
+            var array = paths[type].array;
+            var resource: ProjectResource<Engine.IResource>;
+
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id)
+                {
+                    resource = array[i];
+                    break;
+                }
+
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
+
+            return new Promise<boolean>(function (resolve, reject)
+            {
+                Utils.delete<Modepress.IResponse>(url).then(function (response)
+                {
+                    if (response.error)
+                        return reject(new Error(response.message));
+
+                    array.splice(array.indexOf(resource), 1);
+                    resource.emit(new Event("deleted"));
+                    return resolve(true);
+
+                }).catch(function (err: IAjaxError)
+                {
+                    reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
+                });
+            });
+        }
+
+        /**
+		* Deletes several resources in 1 function call
+        * @param {Array<string>} ids The ids An array of resource Ids
+        * @returns {Promise<boolean>}
+		*/
+        deleteResources(ids: Array<string>): Promise<boolean>
+        {
+            var promises: Array<Promise<boolean>> = [];
+            var paths = this._restPaths;
+
+            for (var t in paths)
+                for (var k = 0, arr = paths[t].array, kl = arr.length; k < kl; k++)
+                    for (var i = 0, l = ids.length; i < l; i++)
+                    {
+                        if (arr[k].entry._id == ids)
+                        {
+                            promises.push(this.deleteResource(arr[k].entry._id, t));
+                            break;
+                        }
+                    }
+
+            return new Promise<boolean>(function(resolve, reject)
+            {
+                Promise.all(promises).then(function (data)
+                {
+                    resolve(true);
+
+                }).catch(function(err: Error)
                 {
                     reject(err);
                 });
@@ -650,7 +816,7 @@ module Animate
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(type: ResourceType, data : T ): Promise<ProjectResource<T>>
+        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>>
         {
             var that = this;
             var details = User.get.entry;
@@ -665,7 +831,7 @@ module Animate
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    var resource : ProjectResource<any>;
+                    var resource : ProjectResource<T>;
                     if (type == ResourceType.ASSET)
                         resource = that.createResourceInstance<T>(data.data, ResourceType.ASSET);
                     else if (type == ResourceType.CONTAINER)
@@ -872,23 +1038,23 @@ module Animate
 		//}
 
 
-		/**
-		* This function is used to delete behaviours.
-		* @param {Array<string>} behavioursIds The behaviour Ids we need to delete
-		*/
-		deleteBehaviours( behavioursIds: Array<string> )
-		{
-			var ids: Array<string> = [];
+		///**
+		//* This function is used to delete behaviours.
+		//* @param {Array<string>} behavioursIds The behaviour Ids we need to delete
+		//*/
+		//deleteBehaviours( behavioursIds: Array<string> )
+		//{
+		//	var ids: Array<string> = [];
 
-			//Create a multidimension array and pass each of the _behaviours
-			for ( var i = 0, l = behavioursIds.length; i < l; i++ )
-				ids.push( behavioursIds[i] );
+		//	//Create a multidimension array and pass each of the _behaviours
+		//	for ( var i = 0, l = behavioursIds.length; i < l; i++ )
+		//		ids.push( behavioursIds[i] );
 
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids } );
-		}
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids } );
+		//}
 
 
 		///**
@@ -916,65 +1082,65 @@ module Animate
 
 		
 
-		/**
-		* This function is used to delete files from a project and the database. The file asset will
-		* not be deleted if another project has a reference to it. The reference of this project to the file will be 
-		* removed either way. 
-		* @param {Array<string>} ids An array of file IDs to delete
-		*/
-		deleteFiles( ids: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/delete-files", { projectId: this.entry._id, ids: ids, } );
-		}
+		///**
+		//* This function is used to delete files from a project and the database. The file asset will
+		//* not be deleted if another project has a reference to it. The reference of this project to the file will be 
+		//* removed either way. 
+		//* @param {Array<string>} ids An array of file IDs to delete
+		//*/
+		//deleteFiles( ids: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/delete-files", { projectId: this.entry._id, ids: ids, } );
+		//}
 
-		/**
-		* Use this function to create an empty data file for the user
-		* @param {string} name The name of file we are creating. Please note this is not a file name. 
-		*/
-		createEmptyFile( name: string )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/file/create-empty-file", { projectId: this.entry._id, name: name });
-		}
+		///**
+		//* Use this function to create an empty data file for the user
+		//* @param {string} name The name of file we are creating. Please note this is not a file name. 
+		//*/
+		//createEmptyFile( name: string )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/file/create-empty-file", { projectId: this.entry._id, name: name });
+		//}
 
-		/**
-		* Fills a data file with the contents of an XHR request
-		* See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-		* @param {string} id The id of the file we are 
-		* @param {ArrayBufferView} view The data to fill the file with
-		*/
-		fillFile( id: string, view : ArrayBufferView )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-			loader.contentType = "application/octet-stream";
-			loader.processData = false;
-            loader.getVariables = { id: id, projectId: this.entry._id };
+		///**
+		//* Fills a data file with the contents of an XHR request
+		//* See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+		//* @param {string} id The id of the file we are 
+		//* @param {ArrayBufferView} view The data to fill the file with
+		//*/
+		//fillFile( id: string, view : ArrayBufferView )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+		//	loader.contentType = "application/octet-stream";
+		//	loader.processData = false;
+  //          loader.getVariables = { id: id, projectId: this.entry._id };
 
-			loader.load( "/file/fill-file", view);
-		}
+		//	loader.load( "/file/fill-file", view);
+		//}
 
-		/**
-		* Use this function to update file properties
-		* @param {string} fileId The file we are updating
-		* @param {string} name The new name of the file.
-		* @param {Array<string>} tags The new comma separated tags of the file.
-		* @param {bool} favourite If this file is a favourite
-		* @param {bool} global True or false if this file is shared globally
-		*/
-		saveFile( fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global } );
-		}
+		///**
+		//* Use this function to update file properties
+		//* @param {string} fileId The file we are updating
+		//* @param {string} name The new name of the file.
+		//* @param {Array<string>} tags The new comma separated tags of the file.
+		//* @param {bool} favourite If this file is a favourite
+		//* @param {bool} global True or false if this file is shared globally
+		//*/
+		//saveFile( fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global } );
+		//}
 
 
 		///**
@@ -1039,46 +1205,46 @@ module Animate
   //          loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
 		//}
 
-		/**
-		* Deletes groups from the project
-		* @param {Array<string>} groupIds The array of group IDs to delete
-		*/
-		deleteGroups( groupIds: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/delete-groups", { projectId: this.entry._id, ids: groupIds } );
-		}
+		///**
+		//* Deletes groups from the project
+		//* @param {Array<string>} groupIds The array of group IDs to delete
+		//*/
+		//deleteGroups( groupIds: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/delete-groups", { projectId: this.entry._id, ids: groupIds } );
+		//}
 
-		/**
-		* This will download all group variables from the server. If successful, the function will also get
-		* the asset treeview to update its contents
-		* @param {Array<string>} groupIds  groupIds The array of group IDs to update
-		*/
-		updateGroups( groupIds: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/update-groups", { projectId: this.entry._id, ids: groupIds } );
-		}
+		///**
+		//* This will download all group variables from the server. If successful, the function will also get
+		//* the asset treeview to update its contents
+		//* @param {Array<string>} groupIds  groupIds The array of group IDs to update
+		//*/
+		//updateGroups( groupIds: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/update-groups", { projectId: this.entry._id, ids: groupIds } );
+		//}
 
-		/**
-		* This function is used to create a new asset on the server. 
-		* If the server sends a fail message then no new asset
-		* will be created. You can use the event <Project.ASSET_CREATED> to hook into
-		* a successful DB entry created.
-		* @param {string} name The proposed name of the asset.
-		* @param {string} className The class of the asset.
-		*/
-		createAsset( name: string, className: string )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-            loader.on(LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: ProjectResource.generateLocalId() });
-		}
+		///**
+		//* This function is used to create a new asset on the server. 
+		//* If the server sends a fail message then no new asset
+		//* will be created. You can use the event <Project.ASSET_CREATED> to hook into
+		//* a successful DB entry created.
+		//* @param {string} name The proposed name of the asset.
+		//* @param {string} className The class of the asset.
+		//*/
+		//createAsset( name: string, className: string )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+  //          loader.on(LoaderEvents.FAILED, this.onServer, this);
+  //          loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: ProjectResource.generateLocalId() });
+		//}
 
 		///**
 		//* This will save a group of asset's variables to the server in JSON.
@@ -1150,17 +1316,17 @@ module Animate
             loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: ProjectResource.generateLocalId() });
 		}
 
-		/**
-		* This function is used to delete assets.
-		* @param {Array<string>} assetIDs The asset objects we are trying to delete
-		*/
-		deleteAssets( assetIDs: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs } );
-		}
+		///**
+		//* This function is used to delete assets.
+		//* @param {Array<string>} assetIDs The asset objects we are trying to delete
+		//*/
+		//deleteAssets( assetIDs: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs } );
+		//}
 
 		///**
 		//* This function is used to fetch the _assets of a project. 
@@ -1248,24 +1414,24 @@ module Animate
 						//this.mCurBuild = data.build;
 						//this.emit( new ProjectEvent( ProjectEvents.BUILD_SAVED, "Build saved", LoaderEvents.fromString( data.return_type ), this.mCurBuild ) );
 					}
-					//Delete a new Behaviour
-					else if ( loader.url == "/project/delete-behaviours" )
-					{
-						//Update behaviours ids which we fetched from the DB.
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-							var len = this._containers.length;
-							for ( var ii = 0; ii < len; ii++ )
-                                if (this._containers[ii].entry._id == data[i] )
-								{
-									var behaviour : Container = this._containers[ii];
-									behaviour.dispose();									
-									this._containers.splice( ii, 1 );
-									//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
-									break;
-								}
-						}							
-					}
+					////Delete a new Behaviour
+					//else if ( loader.url == "/project/delete-behaviours" )
+					//{
+					//	//Update behaviours ids which we fetched from the DB.
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+					//		var len = this._containers.length;
+					//		for ( var ii = 0; ii < len; ii++ )
+     //                           if (this._containers[ii].entry._id == data[i] )
+					//			{
+					//				var behaviour : Container = this._containers[ii];
+					//				behaviour.dispose();									
+					//				this._containers.splice( ii, 1 );
+					//				//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
+					//				break;
+					//			}
+					//	}							
+					//}
 					////Create a new Behaviour
 					//else if ( loader.url == "/project/create-behaviour" )
 					//{
@@ -1336,31 +1502,31 @@ module Animate
 					//	if ( CSSTab.singleton )
 					//		CSSTab.singleton.save();
 					//}
-					//Delete an asset
-					else if ( loader.url == "/project/delete-assets" )
-					{
-						dispatchEvent = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
-						var ev = new AssetEvent( ProjectEvents.ASSET_DELETING, null );
+					////Delete an asset
+					//else if ( loader.url == "/project/delete-assets" )
+					//{
+					//	dispatchEvent = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
+					//	var ev = new AssetEvent( ProjectEvents.ASSET_DELETING, null );
 
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-							var len = this._assets.length;
-							for ( var ii = 0; ii < len; ii++ )
-                                if (this._assets[ii].entry._id == data[i] )
-								{
-									ev.asset = this._assets[ii];
-									this.emit( ev );
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+					//		var len = this._assets.length;
+					//		for ( var ii = 0; ii < len; ii++ )
+     //                           if (this._assets[ii].entry._id == data[i] )
+					//			{
+					//				ev.asset = this._assets[ii];
+					//				this.emit( ev );
 
-									//Notify the destruction of an asset
-									( <AssetEvent>dispatchEvent).asset = this._assets[ii];
-									pManager.emit( dispatchEvent );
+					//				//Notify the destruction of an asset
+					//				( <AssetEvent>dispatchEvent).asset = this._assets[ii];
+					//				pManager.emit( dispatchEvent );
 
-									this._assets[ii].dispose();
-									this._assets.splice( ii, 1 );
-									break;
-								}
-						}							
-					}
+					//				this._assets[ii].dispose();
+					//				this._assets.splice( ii, 1 );
+					//				break;
+					//			}
+					//	}							
+					//}
 					////Creates each of the _files and notify they were loaded.
 					//else if ( loader.url == "/project/get-files" )
 					//{
@@ -1455,27 +1621,27 @@ module Animate
 						}
 						//this.emit(new ProjectEvent(ProjectEvents.GROUPS_LOADED, "Groups loaded", LoaderEvents.COMPLETE, this ) );
 					}
-					//Delete a new group
-					else if ( loader.url == "/project/delete-groups" )
-					{
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-							var grpID = data[i];
-							//this.emit( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
-						}
-					}
-					//Update / download group details
-					else if ( loader.url == "/project/update-groups" )
-					{
-						//Update _assets which we fetched from the DB.
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-							var grp = data[i];
-							//this.emit( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
-						}
+					////Delete a new group
+					//else if ( loader.url == "/project/delete-groups" )
+					//{
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+					//		var grpID = data[i];
+					//		//this.emit( new ProjectEvent( ProjectEvents.GROUP_DELETING, "Group deleting", LoaderEvents.COMPLETE, grpID ) );
+					//	}
+					//}
+					////Update / download group details
+					//else if ( loader.url == "/project/update-groups" )
+					//{
+					//	//Update _assets which we fetched from the DB.
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+					//		var grp = data[i];
+					//		//this.emit( new ProjectEvent( ProjectEvents.GROUP_UPDATED, "Group updated", LoaderEvents.COMPLETE, grp ) );
+					//	}
 
-						//this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
-					}
+					//	//this.emit( new ProjectEvent( ProjectEvents.GROUPS_UPDATED, "Groups updated", null ) );
+					//}
 					//Entered if we have saved some groups
 					//else if ( loader.url == "/project/save-groups" )
 					//{
@@ -1651,42 +1817,31 @@ module Animate
         {
             this.entry = null;
 			var pManager: PluginManager = PluginManager.getSingleton();
-			var event: Event;
+            var event: AssetEvent;
 
 			//Cleanup behaviours
 			var i = this._containers.length;
 			while ( i-- )
-			{
-				//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
 				this._containers[i].dispose();
-			}
+            
+            i = this._assets.length;
 
-			i = this._assets.length;
 			event = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
 			while ( i-- )
 			{
-				( <AssetEvent>event).asset = this._assets[i];
+                event.asset = this._assets[i];
+
 				//Notify the destruction of an asset
 				pManager.emit( event );			
 				this._assets[i].dispose();
 			}
-
-			//i = this._files.length;
-			//while ( i-- )
-			//	this._files[i].dispose();
-
-			//this._plugins = null;
-			//this.created = null;
-			//this.lastModified = null;
-			//this._id = null;
+            
 			this.saved = true;
-			//this.mName = null;
-			//this.mDescription = null;
-			this._containers = [];
-			this._assets = [];
-			//this.buildId = null;
-            this._files = [];
-            this._groups = [];
+            this._containers.splice(0, this._containers.length);
+            this._assets.splice(0, this._assets.length);
+            this._groups.splice(0, this._groups.length);
+            this._files.splice(0, this._files.length);
+            this._scripts.splice(0, this._scripts.length);
 		}
 
         get plugins(): Array<Engine.IPlugin> { return this.entry.$plugins; }

@@ -32,8 +32,8 @@ module Animate
 			var fileExtensions: Array<string> = propertyValue.extensions || [];
 			var path = propertyValue.path || "";
 
-			var project : Project = User.get.project;
-            var file: Engine.IFile = project.getFile(fileID);
+            var project: Project = User.get.project;
+            var file: Engine.IFile = project.getResourceByID<FileResource>(fileID, ResourceType.FILE);
 			
 			//Create HTML	
 			var editor: JQuery =

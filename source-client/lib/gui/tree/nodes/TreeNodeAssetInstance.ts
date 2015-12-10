@@ -4,12 +4,9 @@ module Animate
 	* Treenodes are added to the treeview class. This treenode contains a reference to the 
 	* AssetClass object defined by plugins.
 	*/
-	export class TreeNodeAssetInstance extends TreeNode
+    export class TreeNodeAssetInstance extends TreeNodeResource<Asset>
 	{
-		public assetClass: AssetClass;
-		public asset: Asset;
-		public canCopy: boolean;
-		public saved: boolean;
+		public assetClass: AssetClass;		
 
 		/**
 		* @param {AssetClass} assetClass The name of the asset's template  
@@ -18,21 +15,16 @@ module Animate
 		constructor( assetClass: AssetClass, asset : Asset )
 		{
 			// Call super-class constructor
-            super((jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name ), "media/variable.png", false );
+            super(asset, (jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name ), "media/variable.png", false );
 
-			this.asset = asset;
-			this.canDelete = true;
-			this.canCopy = true;
-			this.saved = true;
+            this.canCopy = true;
 			this.canUpdate = true;
 			this.assetClass = assetClass;
-
-			this.element.draggable( { opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
 			this.element.addClass( "behaviour-to-canvas" );
 			this.element.addClass( "tree-node-asset" );
 
-			if ( this.asset.properties == null || this.asset.properties.variables.length == 0 )
-				this.asset.properties = assetClass.buildVariables();
+            if (this.resource.properties == null || this.resource.properties.variables.length == 0 )
+                this.resource.properties = assetClass.buildVariables();
 	
 			PropertyGrid.getSingleton().on( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
 		}
@@ -41,9 +33,9 @@ module Animate
 		* Called when the node is selected
 		*/
 		onSelect()
-		{
-            PropertyGrid.getSingleton().editableObject(this.asset.properties, this.text + "  [" + this.asset.entry.shallowId + "]", this, "media/variable.png" );
-			PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, this.asset ) );
+        {
+            PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text + "  [" + this.resource.entry.shallowId + "]", this, "media/variable.png");
+            PluginManager.getSingleton().emit(new AssetEvent(EditorEvents.ASSET_SELECTED, this.resource ) );
 		}
 
 		/**
@@ -55,51 +47,19 @@ module Animate
 		{
 			if ( data.id == this )
 			{
-				this.asset.saved = false;
-				this.saved = this.asset.saved;
-
-				var oldValue = this.asset.properties.getVar( data.propertyName ).value;
-				this.asset.properties.updateValue( data.propertyName, data.propertyValue );
-				PluginManager.getSingleton().assetEdited( this.asset, data.propertyName, data.propertyValue, oldValue, data.propertyType );
-                this.modified = true;
+                this.resource.saved = false;
+                var oldValue = this.resource.properties.getVar( data.propertyName ).value;
+                this.resource.properties.updateValue( data.propertyName, data.propertyValue );
+                PluginManager.getSingleton().assetEdited(this.resource, data.propertyName, data.propertyValue, oldValue, data.propertyType );
 			}
 		}
 		
-		/**
-		* When we click ok on the portal form
-		*/
-		save( val : boolean = true )
-        {
-            if (val !== this.saved)
-                this.modified = !val;
-     
-			if ( !val )
-			{
-				this.saved = val;
-				this.asset.saved = val;
-				return;
-			}
-
-			if ( this.saved )
-				return;
-
-			this.asset.saved = true;
-			this.saved = this.asset.saved;
-			if ( this.asset.properties == null )
-				this.asset.properties = this.assetClass.buildVariables();
-		}
-
-
 		/**
 		* This will cleanup the component.
 		*/
 		dispose()
 		{
-			this.element.draggable( "destroy" );
 			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
-
-			this.asset = null;
-			this.saved = null;
 			this.assetClass = null;
 
 			//Call super

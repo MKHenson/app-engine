@@ -173,7 +173,7 @@ export class ResourceController extends Controller
                     if (!isValidID(idsArray[i]))
                         return res.end(JSON.stringify(<IResponse>{ error: true, message: `ID '${idsArray[i]}' is not a valid ID` }));
                     else
-                        (<any>deleteToken).$or.push(new mongodb.ObjectID(idsArray[i]));
+                        (<any>deleteToken).$or.push(<Engine.IResource>{ _id : new mongodb.ObjectID(idsArray[i]) });
             }
         }
 

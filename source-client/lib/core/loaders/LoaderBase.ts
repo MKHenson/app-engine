@@ -1,4 +1,6 @@
-﻿ module Animate
+﻿// TODO : Remove this class
+
+module Animate
  {
 	/**
 	* Basic set of loader events shared by all loaders 
@@ -104,15 +106,15 @@
 			if ( !LoaderBase.loaderBackdrop )
 			{
                 var str = "<div class='modal-backdrop dark-modal'><div class='logo-container'>" +
-					"<div class='logo-1 animated-logo loader-cog-slow'><img src='media/logo-1.png'/></div>" +
-					"<div class='logo-2 animated-logo loader-cog'><img src='media/logo-2.png'/></div>" +
-					"<div class='logo-3 animated-logo loader-cog-slow'><img src='media/logo-3.png'/></div>" +
+					"<div class='logo-1 animated-logo rotate-360-slow'><img src='media/logo-1.png'/></div>" +
+					"<div class='logo-2 animated-logo rotate-360'><img src='media/logo-2.png'/></div>" +
+					"<div class='logo-3 animated-logo rotate-360-slow'><img src='media/logo-3.png'/></div>" +
 					"<div class='logo-4 animated-logo'><img src='media/logo-4.png'/></div>" +
 					"<div class='logo-5 animated-logo'><span class='loader-text'>LOADING</span></div>" +
 
 					"</div></div>";
 
-				//return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='loader-cog' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
+				//return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='rotate-360' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
 				LoaderBase.loaderBackdrop = jQuery( str );
 			}
 

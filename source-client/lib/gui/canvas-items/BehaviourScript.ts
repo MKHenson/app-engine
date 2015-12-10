@@ -20,7 +20,7 @@ module Animate
 			
             this.scriptTab = null;
             this.scriptId = scriptId;
-            this._loading = jQuery("<img src='media/script-buffer.gif' />");
+            this._loading = jQuery("<img src='media/buffering-white.png' class='rotate-360' />");
             var element = this.element,
                 that = this,
                 project = User.get.project,
@@ -40,13 +40,13 @@ module Animate
         
             promise.then(function (data: ScriptResource)
             {
-                Logger.getSingleton().logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
+                Logger.logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
                 that._loading.detach();
                 that.scriptId = data.entry._id;
 
             }).catch(function (err: Error)
             {
-                Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                Logger.logMessage(err.message, null, LogType.ERROR);
             });
 
 			////If this was copied we need to make a duplicate in the database and use that

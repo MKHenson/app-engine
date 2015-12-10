@@ -65,23 +65,23 @@ module Animate
 							//var prevNodeIndex = parent.index( this._selectedNodes[0].element );
 							//if ( selectedNodeIndex > prevNodeIndex )
 							//{
-							var startSelecting = false;
-							var pNode = parent.data( "component" );
+                            var startSelecting = false;
+                            var pNode: TreeNode  = parent.data("component");
 
-							for ( var i = 0; pNode.mChildren.length; i++ )
+							for ( var i = 0; pNode.children.length; i++ )
 							{
-								if ( !startSelecting && pNode.mChildren[i] == comp )
+								if ( !startSelecting && pNode.children[i] == comp )
 								{
 									this.selectNode( null );
 									return;
 								}
 
-								if ( startSelecting || pNode.mChildren[i] == this._selectedNodes[0] )
+								if ( startSelecting || pNode.children[i] == this._selectedNodes[0] )
 								{
-									startSelecting = true;
-									this.selectNode( pNode.mChildren[i], false, true );
+                                    startSelecting = true;
+                                    this.selectNode(<TreeNode>pNode.children[i], false, true);
 
-									if ( pNode.mChildren[i] == comp )
+									if ( pNode.children[i] == comp )
 										return;
 								}
 							}

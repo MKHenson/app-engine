@@ -137,8 +137,10 @@ module Animate
 		* @param {any} tag An optional tag to associate with the log.
 		* @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
 		*/
-		logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE)
-		{
+		static logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE)
+        {
+            var logger = Logger.getSingleton();
+
 			var img = null;
 			if ( type == LogType.MESSAGE )
 				img = "media/tick.png";
@@ -148,16 +150,16 @@ module Animate
 				img = "media/warning-20.png";
 
 			//Add a border glow to the messages dock items
-			if ( type != LogType.MESSAGE && this.element.data( "preview" ) != this.mDocker.activePreview )
+            if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview )
 			{
-				var offset = this.mDocker.element.offset();
-				jQuery( "body" ).append( this.warningFlagger );
-				this.warningFlagger.css( { left: offset.left, top: offset.top - this.warningFlagger.height() });
+                var offset = logger.mDocker.element.offset();
+                jQuery("body").append(logger.warningFlagger );
+                logger.warningFlagger.css({ left: offset.left, top: offset.top - logger.warningFlagger.height() });
 
-				this.element.data( "preview" ).addClass( "fade-animation" );
+                logger.element.data( "preview" ).addClass( "fade-animation" );
             }
             val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() } ${new Date(Date.now()).toLocaleTimeString()}</span>` + val;
-			var toAdd = this.addItem( img, val, true );
+            var toAdd = logger.addItem( img, val, true );
 			toAdd.data( "tag", tag );
 			return toAdd;
 		}

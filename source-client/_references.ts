@@ -104,6 +104,7 @@
 
 /// <reference path="lib/gui/tree/TreeViewScene.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNode.ts" />
+/// <reference path="lib/gui/tree/nodes/TreeNodeResource.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeAssetClass.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeAssetInstance.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeBehaviour.ts" />

@@ -54,8 +54,8 @@ declare module Animate
 	export interface GroupToken
 	{
 		name: string;
-		id: string;
-		items: Array<any>
+        id: string;
+        items: Array<number>
 	}
 
 	export interface AssetToken

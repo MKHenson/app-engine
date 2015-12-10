@@ -21,9 +21,9 @@ module Animate
 		private _quickCopy: Component;
 		private _quickAdd: Component;
 		private _contextNode: TreeNode;
-		private _curProj: Project;
+		//private _curProj: Project;
 		private _shortcutProxy: any;
-        private _resourceCreated: any;
+        //private _resourceCreated: any;
 
 		constructor( parent? : Component )
 		{
@@ -70,7 +70,7 @@ module Animate
 
 			this._contextNode = null;
 			this._shortcutProxy = this.onShortcutClick.bind( this );
-			this._curProj = null;
+			//this._curProj = null;
 
 			jQuery( "body" ).on( "keydown", this.onKeyDown.bind( this ) );
 			this.element.on( "dblclick", this.onDblClick.bind( this ) );
@@ -78,7 +78,7 @@ module Animate
 
 			this._quickAdd.element.detach();
             this._quickCopy.element.detach();
-            this._resourceCreated = this.onResourceCreated.bind(this);
+            //this._resourceCreated = this.onResourceCreated.bind(this);
             RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
@@ -129,7 +129,7 @@ module Animate
 		*/
         projectReady(project: Project)
         {
-            project.on("resource-created", this._resourceCreated, this);
+            project.on("resource-created", this.onResourceCreated, this);
 
 			//Add all the asset nodes 
 			var assetTemplates = PluginManager.getSingleton().assetTemplates;
@@ -144,16 +144,16 @@ module Animate
 					this._assetsNode.addNode( toRet );
 				}
 
-			this._curProj = User.get.project;
+			//this._curProj = User.get.project;
 			//this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-			this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
-			this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
-			this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
-			this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
-			this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
-			this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
-			this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
-			this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
             //RenameForm.get.on("renamed", this.onObjectRenamed, this);
 
         }
@@ -170,8 +170,10 @@ module Animate
                 this.addAssetInstance(r, false);
             else if (r instanceof Container)
                 this._sceneNode.addNode(new TreeNodeBehaviour(r));
+            else if (r instanceof GroupArray)
+                this._groupsNode.addNode(new TreeNodeGroup(r));
 
-            // Todo: Do something when a group node is created
+            // Todo: Add script nodes + files?
         }
 
 		/**
@@ -179,21 +181,21 @@ module Animate
 		*/
         projectReset(project: Project)
         {
-            project.off("resource-created", this._resourceCreated, this);
+            project.off("resource-created", this.onResourceCreated, this);
 
-			if ( this._curProj )
-			{
+			//if ( this._curProj )
+			//{
 				//this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-				this._curProj.off( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
-				this._curProj.off( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
-				this._curProj.off( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
-				this._curProj.off( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
-				this._curProj.off( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
-				this._curProj.off( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
-				this._curProj.off( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
-				this._curProj.off( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+				//this._curProj.off( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+				//this._curProj.off( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+				//this._curProj.off( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+				//this._curProj.off( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+				//this._curProj.off( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+				//this._curProj.off( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+				//this._curProj.off( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+				//this._curProj.off( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
                 //RenameForm.get.off("renamed", this.onObjectRenamed, this);
-			}
+			//}
 
 			this.children[0].clear();
 			this.children[1].clear();
@@ -220,9 +222,9 @@ module Animate
                         if (node instanceof TreeNodeGroup)
                             promise = RenameForm.get.renameObject(node, node.text, node.id, ResourceType.GROUP);
                         else if (node instanceof TreeNodeBehaviour)
-                            promise = RenameForm.get.renameObject(node.container.entry, node.text, node.container.entry._id, ResourceType.BEHAVIOUR);
+                            promise = RenameForm.get.renameObject(node.resource.entry, node.text, node.resource.entry._id, ResourceType.BEHAVIOUR);
                         else if (node instanceof TreeNodeAssetInstance)
-                            promise = RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, ResourceType.ASSET);
+                            promise = RenameForm.get.renameObject(node.resource, node.text, node.resource.entry._id, ResourceType.ASSET);
 
                         if (promise)
                         {
@@ -231,7 +233,7 @@ module Animate
                                 node.text = token.newName;
 
                                 if (node instanceof TreeNodeAssetInstance)
-                                    PluginManager.getSingleton().emit(new AssetRenamedEvent(node.asset, token.oldName));
+                                    PluginManager.getSingleton().emit(new AssetRenamedEvent(node.resource, token.oldName));
                             });
                         }
                     }
@@ -261,16 +263,16 @@ module Animate
 			return false;
 		}
 
-		/**
-		* Update the asset node so that its saved. 
-		* @param {Asset} asset The asset to associate with the node
-		*/
-		updateAssetInstance( asset: Asset )
-		{
-			var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", asset );
-			if ( node != null )
-				node.save();
-		}
+		///**
+		//* Update the asset node so that its saved. 
+		//* @param {Asset} asset The asset to associate with the node
+		//*/
+		//updateAssetInstance( asset: Asset )
+		//{
+		//	var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", asset );
+		//	if ( node != null )
+		//		node.save();
+		//}
 
 		///**
 		//* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
@@ -313,126 +315,116 @@ module Animate
             var promise: Promise<any>;
             var project = User.get.project;
             var context = this._contextNode;
+            var selection = event.item.text;
 
-			//DELETE
-			if ( context && event.item.text == "Delete" )
-			{
-				this._quickAdd.element.off( "click", this._shortcutProxy );
-				this._quickCopy.element.off( "click", this._shortcutProxy );
+            // Get the selected nodes
+            var selectedNodes: Array<TreeNode> = [];
+            var i = this.selectedNodes.length;
+            while (i--)
+                selectedNodes.push(this.selectedNodes[i]);
 
-				this._quickAdd.element.detach();
-				this._quickCopy.element.detach();
+            if (!context)
+                return;
 
-				if ( context instanceof TreeNodeBehaviour )
-				{
-					var selectedNodes = [];
-					var i = this.selectedNodes.length;
-					while ( i-- )
-						selectedNodes.push( this.selectedNodes[i] );
+            switch (selection)
+            {
+                case "Delete":
 
+                    this._quickAdd.element.off("click", this._shortcutProxy);
+                    this._quickCopy.element.off("click", this._shortcutProxy);
+                    this._quickAdd.element.detach();
+                    this._quickCopy.element.detach();
 
-					var behaviours = [];
-					i = selectedNodes.length;
-					while ( i-- )
-						behaviours.push( selectedNodes[i].behaviour.id );
+                    selectedNodes.forEach(function (val, index)
+                    {
+                        val.loading = true;
+                        if (val instanceof TreeNodeResource)
+                        {
+                            project.deleteResources([(<ProjectResource<Engine.IResource>>val.resource).entry._id]).then(function (data)
+                            {
+                                val.loading = false;
 
-					project.deleteBehaviours( behaviours );
-				}
-				else if ( context instanceof TreeNodeAssetInstance )
-				{
-					var selectedNodes = [];
-					var i = this.selectedNodes.length;
-					while ( i-- )
-						selectedNodes.push( this.selectedNodes[i] );
+                            }).catch(function (err: Error)
+                            {
+                                val.loading = false;
+                                Logger.logMessage(err.message, null, LogType.ERROR);
+                            });
+                        }
+                        else
+                            val.dispose();
+                    });
 
+                    break;
+                case "Copy":
 
+                    if (context instanceof TreeNodeAssetInstance)
+                        project.copyAsset(context.resource.entry._id);
 
-					var assets = [];
-					i = selectedNodes.length;
-					while ( i-- )
-						assets.push( selectedNodes[i].asset.id );
+                    break;
+                case "Add Instance":
 
-					project.deleteAssets( assets );
-				}
-				else if ( context instanceof TreeNodeGroup )
-				{
-					var selectedNodes = [];
-					var i = this.selectedNodes.length;
-					while ( i-- )
-						selectedNodes.push( this.selectedNodes[i] );
+                    if ( context instanceof TreeNodeAssetClass)
+                        project.createResource<Engine.IAsset>(ResourceType.ASSET, { name: "New " + context.assetClass.name, className: context.assetClass.name });
 
-					var groups = [];
-					i = selectedNodes.length;
-					while ( i-- )
-						groups.push( selectedNodes[i].groupID );
+                    break;
+                case "Save":
 
-					project.deleteGroups( groups );
-				}
-				else if ( context instanceof TreeNodeGroupInstance )
-					context.dispose();
-			}
-			//COPY
-			if ( context && event.item == this._contextCopy )
-			{
-				if ( context instanceof TreeNodeAssetInstance )
-                    project.copyAsset(context.asset.entry._id );
-			}
-			//ADD INSTANCE
-            else if (context && context instanceof TreeNodeAssetClass && event.item == this._contextAddInstance )
-				project.createAsset("New " + context.assetClass.name, context.assetClass.name );
-			//SAVE
-			else if ( context && event.item.text == "Save" )
-			{
-				if ( context instanceof TreeNodeAssetInstance )
-                    //project.saveAssets([context.asset.entry._id] );
-                    promise = project.saveResources(ResourceType.ASSET, context.asset.entry._id);
-                if (context instanceof TreeNodeGroup)
-                    //project.saveGroups([context.groupID]);
-                    promise = project.saveResources(ResourceType.GROUP, context.groupID);
+                    selectedNodes.forEach(function (val, index)
+                    {
+                        if (val instanceof TreeNodeResource)
+                            project.saveResource((<Engine.IResource>val.resource)._id);
+                    });	
 
-                else if (context instanceof TreeNodeBehaviour)
-                    //project.saveBehaviours([context.container.entry._id] );				
-                    promise = project.saveResources(ResourceType.CONTAINER, context.container.entry._id);
-			}
-			//ADD GROUP NODE
-			else if ( context && event.item.text == "Add Group" )
-                //project.createGroup( "New Group");
-                promise = project.createResource<Engine.IGroup>(ResourceType.GROUP, { name: "New Group" });
-			//UPDATE
-			else if ( context && event.item.text == "Update" )
-			{
-				if ( context instanceof TreeNodeAssetInstance )
-                    project.updateAssets([context.asset.entry._id]);
-				//Update all groups
-				else if ( context == this._groupsNode )
-				{
-					while ( this._groupsNode.children.length > 0 )
-						this._groupsNode.children[0].dispose();
+                    break;
+                case "Add Group":
+                    context.loading = true;
+                    promise = project.createResource<Engine.IGroup>(ResourceType.GROUP, { name: "New Group" }).then(function ()
+                    {
+                        context.loading = false;
 
-                    project.loadResources(ResourceType.GROUP);
-				}
-				//Update the scene
-				else if ( context == this._sceneNode )
-				{
-					while ( this._sceneNode.children.length > 0 )
-                        this._sceneNode.children[0].dispose();
-                    project.loadResources(ResourceType.CONTAINER);
-				}
-				else if ( context instanceof TreeNodeGroup )
-                    project.updateGroups([context.groupID]);
-				else if ( context instanceof TreeNodeAssetClass )
-				{
-					var nodes = context.getAllNodes( TreeNodeAssetInstance );
-					var ids = [];
-					for ( var i = 0, l = nodes.length; i < l; i++ )
-						if ( nodes[i] instanceof TreeNodeAssetInstance )
-                            ids.push((<TreeNodeAssetInstance>nodes[i]).asset.entry._id );
+                    }).catch(function (err: Error)
+                    {
+                        context.loading = false;
+                        Logger.logMessage(err.message, null, LogType.ERROR);
+                    })
+                    break;
 
-					project.updateAssets( ids );
-				}
-				else if ( context instanceof TreeNodeBehaviour )
-                    project.updateBehaviours([context.container.entry._id]);
-			}
+                case "Update":
+
+                    if (context instanceof TreeNodeAssetInstance)
+                        project.updateAssets([context.resource.entry._id]);
+                    //Update all groups
+                    else if (context == this._groupsNode)
+                    {
+                        while (this._groupsNode.children.length > 0)
+                            this._groupsNode.children[0].dispose();
+
+                        project.loadResources(ResourceType.GROUP);
+                    }
+                    //Update the scene
+                    else if (context == this._sceneNode)
+                    {
+                        while (this._sceneNode.children.length > 0)
+                            this._sceneNode.children[0].dispose();
+                        project.loadResources(ResourceType.CONTAINER);
+                    }
+                    else if (context instanceof TreeNodeGroup)
+                        promise = project.refreshResource(context.resource.entry._id, ResourceType.GROUP).then(function (data) { context.updateGroup(); });
+                    else if (context instanceof TreeNodeAssetClass)
+                    {
+                        var nodes = context.getAllNodes(TreeNodeAssetInstance);
+                        var ids = [];
+                        for (var i = 0, l = nodes.length; i < l; i++)
+                            if (nodes[i] instanceof TreeNodeAssetInstance)
+                                ids.push((<TreeNodeAssetInstance>nodes[i]).resource.entry._id);
+
+                        project.updateAssets(ids);
+                    }
+                    else if (context instanceof TreeNodeBehaviour)
+                        project.updateBehaviours([context.resource.entry._id]);
+
+                    break;
+            }
 		}
 
 
@@ -453,7 +445,7 @@ module Animate
 					CanvasTab.getSingleton().selectTab( tabPair );
 				else
 				{
-					var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).container );
+                    var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).resource );
 					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
 					canvas.openFromDataObject();
 					canvas.checkDimensions();
@@ -462,64 +454,66 @@ module Animate
 			}
 		}
 
-		/**
-		* Use this function to get an array of the groups in the scene.
-		* @returns {Array<TreeNodeGroup>} The array of group nodes
-		*/
-		getGroups() : Array<TreeNodeGroup>
-		{
-			var toRet = [];
+		///**
+		//* Use this function to get an array of the groups in the scene.
+		//* @returns {Array<TreeNodeGroup>} The array of group nodes
+		//*/
+		//getGroups() : Array<TreeNodeGroup>
+		//{
+		//	var toRet = [];
 
-			for ( var i = 0; i < this._groupsNode.children.length; i++ )
-				toRet.push( this._groupsNode.children[i] );
+		//	for ( var i = 0; i < this._groupsNode.children.length; i++ )
+		//		toRet.push( this._groupsNode.children[i] );
 
-			return toRet;
-		}
+		//	return toRet;
+		//}
 
-		/**
-		* Use this function to get a group by its ID
-		* @param {string} id The ID of the group
-		* @returns {TreeNodeGroup}
-		*/
-		getGroupByID(id: string): TreeNodeGroup
-		{
-			for ( var i = 0; i < this._groupsNode.children.length; i++ )
-				if ( id == (<TreeNodeGroup>this._groupsNode.children[i]).groupID )
-					return (<TreeNodeGroup>this._groupsNode.children[i]);
+		///**
+		//* Use this function to get a group by its ID
+		//* @param {string} id The ID of the group
+		//* @returns {TreeNodeGroup}
+		//*/
+		//getGroupByID(id: string): TreeNodeGroup
+		//{
+		//	for ( var i = 0; i < this._groupsNode.children.length; i++ )
+		//		if ( id == (<TreeNodeGroup>this._groupsNode.children[i]).groupID )
+		//			return (<TreeNodeGroup>this._groupsNode.children[i]);
 
-			return null;
-		}
+		//	return null;
+		//}
 
 		/**
 		* When the database returns from its command.
 		* @param {ProjectEvents} response The loader response
 		* @param {ProjectEvent} data The data sent from the server
 		*/
-		onGroupResponse(response: ProjectEvents, event: ProjectEvent )
-		{
-			var data = event.tag;
+		//onGroupResponse(response: ProjectEvents, event: ProjectEvent )
+		//{
+		//	var data = event.tag;
 			
-			if (response == ProjectEvents.GROUP_CREATED )
-				this._groupsNode.addNode( new TreeNodeGroup( data.id, data.name, data.json, this ) );
-			else if ( response == ProjectEvents.GROUP_UPDATED )
-			{
-				var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data._id );
-				if ( node )
-					node.updateGroup( data.name, data.json );
-			}
-			else if ( response == ProjectEvents.GROUP_SAVED )
-			{
-				var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
-				if ( node )
-					node.save( true );
-			}
-			else if (response == ProjectEvents.GROUP_DELETING )
-			{
-				var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
-				if ( node )
-					node.dispose();
-			}
-		}
+            //if (response == ProjectEvents.GROUP_CREATED)
+            //{
+            //    this._groupsNode.addNode(new TreeNodeGroup(data.id, data.name, data.json, this));
+            //}
+			//else if ( response == ProjectEvents.GROUP_UPDATED )
+			//{
+			//	var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data._id );
+			//	if ( node )
+			//		node.updateGroup( data.name, data.json );
+			//}
+			//else if ( response == ProjectEvents.GROUP_SAVED )
+			//{
+				//var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
+				//if ( node )
+				//	node.save( true );
+			//}
+			//else if (response == ProjectEvents.GROUP_DELETING )
+			//{
+			//	var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
+			//	if ( node )
+			//		node.dispose();
+			//}
+		//}
 
 
 		/** When the rename form is about to proceed. We can cancel it by externally checking
@@ -595,102 +589,101 @@ module Animate
 		//}
 
 
-		/**
-		* When the database returns from its command.
-		* @param {ProjectEvents} response The type of event
-		* @param {AssetEvent} event The data sent from the server
-		*/
-		onAssetResponse(response: ProjectEvents, event: AssetEvent  )
-		{
-			var data : Asset = event.asset;
-			var proj: Project = User.get.project;
+		///**
+		//* When the database returns from its command.
+		//* @param {ProjectEvents} response The type of event
+		//* @param {AssetEvent} event The data sent from the server
+		//*/
+		//onAssetResponse(response: ProjectEvents, event: AssetEvent  )
+		//{
+		//	var data : Asset = event.asset;
+		//	var proj: Project = User.get.project;
 
-			if (response == ProjectEvents.ASSET_DELETING )
-			{
-				CanvasTab.getSingleton().removeAsset( data );
+			//if (response == ProjectEvents.ASSET_DELETING )
+			//{
+			//	CanvasTab.getSingleton().removeAsset( data );
 
-				var selectedNodes = [];
-				var i = this.selectedNodes.length;
-				while ( i-- )
-					selectedNodes.push( this.selectedNodes[i] );
+			//	var selectedNodes = [];
+			//	var i = this.selectedNodes.length;
+			//	while ( i-- )
+			//		selectedNodes.push( this.selectedNodes[i] );
 
-				i = selectedNodes.length;
-				while ( i-- )
-				{
-                    if (selectedNodes[i].asset.id == data.entry._id )
-						selectedNodes[i].dispose();
-				}
-				this._contextNode = null;
-			}
-			//SAVE
-			else if (response == ProjectEvents.ASSET_SAVED )
-			{
-				//If we have the asset
-				if ( data )
-				{
-					var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
-					if ( node )
-						node.save();
-				}
-			}
-			//UPDATE
-			else if (response == ProjectEvents.ASSET_UPDATED )
-			{
-				//If we have the asset
-				if ( data )
-				{
-					var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
-					if ( node && node.selected )
-					{
-						node.save();
-						node.onSelect();
-					}
-				}
-			}
-		}
+			//	i = selectedNodes.length;
+			//	while ( i-- )
+			//	{
+   //                 if (selectedNodes[i].asset.id == data.entry._id )
+			//			selectedNodes[i].dispose();
+			//	}
+			//	this._contextNode = null;
+			//}
+			////SAVE
+			//else if (response == ProjectEvents.ASSET_SAVED )
+			//{
+			//	//If we have the asset
+			//	if ( data )
+			//	{
+			//		var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
+			//		if ( node )
+			//			node.save();
+			//	}
+			//}
+			////UPDATE
+			//else if (response == ProjectEvents.ASSET_UPDATED )
+			//{
+			//	//If we have the asset
+			//	if ( data )
+			//	{
+			//		var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
+			//		if ( node && node.selected )
+			//		{
+			//			node.save();
+			//			node.onSelect();
+			//		}
+			//	}
+			//}
+		//}
 
 
-		/**
-		* When the database returns from its command.
-		* @param {ProjectEvents} response The loader response
-		* @param {Event} data The data sent from the server
-		*/
-		onProjectResponse(response: ProjectEvents, event: ProjectEvent )
-		{
-			if (response == ProjectEvents.BEHAVIOUR_DELETING )
-			{
-				var selectedNodes : Array<TreeNode> = [];
+		///**
+		//* When the database returns from its command.
+		//* @param {ProjectEvents} response The loader response
+		//* @param {Event} data The data sent from the server
+		//*/
+		//onProjectResponse(response: ProjectEvents, event: ProjectEvent )
+		//{
+		//	if (response == ProjectEvents.BEHAVIOUR_DELETING )
+		//	{
+		//		var selectedNodes : Array<TreeNode> = [];
 
-				var i = this.selectedNodes.length;
-				while ( i-- )
-					selectedNodes.push( this.selectedNodes[i] );
+		//		var i = this.selectedNodes.length;
+		//		while ( i-- )
+		//			selectedNodes.push( this.selectedNodes[i] );
 
-				i = selectedNodes.length;
-				while ( i-- )
-				{
-					if (selectedNodes[i] instanceof TreeNodeBehaviour &&
-							(<TreeNodeBehaviour>selectedNodes[i]).container == event.tag)
-					{
-						var tabPair : TabPair = CanvasTab.getSingleton().getTab( selectedNodes[i].text );
-						if ( tabPair )
-							CanvasTab.getSingleton().removeTab(tabPair, true );
-						else
-						{
-							tabPair = CanvasTab.getSingleton().getTab( "*" + selectedNodes[i].text );
-							if ( tabPair )
-								CanvasTab.getSingleton().removeTab( tabPair, true );
-						}
+		//		i = selectedNodes.length;
+		//		while ( i-- )
+		//		{
+  //                  if (selectedNodes[i] instanceof TreeNodeBehaviour && (<TreeNodeBehaviour>selectedNodes[i]).resource == event.tag)
+		//			{
+		//				var tabPair : TabPair = CanvasTab.getSingleton().getTab( selectedNodes[i].text );
+		//				if ( tabPair )
+		//					CanvasTab.getSingleton().removeTab(tabPair, true );
+		//				else
+		//				{
+		//					tabPair = CanvasTab.getSingleton().getTab( "*" + selectedNodes[i].text );
+		//					if ( tabPair )
+		//						CanvasTab.getSingleton().removeTab( tabPair, true );
+		//				}
 
-						//this.selectedNodes[i].parent().data("component").removeNode( this.selectedNodes[i] );
-						selectedNodes[i].dispose();
+		//				//this.selectedNodes[i].parent().data("component").removeNode( this.selectedNodes[i] );
+		//				selectedNodes[i].dispose();
 
-						if ( this._contextNode == selectedNodes[i] )
-							this._contextNode = null;
+		//				if ( this._contextNode == selectedNodes[i] )
+		//					this._contextNode = null;
 
-					}
-				}
-			}
-		}
+		//			}
+		//		}
+		//	}
+		//}
 
 		/**
 		* This function will get a list of asset instances based on their class name.
@@ -754,12 +747,11 @@ module Animate
 			if ( targ == null )
 				return;
 
-			var component = targ.data( "component" );
+            var component: Component = targ.data("component");
 
 			//If the canvas
 			if ( component instanceof TreeNode )
 			{
-
 				//Show / hide delete context item
 				if ( component.canDelete )
 					this._contextDel.element.show();
@@ -778,8 +770,8 @@ module Animate
 				else
 					this._contextRefresh.element.hide();
 
-				//Show / hide the save option
-				if ( typeof ( component.saved ) !== "undefined" && !component.saved && this.selectedNodes.length == 1 )
+                //Show / hide the save option
+                if (component.modified)
 					this._contextSave.element.show();
 				else
 					this._contextSave.element.hide();
@@ -789,17 +781,13 @@ module Animate
 					this._contextAddGroup.element.show();
 				else
 					this._contextAddGroup.element.hide();
-
-
-
+                
 				//Show / hide add instance context item
 				if ( component instanceof TreeNodeAssetClass && component.assetClass.abstractClass == false )
 					this._contextAddInstance.element.show();
 				else
 					this._contextAddInstance.element.hide();
-
-				//this.selectNode( component );
-
+                
 				this._contextNode = component;
 				e.preventDefault();
 				this._contextMenu.show( Application.getInstance(), e.pageX, e.pageY, false, true );

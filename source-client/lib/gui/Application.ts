@@ -59,14 +59,14 @@ module Animate
 
 			var scenetab = SceneTab.getSingleton( rightSplit.bottom );
 			var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
-			var logger = Logger.getSingleton( leftSplit.bottom );
-			logger.logMessage( "let's get animated!", null, LogType.MESSAGE );
+			Logger.getSingleton( leftSplit.bottom );
+            Logger.logMessage( "let's get animated!", null, LogType.MESSAGE );
 
 			//now set up the dockers
 			this._dockerlefttop = new Docker( leftSplit.top );
 			this._dockerlefttop.addComponent( canvastab, false );
-			this._dockerleftbottom = new Docker( leftSplit.bottom );
-			this._dockerleftbottom.addComponent( logger, false );
+            this._dockerleftbottom = new Docker(leftSplit.bottom);
+            this._dockerleftbottom.addComponent(Logger.getSingleton(), false);
 			this._dockerrightbottom = new Docker( rightSplit.bottom );
 			this._dockerrightbottom.addComponent( scenetab, false );
 			this._dockerrighttop = new Docker( rightSplit.top );

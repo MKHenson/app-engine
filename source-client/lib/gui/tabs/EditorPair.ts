@@ -23,7 +23,7 @@
             this._originalName = name;
             this._proxyChange = jQuery.proxy(this.onChange, this);
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
-            this._loadingGif = jQuery("<img src='media/small-buff.gif' />");
+            this._loadingGif = jQuery("<img src='media/buffering-gray.png' class='rotate-360' />");
 
             
             this._close = false;
@@ -66,7 +66,7 @@
 		*/
         onChange(e)
         {
-            this.modified = false;
+            this.modified = true;
         }
 
 		/**

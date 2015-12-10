@@ -221,23 +221,23 @@
             TreeViewScene.getSingleton().projectReady(project);
             PluginManager.getSingleton().projectReady(project);
 
-            Logger.getSingleton().logMessage(`Loading project '${that.$selectedProject.name}'...`, null, LogType.MESSAGE);
+            Logger.logMessage(`Loading project '${that.$selectedProject.name}'...`, null, LogType.MESSAGE);
 
             // Attempts to load all the project resources
             project.loadResources().then(function (resources) 
             {
-                Logger.getSingleton().logMessage(`Loaded [${resources.length}] resources`, null, LogType.MESSAGE);
+                Logger.logMessage(`Loaded [${resources.length}] resources`, null, LogType.MESSAGE);
                 return project.loadBuild();
 
             }).then( function(build)
             {
-                Logger.getSingleton().logMessage(`Loaded project build '${build.entry.name} - v${build.entry.version}'`, null, LogType.MESSAGE);
+                Logger.logMessage(`Loaded project build '${build.entry.name} - v${build.entry.version}'`, null, LogType.MESSAGE);
                             
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
                 
                 // Log 
-                Logger.getSingleton().logMessage(`Project '${that.$selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
+                Logger.logMessage(`Project '${that.$selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
 
                 // Remove splash
                 that._splashElm.detach();

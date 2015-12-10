@@ -6,15 +6,16 @@ module Animate
     export class TreeNode extends Component implements IRenamable
 	{
 		protected mText: string;
-		private img: string;
 		private _expanded: boolean;
 		private hasExpandButton: boolean;
 		public canDelete: boolean;
 		public canFocus: boolean;
-		public canUpdate: boolean;
+        public canUpdate: boolean;
+        public canCopy: boolean;
 
         public treeview: TreeView;
         private _modified: boolean;
+        private _loading: boolean;
         private _modifiedStar: JQuery;
          
 		/**
@@ -30,21 +31,22 @@ module Animate
 				img = "";
 
 			this.mText = text;
-			this.img = img;
 			this._expanded = false;
             this.hasExpandButton = hasExpandButton;
             this._modified = false;
+            this._loading = false;
             this._modifiedStar = jQuery("<span>*</span>");
 
 			// Call super-class constructor
-			super( "<div class='tree-node'><div class='selectable'>" + ( this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "" ) + this.img + "<span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null );
+            super("<div class='tree-node'><div class='selectable'>" + (this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "") + img + "<div class='buffering'><img src='media/buffering-gray.png' class='rotate-360 gray' /><img src='media/buffering-white.png' class='rotate-360 white' /></div><span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null );
 			(<any>this.element).disableSelection( true );
 
 			jQuery( ".tree-node-button", this.element ).first().css( "visibility", "hidden" );
 
 			this.treeview = null;
 			this.canDelete = false;
-			this.canFocus = true;
+            this.canFocus = true;
+            this.canCopy = false;
         }
 
         /**
@@ -69,6 +71,28 @@ module Animate
                 this._modifiedStar.detach();
         }
 
+        /**
+		* Gets if this tree node is busy with a loading operation
+		* @returns {boolean}
+		*/
+        public get loading(): boolean
+        {
+            return this._loading;
+        }
+
+        /**
+		* Sets if this tree node is busy with a loading operation
+		* @param {boolean} val
+		*/
+        public set loading(val: boolean)
+        {
+            this._loading = val;
+            if (val)
+                jQuery(".buffering:first", this.element).css("display", "inline-block");
+            else
+                jQuery(".buffering:first", this.element).css("display", "none");
+        }
+
 		/**
 		* This will cleanup the component.
 		*/
@@ -87,7 +111,6 @@ module Animate
 
             this._modifiedStar = null;
 			this.mText = null;
-			this.img = null;
 			this._expanded = null;
 			this.hasExpandButton = null;
 			this.treeview = null;
@@ -255,18 +278,23 @@ module Animate
 		/**
 		* This will add a node to the treeview
 		* @param {TreeNode} node The node to add
-		* @param {boolean} collapse True if you want to make this node collapse while adding the new node. The default is true
+		* @param {boolean} collapse True if you want to make this node collapse while adding the new node
 		* @returns {TreeNode} 
 		*/
-		addNode( node: TreeNode, collapse : boolean = true ) : TreeNode
+		addNode( node: TreeNode, collapse? : boolean ) : TreeNode
 		{
 			node.treeview = this.treeview;
 			var toRet = Component.prototype.addChild.call( this, node );
-			
-			if ( collapse )
-				this.collapse();
-			else
-				this.expand();
+
+            if (collapse !== undefined)
+            {
+                if (collapse)
+                    this.collapse();
+                else
+                    this.expand();
+            }
+            else if (!this._expanded)
+                toRet.element.hide();
 
 			jQuery( ".tree-node-button", this.element ).first().css( "visibility", "" );
 

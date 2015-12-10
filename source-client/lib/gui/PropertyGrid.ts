@@ -171,7 +171,7 @@ module Animate
 			var len = this._variables.length;
 			for (var i = 0; i < len; i++)
 				if (this._variables[i].name == name)
-				{
+                {
 					this._variables[i].value = value;
 					return value;
 				}

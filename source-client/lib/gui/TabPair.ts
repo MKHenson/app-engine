@@ -6,16 +6,18 @@ module Animate
 	* label and page as well as a few other things.
 	*/
 	export class TabPair
-	{
+    {
+        public tab: Tab;
 		public tabSelector: Component;
 		public page: Component;
         public name: string;
         private _savedSpan: JQuery;
         private _modified: boolean;
 
-		constructor( tab: Component, page : Component, name : string )
-		{
-            this.tabSelector = tab;
+        constructor(selector: Component, page: Component, name: string)
+        {
+            this.tab = null;
+            this.tabSelector = selector;
             this._modified = false;
 			this.page = page;
             this.name = name;

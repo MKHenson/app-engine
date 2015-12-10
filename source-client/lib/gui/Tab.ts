@@ -28,36 +28,35 @@ module Animate
 	* The Tab component will create a series of selectable tabs which open specific tab pages.
 	*/
 	export class Tab extends Component
-	{
-		private _tabsDiv: Component;
-		private pagesDiv: Component;
-		private _tabs: Array<TabPair>;
-		private selectedTab: TabPair;
-		private dropButton: Component;
-		public static contextMenu: ContextMenu;
+    {
+        public static contextMenu: ContextMenu;
 
+		private _tabSelectorsDiv: Component;
+		private _pagesDiv: Component;
+		private _tabPairs: Array<TabPair>;
+		private _selectedPair: TabPair;
+		private _dropButton: Component;
+		
 		constructor( parent : Component )
 		{
 			// Call super-class constructor
 			super( "<div class='tab background-view'></div>", parent );
 
-			this._tabsDiv = new Component( "<div class='tabs-div'></div>", this );
-			this.pagesDiv = new Component( "<div class='pages-div'></div>", this );
-			this.pagesDiv.addLayout( new Fill( 0, 0, 0, -25 ) );
-
-			this._tabs = [];
-			this.selectedTab = null;
-			this.element.on( "click", jQuery.proxy( this.onClick, this ) );
-
-			this.dropButton = new Component( "<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null );
-
+			this._tabSelectorsDiv = new Component( "<div class='tabs-div'></div>", this );
+            this._pagesDiv = new Component("<div class='pages-div'></div>", this);
+            this._dropButton = new Component("<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null);
+			this._pagesDiv.addLayout( new Fill( 0, 0, 0, -25 ) );
+			this._tabPairs = [];
+			this._selectedPair = null;
+			
 			if ( !Tab.contextMenu )
 				Tab.contextMenu = new ContextMenu();
+            
+            this.addLayout(new Fill());
 
-			//this.element.disableSelection( true );
-			Tab.contextMenu.on( ContextMenuEvents.ITEM_CLICKED, this.onContext.bind( this ) );
+            Tab.contextMenu.on(ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
+            this.element.on("click", jQuery.proxy(this.onClick, this));
 
-			this.addLayout( new Fill() );
 		}
 
 		/**
@@ -77,15 +76,15 @@ module Animate
 		*/
 		onContext( response: ContextMenuEvents, event : ContextMenuEvent )
 		{
-			var len = this._tabs.length;
+			var len = this._tabPairs.length;
 			for ( var i = 0; i < len; i++ )
-				if ( this._tabs[i].name == event.item.text )
+				if ( this._tabPairs[i].name == event.item.text )
 				{
-					var p = this._tabs[i].tabSelector.element.parent();
-					this._tabs[i].tabSelector.element.detach();
-					p.prepend( this._tabs[i].tabSelector.element );
+					var p = this._tabPairs[i].tabSelector.element.parent();
+					this._tabPairs[i].tabSelector.element.detach();
+					p.prepend( this._tabPairs[i].tabSelector.element );
 
-					this.selectTab( this._tabs[i] );
+					this.selectTab( this._tabPairs[i] );
 					return;
 				}
 
@@ -97,22 +96,22 @@ module Animate
 		*/
 		selectTab( tab: TabPair ) : TabPair
 		{
-			var len = this._tabs.length;
+			var len = this._tabPairs.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				if ( tab == this._tabs[i] || this._tabs[i].name == tab.name )
+				if ( tab == this._tabPairs[i] || this._tabPairs[i].name == tab.name )
 				{
-					if ( this.selectedTab != null )
+					if ( this._selectedPair != null )
 					{
-						this.selectedTab.tabSelector.element.removeClass( "tab-selected" );
-						this.selectedTab.page.element.detach();
+						this._selectedPair.tabSelector.element.removeClass( "tab-selected" );
+						this._selectedPair.page.element.detach();
 					}
 
-					this.selectedTab = this._tabs[i];
-					this.selectedTab.tabSelector.element.addClass( "tab-selected" );
-					this.pagesDiv.element.append( this.selectedTab.page.element );
-					this.onTabSelected( this.selectedTab );
-					return this.selectedTab;
+					this._selectedPair = this._tabPairs[i];
+					this._selectedPair.tabSelector.element.addClass( "tab-selected" );
+					this._pagesDiv.element.append( this._selectedPair.page.element );
+					this.onTabSelected( this._selectedPair );
+					return this._selectedPair;
 				}
 			}
 
@@ -146,9 +145,9 @@ module Animate
 			{
 				Tab.contextMenu.clear();
 
-				var len = this._tabs.length;
+				var len = this._tabPairs.length;
 				for ( var i = 0; i < len; i++ )
-					Tab.contextMenu.addItem( new ContextMenuItem( this._tabs[i].name, null ) );
+					Tab.contextMenu.addItem( new ContextMenuItem( this._tabPairs[i].name, null ) );
 
 				e.preventDefault();
 
@@ -158,7 +157,7 @@ module Animate
 			}
 			else if ( targ.is( jQuery( ".tab-selector" ) ) )
 			{
-				var len = this._tabs.length;
+				var len = this._tabPairs.length;
 				for ( var i = 0; i < len; i++ )
 				{
 					var text = "";
@@ -171,18 +170,18 @@ module Animate
 						text = targ.text();
 
 					//text = text.substring(0, text.length - 1);
-					if ( this._tabs[i].name == text )
+					if ( this._tabPairs[i].name == text )
 					{
-						if ( this.selectedTab != null )
+						if ( this._selectedPair != null )
 						{
-							this.selectedTab.tabSelector.element.removeClass( "tab-selected" );
-							this.selectedTab.page.element.detach();
+							this._selectedPair.tabSelector.element.removeClass( "tab-selected" );
+							this._selectedPair.page.element.detach();
 						}
 
-						this.selectedTab = this._tabs[i];
-						this.selectedTab.tabSelector.element.addClass( "tab-selected" );
-						this.pagesDiv.element.append( this.selectedTab.page.element );
-						this.onTabSelected( this.selectedTab );
+						this._selectedPair = this._tabPairs[i];
+						this._selectedPair.tabSelector.element.addClass( "tab-selected" );
+						this._pagesDiv.element.append( this._selectedPair.page.element );
+						this.onTabSelected( this._selectedPair );
 						return;
 					}
 				}
@@ -197,7 +196,7 @@ module Animate
 		{
 			this.element.css( "overflow", "hidden" );
 			Component.prototype.update.call( this );
-			var tabs = this._tabs;
+			var tabs = this._tabPairs;
 			var len = tabs.length;
 			for ( var i = 0; i < len; i++ )
 				tabs[i].onResize();
@@ -215,14 +214,14 @@ module Animate
 		{
 			canClose = ( canClose === undefined ? true : canClose );
 
-			if ( this.selectedTab != null )
+			if ( this._selectedPair != null )
 			{
-				this.selectedTab.tabSelector.element.removeClass( "tab-selected" );
-				this.selectedTab.page.element.detach();
+				this._selectedPair.tabSelector.element.removeClass( "tab-selected" );
+				this._selectedPair.page.element.detach();
 			}
 
-			var page : Component = new Component( "<div class='tab-page background'></div>", this.pagesDiv );
-            var tab: Component = new Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof TabPair ? val.name : val) + "</span></div></div>", this._tabsDiv );
+			var page : Component = new Component( "<div class='tab-page background'></div>", this._pagesDiv );
+            var tab: Component = new Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof TabPair ? val.name : val) + "</span></div></div>", this._tabSelectorsDiv );
 			if ( canClose )
 			{
                 new Component( "<div class='tab-close black-tint'>X</div>", tab );
@@ -239,13 +238,14 @@ module Animate
 			else
 				toAdd = new TabPair( tab, page, val );
 
-			this.selectedTab = toAdd;
-			this._tabs.push( toAdd );
-            this.onTabSelected(this.selectedTab);
+            toAdd.tab = this;
+			this._selectedPair = toAdd;
+			this._tabPairs.push( toAdd );
+            this.onTabSelected(this._selectedPair);
 
             // Only add the drop down if there is more than 1 tab
-            if (this._tabs.length > 1 && !this.contains(this.dropButton))
-                this._tabsDiv.addChild(this.dropButton);
+            if (this._tabPairs.length > 1 && !this.contains(this._dropButton))
+                this._tabSelectorsDiv.addChild(this._dropButton);
 
 			tab.element.trigger( "click" );
 
@@ -261,10 +261,10 @@ module Animate
 		*/
 		getTab( val: string ): TabPair
 		{
-			var i = this._tabs.length;
+			var i = this._tabPairs.length;
 			while ( i-- )
-				if ( this._tabs[i].name == val )
-					return this._tabs[i];
+				if ( this._tabPairs[i].name == val )
+					return this._tabPairs[i];
 
 			return null;
 		}
@@ -275,16 +275,16 @@ module Animate
 		*/
 		dispose()
 		{
-			this._tabsDiv = null;
-			this.pagesDiv = null;
+			this._tabSelectorsDiv = null;
+			this._pagesDiv = null;
 
-			var len = this._tabs.length;
+			var len = this._tabPairs.length;
 			for ( var i = 0; i < len; i++ )
-				this._tabs[i].dispose();
+				this._tabPairs[i].dispose();
 
-			this.pagesDiv = null;
-			this._tabs = null;
-			this.selectedTab = null;
+			this._pagesDiv = null;
+			this._tabPairs = null;
+			this._selectedPair = null;
 
 			//Call super
 			super.dispose();
@@ -295,8 +295,8 @@ module Animate
 		*/
 		clear()
 		{
-			while ( this._tabs.length > 0 )
-				this.removeTab( this._tabs[0], true );
+			while ( this._tabPairs.length > 0 )
+				this.removeTab( this._tabPairs[0], true );
 		}
 
 		/**
@@ -310,36 +310,37 @@ module Animate
 		removeTab( val:any, dispose:boolean )
 		{
 			dispose = ( dispose === undefined ? true : dispose );
-			var len = this._tabs.length;
+			var len = this._tabPairs.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				if ( this._tabs[i] == val || this._tabs[i].name == val )
+				if ( this._tabPairs[i] == val || this._tabPairs[i].name == val )
 				{
-					var event: TabEvent = new TabEvent( TabEvents.REMOVED, this._tabs[i] );
-					this._tabs[i].onRemove( event );
+					var event: TabEvent = new TabEvent( TabEvents.REMOVED, this._tabPairs[i] );
+					this._tabPairs[i].onRemove( event );
 					if ( event.cancel )
 						return;
 
-					var v = this._tabs[i];
-                    this._tabs.splice(i, 1);
+					var v = this._tabPairs[i];
+                    this._tabPairs.splice(i, 1);
+                    v.tab = this;
 
                     // Remove the drop button when less than 1 tab
-                    if (this._tabs.length <= 1 && this.contains(this.dropButton))
-                        this._tabsDiv.removeChild(this.dropButton);
+                    if (this._tabPairs.length <= 1 && this.contains(this._dropButton))
+                        this._tabSelectorsDiv.removeChild(this._dropButton);
 
 					this.onTabPairClosing( v );
-					this._tabsDiv.removeChild( v.tabSelector );
-					this.pagesDiv.removeChild( v.page );
+					this._tabSelectorsDiv.removeChild( v.tabSelector );
+					this._pagesDiv.removeChild( v.page );
 
 					if ( dispose )
 						v.dispose();
 
 					//Select another tab
-					if ( this.selectedTab == v )
+					if ( this._selectedPair == v )
 					{
-						this.selectedTab = null;
+						this._selectedPair = null;
 						if ( len > 1 )
-							this._tabs[0].tabSelector.element.trigger( "click" );
+							this._tabPairs[0].tabSelector.element.trigger( "click" );
 					}
 					return v;
 				}
@@ -348,6 +349,6 @@ module Animate
 			return null;
 		}
 
-		get tabs() : Array<TabPair> { return this._tabs; }
+		get tabs() : Array<TabPair> { return this._tabPairs; }
 	}
 }

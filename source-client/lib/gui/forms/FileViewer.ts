@@ -558,7 +558,7 @@ module Animate
                 loaderDiv.css({ "width": "", "height" : "" });
                 if (err)
                 {
-                    Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                    Logger.logMessage(err.message, null, LogType.ERROR);
                     return;
                 }
                 else
@@ -567,13 +567,13 @@ module Animate
                     Utils.put(`${DB.API}/files/${details.username}/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse)
                     {
                         if (token.error)
-                            Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                            Logger.logMessage(err.message, null, LogType.ERROR);
 
                         file.previewUrl = tokens[1].url;
 
                     }).catch(function (err: IAjaxError)
                     {
-                        Logger.getSingleton().logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
+                        Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
                     });                    
                 }
             });

@@ -166,9 +166,9 @@ module Animate
 		/**
 		* {{ groups: Array<string>; assets: Array<number> }} sceneReferences [Optional] An array of scene asset ID's associated with this container
 		*/
-		public sceneReferences: { groups: Array<string>; assets: Array<number> };
+        public sceneReferences: { groups: Array<number>; assets: Array<number> };
 
-		constructor( eventName: EditorEvents, container: Container, token: any, sceneReferences?: { groups: Array<string>; assets: Array<number> } )
+        constructor(eventName: EditorEvents, container: Container, token: any, sceneReferences?: { groups: Array<number>; assets: Array<number> } )
 		{
 			super( eventName, null );
 			this.container = container;

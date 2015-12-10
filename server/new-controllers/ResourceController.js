@@ -140,7 +140,7 @@ var ResourceController = (function (_super) {
                     if (!modepress_api_1.isValidID(idsArray[i]))
                         return res.end(JSON.stringify({ error: true, message: "ID '" + idsArray[i] + "' is not a valid ID" }));
                     else
-                        deleteToken.$or.push(new mongodb.ObjectID(idsArray[i]));
+                        deleteToken.$or.push({ _id: new mongodb.ObjectID(idsArray[i]) });
             }
         }
         // Delete the instances based onthe token

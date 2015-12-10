@@ -93,11 +93,11 @@ module Animate
 
 			asset.properties.updateValue( propName, propValue );
 
-            if (pGrid.idObject == asset || (pGrid.idObject && ( <TreeNodeAssetInstance>pGrid.idObject ).asset == asset ) )
+            if (pGrid.idObject == asset || (pGrid.idObject && (<TreeNodeAssetInstance>pGrid.idObject).resource == asset ) )
 				pGrid.updateProperty( propName, propValue );
 
-			var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>TreeViewScene.getSingleton().findNode( "asset", asset );
-			node.save( false );
+			//var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>TreeViewScene.getSingleton().findNode( "asset", asset );
+			//node.save( false );
 
 			if (notifyEditor)
 				this.assetEdited( asset, propName, propValue, oldVal, pVar.type )
@@ -280,7 +280,7 @@ module Animate
 		{
 			var pgrid: PropertyGrid = PropertyGrid.getSingleton();
 			if ( pgrid.idObject && pgrid.idObject instanceof TreeNodeAssetInstance )
-				return ( <TreeNodeAssetInstance>pgrid.idObject ).asset;
+                return (<TreeNodeAssetInstance>pgrid.idObject).resource;
 
 			return null
 		}
@@ -300,8 +300,8 @@ module Animate
 
 			if ( propertyType == ParameterType.NUMBER )
 				newValue = newValue.selected;
-			else if ( propertyType == ParameterType.ASSET )
-				newValue = project.getAssetByShallowId( ImportExport.getExportValue( ParameterType.ASSET, newValue ) );
+            else if (propertyType == ParameterType.ASSET)
+                newValue = project.getResourceByShallowID<Asset>(ImportExport.getExportValue(ParameterType.ASSET, newValue), ResourceType.ASSET);
 			else if ( propertyType == ParameterType.FILE )
 				newValue = newValue.path || null;
 			else if ( propertyType == ParameterType.ENUM )
@@ -311,8 +311,8 @@ module Animate
 				var assets: Array<Asset> = [];
 				if ( newValue && newValue.selectedAssets )
 					for ( var i = 0, l = newValue.selectedAssets.length; i < l; i++ )
-					{
-						var a: Asset = project.getAssetByShallowId( newValue.selectedAssets[i] );
+                    {
+                        var a: Asset = project.getResourceByShallowID<Asset>(newValue.selectedAssets[i], ResourceType.ASSET);
 						if ( a )
 							assets.push( a );
 					}
@@ -324,29 +324,29 @@ module Animate
 			this.emit( new AssetEditedEvent( EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType ) );
 		}
 
-		/**
-		* Gets an asset by its ID
-		* @param {string} id The id of the asset
-		* @returns {Asset}
-		*/
-		getAssetById( id: string ): Asset
-		{
-			var toRet: Asset = null;
-            toRet = User.get.project.getAssetByID( id );
-			return toRet;
-		}
+		///**
+		//* Gets an asset by its ID
+		//* @param {string} id The id of the asset
+		//* @returns {Asset}
+		//*/
+		//getAssetById( id: string ): Asset
+		//{
+		//	var toRet: Asset = null;
+  //          toRet = User.get.project.getAssetByID( id );
+		//	return toRet;
+		//}
 
-		/**
-		* Gets an asset by its local ID
-		* @param {string} id The local id of the asset
-		* @returns {Asset}
-		*/
-		getAssetByShallowId( id: number ): Asset
-		{
-			var toRet: Asset = null;
-			toRet = User.get.project.getAssetByShallowId( id );
-			return toRet;
-		}
+		///**
+		//* Gets an asset by its local ID
+		//* @param {string} id The local id of the asset
+		//* @returns {Asset}
+		//*/
+		//getAssetByShallowId( id: number ): Asset
+		//{
+		//	var toRet: Asset = null;
+		//	toRet = User.get.project.getAssetByShallowId( id );
+		//	return toRet;
+		//}
 
 		/**
 		* Gets an asset class by its name

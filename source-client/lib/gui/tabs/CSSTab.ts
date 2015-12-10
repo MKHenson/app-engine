@@ -29,7 +29,7 @@ module Animate
             User.get.project.curBuild.update({ css: editor.getValue() }).then(function()
             {
                 that.loading(false);
-                that.modified = true;
+                that.modified = false;
 
                 if (that._close)
                     CanvasTab.getSingleton().removeTab(that, true);
@@ -37,7 +37,7 @@ module Animate
             }).catch(function (err: Error)
             {
                 that.loading(false);
-                Logger.getSingleton().logMessage(`Could not update the build CSS: '${err.message}'`, null, LogType.ERROR);
+                Logger.logMessage(`Could not update the build CSS: '${err.message}'`, null, LogType.ERROR);
             });
         }
 

@@ -124,14 +124,14 @@ module Animate
 				//We need to build an array of the canvas objects we are trying to save.
                 var token = canvas.buildDataObject();
                 canvas.container.entry.json = token;
-                User.get.project.saveResources(ResourceType.CONTAINER, canvas.container.entry._id).then(function ()
+                User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function ()
                 {
                     this.removeTab(this.closingTabPair, true);
 					this.closingTabPair = null;
 
                 }).catch(function (err: Error)
                 {
-                    Logger.getSingleton().logMessage(err.message, null, LogType.ERROR);
+                    Logger.logMessage(err.message, null, LogType.ERROR);
                 });
 
 				//Now get the project to save it.
@@ -224,8 +224,8 @@ module Animate
 				//Tell the plugins to remove the current assets
 				var references = this._currentCanvas.containerReferences;
 				for ( var i = 0, l = references.assets.length; i < l; i++ )
-				{
-					var asset: Asset = project.getAssetByShallowId( references.assets[i] );
+                {
+                    var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
 				}
@@ -251,8 +251,8 @@ module Animate
 				//Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;
 				for ( var i = 0, l = references.assets.length; i < l; i++ )
-				{
-					var asset: Asset = project.getAssetByShallowId( references.assets[i] );
+                {
+                    var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
 				}
@@ -347,7 +347,7 @@ module Animate
 		removeTab( val: string, dispose: boolean ): TabPair
 		removeTab( val: TabPair, dispose: boolean ): TabPair
 		removeTab( val: any, dispose: boolean ): TabPair
-		{
+        {
             if (val instanceof CanvasTabPair)
             {
 				var canvas = ( <CanvasTabPair>val ).canvas;
@@ -361,8 +361,8 @@ module Animate
 				var references = canvas.containerReferences;
 
 				for ( var i = 0, l = references.assets.length; i < l; i++ )
-				{
-					var asset = project.getAssetByShallowId( references.assets[i] );					
+                {
+                    var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);					
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
 				}
@@ -420,12 +420,10 @@ module Animate
                 
 				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_CREATED, tabContent ) );
 				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
-				return toRet;
 			}
 			else if ( type == CanvasTabType.BLANK )
 			{
 				toRet = super.addTab( text, true );
-				return toRet;
 			}
 			else 
 			{
@@ -447,8 +445,9 @@ module Animate
 				{
 					toRet = Tab.prototype.addTab.call( this, new ScriptTab( tabContent ) );
 				}
-				return toRet;
-			}
+            }
+            
+            return toRet;
 		}
 
 		get currentCanvas(): Canvas { return this._currentCanvas; }

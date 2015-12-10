@@ -67,7 +67,7 @@
 //			//Add the localally installed plugins
 //			for ( var i = 0; i < plugins.length; i++ ) 
 //			{
-//				var comp : Component = new Component( "<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this );
+//				var comp : Component = new Component( "<div class='build-entry'><img class='rotate-360-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this );
 //				this._buildEntries[componentCounter] = comp;
 
 //                // TODO: Figure out how to load a plugin?

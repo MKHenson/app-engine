@@ -39,8 +39,8 @@ module Animate
 
 			if (type == PortalType.PARAMETER)
 			{
-				var id = parseInt( value.selected );
-				this._asset = User.get.project.getAssetByShallowId(id);
+                var id = parseInt(value.selected);
+                this._asset = User.get.project.getResourceByShallowID<Asset>(id, ResourceType.ASSET);
 			}
 
 			return portal;

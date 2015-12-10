@@ -47,8 +47,8 @@ module Animate
 			//Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
-                var textA = a.asset.entry.name.toUpperCase();
-                var textB = b.asset.entry.name.toUpperCase();
+                var textA = a.resource.entry.name.toUpperCase();
+                var textB = b.resource.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
@@ -58,17 +58,17 @@ module Animate
 			{
 				if ( i == 0 )
 				{
-                    assetId = nodes[i].asset.entry.shallowId;
-					asset = nodes[i].asset;
+                    assetId = nodes[i].resource.entry.shallowId;
+                    asset = nodes[i].resource;
 				}
 
-                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>" );
+                selector.append("<option title='" + nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className + "' value='" + nodes[i].resource.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].resource.entry.name + "</option>" );
 			}
 
 			// Fill the already selected items 
 			for ( var i = 0, l = selectedIDs.length; i < l; i++ )
-			{
-				var selectedAsset = User.get.project.getAssetByShallowId( selectedIDs[i] );
+            {
+                var selectedAsset = User.get.project.getResourceByShallowID<Asset>(selectedIDs[i], ResourceType.ASSET);
 				if ( selectedAsset )
                     items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.entry.className + "' value='" + selectedAsset.entry.shallowId + "'>" + selectedAsset.entry.name + "</option>" );
 			}
@@ -76,8 +76,8 @@ module Animate
 			// When we select an asset
             var onSelect = function (e: JQueryEventObject  ) 
 			{
-				assetId = parseInt( selector.val() );
-				asset = User.get.project.getAssetByShallowId( assetId );
+                assetId = parseInt(selector.val());
+                asset = User.get.project.getResourceByShallowID<Asset>(assetId, ResourceType.ASSET);
 			};
 
 
@@ -90,8 +90,8 @@ module Animate
             // When we click on the eye selector
             var onEye = function (e: JQueryEventObject ) 
 			{
-				var val = parseInt( selector.val() );
-				asset = User.get.project.getAssetByShallowId( val );
+                var val = parseInt(selector.val());
+                asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 
 				if ( asset )
 					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "asset", asset ), true );

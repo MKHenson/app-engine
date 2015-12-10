@@ -3,7 +3,7 @@
 	/**
 	* A base class for all project resources
 	*/
-    export class ProjectResource<T> extends EventDispatcher
+    export class ProjectResource<T extends Engine.IResource> extends EventDispatcher
     {
         private static shallowIds: number = 0;
         public entry: T;

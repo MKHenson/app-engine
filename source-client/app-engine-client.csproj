@@ -191,6 +191,7 @@
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeAssetClass.ts" />
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeAssetInstance.ts" />
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeBehaviour.ts" />
+    <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeResource.ts" />
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeGroup.ts" />
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodePluginBehaviour.ts" />
     <TypeScriptCompile Include="lib\gui\tree\nodes\TreeNodeGroupInstance.ts" />

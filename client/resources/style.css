@@ -827,6 +827,23 @@ Please only put css rules in here for layout related requirements.
     white-space: nowrap;
     overflow: hidden;
 }
+.tree-node .buffering {
+    display: none;
+    height: 12px;
+}
+.buffering img {
+    height: 100%;
+}
+.tree-node .buffering .white {
+    display:none;
+}
+.tree-node .selected .buffering .white {
+    display:block;
+}
+.tree-node .selected .buffering .gray {
+    display:none;
+}
+
 .tree-node .selectable {
     pointer-events: all !important;
     display: inline-block;
@@ -2670,17 +2687,17 @@ input, select{ color:#666; }
     -webkit-animation: scale_up 1s ease-in-out 0s infinite;
     -o-animation: scale_up 1s ease-in-out 0s infinite;
 }
-.loader-cog{
-    animation: rotate_cog 5s linear 0s infinite;
-    -moz-animation: rotate_cog 5s linear 0s infinite;
-    -webkit-animation: rotate_cog 5s linear 0s infinite;
-    -o-animation: rotate_cog 5s linear 0s infinite;
+.rotate-360{
+    animation: anim-circuit 5s linear 0s infinite;
+    -moz-animation: anim-circuit 5s linear 0s infinite;
+    -webkit-animation: anim-circuit 5s linear 0s infinite;
+    -o-animation: anim-circuit 5s linear 0s infinite;
 }
-.loader-cog-slow{
-    animation: rotate_cog 15s linear 0s infinite;
-    -moz-animation: rotate_cog 15s linear 0s infinite;
-    -webkit-animation: rotate_cog 15s linear 0s infinite;
-    -o-animation: rotate_cog 15s linear 0s infinite;
+.rotate-360-slow{
+    animation: anim-circuit 15s linear 0s infinite;
+    -moz-animation: anim-circuit 15s linear 0s infinite;
+    -webkit-animation: anim-circuit 15s linear 0s infinite;
+    -o-animation: anim-circuit 15s linear 0s infinite;
 }
 
 /*===================
@@ -2695,10 +2712,10 @@ FADE IN
 /*===================
 Rotate 360
 =====================*/
-@keyframes rotate_cog { from { transform: rotate(0deg); } to { transform: rotate(360deg); }}
-@-webkit-keyframes rotate_cog { from {-webkit-transform: rotate(0deg); }  to {-webkit-transform: rotate(360deg); }}
-@-moz-keyframes rotate_cog { from {-moz-transform: rotate(0deg); } to {-moz-transform: rotate(360deg); }}
-@-o-keyframes rotate_cog { from {transform: rotate(0deg); } to {transform: rotate(360deg); }}
+@keyframes anim-circuit { from { transform: rotate(0deg); } to { transform: rotate(360deg); }}
+@-webkit-keyframes anim-circuit { from {-webkit-transform: rotate(0deg); }  to {-webkit-transform: rotate(360deg); }}
+@-moz-keyframes anim-circuit { from {-moz-transform: rotate(0deg); } to {-moz-transform: rotate(360deg); }}
+@-o-keyframes anim-circuit { from {transform: rotate(0deg); } to {transform: rotate(360deg); }}
 
 /*===================
 GROW / SHRINK 

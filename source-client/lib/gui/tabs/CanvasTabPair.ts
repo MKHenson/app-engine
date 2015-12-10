@@ -5,13 +5,22 @@ module Animate
 	*/
 	export class CanvasTabPair extends TabPair
 	{
-		public canvas: Canvas;
+		private _canvas: Canvas;
 
 		constructor( canvas: Canvas, name : string )
 		{
 			super( null, null, name );
-            this.canvas = canvas;
-            this.canvas.container.on("modified", this.onContainerModified, this);
+            this._canvas = canvas;
+            this._canvas.container.on("modified", this.onContainerModified, this);
+            this._canvas.container.on("deleted", this.onContainerDeleted, this);
+        }
+
+        /**
+        * Whenever the container deleted
+        */
+        onContainerDeleted(type: string, event: Event, sender: EventDispatcher)
+        {
+            this.tab.removeTab(this, true);
         }
 
         /**
@@ -19,7 +28,7 @@ module Animate
 		*/
         onContainerModified(type: string, event: Event, sender: EventDispatcher)
         {
-            this.modified = !this.canvas.container.saved;
+            this.modified = !this._canvas.container.saved;
         }
 
         /**
@@ -27,9 +36,15 @@ module Animate
 		*/
 		dispose()
         {
-            this.canvas.container.off("modified", this.onContainerModified, this);
-			this.canvas = null;
+            this._canvas.container.off("modified", this.onContainerModified, this);
+            this._canvas.container.off("deleted", this.onContainerDeleted, this);
+            this._canvas = null;
 			super.dispose();
-		}
+        }
+
+        /**
+        * @returns {Canvas}
+        */
+        get canvas(): Canvas { return this._canvas; }
 	}
 }

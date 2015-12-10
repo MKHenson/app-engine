@@ -47,7 +47,7 @@ module Animate
 		public name: string;
 		private _container: Container;
 
-		private _containerReferences: { groups: Array<string>; assets: Array<number>; };
+        private _containerReferences: { groups: Array<number>; assets: Array<number>; };
 
 		private _proxyMoving: any;
 		private _proxyStartDrag: any;
@@ -180,12 +180,12 @@ module Animate
 				this.mX = mouse.x + scrollX;
 				this.mY = mouse.y + scrollY;
 
-				if ( comp instanceof TreeNodeAssetInstance )
-					this.addAssetAtLocation( ( <TreeNodeAssetInstance>comp ).asset, this.mX, this.mY );
+                if (comp instanceof TreeNodeAssetInstance)
+                    this.addAssetAtLocation((<TreeNodeAssetInstance>comp).resource, this.mX, this.mY);
 				else if ( comp instanceof TreeNodePluginBehaviour )
 					this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this.mX, this.mY );
-				else if ( comp instanceof TreeNodeBehaviour )
-					this.createNode( PluginManager.getSingleton().getTemplate( "Instance" ), this.mX, this.mY, ( <TreeNodeBehaviour>comp ).container );
+                else if (comp instanceof TreeNodeBehaviour)
+                    this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, (<TreeNodeBehaviour>comp).resource);
 			}
 		}
 
@@ -266,8 +266,8 @@ module Animate
 						var portal: Portal = item.parameters[ii];
 						if ( portal.dataType == ParameterType.ASSET && portal.value != null )
 						{
-							var assetID : number = parseInt( portal.value.selected );
-							if ( project.getAssetByShallowId( assetID ) == asset )
+                            var assetID: number = parseInt(portal.value.selected);
+                            if (project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET) == asset)
 							{
 								portal.value = { className: portal.value.className, selected : null }
 
@@ -279,8 +279,8 @@ module Animate
 						{
 							for ( var a, al = portal.value.selectedAssets.length; a < al; a++ )
 							{
-								var assetID : number = portal.value.selectedAssets[a];
-								if ( project.getAssetByShallowId( assetID ) == asset )
+                                var assetID: number = portal.value.selectedAssets[a];
+                                if (project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET) == asset)
 								{
 									portal.value = { className: portal.value.className, selected: null };
 								}
@@ -442,10 +442,10 @@ module Animate
 			var properties = asset.properties.variables;
 
 			for ( var i = 0, l = properties.length; i < l; i++ )
-				if ( properties[i].type == ParameterType.ASSET )
-					this.getAssetList( project.getAssetByShallowId( parseInt( properties[i].value.selected ) ), assetMap );
-				else if ( properties[i].type == ParameterType.ASSET_LIST )
-					this.getAssetList( project.getAssetByShallowId( parseInt( properties[i].value.selected ) ), assetMap );
+                if (properties[i].type == ParameterType.ASSET)
+                    this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
+                else if (properties[i].type == ParameterType.ASSET_LIST)
+                    this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
 		}
 
 		onAssetEdited(e: ENUM, event: AssetEditedEvent, sender? : EventDispatcher)
@@ -459,8 +459,8 @@ module Animate
 		*/
 		buildSceneReferences()
 		{
-			var curAssets : Array<number> = [];
-			var curGroups : Array<string> = [];
+            var curAssets: Array<number> = [];
+            var curGroups: Array<number> = [];
 
 			var children = this.children;
             var project: Project = User.get.project;
@@ -477,24 +477,24 @@ module Animate
 					{
 						//If there is an asset previously and its being removed
 						if ( portals[ii].dataType == ParameterType.ASSET && portals[ii].value != null && portals[ii].value.selected )
-						{
-							var asset: Asset = project.getAssetByShallowId( parseInt( portals[ii].value.selected ) );
+                        {
+                            var asset: Asset = project.getResourceByShallowID<Asset>(parseInt(portals[ii].value.selected), ResourceType.ASSET);
 
 							if ( asset )
 								this.getAssetList( asset, curAssets );
 						}
 						else if ( portals[ii].dataType == ParameterType.GROUP && portals[ii].value != null && portals[ii].value != "" )
-						{
-							var group: TreeNodeGroup = <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "groupID", portals[ii].value )
-
-							if ( group )
-								curGroups.push( group.groupID );
+                        {
+                            var group = project.getResourceByShallowID<GroupArray>(parseInt(portals[ii].value.selected), ResourceType.GROUP);
+                            
+                            if (group)
+                                curGroups.push(group.entry._id);
 						}
 						else if ( portals[ii].dataType == ParameterType.ASSET_LIST && portals[ii].value != null && portals[ii].value.selectedAssets.length > 0 )
 						{
 							for ( var a, al = portals[ii].value.selectedAssets.length; a < al; a++ )
-							{
-								var asset: Asset = project.getAssetByShallowId( portals[ii].value.selectedAssets[a] );
+                            {
+                                var asset: Asset = project.getResourceByShallowID<Asset>(portals[ii].value.selectedAssets[a], ResourceType.ASSET);
 
 								if ( asset )
 									this.getAssetList( asset, curAssets );
@@ -511,16 +511,16 @@ module Animate
 			// Notify of asset removals
 			for ( var i = 0, l = this._containerReferences.assets.length; i < l; i++ )
 				if ( curAssets.indexOf( this._containerReferences.assets[i] ) == -1 )
-				{
-					removeEvent.asset = project.getAssetByShallowId( this._containerReferences.assets[i] );
+                {
+                    removeEvent.asset = project.getResourceByShallowID<Asset>(this._containerReferences.assets[i], ResourceType.ASSET);
 					pManager.emit( removeEvent );
 				}
 
 			// Notify of asset additions			
 			for ( var i = 0, l = curAssets.length; i < l; i++ )
 				if ( this._containerReferences.assets.indexOf( curAssets[i] ) == -1 )
-				{
-					addEvent.asset = project.getAssetByShallowId( curAssets[i] );
+                {
+                    addEvent.asset = project.getResourceByShallowID<Asset>(curAssets[i], ResourceType.ASSET);
 					pManager.emit( addEvent );
 				}
 
@@ -810,8 +810,8 @@ module Animate
 			var items = json.items;
 			for ( var i = 0, l = items.length; i < l; i++ )
 				if ( items[i].type == "BehaviourInstance" )
-				{
-					var childContainer = project.getBehaviourByShallowId( items[i].containerId );
+                {
+                    var childContainer = project.getResourceByShallowID<Container>(items[i].containerId, ResourceType.CONTAINER);
 					if ( childContainer && this.isCyclicDependency( childContainer, ref ) )
 					{
                         ref = childContainer.entry.name;
@@ -1401,7 +1401,7 @@ module Animate
 								this.children[ii].element.text() == jsonObj.items[i].name )
 							{
 								nameInUse = true;
-								Logger.getSingleton().logMessage(
+								Logger.logMessage(
 									"A portal with the name '" + jsonObj.items[i].name +
 									"' already exists on the Canvas.", null, LogType.ERROR );
 								break;
@@ -1425,7 +1425,7 @@ module Animate
 					else if ( jsonObj.items[i].type == "BehaviourInstance" )
 					{
                         var project = User.get.project;
-						var container = project.getBehaviourByShallowId( jsonObj.items[i].containerId );
+                        var container = project.getResourceByShallowID<Container>(jsonObj.items[i].containerId, ResourceType.CONTAINER);
 						if ( !container )
 							continue;
 
@@ -1640,6 +1640,6 @@ module Animate
 		
 
 		get container(): Container { return this._container; }
-		get containerReferences(): { groups: Array<string>; assets: Array<number> } { return this._containerReferences; }
+        get containerReferences(): { groups: Array<number>; assets: Array<number> } { return this._containerReferences; }
 	}
 }

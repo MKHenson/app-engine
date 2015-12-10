@@ -1674,10 +1674,10 @@ var Animate;
             var pVar = asset.properties.getVar(propName);
             var oldVal = pVar.value;
             asset.properties.updateValue(propName, propValue);
-            if (pGrid.idObject == asset || (pGrid.idObject && pGrid.idObject.asset == asset))
+            if (pGrid.idObject == asset || (pGrid.idObject && pGrid.idObject.resource == asset))
                 pGrid.updateProperty(propName, propValue);
-            var node = Animate.TreeViewScene.getSingleton().findNode("asset", asset);
-            node.save(false);
+            //var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>TreeViewScene.getSingleton().findNode( "asset", asset );
+            //node.save( false );
             if (notifyEditor)
                 this.assetEdited(asset, propName, propValue, oldVal, pVar.type);
         };
@@ -1821,7 +1821,7 @@ var Animate;
         PluginManager.prototype.getSelectedAsset = function () {
             var pgrid = Animate.PropertyGrid.getSingleton();
             if (pgrid.idObject && pgrid.idObject instanceof Animate.TreeNodeAssetInstance)
-                return pgrid.idObject.asset;
+                return pgrid.idObject.resource;
             return null;
         };
         /**
@@ -1838,7 +1838,7 @@ var Animate;
             if (propertyType == Animate.ParameterType.NUMBER)
                 newValue = newValue.selected;
             else if (propertyType == Animate.ParameterType.ASSET)
-                newValue = project.getAssetByShallowId(Animate.ImportExport.getExportValue(Animate.ParameterType.ASSET, newValue));
+                newValue = project.getResourceByShallowID(Animate.ImportExport.getExportValue(Animate.ParameterType.ASSET, newValue), Animate.ResourceType.ASSET);
             else if (propertyType == Animate.ParameterType.FILE)
                 newValue = newValue.path || null;
             else if (propertyType == Animate.ParameterType.ENUM)
@@ -1847,7 +1847,7 @@ var Animate;
                 var assets = [];
                 if (newValue && newValue.selectedAssets)
                     for (var i = 0, l = newValue.selectedAssets.length; i < l; i++) {
-                        var a = project.getAssetByShallowId(newValue.selectedAssets[i]);
+                        var a = project.getResourceByShallowID(newValue.selectedAssets[i], Animate.ResourceType.ASSET);
                         if (a)
                             assets.push(a);
                     }
@@ -1856,26 +1856,28 @@ var Animate;
             // Send event
             this.emit(new Animate.AssetEditedEvent(Animate.EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType));
         };
-        /**
-        * Gets an asset by its ID
-        * @param {string} id The id of the asset
-        * @returns {Asset}
-        */
-        PluginManager.prototype.getAssetById = function (id) {
-            var toRet = null;
-            toRet = Animate.User.get.project.getAssetByID(id);
-            return toRet;
-        };
-        /**
-        * Gets an asset by its local ID
-        * @param {string} id The local id of the asset
-        * @returns {Asset}
-        */
-        PluginManager.prototype.getAssetByShallowId = function (id) {
-            var toRet = null;
-            toRet = Animate.User.get.project.getAssetByShallowId(id);
-            return toRet;
-        };
+        ///**
+        //* Gets an asset by its ID
+        //* @param {string} id The id of the asset
+        //* @returns {Asset}
+        //*/
+        //getAssetById( id: string ): Asset
+        //{
+        //	var toRet: Asset = null;
+        //          toRet = User.get.project.getAssetByID( id );
+        //	return toRet;
+        //}
+        ///**
+        //* Gets an asset by its local ID
+        //* @param {string} id The local id of the asset
+        //* @returns {Asset}
+        //*/
+        //getAssetByShallowId( id: number ): Asset
+        //{
+        //	var toRet: Asset = null;
+        //	toRet = User.get.project.getAssetByShallowId( id );
+        //	return toRet;
+        //}
         /**
         * Gets an asset class by its name
         * @param {string} name The name of the asset class
@@ -2150,7 +2152,7 @@ var Animate;
                                                 containerToken.assets.push(assetID);
                                                 //It can also the be case that assets reference other assets. In those
                                                 //situations you will want the container to keep adding to all the assets
-                                                this.referenceCheckAsset(project.getAssetByShallowId(assetID), containerToken);
+                                                this.referenceCheckAsset(project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET), containerToken);
                                             }
                                         }
                                     }
@@ -2162,7 +2164,7 @@ var Animate;
                                                     containerToken.assets.push(assetID);
                                                     //It can also the be case that assets reference other assets. In those
                                                     //situations you will want the container to keep adding to all the assets
-                                                    this.referenceCheckAsset(project.getAssetByShallowId(assetID), containerToken);
+                                                    this.referenceCheckAsset(project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET), containerToken);
                                                 }
                                             }
                                         }
@@ -2215,19 +2217,14 @@ var Animate;
                 }
             }
             //Get all the groups and build them into the export object
-            var groups = Animate.TreeViewScene.getSingleton().getGroups();
+            var groups = project.groups;
             for (var i = 0, l = groups.length; i < l; i++) {
                 var group = groups[i];
-                //Check if we have valid json and items saved
-                if (group) {
-                    var groupToken = {};
-                    dataToken.groups.push(groupToken);
-                    groupToken.name = group.text;
-                    groupToken.id = group.groupID;
-                    groupToken.items = [];
-                    for (var ii = 0; ii < group.children.length; ii++)
-                        groupToken.items.push(group.children[ii].instanceID);
-                }
+                var groupToken = {};
+                dataToken.groups.push(groupToken);
+                groupToken.name = group.entry.name;
+                groupToken.id = group.entry._id;
+                groupToken.items = group.entry.items.slice(0, group.entry.items.length);
             }
             //Send the object to the plugins
             Animate.PluginManager.getSingleton().emit(new Animate.EditorExportingEvent(dataToken));
@@ -2256,7 +2253,7 @@ var Animate;
                         container.assets.push(assetID);
                         //It can also the be case that assets reference other assets. In those
                         //situations you will want the container to keep adding to all the assets							
-                        this.referenceCheckAsset(project.getAssetByShallowId(assetID), container);
+                        this.referenceCheckAsset(project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET), container);
                     }
                 }
                 else if (assetVars[i].type == Animate.ParameterType.ASSET_LIST) {
@@ -2267,7 +2264,7 @@ var Animate;
                                 container.assets.push(assetID);
                                 //It can also the be case that assets reference other assets. In those
                                 //situations you will want the container to keep adding to all the assets							
-                                this.referenceCheckAsset(project.getAssetByShallowId(assetID), container);
+                                this.referenceCheckAsset(project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET), container);
                             }
                         }
                     }
@@ -2292,18 +2289,18 @@ var Animate;
                 return;
             var project = Animate.User.get.project;
             // Add the group
-            if (container.groups.indexOf(group.groupID) == -1)
-                container.groups.push(group.groupID);
+            if (container.groups.indexOf(group.resource.entry._id))
+                container.groups.push(group.resource.entry._id);
             //Check all the group properties. If it contains another group, then we need to make sure its added to the container		
             for (var ii = 0; ii < group.children.length; ii++)
-                if (group.children[ii].instanceID) {
-                    var assetID = group.children[ii].instanceID;
+                if (group.children[ii].shallowId) {
+                    var assetID = group.children[ii].shallowId;
                     //Check if the asset was added to the container
                     if (container.assets.indexOf(assetID) == -1) {
                         container.assets.push(assetID);
                         //It can also the be case that assets reference other assets. In those
                         //situations you will want the container to keep adding to all the assets
-                        this.referenceCheckAsset(project.getAssetByShallowId(assetID), container);
+                        this.referenceCheckAsset(project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET), container);
                     }
                 }
         };
@@ -2336,7 +2333,7 @@ var Animate;
                 return "{{url}}uploads/" + urlParts[urlParts.length - 1];
             }
             else if (propType == Animate.ParameterType.HIDDEN_FILE) {
-                var file = Animate.User.get.project.getFile(value);
+                var file = Animate.User.get.project.getResourceByShallowID(value, Animate.ResourceType.FILE);
                 if (file) {
                     var urlParts = file.url.split("/");
                     return "{{url}}uploads/" + urlParts[urlParts.length - 1];
@@ -2369,8 +2366,8 @@ var Animate;
                     if (loader.url == "/export/compile") {
                         Animate.Logger.getSingleton().clearItems();
                         var now = new Date();
-                        Animate.Logger.getSingleton().logMessage("Build complete at " + new Date(Date.now()).toDateString(), null, Animate.LogType.MESSAGE);
-                        Animate.Logger.getSingleton().logMessage("External link: " + event.tag.liveLink, null, Animate.LogType.MESSAGE);
+                        Animate.Logger.logMessage("Build complete at " + new Date(Date.now()).toDateString(), null, Animate.LogType.MESSAGE);
+                        Animate.Logger.logMessage("External link: " + event.tag.liveLink, null, Animate.LogType.MESSAGE);
                         if (this.runWhenDone)
                             window.open(event.tag.liveLink, 'Webinate Live!', 'width=900,height=860'); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'
                         this.emit(new ImportExportEvent(ImportExportEvents.COMPLETE, event.tag.liveLink));
@@ -2613,10 +2610,24 @@ var Animate;
         function GroupArray(entry) {
             // Call super-class constructor
             _super.call(this, entry);
-            this.items = [];
-            if (entry.items)
-                this.items = entry.items;
         }
+        /**
+        * Adds a new reference to the group
+        * @param {number} shallowId
+        */
+        GroupArray.prototype.addReference = function (shallowId) {
+            this.entry.items.push(shallowId);
+            this.saved = false;
+        };
+        /**
+        * Removes a reference from the group
+        * @param {number} shallowId
+        */
+        GroupArray.prototype.removeReference = function (shallowId) {
+            if (this.entry.items.indexOf(shallowId) != -1)
+                this.entry.items.splice(this.entry.items.indexOf(shallowId), 1);
+            this.saved = false;
+        };
         /**
         * Disposes and cleans up the data of this asset
         */
@@ -2926,6 +2937,7 @@ var Animate;
     })();
     Animate.DB = DB;
 })(Animate || (Animate = {}));
+// TODO : Remove this class
 var Animate;
 (function (Animate) {
     /**
@@ -3004,13 +3016,13 @@ var Animate;
         LoaderBase.createLoaderModal = function () {
             if (!LoaderBase.loaderBackdrop) {
                 var str = "<div class='modal-backdrop dark-modal'><div class='logo-container'>" +
-                    "<div class='logo-1 animated-logo loader-cog-slow'><img src='media/logo-1.png'/></div>" +
-                    "<div class='logo-2 animated-logo loader-cog'><img src='media/logo-2.png'/></div>" +
-                    "<div class='logo-3 animated-logo loader-cog-slow'><img src='media/logo-3.png'/></div>" +
+                    "<div class='logo-1 animated-logo rotate-360-slow'><img src='media/logo-1.png'/></div>" +
+                    "<div class='logo-2 animated-logo rotate-360'><img src='media/logo-2.png'/></div>" +
+                    "<div class='logo-3 animated-logo rotate-360-slow'><img src='media/logo-3.png'/></div>" +
                     "<div class='logo-4 animated-logo'><img src='media/logo-4.png'/></div>" +
                     "<div class='logo-5 animated-logo'><span class='loader-text'>LOADING</span></div>" +
                     "</div></div>";
-                //return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='loader-cog' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
+                //return jQuery("<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='rotate-360' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>");
                 LoaderBase.loaderBackdrop = jQuery(str);
             }
             return LoaderBase.loaderBackdrop;
@@ -3343,12 +3355,12 @@ var Animate;
 var Animate;
 (function (Animate) {
     (function (ResourceType) {
-        ResourceType[ResourceType["BEHAVIOUR"] = 0] = "BEHAVIOUR";
-        ResourceType[ResourceType["GROUP"] = 1] = "GROUP";
-        ResourceType[ResourceType["ASSET"] = 2] = "ASSET";
-        ResourceType[ResourceType["CONTAINER"] = 3] = "CONTAINER";
-        ResourceType[ResourceType["FILE"] = 4] = "FILE";
-        ResourceType[ResourceType["SCRIPT"] = 5] = "SCRIPT";
+        ResourceType[ResourceType["BEHAVIOUR"] = 1] = "BEHAVIOUR";
+        ResourceType[ResourceType["GROUP"] = 2] = "GROUP";
+        ResourceType[ResourceType["ASSET"] = 3] = "ASSET";
+        ResourceType[ResourceType["CONTAINER"] = 4] = "CONTAINER";
+        ResourceType[ResourceType["FILE"] = 5] = "FILE";
+        ResourceType[ResourceType["SCRIPT"] = 6] = "SCRIPT";
     })(Animate.ResourceType || (Animate.ResourceType = {}));
     var ResourceType = Animate.ResourceType;
     //export class ProjectAssetTypes extends ENUM
@@ -3389,7 +3401,7 @@ var Animate;
         ProjectEvents.HTML_SAVED = new ProjectEvents("html_saved");
         ProjectEvents.CSS_SAVED = new ProjectEvents("css_saved");
         ProjectEvents.BUILD_SAVED = new ProjectEvents("build_saved");
-        ProjectEvents.BEHAVIOUR_DELETING = new ProjectEvents("behaviour_deleting");
+        //static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
         ProjectEvents.BEHAVIOURS_LOADED = new ProjectEvents("behaviours_loaded");
         ProjectEvents.BEHAVIOUR_CREATED = new ProjectEvents("behaviour_created");
         ProjectEvents.BEHAVIOUR_UPDATED = new ProjectEvents("behaviour_updated");
@@ -3400,13 +3412,13 @@ var Animate;
         ProjectEvents.ASSET_SAVED = new ProjectEvents("asset_saved");
         ProjectEvents.ASSET_UPDATED = new ProjectEvents("asset_updated");
         ProjectEvents.ASSETS_UPDATED = new ProjectEvents("assets_updated");
-        ProjectEvents.ASSET_DELETING = new ProjectEvents("asset_deleting");
+        //static ASSET_DELETING: ProjectEvents = new ProjectEvents("asset_deleting");
         ProjectEvents.ASSETS_LOADED = new ProjectEvents("assets_deleted");
-        ProjectEvents.GROUP_UPDATED = new ProjectEvents("group_updated");
+        //static GROUP_UPDATED: ProjectEvents = new ProjectEvents("group_updated");
         ProjectEvents.GROUPS_UPDATED = new ProjectEvents("groups_updated");
         ProjectEvents.GROUP_SAVED = new ProjectEvents("group_saved");
         ProjectEvents.GROUPS_SAVED = new ProjectEvents("groups_saved");
-        ProjectEvents.GROUP_DELETING = new ProjectEvents("group_deleting");
+        //static GROUP_DELETING: ProjectEvents = new ProjectEvents("group_deleting");
         ProjectEvents.GROUP_CREATED = new ProjectEvents("group_created");
         ProjectEvents.GROUPS_LOADED = new ProjectEvents("groups_loaded");
         return ProjectEvents;
@@ -3502,71 +3514,117 @@ var Animate;
             this._restPaths[ResourceType.SCRIPT] = { url: Animate.DB.API + "/scripts", array: this._scripts };
         }
         /**
-        * Gets an asset by its ID
-        * @param {string} id The ID of the asset id
-        * @returns {Asset} The asset whose id matches the id parameter or null
+        * Gets a resource by its ID
+        * @param {string} id The ID of the resource
+        * @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
         */
-        Project.prototype.getAssetByID = function (id) {
-            for (var i = 0; i < this._assets.length; i++)
-                if (this._assets[i].entry._id == id)
-                    return this._assets[i];
+        Project.prototype.getResourceByID = function (id, type) {
+            var types = this._restPaths;
+            if (type) {
+                for (var i = 0, arr = types[type].array, l = arr.length; i < l; i++)
+                    if (arr[i].entry._id == id)
+                        return arr[i];
+            }
+            else {
+                for (var t in types)
+                    for (var i = 0, arr = types[t].array, l = arr.length; i < l; i++)
+                        if (arr[i].entry._id == id)
+                            return arr[i];
+            }
             return null;
         };
         /**
-        * Gets an asset by its shallow ID
-        * @param {string} id The shallow ID of the asset id
-        * @returns {Asset} The asset whose id matches the id parameter or null
+        * Gets a resource by its shallow ID
+        * @param {string} id The shallow ID of the resource
+        * @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
         */
-        Project.prototype.getAssetByShallowId = function (id) {
-            for (var i = 0; i < this._assets.length; i++)
-                if (this._assets[i].entry.shallowId == id)
-                    return this._assets[i];
+        Project.prototype.getResourceByShallowID = function (id, type) {
+            var types = this._restPaths;
+            if (type) {
+                for (var i = 0, arr = types[type].array, l = arr.length; i < l; i++)
+                    if (arr[i].entry.shallowId == id)
+                        return arr[i];
+            }
+            else {
+                for (var t in types)
+                    for (var i = 0, arr = types[t].array, l = arr.length; i < l; i++)
+                        if (arr[i].entry.shallowId == id)
+                            return arr[i];
+            }
             return null;
         };
-        /**
-        * Gets a file by its ID
-        * @param {string} id The ID of the file
-        * @returns {FileResource} The file whose id matches the id parameter or null
-        */
-        Project.prototype.getFile = function (id) {
-            for (var i = 0; i < this._files.length; i++)
-                if (this._files[i].entry._id == id)
-                    return this._files[i];
-            return null;
-        };
-        /**
-        * Gets a group by its ID
-        * @param {string} id The ID of the group
-        * @returns {GroupArray} The group whose id matches the id parameter or null
-        */
-        Project.prototype.getGroup = function (id) {
-            for (var i = 0; i < this._groups.length; i++)
-                if (this._groups[i].entry._id == id)
-                    return this._groups[i];
-            return null;
-        };
-        /**
-        * Gets a {Container} by its ID
-        * @param {string} id The ID of the Container
-        * @returns {Container} The Container whose id matches the id parameter or null
-        */
-        Project.prototype.getBehaviourById = function (id) {
-            for (var i = 0; i < this._containers.length; i++)
-                if (this._containers[i].entry._id == id)
-                    return this._containers[i];
-            return null;
-        };
-        /**
-        * Gets a {Container} by its shallow or local ID
-        * @param {string} id The local ID of the Container
-        * @returns {Container} The Container whose id matches the id parameter or null
-        */
-        Project.prototype.getBehaviourByShallowId = function (id) {
-            for (var i = 0; i < this._containers.length; i++)
-                if (this._containers[i].entry.shallowId == id)
-                    return this._containers[i];
-            return null;
-        };
+        ///**
+        //* Gets an asset by its ID
+        //* @param {string} id The ID of the asset id
+        //* @returns {Asset} The asset whose id matches the id parameter or null
+        //*/
+        //getAssetByID( id: string ): Asset
+        //{
+        //	for ( var i = 0; i < this._assets.length; i++ )
+        //              if (this._assets[i].entry._id == id )
+        //			return this._assets[i];
+        //	return null;
+        //}
+        ///**
+        //* Gets an asset by its shallow ID
+        //* @param {string} id The shallow ID of the asset id
+        //* @returns {Asset} The asset whose id matches the id parameter or null
+        //*/
+        //getAssetByShallowId( id: number ): Asset
+        //{
+        //	for ( var i = 0; i < this._assets.length; i++ )
+        //              if (this._assets[i].entry.shallowId == id )
+        //			return this._assets[i];
+        //	return null;
+        //}
+        ///**
+        //* Gets a file by its ID
+        //* @param {string} id The ID of the file
+        //* @returns {FileResource} The file whose id matches the id parameter or null
+        //*/
+        //      getFile(id: string): FileResource
+        //{
+        //          for (var i = 0; i < this._files.length; i++)
+        //              if (this._files[i].entry._id == id)
+        //			return this._files[i];
+        //	return null;
+        //      }
+        //      /**
+        //* Gets a group by its ID
+        //* @param {string} id The ID of the group
+        //* @returns {GroupArray} The group whose id matches the id parameter or null
+        //*/
+        //      getGroup(id: string): GroupArray
+        //      {
+        //          for (var i = 0; i < this._groups.length; i++)
+        //              if (this._groups[i].entry._id == id)
+        //                  return this._groups[i];
+        //          return null;
+        //      }
+        ///**
+        //* Gets a {Container} by its ID
+        //* @param {string} id The ID of the Container
+        //* @returns {Container} The Container whose id matches the id parameter or null
+        //*/
+        //getBehaviourById( id: string ): Container
+        //{
+        //	for ( var i = 0; i < this._containers.length; i++ )
+        //              if (this._containers[i].entry._id == id )
+        //			return this._containers[i];
+        //	return null;
+        //}
+        ///**
+        //* Gets a {Container} by its shallow or local ID
+        //* @param {string} id The local ID of the Container
+        //* @returns {Container} The Container whose id matches the id parameter or null
+        //*/
+        //getBehaviourByShallowId( id: number ): Container
+        //{
+        //	for ( var i = 0; i < this._containers.length; i++ )
+        //              if (this._containers[i].entry.shallowId == id )
+        //			return this._containers[i];
+        //	return null;
+        //      }
         /**
         * Attempts to update the project details base on the token provided
         * @returns {Engine.IProject} The project token
@@ -3590,28 +3648,6 @@ var Animate;
                 });
             });
         };
-        //      /**
-        //* This function is used to fetch the files associated with a project.
-        //* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
-        //      * @returns {Promise<ModepressAddons.IGetFiles>}
-        //*/
-        //      loadFiles(mode: string = "project"): Promise<ModepressAddons.IGetFiles>
-        //      {
-        //          var that = this;
-        //          return new Promise<ModepressAddons.IGetFiles>(function (resolve, reject)
-        //          {
-        //              Utils.get(`${DB.API}/files/${that.entry.user}/${that.entry._id}`).then(function (data: ModepressAddons.IGetFiles)
-        //              {
-        //                  if (data.error)
-        //                      return reject(new Error(data.message));
-        //                  that.files = data.data;
-        //                  return resolve(data);
-        //              }).catch(function (err: IAjaxError)
-        //              {
-        //                  return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
-        //              });
-        //          });
-        //      }
         /**
         * Loads a previously selected build, or creates one if none are selected
         * @returns {Promise<Build>}
@@ -3640,7 +3676,7 @@ var Animate;
         * Internal function to create a resource wrapper
         * @param {T} entry The database entry
         * @param {ResourceType} type The type of resource to create
-        * @returns {ProjectResource<any>}
+        * @returns {ProjectResource<T>}
         */
         Project.prototype.createResourceInstance = function (entry, type) {
             var resource;
@@ -3669,7 +3705,7 @@ var Animate;
         };
         /**
         * This function is used to fetch the project resources associated with a project.
-        * @param {string} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<Array<ProjectResource<any>>}
         */
         Project.prototype.loadResources = function (type) {
@@ -3735,10 +3771,41 @@ var Animate;
             });
         };
         /**
+        * This function is used to fetch a project resource by Id
+        * @param {string} id the Id of the resource to update
+        * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+        * @returns {Promise<T>}
+        */
+        Project.prototype.refreshResource = function (id, type) {
+            var that = this;
+            var paths = this._restPaths;
+            var array = paths[type].array;
+            var resource;
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id) {
+                    resource = array[i];
+                    break;
+                }
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.get(paths[type].url + "/" + that.entry.user + "/" + that.entry._id + "/" + id).then(function (response) {
+                    if (response.error)
+                        return reject(new Error(response.message));
+                    for (var t in response.data)
+                        if (resource.entry.hasOwnProperty(t))
+                            resource.entry[t] = response.data[t];
+                    return resolve(resource);
+                }).catch(function (err) {
+                    return reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
+            });
+        };
+        /**
         * Use this to edit the properties of a resource
-        * @param {string} id The id of the object we are renaming.
+        * @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
-        * @param {ResourceType} type The type of resource we are renaming
+        * @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse>}
         */
         Project.prototype.editResource = function (id, data, type) {
@@ -3770,43 +3837,116 @@ var Animate;
             });
         };
         /**
-        * Use this to edit the properties of a resource
-        * @param {ResourceType} type The type of resource we are renaming
-        * @param {string} id The id of the object we are renaming.
-        * @returns {Promise<Modepress.IResponse>}
+        * Use this to save the properties of a resource
+        * @param {string} id The id of the object we are saving.
+        * @param {ResourceType} type [Optional] The type of resource we are saving
+        * @returns {Promise<boolean>}
         */
-        Project.prototype.saveResources = function (type, id) {
+        Project.prototype.saveResource = function (id, type) {
             var paths = this._restPaths;
-            var promises = [];
             var that = this;
             var details = Animate.User.get.entry;
             var projId = this.entry._id;
-            var resources = paths[type].array;
-            // Creates a promise that updates the resource data and sets saved property when successful
-            var saveResource = function (url, resource) {
-                return new Promise(function (resolve, reject) {
-                    Animate.Utils.put(url, resource.entry).then(function (response) {
-                        if (response.error)
-                            return reject(new Error(response.message));
-                        resource.saved = true;
-                        return resolve(true);
-                    }).catch(function (err) {
-                        reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
-                    });
+            var resource;
+            var url;
+            if (type) {
+                url = paths[type].url;
+                for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++) {
+                    if (arr[i].entry._id == id) {
+                        url = paths[t].url;
+                        resource = arr[i];
+                        break;
+                    }
+                }
+            }
+            else {
+                for (var t in paths)
+                    for (var i = 0, arr = paths[t].array, l = arr.length; i < l && !url; i++) {
+                        if (arr[i].entry._id == id) {
+                            url = paths[t].url;
+                            resource = arr[i];
+                            break;
+                        }
+                    }
+            }
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.put(url, resource.entry).then(function (response) {
+                    if (response.error)
+                        return reject(new Error(response.message));
+                    resource.saved = true;
+                    return resolve(true);
+                }).catch(function (err) {
+                    reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
                 });
-            };
-            // Go through each resource
-            for (var i = 0, l = resources.length; i < l; i++) {
-                // Its saved - do nothing
-                if (resources[i].saved)
-                    continue;
-                if (id !== undefined && resources[i].entry._id == id) {
-                    promises.push(saveResource(paths[type].url + "/" + details.username + "/" + projId + "/" + resources[i].entry._id, resources[i]));
+            });
+        };
+        /**
+        * Use this to edit the properties of a resource
+        * @param {ResourceType} type The type of resource we are saving
+        * @returns {Promise<boolean>}
+        */
+        Project.prototype.saveResources = function (type) {
+            var paths = this._restPaths;
+            var promises = [];
+            for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++)
+                promises.push(this.saveResource(arr[i].entry._id, type));
+            return new Promise(function (resolve, reject) {
+                Promise.all(promises).then(function (data) {
+                    resolve(true);
+                }).catch(function (err) {
+                    reject(err);
+                });
+            });
+        };
+        /**
+        * Use this to delete a resource by its Id
+        * @param {string} id The id of the object we are deleting
+        * @param {ResourceType} type The type of resource we are renaming
+        * @returns {Promise<boolean>}
+        */
+        Project.prototype.deleteResource = function (id, type) {
+            var that = this;
+            var details = Animate.User.get.entry;
+            var projId = this.entry._id;
+            var paths = this._restPaths;
+            var url = paths[type].url + "/" + details.username + "/" + projId + "/" + id;
+            var array = paths[type].array;
+            var resource;
+            for (var i = 0, l = array.length; i < l; i++)
+                if (array[i].entry._id == id) {
+                    resource = array[i];
                     break;
                 }
-                else if (id == undefined)
-                    promises.push(saveResource(paths[type].url + "/" + details.username + "/" + projId + "/" + resources[i].entry._id, resources[i]));
-            }
+            if (!resource)
+                return Promise.reject(new Error("No resource with that ID exists"));
+            return new Promise(function (resolve, reject) {
+                Animate.Utils.delete(url).then(function (response) {
+                    if (response.error)
+                        return reject(new Error(response.message));
+                    array.splice(array.indexOf(resource), 1);
+                    resource.emit(new Animate.Event("deleted"));
+                    return resolve(true);
+                }).catch(function (err) {
+                    reject(new Error("An error occurred while connecting to the server. " + err.status + ": " + err.message));
+                });
+            });
+        };
+        /**
+        * Deletes several resources in 1 function call
+        * @param {Array<string>} ids The ids An array of resource Ids
+        * @returns {Promise<boolean>}
+        */
+        Project.prototype.deleteResources = function (ids) {
+            var promises = [];
+            var paths = this._restPaths;
+            for (var t in paths)
+                for (var k = 0, arr = paths[t].array, kl = arr.length; k < kl; k++)
+                    for (var i = 0, l = ids.length; i < l; i++) {
+                        if (arr[k].entry._id == ids) {
+                            promises.push(this.deleteResource(arr[k].entry._id, t));
+                            break;
+                        }
+                    }
             return new Promise(function (resolve, reject) {
                 Promise.all(promises).then(function (data) {
                     resolve(true);
@@ -4004,20 +4144,21 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/save-css", { projectId: this.entry._id, css: css } );
         //}
-        /**
-        * This function is used to delete behaviours.
-        * @param {Array<string>} behavioursIds The behaviour Ids we need to delete
-        */
-        Project.prototype.deleteBehaviours = function (behavioursIds) {
-            var ids = [];
-            //Create a multidimension array and pass each of the _behaviours
-            for (var i = 0, l = behavioursIds.length; i < l; i++)
-                ids.push(behavioursIds[i]);
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids });
-        };
+        ///**
+        //* This function is used to delete behaviours.
+        //* @param {Array<string>} behavioursIds The behaviour Ids we need to delete
+        //*/
+        //deleteBehaviours( behavioursIds: Array<string> )
+        //{
+        //	var ids: Array<string> = [];
+        //	//Create a multidimension array and pass each of the _behaviours
+        //	for ( var i = 0, l = behavioursIds.length; i < l; i++ )
+        //		ids.push( behavioursIds[i] );
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/delete-behaviours", { projectId: this.entry._id, ids: ids } );
+        //}
         ///**
         //* This function is used to fetch the files associated with a project.
         //* @param {string} mode Which files to fetch - this can be either 'global', 'project' or 'user'
@@ -4038,57 +4179,61 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/import-files", { projectId: this.entry._id, ids: ids, });
         };
-        /**
-        * This function is used to delete files from a project and the database. The file asset will
-        * not be deleted if another project has a reference to it. The reference of this project to the file will be
-        * removed either way.
-        * @param {Array<string>} ids An array of file IDs to delete
-        */
-        Project.prototype.deleteFiles = function (ids) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/delete-files", { projectId: this.entry._id, ids: ids, });
-        };
-        /**
-        * Use this function to create an empty data file for the user
-        * @param {string} name The name of file we are creating. Please note this is not a file name.
-        */
-        Project.prototype.createEmptyFile = function (name) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/file/create-empty-file", { projectId: this.entry._id, name: name });
-        };
-        /**
-        * Fills a data file with the contents of an XHR request
-        * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-        * @param {string} id The id of the file we are
-        * @param {ArrayBufferView} view The data to fill the file with
-        */
-        Project.prototype.fillFile = function (id, view) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.contentType = "application/octet-stream";
-            loader.processData = false;
-            loader.getVariables = { id: id, projectId: this.entry._id };
-            loader.load("/file/fill-file", view);
-        };
-        /**
-        * Use this function to update file properties
-        * @param {string} fileId The file we are updating
-        * @param {string} name The new name of the file.
-        * @param {Array<string>} tags The new comma separated tags of the file.
-        * @param {bool} favourite If this file is a favourite
-        * @param {bool} global True or false if this file is shared globally
-        */
-        Project.prototype.saveFile = function (fileId, name, tags, favourite, global) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global });
-        };
+        ///**
+        //* This function is used to delete files from a project and the database. The file asset will
+        //* not be deleted if another project has a reference to it. The reference of this project to the file will be 
+        //* removed either way. 
+        //* @param {Array<string>} ids An array of file IDs to delete
+        //*/
+        //deleteFiles( ids: Array<string> )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/delete-files", { projectId: this.entry._id, ids: ids, } );
+        //}
+        ///**
+        //* Use this function to create an empty data file for the user
+        //* @param {string} name The name of file we are creating. Please note this is not a file name. 
+        //*/
+        //createEmptyFile( name: string )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/file/create-empty-file", { projectId: this.entry._id, name: name });
+        //}
+        ///**
+        //* Fills a data file with the contents of an XHR request
+        //* See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+        //* @param {string} id The id of the file we are 
+        //* @param {ArrayBufferView} view The data to fill the file with
+        //*/
+        //fillFile( id: string, view : ArrayBufferView )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //	loader.contentType = "application/octet-stream";
+        //	loader.processData = false;
+        //          loader.getVariables = { id: id, projectId: this.entry._id };
+        //	loader.load( "/file/fill-file", view);
+        //}
+        ///**
+        //* Use this function to update file properties
+        //* @param {string} fileId The file we are updating
+        //* @param {string} name The new name of the file.
+        //* @param {Array<string>} tags The new comma separated tags of the file.
+        //* @param {bool} favourite If this file is a favourite
+        //* @param {bool} global True or false if this file is shared globally
+        //*/
+        //saveFile( fileId: string, name: string, tags: Array<string>, favourite: boolean, global: boolean )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/save-file", { projectId: this.entry._id, fileId: fileId, name: name, tags: tags, favourite: favourite, global: global } );
+        //}
         ///**
         //* This function is used to fetch the beaviours of a project. 
         //*/
@@ -4145,41 +4290,44 @@ var Animate;
         //	loader.on( LoaderEvents.FAILED, this.onServer, this );
         //          loader.load("/project/save-groups", { projectId: this.entry._id, ids: ids, data : jsons } );
         //}
-        /**
-        * Deletes groups from the project
-        * @param {Array<string>} groupIds The array of group IDs to delete
-        */
-        Project.prototype.deleteGroups = function (groupIds) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/delete-groups", { projectId: this.entry._id, ids: groupIds });
-        };
-        /**
-        * This will download all group variables from the server. If successful, the function will also get
-        * the asset treeview to update its contents
-        * @param {Array<string>} groupIds  groupIds The array of group IDs to update
-        */
-        Project.prototype.updateGroups = function (groupIds) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/update-groups", { projectId: this.entry._id, ids: groupIds });
-        };
-        /**
-        * This function is used to create a new asset on the server.
-        * If the server sends a fail message then no new asset
-        * will be created. You can use the event <Project.ASSET_CREATED> to hook into
-        * a successful DB entry created.
-        * @param {string} name The proposed name of the asset.
-        * @param {string} className The class of the asset.
-        */
-        Project.prototype.createAsset = function (name, className) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: Animate.ProjectResource.generateLocalId() });
-        };
+        ///**
+        //* Deletes groups from the project
+        //* @param {Array<string>} groupIds The array of group IDs to delete
+        //*/
+        //deleteGroups( groupIds: Array<string> )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/delete-groups", { projectId: this.entry._id, ids: groupIds } );
+        //}
+        ///**
+        //* This will download all group variables from the server. If successful, the function will also get
+        //* the asset treeview to update its contents
+        //* @param {Array<string>} groupIds  groupIds The array of group IDs to update
+        //*/
+        //updateGroups( groupIds: Array<string> )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/update-groups", { projectId: this.entry._id, ids: groupIds } );
+        //}
+        ///**
+        //* This function is used to create a new asset on the server. 
+        //* If the server sends a fail message then no new asset
+        //* will be created. You can use the event <Project.ASSET_CREATED> to hook into
+        //* a successful DB entry created.
+        //* @param {string} name The proposed name of the asset.
+        //* @param {string} className The class of the asset.
+        //*/
+        //createAsset( name: string, className: string )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //          loader.on(LoaderEvents.FAILED, this.onServer, this);
+        //          loader.load("/project/create-asset", { projectId: this.entry._id, name: name, className: className, shallowId: ProjectResource.generateLocalId() });
+        //}
         ///**
         //* This will save a group of asset's variables to the server in JSON.
         //* @param {Array<string>} assetIds An array of asset ids of the assets we want to save
@@ -4239,16 +4387,17 @@ var Animate;
             loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: Animate.ProjectResource.generateLocalId() });
         };
-        /**
-        * This function is used to delete assets.
-        * @param {Array<string>} assetIDs The asset objects we are trying to delete
-        */
-        Project.prototype.deleteAssets = function (assetIDs) {
-            var loader = new Animate.AnimateLoader();
-            loader.on(Animate.LoaderEvents.COMPLETE, this.onServer, this);
-            loader.on(Animate.LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs });
-        };
+        ///**
+        //* This function is used to delete assets.
+        //* @param {Array<string>} assetIDs The asset objects we are trying to delete
+        //*/
+        //deleteAssets( assetIDs: Array<string> )
+        //{
+        //	var loader = new AnimateLoader();
+        //	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+        //	loader.on( LoaderEvents.FAILED, this.onServer, this );
+        //          loader.load("/project/delete-assets", { projectId: this.entry._id, ids: assetIDs } );
+        //}
         ///**
         //* This function is used to fetch the _assets of a project. 
         //*/
@@ -4315,53 +4464,10 @@ var Animate;
                     }
                     else if (loader.url == "/project/save-build") {
                     }
-                    else if (loader.url == "/project/delete-behaviours") {
-                        //Update behaviours ids which we fetched from the DB.
-                        for (var i = 0, l = data.length; i < l; i++) {
-                            var len = this._containers.length;
-                            for (var ii = 0; ii < len; ii++)
-                                if (this._containers[ii].entry._id == data[i]) {
-                                    var behaviour = this._containers[ii];
-                                    behaviour.dispose();
-                                    this._containers.splice(ii, 1);
-                                    //this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
-                                    break;
-                                }
-                        }
-                    }
-                    else if (loader.url == "/project/delete-assets") {
-                        dispatchEvent = new Animate.AssetEvent(Animate.EditorEvents.ASSET_DESTROYED, null);
-                        var ev = new Animate.AssetEvent(ProjectEvents.ASSET_DELETING, null);
-                        for (var i = 0, l = data.length; i < l; i++) {
-                            var len = this._assets.length;
-                            for (var ii = 0; ii < len; ii++)
-                                if (this._assets[ii].entry._id == data[i]) {
-                                    ev.asset = this._assets[ii];
-                                    this.emit(ev);
-                                    //Notify the destruction of an asset
-                                    dispatchEvent.asset = this._assets[ii];
-                                    pManager.emit(dispatchEvent);
-                                    this._assets[ii].dispose();
-                                    this._assets.splice(ii, 1);
-                                    break;
-                                }
-                        }
-                    }
                     else if (loader.url == "/project/get-groups") {
                         //Create new _assets which we fetched from the DB.
                         for (var i = 0, l = data.length; i < l; i++) {
                             var dbEntry = data[i];
-                        }
-                    }
-                    else if (loader.url == "/project/delete-groups") {
-                        for (var i = 0, l = data.length; i < l; i++) {
-                            var grpID = data[i];
-                        }
-                    }
-                    else if (loader.url == "/project/update-groups") {
-                        //Update _assets which we fetched from the DB.
-                        for (var i = 0, l = data.length; i < l; i++) {
-                            var grp = data[i];
                         }
                     }
                     else if (loader.url == "/project/update-assets") {
@@ -4459,10 +4565,8 @@ var Animate;
             var event;
             //Cleanup behaviours
             var i = this._containers.length;
-            while (i--) {
-                //this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_DELETING, "Behaviour deleting", LoaderEvents.COMPLETE, this._behaviours[i])  );
+            while (i--)
                 this._containers[i].dispose();
-            }
             i = this._assets.length;
             event = new Animate.AssetEvent(Animate.EditorEvents.ASSET_DESTROYED, null);
             while (i--) {
@@ -4471,21 +4575,12 @@ var Animate;
                 pManager.emit(event);
                 this._assets[i].dispose();
             }
-            //i = this._files.length;
-            //while ( i-- )
-            //	this._files[i].dispose();
-            //this._plugins = null;
-            //this.created = null;
-            //this.lastModified = null;
-            //this._id = null;
             this.saved = true;
-            //this.mName = null;
-            //this.mDescription = null;
-            this._containers = [];
-            this._assets = [];
-            //this.buildId = null;
-            this._files = [];
-            this._groups = [];
+            this._containers.splice(0, this._containers.length);
+            this._assets.splice(0, this._assets.length);
+            this._groups.splice(0, this._groups.length);
+            this._files.splice(0, this._files.length);
+            this._scripts.splice(0, this._scripts.length);
         };
         Object.defineProperty(Project.prototype, "plugins", {
             get: function () { return this.entry.$plugins; },
@@ -5743,8 +5838,9 @@ var Animate;
         * @param {any} tag An optional tag to associate with the log.
         * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
         */
-        Logger.prototype.logMessage = function (val, tag, type) {
+        Logger.logMessage = function (val, tag, type) {
             if (type === void 0) { type = LogType.MESSAGE; }
+            var logger = Logger.getSingleton();
             var img = null;
             if (type == LogType.MESSAGE)
                 img = "media/tick.png";
@@ -5753,14 +5849,14 @@ var Animate;
             else
                 img = "media/warning-20.png";
             //Add a border glow to the messages dock items
-            if (type != LogType.MESSAGE && this.element.data("preview") != this.mDocker.activePreview) {
-                var offset = this.mDocker.element.offset();
-                jQuery("body").append(this.warningFlagger);
-                this.warningFlagger.css({ left: offset.left, top: offset.top - this.warningFlagger.height() });
-                this.element.data("preview").addClass("fade-animation");
+            if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview) {
+                var offset = logger.mDocker.element.offset();
+                jQuery("body").append(logger.warningFlagger);
+                logger.warningFlagger.css({ left: offset.left, top: offset.top - logger.warningFlagger.height() });
+                logger.element.data("preview").addClass("fade-animation");
             }
             val = ("<span class='date'>" + new Date(Date.now()).toLocaleDateString() + " " + new Date(Date.now()).toLocaleTimeString() + "</span>") + val;
-            var toAdd = this.addItem(img, val, true);
+            var toAdd = logger.addItem(img, val, true);
             toAdd.data("tag", tag);
             return toAdd;
         };
@@ -6721,15 +6817,15 @@ var Animate;
                             //{
                             var startSelecting = false;
                             var pNode = parent.data("component");
-                            for (var i = 0; pNode.mChildren.length; i++) {
-                                if (!startSelecting && pNode.mChildren[i] == comp) {
+                            for (var i = 0; pNode.children.length; i++) {
+                                if (!startSelecting && pNode.children[i] == comp) {
                                     this.selectNode(null);
                                     return;
                                 }
-                                if (startSelecting || pNode.mChildren[i] == this._selectedNodes[0]) {
+                                if (startSelecting || pNode.children[i] == this._selectedNodes[0]) {
                                     startSelecting = true;
-                                    this.selectNode(pNode.mChildren[i], false, true);
-                                    if (pNode.mChildren[i] == comp)
+                                    this.selectNode(pNode.children[i], false, true);
+                                    if (pNode.children[i] == comp)
                                         return;
                                 }
                             }
@@ -6899,18 +6995,17 @@ var Animate;
         function Tab(parent) {
             // Call super-class constructor
             _super.call(this, "<div class='tab background-view'></div>", parent);
-            this._tabsDiv = new Animate.Component("<div class='tabs-div'></div>", this);
-            this.pagesDiv = new Animate.Component("<div class='pages-div'></div>", this);
-            this.pagesDiv.addLayout(new Animate.Fill(0, 0, 0, -25));
-            this._tabs = [];
-            this.selectedTab = null;
-            this.element.on("click", jQuery.proxy(this.onClick, this));
-            this.dropButton = new Animate.Component("<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null);
+            this._tabSelectorsDiv = new Animate.Component("<div class='tabs-div'></div>", this);
+            this._pagesDiv = new Animate.Component("<div class='pages-div'></div>", this);
+            this._dropButton = new Animate.Component("<div class='tabs-drop-button black-tint'>&#x21E3;</div>", null);
+            this._pagesDiv.addLayout(new Animate.Fill(0, 0, 0, -25));
+            this._tabPairs = [];
+            this._selectedPair = null;
             if (!Tab.contextMenu)
                 Tab.contextMenu = new Animate.ContextMenu();
-            //this.element.disableSelection( true );
-            Tab.contextMenu.on(Animate.ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
             this.addLayout(new Animate.Fill());
+            Tab.contextMenu.on(Animate.ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
+            this.element.on("click", jQuery.proxy(this.onClick, this));
         }
         /**
         * When we click the tab
@@ -6926,13 +7021,13 @@ var Animate;
         * @description When the context menu is clicked.
         */
         Tab.prototype.onContext = function (response, event) {
-            var len = this._tabs.length;
+            var len = this._tabPairs.length;
             for (var i = 0; i < len; i++)
-                if (this._tabs[i].name == event.item.text) {
-                    var p = this._tabs[i].tabSelector.element.parent();
-                    this._tabs[i].tabSelector.element.detach();
-                    p.prepend(this._tabs[i].tabSelector.element);
-                    this.selectTab(this._tabs[i]);
+                if (this._tabPairs[i].name == event.item.text) {
+                    var p = this._tabPairs[i].tabSelector.element.parent();
+                    this._tabPairs[i].tabSelector.element.detach();
+                    p.prepend(this._tabPairs[i].tabSelector.element);
+                    this.selectTab(this._tabPairs[i]);
                     return;
                 }
         };
@@ -6941,18 +7036,18 @@ var Animate;
         * @param {TabPair} tab
         */
         Tab.prototype.selectTab = function (tab) {
-            var len = this._tabs.length;
+            var len = this._tabPairs.length;
             for (var i = 0; i < len; i++) {
-                if (tab == this._tabs[i] || this._tabs[i].name == tab.name) {
-                    if (this.selectedTab != null) {
-                        this.selectedTab.tabSelector.element.removeClass("tab-selected");
-                        this.selectedTab.page.element.detach();
+                if (tab == this._tabPairs[i] || this._tabPairs[i].name == tab.name) {
+                    if (this._selectedPair != null) {
+                        this._selectedPair.tabSelector.element.removeClass("tab-selected");
+                        this._selectedPair.page.element.detach();
                     }
-                    this.selectedTab = this._tabs[i];
-                    this.selectedTab.tabSelector.element.addClass("tab-selected");
-                    this.pagesDiv.element.append(this.selectedTab.page.element);
-                    this.onTabSelected(this.selectedTab);
-                    return this.selectedTab;
+                    this._selectedPair = this._tabPairs[i];
+                    this._selectedPair.tabSelector.element.addClass("tab-selected");
+                    this._pagesDiv.element.append(this._selectedPair.page.element);
+                    this.onTabSelected(this._selectedPair);
+                    return this._selectedPair;
                 }
             }
             return null;
@@ -6978,15 +7073,15 @@ var Animate;
             }
             else if (targ.is(jQuery(".tabs-drop-button"))) {
                 Tab.contextMenu.clear();
-                var len = this._tabs.length;
+                var len = this._tabPairs.length;
                 for (var i = 0; i < len; i++)
-                    Tab.contextMenu.addItem(new Animate.ContextMenuItem(this._tabs[i].name, null));
+                    Tab.contextMenu.addItem(new Animate.ContextMenuItem(this._tabPairs[i].name, null));
                 e.preventDefault();
                 Tab.contextMenu.show(Animate.Application.getInstance(), e.pageX, e.pageY, false, true);
                 return false;
             }
             else if (targ.is(jQuery(".tab-selector"))) {
-                var len = this._tabs.length;
+                var len = this._tabPairs.length;
                 for (var i = 0; i < len; i++) {
                     var text = "";
                     if (targ.data("canClose")) {
@@ -6996,15 +7091,15 @@ var Animate;
                     else
                         text = targ.text();
                     //text = text.substring(0, text.length - 1);
-                    if (this._tabs[i].name == text) {
-                        if (this.selectedTab != null) {
-                            this.selectedTab.tabSelector.element.removeClass("tab-selected");
-                            this.selectedTab.page.element.detach();
+                    if (this._tabPairs[i].name == text) {
+                        if (this._selectedPair != null) {
+                            this._selectedPair.tabSelector.element.removeClass("tab-selected");
+                            this._selectedPair.page.element.detach();
                         }
-                        this.selectedTab = this._tabs[i];
-                        this.selectedTab.tabSelector.element.addClass("tab-selected");
-                        this.pagesDiv.element.append(this.selectedTab.page.element);
-                        this.onTabSelected(this.selectedTab);
+                        this._selectedPair = this._tabPairs[i];
+                        this._selectedPair.tabSelector.element.addClass("tab-selected");
+                        this._pagesDiv.element.append(this._selectedPair.page.element);
+                        this.onTabSelected(this._selectedPair);
                         return;
                     }
                 }
@@ -7016,19 +7111,19 @@ var Animate;
         Tab.prototype.update = function () {
             this.element.css("overflow", "hidden");
             Animate.Component.prototype.update.call(this);
-            var tabs = this._tabs;
+            var tabs = this._tabPairs;
             var len = tabs.length;
             for (var i = 0; i < len; i++)
                 tabs[i].onResize();
         };
         Tab.prototype.addTab = function (val, canClose) {
             canClose = (canClose === undefined ? true : canClose);
-            if (this.selectedTab != null) {
-                this.selectedTab.tabSelector.element.removeClass("tab-selected");
-                this.selectedTab.page.element.detach();
+            if (this._selectedPair != null) {
+                this._selectedPair.tabSelector.element.removeClass("tab-selected");
+                this._selectedPair.page.element.detach();
             }
-            var page = new Animate.Component("<div class='tab-page background'></div>", this.pagesDiv);
-            var tab = new Animate.Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div></div>", this._tabsDiv);
+            var page = new Animate.Component("<div class='tab-page background'></div>", this._pagesDiv);
+            var tab = new Animate.Component("<div class='tab-selector animate-fast background-dark tab-selected'><div class='text'><span class='content'>" + (val instanceof Animate.TabPair ? val.name : val) + "</span></div></div>", this._tabSelectorsDiv);
             if (canClose) {
                 new Animate.Component("<div class='tab-close black-tint'>X</div>", tab);
                 tab.element.data("canClose", true);
@@ -7041,12 +7136,13 @@ var Animate;
             }
             else
                 toAdd = new Animate.TabPair(tab, page, val);
-            this.selectedTab = toAdd;
-            this._tabs.push(toAdd);
-            this.onTabSelected(this.selectedTab);
+            toAdd.tab = this;
+            this._selectedPair = toAdd;
+            this._tabPairs.push(toAdd);
+            this.onTabSelected(this._selectedPair);
             // Only add the drop down if there is more than 1 tab
-            if (this._tabs.length > 1 && !this.contains(this.dropButton))
-                this._tabsDiv.addChild(this.dropButton);
+            if (this._tabPairs.length > 1 && !this.contains(this._dropButton))
+                this._tabSelectorsDiv.addChild(this._dropButton);
             tab.element.trigger("click");
             toAdd.onAdded();
             return toAdd;
@@ -7057,24 +7153,24 @@ var Animate;
         * @returns {TabPair} The tab pair containing both the label and page {Component}s
         */
         Tab.prototype.getTab = function (val) {
-            var i = this._tabs.length;
+            var i = this._tabPairs.length;
             while (i--)
-                if (this._tabs[i].name == val)
-                    return this._tabs[i];
+                if (this._tabPairs[i].name == val)
+                    return this._tabPairs[i];
             return null;
         };
         /**
         * This will cleanup the component.
         */
         Tab.prototype.dispose = function () {
-            this._tabsDiv = null;
-            this.pagesDiv = null;
-            var len = this._tabs.length;
+            this._tabSelectorsDiv = null;
+            this._pagesDiv = null;
+            var len = this._tabPairs.length;
             for (var i = 0; i < len; i++)
-                this._tabs[i].dispose();
-            this.pagesDiv = null;
-            this._tabs = null;
-            this.selectedTab = null;
+                this._tabPairs[i].dispose();
+            this._pagesDiv = null;
+            this._tabPairs = null;
+            this._selectedPair = null;
             //Call super
             _super.prototype.dispose.call(this);
         };
@@ -7082,33 +7178,34 @@ var Animate;
         * Removes all items from the tab. This will call dispose on all components.
         */
         Tab.prototype.clear = function () {
-            while (this._tabs.length > 0)
-                this.removeTab(this._tabs[0], true);
+            while (this._tabPairs.length > 0)
+                this.removeTab(this._tabPairs[0], true);
         };
         Tab.prototype.removeTab = function (val, dispose) {
             dispose = (dispose === undefined ? true : dispose);
-            var len = this._tabs.length;
+            var len = this._tabPairs.length;
             for (var i = 0; i < len; i++) {
-                if (this._tabs[i] == val || this._tabs[i].name == val) {
-                    var event = new TabEvent(TabEvents.REMOVED, this._tabs[i]);
-                    this._tabs[i].onRemove(event);
+                if (this._tabPairs[i] == val || this._tabPairs[i].name == val) {
+                    var event = new TabEvent(TabEvents.REMOVED, this._tabPairs[i]);
+                    this._tabPairs[i].onRemove(event);
                     if (event.cancel)
                         return;
-                    var v = this._tabs[i];
-                    this._tabs.splice(i, 1);
+                    var v = this._tabPairs[i];
+                    this._tabPairs.splice(i, 1);
+                    v.tab = this;
                     // Remove the drop button when less than 1 tab
-                    if (this._tabs.length <= 1 && this.contains(this.dropButton))
-                        this._tabsDiv.removeChild(this.dropButton);
+                    if (this._tabPairs.length <= 1 && this.contains(this._dropButton))
+                        this._tabSelectorsDiv.removeChild(this._dropButton);
                     this.onTabPairClosing(v);
-                    this._tabsDiv.removeChild(v.tabSelector);
-                    this.pagesDiv.removeChild(v.page);
+                    this._tabSelectorsDiv.removeChild(v.tabSelector);
+                    this._pagesDiv.removeChild(v.page);
                     if (dispose)
                         v.dispose();
                     //Select another tab
-                    if (this.selectedTab == v) {
-                        this.selectedTab = null;
+                    if (this._selectedPair == v) {
+                        this._selectedPair = null;
                         if (len > 1)
-                            this._tabs[0].tabSelector.element.trigger("click");
+                            this._tabPairs[0].tabSelector.element.trigger("click");
                     }
                     return v;
                 }
@@ -7116,7 +7213,7 @@ var Animate;
             return null;
         };
         Object.defineProperty(Tab.prototype, "tabs", {
-            get: function () { return this._tabs; },
+            get: function () { return this._tabPairs; },
             enumerable: true,
             configurable: true
         });
@@ -7132,8 +7229,9 @@ var Animate;
     * label and page as well as a few other things.
     */
     var TabPair = (function () {
-        function TabPair(tab, page, name) {
-            this.tabSelector = tab;
+        function TabPair(selector, page, name) {
+            this.tab = null;
+            this.tabSelector = selector;
             this._modified = false;
             this.page = page;
             this.name = name;
@@ -8385,13 +8483,13 @@ var Animate;
             var grid = new Animate.PropertyGrid(rightSplit.top);
             var scenetab = Animate.SceneTab.getSingleton(rightSplit.bottom);
             var canvastab = Animate.CanvasTab.getSingleton(leftSplit.top);
-            var logger = Animate.Logger.getSingleton(leftSplit.bottom);
-            logger.logMessage("let's get animated!", null, Animate.LogType.MESSAGE);
+            Animate.Logger.getSingleton(leftSplit.bottom);
+            Animate.Logger.logMessage("let's get animated!", null, Animate.LogType.MESSAGE);
             //now set up the dockers
             this._dockerlefttop = new Animate.Docker(leftSplit.top);
             this._dockerlefttop.addComponent(canvastab, false);
             this._dockerleftbottom = new Animate.Docker(leftSplit.bottom);
-            this._dockerleftbottom.addComponent(logger, false);
+            this._dockerleftbottom.addComponent(Animate.Logger.getSingleton(), false);
             this._dockerrightbottom = new Animate.Docker(rightSplit.bottom);
             this._dockerrightbottom.addComponent(scenetab, false);
             this._dockerrighttop = new Animate.Docker(rightSplit.top);
@@ -9142,7 +9240,7 @@ var Animate;
 //			//Add the localally installed plugins
 //			for ( var i = 0; i < plugins.length; i++ ) 
 //			{
-//				var comp : Component = new Component( "<div class='build-entry'><img class='loader-cog-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this );
+//				var comp : Component = new Component( "<div class='build-entry'><img class='rotate-360-slow' src='media/cog-small-tiny.png' />" + plugins[i].name + "<span class='loading fade-animation'> - loading...</span></div>", this );
 //				this._buildEntries[componentCounter] = comp;
 //                // TODO: Figure out how to load a plugin?
 //                // comp.element.data("url", plugins[i].path);
@@ -9812,7 +9910,7 @@ var Animate;
             var portal = Animate.Behaviour.prototype.addPortal.call(this, type, name, value, dataType);
             if (type == Animate.PortalType.PARAMETER) {
                 var id = parseInt(value.selected);
-                this._asset = Animate.User.get.project.getAssetByShallowId(id);
+                this._asset = Animate.User.get.project.getResourceByShallowID(id, Animate.ResourceType.ASSET);
             }
             return portal;
         };
@@ -10365,7 +10463,7 @@ var Animate;
             Animate.ProjectResource.generateLocalId();
             this.scriptTab = null;
             this.scriptId = scriptId;
-            this._loading = jQuery("<img src='media/script-buffer.gif' />");
+            this._loading = jQuery("<img src='media/buffering-white.png' class='rotate-360' />");
             var element = this.element, that = this, project = Animate.User.get.project, promise;
             element.addClass("behaviour-script");
             this._loading.insertBefore(jQuery(".text", element));
@@ -10375,11 +10473,11 @@ var Animate;
             else
                 promise = project.createResource(Animate.ResourceType.SCRIPT, { name: text, projectId: project.entry._id });
             promise.then(function (data) {
-                Animate.Logger.getSingleton().logMessage("Created behaviour script '" + text + "'", null, Animate.LogType.MESSAGE);
+                Animate.Logger.logMessage("Created behaviour script '" + text + "'", null, Animate.LogType.MESSAGE);
                 that._loading.detach();
                 that.scriptId = data.entry._id;
             }).catch(function (err) {
-                Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
             });
             ////If this was copied we need to make a duplicate in the database and use that
             //if ( shallowId !== 0 && copied )
@@ -10637,11 +10735,11 @@ var Animate;
                 this.mX = mouse.x + scrollX;
                 this.mY = mouse.y + scrollY;
                 if (comp instanceof Animate.TreeNodeAssetInstance)
-                    this.addAssetAtLocation(comp.asset, this.mX, this.mY);
+                    this.addAssetAtLocation(comp.resource, this.mX, this.mY);
                 else if (comp instanceof Animate.TreeNodePluginBehaviour)
                     this.createNode(comp.template, this.mX, this.mY);
                 else if (comp instanceof Animate.TreeNodeBehaviour)
-                    this.createNode(Animate.PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, comp.container);
+                    this.createNode(Animate.PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, comp.resource);
             }
         };
         /**
@@ -10703,7 +10801,7 @@ var Animate;
                         var portal = item.parameters[ii];
                         if (portal.dataType == Animate.ParameterType.ASSET && portal.value != null) {
                             var assetID = parseInt(portal.value.selected);
-                            if (project.getAssetByShallowId(assetID) == asset) {
+                            if (project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET) == asset) {
                                 portal.value = { className: portal.value.className, selected: null };
                                 if (item instanceof Animate.BehaviourAsset)
                                     item.asset = null;
@@ -10712,7 +10810,7 @@ var Animate;
                         else if (portal.dataType == Animate.ParameterType.ASSET_LIST && portal.value != null && portal.value.selectedAssets.length > 0) {
                             for (var a, al = portal.value.selectedAssets.length; a < al; a++) {
                                 var assetID = portal.value.selectedAssets[a];
-                                if (project.getAssetByShallowId(assetID) == asset) {
+                                if (project.getResourceByShallowID(assetID, Animate.ResourceType.ASSET) == asset) {
                                     portal.value = { className: portal.value.className, selected: null };
                                 }
                             }
@@ -10838,9 +10936,9 @@ var Animate;
             var properties = asset.properties.variables;
             for (var i = 0, l = properties.length; i < l; i++)
                 if (properties[i].type == Animate.ParameterType.ASSET)
-                    this.getAssetList(project.getAssetByShallowId(parseInt(properties[i].value.selected)), assetMap);
+                    this.getAssetList(project.getResourceByShallowID(parseInt(properties[i].value.selected), Animate.ResourceType.ASSET), assetMap);
                 else if (properties[i].type == Animate.ParameterType.ASSET_LIST)
-                    this.getAssetList(project.getAssetByShallowId(parseInt(properties[i].value.selected)), assetMap);
+                    this.getAssetList(project.getResourceByShallowID(parseInt(properties[i].value.selected), Animate.ResourceType.ASSET), assetMap);
         };
         Canvas.prototype.onAssetEdited = function (e, event, sender) {
             // Build the scene references in case some assets were added and not accounted for
@@ -10862,18 +10960,18 @@ var Animate;
                     for (var ii = 0; ii < portals.length; ii++) {
                         //If there is an asset previously and its being removed
                         if (portals[ii].dataType == Animate.ParameterType.ASSET && portals[ii].value != null && portals[ii].value.selected) {
-                            var asset = project.getAssetByShallowId(parseInt(portals[ii].value.selected));
+                            var asset = project.getResourceByShallowID(parseInt(portals[ii].value.selected), Animate.ResourceType.ASSET);
                             if (asset)
                                 this.getAssetList(asset, curAssets);
                         }
                         else if (portals[ii].dataType == Animate.ParameterType.GROUP && portals[ii].value != null && portals[ii].value != "") {
-                            var group = Animate.TreeViewScene.getSingleton().findNode("groupID", portals[ii].value);
+                            var group = project.getResourceByShallowID(parseInt(portals[ii].value.selected), Animate.ResourceType.GROUP);
                             if (group)
-                                curGroups.push(group.groupID);
+                                curGroups.push(group.entry._id);
                         }
                         else if (portals[ii].dataType == Animate.ParameterType.ASSET_LIST && portals[ii].value != null && portals[ii].value.selectedAssets.length > 0) {
                             for (var a, al = portals[ii].value.selectedAssets.length; a < al; a++) {
-                                var asset = project.getAssetByShallowId(portals[ii].value.selectedAssets[a]);
+                                var asset = project.getResourceByShallowID(portals[ii].value.selectedAssets[a], Animate.ResourceType.ASSET);
                                 if (asset)
                                     this.getAssetList(asset, curAssets);
                             }
@@ -10887,13 +10985,13 @@ var Animate;
             // Notify of asset removals
             for (var i = 0, l = this._containerReferences.assets.length; i < l; i++)
                 if (curAssets.indexOf(this._containerReferences.assets[i]) == -1) {
-                    removeEvent.asset = project.getAssetByShallowId(this._containerReferences.assets[i]);
+                    removeEvent.asset = project.getResourceByShallowID(this._containerReferences.assets[i], Animate.ResourceType.ASSET);
                     pManager.emit(removeEvent);
                 }
             // Notify of asset additions			
             for (var i = 0, l = curAssets.length; i < l; i++)
                 if (this._containerReferences.assets.indexOf(curAssets[i]) == -1) {
-                    addEvent.asset = project.getAssetByShallowId(curAssets[i]);
+                    addEvent.asset = project.getResourceByShallowID(curAssets[i], Animate.ResourceType.ASSET);
                     pManager.emit(addEvent);
                 }
             this._containerReferences.assets = curAssets;
@@ -11102,7 +11200,7 @@ var Animate;
             var items = json.items;
             for (var i = 0, l = items.length; i < l; i++)
                 if (items[i].type == "BehaviourInstance") {
-                    var childContainer = project.getBehaviourByShallowId(items[i].containerId);
+                    var childContainer = project.getResourceByShallowID(items[i].containerId, Animate.ResourceType.CONTAINER);
                     if (childContainer && this.isCyclicDependency(childContainer, ref)) {
                         ref = childContainer.entry.name;
                         return true;
@@ -11541,7 +11639,7 @@ var Animate;
                             if (this.children[ii] instanceof Animate.BehaviourPortal &&
                                 this.children[ii].element.text() == jsonObj.items[i].name) {
                                 nameInUse = true;
-                                Animate.Logger.getSingleton().logMessage("A portal with the name '" + jsonObj.items[i].name +
+                                Animate.Logger.logMessage("A portal with the name '" + jsonObj.items[i].name +
                                     "' already exists on the Canvas.", null, Animate.LogType.ERROR);
                                 break;
                             }
@@ -11556,7 +11654,7 @@ var Animate;
                         item = new Animate.BehaviourScript(this, jsonObj.items[i].scriptId, jsonObj.items[i].name, !clearItems);
                     else if (jsonObj.items[i].type == "BehaviourInstance") {
                         var project = Animate.User.get.project;
-                        var container = project.getBehaviourByShallowId(jsonObj.items[i].containerId);
+                        var container = project.getResourceByShallowID(jsonObj.items[i].containerId, Animate.ResourceType.CONTAINER);
                         if (!container)
                             continue;
                         item = new Animate.BehaviourInstance(this, container, false);
@@ -12257,6 +12355,7 @@ var Animate;
     */
     var TreeViewScene = (function (_super) {
         __extends(TreeViewScene, _super);
+        //private _resourceCreated: any;
         function TreeViewScene(parent) {
             _super.call(this, parent);
             if (TreeViewScene._singleton != null)
@@ -12289,13 +12388,13 @@ var Animate;
             this._quickCopy.tooltip = "Copy instance";
             this._contextNode = null;
             this._shortcutProxy = this.onShortcutClick.bind(this);
-            this._curProj = null;
+            //this._curProj = null;
             jQuery("body").on("keydown", this.onKeyDown.bind(this));
             this.element.on("dblclick", this.onDblClick.bind(this));
             this.element.on("mousemove", this.onMouseMove.bind(this));
             this._quickAdd.element.detach();
             this._quickCopy.element.detach();
-            this._resourceCreated = this.onResourceCreated.bind(this);
+            //this._resourceCreated = this.onResourceCreated.bind(this);
             Animate.RenameForm.get.on("renaming", this.onRenameCheck, this);
         }
         TreeViewScene.prototype.onShortcutClick = function (e) {
@@ -12331,7 +12430,7 @@ var Animate;
         * Called when the project is loaded and ready.
         */
         TreeViewScene.prototype.projectReady = function (project) {
-            project.on("resource-created", this._resourceCreated, this);
+            project.on("resource-created", this.onResourceCreated, this);
             //Add all the asset nodes 
             var assetTemplates = Animate.PluginManager.getSingleton().assetTemplates;
             var assetClass;
@@ -12342,16 +12441,16 @@ var Animate;
                     var toRet = new Animate.TreeNodeAssetClass(assetClass, this);
                     this._assetsNode.addNode(toRet);
                 }
-            this._curProj = Animate.User.get.project;
+            //this._curProj = User.get.project;
             //this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-            this._curProj.on(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
-            this._curProj.on(Animate.ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this);
-            this._curProj.on(Animate.ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this);
-            this._curProj.on(Animate.ProjectEvents.ASSET_DELETING, this.onAssetResponse, this);
-            this._curProj.on(Animate.ProjectEvents.GROUP_CREATED, this.onGroupResponse, this);
-            this._curProj.on(Animate.ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this);
-            this._curProj.on(Animate.ProjectEvents.GROUP_SAVED, this.onGroupResponse, this);
-            this._curProj.on(Animate.ProjectEvents.GROUP_DELETING, this.onGroupResponse, this);
+            //this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+            //this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+            //this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+            //this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+            //this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+            //this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+            //this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+            //this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
             //RenameForm.get.on("renamed", this.onObjectRenamed, this);
         };
         /**
@@ -12365,24 +12464,28 @@ var Animate;
                 this.addAssetInstance(r, false);
             else if (r instanceof Animate.Container)
                 this._sceneNode.addNode(new Animate.TreeNodeBehaviour(r));
-            // Todo: Do something when a group node is created
+            else if (r instanceof Animate.GroupArray)
+                this._groupsNode.addNode(new Animate.TreeNodeGroup(r));
+            // Todo: Add script nodes + files?
         };
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
         TreeViewScene.prototype.projectReset = function (project) {
-            project.off("resource-created", this._resourceCreated, this);
-            if (this._curProj) {
-                //this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-                this._curProj.off(Animate.ProjectEvents.ASSET_SAVED, this.onAssetResponse, this);
-                this._curProj.off(Animate.ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this);
-                this._curProj.off(Animate.ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this);
-                this._curProj.off(Animate.ProjectEvents.ASSET_DELETING, this.onAssetResponse, this);
-                this._curProj.off(Animate.ProjectEvents.GROUP_CREATED, this.onGroupResponse, this);
-                this._curProj.off(Animate.ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this);
-                this._curProj.off(Animate.ProjectEvents.GROUP_SAVED, this.onGroupResponse, this);
-                this._curProj.off(Animate.ProjectEvents.GROUP_DELETING, this.onGroupResponse, this);
-            }
+            project.off("resource-created", this.onResourceCreated, this);
+            //if ( this._curProj )
+            //{
+            //this._curProj.off( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+            //this._curProj.off( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+            //this._curProj.off( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+            //this._curProj.off( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+            //this._curProj.off( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+            //this._curProj.off( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+            //this._curProj.off( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+            //this._curProj.off( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+            //this._curProj.off( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+            //RenameForm.get.off("renamed", this.onObjectRenamed, this);
+            //}
             this.children[0].clear();
             this.children[1].clear();
             this._groupsNode.clear();
@@ -12402,14 +12505,14 @@ var Animate;
                         if (node instanceof Animate.TreeNodeGroup)
                             promise = Animate.RenameForm.get.renameObject(node, node.text, node.id, Animate.ResourceType.GROUP);
                         else if (node instanceof Animate.TreeNodeBehaviour)
-                            promise = Animate.RenameForm.get.renameObject(node.container.entry, node.text, node.container.entry._id, Animate.ResourceType.BEHAVIOUR);
+                            promise = Animate.RenameForm.get.renameObject(node.resource.entry, node.text, node.resource.entry._id, Animate.ResourceType.BEHAVIOUR);
                         else if (node instanceof Animate.TreeNodeAssetInstance)
-                            promise = Animate.RenameForm.get.renameObject(node.asset, node.text, node.asset.entry._id, Animate.ResourceType.ASSET);
+                            promise = Animate.RenameForm.get.renameObject(node.resource, node.text, node.resource.entry._id, Animate.ResourceType.ASSET);
                         if (promise) {
                             promise.then(function (token) {
                                 node.text = token.newName;
                                 if (node instanceof Animate.TreeNodeAssetInstance)
-                                    Animate.PluginManager.getSingleton().emit(new Animate.AssetRenamedEvent(node.asset, token.oldName));
+                                    Animate.PluginManager.getSingleton().emit(new Animate.AssetRenamedEvent(node.resource, token.oldName));
                             });
                         }
                     }
@@ -12432,15 +12535,16 @@ var Animate;
             }
             return false;
         };
-        /**
-        * Update the asset node so that its saved.
-        * @param {Asset} asset The asset to associate with the node
-        */
-        TreeViewScene.prototype.updateAssetInstance = function (asset) {
-            var node = this.findNode("asset", asset);
-            if (node != null)
-                node.save();
-        };
+        ///**
+        //* Update the asset node so that its saved. 
+        //* @param {Asset} asset The asset to associate with the node
+        //*/
+        //updateAssetInstance( asset: Asset )
+        //{
+        //	var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", asset );
+        //	if ( node != null )
+        //		node.save();
+        //}
         ///**
         //* Update the behaviour node so that its saved and if any tabs are open they need to re-loaded.
         //* @param {Container} container The hehaviour object we need to update
@@ -12476,94 +12580,83 @@ var Animate;
             var promise;
             var project = Animate.User.get.project;
             var context = this._contextNode;
-            //DELETE
-            if (context && event.item.text == "Delete") {
-                this._quickAdd.element.off("click", this._shortcutProxy);
-                this._quickCopy.element.off("click", this._shortcutProxy);
-                this._quickAdd.element.detach();
-                this._quickCopy.element.detach();
-                if (context instanceof Animate.TreeNodeBehaviour) {
-                    var selectedNodes = [];
-                    var i = this.selectedNodes.length;
-                    while (i--)
-                        selectedNodes.push(this.selectedNodes[i]);
-                    var behaviours = [];
-                    i = selectedNodes.length;
-                    while (i--)
-                        behaviours.push(selectedNodes[i].behaviour.id);
-                    project.deleteBehaviours(behaviours);
-                }
-                else if (context instanceof Animate.TreeNodeAssetInstance) {
-                    var selectedNodes = [];
-                    var i = this.selectedNodes.length;
-                    while (i--)
-                        selectedNodes.push(this.selectedNodes[i]);
-                    var assets = [];
-                    i = selectedNodes.length;
-                    while (i--)
-                        assets.push(selectedNodes[i].asset.id);
-                    project.deleteAssets(assets);
-                }
-                else if (context instanceof Animate.TreeNodeGroup) {
-                    var selectedNodes = [];
-                    var i = this.selectedNodes.length;
-                    while (i--)
-                        selectedNodes.push(this.selectedNodes[i]);
-                    var groups = [];
-                    i = selectedNodes.length;
-                    while (i--)
-                        groups.push(selectedNodes[i].groupID);
-                    project.deleteGroups(groups);
-                }
-                else if (context instanceof Animate.TreeNodeGroupInstance)
-                    context.dispose();
-            }
-            //COPY
-            if (context && event.item == this._contextCopy) {
-                if (context instanceof Animate.TreeNodeAssetInstance)
-                    project.copyAsset(context.asset.entry._id);
-            }
-            else if (context && context instanceof Animate.TreeNodeAssetClass && event.item == this._contextAddInstance)
-                project.createAsset("New " + context.assetClass.name, context.assetClass.name);
-            else if (context && event.item.text == "Save") {
-                if (context instanceof Animate.TreeNodeAssetInstance)
-                    //project.saveAssets([context.asset.entry._id] );
-                    promise = project.saveResources(Animate.ResourceType.ASSET, context.asset.entry._id);
-                if (context instanceof Animate.TreeNodeGroup)
-                    //project.saveGroups([context.groupID]);
-                    promise = project.saveResources(Animate.ResourceType.GROUP, context.groupID);
-                else if (context instanceof Animate.TreeNodeBehaviour)
-                    //project.saveBehaviours([context.container.entry._id] );				
-                    promise = project.saveResources(Animate.ResourceType.CONTAINER, context.container.entry._id);
-            }
-            else if (context && event.item.text == "Add Group")
-                //project.createGroup( "New Group");
-                promise = project.createResource(Animate.ResourceType.GROUP, { name: "New Group" });
-            else if (context && event.item.text == "Update") {
-                if (context instanceof Animate.TreeNodeAssetInstance)
-                    project.updateAssets([context.asset.entry._id]);
-                else if (context == this._groupsNode) {
-                    while (this._groupsNode.children.length > 0)
-                        this._groupsNode.children[0].dispose();
-                    project.loadResources(Animate.ResourceType.GROUP);
-                }
-                else if (context == this._sceneNode) {
-                    while (this._sceneNode.children.length > 0)
-                        this._sceneNode.children[0].dispose();
-                    project.loadResources(Animate.ResourceType.CONTAINER);
-                }
-                else if (context instanceof Animate.TreeNodeGroup)
-                    project.updateGroups([context.groupID]);
-                else if (context instanceof Animate.TreeNodeAssetClass) {
-                    var nodes = context.getAllNodes(Animate.TreeNodeAssetInstance);
-                    var ids = [];
-                    for (var i = 0, l = nodes.length; i < l; i++)
-                        if (nodes[i] instanceof Animate.TreeNodeAssetInstance)
-                            ids.push(nodes[i].asset.entry._id);
-                    project.updateAssets(ids);
-                }
-                else if (context instanceof Animate.TreeNodeBehaviour)
-                    project.updateBehaviours([context.container.entry._id]);
+            var selection = event.item.text;
+            // Get the selected nodes
+            var selectedNodes = [];
+            var i = this.selectedNodes.length;
+            while (i--)
+                selectedNodes.push(this.selectedNodes[i]);
+            if (!context)
+                return;
+            switch (selection) {
+                case "Delete":
+                    this._quickAdd.element.off("click", this._shortcutProxy);
+                    this._quickCopy.element.off("click", this._shortcutProxy);
+                    this._quickAdd.element.detach();
+                    this._quickCopy.element.detach();
+                    selectedNodes.forEach(function (val, index) {
+                        val.loading = true;
+                        if (val instanceof Animate.TreeNodeResource) {
+                            project.deleteResources([val.resource.entry._id]).then(function (data) {
+                                val.loading = false;
+                            }).catch(function (err) {
+                                val.loading = false;
+                                Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
+                            });
+                        }
+                        else
+                            val.dispose();
+                    });
+                    break;
+                case "Copy":
+                    if (context instanceof Animate.TreeNodeAssetInstance)
+                        project.copyAsset(context.resource.entry._id);
+                    break;
+                case "Add Instance":
+                    if (context instanceof Animate.TreeNodeAssetClass)
+                        project.createResource(Animate.ResourceType.ASSET, { name: "New " + context.assetClass.name, className: context.assetClass.name });
+                    break;
+                case "Save":
+                    selectedNodes.forEach(function (val, index) {
+                        if (val instanceof Animate.TreeNodeResource)
+                            project.saveResource(val.resource._id);
+                    });
+                    break;
+                case "Add Group":
+                    context.loading = true;
+                    promise = project.createResource(Animate.ResourceType.GROUP, { name: "New Group" }).then(function () {
+                        context.loading = false;
+                    }).catch(function (err) {
+                        context.loading = false;
+                        Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
+                    });
+                    break;
+                case "Update":
+                    if (context instanceof Animate.TreeNodeAssetInstance)
+                        project.updateAssets([context.resource.entry._id]);
+                    else if (context == this._groupsNode) {
+                        while (this._groupsNode.children.length > 0)
+                            this._groupsNode.children[0].dispose();
+                        project.loadResources(Animate.ResourceType.GROUP);
+                    }
+                    else if (context == this._sceneNode) {
+                        while (this._sceneNode.children.length > 0)
+                            this._sceneNode.children[0].dispose();
+                        project.loadResources(Animate.ResourceType.CONTAINER);
+                    }
+                    else if (context instanceof Animate.TreeNodeGroup)
+                        promise = project.refreshResource(context.resource.entry._id, Animate.ResourceType.GROUP).then(function (data) { context.updateGroup(); });
+                    else if (context instanceof Animate.TreeNodeAssetClass) {
+                        var nodes = context.getAllNodes(Animate.TreeNodeAssetInstance);
+                        var ids = [];
+                        for (var i = 0, l = nodes.length; i < l; i++)
+                            if (nodes[i] instanceof Animate.TreeNodeAssetInstance)
+                                ids.push(nodes[i].resource.entry._id);
+                        project.updateAssets(ids);
+                    }
+                    else if (context instanceof Animate.TreeNodeBehaviour)
+                        project.updateBehaviours([context.resource.entry._id]);
+                    break;
             }
         };
         /**
@@ -12578,7 +12671,7 @@ var Animate;
                 if (tabPair)
                     Animate.CanvasTab.getSingleton().selectTab(tabPair);
                 else {
-                    var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, Animate.CanvasTabType.CANVAS, this.selectedNode.container);
+                    var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, Animate.CanvasTabType.CANVAS, this.selectedNode.resource);
                     var canvas = tabPair.canvas;
                     canvas.openFromDataObject();
                     canvas.checkDimensions();
@@ -12586,52 +12679,60 @@ var Animate;
                 }
             }
         };
-        /**
-        * Use this function to get an array of the groups in the scene.
-        * @returns {Array<TreeNodeGroup>} The array of group nodes
-        */
-        TreeViewScene.prototype.getGroups = function () {
-            var toRet = [];
-            for (var i = 0; i < this._groupsNode.children.length; i++)
-                toRet.push(this._groupsNode.children[i]);
-            return toRet;
-        };
-        /**
-        * Use this function to get a group by its ID
-        * @param {string} id The ID of the group
-        * @returns {TreeNodeGroup}
-        */
-        TreeViewScene.prototype.getGroupByID = function (id) {
-            for (var i = 0; i < this._groupsNode.children.length; i++)
-                if (id == this._groupsNode.children[i].groupID)
-                    return this._groupsNode.children[i];
-            return null;
-        };
+        ///**
+        //* Use this function to get an array of the groups in the scene.
+        //* @returns {Array<TreeNodeGroup>} The array of group nodes
+        //*/
+        //getGroups() : Array<TreeNodeGroup>
+        //{
+        //	var toRet = [];
+        //	for ( var i = 0; i < this._groupsNode.children.length; i++ )
+        //		toRet.push( this._groupsNode.children[i] );
+        //	return toRet;
+        //}
+        ///**
+        //* Use this function to get a group by its ID
+        //* @param {string} id The ID of the group
+        //* @returns {TreeNodeGroup}
+        //*/
+        //getGroupByID(id: string): TreeNodeGroup
+        //{
+        //	for ( var i = 0; i < this._groupsNode.children.length; i++ )
+        //		if ( id == (<TreeNodeGroup>this._groupsNode.children[i]).groupID )
+        //			return (<TreeNodeGroup>this._groupsNode.children[i]);
+        //	return null;
+        //}
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The loader response
         * @param {ProjectEvent} data The data sent from the server
         */
-        TreeViewScene.prototype.onGroupResponse = function (response, event) {
-            var data = event.tag;
-            if (response == Animate.ProjectEvents.GROUP_CREATED)
-                this._groupsNode.addNode(new Animate.TreeNodeGroup(data.id, data.name, data.json, this));
-            else if (response == Animate.ProjectEvents.GROUP_UPDATED) {
-                var node = this._groupsNode.findNode("groupID", data._id);
-                if (node)
-                    node.updateGroup(data.name, data.json);
-            }
-            else if (response == Animate.ProjectEvents.GROUP_SAVED) {
-                var node = this._groupsNode.findNode("groupID", data);
-                if (node)
-                    node.save(true);
-            }
-            else if (response == Animate.ProjectEvents.GROUP_DELETING) {
-                var node = this._groupsNode.findNode("groupID", data);
-                if (node)
-                    node.dispose();
-            }
-        };
+        //onGroupResponse(response: ProjectEvents, event: ProjectEvent )
+        //{
+        //	var data = event.tag;
+        //if (response == ProjectEvents.GROUP_CREATED)
+        //{
+        //    this._groupsNode.addNode(new TreeNodeGroup(data.id, data.name, data.json, this));
+        //}
+        //else if ( response == ProjectEvents.GROUP_UPDATED )
+        //{
+        //	var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data._id );
+        //	if ( node )
+        //		node.updateGroup( data.name, data.json );
+        //}
+        //else if ( response == ProjectEvents.GROUP_SAVED )
+        //{
+        //var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
+        //if ( node )
+        //	node.save( true );
+        //}
+        //else if (response == ProjectEvents.GROUP_DELETING )
+        //{
+        //	var node: TreeNodeGroup = <TreeNodeGroup>this._groupsNode.findNode( "groupID", data );
+        //	if ( node )
+        //		node.dispose();
+        //}
+        //}
         /** When the rename form is about to proceed. We can cancel it by externally checking
         * if against the data.object and data.name variables.
         */
@@ -12694,77 +12795,91 @@ var Animate;
         //		}
         //	}
         //}
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The type of event
-        * @param {AssetEvent} event The data sent from the server
-        */
-        TreeViewScene.prototype.onAssetResponse = function (response, event) {
-            var data = event.asset;
-            var proj = Animate.User.get.project;
-            if (response == Animate.ProjectEvents.ASSET_DELETING) {
-                Animate.CanvasTab.getSingleton().removeAsset(data);
-                var selectedNodes = [];
-                var i = this.selectedNodes.length;
-                while (i--)
-                    selectedNodes.push(this.selectedNodes[i]);
-                i = selectedNodes.length;
-                while (i--) {
-                    if (selectedNodes[i].asset.id == data.entry._id)
-                        selectedNodes[i].dispose();
-                }
-                this._contextNode = null;
-            }
-            else if (response == Animate.ProjectEvents.ASSET_SAVED) {
-                //If we have the asset
-                if (data) {
-                    var node = this.findNode("asset", data);
-                    if (node)
-                        node.save();
-                }
-            }
-            else if (response == Animate.ProjectEvents.ASSET_UPDATED) {
-                //If we have the asset
-                if (data) {
-                    var node = this.findNode("asset", data);
-                    if (node && node.selected) {
-                        node.save();
-                        node.onSelect();
-                    }
-                }
-            }
-        };
-        /**
-        * When the database returns from its command.
-        * @param {ProjectEvents} response The loader response
-        * @param {Event} data The data sent from the server
-        */
-        TreeViewScene.prototype.onProjectResponse = function (response, event) {
-            if (response == Animate.ProjectEvents.BEHAVIOUR_DELETING) {
-                var selectedNodes = [];
-                var i = this.selectedNodes.length;
-                while (i--)
-                    selectedNodes.push(this.selectedNodes[i]);
-                i = selectedNodes.length;
-                while (i--) {
-                    if (selectedNodes[i] instanceof Animate.TreeNodeBehaviour &&
-                        selectedNodes[i].container == event.tag) {
-                        var tabPair = Animate.CanvasTab.getSingleton().getTab(selectedNodes[i].text);
-                        if (tabPair)
-                            Animate.CanvasTab.getSingleton().removeTab(tabPair, true);
-                        else {
-                            tabPair = Animate.CanvasTab.getSingleton().getTab("*" + selectedNodes[i].text);
-                            if (tabPair)
-                                Animate.CanvasTab.getSingleton().removeTab(tabPair, true);
-                        }
-                        //this.selectedNodes[i].parent().data("component").removeNode( this.selectedNodes[i] );
-                        selectedNodes[i].dispose();
-                        if (this._contextNode == selectedNodes[i])
-                            this._contextNode = null;
-                    }
-                }
-            }
-        };
+        ///**
+        //* When the database returns from its command.
+        //* @param {ProjectEvents} response The type of event
+        //* @param {AssetEvent} event The data sent from the server
+        //*/
+        //onAssetResponse(response: ProjectEvents, event: AssetEvent  )
+        //{
+        //	var data : Asset = event.asset;
+        //	var proj: Project = User.get.project;
+        //if (response == ProjectEvents.ASSET_DELETING )
+        //{
+        //	CanvasTab.getSingleton().removeAsset( data );
+        //	var selectedNodes = [];
+        //	var i = this.selectedNodes.length;
+        //	while ( i-- )
+        //		selectedNodes.push( this.selectedNodes[i] );
+        //	i = selectedNodes.length;
+        //	while ( i-- )
+        //	{
+        //                 if (selectedNodes[i].asset.id == data.entry._id )
+        //			selectedNodes[i].dispose();
+        //	}
+        //	this._contextNode = null;
+        //}
+        ////SAVE
+        //else if (response == ProjectEvents.ASSET_SAVED )
+        //{
+        //	//If we have the asset
+        //	if ( data )
+        //	{
+        //		var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
+        //		if ( node )
+        //			node.save();
+        //	}
+        //}
+        ////UPDATE
+        //else if (response == ProjectEvents.ASSET_UPDATED )
+        //{
+        //	//If we have the asset
+        //	if ( data )
+        //	{
+        //		var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>this.findNode( "asset", data );
+        //		if ( node && node.selected )
+        //		{
+        //			node.save();
+        //			node.onSelect();
+        //		}
+        //	}
+        //}
+        //}
+        ///**
+        //* When the database returns from its command.
+        //* @param {ProjectEvents} response The loader response
+        //* @param {Event} data The data sent from the server
+        //*/
+        //onProjectResponse(response: ProjectEvents, event: ProjectEvent )
+        //{
+        //	if (response == ProjectEvents.BEHAVIOUR_DELETING )
+        //	{
+        //		var selectedNodes : Array<TreeNode> = [];
+        //		var i = this.selectedNodes.length;
+        //		while ( i-- )
+        //			selectedNodes.push( this.selectedNodes[i] );
+        //		i = selectedNodes.length;
+        //		while ( i-- )
+        //		{
+        //                  if (selectedNodes[i] instanceof TreeNodeBehaviour && (<TreeNodeBehaviour>selectedNodes[i]).resource == event.tag)
+        //			{
+        //				var tabPair : TabPair = CanvasTab.getSingleton().getTab( selectedNodes[i].text );
+        //				if ( tabPair )
+        //					CanvasTab.getSingleton().removeTab(tabPair, true );
+        //				else
+        //				{
+        //					tabPair = CanvasTab.getSingleton().getTab( "*" + selectedNodes[i].text );
+        //					if ( tabPair )
+        //						CanvasTab.getSingleton().removeTab( tabPair, true );
+        //				}
+        //				//this.selectedNodes[i].parent().data("component").removeNode( this.selectedNodes[i] );
+        //				selectedNodes[i].dispose();
+        //				if ( this._contextNode == selectedNodes[i] )
+        //					this._contextNode = null;
+        //			}
+        //		}
+        //	}
+        //}
         /**
         * This function will get a list of asset instances based on their class name.
         * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
@@ -12831,7 +12946,7 @@ var Animate;
                 else
                     this._contextRefresh.element.hide();
                 //Show / hide the save option
-                if (typeof (component.saved) !== "undefined" && !component.saved && this.selectedNodes.length == 1)
+                if (component.modified)
                     this._contextSave.element.show();
                 else
                     this._contextSave.element.hide();
@@ -12845,7 +12960,6 @@ var Animate;
                     this._contextAddInstance.element.show();
                 else
                     this._contextAddInstance.element.hide();
-                //this.selectNode( component );
                 this._contextNode = component;
                 e.preventDefault();
                 this._contextMenu.show(Animate.Application.getInstance(), e.pageX, e.pageY, false, true);
@@ -12986,18 +13100,19 @@ var Animate;
             else
                 img = "";
             this.mText = text;
-            this.img = img;
             this._expanded = false;
             this.hasExpandButton = hasExpandButton;
             this._modified = false;
+            this._loading = false;
             this._modifiedStar = jQuery("<span>*</span>");
             // Call super-class constructor
-            _super.call(this, "<div class='tree-node'><div class='selectable'>" + (this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "") + this.img + "<span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null);
+            _super.call(this, "<div class='tree-node'><div class='selectable'>" + (this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "") + img + "<div class='buffering'><img src='media/buffering-gray.png' class='rotate-360 gray' /><img src='media/buffering-white.png' class='rotate-360 white' /></div><span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null);
             this.element.disableSelection(true);
             jQuery(".tree-node-button", this.element).first().css("visibility", "hidden");
             this.treeview = null;
             this.canDelete = false;
             this.canFocus = true;
+            this.canCopy = false;
         }
         Object.defineProperty(TreeNode.prototype, "modified", {
             /**
@@ -13021,6 +13136,28 @@ var Animate;
             enumerable: true,
             configurable: true
         });
+        Object.defineProperty(TreeNode.prototype, "loading", {
+            /**
+            * Gets if this tree node is busy with a loading operation
+            * @returns {boolean}
+            */
+            get: function () {
+                return this._loading;
+            },
+            /**
+            * Sets if this tree node is busy with a loading operation
+            * @param {boolean} val
+            */
+            set: function (val) {
+                this._loading = val;
+                if (val)
+                    jQuery(".buffering:first", this.element).css("display", "inline-block");
+                else
+                    jQuery(".buffering:first", this.element).css("display", "none");
+            },
+            enumerable: true,
+            configurable: true
+        });
         /**
         * This will cleanup the component.
         */
@@ -13034,7 +13171,6 @@ var Animate;
             }
             this._modifiedStar = null;
             this.mText = null;
-            this.img = null;
             this._expanded = null;
             this.hasExpandButton = null;
             this.treeview = null;
@@ -13174,17 +13310,20 @@ var Animate;
         /**
         * This will add a node to the treeview
         * @param {TreeNode} node The node to add
-        * @param {boolean} collapse True if you want to make this node collapse while adding the new node. The default is true
+        * @param {boolean} collapse True if you want to make this node collapse while adding the new node
         * @returns {TreeNode}
         */
         TreeNode.prototype.addNode = function (node, collapse) {
-            if (collapse === void 0) { collapse = true; }
             node.treeview = this.treeview;
             var toRet = Animate.Component.prototype.addChild.call(this, node);
-            if (collapse)
-                this.collapse();
-            else
-                this.expand();
+            if (collapse !== undefined) {
+                if (collapse)
+                    this.collapse();
+                else
+                    this.expand();
+            }
+            else if (!this._expanded)
+                toRet.element.hide();
             jQuery(".tree-node-button", this.element).first().css("visibility", "");
             return toRet;
         };
@@ -13230,6 +13369,60 @@ var Animate;
         return TreeNode;
     })(Animate.Component);
     Animate.TreeNode = TreeNode;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * This node represents a project resource
+    */
+    var TreeNodeResource = (function (_super) {
+        __extends(TreeNodeResource, _super);
+        function TreeNodeResource(resource, text, img, hasExpand) {
+            // Call super-class constructor
+            _super.call(this, text, img, hasExpand);
+            this.resource = resource;
+            this.canDelete = true;
+            this.canUpdate = true;
+            this._dropProxy = this.onDropped.bind(this);
+            this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
+            this.element.droppable({ drop: this._dropProxy, accept: ".tree-node-asset,.tree-node-group" });
+            resource.on("modified", this.onModified, this);
+            resource.on("deleted", this.onDeleted, this);
+        }
+        /**
+        * Called whenever the resource is modified
+        */
+        TreeNodeResource.prototype.onDeleted = function (type, event, sender) {
+            this.dispose();
+        };
+        /**
+        * Called whenever the resource is modified
+        */
+        TreeNodeResource.prototype.onModified = function (type, event, sender) {
+            this.modified = !this.resource.saved;
+        };
+        /**
+        * Called when a draggable object is dropped onto the node
+        */
+        TreeNodeResource.prototype.onDropped = function (event, ui) {
+            var comp = jQuery(ui.draggable).data("component");
+        };
+        /**
+        * This will cleanup the component.
+        */
+        TreeNodeResource.prototype.dispose = function () {
+            this.resource.off("modified", this.onModified, this);
+            this.resource.on("deleted", this.onDeleted, this);
+            this.element.draggable("destroy");
+            this.element.droppable("destroy");
+            //Call super - must be called here in this case
+            _super.prototype.dispose.call(this);
+            this._dropProxy = null;
+            this.resource = null;
+        };
+        return TreeNodeResource;
+    })(Animate.TreeNode);
+    Animate.TreeNodeResource = TreeNodeResource;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -13355,26 +13548,22 @@ var Animate;
         */
         function TreeNodeAssetInstance(assetClass, asset) {
             // Call super-class constructor
-            _super.call(this, (jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name), "media/variable.png", false);
-            this.asset = asset;
-            this.canDelete = true;
+            _super.call(this, asset, (jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name), "media/variable.png", false);
             this.canCopy = true;
-            this.saved = true;
             this.canUpdate = true;
             this.assetClass = assetClass;
-            this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
             this.element.addClass("behaviour-to-canvas");
             this.element.addClass("tree-node-asset");
-            if (this.asset.properties == null || this.asset.properties.variables.length == 0)
-                this.asset.properties = assetClass.buildVariables();
+            if (this.resource.properties == null || this.resource.properties.variables.length == 0)
+                this.resource.properties = assetClass.buildVariables();
             Animate.PropertyGrid.getSingleton().on(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
         }
         /**
         * Called when the node is selected
         */
         TreeNodeAssetInstance.prototype.onSelect = function () {
-            Animate.PropertyGrid.getSingleton().editableObject(this.asset.properties, this.text + "  [" + this.asset.entry.shallowId + "]", this, "media/variable.png");
-            Animate.PluginManager.getSingleton().emit(new Animate.AssetEvent(Animate.EditorEvents.ASSET_SELECTED, this.asset));
+            Animate.PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text + "  [" + this.resource.entry.shallowId + "]", this, "media/variable.png");
+            Animate.PluginManager.getSingleton().emit(new Animate.AssetEvent(Animate.EditorEvents.ASSET_SELECTED, this.resource));
         };
         /**
         * When we click ok on the portal form
@@ -13383,47 +13572,23 @@ var Animate;
         */
         TreeNodeAssetInstance.prototype.onPropertyGridEdited = function (response, data, sender) {
             if (data.id == this) {
-                this.asset.saved = false;
-                this.saved = this.asset.saved;
-                var oldValue = this.asset.properties.getVar(data.propertyName).value;
-                this.asset.properties.updateValue(data.propertyName, data.propertyValue);
-                Animate.PluginManager.getSingleton().assetEdited(this.asset, data.propertyName, data.propertyValue, oldValue, data.propertyType);
-                this.modified = true;
+                this.resource.saved = false;
+                var oldValue = this.resource.properties.getVar(data.propertyName).value;
+                this.resource.properties.updateValue(data.propertyName, data.propertyValue);
+                Animate.PluginManager.getSingleton().assetEdited(this.resource, data.propertyName, data.propertyValue, oldValue, data.propertyType);
             }
-        };
-        /**
-        * When we click ok on the portal form
-        */
-        TreeNodeAssetInstance.prototype.save = function (val) {
-            if (val === void 0) { val = true; }
-            if (val !== this.saved)
-                this.modified = !val;
-            if (!val) {
-                this.saved = val;
-                this.asset.saved = val;
-                return;
-            }
-            if (this.saved)
-                return;
-            this.asset.saved = true;
-            this.saved = this.asset.saved;
-            if (this.asset.properties == null)
-                this.asset.properties = this.assetClass.buildVariables();
         };
         /**
         * This will cleanup the component.
         */
         TreeNodeAssetInstance.prototype.dispose = function () {
-            this.element.draggable("destroy");
             Animate.PropertyGrid.getSingleton().off(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
-            this.asset = null;
-            this.saved = null;
             this.assetClass = null;
             //Call super
             _super.prototype.dispose.call(this);
         };
         return TreeNodeAssetInstance;
-    })(Animate.TreeNode);
+    })(Animate.TreeNodeResource);
     Animate.TreeNodeAssetInstance = TreeNodeAssetInstance;
 })(Animate || (Animate = {}));
 var Animate;
@@ -13438,59 +13603,35 @@ var Animate;
         */
         function TreeNodeBehaviour(container) {
             // Call super-class constructor
-            _super.call(this, container.entry.name, "media/variable.png", false);
+            _super.call(this, container, container.entry.name, "media/variable.png", false);
             this.element.addClass("behaviour-to-canvas");
-            this.canDelete = true;
-            this.canUpdate = true;
-            this._container = container;
-            this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-            this._container.on("modified", this.onContainerModified, this);
             Animate.PropertyGrid.getSingleton().on(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
         }
-        /**
-        * Whenever the container is modified, we show this with a *
-        */
-        TreeNodeBehaviour.prototype.onContainerModified = function (type, event, sender) {
-            this.modified = !this._container.saved;
-        };
         /**
         * Called when the node is selected
         */
         TreeNodeBehaviour.prototype.onSelect = function () {
-            Animate.PropertyGrid.getSingleton().editableObject(this._container.properties, this.text, this._container, "media/variable.png");
+            Animate.PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text, this.resource, "media/variable.png");
         };
         /**
         * Whenever a container property is changed by the editor
         */
         TreeNodeBehaviour.prototype.onPropertyGridEdited = function (response, event, sender) {
-            if (event.id == this._container) {
-                this._container.saved = false;
-                this._container.properties.updateValue(event.propertyName, event.propertyValue);
+            if (event.id == this.resource) {
+                this.resource.saved = false;
+                this.resource.properties.updateValue(event.propertyName, event.propertyValue);
             }
         };
-        Object.defineProperty(TreeNodeBehaviour.prototype, "container", {
-            /**
-            * Gets the container of this node
-            * @returns {Container}
-            */
-            get: function () { return this._container; },
-            enumerable: true,
-            configurable: true
-        });
         /**
         * This will cleanup the component
         */
         TreeNodeBehaviour.prototype.dispose = function () {
-            this._container.off("modified", this.onContainerModified, this);
-            if (this.element.hasClass("draggable"))
-                this.element.draggable("destroy");
             Animate.PropertyGrid.getSingleton().off(Animate.PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
-            this._container = null;
             //Call super
             _super.prototype.dispose.call(this);
         };
         return TreeNodeBehaviour;
-    })(Animate.TreeNode);
+    })(Animate.TreeNodeResource);
     Animate.TreeNodeBehaviour = TreeNodeBehaviour;
 })(Animate || (Animate = {}));
 var Animate;
@@ -13500,94 +13641,55 @@ var Animate;
     */
     var TreeNodeGroup = (function (_super) {
         __extends(TreeNodeGroup, _super);
-        function TreeNodeGroup(id, name, json, treeview) {
+        function TreeNodeGroup(group) {
             // Call super-class constructor
-            _super.call(this, name, "media/array.png", true);
-            this.groupID = id;
-            this.canDelete = true;
-            this.saved = true;
-            this.canUpdate = true;
-            this.json = null;
-            this.treeview = treeview;
+            _super.call(this, group, group.entry.name, "media/array.png", true);
             this.element.addClass("tree-node-group");
-            //Add each of the node references
             var project = Animate.User.get.project;
-            this.json = json;
-            for (var i in this.json.assets)
-                this.addNode(new Animate.TreeNodeGroupInstance(this.json.assets[i].id, this.json.assets[i].name));
-            this.dropProxy = this.onObjectDropped.bind(this);
-            this.element.draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-            this.element.droppable({ drop: this.dropProxy, accept: ".tree-node-asset,.tree-node-group" });
+            //Add each of the node references
+            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++) {
+                var resource = project.getResourceByShallowID(items[i]);
+                this.addNode(new Animate.TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
+            }
         }
         /**
         * This is called when we update the group with new data from the server.
         */
-        TreeNodeGroup.prototype.updateGroup = function (name, json) {
+        TreeNodeGroup.prototype.updateGroup = function () {
             //Remove all current nodes
             while (this.children.length > 0)
                 this.children[0].dispose();
             var project = Animate.User.get.project;
-            this.saved = true;
-            this.name = name;
-            this.json = json;
-            for (var i in this.json.assets)
-                this.addNode(new Animate.TreeNodeGroupInstance(this.json.assets[i].id, this.json.assets[i].name));
-        };
-        /**
-        * This function is called when a child node is removed. We have to update
-        * the json object and make its no longer part of the data.
-        * @param id The ID of the object we need to remove.
-        */
-        TreeNodeGroup.prototype.removeInstance = function (id) {
-            for (var i = 0; i < this.json.assets.length; i++)
-                if (this.json.assets[i].id == id) {
-                    this.json.assets.splice(i, 1);
-                    this.save(false);
-                    return;
-                }
-        };
-        /**
-        * Notifies if this node is saved or unsaved.
-        */
-        TreeNodeGroup.prototype.save = function (val) {
-            this.saved = val;
-            this.modified = !val;
+            var group = this.resource;
+            //Add each of the node references
+            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++) {
+                var resource = project.getResourceByShallowID(items[i]);
+                this.addNode(new Animate.TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
+            }
         };
         /**
         * Called when a draggable object is dropped onto the canvas.
         */
-        TreeNodeGroup.prototype.onObjectDropped = function (event, ui) {
+        TreeNodeGroup.prototype.onDropped = function (event, ui) {
             var comp = jQuery(ui.draggable).data("component");
             if (comp instanceof Animate.TreeNodeAssetInstance || comp instanceof TreeNodeGroup) {
                 var added = null;
-                if (comp instanceof Animate.TreeNodeAssetInstance)
-                    added = this.addNode(new Animate.TreeNodeGroupInstance(comp.asset.entry.shallowId, comp.asset.entry.name));
-                else
-                    added = this.addNode(new Animate.TreeNodeGroupInstance(comp.groupID, comp.text));
+                var entry;
+                if (comp instanceof Animate.TreeNodeAssetInstance) {
+                    entry = comp.resource.entry;
+                    added = this.addNode(new Animate.TreeNodeGroupInstance(entry.shallowId, entry.name, this.resource));
+                }
+                else if (comp instanceof TreeNodeGroup) {
+                    entry = comp.resource.entry;
+                    added = this.addNode(new Animate.TreeNodeGroupInstance(entry.shallowId, entry.name, this.resource));
+                }
                 this.expand();
                 this.treeview.selectNode(added);
-                this.save(false);
-                var identifier = this.json.assets.length;
-                this.json.assets[identifier] = { id: added.instanceID, name: (comp instanceof Animate.TreeNodeAssetInstance ? comp.asset.entry.name : comp.text) };
+                this.resource.addReference(entry.shallowId);
             }
         };
-        /**
-        * This will cleanup the component.
-        */
-        TreeNodeGroup.prototype.dispose = function () {
-            this.element.droppable("destroy");
-            //Call super - must be called here in this case
-            _super.prototype.dispose.call(this);
-            this.treeview = null;
-            this.dropProxy = null;
-            this.groupID = null;
-            this.canDelete = null;
-            this.saved = null;
-            this.canUpdate = null;
-            this.json = null;
-        };
         return TreeNodeGroup;
-    })(Animate.TreeNode);
+    })(Animate.TreeNodeResource);
     Animate.TreeNodeGroup = TreeNodeGroup;
 })(Animate || (Animate = {}));
 var Animate;
@@ -13597,9 +13699,10 @@ var Animate;
     */
     var TreeNodeGroupInstance = (function (_super) {
         __extends(TreeNodeGroupInstance, _super);
-        function TreeNodeGroupInstance(instanceID, name) {
+        function TreeNodeGroupInstance(instanceID, name, group) {
             // Call super-class constructor
             _super.call(this, name, "media/instance_ref.png", false);
+            this._group = group;
             this._instanceID = instanceID;
             this.canDelete = true;
         }
@@ -13607,14 +13710,13 @@ var Animate;
         * This will cleanup the component
         */
         TreeNodeGroupInstance.prototype.dispose = function () {
-            var parentGroupNode = this.parent;
-            if (parentGroupNode)
-                parentGroupNode.removeInstance(this.instanceID);
+            this._group.removeReference(this._instanceID);
             this._instanceID = null;
+            this._group = null;
             //Call super
             _super.prototype.dispose.call(this);
         };
-        Object.defineProperty(TreeNodeGroupInstance.prototype, "instanceID", {
+        Object.defineProperty(TreeNodeGroupInstance.prototype, "shallowId", {
             get: function () { return this._instanceID; },
             enumerable: true,
             configurable: true
@@ -13666,23 +13768,39 @@ var Animate;
         __extends(CanvasTabPair, _super);
         function CanvasTabPair(canvas, name) {
             _super.call(this, null, null, name);
-            this.canvas = canvas;
-            this.canvas.container.on("modified", this.onContainerModified, this);
+            this._canvas = canvas;
+            this._canvas.container.on("modified", this.onContainerModified, this);
+            this._canvas.container.on("deleted", this.onContainerDeleted, this);
         }
+        /**
+        * Whenever the container deleted
+        */
+        CanvasTabPair.prototype.onContainerDeleted = function (type, event, sender) {
+            this.tab.removeTab(this, true);
+        };
         /**
         * Whenever the container is modified, we show this with a *
         */
         CanvasTabPair.prototype.onContainerModified = function (type, event, sender) {
-            this.modified = !this.canvas.container.saved;
+            this.modified = !this._canvas.container.saved;
         };
         /**
         * Cleans up the pair
         */
         CanvasTabPair.prototype.dispose = function () {
-            this.canvas.container.off("modified", this.onContainerModified, this);
-            this.canvas = null;
+            this._canvas.container.off("modified", this.onContainerModified, this);
+            this._canvas.container.off("deleted", this.onContainerDeleted, this);
+            this._canvas = null;
             _super.prototype.dispose.call(this);
         };
+        Object.defineProperty(CanvasTabPair.prototype, "canvas", {
+            /**
+            * @returns {Canvas}
+            */
+            get: function () { return this._canvas; },
+            enumerable: true,
+            configurable: true
+        });
         return CanvasTabPair;
     })(Animate.TabPair);
     Animate.CanvasTabPair = CanvasTabPair;
@@ -13703,7 +13821,7 @@ var Animate;
             this._originalName = name;
             this._proxyChange = jQuery.proxy(this.onChange, this);
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
-            this._loadingGif = jQuery("<img src='media/small-buff.gif' />");
+            this._loadingGif = jQuery("<img src='media/buffering-gray.png' class='rotate-360' />");
             this._close = false;
             this._editor = null;
         }
@@ -13736,7 +13854,7 @@ var Animate;
         * @param {any} e
         */
         EditorPair.prototype.onChange = function (e) {
-            this.modified = false;
+            this.modified = true;
         };
         /**
         * Called by the tab class when the pair is to be removed.
@@ -13823,12 +13941,12 @@ var Animate;
             // Update the build html
             Animate.User.get.project.curBuild.update({ html: editor.getValue() }).then(function () {
                 that.loading(false);
-                that.modified = true;
+                that.modified = false;
                 if (that._close)
                     Animate.CanvasTab.getSingleton().removeTab(that, true);
             }).catch(function (err) {
                 that.loading(false);
-                Animate.Logger.getSingleton().logMessage("Could not update the build HTML: '" + err.message + "'", null, Animate.LogType.ERROR);
+                Animate.Logger.logMessage("Could not update the build HTML: '" + err.message + "'", null, Animate.LogType.ERROR);
             });
         };
         /**
@@ -13879,12 +13997,12 @@ var Animate;
             // Update the build css
             Animate.User.get.project.curBuild.update({ css: editor.getValue() }).then(function () {
                 that.loading(false);
-                that.modified = true;
+                that.modified = false;
                 if (that._close)
                     Animate.CanvasTab.getSingleton().removeTab(that, true);
             }).catch(function (err) {
                 that.loading(false);
-                Animate.Logger.getSingleton().logMessage("Could not update the build CSS: '" + err.message + "'", null, Animate.LogType.ERROR);
+                Animate.Logger.logMessage("Could not update the build CSS: '" + err.message + "'", null, Animate.LogType.ERROR);
             });
         };
         /**
@@ -14350,11 +14468,11 @@ var Animate;
                 //We need to build an array of the canvas objects we are trying to save.
                 var token = canvas.buildDataObject();
                 canvas.container.entry.json = token;
-                Animate.User.get.project.saveResources(Animate.ResourceType.CONTAINER, canvas.container.entry._id).then(function () {
+                Animate.User.get.project.saveResource(canvas.container.entry._id, Animate.ResourceType.CONTAINER).then(function () {
                     this.removeTab(this.closingTabPair, true);
                     this.closingTabPair = null;
                 }).catch(function (err) {
-                    Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                    Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
                 });
             }
             else {
@@ -14427,7 +14545,7 @@ var Animate;
                 //Tell the plugins to remove the current assets
                 var references = this._currentCanvas.containerReferences;
                 for (var i = 0, l = references.assets.length; i < l; i++) {
-                    var asset = project.getAssetByShallowId(references.assets[i]);
+                    var asset = project.getResourceByShallowID(references.assets[i], Animate.ResourceType.ASSET);
                     contEvent.asset = asset;
                     pManager.emit(contEvent);
                 }
@@ -14447,7 +14565,7 @@ var Animate;
                 //Tell the plugins to remove the current assets
                 var references = canvas.containerReferences;
                 for (var i = 0, l = references.assets.length; i < l; i++) {
-                    var asset = project.getAssetByShallowId(references.assets[i]);
+                    var asset = project.getResourceByShallowID(references.assets[i], Animate.ResourceType.ASSET);
                     contEvent.asset = asset;
                     pManager.emit(contEvent);
                 }
@@ -14524,7 +14642,7 @@ var Animate;
                 //Tell the plugins to remove the current assets
                 var references = canvas.containerReferences;
                 for (var i = 0, l = references.assets.length; i < l; i++) {
-                    var asset = project.getAssetByShallowId(references.assets[i]);
+                    var asset = project.getResourceByShallowID(references.assets[i], Animate.ResourceType.ASSET);
                     contEvent.asset = asset;
                     pManager.emit(contEvent);
                 }
@@ -14572,11 +14690,9 @@ var Animate;
                 canvas.children[0].updateDimensions();
                 pManager.emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_CREATED, tabContent));
                 pManager.emit(new Animate.ContainerEvent(Animate.EditorEvents.CONTAINER_SELECTED, tabContent));
-                return toRet;
             }
             else if (type == CanvasTabType.BLANK) {
                 toRet = _super.prototype.addTab.call(this, text, true);
-                return toRet;
             }
             else {
                 if (type == CanvasTabType.HTML) {
@@ -14594,8 +14710,8 @@ var Animate;
                 else if (type == CanvasTabType.SCRIPT) {
                     toRet = Animate.Tab.prototype.addTab.call(this, new Animate.ScriptTab(tabContent));
                 }
-                return toRet;
             }
+            return toRet;
         };
         Object.defineProperty(CanvasTab.prototype, "currentCanvas", {
             get: function () { return this._currentCanvas; },
@@ -14906,7 +15022,7 @@ var Animate;
             var fileExtensions = propertyValue.extensions || [];
             var path = propertyValue.path || "";
             var project = Animate.User.get.project;
-            var file = project.getFile(fileID);
+            var file = project.getResourceByID(fileID, Animate.ResourceType.FILE);
             //Create HTML	
             var editor = this.createEditorJQuery(propertyName, "<div class='prop-file'><div class='file-name'>" + (file ? file.name : path) + "</div><div class='file-button reg-gradient'>...</div><div class='file-button-image'><img src='media/download-file.png'/></div></div>", propertyValue);
             var that = this;
@@ -15063,17 +15179,18 @@ var Animate;
             var selector = jQuery("select", editor);
             var eye = jQuery(".eye-picker", editor);
             //var parts: Array<string> = propertyValue.split(":") ;
-            var nodes = Animate.TreeViewScene.getSingleton().getGroups();
+            var project = Animate.User.get.project;
+            var groups = project.groups.slice(0, project.groups.length);
             //Sort alphabetically
-            nodes = nodes.sort(function (a, b) {
-                var textA = a.text;
-                var textB = b.text;
+            groups = groups.sort(function (a, b) {
+                var textA = a.entry.name;
+                var textB = b.entry.name;
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             //Create the blank
             selector.append("<option value='' " + (propertyValue == "" ? "selected='selected'" : "") + "></option>");
-            for (var i = 0; i < nodes.length; i++)
-                selector.append("<option title='" + nodes[i].groupID + "' value='" + nodes[i].groupID + "' " + (propertyValue == nodes[i].groupID ? "selected='selected'" : "") + ">" + nodes[i].text + "</option>");
+            for (var i = 0; i < groups.length; i++)
+                selector.append("<option title='" + groups[i].entry.shallowId + "' value='" + groups[i].entry.shallowId + "' " + (propertyValue == groups[i].entry.shallowId ? "selected='selected'" : "") + ">" + groups[i].entry.name + "</option>");
             var that = this;
             //Functions to deal with user interactions with JQuery
             var onSelect = function (e) {
@@ -15135,13 +15252,13 @@ var Animate;
             selector.append("<option value='' " + (selectedID == 0 || isNaN(selectedID) ? "selected='selected'" : "") + "></option>");
             //Sort alphabetically
             nodes = nodes.sort(function (a, b) {
-                var textA = a.asset.entry.name.toUpperCase();
-                var textB = b.asset.entry.name.toUpperCase();
+                var textA = a.resource.entry.name.toUpperCase();
+                var textB = b.resource.entry.name.toUpperCase();
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             var len = nodes.length;
             for (var i = 0; i < len; i++)
-                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (selectedID == nodes[i].asset.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>");
+                selector.append("<option title='" + nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className + "' value='" + nodes[i].resource.entry.shallowId + "' " + (selectedID == nodes[i].resource.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].resource.entry.name + "</option>");
             var that = this;
             //Functions to deal with user interactions with JQuery
             var onSelect = function (e) {
@@ -15150,7 +15267,7 @@ var Animate;
             };
             var onEye = function (e) {
                 var val = parseInt(selector.val());
-                var asset = Animate.User.get.project.getAssetByShallowId(val);
+                var asset = Animate.User.get.project.getResourceByShallowID(val, Animate.ResourceType.ASSET);
                 if (asset)
                     Animate.TreeViewScene.getSingleton().selectNode(Animate.TreeViewScene.getSingleton().findNode("asset", asset), true);
                 else
@@ -15206,28 +15323,28 @@ var Animate;
             var nodes = Animate.TreeViewScene.getSingleton().getAssets(className);
             //Sort alphabetically
             nodes = nodes.sort(function (a, b) {
-                var textA = a.asset.entry.name.toUpperCase();
-                var textB = b.asset.entry.name.toUpperCase();
+                var textA = a.resource.entry.name.toUpperCase();
+                var textB = b.resource.entry.name.toUpperCase();
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             // Fill the select with assets
             for (var i = 0, l = nodes.length; i < l; i++) {
                 if (i == 0) {
-                    assetId = nodes[i].asset.entry.shallowId;
-                    asset = nodes[i].asset;
+                    assetId = nodes[i].resource.entry.shallowId;
+                    asset = nodes[i].resource;
                 }
-                selector.append("<option title='" + nodes[i].asset.entry.shallowId + " : " + nodes[i].asset.entry.className + "' value='" + nodes[i].asset.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].asset.entry.name + "</option>");
+                selector.append("<option title='" + nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className + "' value='" + nodes[i].resource.entry.shallowId + "' " + (i == 0 ? "selected='selected'" : "") + ">" + nodes[i].resource.entry.name + "</option>");
             }
             // Fill the already selected items 
             for (var i = 0, l = selectedIDs.length; i < l; i++) {
-                var selectedAsset = Animate.User.get.project.getAssetByShallowId(selectedIDs[i]);
+                var selectedAsset = Animate.User.get.project.getResourceByShallowID(selectedIDs[i], Animate.ResourceType.ASSET);
                 if (selectedAsset)
                     items.append("<option title='" + selectedIDs[i] + " : " + selectedAsset.entry.className + "' value='" + selectedAsset.entry.shallowId + "'>" + selectedAsset.entry.name + "</option>");
             }
             // When we select an asset
             var onSelect = function (e) {
                 assetId = parseInt(selector.val());
-                asset = Animate.User.get.project.getAssetByShallowId(assetId);
+                asset = Animate.User.get.project.getResourceByShallowID(assetId, Animate.ResourceType.ASSET);
             };
             // When we select an asset in the list, select that in the drop down
             var onItemSelect = function (e) {
@@ -15236,7 +15353,7 @@ var Animate;
             // When we click on the eye selector
             var onEye = function (e) {
                 var val = parseInt(selector.val());
-                asset = Animate.User.get.project.getAssetByShallowId(val);
+                asset = Animate.User.get.project.getResourceByShallowID(val, Animate.ResourceType.ASSET);
                 if (asset)
                     Animate.TreeViewScene.getSingleton().selectNode(Animate.TreeViewScene.getSingleton().findNode("asset", asset), true);
                 else
@@ -17420,17 +17537,17 @@ var Animate;
                 // Remove loading bar
                 loaderDiv.css({ "width": "", "height": "" });
                 if (err) {
-                    Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                    Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
                     return;
                 }
                 else {
                     // Associate the uploaded preview with the file
                     Animate.Utils.put(Animate.DB.API + "/files/" + details.username + "/" + file._id, { previewUrl: tokens[1].url }).then(function (token) {
                         if (token.error)
-                            Animate.Logger.getSingleton().logMessage(err.message, null, Animate.LogType.ERROR);
+                            Animate.Logger.logMessage(err.message, null, Animate.LogType.ERROR);
                         file.previewUrl = tokens[1].url;
                     }).catch(function (err) {
-                        Animate.Logger.getSingleton().logMessage("An error occurred while connecting to the server. " + err.status + ": " + err.message, null, Animate.LogType.ERROR);
+                        Animate.Logger.logMessage("An error occurred while connecting to the server. " + err.status + ": " + err.message, null, Animate.LogType.ERROR);
                     });
                 }
             });
@@ -18666,17 +18783,17 @@ var Animate;
             Animate.CanvasTab.getSingleton().projectReady(project);
             Animate.TreeViewScene.getSingleton().projectReady(project);
             Animate.PluginManager.getSingleton().projectReady(project);
-            Animate.Logger.getSingleton().logMessage("Loading project '" + that.$selectedProject.name + "'...", null, Animate.LogType.MESSAGE);
+            Animate.Logger.logMessage("Loading project '" + that.$selectedProject.name + "'...", null, Animate.LogType.MESSAGE);
             // Attempts to load all the project resources
             project.loadResources().then(function (resources) {
-                Animate.Logger.getSingleton().logMessage("Loaded [" + resources.length + "] resources", null, Animate.LogType.MESSAGE);
+                Animate.Logger.logMessage("Loaded [" + resources.length + "] resources", null, Animate.LogType.MESSAGE);
                 return project.loadBuild();
             }).then(function (build) {
-                Animate.Logger.getSingleton().logMessage("Loaded project build '" + build.entry.name + " - v" + build.entry.version + "'", null, Animate.LogType.MESSAGE);
+                Animate.Logger.logMessage("Loaded project build '" + build.entry.name + " - v" + build.entry.version + "'", null, Animate.LogType.MESSAGE);
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
                 // Log 
-                Animate.Logger.getSingleton().logMessage("Project '" + that.$selectedProject.name + "' has successfully been opened", null, Animate.LogType.MESSAGE);
+                Animate.Logger.logMessage("Project '" + that.$selectedProject.name + "' has successfully been opened", null, Animate.LogType.MESSAGE);
                 // Remove splash
                 that._splashElm.detach();
                 Animate.Application.bodyComponent.addChild(Animate.Application.getInstance());
@@ -19189,6 +19306,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/gui/canvas-items/CanvasContext.ts" />
 /// <reference path="lib/gui/tree/TreeViewScene.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNode.ts" />
+/// <reference path="lib/gui/tree/nodes/TreeNodeResource.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeAssetClass.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeAssetInstance.ts" />
 /// <reference path="lib/gui/tree/nodes/TreeNodeBehaviour.ts" />

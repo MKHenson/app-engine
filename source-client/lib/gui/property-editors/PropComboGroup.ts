@@ -33,23 +33,23 @@ module Animate
 
 			var selector: JQuery = jQuery( "select", editor );
 			var eye: JQuery = jQuery( ".eye-picker", editor );
-			//var parts: Array<string> = propertyValue.split(":") ;
+            //var parts: Array<string> = propertyValue.split(":") ;
+            var project = User.get.project;
+            var groups = project.groups.slice(0, project.groups.length);
 
-			var nodes: Array<TreeNodeGroup> = TreeViewScene.getSingleton().getGroups();
-
-			//Sort alphabetically
-			nodes = nodes.sort( function ( a: TreeNode, b: TreeNode )
-			{
-				var textA = a.text;
-				var textB = b.text;
+            //Sort alphabetically
+            groups = groups.sort(function (a: GroupArray, b: GroupArray)
+            {
+                var textA = a.entry.name;
+                var textB = b.entry.name;
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
 			//Create the blank
 			selector.append( "<option value='' " + ( propertyValue == "" ? "selected='selected'" : "" ) + "></option>" );
 
-			for ( var i = 0; i < nodes.length; i++ )
-				selector.append( "<option title='" + nodes[i].groupID + "' value='" + nodes[i].groupID + "' " + ( propertyValue == nodes[i].groupID ? "selected='selected'" : "" ) + ">" + nodes[i].text + "</option>" );
+            for (var i = 0; i < groups.length; i++)
+                selector.append("<option title='" + groups[i].entry.shallowId + "' value='" + groups[i].entry.shallowId + "' " + (propertyValue == groups[i].entry.shallowId ? "selected='selected'" : "") + ">" + groups[i].entry.name + "</option>");
 
 
 			var that = this;
