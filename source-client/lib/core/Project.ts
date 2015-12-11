@@ -2,8 +2,7 @@ module Animate
 {
     export enum ResourceType
     {
-        BEHAVIOUR = 1,
-        GROUP,
+        GROUP = 1,
         ASSET,
         CONTAINER,
         FILE,
@@ -49,29 +48,29 @@ module Animate
 		//static OPENED: ProjectEvents = new ProjectEvents("opened");
 		static FAILED: ProjectEvents = new ProjectEvents("failed");
 		static BUILD_SELECTED: ProjectEvents = new ProjectEvents("build_selected");
-		static HTML_SAVED: ProjectEvents = new ProjectEvents( "html_saved" );
-		static CSS_SAVED: ProjectEvents = new ProjectEvents( "css_saved" );
+		//static HTML_SAVED: ProjectEvents = new ProjectEvents( "html_saved" );
+		//static CSS_SAVED: ProjectEvents = new ProjectEvents( "css_saved" );
 		static BUILD_SAVED: ProjectEvents = new ProjectEvents( "build_saved" );
 		//static BEHAVIOUR_DELETING: ProjectEvents = new ProjectEvents("behaviour_deleting");
-		static BEHAVIOURS_LOADED: ProjectEvents = new ProjectEvents("behaviours_loaded");
-		static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
-		static BEHAVIOUR_UPDATED: ProjectEvents = new ProjectEvents("behaviour_updated");
-		static BEHAVIOURS_UPDATED: ProjectEvents = new ProjectEvents("behaviours_updated");
-		static BEHAVIOURS_SAVED: ProjectEvents = new ProjectEvents("behaviours_saved");
-		static BEHAVIOUR_SAVED: ProjectEvents = new ProjectEvents("behaviour_saved");
-		static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
-		static ASSET_SAVED: ProjectEvents = new ProjectEvents("asset_saved");
-		static ASSET_UPDATED: ProjectEvents = new ProjectEvents("asset_updated");
-		static ASSETS_UPDATED: ProjectEvents = new ProjectEvents("assets_updated");
+		//static BEHAVIOURS_LOADED: ProjectEvents = new ProjectEvents("behaviours_loaded");
+		//static BEHAVIOUR_CREATED: ProjectEvents = new ProjectEvents("behaviour_created");
+		//static BEHAVIOUR_UPDATED: ProjectEvents = new ProjectEvents("behaviour_updated");
+		//static BEHAVIOURS_UPDATED: ProjectEvents = new ProjectEvents("behaviours_updated");
+		//static BEHAVIOURS_SAVED: ProjectEvents = new ProjectEvents("behaviours_saved");
+		//static BEHAVIOUR_SAVED: ProjectEvents = new ProjectEvents("behaviour_saved");
+		//static ASSET_CREATED: ProjectEvents = new ProjectEvents("asset_created");
+		//static ASSET_SAVED: ProjectEvents = new ProjectEvents("asset_saved");
+		//static ASSET_UPDATED: ProjectEvents = new ProjectEvents("asset_updated");
+		//static ASSETS_UPDATED: ProjectEvents = new ProjectEvents("assets_updated");
 		//static ASSET_DELETING: ProjectEvents = new ProjectEvents("asset_deleting");
-		static ASSETS_LOADED: ProjectEvents = new ProjectEvents("assets_deleted");
+		//static ASSETS_LOADED: ProjectEvents = new ProjectEvents("assets_deleted");
 		//static GROUP_UPDATED: ProjectEvents = new ProjectEvents("group_updated");
-		static GROUPS_UPDATED: ProjectEvents = new ProjectEvents("groups_updated");
-		static GROUP_SAVED: ProjectEvents = new ProjectEvents("group_saved");
-		static GROUPS_SAVED: ProjectEvents = new ProjectEvents("groups_saved");
+		//static GROUPS_UPDATED: ProjectEvents = new ProjectEvents("groups_updated");
+		//static GROUP_SAVED: ProjectEvents = new ProjectEvents("group_saved");
+		//static GROUPS_SAVED: ProjectEvents = new ProjectEvents("groups_saved");
 		//static GROUP_DELETING: ProjectEvents = new ProjectEvents("group_deleting");
-		static GROUP_CREATED: ProjectEvents = new ProjectEvents("group_created");
-		static GROUPS_LOADED: ProjectEvents = new ProjectEvents("groups_loaded");
+		//static GROUP_CREATED: ProjectEvents = new ProjectEvents("group_created");
+		//static GROUPS_LOADED: ProjectEvents = new ProjectEvents("groups_loaded");
 		//static FILE_CREATED: ProjectEvents = new ProjectEvents("file_created");
 		//static FILE_IMPORTED: ProjectEvents = new ProjectEvents("file_imported");
 		//static FILE_DELETED: ProjectEvents = new ProjectEvents("file_deleted");
@@ -218,21 +217,21 @@ module Animate
 		* @param {string} id The ID of the resource
 		* @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
 		*/
-        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): T
+        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): { resource: T, type: ResourceType }
         {
             var types = this._restPaths;
             if (type)
             {
                 for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[type].array, l = arr.length; i < l; i++)
                     if (arr[i].entry._id == id)
-                        return <T>arr[i];
+                        return { resource: <T>arr[i], type: type };
             }
             else
             {
                 for (var t in types)
                     for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[t].array, l = arr.length; i < l; i++)
                         if (arr[i].entry._id == id)
-                            return <T>arr[i];
+                            return { resource: <T>arr[i], type: t };
             }
 
             return null;
@@ -466,6 +465,11 @@ module Animate
 
             if (!type)
             {
+                // Send delete events for all existing resources
+                for (var t in paths)
+                    for (var i = 0, pArr = paths[t].array, l = pArr.length; i < l; i++)
+                        pArr[i].emit(new Event("deleted"));
+
                 this._assets.splice(0, this._assets.length);
                 this._files.splice(0, this._files.length);
                 this._scripts.splice(0, this._scripts.length);
@@ -480,6 +484,10 @@ module Animate
             }
             else
             {
+                // Send delete events for all existing resources
+                for (var i = 0, pArr = paths[type].array, l = pArr.length; i < l; i++)
+                    pArr[i].emit(new Event("deleted"));
+
                 arr.push(Utils.get(`${paths[type].url}/${this.entry.user}/${this.entry._id}`));
                 paths[type].array.splice(0, paths[type].array.length);
             }
@@ -542,35 +550,32 @@ module Animate
         * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<T>}
         */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type: ResourceType): Promise<T>
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T>
         {
             var that = this;
             var paths = this._restPaths;
-            var array = paths[type].array;
-            var resource: T;
-
-            for (var i = 0, l = array.length; i < l; i++)
-                if (array[i].entry._id == id)
-                {
-                    resource = <T>array[i];
-                    break;
-                }
-
-            if (!resource)
-                return Promise.reject(new Error("No resource with that ID exists"));
-
+            
+            var r = this.getResourceByID<T>(id, type);
+            if (!r)
+                return Promise.reject(new Error("Could not find a resource with that ID"));
+            
             return new Promise<T>(function (resolve, reject)
             {
-                Utils.get<Modepress.IGetResponse<T>>(`${paths[type].url}/${that.entry.user}/${that.entry._id}/${id}`).then(function (response)
+                Utils.get<Modepress.IGetArrayResponse<T>>(`${paths[r.type].url}/${that.entry.user}/${that.entry._id}/${id}`).then(function (response)
                 {
                     if (response.error)
                         return reject(new Error(response.message));
 
-                    for (var t in response.data)
-                        if (resource.entry.hasOwnProperty(t))
-                            resource.entry[t] = response.data[t];
+                    if (response.data.length == 0)
+                        return resolve(r.resource);
 
-                    return resolve(resource);
+                    for (var t in response.data[0])
+                        if (r.resource.entry.hasOwnProperty(t))
+                            r.resource.entry[t] = response.data[0][t];
+
+                    r.resource.emit(new Event("refreshed"));
+                    r.resource.saved = true;
+                    return resolve(r.resource);
 
                 }).catch(function (err: IAjaxError)
                 {
@@ -617,6 +622,7 @@ module Animate
                         if (resource.entry.hasOwnProperty(t))
                             resource.entry[t] = data[t];
 
+                    resource.emit(new Event("refreshed"));
                     return resolve(response);
 
                 }).catch(function (err: IAjaxError)
@@ -638,36 +644,10 @@ module Animate
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
-            var resource: ProjectResource<Engine.IResource>;
-            var url: string;
-
-            if (type)
-            {
-                url = paths[type].url;
-                for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++)
-                {
-                    if (arr[i].entry._id == id)
-                    {
-                        url = paths[t].url;
-                        resource = arr[i];
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (var t in paths)
-                    for (var i = 0, arr = paths[t].array, l = arr.length; i < l && !url; i++)
-                    {
-                        if (arr[i].entry._id == id)
-                        {
-                            url = paths[t].url;
-                            resource = arr[i];
-                            break;
-                        }
-                    }
-            }
-
+            var r = this.getResourceByID(id, type);
+            var url: string = `${paths[r.type].url}/${details.username}/${projId}/${id}`;
+            var resource: ProjectResource<Engine.IResource> = r.resource;
+            
             return new Promise<boolean>(function (resolve, reject)
             {
                 Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
@@ -1069,16 +1049,16 @@ module Animate
   //          loader.load("/project/get-files", { projectId: this.entry._id, mode : mode } );
 		//}
 
-		/**
-		* This function is used to import a user's file from another project or from the global _assets base
-		*/
-		importFile( ids: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/import-files", { projectId: this.entry._id, ids: ids, });
-		}
+		///**
+		//* This function is used to import a user's file from another project or from the global _assets base
+		//*/
+		//importFile( ids: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/import-files", { projectId: this.entry._id, ids: ids, });
+		//}
 
 		
 
@@ -1280,29 +1260,29 @@ module Animate
   //          loader.load("/project/save-assets", { projectId: this.entry._id, ids: ids, data: jsons } );
 		//}
 
-		/**
-		* This will download an asset's variables from the server.
-		* @param {Array<string>} assetIds An array of assets we are updating
-		*/
-		updateAssets( assetIds : Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/update-assets", { projectId: this.entry._id, ids: assetIds } );
-		}
+		///**
+		//* This will download an asset's variables from the server.
+		//* @param {Array<string>} assetIds An array of assets we are updating
+		//*/
+		//updateAssets( assetIds : Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/update-assets", { projectId: this.entry._id, ids: assetIds } );
+		//}
 
-		/**
-		* This will download all asset variables from the server.
-		* @param {Array<string>} behaviourIDs An array of behaviour ID's that need to be updated
-		*/
-		updateBehaviours( behaviourIDs: Array<string> )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/project/update-behaviours", { projectId: this.entry._id, ids: behaviourIDs } );
-		}
+		///**
+		//* This will download all asset variables from the server.
+		//* @param {Array<string>} behaviourIDs An array of behaviour ID's that need to be updated
+		//*/
+		//updateBehaviours( behaviourIDs: Array<string> )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+		//	loader.on( LoaderEvents.FAILED, this.onServer, this );
+  //          loader.load("/project/update-behaviours", { projectId: this.entry._id, ids: behaviourIDs } );
+		//}
 
 		/**
 		* This function is used to copy an asset.

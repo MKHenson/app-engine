@@ -14,7 +14,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
@@ -95,6 +95,7 @@
     <TypeScriptCompile Include="lib\views\JadeRenderer.ts" />
     <TypeScriptCompile Include="lib\views\HTMLRenderer.ts" />
     <TypeScriptCompile Include="lib\views\JSONRenderer.ts" />
+    <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\views\messages\success.jade">

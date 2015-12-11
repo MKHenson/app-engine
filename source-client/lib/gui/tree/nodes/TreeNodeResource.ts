@@ -23,6 +23,15 @@ module Animate
 
             resource.on("modified", this.onModified, this);
             resource.on("deleted", this.onDeleted, this);
+            resource.on("refreshed", this.onRefreshed, this);
+        }
+
+        /** 
+        * Called whenever the resource is re-downloaded
+        */
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
+        {
+            this.text = this.resource.entry.name;
         }
 
         /** 
@@ -54,6 +63,7 @@ module Animate
 		*/
 		dispose()
         {
+            this.resource.on("refreshed", this.onRefreshed, this);
             this.resource.off("modified", this.onModified, this);
             this.resource.on("deleted", this.onDeleted, this);
 

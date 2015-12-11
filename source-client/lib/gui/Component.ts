@@ -214,7 +214,7 @@ module Animate
                 return false;
             return true;
         }
-
+        
 		/**
 		* Use this function to remove a child from this component. 
 		* It uses the {JQuery} detach function to achieve this functionality.

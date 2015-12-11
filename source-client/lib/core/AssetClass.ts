@@ -70,7 +70,7 @@ module Animate
 		{
 			var toRet: EditableSet = new EditableSet();
 
-			var topClass = this;
+            var topClass: AssetClass = this;
 			while ( topClass != null )
 			{
 				//Add all the variables to the object we are returning

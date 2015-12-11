@@ -771,7 +771,7 @@ module Animate
             {
                 if (template.behaviourName == "Script")
                 {
-                    RenameForm.get.renameObject(null, "Script", null, ResourceType.SCRIPT).then(function (data)
+                    RenameForm.get.renameObject({ name: "Script" }, null, ResourceType.SCRIPT).then(function (data)
                     {
                         that.createNode(template, that.mX, that.mY, null, data.newName);
                     });
@@ -933,7 +933,7 @@ module Animate
                     else if (focusObj instanceof Behaviour )
                     {
                         // Attempt to rename the behaviour
-                        RenameForm.get.renameObject(focusObj, focusObj.text, focusObj.id, ResourceType.BEHAVIOUR).then(function (token)
+                        RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token)
                         {
                             var toEdit: Behaviour = null;
                             if (focusObj instanceof BehaviourShortcut)

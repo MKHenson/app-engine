@@ -61,10 +61,6 @@ module Animate
 						if ( comp.element.parent().data( "component" ) == this._selectedNodes[0].element.parent().data( "component" ) )
 						{
 							var parent = comp.element.parent();
-							//var selectedNodeIndex = parent.index( comp.element );
-							//var prevNodeIndex = parent.index( this._selectedNodes[0].element );
-							//if ( selectedNodeIndex > prevNodeIndex )
-							//{
                             var startSelecting = false;
                             var pNode: TreeNode  = parent.data("component");
 
@@ -85,9 +81,6 @@ module Animate
 										return;
 								}
 							}
-							//}
-							//else 
-							//	this.selectNode( null );
 
 							if ( !startSelecting )
 								this.selectNode( null );
@@ -207,8 +200,8 @@ module Animate
 			this.element.append( this.fixDiv );
 
 			if ( this._selectedNodes.indexOf( node ) != -1 )
-				this._selectedNodes.splice( this._selectedNodes.indexOf( node ), 1 );
-
+                this._selectedNodes.splice(this._selectedNodes.indexOf(node), 1);
+            
 			return toRet;
 		}
 

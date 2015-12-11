@@ -293,6 +293,8 @@ module Animate
                 else
                     this.expand();
             }
+            else if (!this._expanded && this.children.length == 1)
+                this.expand();
             else if (!this._expanded)
                 toRet.element.hide();
 
@@ -313,6 +315,20 @@ module Animate
 		*/
 		get expanded(): boolean { return this._expanded; }
 		
+        /**
+		* Use this function to remove a child from this component. 
+		* It uses the {JQuery} detach function to achieve this functionality.
+		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
+		* @returns {IComponent} The {IComponent} we have removed
+		*/
+        removeChild(child: IComponent): IComponent
+        {
+            var toRet = super.removeChild(child);
+            if (this.nodes.length == 0)
+                jQuery(".tree-node-button", this.element).first().css("visibility", "hidden");
+
+            return toRet;
+        }
 
 		/**
 		* This removes a node from the treeview
@@ -320,20 +336,16 @@ module Animate
 		* @returns {TreeNode} 
 		*/
 		removeNode( node: TreeNode ) : TreeNode
-		{
+        {
 			if ( this.treeview.selectedNodes.indexOf( node ) != -1 )
 				this.treeview.selectedNodes.splice( this.treeview.selectedNodes.indexOf( node ), 1 );
 
 			if ( this.treeview.selectedNode == node )
 				this.treeview.selectedNode = null;
 
-			node.treeview = null;
-
-			var toRet : TreeNode = Component.prototype.removeChild.call( this, node );
-
-			if ( this.nodes.length == 0 )
-				jQuery( ".tree-node-button", this.element ).first().css( "visibility", "hidden" );
-
+            node.treeview = null;
+            
+            var toRet = <TreeNode>this.removeChild( node );
 			return toRet;
 		}
         

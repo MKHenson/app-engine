@@ -75,7 +75,13 @@ module Animate
 		/**
 		* Sets the label text of the pair
 		*/
-		set text( text: string ) { jQuery( ".text", this.tabSelector.element ).text( text ); }
+         set text(text: string)
+         {
+             jQuery(".text", this.tabSelector.element).text(text);
+
+             if (this._modified)
+                 jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
+         }
 
 		/**
 		* Gets the label text of the pair

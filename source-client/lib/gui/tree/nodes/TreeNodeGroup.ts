@@ -19,16 +19,18 @@ module Animate
                 var resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>(items[i]);
                 this.addNode(new TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
             }
-		}
-        
-		/** 
-		* This is called when we update the group with new data from the server.
-		*/
-		updateGroup()
-		{
-			//Remove all current nodes
-			while ( this.children.length > 0 )
-				this.children[0].dispose();
+        }
+
+        /** 
+        * Called whenever the resource is re-downloaded
+        */
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
+        {
+            super.onRefreshed(type, event, sender);
+
+            //Remove all current nodes
+            while (this.children.length > 0)
+                this.children[0].dispose();
 
             var project: Project = User.get.project;
             var group = this.resource;
@@ -39,12 +41,12 @@ module Animate
                 var resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>(items[i]);
                 this.addNode(new TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
             }
-		}
+        }
                 
 		/**
 		* Called when a draggable object is dropped onto the canvas.
 		*/
-		onDropped( event, ui )
+		protected onDropped( event, ui )
 		{
 			var comp : TreeNode = jQuery( ui.draggable ).data( "component" );
 			if ( comp instanceof TreeNodeAssetInstance || comp instanceof TreeNodeGroup )

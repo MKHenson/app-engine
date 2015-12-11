@@ -210,7 +210,7 @@ module Animate
 		{
 			if ( Application.getInstance().focusObj != null && Application.getInstance().focusObj instanceof TreeNode )
 			{
-				//If f2 pressed
+				//If F2 pressed
 				if ( jQuery( e.target ).is( "input" ) == false && e.keyCode == 113 )
                 {
                     var promise: Promise<IRenameToken>;
@@ -220,16 +220,19 @@ module Animate
                     if (node != null)
                     {
                         if (node instanceof TreeNodeGroup)
-                            promise = RenameForm.get.renameObject(node, node.text, node.id, ResourceType.GROUP);
+                            promise = RenameForm.get.renameObject(node.resource.entry, node.resource.entry._id, ResourceType.GROUP);
                         else if (node instanceof TreeNodeBehaviour)
-                            promise = RenameForm.get.renameObject(node.resource.entry, node.text, node.resource.entry._id, ResourceType.BEHAVIOUR);
+                            promise = RenameForm.get.renameObject(node.resource.entry, node.resource.entry._id, ResourceType.CONTAINER);
                         else if (node instanceof TreeNodeAssetInstance)
-                            promise = RenameForm.get.renameObject(node.resource, node.text, node.resource.entry._id, ResourceType.ASSET);
+                            promise = RenameForm.get.renameObject(node.resource.entry, node.resource.entry._id, ResourceType.ASSET);
 
                         if (promise)
                         {
+                            node.loading = true;
+
                             promise.then(function(token)
                             {
+                                node.loading = false;
                                 node.text = token.newName;
 
                                 if (node instanceof TreeNodeAssetInstance)
@@ -326,10 +329,23 @@ module Animate
             if (!context)
                 return;
 
+            // Hide the loading on complete
+            var resolveRequest = function (promise: Promise<any>, node: TreeNode)
+            {
+                promise.then(function ()
+                {
+                    node.loading = false;
+
+                }).catch(function (err: Error)
+                {
+                    node.loading = false;
+                    Logger.logMessage(err.message, null, LogType.ERROR)
+                });
+            };
+
             switch (selection)
             {
                 case "Delete":
-
                     this._quickAdd.element.off("click", this._shortcutProxy);
                     this._quickCopy.element.off("click", this._shortcutProxy);
                     this._quickAdd.element.detach();
@@ -339,40 +355,28 @@ module Animate
                     {
                         val.loading = true;
                         if (val instanceof TreeNodeResource)
-                        {
-                            project.deleteResources([(<ProjectResource<Engine.IResource>>val.resource).entry._id]).then(function (data)
-                            {
-                                val.loading = false;
-
-                            }).catch(function (err: Error)
-                            {
-                                val.loading = false;
-                                Logger.logMessage(err.message, null, LogType.ERROR);
-                            });
-                        }
+                            resolveRequest(project.deleteResources([(<ProjectResource<Engine.IResource>>val.resource).entry._id]), val);
                         else
                             val.dispose();
                     });
 
                     break;
                 case "Copy":
-
                     if (context instanceof TreeNodeAssetInstance)
                         project.copyAsset(context.resource.entry._id);
 
                     break;
                 case "Add Instance":
-
                     if ( context instanceof TreeNodeAssetClass)
                         project.createResource<Engine.IAsset>(ResourceType.ASSET, { name: "New " + context.assetClass.name, className: context.assetClass.name });
 
                     break;
                 case "Save":
-
                     selectedNodes.forEach(function (val, index)
                     {
+                        val.loading = true;
                         if (val instanceof TreeNodeResource)
-                            project.saveResource((<Engine.IResource>val.resource)._id);
+                            resolveRequest(project.saveResource((<ProjectResource<Engine.IResource>>val.resource).entry._id), val);
                     });	
 
                     break;
@@ -386,42 +390,60 @@ module Animate
                     {
                         context.loading = false;
                         Logger.logMessage(err.message, null, LogType.ERROR);
-                    })
-                    break;
+                        })
 
+                    break;
                 case "Update":
 
-                    if (context instanceof TreeNodeAssetInstance)
-                        project.updateAssets([context.resource.entry._id]);
-                    //Update all groups
-                    else if (context == this._groupsNode)
+                    if (context == this._sceneNode || context == this._groupsNode)
                     {
-                        while (this._groupsNode.children.length > 0)
-                            this._groupsNode.children[0].dispose();
+                        context.loading = true;
+                        var type: ResourceType = (context == this._sceneNode ? ResourceType.CONTAINER : ResourceType.GROUP);
+                        var message = false;
+                        for (var i = 0, l = context.nodes.length; i < l; i++)
+                            if (context.nodes[i].modified)
+                            {
+                                message = true;
+                                MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text)
+                                {
+                                    if (text == "Yes")
+                                        resolveRequest( project.loadResources(ResourceType.CONTAINER), context);
+                                    else
+                                        context.loading = true;
+                                });
+                                break;
+                            }
 
-                        project.loadResources(ResourceType.GROUP);
+                        if (!message)
+                            resolveRequest(project.loadResources(ResourceType.CONTAINER), context);
                     }
-                    //Update the scene
-                    else if (context == this._sceneNode)
-                    {
-                        while (this._sceneNode.children.length > 0)
-                            this._sceneNode.children[0].dispose();
-                        project.loadResources(ResourceType.CONTAINER);
-                    }
-                    else if (context instanceof TreeNodeGroup)
-                        promise = project.refreshResource(context.resource.entry._id, ResourceType.GROUP).then(function (data) { context.updateGroup(); });
                     else if (context instanceof TreeNodeAssetClass)
                     {
-                        var nodes = context.getAllNodes(TreeNodeAssetInstance);
-                        var ids = [];
-                        for (var i = 0, l = nodes.length; i < l; i++)
-                            if (nodes[i] instanceof TreeNodeAssetInstance)
-                                ids.push((<TreeNodeAssetInstance>nodes[i]).resource.entry._id);
-
-                        project.updateAssets(ids);
+                        // TODO: Make sure this works
+                        var nodes = <Array<TreeNodeResource<ProjectResource<Engine.IResource>>>>context.getAllNodes(context.constructor);
+                        nodes.forEach(function (node, index)
+                        {
+                            node.loading = true;
+                            resolveRequest(project.refreshResource(nodes[i].resource.entry._id), node);
+                        });
                     }
-                    else if (context instanceof TreeNodeBehaviour)
-                        project.updateBehaviours([context.resource.entry._id]);
+                    else if (context instanceof TreeNodeResource)
+                    {
+                        context.loading = true;
+                        if (context.modified)
+                        {
+                            MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text)
+                            {
+                                if (text == "Yes")
+                                    resolveRequest(project.refreshResource((<ProjectResource<Engine.IResource>>context.resource).entry._id), context);
+                                else
+                                    context.loading = false;
+                            });
+                            break;
+                        }
+                        else
+                            resolveRequest(project.refreshResource((<ProjectResource<Engine.IResource>>context.resource).entry._id), context);
+                    }
 
                     break;
             }
@@ -791,7 +813,6 @@ module Animate
 				this._contextNode = component;
 				e.preventDefault();
 				this._contextMenu.show( Application.getInstance(), e.pageX, e.pageY, false, true );
-				this._contextMenu.element.css( { "width": "+=20px" });
 			}
 		}
 

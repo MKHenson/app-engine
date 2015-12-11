@@ -40,6 +40,7 @@ module Animate
         private _projectElm: JQuery;
         private _resourceId: string;
         private _type: ResourceType;
+        private _fromOk: boolean;
 
 		constructor()
 		{
@@ -53,6 +54,7 @@ module Animate
             this.$name = "";
             this.$errorMsg = "";
             this.$loading = false;
+            this._fromOk = false;
 
             // Fetch & compile the HTML
             this._projectElm = jQuery("#rename-content").remove().clone();
@@ -63,7 +65,11 @@ module Animate
 
         hide()
         {
-            super.hide();
+            if (!this._fromOk)
+                this.emit(new Event("cancelled"));
+
+            this._fromOk = false;
+            return super.hide();
         }
 
         /**
@@ -83,24 +89,35 @@ module Animate
 		/**
 		* Attempts to rename an object
 		* @param {IRenamable} object 
-		* @param {string} curName 
 		* @extends {RenameForm}
 		*/
-        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): Promise<IRenameToken>
+        renameObject(object: IRenamable, id: string, type: ResourceType): Promise<IRenameToken>
         {
             super.show(undefined, undefined, undefined, true);
             this.object = object;
+            this.$name = object.name;
             this._resourceId = id;
             this._type = type;
             var that = this;
-            Compiler.digest(this._projectElm, this);
             
+            jQuery("input", this._projectElm).select();
+            Compiler.digest(this._projectElm, this);
+
             return new Promise<IRenameToken>(function (resolve, reject)
             {
-                that.on("renamed", function (type, event: RenameFormEvent)
+                var onEvent = function (type, event: RenameFormEvent)
                 {
-                    return resolve(<IRenameToken>{ newName: event.name, oldName: event.oldName, object: event.object });
-                });
+                    if (type == "renamed")
+                        resolve(<IRenameToken>{ newName: event.name, oldName: event.oldName, object: event.object });
+                    else
+                        resolve(<IRenameToken>{ newName: object.name, oldName: object.name, object: event.object });
+
+                    that.off("renamed", onEvent);
+                    that.off("cancelled", onEvent);
+                }
+
+                that.on("renamed", onEvent);
+                that.on("cancelled", onEvent);
             });
 		}
 
@@ -117,6 +134,7 @@ module Animate
             var that = this;
             var proj = User.get.project;
             var prevName = (this.object ? this.object.name : "");
+            this._fromOk = true;
 
             if (name.trim() == "")
             {
@@ -138,7 +156,7 @@ module Animate
                 return;
             }
 
-            if (!this._resourceId)
+            if (!this._resourceId || !this._type)
             {
                 that.hide();
                 return that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));

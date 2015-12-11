@@ -96,7 +96,7 @@ module Animate
             if (tabPair instanceof CanvasTabPair)
             {
                 var canvas = tabPair.canvas;
-                if (tabPair.modified && !canvas.container.disposed)
+                if (!tabPair.forceClose && tabPair.modified && !canvas.container.disposed)
                 {
                     this.closingTabPair = tabPair;
                     MessageBox.show("Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this);
@@ -117,6 +117,7 @@ module Animate
 		onMessage( choice : string )
 		{
 			var canvas: Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
+            var that = this;
 
 			//Save the canvas
 			if ( choice == "Yes" )
@@ -126,8 +127,8 @@ module Animate
                 canvas.container.entry.json = token;
                 User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function ()
                 {
-                    this.removeTab(this.closingTabPair, true);
-					this.closingTabPair = null;
+                    that.removeTab(this.closingTabPair, true);
+					that.closingTabPair = null;
 
                 }).catch(function (err: Error)
                 {
@@ -140,9 +141,9 @@ module Animate
 			}
 			else
 			{
-                this._currentCanvas.container.saved = true;  
-				this.removeTab( this.closingTabPair, true );
-				this.closingTabPair = null;
+                that._currentCanvas.container.saved = true;  
+				that.removeTab( this.closingTabPair, true );
+				that.closingTabPair = null;
 			}
 		}
 

@@ -33,7 +33,7 @@ module Animate
 			var path = propertyValue.path || "";
 
             var project: Project = User.get.project;
-            var file: Engine.IFile = project.getResourceByID<FileResource>(fileID, ResourceType.FILE);
+            var file: Engine.IFile = project.getResourceByID<FileResource>(fileID, ResourceType.FILE).resource;
 			
 			//Create HTML	
 			var editor: JQuery =

@@ -176,7 +176,7 @@ module Animate
             var that = this;
 
             // Todo: This must be NewBehaviourForm
-            RenameForm.get.renameObject(null, "", null, ResourceType.CONTAINER).then(function (token)
+            RenameForm.get.renameObject({ name: "" }, null, ResourceType.CONTAINER).then(function (token)
             {
                 User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
                 {

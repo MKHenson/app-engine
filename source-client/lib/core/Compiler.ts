@@ -691,7 +691,12 @@
                             };
 
                             var val = Compiler.parse(`${value}`, controller, null, elem, null);
-                            (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value = (val? val.toString() : "") || (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value || "";
+
+                            val = (val !== undefined ? val.toString() : "");
+                            if (val === undefined)
+                                val = (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value || "";
+
+                            (<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>elem).value = val;
                             //Compiler.transform(`${value}`, elem, controller);
                             Compiler.registerFunc(appNode, "change", "en-model", ev);
                             break;

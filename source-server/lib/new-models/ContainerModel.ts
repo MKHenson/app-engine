@@ -14,7 +14,7 @@ export class ContainerModel extends Model
 
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setUnique(true);
         this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Infinity, NumberType.Integer));
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true)).setUniqueIndexer(true);
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("json", ""));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);

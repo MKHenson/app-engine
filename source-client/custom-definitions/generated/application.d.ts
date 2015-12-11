@@ -1040,6 +1040,7 @@ declare module Animate {
 declare module Animate {
     /**
     * A wrapper for DB file instances
+    * @events deleted, refreshed
     */
     class FileResource extends ProjectResource<Engine.IFile> {
         /**
@@ -1413,12 +1414,11 @@ declare module Animate {
 }
 declare module Animate {
     enum ResourceType {
-        BEHAVIOUR = 1,
-        GROUP = 2,
-        ASSET = 3,
-        CONTAINER = 4,
-        FILE = 5,
-        SCRIPT = 6,
+        GROUP = 1,
+        ASSET = 2,
+        CONTAINER = 3,
+        FILE = 4,
+        SCRIPT = 5,
     }
     class ProjectEvents {
         value: string;
@@ -1428,25 +1428,7 @@ declare module Animate {
         static SAVED_ALL: ProjectEvents;
         static FAILED: ProjectEvents;
         static BUILD_SELECTED: ProjectEvents;
-        static HTML_SAVED: ProjectEvents;
-        static CSS_SAVED: ProjectEvents;
         static BUILD_SAVED: ProjectEvents;
-        static BEHAVIOURS_LOADED: ProjectEvents;
-        static BEHAVIOUR_CREATED: ProjectEvents;
-        static BEHAVIOUR_UPDATED: ProjectEvents;
-        static BEHAVIOURS_UPDATED: ProjectEvents;
-        static BEHAVIOURS_SAVED: ProjectEvents;
-        static BEHAVIOUR_SAVED: ProjectEvents;
-        static ASSET_CREATED: ProjectEvents;
-        static ASSET_SAVED: ProjectEvents;
-        static ASSET_UPDATED: ProjectEvents;
-        static ASSETS_UPDATED: ProjectEvents;
-        static ASSETS_LOADED: ProjectEvents;
-        static GROUPS_UPDATED: ProjectEvents;
-        static GROUP_SAVED: ProjectEvents;
-        static GROUPS_SAVED: ProjectEvents;
-        static GROUP_CREATED: ProjectEvents;
-        static GROUPS_LOADED: ProjectEvents;
     }
     /**
     * A simple project event. Always related to a project resource (null if not)
@@ -1495,7 +1477,10 @@ declare module Animate {
         * @param {string} id The ID of the resource
         * @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
         */
-        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): T;
+        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): {
+            resource: T;
+            type: ResourceType;
+        };
         /**
         * Gets a resource by its shallow ID
         * @param {string} id The shallow ID of the resource
@@ -1532,7 +1517,7 @@ declare module Animate {
         * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<T>}
         */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type: ResourceType): Promise<T>;
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T>;
         /**
         * Use this to edit the properties of a resource
         * @param {string} id The id of the object we are editing.
@@ -1585,20 +1570,6 @@ declare module Animate {
         * This function is used to update the current build data
         */
         saveBuild(notes: string, visibility: string, html: string, css: string): void;
-        /**
-        * This function is used to import a user's file from another project or from the global _assets base
-        */
-        importFile(ids: Array<string>): void;
-        /**
-        * This will download an asset's variables from the server.
-        * @param {Array<string>} assetIds An array of assets we are updating
-        */
-        updateAssets(assetIds: Array<string>): void;
-        /**
-        * This will download all asset variables from the server.
-        * @param {Array<string>} behaviourIDs An array of behaviour ID's that need to be updated
-        */
-        updateBehaviours(behaviourIDs: Array<string>): void;
         /**
         * This function is used to copy an asset.
         * @param {string} assetId The asset object we are trying to copy
@@ -3932,6 +3903,13 @@ declare module Animate {
         */
         expanded: boolean;
         /**
+        * Use this function to remove a child from this component.
+        * It uses the {JQuery} detach function to achieve this functionality.
+        * @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
+        * @returns {IComponent} The {IComponent} we have removed
+        */
+        removeChild(child: IComponent): IComponent;
+        /**
         * This removes a node from the treeview
         * @param {TreeNode} node The node to remove
         * @returns {TreeNode}
@@ -3948,6 +3926,10 @@ declare module Animate {
         resource: T;
         private _dropProxy;
         constructor(resource: T, text: string, img: string, hasExpand: boolean);
+        /**
+        * Called whenever the resource is re-downloaded
+        */
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher): void;
         /**
         * Called whenever the resource is modified
         */
@@ -4054,13 +4036,13 @@ declare module Animate {
     class TreeNodeGroup extends TreeNodeResource<GroupArray> {
         constructor(group: GroupArray);
         /**
-        * This is called when we update the group with new data from the server.
+        * Called whenever the resource is re-downloaded
         */
-        updateGroup(): void;
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher): void;
         /**
         * Called when a draggable object is dropped onto the canvas.
         */
-        onDropped(event: any, ui: any): void;
+        protected onDropped(event: any, ui: any): void;
     }
 }
 declare module Animate {
@@ -4098,7 +4080,12 @@ declare module Animate {
     */
     class CanvasTabPair extends TabPair {
         private _canvas;
+        forceClose: boolean;
         constructor(canvas: Canvas, name: string);
+        /**
+        * Called whenever the container is refreshed
+        */
+        onRefreshed(type: string, event: Event, sender: Container): void;
         /**
         * Whenever the container deleted
         */
@@ -5546,6 +5533,7 @@ declare module Animate {
         private _projectElm;
         private _resourceId;
         private _type;
+        private _fromOk;
         constructor();
         hide(): void;
         /**
@@ -5560,10 +5548,9 @@ declare module Animate {
         /**
         * Attempts to rename an object
         * @param {IRenamable} object
-        * @param {string} curName
         * @extends {RenameForm}
         */
-        renameObject(object: IRenamable, curName: string, id: string, type: ResourceType): Promise<IRenameToken>;
+        renameObject(object: IRenamable, id: string, type: ResourceType): Promise<IRenameToken>;
         /**
         * @type public mfunc OnButtonClick
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
