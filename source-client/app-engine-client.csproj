@@ -100,6 +100,12 @@
     <TypeScriptCompile Include="lib\core\loaders\BinaryLoader.ts" />
     <TypeScriptCompile Include="lib\core\PageLoader.ts" />
     <TypeScriptCompile Include="lib\core\ProjectResource.ts" />
+    <TypeScriptCompile Include="lib\core\properties\EditableSet.ts" />
+    <TypeScriptCompile Include="lib\core\properties\Prop.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropFileResource.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropEnum.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropResource.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropNum.ts" />
     <TypeScriptCompile Include="lib\core\PropertyGridEditor.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IComponent.d.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IDockItem.d.ts" />

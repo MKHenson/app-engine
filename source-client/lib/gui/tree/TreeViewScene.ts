@@ -232,6 +232,9 @@ module Animate
 
                             promise.then(function(token)
                             {
+                                if (token.cancelled)
+                                    return;
+
                                 node.loading = false;
                                 node.text = token.newName;
 

@@ -1726,7 +1726,7 @@ module Animate
 						for ( var i = 0; i < len; i++ )
 						{
 							var eSet: EditableSet = this._assets[i].properties;
-							var variables: Array<PropertyGridVariable> = eSet.variables;
+							var variables: Array<Prop> = eSet.variables;
 							for ( var ii: number = 0, len2 = variables.length; ii < len2; ii++ )
 								pManager.assetEdited( this._assets[i], variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
 						}

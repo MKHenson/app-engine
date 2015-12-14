@@ -1,37 +1,26 @@
 module Animate
 {
-	export class PropertyGridEvents extends ENUM
-	{
-		constructor(v: string) { super(v); }
+	//export class PropertyGridEvents extends ENUM
+	//{
+	//	constructor(v: string) { super(v); }
 
-		static PROPERTY_EDITED: PropertyGridEvents = new PropertyGridEvents("property_grid_edited");
-	}
+	//	static PROPERTY_EDITED: PropertyGridEvents = new PropertyGridEvents("property_grid_edited");
+	//}
 
 	/**
 	* A specialised event class for the property grid
 	*/
 	export class PropertyGridEvent extends Event
 	{
-		public propertyName: string;
-		public id: any;
-		public propertyValue: any;
-		public propertyType: ParameterType;
+		public prop: Prop<any>;
+        public id: any;
 
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: string, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: boolean, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: { min?: number; max?: number; interval?: number; selected?: number; }, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: { className?: string; selected?: string; }, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: { choices: Array<string>; selected: string; }, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: { extensions?: Array<string>; path?: string; id?: string; selectedExtension?: string; }, type: ParameterType )
-		constructor( eventName: PropertyGridEvents, propName: string, id: any, value: any, type: ParameterType )
-		constructor( eventName : PropertyGridEvents, propName : string, id: any, value : any, type : ParameterType)
+		constructor( eventName: string, id: any, prop: any)
 		{
 			super( eventName );
 
-			this.propertyName = propName;
+            this.prop = prop;
 			this.id = id;
-			this.propertyValue = value;
-			this.propertyType = type;
 		}
 	}
 
@@ -55,150 +44,7 @@ module Animate
 		}
 	}
 
-	export class EditableSetToken
-	{
-		public name: string = "";
-		public category: string = "";
-		public value: any = null;
-		public type: string = "";
-		public options: any = null;
-	}
-
-	/**
-	* Defines a property grid variable
-	*/
-	export class PropertyGridVariable
-	{
-		public name: string;
-		public type: ParameterType;
-		public value: any;
-		public category: string;
-		public options: any;
-		
-		/**
-		* Creates a {PropertyGridSet} 
-		*/
-		constructor( name: string, value: string, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: boolean, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: { min?: number; max?: number; interval?: number; selected?: number; }, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: { className?: string; selected?: string; }, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: { choices: Array<string>; selected: string; }, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: { extensions?: Array<string>; path?: string; id?: string; selectedExtension?: string; }, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: any, type: ParameterType, category: string, options?: any )
-		constructor( name: string, value: any, type: ParameterType, category: string, options?: any )
-		{
-			this.name = name;
-			this.value = value;
-			this.type = type;
-			this.category = category;
-			this.options = options;
-		}
-
-		/** Cleans up the class */
-		dispose()
-		{
-			this.name = null;
-			this.value = null;
-			this.type = null;
-			this.category = null;
-			this.options = null;
-		}
-	}
-
-	/**
-	* Defines a set of variables to use in the property grid
-	*/
-	export class EditableSet
-	{
-		private _variables: Array<PropertyGridVariable>;
-
-		/**
-		* Creates a {PropertyGridSet} 
-		*/
-		constructor()
-		{
-			this._variables = [];
-		}
-		
-		/** Adds a variable to the set */
-		addVar( name: string, value: string, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: boolean, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: { min?: number; max?: number; interval?: number; selected?: number; }, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: { className?: string; selected?: string; }, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: { choices: Array<string>; selected: string; }, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: { extensions?: Array<string>; path?: string; id?: string; selectedExtension?: string; }, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: any, type: ParameterType, category: string, options: any ): void
-		addVar( name: string, value: any, type: ParameterType, category: string, options: any ): void
-		{
-			this._variables.push( new PropertyGridVariable( name, value, type, category, options ) );
-		}
-
-		/** Gets a variable by name */
-		getVar( name: string ): PropertyGridVariable
-		{
-			var items: Array<PropertyGridVariable> = this._variables;
-			var i: number = items.length;
-			while ( i-- )
-				if ( items[i].name == name )
-					return items[i];
-
-			return null;
-
-		}
-
-		/** Removes a variable */
-		removeVar( variable: PropertyGridVariable ): void
-		{
-			var items: Array<PropertyGridVariable> = this._variables;
-			var i: number = items.length;
-			while ( i-- )
-				if ( items[i] == variable )
-				{
-					items[i].dispose();
-					items.splice( i, 1 );
-				}
-
-			return null;
-
-		}
-
-		/**
-		* Updates a variable with a new value 
-		*  @returns The value
-		*/
-		updateValue(name: string, value: any) : any
-		{
-			var len = this._variables.length;
-			for (var i = 0; i < len; i++)
-				if (this._variables[i].name == name)
-                {
-					this._variables[i].value = value;
-					return value;
-				}
-
-			return null;
-		}
-
-		tokenize(): Array<EditableSetToken>
-		{
-			var toRet: Array<EditableSetToken> = new Array<EditableSetToken>();
-			var items: Array<PropertyGridVariable> = this._variables;
-			var len: number = items.length;
-			for ( var i = 0; i < len; i++ )
-			{
-				toRet[i] = new EditableSetToken();
-				toRet[i].name = items[i].name;
-				toRet[i].category = items[i].category;
-				toRet[i].value = items[i].value;
-				toRet[i].type = items[i].type.toString();
-				toRet[i].options = items[i].options;
-			}
-
-			return toRet;
-		}
-
-		get variables(): Array<PropertyGridVariable> { return this._variables; }
-	}
+	
 
 	
 
@@ -330,8 +176,6 @@ module Animate
 			if (object !== undefined && object != null )
 			{
 				this._idObject = id;
-				//this.headerPanel.caption( name );
-
 				this._header.html( ( img && img != "" ? "<img src='" + img + "' />" : "" ) + name );
 
 				//Remove all previous labels and HTML elements.
@@ -360,7 +204,7 @@ module Animate
 				//Set the editable
 				this._editableObject = object;
 
-				var variables:Array<PropertyGridVariable> = object.variables;
+				var variables:Array<Prop> = object.variables;
 				var len = variables.length;
 				for ( var i = 0; i < len; i++ )
 				{

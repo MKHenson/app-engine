@@ -71,7 +71,7 @@ module Animate
 
                 //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
                 var eSet: EditableSet = resource.properties;
-                var variables: Array<PropertyGridVariable> = eSet.variables;
+                var variables: Array<Prop> = eSet.variables;
                 for (var ii: number = 0, len = variables.length; ii < len; ii++)
                     this.assetEdited(resource, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
             }
@@ -88,7 +88,7 @@ module Animate
 		updateAssetValue( asset: Asset, propName: string, propValue : any, notifyEditor: boolean = false )
 		{
 			var pGrid: PropertyGrid = Animate.PropertyGrid.getSingleton();
-			var pVar : PropertyGridVariable = asset.properties.getVar( propName );
+			var pVar : Prop = asset.properties.getVar( propName );
 			var oldVal = pVar.value;
 
 			asset.properties.updateValue( propName, propValue );

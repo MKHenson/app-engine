@@ -74,6 +74,8 @@
     {
         $error: boolean;
         $autoClear: boolean;
+        $validate: boolean;
+        $value: string;
     }
 
     export interface NodeForm extends HTMLFormElement
@@ -687,6 +689,10 @@
                             {
                                 Compiler.parse(`${value} = elm.value`, controller, e, elem, null);
                                 Compiler.transform(`${value}`, elem, controller);
+
+                                if ((<NodeInput>elem).$validate)
+                                    Compiler.validateNode(<NodeInput>elem);
+
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
 
@@ -732,6 +738,10 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(value, controller, e, elem, null);
+                                
+                                if ((<NodeInput>elem).$validate)
+                                    Compiler.validateNode(<NodeInput>elem);
+
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             
@@ -774,40 +784,43 @@
                             Compiler.registerFunc(appNode, "submit", "en-submit", ev);
                             break;
                         case "en-validate":
+
+                            (<NodeInput>elem).$validate = true;
+                            (<NodeInput>elem).$value = value;
                             
                             // Set the parent form to be pristine
                             if ((<HTMLInputElement>elem).form)
                                 (<NodeForm>(<HTMLInputElement>elem).form).$pristine = true;
 
-                            var ev = function (e)
-                            {
-                                // IF it has a form - check other elements for errors
-                                var form: NodeForm = <NodeForm>(<HTMLInputElement>elem).form;
-                                if (form)
-                                {
-                                    form.$error = false;
-                                    form.$errorInput = "";
-                                }
+                            //var ev = function (e)
+                            //{
+                            //    // IF it has a form - check other elements for errors
+                            //    var form: NodeForm = <NodeForm>(<HTMLInputElement>elem).form;
+                            //    if (form)
+                            //    {
+                            //        form.$error = false;
+                            //        form.$errorInput = "";
+                            //    }
 
-                                Compiler.checkValidations(value, <HTMLInputElement>elem);
+                            //    Compiler.checkValidations(value, <HTMLInputElement>elem);
 
-                                // IF it has a form - check other elements for errors
-                                if (form)
-                                {
-                                    jQuery("[en-validate]", form).each(function (index, subElem)
-                                    {
-                                        if ((<NodeInput>subElem).$error)
-                                        {
-                                            form.$error = true;
-                                            form.$errorInput = (<HTMLInputElement | HTMLTextAreaElement>subElem).name;
-                                        }
-                                    });
-                                }
+                                //// IF it has a form - check other elements for errors
+                                //if (form)
+                                //{
+                                //    jQuery("[en-validate]", form).each(function (index, subElem)
+                                //    {
+                                //        if ((<NodeInput>subElem).$error)
+                                //        {
+                                //            form.$error = true;
+                                //            form.$errorInput = (<HTMLInputElement | HTMLTextAreaElement>subElem).name;
+                                //        }
+                                //    });
+                                //}
 
-                                Compiler.digest(jElem, controller, includeSubTemplates);
-                            };
+                                //Compiler.digest(jElem, controller, includeSubTemplates);
+                            //};
                             
-                            Compiler.registerFunc(appNode, "change", "en-validate", ev);
+                           // Compiler.registerFunc(appNode, "change", "en-validate", ev);
                             break;
                         case "en-auto-clear":
                             (<NodeForm | NodeInput>elem).$autoClear = true;
@@ -817,6 +830,19 @@
             });
 
             return elm;
+        }
+
+        static validateNode(elem: NodeInput)
+        {
+            // IF it has a form - check other elements for errors
+            var form: NodeForm = <NodeForm>elem.form;
+            if (form)
+            {
+                form.$error = false;
+                form.$errorInput = "";
+            }
+
+            Compiler.checkValidations(elem.$value, <HTMLInputElement>elem);
         }
 
         /**
@@ -849,6 +875,7 @@
                     (<NodeInput>elem).$error = true;
                     if (form)
                     {
+                        form.$error = true;
                         form.$errorExpression = expressions[i].name;
                         form.$errorInput = elem.name;
                     }

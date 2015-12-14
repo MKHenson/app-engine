@@ -464,6 +464,8 @@ var Animate;
                             var ev = function (e) {
                                 Compiler.parse(value + " = elm.value", controller, e, elem, null);
                                 Compiler.transform("" + value, elem, controller);
+                                if (elem.$validate)
+                                    Compiler.validateNode(elem);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             var val = Compiler.parse("" + value, controller, null, elem, null);
@@ -498,6 +500,8 @@ var Animate;
                         case "en-change":
                             var ev = function (e) {
                                 Compiler.parse(value, controller, e, elem, null);
+                                if (elem.$validate)
+                                    Compiler.validateNode(elem);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
                             Compiler.registerFunc(appNode, "change", "en-change", ev);
@@ -528,29 +532,36 @@ var Animate;
                             Compiler.registerFunc(appNode, "submit", "en-submit", ev);
                             break;
                         case "en-validate":
+                            elem.$validate = true;
+                            elem.$value = value;
                             // Set the parent form to be pristine
                             if (elem.form)
                                 elem.form.$pristine = true;
-                            var ev = function (e) {
-                                // IF it has a form - check other elements for errors
-                                var form = elem.form;
-                                if (form) {
-                                    form.$error = false;
-                                    form.$errorInput = "";
-                                }
-                                Compiler.checkValidations(value, elem);
-                                // IF it has a form - check other elements for errors
-                                if (form) {
-                                    jQuery("[en-validate]", form).each(function (index, subElem) {
-                                        if (subElem.$error) {
-                                            form.$error = true;
-                                            form.$errorInput = subElem.name;
-                                        }
-                                    });
-                                }
-                                Compiler.digest(jElem, controller, includeSubTemplates);
-                            };
-                            Compiler.registerFunc(appNode, "change", "en-validate", ev);
+                            //var ev = function (e)
+                            //{
+                            //    // IF it has a form - check other elements for errors
+                            //    var form: NodeForm = <NodeForm>(<HTMLInputElement>elem).form;
+                            //    if (form)
+                            //    {
+                            //        form.$error = false;
+                            //        form.$errorInput = "";
+                            //    }
+                            //    Compiler.checkValidations(value, <HTMLInputElement>elem);
+                            //// IF it has a form - check other elements for errors
+                            //if (form)
+                            //{
+                            //    jQuery("[en-validate]", form).each(function (index, subElem)
+                            //    {
+                            //        if ((<NodeInput>subElem).$error)
+                            //        {
+                            //            form.$error = true;
+                            //            form.$errorInput = (<HTMLInputElement | HTMLTextAreaElement>subElem).name;
+                            //        }
+                            //    });
+                            //}
+                            //Compiler.digest(jElem, controller, includeSubTemplates);
+                            //};
+                            // Compiler.registerFunc(appNode, "change", "en-validate", ev);
                             break;
                         case "en-auto-clear":
                             elem.$autoClear = true;
@@ -559,6 +570,15 @@ var Animate;
                 });
             });
             return elm;
+        };
+        Compiler.validateNode = function (elem) {
+            // IF it has a form - check other elements for errors
+            var form = elem.form;
+            if (form) {
+                form.$error = false;
+                form.$errorInput = "";
+            }
+            Compiler.checkValidations(elem.$value, elem);
         };
         /**
         * Checks each of the validation expressions on an input element. Used to set form and input states like form.$error
@@ -582,6 +602,7 @@ var Animate;
                 if (!matches) {
                     elem.$error = true;
                     if (form) {
+                        form.$error = true;
                         form.$errorExpression = expressions[i].name;
                         form.$errorInput = elem.name;
                     }
@@ -9474,8 +9495,6 @@ var Animate;
             if (html === void 0) { html = "<div class='behaviour reg-gradient'><div class='text'>" + text + "</div></div>"; }
             // Call super-class constructor
             _super.call(this, html, parent);
-            //var th = this.textfield.element.height();
-            //var tw = this.textfield.element.width();
             this._fontSize = 7;
             var tw = this._fontSize * text.length + 20;
             var th = this._fontSize + 20;
@@ -9563,12 +9582,12 @@ var Animate;
         Behaviour.prototype.css = function (propertyName, value) {
             //Call super
             var toRet = this.element.css(propertyName, value);
-            //var h = this.element.height();
-            //var th = this.textfield.element.height();
             this._requiresUpdated = true;
-            //this.textfield.element.css( "top", h / 2 - th / 2 );
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
+            // Keep the sizes big enough so they fit nicely in the grid (i.e. round off to 10)
+            tw = Math.ceil((tw) / 10) * 10;
+            th = Math.ceil((th) / 10) * 10;
             this.element.css({ width: tw + "px", height: th + "px", margin: "" });
             return toRet;
         };
@@ -9582,10 +9601,6 @@ var Animate;
             //First get the size of a portal.
             var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
             var portalSpacing = 5;
-            //this.element.css( { width: "1000px", height: "1000px" });
-            //this.textfield.element.css( { width: "auto", "float": "left" });
-            //var th: number = this.textfield.element.height();
-            //var tw: number = this.textfield.element.width();
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
             var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length);
@@ -9601,7 +9616,6 @@ var Animate;
             tw = Math.ceil((tw) / 10) * 10;
             th = Math.ceil((th) / 10) * 10;
             this.css({ width: tw + "px", height: th + "px" });
-            //this.textfield.element.css( { width: "100%", height: "auto", "float": "none" });
             var width = this.element.outerWidth();
             var height = this.element.outerHeight();
             //Position the portals
@@ -9633,9 +9647,6 @@ var Animate;
             * sets the label text
             */
             set: function (value) {
-                //Call super
-                //this._originalName = value;
-                //this.textfield.element.text(value);
                 jQuery(".text", this.element).text(value);
                 this._requiresUpdated = true;
                 if (value !== undefined)
@@ -11139,6 +11150,8 @@ var Animate;
             if (template) {
                 if (template.behaviourName == "Script") {
                     Animate.RenameForm.get.renameObject({ name: "Script" }, null, Animate.ResourceType.SCRIPT).then(function (data) {
+                        if (data.cancelled)
+                            return;
                         that.createNode(template, that.mX, that.mY, null, data.newName);
                     });
                 }
@@ -11259,6 +11272,8 @@ var Animate;
                     else if (focusObj instanceof Animate.Behaviour) {
                         // Attempt to rename the behaviour
                         Animate.RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token) {
+                            if (token.cancelled)
+                                return;
                             var toEdit = null;
                             if (focusObj instanceof Animate.BehaviourShortcut)
                                 toEdit = focusObj.originalNode;
@@ -12481,6 +12496,8 @@ var Animate;
                         if (promise) {
                             node.loading = true;
                             promise.then(function (token) {
+                                if (token.cancelled)
+                                    return;
                                 node.loading = false;
                                 node.text = token.newName;
                                 if (node instanceof Animate.TreeNodeAssetInstance)
@@ -14755,9 +14772,9 @@ var Animate;
         __extends(PropertyGridGroup, _super);
         function PropertyGridGroup(name) {
             // Call super-class constructor
-            _super.call(this, "<div class='property-grid-group curve-small'></div>", null);
+            _super.call(this, "<div class='property-grid-group background-view-light'></div>", null);
             this.name = name;
-            this.element.append("<div class='property-grid-group-header'>" + name + "</div>");
+            this.element.append("<div class='property-grid-group-header tooltip-text-bg'>" + name + "</div>");
             this.content = jQuery("<div class='content'></div>");
             this.element.append(this.content);
         }
@@ -15540,8 +15557,8 @@ var Animate;
     /**
     * Defines a property grid variable
     */
-    var PropertyGridVariable = (function () {
-        function PropertyGridVariable(name, value, type, category, options) {
+    var Prop = (function () {
+        function Prop(name, value, type, category, options) {
             this.name = name;
             this.value = value;
             this.type = type;
@@ -15549,16 +15566,16 @@ var Animate;
             this.options = options;
         }
         /** Cleans up the class */
-        PropertyGridVariable.prototype.dispose = function () {
+        Prop.prototype.dispose = function () {
             this.name = null;
             this.value = null;
             this.type = null;
             this.category = null;
             this.options = null;
         };
-        return PropertyGridVariable;
+        return Prop;
     })();
-    Animate.PropertyGridVariable = PropertyGridVariable;
+    Animate.Prop = Prop;
     /**
     * Defines a set of variables to use in the property grid
     */
@@ -15570,7 +15587,7 @@ var Animate;
             this._variables = [];
         }
         EditableSet.prototype.addVar = function (name, value, type, category, options) {
-            this._variables.push(new PropertyGridVariable(name, value, type, category, options));
+            this._variables.push(new Prop(name, value, type, category, options));
         };
         /** Gets a variable by name */
         EditableSet.prototype.getVar = function (name) {
@@ -15721,7 +15738,6 @@ var Animate;
                 return;
             if (object !== undefined && object != null) {
                 this._idObject = id;
-                //this.headerPanel.caption( name );
                 this._header.html((img && img != "" ? "<img src='" + img + "' />" : "") + name);
                 //Remove all previous labels and HTML elements.
                 var ie = this._editorElements.length;
@@ -18030,9 +18046,9 @@ var Animate;
             return new Promise(function (resolve, reject) {
                 var onEvent = function (type, event) {
                     if (type == "renamed")
-                        resolve({ newName: event.name, oldName: event.oldName, object: event.object });
+                        resolve({ newName: event.name, oldName: event.oldName, object: event.object, cancelled: false });
                     else
-                        resolve({ newName: object.name, oldName: object.name, object: event.object });
+                        resolve({ newName: object.name, oldName: object.name, object: event.object, cancelled: true });
                     that.off("renamed", onEvent);
                     that.off("cancelled", onEvent);
                 };
@@ -18516,6 +18532,8 @@ var Animate;
             var that = this;
             // Todo: This must be NewBehaviourForm
             Animate.RenameForm.get.renameObject({ name: "" }, null, Animate.ResourceType.CONTAINER).then(function (token) {
+                if (token.cancelled)
+                    return;
                 Animate.User.get.project.createResource(Animate.ResourceType.CONTAINER, { name: token.newName }).then(function (resource) {
                     // The container is created - so lets open it up
                     var tabPair = Animate.CanvasTab.getSingleton().addSpecialTab(resource.entry.name, Animate.CanvasTabType.CANVAS, resource);

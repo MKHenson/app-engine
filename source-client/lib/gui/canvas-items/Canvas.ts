@@ -773,6 +773,9 @@ module Animate
                 {
                     RenameForm.get.renameObject({ name: "Script" }, null, ResourceType.SCRIPT).then(function (data)
                     {
+                        if (data.cancelled)
+                            return;
+                        
                         that.createNode(template, that.mX, that.mY, null, data.newName);
                     });
                 }
@@ -935,6 +938,9 @@ module Animate
                         // Attempt to rename the behaviour
                         RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token)
                         {
+                            if (token.cancelled)
+                                return;
+                            
                             var toEdit: Behaviour = null;
                             if (focusObj instanceof BehaviourShortcut)
                                 toEdit = focusObj.originalNode;

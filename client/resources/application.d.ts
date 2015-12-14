@@ -4756,7 +4756,7 @@ declare module Animate {
     /**
     * Defines a property grid variable
     */
-    class GridVariable {
+    class Prop {
         name: string;
         type: ParameterType;
         value: any;
@@ -4825,16 +4825,16 @@ declare module Animate {
         }, type: ParameterType, category: string, options: any): void;
         addVar(name: string, value: any, type: ParameterType, category: string, options: any): void;
         /** Gets a variable by name */
-        getVar(name: string): GridVariable;
+        getVar(name: string): Prop;
         /** Removes a variable */
-        removeVar(variable: GridVariable): void;
+        removeVar(variable: Prop): void;
         /**
         * Updates a variable with a new value
         *  @returns The value
         */
         updateValue(name: string, value: any): any;
         tokenize(): Array<EditableSetToken>;
-        variables: Array<GridVariable>;
+        variables: Array<Prop>;
     }
     /**
     * A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.

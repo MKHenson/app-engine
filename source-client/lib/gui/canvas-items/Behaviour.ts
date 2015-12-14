@@ -19,9 +19,6 @@ module Animate
 		{
             // Call super-class constructor
             super(html, parent);
-
-			//var th = this.textfield.element.height();
-            //var tw = this.textfield.element.width();
             this._fontSize = 7;
             var tw = this._fontSize * text.length + 20;
             var th = this._fontSize + 20;
@@ -132,17 +129,15 @@ module Animate
 		{
 			//Call super
 			var toRet = this.element.css( propertyName, value );
-
-			//var h = this.element.height();
-			//var th = this.textfield.element.height();
-			this._requiresUpdated = true;
-
-			//this.textfield.element.css( "top", h / 2 - th / 2 );
-            
+			this._requiresUpdated = true;            
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
-            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
 
+            // Keep the sizes big enough so they fit nicely in the grid (i.e. round off to 10)
+            tw = Math.ceil((tw) / 10) * 10;
+            th = Math.ceil((th) / 10) * 10;
+
+            this.element.css({ width: tw + "px", height: th + "px", margin: "" });
 			return toRet;
 		}
 
@@ -159,12 +154,6 @@ module Animate
             //First get the size of a portal.
             var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
 			var portalSpacing = 5;
-
-			//this.element.css( { width: "1000px", height: "1000px" });
-			//this.textfield.element.css( { width: "auto", "float": "left" });
-			//var th: number = this.textfield.element.height();
-			//var tw: number = this.textfield.element.width();
-            
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
             
@@ -182,8 +171,7 @@ module Animate
 			//Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
 			tw = Math.ceil( ( tw ) / 10 ) * 10;
 			th = Math.ceil( ( th ) / 10 ) * 10;
-			this.css( { width: tw + "px", height: th + "px" });
-			//this.textfield.element.css( { width: "100%", height: "auto", "float": "none" });
+            this.css({ width: tw + "px", height: th + "px" });
 
             var width = this.element.outerWidth();
             var height = this.element.outerHeight();
@@ -221,16 +209,11 @@ module Animate
 		*/
 		set text( value : string ) 
 		{
-			//Call super
-			//this._originalName = value;
-            //this.textfield.element.text(value);
             jQuery(".text", this.element).text(value);
 			this._requiresUpdated = true;
 
 			if ( value !== undefined )
-				this.updateDimensions();
-
-			
+				this.updateDimensions();	
         }
         
         /**

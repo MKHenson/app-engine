@@ -1,6 +1,6 @@
 module Animate
 {
-    export interface IRenameToken { newName: string; oldName: string; object: IRenamable; };
+    export interface IRenameToken { newName: string; oldName: string; object: IRenamable; cancelled: boolean; };
     export interface IRenamable { name?: string; };
 
     /**
@@ -108,9 +108,9 @@ module Animate
                 var onEvent = function (type, event: RenameFormEvent)
                 {
                     if (type == "renamed")
-                        resolve(<IRenameToken>{ newName: event.name, oldName: event.oldName, object: event.object });
+                        resolve(<IRenameToken>{ newName: event.name, oldName: event.oldName, object: event.object, cancelled: false });
                     else
-                        resolve(<IRenameToken>{ newName: object.name, oldName: object.name, object: event.object });
+                        resolve(<IRenameToken>{ newName: object.name, oldName: object.name, object: event.object, cancelled: true });
 
                     that.off("renamed", onEvent);
                     that.off("cancelled", onEvent);
