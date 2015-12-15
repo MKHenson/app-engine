@@ -23,10 +23,10 @@ module Animate
 			this.element.addClass( "behaviour-to-canvas" );
 			this.element.addClass( "tree-node-asset" );
 
-            if (this.resource.properties == null || this.resource.properties.variables.length == 0 )
-                this.resource.properties = assetClass.buildVariables();
+            //if (this.resource.properties == null || this.resource.properties.variables.length == 0 )
+            //    this.resource.properties = assetClass.buildVariables();
 	
-			PropertyGrid.getSingleton().on( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+            asset.on("edited", this.onAssetEdited, this );
 		}
 
 		/**
@@ -40,26 +40,22 @@ module Animate
 
 		/**
 		* When we click ok on the portal form
-		* @param <object> response 
-		* @param <object> data 
+		* @param {string} type
+		* @param {PropertyGridEvent} data 
 		*/
-		onPropertyGridEdited( response : PropertyGridEvents, data : PropertyGridEvent, sender? : EventDispatcher )
+		onAssetEdited( type: string, data : PropertyGridEvent, sender? : EventDispatcher )
 		{
-			if ( data.id == this )
-			{
-                this.resource.saved = false;
-                var oldValue = this.resource.properties.getVar( data.propertyName ).value;
-                this.resource.properties.updateValue( data.propertyName, data.propertyValue );
-                PluginManager.getSingleton().assetEdited(this.resource, data.propertyName, data.propertyValue, oldValue, data.propertyType );
-			}
+            this.resource.saved = false;
+            //var oldValue = this.resource.properties.getVar( data.propertyName ).value;
+            //this.resource.properties.updateValue( data.propertyName, data.propertyValue );
 		}
 		
 		/**
 		* This will cleanup the component.
 		*/
 		dispose()
-		{
-			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+        {
+            this.resource.off("edited", this.onAssetEdited, this);
 			this.assetClass = null;
 
 			//Call super

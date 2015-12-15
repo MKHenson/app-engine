@@ -28,8 +28,8 @@ module Animate
 			//this._name = name;
 			//this.json = null;
             this.canvas = null;
-			this._properties.addVar( "Start On Load", true, ParameterType.BOOL, "Container Properties", null );
-			this._properties.addVar( "Unload On Exit", true, ParameterType.BOOL, "Container Properties", null );
+            this._properties.addVar(new PropBool("Start On Load", true, "Container Properties"));
+            this._properties.addVar(new PropBool("Unload On Exit", true, "Container Properties"));
 		}
 
 		/**

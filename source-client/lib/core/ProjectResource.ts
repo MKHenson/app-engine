@@ -55,6 +55,7 @@
         dispose()
         {
             super.dispose();
+            this._properties.addVar
             this._properties = null;
             this._options = null;
         }

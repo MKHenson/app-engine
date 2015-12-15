@@ -13,7 +13,7 @@ module Animate
 			// Call super-class constructor
             super(container, container.entry.name, "media/variable.png", false );
 			this.element.addClass( "behaviour-to-canvas" );
-            PropertyGrid.getSingleton().on(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
+            container.on("edited", this.onPropertyGridEdited, this);
         }
 
 		/**
@@ -27,13 +27,10 @@ module Animate
 		/**
 		* Whenever a container property is changed by the editor
 		*/
-		onPropertyGridEdited( response: PropertyGridEvents, event : PropertyGridEvent, sender? : EventDispatcher )
+		onPropertyGridEdited( type: string, event : PropertyGridEvent, sender? : EventDispatcher )
 		{
-            if (event.id == this.resource)
-			{
-                this.resource.saved = false;
-                this.resource.properties.updateValue(event.propertyName, event.propertyValue);
-			}
+            this.resource.saved = false;
+            //this.resource.properties.updateValue(event.propertyName, event.prop.getVal());
         }
         
 		/**
@@ -41,7 +38,7 @@ module Animate
         */
 		dispose()
         {
-			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+            this.resource.off("edited", this.onPropertyGridEdited, this);
 
 			//Call super
 			super.dispose();

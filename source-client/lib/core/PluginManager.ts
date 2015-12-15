@@ -15,7 +15,7 @@ module Animate
 		private _dataTypes: Array<string>;
         private scriptTemplate: BehaviourDefinition;
         private _previewVisualizers: Array<IPreviewFactory>;
-        private _resourceCreated: any;
+        //private _resourceCreated: any;
 
 		constructor()
 		{
@@ -33,7 +33,8 @@ module Animate
 			this._assetTemplates = new Array<AssetTemplate>();
 			this._converters = new Array<TypeConverter>();
             this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
-            this._resourceCreated = this.onResourceCreated.bind(this);
+            //this._resourceCreated = this.onResourceCreated.bind(this);
+
 			//Create some standard templates	
 			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", false, false, false, false,
 				[
@@ -60,48 +61,48 @@ module Animate
             this._previewVisualizers = [new ImageVisualizer()];
         }
 
-        onResourceCreated(type: string, event: ProjectEvent)
-        {
-            var resource = event.resouce;
-
-            if (resource instanceof Asset)
-            {
+        //onResourceCreated(type: string, event: ProjectEvent)
+        //{
+         //   var resource = event.resouce;
+              //this.emit(new ResourceCreated(asset));
+           // if (resource instanceof Asset)
+           // {
                 //Notify the creation of an asset
-                this.assetCreated(resource.entry.name, resource);
+                //this.assetCreated(resource.entry.name, resource);
 
                 //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
-                var eSet: EditableSet = resource.properties;
-                var variables: Array<Prop> = eSet.variables;
-                for (var ii: number = 0, len = variables.length; ii < len; ii++)
-                    this.assetEdited(resource, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
-            }
-        }
+               // var eSet: EditableSet = resource.properties;
+                //var variables: Array<Prop<any>> = eSet.variables;
+                //for (var ii: number = 0, len = variables.length; ii < len; ii++)
+                //    this.assetEdited(resource, variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type);
+            //}
+        //}
 
-		/**
-		* Updates an assets value as well as any components displaying the asset.
-		* For example the property grid or scene view.
-		* @param {Asset} asset The asset we are editing
-		* @param {string} propName The name of the asset's property
-		* @param {any} propValue The new value
-		* @param {boolean} notifyEditor If true, the manager will send out a notify event of the new value
-		*/
-		updateAssetValue( asset: Asset, propName: string, propValue : any, notifyEditor: boolean = false )
-		{
-			var pGrid: PropertyGrid = Animate.PropertyGrid.getSingleton();
-			var pVar : Prop = asset.properties.getVar( propName );
-			var oldVal = pVar.value;
+		///**
+		//* Updates an assets value as well as any components displaying the asset.
+		//* For example the property grid or scene view.
+		//* @param {Asset} asset The asset we are editing
+		//* @param {string} propName The name of the asset's property
+		//* @param {any} propValue The new value
+		//* @param {boolean} notifyEditor If true, the manager will send out a notify event of the new value
+		//*/
+		//updateAssetValue( asset: Asset, propName: string, propValue : any, notifyEditor: boolean = false )
+		//{
+		//	var pGrid: PropertyGrid = Animate.PropertyGrid.getSingleton();
+		//	var pVar : Prop = asset.properties.getVar( propName );
+		//	var oldVal = pVar.value;
 
-			asset.properties.updateValue( propName, propValue );
+		//	asset.properties.updateValue( propName, propValue );
 
-            if (pGrid.idObject == asset || (pGrid.idObject && (<TreeNodeAssetInstance>pGrid.idObject).resource == asset ) )
-				pGrid.updateProperty( propName, propValue );
+  //          if (pGrid.idObject == asset || (pGrid.idObject && (<TreeNodeAssetInstance>pGrid.idObject).resource == asset ) )
+		//		pGrid.updateProperty( propName, propValue );
 
-			//var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>TreeViewScene.getSingleton().findNode( "asset", asset );
-			//node.save( false );
+		//	//var node: TreeNodeAssetInstance = <TreeNodeAssetInstance>TreeViewScene.getSingleton().findNode( "asset", asset );
+		//	//node.save( false );
 
-			if (notifyEditor)
-				this.assetEdited( asset, propName, propValue, oldVal, pVar.type )
-		}
+		//	if (notifyEditor)
+		//		this.assetEdited( asset, propName, propValue, oldVal, pVar.type )
+		//}
 
         /**
 		* Attempts to download a plugin by its URL and insert it onto the page. 
@@ -285,44 +286,44 @@ module Animate
 			return null
 		}
 
-		/**
-		* This is called when the scene is built. The object passed to this function represents
-		* the scene as an object.
-		* @param {Asset} asset The asset that was edited
-		* @param {string} propertyNam The name of the property that was edited
-		* @param {any} newValue The new value of the property
-		* @param {any} oldValue The old value of the property
-		* @param {ParameterType} propertyType The type of property
-		*/
-		assetEdited( asset: Asset, propertyNam: string, newValue: any, oldValue: any, propertyType: ParameterType )
-		{
-			var project: Project = User.get.project;
+		///**
+		//* This is called when the scene is built. The object passed to this function represents
+		//* the scene as an object.
+		//* @param {Asset} asset The asset that was edited
+		//* @param {string} propertyNam The name of the property that was edited
+		//* @param {any} newValue The new value of the property
+		//* @param {any} oldValue The old value of the property
+		//* @param {ParameterType} propertyType The type of property
+		//*/
+		//assetEdited( asset: Asset, propertyNam: string, newValue: any, oldValue: any, propertyType: ParameterType )
+		//{
+		//	var project: Project = User.get.project;
 
-			if ( propertyType == ParameterType.NUMBER )
-				newValue = newValue.selected;
-            else if (propertyType == ParameterType.ASSET)
-                newValue = project.getResourceByShallowID<Asset>(ImportExport.getExportValue(ParameterType.ASSET, newValue), ResourceType.ASSET);
-			else if ( propertyType == ParameterType.FILE )
-				newValue = newValue.path || null;
-			else if ( propertyType == ParameterType.ENUM )
-				newValue = newValue.selected;
-			else if ( propertyType == ParameterType.ASSET_LIST )
-			{
-				var assets: Array<Asset> = [];
-				if ( newValue && newValue.selectedAssets )
-					for ( var i = 0, l = newValue.selectedAssets.length; i < l; i++ )
-                    {
-                        var a: Asset = project.getResourceByShallowID<Asset>(newValue.selectedAssets[i], ResourceType.ASSET);
-						if ( a )
-							assets.push( a );
-					}
+		//	if ( propertyType == ParameterType.NUMBER )
+		//		newValue = newValue.selected;
+  //          else if (propertyType == ParameterType.ASSET)
+  //              newValue = project.getResourceByShallowID<Asset>(ImportExport.getExportValue(ParameterType.ASSET, newValue), ResourceType.ASSET);
+		//	else if ( propertyType == ParameterType.FILE )
+		//		newValue = newValue.path || null;
+		//	else if ( propertyType == ParameterType.ENUM )
+		//		newValue = newValue.selected;
+		//	else if ( propertyType == ParameterType.ASSET_LIST )
+		//	{
+		//		var assets: Array<Asset> = [];
+		//		if ( newValue && newValue.selectedAssets )
+		//			for ( var i = 0, l = newValue.selectedAssets.length; i < l; i++ )
+  //                  {
+  //                      var a: Asset = project.getResourceByShallowID<Asset>(newValue.selectedAssets[i], ResourceType.ASSET);
+		//				if ( a )
+		//					assets.push( a );
+		//			}
 
-				newValue = assets;
-			}
+		//		newValue = assets;
+		//	}
 
-			// Send event
-			this.emit( new AssetEditedEvent( EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType ) );
-		}
+		//	// Send event
+		//	this.emit( new AssetEditedEvent( EditorEvents.ASSET_EDITED, asset, propertyNam, newValue, oldValue, propertyType ) );
+		//}
 
 		///**
 		//* Gets an asset by its ID
@@ -348,65 +349,65 @@ module Animate
 		//	return toRet;
 		//}
 
-		/**
-		* Gets an asset class by its name
-		* @param {string} name The name of the asset class
-		* @param {AssetClass}
-		*/
-		getAssetClass( name: string ) : AssetClass
-		{
-			// Assign any of the options / missing variables for classes that are updated in code but not in the DB
-			var assetTemplates: Array<AssetTemplate> = this._assetTemplates;
-			var classFound: boolean = false;
-			for ( var i = 0, l = assetTemplates.length; i < l; i++ )
-			{
-				var assetClass: AssetClass = assetTemplates[i].findClass( name );
-				if ( assetClass )
-					return assetClass;
-			}
+		///**
+		//* Gets an asset class by its name
+		//* @param {string} name The name of the asset class
+		//* @param {AssetClass}
+		//*/
+		//getAssetClass( name: string ) : AssetClass
+		//{
+		//	// Assign any of the options / missing variables for classes that are updated in code but not in the DB
+		//	var assetTemplates: Array<AssetTemplate> = this._assetTemplates;
+		//	var classFound: boolean = false;
+		//	for ( var i = 0, l = assetTemplates.length; i < l; i++ )
+		//	{
+		//		var assetClass: AssetClass = assetTemplates[i].findClass( name );
+		//		if ( assetClass )
+		//			return assetClass;
+		//	}
 
-			return null;
-		}
+		//	return null;
+		//}
 
 		/**
 		* When an asset is created this function will notify all plugins of its existance
 		* @param {string} name The name of the asset
 		* @param {Asset} asset The asset itself
 		*/
-		assetCreated( name : string, asset : Asset )
-		{
-			var template: AssetTemplate = null;
+		//assetCreated( name : string, asset : Asset )
+		//{
+			//var template: AssetTemplate = null;
 
-			// Assign any of the options / missing variables for classes that are updated in code but not in the DB
-            var aClass: AssetClass = this.getAssetClass(asset.entry.className  );
+			//// Assign any of the options / missing variables for classes that are updated in code but not in the DB
+   //         var aClass: AssetClass = this.getAssetClass(asset.entry.className);
 
-			// Get all the variables for this class
-			var topClass = aClass;
-			var variables: Array<VariableTemplate> = new Array<VariableTemplate>();
-			while ( topClass != null )
-			{
-				//Add all the variables to the object we are returning
-				for ( var i = 0; i < topClass.variables.length; i++ )
-					variables.push( topClass.variables[i] );
+			//// Get all the variables for this class
+   //         var topClass = aClass;
+   //         var variables: Array<Prop<any>> = [];
+			//while ( topClass != null )
+			//{
+			//	//Add all the variables to the object we are returning
+			//	for ( var i = 0; i < topClass.variables.length; i++ )
+			//		variables.push( topClass.variables[i] );
 
-				topClass = topClass.parentClass;
-			}
+			//	topClass = topClass.parentClass;
+			//}
 
-			// Go through all the variables and make sure that the asset has the variable (THey can get lost as new ones are added over time)
-			// Also re-assign the options as they 
+			//// Go through all the variables and make sure that the asset has the variable (They can get lost as new ones are added over time)
+			//// Also re-assign the options as they 
 			
-			for ( var vi = 0, vl = variables.length; vi < vl; vi++ )
-			{
-				var variable: VariableTemplate = variables[vi];
+			//for ( var vi = 0, vl = variables.length; vi < vl; vi++ )
+			//{
+			//	var variable: VariableTemplate = variables[vi];
 
-				if ( !asset.properties.getVar( variable.name ) )
-					asset.properties.addVar( variable.name, variable.value, ParameterType.fromString( variable.type.toString() ), variable.category, variable.options );
-				else
-					asset.properties.getVar( variable.name ).options = variable.options;
-			}
+			//	if ( !asset.properties.getVar( variable.name ) )
+			//		asset.properties.addVar( variable.name, variable.value, ParameterType.fromString( variable.type.toString() ), variable.category, variable.options );
+			//	else
+			//		asset.properties.getVar( variable.name ).options = variable.options;
+			//}
 
-			this.emit( new AssetCreatedEvent( asset, name ) );
-		}
+			//this.emit( new AssetCreatedEvent( asset, name ) );
+		//}
 
         /**
 		* Called when the project is reset by either creating a new one or opening an older one.
@@ -420,7 +421,7 @@ module Animate
             this._plugins.splice(0, this._plugins.length);
             this._loadedPlugins.splice(0, this._loadedPlugins.length);
 
-           project.off("resource-created", this._resourceCreated);
+           //project.off("resource-created", this._resourceCreated);
         }
 
 		/**
@@ -430,7 +431,7 @@ module Animate
 		{
             this.emit(new Event(EditorEvents.EDITOR_READY, null));
 
-            project.on("resource-created", this._resourceCreated);
+            //project.on("resource-created", this._resourceCreated);
 
             // TODO: Determine what to do with user plans
             if (User.get.meta.plan == UserPlan.Free)

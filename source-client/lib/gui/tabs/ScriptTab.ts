@@ -205,14 +205,13 @@ module Animate
 
 			this.onSelected();
 		}
-
-
+        
 		/**
 		* When the server responds after a save.
 		* @param <object> event 
 		* @param <object> data 
 		*/
-		onServer( response: ProjectEvents, event: ProjectEvent )
+        onServer(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>> )
 		{
 			if ( response == ProjectEvents.FAILED )
 			{

@@ -38,13 +38,13 @@ module Animate
         private _saveBuild: Button;
         //private _uploader: FileUploaderBasic;
 
-		private _renameProxy: any;
+		//private _renameProxy: any;
 		private _buildProxy: any;
 		//private _submitProxy: any;
 		//private _progressProxy: any;
 		//private _completeProxy: any;
 		//private _errorProxy: any;
-		private _clickProxy: any;
+		//private _clickProxy: any;
 		private _settingPages: Array<ISettingsPage>;
 
 		constructor()
@@ -370,196 +370,196 @@ module Animate
 			tabPage.page.addChild( component );
 		}
 
-		/**
-		* When we click one of the buttons
-		* @param {any} e 
-		* @returns {any} 
-		*/
-		onClick( e )
-		{
-			var target : Component = jQuery( e.currentTarget ).data( "component" );
+		///**
+		//* When we click one of the buttons
+		//* @param {any} e 
+		//* @returns {any} 
+		//*/
+		//onClick( e )
+		//{
+		//	var target : Component = jQuery( e.currentTarget ).data( "component" );
 
-			if ( target == null)//this._saveProject )
-			{
-				//Check if the values are valid
-				//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				//this._warning.textfield.element.css( "color", "" );
+		//	if ( target == null)//this._saveProject )
+		//	{
+		//		//Check if the values are valid
+		//		//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+		//		//this._warning.textfield.element.css( "color", "" );
 
-				////Check for special chars
-				////var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
-				//if ( message != null )
-				//{
-				//	//( <Label>this._name.val ).textfield.element.addClass( "red-border" );
-				//	this._warning.textfield.element.css( "color", "#FF0000" );
-				//	this._warning.text = message;
-				//	return;
-				//}
+		//		////Check for special chars
+		//		////var message: string = Utils.checkForSpecialChars( ( <Label>this._name.val).text );
+		//		//if ( message != null )
+		//		//{
+		//		//	//( <Label>this._name.val ).textfield.element.addClass( "red-border" );
+		//		//	this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//	this._warning.text = message;
+		//		//	return;
+		//		//}
 
-				////Check for special chars
-				//message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
-				//if ( message != null )
-				//{
-				//	( <Label>this._tags.val).textfield.element.addClass( "red-border" );
-				//	this._warning.textfield.element.css( "color", "#FF0000" );
-    //                this._warning.text = message;
-				//	return;
-				//}
+		//		////Check for special chars
+		//		//message = Utils.checkForSpecialChars( (<Label>this._tags.val).text, true );
+		//		//if ( message != null )
+		//		//{
+		//		//	( <Label>this._tags.val).textfield.element.addClass( "red-border" );
+		//		//	this._warning.textfield.element.css( "color", "#FF0000" );
+  //  //                this._warning.text = message;
+		//		//	return;
+		//		//}
 
-				//var name = ( <Label>this._name.val ).text;
-				//var description = ( <Label>this._description.val ).text;
-				//var tags = ( <Label>this._tags.val ).text;
-				//var user = User.get;
-				//var project : Project = User.get.project;
+		//		//var name = ( <Label>this._name.val ).text;
+		//		//var description = ( <Label>this._description.val ).text;
+		//		//var tags = ( <Label>this._tags.val ).text;
+		//		//var user = User.get;
+		//		//var project : Project = User.get.project;
 
-				//user.addEventListener( UserEvents.FAILED, this._renameProxy );
-				//user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
-                //user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
-			}
-			else if ( target == this._saveBuild )
-			{
-				//Check if the values are valid
-				//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				//this._warning.textfield.element.css( "color", "" );
+		//		//user.addEventListener( UserEvents.FAILED, this._renameProxy );
+		//		//user.addEventListener( UserEvents.PROJECT_RENAMED, this._renameProxy );
+  //              //user.renameProject(project.entry._id, name, description, tags.split(","), (<ComboBox>this._category.val).selectedItem, "", (<ComboBox>this._projVisibility.val).selectedItem );
+		//	}
+		//	else if ( target == this._saveBuild )
+		//	{
+		//		//Check if the values are valid
+		//		//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+		//		//this._warning.textfield.element.css( "color", "" );
 
-				//Check for special chars
-				var message : string = Utils.checkForSpecialChars( (<Label>this._notes.val).text, true );
-				if ( message != null )
-				{
-					(<Label>this._notes.val).textfield.element.addClass( "red-border" );
-					//this._warning.textfield.element.css( "color", "#FF0000" );
-					//this._warning.text = message;
-					return;
-				}
+		//		//Check for special chars
+		//		var message : string = Utils.checkForSpecialChars( (<Label>this._notes.val).text, true );
+		//		if ( message != null )
+		//		{
+		//			(<Label>this._notes.val).textfield.element.addClass( "red-border" );
+		//			//this._warning.textfield.element.css( "color", "#FF0000" );
+		//			//this._warning.text = message;
+		//			return;
+		//		}
 
-                var user: User = User.get;
-                var project: Project = User.get.project;
-				var build = project.curBuild;
+  //              var user: User = User.get;
+  //              var project: Project = User.get.project;
+		//		var build = project.curBuild;
 
-				project.on( ProjectEvents.FAILED, this._buildProxy, this );
-                project.on(ProjectEvents.BUILD_SAVED, this._buildProxy, this);
-                project.saveBuild((<Label>this._notes.val).text, (<ComboBox>this._visibility.val).selectedItem, build.entry.html, build.entry.css);
-			}
-			else if ( target == this._selectBuild )
-			{
-				////Check if the values are valid
-				////(<Label>this._name.val).textfield.element.removeClass( "red-border" );
-				//this._warning.textfield.element.css( "color", "" );
+		//		project.on( ProjectEvents.FAILED, this._buildProxy, this );
+  //              project.on(ProjectEvents.BUILD_SAVED, this._buildProxy, this);
+  //              project.saveBuild((<Label>this._notes.val).text, (<ComboBox>this._visibility.val).selectedItem, build.entry.html, build.entry.css);
+		//	}
+		//	else if ( target == this._selectBuild )
+		//	{
+		//		////Check if the values are valid
+		//		////(<Label>this._name.val).textfield.element.removeClass( "red-border" );
+		//		//this._warning.textfield.element.css( "color", "" );
 
-				////Check for special chars
-				//var number = parseInt( (<Label>this._buildVerMaj.val).text );
-				//if ( isNaN( number ) )
-				//{
-				//	( <Label>this._buildVerMaj.val).textfield.element.addClass( "red-border" );
-				//	this._warning.textfield.element.css( "color", "#FF0000" );
-				//	this._warning.text = "Please only use numbers";
-				//	return;
-				//}
+		//		////Check for special chars
+		//		//var number = parseInt( (<Label>this._buildVerMaj.val).text );
+		//		//if ( isNaN( number ) )
+		//		//{
+		//		//	( <Label>this._buildVerMaj.val).textfield.element.addClass( "red-border" );
+		//		//	this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//	this._warning.text = "Please only use numbers";
+		//		//	return;
+		//		//}
 
-				//number = parseInt( (<Label>this._buildVerMid.val).text );
-				//if ( isNaN( number ) )
-				//{
-				//	( <Label>this._buildVerMid.val).textfield.element.addClass( "red-border" );
-				//	this._warning.textfield.element.css( "color", "#FF0000" );
-				//	this._warning.text = "Please only use numbers";
-				//	return;
-				//}
+		//		//number = parseInt( (<Label>this._buildVerMid.val).text );
+		//		//if ( isNaN( number ) )
+		//		//{
+		//		//	( <Label>this._buildVerMid.val).textfield.element.addClass( "red-border" );
+		//		//	this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//	this._warning.text = "Please only use numbers";
+		//		//	return;
+		//		//}
 
-    //            number = parseInt((<Label>this._buildVerMin.val).text );
-				//if ( isNaN( number ) )
-				//{
-				//	( <Label>this._buildVerMin.val).textfield.element.addClass( "red-border" );
-				//	this._warning.textfield.element.css( "color", "#FF0000" );
-				//	this._warning.text = "Please only use numbers";
-				//	return;
-				//}
+  //  //            number = parseInt((<Label>this._buildVerMin.val).text );
+		//		//if ( isNaN( number ) )
+		//		//{
+		//		//	( <Label>this._buildVerMin.val).textfield.element.addClass( "red-border" );
+		//		//	this._warning.textfield.element.css( "color", "#FF0000" );
+		//		//	this._warning.text = "Please only use numbers";
+		//		//	return;
+		//		//}
 
 
-				var user : User = User.get;
-				var project : Project = User.get.project;
-				project.on( ProjectEvents.FAILED, this._buildProxy, this );
-				project.on( ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
-				project.selectBuild( (<Label>this._buildVerMaj.val).text, (<Label>this._buildVerMid.val).text, (<Label>this._buildVerMin.val).text );
-			}
+		//		var user : User = User.get;
+		//		var project : Project = User.get.project;
+		//		project.on( ProjectEvents.FAILED, this._buildProxy, this );
+		//		project.on( ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
+		//		project.selectBuild( (<Label>this._buildVerMaj.val).text, (<Label>this._buildVerMid.val).text, (<Label>this._buildVerMin.val).text );
+		//	}
 
-		}
+		//}
 
-		/**
-		* Catch the key down events.
-		* @param {any} e The jQuery event object
-		*/
-		onKeyDown( e )
-		{
-			//Do nothing	
-		}
+		///**
+		//* Catch the key down events.
+		//* @param {any} e The jQuery event object
+		//*/
+		//onKeyDown( e )
+		//{
+		//	//Do nothing	
+		//}
 
-		/**
-		* When we recieve the server call for build requests
-		* @param {ProjectEvents} event 
-		* @param {Event} data 
-		*/
-        onBuildResponse(response: ProjectEvents, event : ProjectEvent )
-		{
-			var user = User.get;
-			var project = User.get.project;
+		///**
+		//* When we recieve the server call for build requests
+		//* @param {ProjectEvents} event 
+		//* @param {Event} data 
+		//*/
+  //      onBuildResponse(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>>)
+		//{
+		//	var user = User.get;
+		//	var project = User.get.project;
 
-            project.off(ProjectEvents.FAILED, this._buildProxy, this );
-            project.off(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
-            project.off(ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
+  //          project.off(ProjectEvents.FAILED, this._buildProxy, this );
+  //          project.off(ProjectEvents.BUILD_SAVED, this._buildProxy, this );
+  //          project.off(ProjectEvents.BUILD_SELECTED, this._buildProxy, this );
 
-			//if (event.return_type == AnimateLoaderResponses.ERROR )
-			//{
-				//(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-				//this._warning.textfield.element.css( "color", "#FF0000" );
-    //            this._warning.text = event.message;
-			//	return;
-			//}
+		//	//if (event.return_type == AnimateLoaderResponses.ERROR )
+		//	//{
+		//		//(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+		//		//this._warning.textfield.element.css( "color", "#FF0000" );
+  //  //            this._warning.text = event.message;
+		//	//	return;
+		//	//}
 
-            if (response == ProjectEvents.BUILD_SELECTED )
-			{
-				//Check if the values are valid
-				(<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
-                (<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
-                (<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
-				(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+  //          if (response == ProjectEvents.BUILD_SELECTED )
+		//	{
+		//		//Check if the values are valid
+		//		(<Label>this._buildVerMaj.val).textfield.element.removeClass( "red-border" );
+  //              (<Label>this._buildVerMid.val).textfield.element.removeClass( "red-border" );
+  //              (<Label>this._buildVerMin.val).textfield.element.removeClass( "red-border" );
+		//		(<Label>this._notes.val).textfield.element.removeClass( "red-border" );
 
-				//this._warning.textfield.element.css( "color", "#5DB526" );
-    //            this._warning.text = event.message;
+		//		//this._warning.textfield.element.css( "color", "#5DB526" );
+  //  //            this._warning.text = event.message;
 
-				//Update fields
-				this.updateFields( event.tag );
-			}
-            else if (response == ProjectEvents.BUILD_SAVED )
-			{
-				////Check if the values are valid
-    //            (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
-				//this._warning.textfield.element.css( "color", "#5DB526" );
-				//this._warning.text = "Build saved";
+		//		//Update fields
+		//		this.updateFields( event.tag );
+		//	}
+  //          else if (response == ProjectEvents.BUILD_SAVED )
+		//	{
+		//		////Check if the values are valid
+  //  //            (<Label>this._notes.val).textfield.element.removeClass( "red-border" );
+		//		//this._warning.textfield.element.css( "color", "#5DB526" );
+		//		//this._warning.text = "Build saved";
 
-				//Update fields
-                this.updateFields( event.tag );
-			}
-			else
-			{
-				//this._warning.textfield.element.css( "color", "#FF0000" );
-    //            this._warning.text = event.message;
-			}
-		}
+		//		//Update fields
+  //              this.updateFields( event.tag );
+		//	}
+		//	else
+		//	{
+		//		//this._warning.textfield.element.css( "color", "#FF0000" );
+  //  //            this._warning.text = event.message;
+		//	}
+		//}
 
-		/**
-		* Updates some of the version fields with data
-		* @param {Build} data 
-		*/
-		updateFields( data: Build )
-        {
-            var versionParts = data.entry.version.split(".");
+		///**
+		//* Updates some of the version fields with data
+		//* @param {Build} data 
+		//*/
+		//updateFields( data: Build )
+  //      {
+  //          var versionParts = data.entry.version.split(".");
 
-			( <Label>this._buildVerMaj.val ).text = versionParts[0];
-			( <Label>this._buildVerMid.val ).text = versionParts[1];
-            (<Label>this._buildVerMin.val).text = versionParts[2];
-            (<Label>this._notes.val).text = data.entry.notes;
-            (<ComboBox>this._visibility.val).selectedItem = (data.entry.public ? "Public" : "Private");
-			//this.initializeLoader();
-		}
+		//	( <Label>this._buildVerMaj.val ).text = versionParts[0];
+		//	( <Label>this._buildVerMid.val ).text = versionParts[1];
+  //          (<Label>this._buildVerMin.val).text = versionParts[2];
+  //          (<Label>this._notes.val).text = data.entry.notes;
+  //          (<ComboBox>this._visibility.val).selectedItem = (data.entry.public ? "Public" : "Private");
+		//	//this.initializeLoader();
+		//}
 
 		/**
 		* When we recieve the server call for saving project data.

@@ -36,12 +36,12 @@
         */
         getVal(): number
         {
-            if (this.value < this.min)
+            if (this._value < this.min)
                 return this.min;
-            if (this.value > this.max)
+            if (this._value > this.max)
                 return this.max;
             
-            return parseInt(this.value.toFixed(this.decimals));
+            return parseInt(this._value.toFixed(this.decimals));
         }
 
         /**
@@ -61,6 +61,23 @@
             token.interval = this.interval;
 
             return token;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {any} data The data to import from
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        */
+        deTokenize(data: PropNum, slim: boolean = false)
+        {
+            if (slim)
+                return super.deTokenize(data, slim);
+
+            super.deTokenize(data, slim);
+            this.min = data.min;
+            this.max = data.max;
+            this.decimals = data.decimals;
+            this.interval = data.interval;
         }
     }
 }

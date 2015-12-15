@@ -90,7 +90,7 @@ module Animate
 			PortalForm.getSingleton().on( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 
 			new BehaviourPortal( this, "Start" );
-            PropertyGrid.getSingleton().on(PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this);
+            PropertyGrid.getSingleton().on("edited", this.onPropertyGridEdited, this);
             this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
 			this._containerReferences = { groups: [], assets: [] };
 
@@ -223,7 +223,7 @@ module Animate
 			PortalForm.getSingleton().off( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 			jQuery( "body" ).off( "keydown", this.keyProxy );
 			jQuery( document ).off( "contextmenu", this.mContextProxy );
-			PropertyGrid.getSingleton().off( PropertyGridEvents.PROPERTY_EDITED, this.onPropertyGridEdited, this );
+            PropertyGrid.getSingleton().off("edited", this.onPropertyGridEdited, this );
 
 			this.element.off( "mousedown", this.mDownProxy );
 
@@ -531,10 +531,10 @@ module Animate
 
 		/**
 		* Called when the property grid fires an edited event. 
-		* @param {PropertyGridEvents} response 
+		* @param {string} type 
 		* @param {PropertyGridEvent} event
 		*/
-		onPropertyGridEdited( response: PropertyGridEvents, event: PropertyGridEvent )
+		onPropertyGridEdited( type: string, event: PropertyGridEvent )
 		{
 			for ( var i = 0; i < this.children.length; i++ )
 			{
@@ -542,8 +542,8 @@ module Animate
 				{
 					if ( this.children[i] instanceof BehaviourComment )
 					{
-						var comment: BehaviourComment = <BehaviourComment>this.children[i];
-						comment.text = event.propertyValue;
+                        var comment: BehaviourComment = <BehaviourComment>this.children[i];
+                        comment.text = event.prop.getVal();
 					}
 					else if ( this.children[i] instanceof Link )
 					{
@@ -565,13 +565,13 @@ module Animate
 						{
 							var item: Behaviour = <Behaviour>this.children[i];
 
-							//If the portal name is the same as the one that is being edited
-							if ( portals[ii].name == event.propertyName )
+                            //If the portal name is the same as the one that is being edited
+                            if (portals[ii].name == event.prop.name)
 							{
-								if ( item instanceof BehaviourAsset )
-									( <BehaviourAsset>item ).asset = event.propertyValue;
+                                if (item instanceof BehaviourAsset)
+                                    (<BehaviourAsset>item).asset = event.prop.getVal();
 
-								item.portals[ii].value = event.propertyValue;
+                                item.portals[ii].value = event.prop.getVal();
 
 								//Notify of change
 								this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );

@@ -1,46 +1,6 @@
 module Animate
 {
 	/**
-	* Describes an asset variable
-	*/
-	export class VariableTemplate
-	{
-		public name: string;
-		public value: any;
-		public type: ParameterType;
-		public category: string;
-		public options: any;
-
-		
-		constructor( name: string, value: string, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: boolean, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: { min?: number; max?: number; interval?: number; selected?: number; }, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: { color?: string; opacity?: number }, type: ParameterType, category: string, options: any )
-		constructor(name: string, value: { className?: string; selected?: string; }, type: ParameterType, category: string, options: any)
-		constructor(name: string, value: { classNames?: Array<string>; selected?: string; }, type: ParameterType, category: string, options: any)
-		constructor( name: string, value: { className?: string; selectedAssets?: Array<number>; }, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: { choices: Array<string>; selected: string; }, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: { extensions?: Array<string>; path?: string; id?: string; selectedExtension?: string; }, type: ParameterType, category: string, options: any )
-		constructor( name: string, value: any, type: ParameterType, category: string, options: any )
-		{
-			this.name = name;
-			this.category = category;
-			this.type = type;
-			this.value = value;
-			this.options = options;
-		}
-
-		dispose()
-		{
-			this.name = null;
-			this.category = null;
-			this.type = null;
-			this.value = null;
-			this.options = null;
-		}
-	}
-
-	/**
 	* This class describes a template. These templates are used when creating assets.
 	*/
 	export class AssetClass
@@ -48,8 +8,8 @@ module Animate
 		private _abstractClass : boolean;
 		private _name: string;
 		public parentClass: AssetClass;
-		private _imgURL: string;
-		private _variables: Array<VariableTemplate>;
+        private _imgURL: string;
+        private _variables: Array<Prop<any>>;
 		public classes: Array<AssetClass>;
 
 		constructor( name: string, parent: AssetClass, imgURL : string, abstractClass : boolean = false )
@@ -69,7 +29,6 @@ module Animate
 		buildVariables(): EditableSet
 		{
 			var toRet: EditableSet = new EditableSet();
-
             var topClass: AssetClass = this;
 			while ( topClass != null )
 			{
@@ -80,8 +39,8 @@ module Animate
 
 					// If the variable is added by a child class - then do not add it from the parent
 					// this essentially makes sure child class variables hold top priority
-					if ( !toRet.getVar( variable.name ) )
-						toRet.addVar( variable.name, variable.value, ParameterType.fromString( variable.type.toString() ), variable.category, variable.options );
+                    if (!toRet.getVar(variable.name))
+                        toRet.addVar(variable);
 				}
 
 				topClass = topClass.parentClass;
@@ -93,7 +52,7 @@ module Animate
 		/** 
 		* Finds a class by its name. Returns null if nothing is found
 		*/
-		findClass( name : string )
+        findClass(name: string): AssetClass
 		{
 			if ( this._name == name )
 				return this;
@@ -111,27 +70,12 @@ module Animate
 		
 		/**
 		* Adds a variable to the class.
-		* @param {string} name The name of the variable
-		* @param {any} value The variables default value
-		* @param {string} type A string that defines what type of variable it can be.
-		* @param {string} category An optional category tag for this variable. This is used for organisational purposes.
-		* @param {any} options Any options associated with this variable
+		* @param { Prop<any>} prop The property to add
 		* @returns {AssetClass} A reference to this AssetClass
 		*/
-		addVar( name: string, value: string, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar( name: string, value: boolean, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar( name: string, value: { color?: string; opacity?: number }, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar( name: string, value: { min?: number; max?: number; interval?: number; selected?: number; }, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar(name: string, value: { className?: string; selected?: string; }, type: ParameterType, category?: string, options?: any): AssetClass
-		addVar(name: string, value: { classNames?: string; selected?: string; }, type: ParameterType, category?: string, options?: any): AssetClass
-		addVar( name: string, value: { className?: string; selectedAssets?: Array<number>; }, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar( name: string, value: { choices: Array < string>; selected: string; }, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar( name: string, value: { extensions?: Array<string>; path?: string; id?: string; selectedExtension?: string; }, type: ParameterType, category?: string, options?: any ): AssetClass
-		addVar ( name: string, value: any, type: ParameterType, category?: string, options? : any ): AssetClass
+        addVar(prop: Prop<any> ): AssetClass
 		{
-			category = (category == null || category === undefined ? "" : category);
-
-			this._variables.push( new VariableTemplate( name, value, type, category, options ) );
+            this._variables.push(prop);
 			return this;
 		}
 
@@ -157,9 +101,9 @@ module Animate
 		/**
 		* Gets a variable based on its name
 		* @param {string} name The name of the class
-		* @returns {VariableTemplate}
+		* @returns {Prop<T>}
 		*/
-		getVariablesByName(name:string): VariableTemplate
+        getVariablesByName<T>(name: string): Prop<T>
 		{
 			for ( var i = 0, l = this._variables.length; i < l; i++ )
 				if ( this._variables[i].name == name )
@@ -168,9 +112,17 @@ module Animate
 			return null;
 		}
 
+        /**
+		* Gets the image URL of this template
+		* @returns {string}
+		*/
+        get imgURL(): string { return this._imgURL; }
 
-		get imgURL(): string { return this._imgURL; }
-		get variables(): Array<VariableTemplate> { return this._variables; }
+        /**
+		* Gets the variables associated with this template
+		* @returns {Array<Prop<any>>}
+		*/
+        get variables(): Array<Prop<any>> { return this._variables; }
 
 		/**
 		* Adds a class
@@ -186,10 +138,16 @@ module Animate
 			return toAdd;
 		}
 
-		/** Gets the name of the class */
+		/** 
+        * Gets the name of the class 
+        * @returns {string}
+        */
 		get name(): string { return this._name; }
 
-		/** Gets if this class is abstract or not */
+		/** 
+        * Gets if this class is abstract or not 
+        * @returns {boolean}
+        */
 		get abstractClass(): boolean { return this._abstractClass; }
 	}
 }

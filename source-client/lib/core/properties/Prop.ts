@@ -6,7 +6,7 @@
     export class Prop<T>
     {
         public name: string;
-        public value: T;
+        protected _value: T;
         public category: string;
         public options: any;
 		
@@ -20,7 +20,7 @@
         constructor(name: string, value: T, category?: string, options?: any)
         {
             this.name = name;
-            this.value = value;
+            this._value = value;
             this.category = category;
             this.options = options;
         }
@@ -31,7 +31,7 @@
         */
         getVal(): T
         {
-            return this.value;
+            return this._value;
         }
 
         /**
@@ -42,9 +42,26 @@
         tokenize(slim: boolean = false): any
         {
             if (slim)
-                return this.value;
+                return this._value;
             else
-                return { value: this.value, category: this.category, options: this.options };
+                return { value: this._value, category: this.category, options: this.options };
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {any} data The data to import from
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        */
+        deTokenize(data: any, slim: boolean = false)
+        {
+            if (slim)
+                this._value = data;
+            else
+            {
+                this._value = data.value;
+                this.category = data.category;
+                this.options = data.options;
+            };
         }
 
         /** 
@@ -53,7 +70,7 @@
         */
         setVal(val: T)
         {
-            this.value = val;
+            this._value = val;
         }
 
         /** 
@@ -62,7 +79,7 @@
         dispose()
         {
             this.name = null;
-            this.value = null;
+            this._value = null;
             this.category = null;
             this.options = null;
         }

@@ -2,8 +2,7 @@ module Animate
 {
     export class Asset extends ProjectResource<Engine.IAsset>
 	{
-		
-
+        public class: AssetClass;
 		//public id: string;
 		//public shallowId: number;
 		//public name: string;
@@ -15,10 +14,15 @@ module Animate
 		* @param {any} json The JSON with all the asset properties
 		* @param {string} id The id of this asset
 		*/
-        constructor(entry?: Engine.IAsset)
+        constructor(assetClass: AssetClass, entry?: Engine.IAsset)
 		{
 			// Call super-class constructor
-			super(entry);
+            super(entry);
+
+            this.class = assetClass;
+
+            // Build the properties from the asset class
+            this.properties = assetClass.buildVariables();
 			
 			//this._options = {};
 			//this.id = id;
@@ -27,8 +31,8 @@ module Animate
 			//this.saved = true;
 			//this._properties = new EditableSet();
 
-            if ( entry.json )
-                this.setProperties(<Array<EditableSetToken>>entry.json);
+            //if ( entry.json )
+             //   this.setProperties(<Array<EditableSetToken>>entry.json);
 
             //this._className = entry.className;
 		}
@@ -39,7 +43,10 @@ module Animate
 		//	return Asset.shallowIds;
 		//}
 
-		/** Writes this assset to a readable string */
+		/** 
+        * Writes this assset to a readable string 
+        * @returns {string}
+        */
 		toString()
         {
             return this.entry.name + "(" + this.entry.shallowId + ")";
@@ -67,6 +74,7 @@ module Animate
 			//Call super
 			super.dispose();
 
+            this.class = null;
 			//this.id = null;
 			//this.name = null;
 			//this._properties = null;

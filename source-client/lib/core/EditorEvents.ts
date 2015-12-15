@@ -88,7 +88,7 @@ module Animate
 		/**
 		* Called when an asset is created. Associate event type is {AssetCreatedEvent}
 		*/
-		static ASSET_CREATED: EditorEvents = new EditorEvents( "plugin_asset_created" );
+		//static ASSET_CREATED: EditorEvents = new EditorEvents( "plugin_asset_created" );
 
 		/**
 		* Called just before an asset is saved to the server. Associate event type is {AssetEvent}
@@ -229,22 +229,19 @@ module Animate
 		}
 	}
 
-	/**
-	* Called when an asset is created
-	*/
-	export class AssetCreatedEvent extends AssetEvent
-	{
-		/**
-		* {string} name The name of the asset
-		*/
-		public name: string;
+	///**
+	//* Called when an asset is created
+	//*/
+ //   export class ResourceCreated<T extends ProjectResource<Engine.IResource>> extends Event
+	//{
+	//	public resource: T;
 
-		constructor( asset: Asset, name: string )
-		{
-			super( EditorEvents.ASSET_CREATED, asset );
-			this.name = name;
-		}
-	}
+ //       constructor(resource: T)
+	//	{
+	//		super( "resource-created", null );
+ //           this.resource = resource;
+	//	}
+	//}
 
 	/**
 	* Called when an asset is renamed

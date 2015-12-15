@@ -86,13 +86,13 @@ module Animate
     /**
 	* A simple project event. Always related to a project resource (null if not)
 	*/
-	export class ProjectEvent extends Event
+    export class ProjectEvent<T extends ProjectResource<Engine.IResource>> extends Event
     {
-        public resouce: ProjectResource<any>;
-        constructor(type: string, data: ProjectResource<any> )
+        public resource: T;
+        constructor(type: string, resource: T )
         {
-            this.resouce = data;
-			super(type, data);
+            this.resource = resource;
+			super(type, null);
 		}
 	}
 
@@ -446,7 +446,6 @@ module Animate
                 resource = new FileResource(entry);
                 this._files.push(resource);
             }
-            
             
             this.emit(new ProjectEvent("resource-created", resource));
             return resource;
@@ -1696,51 +1695,51 @@ module Animate
 
 						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
 					}
-					else if ( loader.url == "/project/get-assets" )
-					{
-						//Cleanup _assets
-						for ( var i = 0; i < this._assets.length; i++ )
-							this._assets[i].dispose();
+					//else if ( loader.url == "/project/get-assets" )
+					//{
+					//	//Cleanup _assets
+					//	for ( var i = 0; i < this._assets.length; i++ )
+					//		this._assets[i].dispose();
 
-						this._assets.splice( 0, this._assets.length );
+					//	this._assets.splice( 0, this._assets.length );
 
-						//Create new _assets which we fetched from the DB.
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
-                            var dbEntry = data[i];
-                            var asset = new Asset({ name: dbEntry["name"], className: dbEntry["className"], json: dbEntry["json"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
+					//	//Create new _assets which we fetched from the DB.
+					//	for ( var i = 0, l = data.length; i < l; i++ )
+					//	{
+     //                       var dbEntry = data[i];
+     //                       var asset = new Asset({ name: dbEntry["name"], className: dbEntry["className"], json: dbEntry["json"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
 						
-							//Create the GUI elements
-							if ( TreeViewScene.getSingleton().addAssetInstance( asset ) )
-								this._assets.push( asset );
-							else
-								asset.dispose();
-						}
+					//		//Create the GUI elements
+					//		if ( TreeViewScene.getSingleton().addAssetInstance( asset ) )
+					//			this._assets.push( asset );
+					//		else
+					//			asset.dispose();
+					//	}
 
-						//Notify the creation of an asset
-						var len = this._assets.length;
-						for ( var i = 0; i < len; i++ )
-                            pManager.assetCreated(this._assets[i].entry.name, this._assets[i] );
+					//	//Notify the creation of an asset
+					//	var len = this._assets.length;
+					//	for ( var i = 0; i < len; i++ )
+     //                       pManager.assetCreated(this._assets[i].entry.name, this._assets[i] );
 
-						//Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
-						for ( var i = 0; i < len; i++ )
-						{
-							var eSet: EditableSet = this._assets[i].properties;
-							var variables: Array<Prop> = eSet.variables;
-							for ( var ii: number = 0, len2 = variables.length; ii < len2; ii++ )
-								pManager.assetEdited( this._assets[i], variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
-						}
+					//	//Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
+					//	for ( var i = 0; i < len; i++ )
+					//	{
+					//		var eSet: EditableSet = this._assets[i].properties;
+					//		var variables: Array<Prop> = eSet.variables;
+					//		for ( var ii: number = 0, len2 = variables.length; ii < len2; ii++ )
+					//			pManager.assetEdited( this._assets[i], variables[ii].name, variables[ii].value, variables[ii].value, variables[ii].type );
+					//	}
 
-						var eventCreated: AssetEvent = new AssetEvent( EditorEvents.ASSET_CREATED, null );
-						for ( var i = 0; i < len; i++ )
-						{
-							//pManager.assetLoaded( this._assets[i] );
-							eventCreated.asset = this._assets[i];
-							pManager.emit( eventCreated );
-						}
+					//	var eventCreated: AssetEvent = new AssetEvent( EditorEvents.ASSET_CREATED, null );
+					//	for ( var i = 0; i < len; i++ )
+					//	{
+					//		//pManager.assetLoaded( this._assets[i] );
+					//		eventCreated.asset = this._assets[i];
+					//		pManager.emit( eventCreated );
+					//	}
 
-						//this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
-					}
+					//	//this.emit(new ProjectEvent(ProjectEvents.ASSETS_LOADED, "Assets loaded", LoaderEvents.COMPLETE, this ) );
+					//}
 					////Handle renaming
 					//else if ( loader.url == "/project/rename-object" )
 					//{

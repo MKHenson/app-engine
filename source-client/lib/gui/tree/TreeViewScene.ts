@@ -163,9 +163,9 @@ module Animate
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated(type: string, event: ProjectEvent)
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>)
         {
-            var r = event.resouce;
+            var r = event.resource;
             if (r instanceof Asset)
                 this.addAssetInstance(r, false);
             else if (r instanceof Container)

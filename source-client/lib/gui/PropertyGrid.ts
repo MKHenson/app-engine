@@ -59,13 +59,15 @@ module Animate
 		private _header: JQuery;
 		private _editors: Array<PropertyGridEditor>;
 		private _editorElements: Array<EditorElement>;
-		private _idObject: string;
+		
 		private _docker: Docker;
 		private _groups: Array<PropertyGridGroup>;
 		private _endDiv: JQuery;
 		private _editableObject: EditableSet;
 		private _targetPanel: JQuery;
-		private _activePanel: JQuery;
+        private _activePanel: JQuery;
+
+        private _idObject: string;
 
 		constructor( parent : Component )
 		{
@@ -204,7 +206,7 @@ module Animate
 				//Set the editable
 				this._editableObject = object;
 
-				var variables:Array<Prop> = object.variables;
+                var variables: Array<Prop<any>> = object.variables;
 				var len = variables.length;
 				for ( var i = 0; i < len; i++ )
 				{
@@ -332,7 +334,10 @@ module Animate
 		propUpdated( name : string, value : any, type : ParameterType )
 		{
 			//dispatches the grid event
-			this.emit( new PropertyGridEvent( PropertyGridEvents.PROPERTY_EDITED, name, this._idObject, value, type ));
+
+            var event = new PropertyGridEvent("edited", name, this._idObject, value, type);
+            this._editableObject
+            this.emit(event);
 		}
 
 		/**
@@ -397,6 +402,6 @@ module Animate
 
 
 		get currentObject(): any { return this._editableObject; }
-		get idObject(): any { return this._idObject; }
+		get idObject(): string { return this._idObject; }
 	}
 }

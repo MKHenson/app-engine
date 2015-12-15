@@ -35,5 +35,19 @@
             token.choices = this.choices;
             return token;
         }
+
+        /**
+       * De-Tokenizes data from a JSON. 
+       * @param {any} data The data to import from
+       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+       */
+        deTokenize(data: PropEnum, slim: boolean = false)
+        {
+            if (slim)
+                return super.deTokenize(data, slim);
+          
+            super.deTokenize(data, slim);
+            this.choices = data.choices;
+        }
     }
 }
