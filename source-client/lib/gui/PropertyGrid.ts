@@ -223,7 +223,7 @@ module Animate
 							if ( variables[i].category == null || variables[i].category == "" )
 								variables[i].category = "General Properties";
 
-							//First check if the group exists
+							// First check if the group exists
 							var groupI = this._groups.length;
 							var groupComp: PropertyGridGroup = null;
 							while ( groupI-- )
@@ -233,7 +233,7 @@ module Animate
 									break;
 								}
 
-							//If no group exists - then add it
+							// If no group exists - then add it
 							if ( groupComp == null )
 							{
 								groupComp = new PropertyGridGroup( variables[i].category );
@@ -252,7 +252,7 @@ module Animate
 					}
 				}
 
-				//Sort by the groups first
+				// Sort by the groups first
 				sortable.sort( function ( a, b )
 				{
 					var textA = a.group.name.toUpperCase();
@@ -260,7 +260,7 @@ module Animate
 					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
 				});
 
-				//Finall add the elements to the DOM
+				// Finall add the elements to the DOM
 				var i = sortable.length;
 				while ( i-- )
 				{
@@ -268,11 +268,11 @@ module Animate
 						this.addChild( sortable[i].group );
 				}
 
-				//Just add the fix after each group
+				// Just add the fix after each group
 				this._endDiv.detach();
 				this.element.append( this._endDiv );
 
-				//Now sort each of the sub properties
+				// Now sort each of the sub properties
 				sortable.sort( function ( a, b )
 				{
 					var textA = a.name.toUpperCase();
@@ -280,12 +280,12 @@ module Animate
 					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
 				});
 
-				//Finall add the sub elements to the DOM
+				// Finall add the sub elements to the DOM
 				i = sortable.length;
 				while ( i-- )
 					sortable[i].group.content.append( sortable[i].divs );
 
-				//Finally notify all editors they have been added
+				// Finally notify all editors they have been added
 				i = sortable.length;
 				while ( i-- )
 					sortable[i].editor.onAddedToDom();
@@ -294,7 +294,7 @@ module Animate
 			{
 				this._header.html( "Please select an object." );
 
-				//Remove all previous labels and HTML elements.
+				// Remove all previous labels and HTML elements.
 				var i = this._editorElements.length;
 				while ( i-- )
 				{
@@ -303,12 +303,12 @@ module Animate
 
 				this._editorElements.splice( 0, this._editorElements.length );
 
-				//Cleanup editors
+				// Cleanup editors
 				i = this._editors.length;
 				while ( i-- )
 					this._editors[i].cleanup();
 
-				//Cleanup groups
+				// Cleanup groups
 				i = this._groups.length;
 				while ( i-- )
 				{
@@ -318,7 +318,7 @@ module Animate
 
 				this._groups = [];
 
-				//Set the editable
+				// Set the editable
 				this._editableObject = null;
 			}
 
