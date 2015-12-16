@@ -33,11 +33,11 @@ module Animate
 			else if (originalNode instanceof BehaviourPortal)
 				this.element.addClass("behaviour-portal");
 
-			//Copy each of the portals 
+			// Copy each of the portals 
 			if ( buildPortals )
 			{
-				for ( var i = 0, l = originalNode.portals.length; i < l; i++ )
-					this.addPortal( originalNode.portals[i].type, originalNode.portals[i].name, originalNode.portals[i].value, originalNode.portals[i].dataType, false );
+                for (var i = 0, l = originalNode.portals.length; i < l; i++)
+                    this.addPortal(originalNode.portals[i].type, originalNode.portals[i].property, false);
 			}
 
 			this.updateDimensions();

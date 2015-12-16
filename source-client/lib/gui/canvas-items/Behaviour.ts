@@ -15,6 +15,8 @@ module Animate
 		private _inputs: Array<Portal>;
         private _portals: Array<Portal>;
         private _fontSize: number;
+        private _properties: EditableSet;
+
         constructor(parent: Component, text: string, html: string = `<div class='behaviour reg-gradient'><div class='text'>${text}</div></div>` )
 		{
             // Call super-class constructor
@@ -32,7 +34,8 @@ module Animate
 			this._products = [];
 			this._outputs = [];
 			this._inputs = [];
-			this._portals = [];
+            this._portals = [];
+            this._properties = new EditableSet(this);
 
 			this._requiresUpdated = true;
 		}
@@ -40,20 +43,22 @@ module Animate
 		/**
 		* Adds a portal to this behaviour.
 		* @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
-		* @param {string} name The unique name of the <Portal>
-		* @param {any} value The default value of the <Portal>
-		* @param {ParameterType} dataType The data type that the portal represents. See the default data types.
-		* @returns {Portal} The portal that was added to this node
+		* @param {Prop<any>} property 
+		* @returns {Portal}
 		*/
-		addPortal(type: PortalType, name : string, value : any, dataType : ParameterType, update : boolean ) 
+        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal
 		{
-			var portal = new Portal( this, name, type, value, dataType );
+			var portal = new Portal( this, type, property);
 
 			this._requiresUpdated = true;
 
-			//Add the arrays
-			if ( type == PortalType.PARAMETER )
-				this._parameters.push( portal );
+			// Add the arrays
+            if (type == PortalType.PARAMETER)
+            {
+                this._parameters.push(portal);
+                portal.dataType 
+                this._properties.addVar();
+            }
 			else if (type == PortalType.PRODUCT )
 				this._products.push( portal );
 			else if (type == PortalType.OUTPUT )
@@ -65,7 +70,7 @@ module Animate
 			var portalSize = portal.element.width();
 			portal.behaviour = this;
 
-			//Update the dimensions
+			// Update the dimensions
 			if ( update )
 				this.updateDimensions();
 
@@ -84,7 +89,7 @@ module Animate
 
 			this.removeChild( toRemove );
 
-			//Remove from arrays
+			// Remove from arrays
 			var index = jQuery.inArray(toRemove, this._parameters )
 			if ( index != -1 )
 			{

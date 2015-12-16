@@ -17,8 +17,17 @@
         */
         constructor(name: string, value: FileResource, extensions: Array<string>, category?: string, options?: any)
         {
-            super(name, value, category, options);
+            super(name, value, category, options, PropertyType.FILE);
             this.extensions = extensions;
+        }
+
+        /** 
+        * Attempts to clone the property
+        * @returns {PropFileResource}
+        */
+        clone(clone?: PropFileResource): PropFileResource
+        {
+            return new PropFileResource(this.name, this._value, this.extensions, this.category, this.options);
         }
 
         /**
@@ -39,14 +48,10 @@
         /**
        * De-Tokenizes data from a JSON. 
        * @param {any} data The data to import from
-       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
        */
-        deTokenize(data: PropFileResource, slim: boolean = false)
+        deTokenize(data: PropFileResource)
         {
-            if (slim)
-                return super.deTokenize(data, slim);
-
-            super.deTokenize(data, slim);
+            super.deTokenize(data);
             this.extensions = data.extensions;
         }
     }

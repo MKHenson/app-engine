@@ -28,7 +28,7 @@ module Animate
 		*/
 		buildVariables(): EditableSet
 		{
-			var toRet: EditableSet = new EditableSet();
+			var toRet: EditableSet = new EditableSet(null);
             var topClass: AssetClass = this;
 			while ( topClass != null )
 			{

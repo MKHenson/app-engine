@@ -102,8 +102,11 @@
     <TypeScriptCompile Include="lib\core\ProjectResource.ts" />
     <TypeScriptCompile Include="lib\core\properties\EditableSet.ts" />
     <TypeScriptCompile Include="lib\core\properties\Prop.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropertyFactor.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropFileResource.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropEnum.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropColor.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropResourceList.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropResource.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropNum.ts" />
     <TypeScriptCompile Include="lib\core\PropertyGridEditor.ts" />

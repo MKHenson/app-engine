@@ -21,7 +21,7 @@ module Animate
 		*/
 		onSelect()
         {
-            PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text, this.resource, "media/variable.png");
+            PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text, "media/variable.png");
 		}
 
 		/**

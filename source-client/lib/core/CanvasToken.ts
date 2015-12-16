@@ -4,8 +4,8 @@ module Animate
 	{
 		public name: string = "";
 		public value: string = "";
-		public type: PortalType = PortalType.INPUT;
-		public dataType: ParameterType = null;
+        public type: PortalType = PortalType.INPUT;
+        public dataType: PropertyType = null;
 		public customPortal: boolean = false;
 
 		constructor( token?: any )
@@ -15,7 +15,7 @@ module Animate
 				this.name = token.name;
 				this.value = token.value;
 				this.type = PortalType.fromString( token.type.value );
-				this.dataType = ParameterType.fromString( token.dataType.value );
+                this.dataType = PropertyType.fromString( token.dataType.value );
 				this.customPortal = token.customPortal;
 			}
 		}
@@ -47,7 +47,7 @@ module Animate
 
 		// Portal Items
 		public portalType: PortalType = PortalType.PARAMETER;
-		public dataType: ParameterType = ParameterType.OBJECT;
+        public dataType: PropertyType = PropertyType.OBJECT;
 		public value: string;
 
 		public portals: Array<CanvasTokenPortal> = new Array();
@@ -90,7 +90,7 @@ module Animate
 
 				// Portal Items
 				this.portalType = PortalType.fromString( token.portalType.value );
-				this.dataType = ParameterType.fromString( token.dataType.value );
+                this.dataType = PropertyType.fromString( token.dataType.value );
 				this.value = token.value;
 
 				for ( var i = 0, len = token.portals.length; i < len; i++ )
@@ -115,7 +115,7 @@ module Animate
 		public id: number;
 		public name: string;
 		public items: Array<CanvasTokenItem> = new Array<CanvasTokenItem>();
-		public properties: Array<EditableSetToken> = new Array< EditableSetToken>();
+		public properties: Array<EditableSetToken> = new Array<EditableSetToken>();
 		public plugins: any = {};
 
 		constructor( id: number )

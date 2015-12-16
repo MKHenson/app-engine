@@ -24,7 +24,24 @@
 
             this._saved = true;
             this._options = {};
-            this._properties = new EditableSet();
+            this._properties = new EditableSet(this);
+        }
+
+        /** 
+        * Gets the properties of this resource
+        */
+        get properties(): EditableSet
+        {
+            return this._properties;
+        }
+
+        /** 
+        * Sets the properties of this resource
+        */
+        set properties(val: EditableSet)
+        {
+            this._properties = val;
+            val.parent = this;
         }
 
         /**
@@ -55,62 +72,29 @@
         dispose()
         {
             super.dispose();
-            this._properties.addVar
+            this._properties.dispose();
             this._properties = null;
             this._options = null;
         }
 
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
+        /** 
+        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data 
+        */
         createOption(name: string, val: any) { this._options[name] = val; }
 
-        /** Destroys an option */
+        /** 
+        * Destroys an option 
+        */
         removeOption(name: string) { delete this._options[name]; }
 
-        /**  Update the value of an option */
+        /** 
+        * Update the value of an option 
+        */
         updateOption(name: string, val: any) { this._options[name] = val; }
 
-        /** Returns the value of an option */
+        /** 
+        * Returns the value of an option 
+        */
         getOption(name: string): any { return this._options[name]; }
-
-        //get properties(): EditableSet { return this._properties; }
-        //set properties(val: EditableSet)
-        //{
-        //    for (var vi = 0, l = this._properties.variables.length; vi < l; vi++)
-        //        this._properties.variables[vi].dispose();
-
-        //    this._properties.variables.splice(0, this._properties.variables.length);
-
-        //    if (val instanceof EditableSet)
-        //        this._properties = val;
-        //    else
-        //    {
-        //        for (var i in val)
-        //            this._properties.addVar(val[i].name, val[i].value, ParameterType.fromString(val[i].type), val[i].category, val[i].options);
-        //    }
-        //}
-
-        get properties(): EditableSet { return this._properties; }
-
-        setProperties(val: Array<EditableSetToken>)
-        setProperties(val: EditableSet)
-        setProperties(val: any)
-        {
-            for (var i = 0, l = this._properties.variables.length; i < l; i++)
-                this._properties.variables[i].dispose();
-
-            this._properties.variables.splice(0, this._properties.variables.length);
-
-            if (val instanceof EditableSet)
-                this._properties = val;
-            else
-            {
-                var arr: Array<EditableSetToken> = val;
-                for (var i = 0, len = arr.length; i < len; i++)
-                    this._properties.addVar(arr[i].name, arr[i].value, ParameterType.fromString(arr[i].type), arr[i].category, arr[i].options);
-            }
-
-            // TODO: I think the resources need a way of storing custom data
-            // this.entry.json.properties = this._properties.tokenize();
-        }
     }
 }

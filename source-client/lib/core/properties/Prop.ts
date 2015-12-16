@@ -9,6 +9,8 @@
         protected _value: T;
         public category: string;
         public options: any;
+        public set: EditableSet;
+        public type: PropertyType;
 		
         /**
         * Creates a new instance
@@ -16,13 +18,25 @@
         * @param {T} value The value of the property
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
+        * @param {PropertyType} type [Optional] Define the type of property
         */
-        constructor(name: string, value: T, category?: string, options?: any)
+        constructor(name: string, value: T, category?: string, options?: any, type: PropertyType = PropertyType.OBJECT)
         {
             this.name = name;
             this._value = value;
             this.category = category;
             this.options = options;
+            this.set = null;
+            this.type = type;
+        }
+
+         /** 
+        * Attempts to clone the property
+        * @returns {Prop<T>}
+        */
+        clone(clone?: Prop<T>) : Prop<T>
+        {
+            return new Prop<T>(this.name, this._value, this.category, this.options, this.type);
         }
 
         /** 
@@ -44,24 +58,19 @@
             if (slim)
                 return this._value;
             else
-                return { value: this._value, category: this.category, options: this.options };
+                return { value: this._value, category: this.category, options: this.options, type: this.type };
         }
 
         /**
         * De-Tokenizes data from a JSON. 
         * @param {any} data The data to import from
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         */
-        deTokenize(data: any, slim: boolean = false)
+        deTokenize(data: any)
         {
-            if (slim)
-                this._value = data;
-            else
-            {
-                this._value = data.value;
-                this.category = data.category;
-                this.options = data.options;
-            };
+            this._value = data.value;
+            this.category = data.category;
+            this.options = data.options;
+            this.type = data.type;
         }
 
         /** 
@@ -71,6 +80,7 @@
         setVal(val: T)
         {
             this._value = val;
+            this.set.notifyEdit(this);
         }
 
         /** 

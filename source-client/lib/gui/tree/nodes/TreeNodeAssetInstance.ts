@@ -34,7 +34,7 @@ module Animate
 		*/
 		onSelect()
         {
-            PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text + "  [" + this.resource.entry.shallowId + "]", this, "media/variable.png");
+            PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text + "  [" + this.resource.entry.shallowId + "]", "media/variable.png");
             PluginManager.getSingleton().emit(new AssetEvent(EditorEvents.ASSET_SELECTED, this.resource ) );
 		}
 

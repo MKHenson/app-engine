@@ -194,40 +194,40 @@ module Animate
 		}
 	}
 
-	/**
-	* Called when an asset property is edited by the property grid
-	*/
-	export class AssetEditedEvent extends AssetEvent
-	{
-		/**
-		* {string} propertyName The name of the property that was edited
-		*/
-		public propertyName: string;
+	///**
+	//* Called when an asset property is edited by the property grid
+	//*/
+	//export class AssetEditedEvent extends AssetEvent
+	//{
+	//	/**
+	//	* {string} propertyName The name of the property that was edited
+	//	*/
+	//	public propertyName: string;
 
-		/**
-		* {any} newValue The updated value
-		*/
-		public newValue: any;
+	//	/**
+	//	* {any} newValue The updated value
+	//	*/
+	//	public newValue: any;
 
-		/**
-		* {any} oldValue The previous value
-		*/
-		public oldValue: any;
+	//	/**
+	//	* {any} oldValue The previous value
+	//	*/
+	//	public oldValue: any;
 
-		/**
-		* {ParameterType} type The parameter type of property
-		*/
-		public type: ParameterType;
+	//	/**
+	//	* {ParameterType} type The parameter type of property
+	//	*/
+	//	public type: ParameterType;
 
-		constructor( eventName: EditorEvents, asset: Asset, propertyName, newValue : any, oldValue : any, type : ParameterType )
-		{
-			super( eventName, asset );
-			this.propertyName = propertyName;
-			this.newValue = newValue;
-			this.oldValue = oldValue;
-			this.type = type;
-		}
-	}
+	//	constructor( eventName: EditorEvents, asset: Asset, propertyName, newValue : any, oldValue : any, type : ParameterType )
+	//	{
+	//		super( eventName, asset );
+	//		this.propertyName = propertyName;
+	//		this.newValue = newValue;
+	//		this.oldValue = oldValue;
+	//		this.type = type;
+	//	}
+	//}
 
 	///**
 	//* Called when an asset is created

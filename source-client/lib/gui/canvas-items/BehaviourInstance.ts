@@ -19,8 +19,8 @@ module Animate
 
 			if ( createPotrals )
 			{
-				//Now that its created we need to create the starting portals. If the canvas exists we use that as a 
-				//reference, otherwise we use the json
+				// Now that its created we need to create the starting portals. If the canvas exists we use that as a 
+				// reference, otherwise we use the json
 				if ( this._container.canvas )
 				{
 					var children = this._container.canvas.children;
@@ -32,11 +32,7 @@ module Animate
 							var ii = portals.length;
 
 							while ( ii-- )
-								this.addPortal(
-									( <BehaviourPortal>children[ci] ).portaltype,
-									portals[ii].name,
-									portals[ii].value,
-									portals[ii].dataType, false );
+								this.addPortal( (<BehaviourPortal>children[ci]).portaltype, portals[ii].property.clone(), false );
 						}
 				}
                 else if (this._container.entry.json != null )
@@ -53,8 +49,7 @@ module Animate
 							//Create the portals only if its a Behaviour portal
 							if ( jsonObj.items[i].type == "BehaviourPortal" )
 							{
-								this.addPortal(
-									jsonObj.items[i].portalType,
+								this.addPortal( jsonObj.items[i].portalType,
 									jsonObj.items[i].name,
 									jsonObj.items[i].value,
 									jsonObj.items[i].dataType, false );

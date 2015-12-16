@@ -11,29 +11,25 @@ module Animate
 		}
 
 		/**
-		* Called when a property grid is editing an object. The property name, value and type are passed.
-		* If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-		* the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-		* events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-		* call the notify method.
-		* @param {string} propertyName The name of the property we are creating an HTML element for
-		* @param {any} propertyValue The current value of that property
-		* @param {ParameterType} objectType The type of property we need to create
-		* @param {any} options Any options associated with the parameter
-		* @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+		* Given a property, the grid editor must produce HTML that can be used to edit the property
+		* @param {Prop<any>} prop The property being edited
+		* @param {Component} container The container acting as this editors parent
 		*/
-		edit( propertyName: string, propertyValue: any, objectType: ParameterType, options: any ): JQuery
-		{
-			if (  objectType != ParameterType.GROUP  )
-				return null;
+        edit(prop: Prop<any>, container: Component)
+        {
+            if (prop instanceof PropResource == false && prop.getVal() instanceof GroupArray == false)
+                return null;
+
+            var p = <PropResource>prop;
 
 			//Create HTML	
-			var editor: JQuery =
-				this.createEditorJQuery( propertyName, "<select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png'/></div>", propertyValue );
-
+            var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>`);
 			var selector: JQuery = jQuery( "select", editor );
-			var eye: JQuery = jQuery( ".eye-picker", editor );
-            //var parts: Array<string> = propertyValue.split(":") ;
+            var eye: JQuery = jQuery(".eye-picker", editor);
+
+            // Add to DOM
+            container.element.append(editor);
+            
             var project = User.get.project;
             var groups = project.groups.slice(0, project.groups.length);
 
@@ -45,33 +41,33 @@ module Animate
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			});
 
-			//Create the blank
-			selector.append( "<option value='' " + ( propertyValue == "" ? "selected='selected'" : "" ) + "></option>" );
+            //Create the blank
+            selector.append(`<option value='' ${(!p.getVal() ? "selected='selected'" : "")}></option>`);
 
             for (var i = 0; i < groups.length; i++)
-                selector.append("<option title='" + groups[i].entry.shallowId + "' value='" + groups[i].entry.shallowId + "' " + (propertyValue == groups[i].entry.shallowId ? "selected='selected'" : "") + ">" + groups[i].entry.name + "</option>");
+                selector.append(`<option title='${groups[i].entry.shallowId}' value='${groups[i].entry.shallowId}' ${(p.getVal().entry.shallowId == groups[i].entry.shallowId ? "selected='selected'" : "")}>${groups[i].entry.name}</option>`);
 
 
 			var that = this;
 
-			//Functions to deal with user interactions with JQuery
+			// Functions to deal with user interactions with JQuery
             var onSelect = function (e: JQueryEventObject  ) 
 			{
-				var val = selector.val();
-				that.notify(propertyName, val, objectType );
-			};
+                var val = parseFloat(selector.val());
+                var group = project.getResourceByShallowID(val, ResourceType.GROUP);
+                p.setVal(group);
+            };
+
             var onEye = function (e: JQueryEventObject ) 
 			{
-				var val = selector.val();
-				TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "groupID", val ), true );
+                var val = parseFloat(selector.val());
+                var group = project.getResourceByShallowID(val, ResourceType.GROUP);
+                TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("resource", group ), true );
 			};
 
 			//Add listeners
 			eye.on( "mouseup", onEye );
 			selector.on( "change", onSelect );
-
-			//Finall return editor as HTML to be added to the page
-			return editor;
 		}
 	}
 }
