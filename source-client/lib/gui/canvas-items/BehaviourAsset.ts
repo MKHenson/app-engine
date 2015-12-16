@@ -30,10 +30,10 @@ module Animate
 		* @param {PortalType} type The type of portal we are adding. It can be either PortalType.INPUT, PortalType.OUTPUT, Portal.PARAMETER & PortalType.PRODUCT
 		* @param {string} name The unique name of the Portal
 		* @param {any} value The default value of the Portal
-		* @param {ParameterType} dataType The data type that the portal represents. See the default data types.
+		* @param {PropertyType} dataType The data type that the portal represents. See the default data types.
 		* @returns {Portal} The portal that was added to this node
 		*/
-		addPortal(type:PortalType, name: string, value : any, dataType : ParameterType): Portal
+        addPortal(type: PortalType, name: string, value: any, dataType: PropertyType): Portal
 		{
 			var portal = Behaviour.prototype.addPortal.call(this, type, name, value, dataType);
 

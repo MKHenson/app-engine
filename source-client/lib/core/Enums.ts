@@ -24,4 +24,24 @@
         Technical,
         Promotional,
     }
+
+    /**
+    * Describes a property type
+    */
+    export enum PropertyType
+    {
+        ASSET,
+        ASSET_LIST,
+        NUMBER,
+        COLOR,
+        GROUP,
+        FILE,
+        STRING,
+        OBJECT,
+        BOOL,
+        ENUM,
+        HIDDEN,
+        HIDDEN_FILE,
+        OPTIONS
+    }
 }

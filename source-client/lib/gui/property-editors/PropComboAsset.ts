@@ -11,45 +11,33 @@ module Animate
 		}
 
 		/**
-		* Called when a property grid is editing an object. The property name, value and type are passed.
-		* If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-		* the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-		* events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-		* call the notify method.
-		* @param {string} propertyName The name of the property we are creating an HTML element for
-		* @param {any} propertyValue The current value of that property
-		* @param {ParameterType} objectType The type of property we need to create
-		* @param {any} options Any options associated with the parameter
-		* @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+		* Given a property, the grid editor must produce HTML that can be used to edit the property
+		* @param {Prop<any>} prop The property being edited
+		* @param {Component} container The container acting as this editors parent
 		*/
-		edit( propertyName: string, propertyValue: any, objectType: ParameterType, options: any ): JQuery
-		{
-			if (  objectType != ParameterType.ASSET  )
-				return null;
+        edit(prop: Prop<any>, container: Component)
+        {
+            if (prop instanceof PropResource == false && prop.getVal() instanceof Asset == false)
+                return null;
 
-			//Create HTML	
-			var editor: JQuery =
-				this.createEditorJQuery( propertyName, "<select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png'/></div>", propertyValue );
+            var p = <PropResource>prop;
 
+			// Create HTML	
+            var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>`);
 			var selector: JQuery = jQuery( "select", editor );
 			var eye: JQuery = jQuery( ".eye-picker", editor );
 
-			var selectedID: number = parseInt( propertyValue.selected );
-			var className: string = propertyValue.className;
-			var classNames: Array<string> = propertyValue.classNames ? propertyValue.classNames : [];
+            // Add to DOM
+            container.element.append(editor);
 
-			if (className && className != "")
-				classNames.push(className);
+            var selectedID = p.getVal().entry._id;
+			var classNames = p.classNames;
+			var nodes = TreeViewScene.getSingleton().getAssets( classNames );
 
-			if (classNames.length == 0)
-				classNames.push(null);
+			// Create the blank options and select it if nothing else is chosen
+            selector.append(`<option value='' ${(!selectedID || selectedID == "" ? "selected='selected'" : "" )}></option>` );
 
-			var nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
-
-			//Create the blank options and select it if nothing else is chosen
-			selector.append( "<option value='' " + ( selectedID == 0 || isNaN( selectedID )  ? "selected='selected'" : "" ) + "></option>" );
-
-			//Sort alphabetically
+			// Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
                 var textA = a.resource.entry.name.toUpperCase();
@@ -59,34 +47,32 @@ module Animate
 
 			var len: number = nodes.length;
 			for ( var i = 0; i < len; i++ )
-                selector.append("<option title='" + nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className + "' value='" + nodes[i].resource.entry.shallowId + "' " + (selectedID == nodes[i].resource.entry.shallowId ? "selected='selected'" : "") + ">" + nodes[i].resource.entry.name + "</option>" );
+                selector.append(`<option title='${nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className}' value='${nodes[i].resource.entry.shallowId}' ${(selectedID == nodes[i].resource.entry.shallowId ? "selected='selected'" : "")}>${nodes[i].resource.entry.name}</option>` );
 			
 			var that = this;
 
-			//Functions to deal with user interactions with JQuery
+			// When we select a new asset
             var onSelect = function (e: JQueryEventObject  ) 
 			{
-				var val = selector.val();
-				that.notify(propertyName, { classNames: classNames, selected: val }, objectType );
-			};
-            var onEye = function (e: JQueryEventObject  ) 
+                var val = parseFloat(selector.val());
+                var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
+                p.setVal(asset);
+            };
+
+            // When we click on the target
+            var onEye = function (e: JQueryEventObject) 
 			{
 				var val = parseInt( selector.val() );
-
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
-
 				if ( asset )
-					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "asset", asset ), true );
+                    TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode( "resource", asset ), true );
 				else
 					TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("className", classNames[0] ), true );
 			};
 
-			//Add listeners
+			// Add listeners
 			eye.on( "mouseup", onEye );
 			selector.on( "change", onSelect );
-
-			//Finall return editor as HTML to be added to the page
-			return editor;
 		}
 	}
 }

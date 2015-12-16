@@ -14,16 +14,21 @@ module Animate
 		private _plugin: IPlugin;
 
 		/**
-		* @param <string> behaviourName The name of the behaviour
-		* @param <bool> canBuildInput 
-		* @param <bool> canBuildOutput 
-		* @param <bool> canBuildParameter 
-		* @param <bool> canBuildProduct 
-		* @param <array> portalTemplates 
-		* @param <IPlugin> plugin The plugin this is associated with
+		* @param {string} behaviourName The name of the behaviour
+		* @param {boolean} canBuildInput 
+		* @param {boolean} canBuildOutput 
+		* @param {boolean} canBuildParameter 
+		* @param {boolean} canBuildProduct 
+		* @param {boolean} portalTemplates 
+		* @param {IPlugin} plugin The plugin this is associated with
 		*/
 		constructor( behaviourName: string, canBuildInput: boolean = true, canBuildOutput: boolean = true, canBuildParameter: boolean = true, canBuildProduct: boolean = true, portalTemplates: Array<PortalTemplate> = null, plugin:IPlugin = null )
-		{
+        {
+            for (var i = 0; i < portalTemplates.length; i++)
+                for (var ii = 0; ii < portalTemplates.length; ii++)
+                    if (ii != i && portalTemplates[i].property.name == portalTemplates[ii].property.name)
+                        throw new Error(`You cannot have more than 1 property with the name ${portalTemplates[i].property.name}`);
+
 			this._behaviourName = behaviourName;
 			this._canBuildOutput = canBuildOutput;
 			this._canBuildInput = canBuildInput;
@@ -33,9 +38,11 @@ module Animate
 			this._plugin = plugin;
 		}
 
-		/* This function is called by Animate to get an array of
-		TypeConverters. TypeConverter objects define if one type can be translated to another. They
-		also define what the process of conversion will be. */
+		/* 
+        * This function is called by Animate to get an array of
+		* TypeConverters. TypeConverter objects define if one type can be translated to another. They
+		* also define what the process of conversion will be. 
+        */
 		dispose()
 		{
 			this._behaviourName = null;
@@ -47,29 +54,53 @@ module Animate
 			this._plugin = null;
 		}
 
-		/* This function is called by Animate to see if a behaviour can build output portals. 
-		@return {boolean} Return true if you want Animate to allow for building outputs.*/
-		canBuildOutput( behaviour: Behaviour  ): boolean  { return this._canBuildOutput; }
+		/* 
+        * This function is called by Animate to see if a behaviour can build output portals. 
+		* @return {boolean} Return true if you want Animate to allow for building outputs.
+        */
+        canBuildOutput(behaviour: Behaviour): boolean
+        {
+            return this._canBuildOutput;
+        }
 
-		/* This function is called by Animate to see if a behaviour can build input portals. 
-		@return {boolean} Return true if you want Animate to allow for building inputs.*/
-		canBuildInput( behaviour: Behaviour  ): boolean  { return this._canBuildInput; }
+		/* 
+        * This function is called by Animate to see if a behaviour can build input portals. 
+		* @return {boolean} Return true if you want Animate to allow for building inputs.
+        */
+        canBuildInput(behaviour: Behaviour): boolean
+        {
+            return this._canBuildInput;
+        }
 
-		/* This function is called by Animate to see if a behaviour can build product portals. 
-		@return {boolean} Return true if you want Animate to allow for building products.*/
-		canBuildProduct( behaviour: Behaviour  ): boolean  { return this._canBuildProduct; }
+		/* 
+        * This function is called by Animate to see if a behaviour can build product portals. 
+		* @return {boolean} Return true if you want Animate to allow for building products.
+        */
+        canBuildProduct(behaviour: Behaviour): boolean
+        {
+            return this._canBuildProduct;
+        }
 
-		/* This function is called by Animate to see if a behaviour can build parameter portals. 
-		@return {boolean} Return true if you want Animate to allow for building parameters.*/
-		canBuildParameter( behaviour : Behaviour ) :boolean { return this._canBuildParameter; }
+		/* 
+        * This function is called by Animate to see if a behaviour can build parameter portals. 
+		* @return {boolean} Return true if you want Animate to allow for building parameters.
+        */
+        canBuildParameter(behaviour: Behaviour): boolean
+        {
+            return this._canBuildParameter;
+        }
 
-		/* This function is called by Animate When a new behaviour is being created. The definition
-		has to provide the behaviour with an array of PortalTemplates.
-		@return {boolean} Return an array of PortalTemplates objects.*/
-		createPortalsTemplates(): Array<PortalTemplate>  { return this._portalTemplates; }
+		/* 
+        * This function is called by Animate When a new behaviour is being created. The definition
+		* has to provide the behaviour with an array of PortalTemplates.
+		* @returns {Array<PortalTemplate>}
+        */
+        portalsTemplates(): Array<PortalTemplate>
+        {
+            return this._portalTemplates;
+        }
 
 		get behaviourName(): string { return this._behaviourName; }
 		get plugin(): IPlugin { return this._plugin; }
-		
 	}
 }

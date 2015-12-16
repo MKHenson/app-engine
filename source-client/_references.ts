@@ -58,11 +58,14 @@
 /// <reference path="lib/core/PageLoader.ts" />
 /// <reference path="lib/core/file-visualizers/ImageVisualizer.ts" />
 
+/// <reference path="lib/core/properties/EditableSet.ts" />
 /// <reference path="lib/core/properties/Prop.ts" />
 /// <reference path="lib/core/properties/PropEnum.ts" />
 /// <reference path="lib/core/properties/PropFileResource.ts" />
 /// <reference path="lib/core/properties/PropNum.ts" />
 /// <reference path="lib/core/properties/PropResource.ts" />
+/// <reference path="lib/core/properties/PropResourceList.ts" />
+/// <reference path="lib/core/properties/PropColor.ts" />
 
 /// <reference path="lib/gui/layouts/ILayout.ts" />
 /// <reference path="lib/gui/layouts/Percentile.ts" />

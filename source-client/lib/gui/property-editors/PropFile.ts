@@ -11,18 +11,11 @@ module Animate
 		}
 
 		/**
-		* Called when a property grid is editing an object. The property name, value and type are passed.
-		* If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-		* the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-		* events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-		* call the notify method.
-		* @param {string} propertyName The name of the property we are creating an HTML element for
-		* @param {any} propertyValue The current value of that property
-		* @param {ParameterType} objectType The type of property we need to create
-		* @param {any} options Any options associated with the parameter
+		* Given a property, the grid editor must produce HTML that can be used to edit the property
+		* @param {Prop<any>} prop The property being edited
 		* @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
 		*/
-		edit( propertyName: string, propertyValue: any, objectType: ParameterType, options: any ): JQuery
+        edit(prop: Prop<any>): JQuery
 		{
 			if ( objectType != ParameterType.FILE )
 				return null;

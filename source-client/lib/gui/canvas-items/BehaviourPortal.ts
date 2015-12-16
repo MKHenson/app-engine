@@ -3,10 +3,10 @@ module Animate
 	export class BehaviourPortal extends Behaviour
 	{
 		private _portalType: PortalType;
-		private _dataType: ParameterType;
+        private _dataType: PropertyType;
 		private _value: any;
 
-		constructor(parent : Component, text : string, portalType: PortalType = PortalType.INPUT, dataType: ParameterType = ParameterType.BOOL, value : any = false)
+        constructor(parent: Component, text: string, portalType: PortalType = PortalType.INPUT, dataType: PropertyType = PropertyType.BOOL, value : any = false)
 		{
 			this._portalType = portalType;
 			this._dataType = dataType;
@@ -40,7 +40,7 @@ module Animate
 		}
 
 		get portaltype(): PortalType { return this._portalType; }
-		get dataType(): ParameterType { return this._dataType; }
+        get dataType(): PropertyType { return this._dataType; }
 		get value(): any { return this._value; }
 	}
 }

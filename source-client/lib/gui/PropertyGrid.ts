@@ -12,15 +12,15 @@ module Animate
 	*/
 	export class PropertyGridEvent extends Event
 	{
-		public prop: Prop<any>;
-        public id: any;
+        public prop: Prop<any>;
+        public object: EditableSet;
 
-		constructor( eventName: string, id: any, prop: any)
+        constructor(object: EditableSet, prop: Prop<any>)
 		{
-			super( eventName );
+			super( "edited" );
 
             this.prop = prop;
-			this.id = id;
+            this.object = object;
 		}
 	}
 
@@ -32,10 +32,9 @@ module Animate
 		public html: JQuery;
 		public name: string;
 		public originalValue: any;
-		public originalType: ParameterType;
 		public editor: PropertyGridEditor;
 
-		constructor( html: JQuery, name: string, originalValue: any, originalType: ParameterType, editor: PropertyGridEditor )
+		constructor( html: JQuery, name: string, originalValue: any, editor: PropertyGridEditor )
 		{
 			this.html = html;
 			this.name = name;
@@ -59,16 +58,13 @@ module Animate
 		private _header: JQuery;
 		private _editors: Array<PropertyGridEditor>;
 		private _editorElements: Array<EditorElement>;
-		
 		private _docker: Docker;
 		private _groups: Array<PropertyGridGroup>;
 		private _endDiv: JQuery;
-		private _editableObject: EditableSet;
+		private _object: EditableSet;
 		private _targetPanel: JQuery;
         private _activePanel: JQuery;
-
-        private _idObject: string;
-
+        
 		constructor( parent : Component )
 		{
 			if ( PropertyGrid._singleton != null )
@@ -82,10 +78,9 @@ module Animate
             this._header = jQuery( "<div class='property-grid-header background-dark'>Select an Object</div>" );
 			this.element.append( this._header );
 
-			//Private vars
+			// Private vars
 			this._editors = [];
 			this._editorElements = [];
-			this._idObject = null;
 			this._docker = null;
 			this._groups = [];
 
@@ -98,7 +93,7 @@ module Animate
 			this.addEditor( new PropColorPicker(this) );
 			this.addEditor( new PropFile( this ) );
 			this.addEditor( new PropAssetList( this ) );
-			this.addEditor( new PropOptionsWindow( this ) );
+			//this.addEditor( new PropOptionsWindow( this ) );
 
 			this._endDiv = jQuery( "<div class='fix' style='height:1px' ></div>" );
 		}
@@ -166,33 +161,31 @@ module Animate
 		* @param {EditableSet} object The object we are editing. You should ideally create a new object {}, and then 
 		* use the function pGridEditble to create valid property grid variables.
 		* @param {string} name The name of the object we are editing
-		* @param {string} id You can give an ID to help identify this item once its edited.
 		* @param {string} img An optional image string
 		* @returns {any} Returns the object we are currently editing
 		*/
-		editableObject( object: EditableSet, name: string, id: any = object, img : string = "" )
+		editableObject( object: EditableSet, name: string, img : string = "" )
 		{
 			if ( !this.enabled )
 				return;
 
 			if (object !== undefined && object != null )
 			{
-				this._idObject = id;
 				this._header.html( ( img && img != "" ? "<img src='" + img + "' />" : "" ) + name );
 
-				//Remove all previous labels and HTML elements.
+				// Remove all previous labels and HTML elements.
 				var ie = this._editorElements.length;
 				while ( ie-- )
 					jQuery( this._editorElements[ie].html ).remove();
 
 				this._editorElements.splice( 0, this._editorElements.length );
 
-				//Cleanup editors
+				// Cleanup editors
 				ie = this._editors.length;
 				while ( ie-- )
 					this._editors[ie].cleanup();
 
-				//Cleanup groups
+				// Cleanup groups
 				var ig = this._groups.length;
 				while ( ig-- )
 				{
@@ -203,8 +196,8 @@ module Animate
 				this._groups = [];
 				var sortable: Array<{ name: string; group: PropertyGridGroup; editor: PropertyGridEditor; divs: JQuery; category: string; }> = [];
 
-				//Set the editable
-				this._editableObject = object;
+				// Set the editable
+				this._object = object;
 
                 var variables: Array<Prop<any>> = object.variables;
 				var len = variables.length;
@@ -213,17 +206,17 @@ module Animate
 					var editors :Array<PropertyGridEditor> = this._editors;
 					var editor = editors.length;
 					while ( editor-- )
-					{
-						if ( variables[i].type == ParameterType.HIDDEN || variables[i].type == ParameterType.HIDDEN_FILE )
+                    {
+                        if (variables[i].type == PropertyType.HIDDEN || variables[i].type == PropertyType.HIDDEN_FILE)
 							continue;
 
-						var editorHTML: JQuery = editors[editor].edit( variables[i].name, variables[i].value, variables[i].type, variables[i].options );
+                        var editorHTML: JQuery = editors[editor].edit(variables[i]);
 						if ( editorHTML != null )
 						{
 							if ( variables[i].category == null || variables[i].category == "" )
 								variables[i].category = "General Properties";
 
-							//First check if the group exists
+							// First check if the group exists
 							var groupI = this._groups.length;
 							var groupComp: PropertyGridGroup = null;
 							while ( groupI-- )
@@ -233,7 +226,7 @@ module Animate
 									break;
 								}
 
-							//If no group exists - then add it
+							// If no group exists - then add it
 							if ( groupComp == null )
 							{
 								groupComp = new PropertyGridGroup( variables[i].category );
@@ -242,9 +235,7 @@ module Animate
 
 							sortable.push({ name: variables[i].name, group: groupComp, editor: editors[editor], divs: editorHTML, category: variables[i].category });
 
-							//editors[editor].grid = this;
-							//editors[editor].propUpdated = this.propUpdated;
-							var elm: EditorElement = new EditorElement(editorHTML, variables[i].name, variables[i].value, variables[i].type, editors[editor]);
+                            var elm: EditorElement = new EditorElement(editorHTML, variables[i].name, variables[i].getVal(), editors[editor]);
 							this._editorElements.push(elm);
 
 							break;
@@ -252,7 +243,7 @@ module Animate
 					}
 				}
 
-				//Sort by the groups first
+				// Sort by the groups first
 				sortable.sort( function ( a, b )
 				{
 					var textA = a.group.name.toUpperCase();
@@ -260,7 +251,7 @@ module Animate
 					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
 				});
 
-				//Finall add the elements to the DOM
+				// Finall add the elements to the DOM
 				var i = sortable.length;
 				while ( i-- )
 				{
@@ -268,11 +259,11 @@ module Animate
 						this.addChild( sortable[i].group );
 				}
 
-				//Just add the fix after each group
+				// Just add the fix after each group
 				this._endDiv.detach();
 				this.element.append( this._endDiv );
 
-				//Now sort each of the sub properties
+				// Now sort each of the sub properties
 				sortable.sort( function ( a, b )
 				{
 					var textA = a.name.toUpperCase();
@@ -280,12 +271,12 @@ module Animate
 					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
 				});
 
-				//Finall add the sub elements to the DOM
+				// Finall add the sub elements to the DOM
 				i = sortable.length;
 				while ( i-- )
 					sortable[i].group.content.append( sortable[i].divs );
 
-				//Finally notify all editors they have been added
+				// Finally notify all editors they have been added
 				i = sortable.length;
 				while ( i-- )
 					sortable[i].editor.onAddedToDom();
@@ -294,7 +285,7 @@ module Animate
 			{
 				this._header.html( "Please select an object." );
 
-				//Remove all previous labels and HTML elements.
+				// Remove all previous labels and HTML elements.
 				var i = this._editorElements.length;
 				while ( i-- )
 				{
@@ -303,12 +294,12 @@ module Animate
 
 				this._editorElements.splice( 0, this._editorElements.length );
 
-				//Cleanup editors
+				// Cleanup editors
 				i = this._editors.length;
 				while ( i-- )
 					this._editors[i].cleanup();
 
-				//Cleanup groups
+				// Cleanup groups
 				i = this._groups.length;
 				while ( i-- )
 				{
@@ -318,25 +309,22 @@ module Animate
 
 				this._groups = [];
 
-				//Set the editable
-				this._editableObject = null;
+				// Set the editable
+				this._object = null;
 			}
 
-			return this._editableObject;
+			return this._object;
 		}
 
 		/**
 		* Called when a property has been updated. This will inturn get the event <PropertyGrid.PROPERTY_EDITED> dispatched.
-		* @param <string> name The name of the property
-		* @param <object> value The new value of the property
-		* @param <string> type The propert type
+		* @param {Prop<any>} prop
 		*/
-		propUpdated( name : string, value : any, type : ParameterType )
+        propUpdated(prop: Prop<any> )
 		{
-			//dispatches the grid event
-
-            var event = new PropertyGridEvent("edited", name, this._idObject, value, type);
-            this._editableObject
+			// dispatches the grid event
+            var event = new PropertyGridEvent(this._object, prop);
+            this._object.parent.emit(event);
             this.emit(event);
 		}
 
@@ -346,7 +334,7 @@ module Animate
 		*/
 		projectReset()
 		{
-			this.editableObject( null, "", "", "" );
+			this.editableObject( null, "", "" );
 		}
 
 		/**
@@ -382,9 +370,9 @@ module Animate
 		*/
 		dispose()
 		{
-			this._editableObject = null;
+			this._object = null;
 
-			//Call super
+			// Call super
 			super.dispose();
 		}
 
@@ -401,7 +389,6 @@ module Animate
 		}
 
 
-		get currentObject(): any { return this._editableObject; }
-		get idObject(): string { return this._idObject; }
+		get currentObject(): any { return this._object; }
 	}
 }

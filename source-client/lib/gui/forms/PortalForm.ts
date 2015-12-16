@@ -88,12 +88,12 @@ module Animate
 
 			if ( item instanceof Portal )
 			{
-				type = (<Portal>item).type;
-				caption = "Edit " + ( <Portal>item ).name;
+                type = (<Portal>item).type;
+                caption = "Edit " + (<Portal>item).property.name;
 			}
 
-			this._portalType = type;
-			(<Label>this._name.val).text = (item instanceof Portal ? (<Portal>item).name : "" );
+            this._portalType = type;
+            (<Label>this._name.val).text = (item instanceof Portal ? (<Portal>item).property.name : "");
 			this._item = item;
 
 			this._warning.textfield.element.css( "color", "" );
@@ -117,8 +117,8 @@ module Animate
 			{
 				this._type.element.show();
 
-				if ( item instanceof Portal )
-					this._typeCombo.selectedItem = ((<Portal>item).dataType).toString();
+                if (item instanceof Portal)
+                    this._typeCombo.selectedItem = ((<Portal>item).property.type).toString();
 
 				this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent( ListEvents.ITEM_SELECTED, ( <ComboBox>this._type.val).selectedItem ) );
 			}
@@ -158,8 +158,8 @@ module Animate
 
 
 					for ( var i = 0; i < behaviour.portals.length; i++ )
-					{
-						if ( behaviour.portals[i].name == newName && ( this._item instanceof Portal && (<Portal>this._item).name != behaviour.portals[i].name ) )
+                    {
+                        if (behaviour.portals[i].property.name == newName && (this._item instanceof Portal && (<Portal>this._item).property.name != behaviour.portals[i].property.name))
 						{
 							( <Label>this._name.val).textfield.element.addClass( "red-border" );
 							this._warning.textfield.element.css( "color", "#FF0000" );
@@ -228,13 +228,13 @@ module Animate
 
 		get name(): string { return (<InputBox>this._name.val).text; }
 		get portalType(): PortalType { return this._portalType; }
-		get value(): any { return this._value; }
-		get parameterType(): ParameterType
+        get value(): any { return this._value; }
+        get parameterType(): PropertyType
 		{
 			if ( this._typeCombo.selectedItem )
-				return ParameterType.fromString( this._typeCombo.selectedItem );
+                return PropertyType.fromString( this._typeCombo.selectedItem );
 			else
-				return ParameterType.BOOL;
+                return PropertyType.BOOL;
 		}
 
 

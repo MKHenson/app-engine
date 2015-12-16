@@ -11,52 +11,44 @@ module Animate
 		}
 
 		/**
-		* Called when a property grid is editing an object. The property name, value and type are passed.
-		* If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-		* the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-		* events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-		* call the notify method.
-		* @param {string} propertyName The name of the property we are creating an HTML element for
-		* @param {any} propertyValue The current value of that property
-		* @param {ParameterType} objectType The type of property we need to create
-		* @param {any} options Any options associated with the parameter
-		* @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+		* Given a property, the grid editor must produce HTML that can be used to edit the property
+		* @param {Prop<any>} prop The property being edited
+		* @param {Component} container The container acting as this editors parent
 		*/
-		edit( propertyName: string, propertyValue: any, objectType: ParameterType, options: any ): JQuery
-		{
-			if (  objectType != ParameterType.ENUM  )
-				return null;
+        edit(prop: Prop<any>, container: Component)
+        {
+            if (prop instanceof PropEnum == false)
+                return null;
 
-			//Create HTML	
-			var editor: JQuery =
-				this.createEditorJQuery( propertyName, "<select class='prop-combo'></select>", propertyValue );
+            var p = <PropEnum>prop;
 
+			// Create HTML	
+            var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
 			var selector: JQuery = jQuery( "select", editor );
+            
+            // Add to DOM
+            container.element.append(editor);
 
-			//Enums
-			var selectedValue: string = propertyValue.selected;
-			var vars: Array<string> = propertyValue.choices;
+            // Enums
+            var selectedValue: string = p.getVal();
+			var vars = p.choices;
 			vars = vars.sort();
 
 			var len: number = vars.length;
 			for ( var i: number = 0; i < len; i++ )
-				selector.append( "<option value='" + vars[i] + "' " + ( selectedValue == vars[i] ? "selected='selected'" : "" ) + ">" + vars[i] + "</option>" );
+                selector.append(`<option value='${vars[i]}' ${( selectedValue == vars[i] ? "selected='selected'" : "" )}>${vars[i]}</option>` );
 		
-
 			var that = this;
 
-			//Functions to deal with user interactions with JQuery
+			// Functions to deal with user interactions with JQuery
             var onSelect = function (e: JQueryEventObject  ) 
 			{
-				var val = selector.val();
-				that.notify( propertyName, { choices: vars, selected : val }, objectType );
+                var val = selector.val();
+                p.setVal(val);
 			};
 			
-			//Add listeners
+			// Add listeners
 			selector.on( "change", onSelect );
-
-			//Finall return editor as HTML to be added to the page
-			return editor;
 		}
 	}
 }

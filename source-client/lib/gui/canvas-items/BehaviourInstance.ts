@@ -33,8 +33,8 @@ module Animate
 
 							while ( ii-- )
 								this.addPortal(
-									( <BehaviourPortal>children[ci] ).portaltype,
-									portals[ii].name,
+                                    (<BehaviourPortal>children[ci]).portaltype,
+                                    portals[ii].property.clone(),
 									portals[ii].value,
 									portals[ii].dataType, false );
 						}

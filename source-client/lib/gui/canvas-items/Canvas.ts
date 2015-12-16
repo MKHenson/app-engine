@@ -76,13 +76,12 @@ module Animate
 			this._container = container;
 			container.canvas = this;
 
-			//Define proxies
+			// Define proxies
 			this.mContextProxy = this.onContext.bind( this );
 			this.keyProxy = this.onKeyDown.bind( this );
 			this.mContextNode = null;
 
-			//Hook listeners
-
+			// Hook listeners
 			jQuery( "body" ).on( "keydown", this.keyProxy );
 			jQuery( document ).on( "contextmenu", this.mContextProxy );
 
@@ -102,7 +101,7 @@ module Animate
 		{
 			var target: Behaviour = <Behaviour>jQuery( e.currentTarget ).data( "component" );
 
-			//Shift key pressed - so lets create a shortcut
+			// Shift key pressed - so lets create a shortcut
 			if ( e.shiftKey )
 			{
 				if ( !( target.canGhost ) )
@@ -154,11 +153,11 @@ module Animate
 
 			target.element.css( { top: top + "px", left: left + "px" });
 
-			//Upadte the links
+			// Upadte the links
 			for ( var i = 0, l = target.portals.length; i < l; i++ )
 				target.portals[i].updateAllLinks();
 
-			//Notify of change
+			// Notify of change
 			this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 		}
 
@@ -201,7 +200,7 @@ module Animate
 			node.asset = asset;
             node.parameters[0].value = { selected: asset.entry.shallowId, classname : "" };
 
-			//Add a reference to this canvas's scene assets
+			// Add a reference to this canvas's scene assets
 			if ( asset )
 			{
                 node.text = asset.entry.name;
@@ -239,7 +238,7 @@ module Animate
 			this.mContextNode = null;
 			this._containerReferences = null;
 
-			//Call super
+			// Call super
 			super.dispose();
 		}
 
@@ -258,13 +257,13 @@ module Animate
 			{
 				var item: Behaviour = <Behaviour>this.children[i];
 
-				//If it contains any assests - then we make sure they are removed from this canvas
+				// If it contains any assests - then we make sure they are removed from this canvas
 				if ( item instanceof Behaviour )
 				{
 					for ( var ii = 0, il = item.parameters.length; ii < il; ii++ )
 					{
-						var portal: Portal = item.parameters[ii];
-						if ( portal.dataType == ParameterType.ASSET && portal.value != null )
+                        var portal: Portal = item.parameters[ii];
+                        if (portal.dataType == PropertyType.ASSET && portal.value != null)
 						{
                             var assetID: number = parseInt(portal.value.selected);
                             if (project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET) == asset)
@@ -275,7 +274,7 @@ module Animate
 									( <BehaviourAsset>item ).asset = null;
 							}
 						}
-						else if ( portal.dataType == ParameterType.ASSET_LIST && portal.value != null && portal.value.selectedAssets.length > 0 )
+                        else if (portal.dataType == PropertyType.ASSET_LIST && portal.value != null && portal.value.selectedAssets.length > 0 )
 						{
 							for ( var a, al = portal.value.selectedAssets.length; a < al; a++ )
 							{
@@ -356,19 +355,19 @@ module Animate
 		{
 			if ( event.item.text == "Delete" )
 			{
-				//Delete portal
+				// Delete portal
                 if (this.mContextNode instanceof Portal)
                 {
                     var behaviour: Behaviour = (<Portal>this.mContextNode).behaviour;
                     behaviour.removePortal(<Portal>this.mContextNode);
 
-                    var toEdit: EditableSet = new EditableSet();
+                    var toEdit: EditableSet = new EditableSet(behaviour);
                     var i = behaviour.parameters.length;
                     while (i--)
                         if (behaviour.parameters[i].links.length <= 0)
-                            toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, ParameterType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
+                            toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, PropertyType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
 
-                    PropertyGrid.getSingleton().editableObject(toEdit, behaviour.text + " - " + behaviour.id, behaviour.id, null);
+                    PropertyGrid.getSingleton().editableObject(toEdit, behaviour.text + " - " + behaviour.id, null);
                     return;
                 }
                 else
@@ -376,7 +375,7 @@ module Animate
 			}
 			else if ( event.item.text == "Remove Empty Assets" )
 			{
-				//Remove all selected
+				// Remove all selected
 				var toRemove = [];
 				var i = this.children.length;
 				while ( i-- )
@@ -388,7 +387,7 @@ module Animate
 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value == ":" )
 							this.removeItem( toRemove[i] );
 			}
-			//Edit an existing portal
+			// Edit an existing portal
 			else if ( event.item.text == "Edit Portal" )
 			{
 				PortalForm.getSingleton().showForm( <Portal>this.mContextNode, null, null );
@@ -398,7 +397,7 @@ module Animate
 				var context = Application.getInstance().canvasContext;
 				BehaviourPicker.getSingleton().show( Application.getInstance(), context.element.offset().left, context.element.offset().top, false, true );
 			}
-			//Create a comment
+			// Create a comment
 			else if ( event.item.text == "Create Comment" )
 			{
 				var context = Application.getInstance().canvasContext;
@@ -409,7 +408,7 @@ module Animate
 			else if ( event.item.text == "Create Input" || event.item.text == "Create Output"
 				|| event.item.text == "Create Parameter" || event.item.text == "Create Product" )
 			{
-				//Define the type of portal
+				// Define the type of portal
 				var type: PortalType = PortalType.INPUT;
 				if ( event.item.text == "Create Output" )
 					type = PortalType.OUTPUT;
@@ -442,9 +441,9 @@ module Animate
 			var properties = asset.properties.variables;
 
 			for ( var i = 0, l = properties.length; i < l; i++ )
-                if (properties[i].type == ParameterType.ASSET)
+                if (properties[i].type == PropertyType.ASSET)
                     this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
-                else if (properties[i].type == ParameterType.ASSET_LIST)
+                else if (properties[i].type == PropertyType.ASSET_LIST)
                     this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
 		}
 
@@ -475,22 +474,22 @@ module Animate
 					//Check all behaviours and their portals
 					for ( var ii = 0; ii < portals.length; ii++ )
 					{
-						//If there is an asset previously and its being removed
-						if ( portals[ii].dataType == ParameterType.ASSET && portals[ii].value != null && portals[ii].value.selected )
+                        //If there is an asset previously and its being removed
+                        if (portals[ii].dataType == PropertyType.ASSET && portals[ii].value != null && portals[ii].value.selected)
                         {
                             var asset: Asset = project.getResourceByShallowID<Asset>(parseInt(portals[ii].value.selected), ResourceType.ASSET);
 
 							if ( asset )
 								this.getAssetList( asset, curAssets );
 						}
-						else if ( portals[ii].dataType == ParameterType.GROUP && portals[ii].value != null && portals[ii].value != "" )
+                        else if (portals[ii].dataType == PropertyType.GROUP && portals[ii].value != null && portals[ii].value != "" )
                         {
                             var group = project.getResourceByShallowID<GroupArray>(parseInt(portals[ii].value.selected), ResourceType.GROUP);
                             
                             if (group)
                                 curGroups.push(group.entry._id);
 						}
-						else if ( portals[ii].dataType == ParameterType.ASSET_LIST && portals[ii].value != null && portals[ii].value.selectedAssets.length > 0 )
+                        else if (portals[ii].dataType == PropertyType.ASSET_LIST && portals[ii].value != null && portals[ii].value.selectedAssets.length > 0 )
 						{
 							for ( var a, al = portals[ii].value.selectedAssets.length; a < al; a++ )
                             {
@@ -610,17 +609,17 @@ module Animate
 					if ( p instanceof BehaviourPortal )
 						( <BehaviourPortal>p ).text = portal.name;
 
-					//Show in prop editor
+					// Show in prop editor
 					var behaviour = portal.behaviour;
-					var toEdit: EditableSet = new EditableSet();
+                    var toEdit: EditableSet = new EditableSet(behaviour);
 					var i = behaviour.parameters.length;
 					while ( i-- )
 						if ( behaviour.parameters[i].links.length <= 0 )
 							toEdit.addVar( behaviour.parameters[i].name, behaviour.parameters[i].value, behaviour.parameters[i].dataType, behaviour.element.text(), null );
 
-					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, behaviour, "" );
+					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, "" );
 
-					//Notify of change
+					// Notify of change
 					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._container, portal, this ) );
 
 					return;
@@ -653,7 +652,7 @@ module Animate
 					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._container, newNode.portals[0], this ) );
 				}
 
-				//Notify of change
+				// Notify of change
 				this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 			}
 		}
@@ -698,7 +697,6 @@ module Animate
 				this.mContextNode = null;
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, null );
-				context.element.css( { "width": "+=20px" });
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
@@ -707,7 +705,6 @@ module Animate
 			{
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
-				context.element.css( { "width": "+=20px" });
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
@@ -721,7 +718,6 @@ module Animate
 				if ( hit )
 				{
 					context.showContext( e.pageX, e.pageY, link );
-					context.element.css( { "width": "+=20px" });
 					context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 					context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 				}
@@ -732,7 +728,6 @@ module Animate
 			{
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
-				context.element.css( { "width": "+=20px" });
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
@@ -743,7 +738,6 @@ module Animate
 			{
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this.mContextNode );
-				context.element.css( { "width": "+=20px" });
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
@@ -845,7 +839,7 @@ module Animate
 				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour ); 
 				if ( cyclic )
 				{
-					MessageBox.show( "You have a cylic dependency with the behaviour '" + nameOfBehaviour + "'", ["Ok"], null, null );
+                    MessageBox.show(`You have a cylic dependency with the behaviour '${nameOfBehaviour}'`, ["Ok"], null, null );
 					return null;
 				}
 				toAdd = new BehaviourInstance( this, container );
@@ -860,25 +854,12 @@ module Animate
 			if ( template.behaviourName != "Instance" )
 				toAdd.text = template.behaviourName;
 
-			var portalTemplates = null;
+			var portalTemplates = template.portalsTemplates();
 
-			if ( template.createPortalsTemplates )
-				portalTemplates = template.createPortalsTemplates();
-
-			//Check for name duplicates
+			// Check for name duplicates
 			if ( portalTemplates )
 			{
-				for ( var i = 0; i < portalTemplates.length; i++ )
-					for ( var ii = 0; ii < portalTemplates.length; ii++ )
-						if ( ii != i && portalTemplates[i].name == portalTemplates[ii].name )
-						{
-							MessageBox.show( "One of the portals " + portalTemplates[ii].name + " has the same name as another.", Array<string>( "Ok" ), null, null );
-							toAdd.dispose();
-							toAdd = null;
-							return;
-						}
-
-				//Create each of the portals
+				// Create each of the portals
 				for ( var i = 0; i < portalTemplates.length; i++ )
 				{
 					var portal = toAdd.addPortal(
@@ -1047,7 +1028,7 @@ module Animate
 		{
 			if ( comp == null )
 			{
-				//Remove all glows
+				// Remove all glows
 				var children = this.children;
 
 				for ( var i = 0, l = children.length; i < l; i++ )
@@ -1057,9 +1038,9 @@ module Animate
 						children[i].selected = false;
 				}
 
-				//Set the selected item
+				// Set the selected item
 				Canvas.lastSelectedItem = null;
-				PropertyGrid.getSingleton().editableObject( null, "", null, "" );
+				PropertyGrid.getSingleton().editableObject( null, "", "" );
 				Toolbar.getSingleton().itemSelected( null );
 				return;
 			}
@@ -1069,14 +1050,14 @@ module Animate
 				comp.element.removeClass( "green-glow-strong" );
 				comp.selected = false;
 				Canvas.lastSelectedItem = null;
-				PropertyGrid.getSingleton().editableObject( null, "", null, "" );
+				PropertyGrid.getSingleton().editableObject( null, "", "" );
 				Toolbar.getSingleton().itemSelected( null );
 				return;
 			}
 
 			comp.selected = true;
 
-			//Set the selected item
+			// Set the selected item
 			Canvas.lastSelectedItem = comp;
 
 			if ( comp instanceof Behaviour )
@@ -1085,7 +1066,7 @@ module Animate
 
 				var toEdit: EditableSet = new EditableSet();
 
-				//Hand the item to the editor
+				// Hand the item to the editor
 				if ( comp instanceof BehaviourComment )
 				{
 					toEdit.addVar( "text", ( <BehaviourComment>comp ).text, ParameterType.STRING, null, null )
@@ -1101,7 +1082,7 @@ module Animate
 					PropertyGrid.getSingleton().editableObject( toEdit, ( <BehaviourShortcut>comp ).text + " - " + comp.id, comp, "" );
 				}
 
-				//Highlight all shortcuts
+				// Highlight all shortcuts
 				var children = this.children;
 				var i = children.length;
 				while ( i-- )
@@ -1113,9 +1094,9 @@ module Animate
 			}
 			else if ( comp instanceof Link && ( <Link>comp ).startPortal.type == PortalType.OUTPUT )
 			{
-				var toEdit: EditableSet = new EditableSet();
+                var toEdit: EditableSet = new EditableSet(comp);
 				toEdit.addVar( "Frame delay", ( <Link>comp ).frameDelay, ParameterType.NUMBER, "Link Properties", null );
-				PropertyGrid.getSingleton().editableObject( toEdit, "Link - " + ( <Link>comp ).id, comp, "" );
+				PropertyGrid.getSingleton().editableObject( toEdit, "Link - " + ( <Link>comp ).id, "" );
 			}
 
 			Toolbar.getSingleton().itemSelected( comp );
@@ -1146,11 +1127,9 @@ module Animate
 		*/
 		onMouseUp( e: any )
 		{
-			//if ( e.which != 1 )
-			//	return;
 			var comp = jQuery( e.currentTarget ).data( "component" );
 
-			//Unselect all other items
+			// Unselect all other items
 			if ( !e.ctrlKey )
 				for ( var i = 0; i < this.children.length; i++ )
 					this.children[i].selected = false;
@@ -1162,8 +1141,8 @@ module Animate
 				return;
 			}
 
-			//Not a behaviour so lets see if its a link	
-			//Make sure we actually hit a link
+			// Not a behaviour so lets see if its a link	
+			// Make sure we actually hit a link
 			var len = this.children.length;
 			for ( var i = 0; i < len; i++ )
 			{
@@ -1200,12 +1179,8 @@ module Animate
 		*/
 		addChild( child ): Component
 		{
-			//call super
-			var toRet: Component = Component.prototype.addChild.call( this, child );
-
-			//if ( toRet )
-			//	DragManager.getSingleton().setDraggable( toRet, true, this, null );
-
+			// Call super
+            var toRet: Component = super.addChild.call( this, child );
             if (toRet instanceof Behaviour)
                 toRet.element.draggable(<JQueryUI.DraggableOptions>{ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 });
 
@@ -1221,8 +1196,8 @@ module Animate
 		*/
 		removeChild( child ): Component
 		{
-			//call super
-			var toRet: Component = Component.prototype.removeChild.call( this, child );
+			// Call super
+			var toRet: Component = super.removeChild.call( this, child );
 
 			if ( toRet )
 				toRet.element.off( "mouseup", this.mUpProxy );
@@ -1237,10 +1212,9 @@ module Animate
 		*/
 		onChildMoving( e, ui )
 		{
-			//var canvasParent : JQuery = this.element;
 			var target: Component = jQuery( e.target ).data( "component" );
 
-			//Upadte the links
+			// Upadte the links
 			var i = ( <Behaviour>target ).portals.length;
 			while ( i-- )
 				( <Behaviour>target ).portals[i].updateAllLinks();
@@ -1272,11 +1246,11 @@ module Animate
 			if ( items == null )
 				items = this.children;
 
-			//Let the plugins save their data			
+			// Let the plugins save their data			
 			PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._container, data.plugins, this._containerReferences ) );
 
 
-			//Create a multidimension array and pass each of the project dependencies
+			// Create a multidimension array and pass each of the project dependencies
 			var len = items.length;
 			for ( var i = 0; i < len; i++ )
 			{
@@ -1289,7 +1263,7 @@ module Animate
 				data.items[i].zIndex = items[i].element.css( "z-index" );
 				data.items[i].position = items[i].element.css( "position" );
 
-				//Now do all portals if its a behaviour
+				// Now do all portals if its a behaviour
 				if ( items[i] instanceof Behaviour )
 				{
 					if ( items[i] instanceof BehaviourComment )
@@ -1303,12 +1277,8 @@ module Animate
 					if ( items[i] instanceof BehaviourAsset )
                         data.items[i].assetID = ((<BehaviourAsset>items[i]).asset ? (<BehaviourAsset>items[i]).asset.entry.shallowId : 0 );
 					else if ( items[i] instanceof BehaviourScript )
-					{
-						//First initialize the script node to make sure we have a DB entry
-						//( <BehaviourScript>items[i] ).initializeDB();
-						//if ( ( <BehaviourScript>items[i] ).shallowId === 0 ) continue;
+						// First initialize the script node to make sure we have a DB entry
                         data.items[i].scriptId = (<BehaviourScript>items[i]).scriptId;
-					}
 					else if ( items[i] instanceof BehaviourShortcut )
 					{
 						data.items[i].behaviourID = ( ( <BehaviourShortcut>items[i] ).originalNode ? ( <BehaviourShortcut>items[i] ).originalNode.id : "" );
@@ -1353,7 +1323,7 @@ module Animate
 					data.items[i].startBehaviour = sbehaviour.id;
 					data.items[i].endBehaviour = ebehaviour.id;
 
-					//Create additional data for shortcuts
+					// Create additional data for shortcuts
 					data.items[i].targetStartBehaviour = ( sbehaviour instanceof BehaviourShortcut ? ( <BehaviourShortcut>sbehaviour ).originalNode.id : sbehaviour.id );
 					data.items[i].targetEndBehaviour = ( ebehaviour instanceof BehaviourShortcut ? ( <BehaviourShortcut>ebehaviour ).originalNode.id : ebehaviour.id );
 				}
@@ -1371,7 +1341,7 @@ module Animate
 		*/
 		openFromDataObject( dataToken?: CanvasToken, clearItems: boolean = true, addSceneAssets: boolean = false )
 		{
-			//Create the data object from the JSON
+			// Create the data object from the JSON
 			var jsonObj: CanvasToken = null;
 			var pManager: PluginManager = PluginManager.getSingleton();
 
@@ -1381,7 +1351,7 @@ module Animate
             else if (this._container.entry.json !== null )
                 jsonObj = this._container.entry.json;
 
-			//Cleanup the 
+			// Cleanup the 
 			if ( clearItems )
 				while ( this.children.length > 0 )
 					this.children[0].dispose();
@@ -1395,11 +1365,11 @@ module Animate
 				{
 					var item: Component = null;
 
-					//Create the GUI element
+					// Create the GUI element
 					if ( jsonObj.items[i].type == "BehaviourPortal" )
 					{
-						//Check if there is already a portal with that name. if it does then it
-						//is ignored.
+						// Check if there is already a portal with that name. if it does then it
+						// is ignored.
 						var nameInUse = false;
 						var len = this.children.length;
 						for ( var ii = 0; ii < len; ii++ )
@@ -1449,14 +1419,15 @@ module Animate
 					else if ( jsonObj.items[i].type == "Link" )
 					{
 						var l: Link = new Link( this );
-						item = l;
-						//Links we treat differerntly. They need all the behaviours 
-						//loaded first. So we do that, and keep each link in an array
-						//to load after the behaviours
+                        item = l;
+
+						// Links we treat differerntly. They need all the behaviours 
+						// loaded first. So we do that, and keep each link in an array
+						// to load after the behaviours
 						links.push( l );
 						l.frameDelay = ( jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1 );
 
-						//Store some temp data on the tag
+						// Store some temp data on the tag
 						l.tag = {};
 						l.tag.startPortalName = jsonObj.items[i].startPortal;
 						l.tag.endPortalName = jsonObj.items[i].endPortal;
@@ -1468,12 +1439,12 @@ module Animate
 
 
 
-					//Check if it was created ok
+					// Check if it was created ok
 					if ( item != null )
 					{
 						item.savedID = jsonObj.items[i].id;
 
-						//Set the positioning etc...
+						// Set the positioning etc...
 						item.element.css( {
 							"left": jsonObj.items[i].left,
 							"top": jsonObj.items[i].top,
@@ -1481,7 +1452,7 @@ module Animate
 							"position": jsonObj.items[i].position
 						});
 
-						//Add the portals if they exist
+						// Add the portals if they exist
 						if ( jsonObj.items[i].portals )
 						{
 							for ( var iii = 0; iii < jsonObj.items[i].portals.length; iii++ )
@@ -1497,7 +1468,7 @@ module Animate
 									portal.customPortal = false;
 							}
 
-							//Set the alias text if it exists
+							// Set the alias text if it exists
 							if ( jsonObj.items[i].alias && jsonObj.items[i].alias != "" && jsonObj.items[i].alias != null )
 							{
 								( <Behaviour>item ).text = jsonObj.items[i].alias;
@@ -1511,7 +1482,7 @@ module Animate
 				}
 			}
 
-			//Link any shortcut nodes
+			// Link any shortcut nodes
 			for ( var li = 0, lil = this.children.length; li < lil; li++ )
 			{
 				for ( var ii = 0, lii = shortcuts.length; ii < lii; ii++ )
@@ -1521,11 +1492,12 @@ module Animate
 					}
 			}
 
-			//Now do each of the links
+			// Now do each of the links
 			for ( var li = 0, llen = links.length; li < llen; li++ )
 			{
-				var link: Link = links[li];
-				//We need to find the nodes first
+                var link: Link = links[li];
+
+				// We need to find the nodes first
 				var len = this.children.length;
 				for ( var ii = 0; ii < len; ii++ )
 				{
@@ -1534,7 +1506,7 @@ module Animate
 						var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
 						link.tag.startBehaviour = behaviour;
 
-						//Now that the nodes have been set - we have to set the portals
+						// Now that the nodes have been set - we have to set the portals
 						for ( var iii = 0; iii < behaviour.portals.length; iii++ )
 						{
 							var portal: Portal = behaviour.portals[iii];
@@ -1555,7 +1527,7 @@ module Animate
 						var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
 						link.tag.endBehaviour = behaviour;
 
-						//Now that the nodes have been set - we have to set the portals
+						// Now that the nodes have been set - we have to set the portals
 						for ( var iii = 0; iii < behaviour.portals.length; iii++ )
 						{
 							var portal = behaviour.portals[iii];
@@ -1585,14 +1557,14 @@ module Animate
 					}
 				}
 
-				//Clear the temp tag
+				// Clear the temp tag
 				link.tag = null;
 			}
 
 			for ( var c = 0, cl = this.children.length; c < cl; c++ )
 				this.children[c].savedID = null;
 
-			//Let the plugins open their data
+			// Let the plugins open their data
 			if ( jsonObj && jsonObj.plugins )				
 				pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._container, jsonObj.plugins ) );
 
@@ -1605,7 +1577,7 @@ module Animate
 		*/
 		checkDimensions()
 		{
-			//Make sure that the canvas is sized correctly
+			// Make sure that the canvas is sized correctly
 			var w = 0;
 			var h = 0;
 			var i = this.children.length;

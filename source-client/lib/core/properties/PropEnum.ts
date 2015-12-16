@@ -17,7 +17,7 @@
         */
         constructor(name: string, value: string, choices: Array<string>, category?: string, options?: any)
         {
-            super(name, value, category, options);
+            super(name, value, category, options, PropertyType.ENUM);
             this.choices = choices;
         }
 
@@ -36,17 +36,22 @@
             return token;
         }
 
+        /** 
+        * Attempts to clone the property
+        * @returns {PropEnum}
+        */
+        clone(clone?: PropEnum): PropEnum
+        {
+            return new PropEnum(this.name, this._value, this.choices, this.category, this.options);
+        }
+
         /**
        * De-Tokenizes data from a JSON. 
        * @param {any} data The data to import from
-       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
        */
-        deTokenize(data: PropEnum, slim: boolean = false)
+        deTokenize(data: PropEnum)
         {
-            if (slim)
-                return super.deTokenize(data, slim);
-          
-            super.deTokenize(data, slim);
+            super.deTokenize(data);
             this.choices = data.choices;
         }
     }

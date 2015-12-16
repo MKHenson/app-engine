@@ -1,18 +1,33 @@
 ﻿module Animate
 {
+    export class EditEvent extends Event
+    {
+        property: Prop<any>;
+        set: EditableSet;
+
+        constructor(property: Prop<any>, set: EditableSet)
+        {
+            super("edited");
+            this.property = property;
+            this.set = set;
+        }
+    }
+
     /**
     * Defines a set of variables to use in the property grid
     */
     export class EditableSet
     {
         private _variables: Array<Prop<any>>;
+        parent: EventDispatcher;
 
         /**
         * Creates a {PropertyGridSet} 
         */
-        constructor()
+        constructor(parent: EventDispatcher)
         {
             this._variables = [];
+            this.parent = parent;
         }
 		
         /** 
@@ -26,6 +41,7 @@
                 if (items[i].name == prop.name)
                     throw new Error(`A property with the name '${prop.name}' already exists`);
 
+            prop.set = this;
             this._variables.push(prop);
         }
 
@@ -54,9 +70,18 @@
             for (var i = 0, l = items.length; i < l; i++)
                 if (items[i].name == name)
                 {
+                    items[i].set = null;
                     items[i].dispose();
                     items.splice(i, 1);
                 }
+        }
+
+        /**
+        * Broadcasts an "edited" event to the owner of the set
+        */
+        notifyEdit(prop: Prop<any>)
+        {
+            this.parent.emit(new EditEvent(prop, this));
         }
 
         /**
@@ -93,19 +118,19 @@
         /**
         * De-Tokenizes data from a JSON. 
         * @param {any} data The data to import from
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         */
-        deTokenize( data: any, slim: boolean = false)
+        deTokenize(data: any)
         {
             var toRet: any = {};
             var items = this._variables;
+            items.splice(0, items.length);
+            
             for (var t in data)
-                for (var i = 0, l = items.length; i < l; i++)
-                    if (items[i].name == t)
-                    {
-                        items[i].deTokenize(data[t]);
-                        break;
-                    }
+            {
+                var prop: Prop<any> = createProperty(data[t], this);
+                prop.deTokenize(data[t]);
+                items.push(prop);
+            }
         }
 
          /**
@@ -113,5 +138,14 @@
         * @returns {Array<Prop<any>>}
         */
         get variables(): Array<Prop<any>> { return this._variables; }
+
+        /**
+         * Cleans up and removes the references
+         */
+        dispose()
+        {
+            this._variables = null;
+            this.parent = null;
+        }
     }
 }

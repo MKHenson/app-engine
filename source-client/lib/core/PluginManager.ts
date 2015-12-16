@@ -273,18 +273,18 @@ module Animate
 				Animate.TreeViewScene.getSingleton().findNode( "asset", asset ), panToNode, multiSelect );
 		}
 
-		/** 
-		* Gets the currently selected asset from the PropertyGrid
-		* @returns {Asset} asset The Asset object we need to select
-		*/
-		getSelectedAsset() : Asset
-		{
-			var pgrid: PropertyGrid = PropertyGrid.getSingleton();
-			if ( pgrid.idObject && pgrid.idObject instanceof TreeNodeAssetInstance )
-                return (<TreeNodeAssetInstance>pgrid.idObject).resource;
+		///** 
+		//* Gets the currently selected asset from the PropertyGrid
+		//* @returns {Asset} asset The Asset object we need to select
+		//*/
+		//getSelectedAsset() : Asset
+		//{
+		//	var pgrid: PropertyGrid = PropertyGrid.getSingleton();
+		//	if ( pgrid.idObject && pgrid.idObject instanceof TreeNodeAssetInstance )
+  //              return (<TreeNodeAssetInstance>pgrid.idObject).resource;
 
-			return null
-		}
+		//	return null
+		//}
 
 		///**
 		//* This is called when the scene is built. The object passed to this function represents
@@ -349,25 +349,25 @@ module Animate
 		//	return toRet;
 		//}
 
-		///**
-		//* Gets an asset class by its name
-		//* @param {string} name The name of the asset class
-		//* @param {AssetClass}
-		//*/
-		//getAssetClass( name: string ) : AssetClass
-		//{
-		//	// Assign any of the options / missing variables for classes that are updated in code but not in the DB
-		//	var assetTemplates: Array<AssetTemplate> = this._assetTemplates;
-		//	var classFound: boolean = false;
-		//	for ( var i = 0, l = assetTemplates.length; i < l; i++ )
-		//	{
-		//		var assetClass: AssetClass = assetTemplates[i].findClass( name );
-		//		if ( assetClass )
-		//			return assetClass;
-		//	}
+		/**
+		* Gets an asset class by its name
+		* @param {string} name The name of the asset class
+		* @param {AssetClass}
+		*/
+		getAssetClass( name: string ) : AssetClass
+		{
+			// Assign any of the options / missing variables for classes that are updated in code but not in the DB
+			var assetTemplates: Array<AssetTemplate> = this._assetTemplates;
+			var classFound: boolean = false;
+			for ( var i = 0, l = assetTemplates.length; i < l; i++ )
+			{
+				var assetClass: AssetClass = assetTemplates[i].findClass( name );
+				if ( assetClass )
+					return assetClass;
+			}
 
-		//	return null;
-		//}
+			return null;
+		}
 
 		/**
 		* When an asset is created this function will notify all plugins of its existance

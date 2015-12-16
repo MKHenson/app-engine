@@ -417,13 +417,14 @@ module Animate
         * @param {ResourceType} type The type of resource to create
         * @returns {ProjectResource<T>}
 		*/
-        private createResourceInstance<T>(entry: T, type?: ResourceType): ProjectResource<T>
+        private createResourceInstance<T extends Engine.IResource>(entry: T, type?: ResourceType): ProjectResource<T>
         {
             var resource: ProjectResource<any>;
 
             if (type == ResourceType.ASSET)
             {
-                resource = new Asset(entry);
+                var aClass = PluginManager.getSingleton().getAssetClass((<Engine.IAsset>entry).className);
+                resource = new Asset(aClass, entry);
                 this._assets.push(<Asset>resource);
             }
             else if (type == ResourceType.SCRIPT)

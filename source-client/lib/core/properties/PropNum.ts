@@ -23,7 +23,7 @@
         */
         constructor(name: string, value: number, min: number = Infinity, max: number = Infinity, decimals: number = 0, interval: number = 1, category?: string, options?: any)
         {
-            super(name, value, category, options);
+            super(name, value, category, options, PropertyType.NUMBER);
             this.min = min;
             this.max = max;
             this.decimals = decimals;
@@ -66,18 +66,23 @@
         /**
         * De-Tokenizes data from a JSON. 
         * @param {any} data The data to import from
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         */
-        deTokenize(data: PropNum, slim: boolean = false)
+        deTokenize(data: PropNum)
         {
-            if (slim)
-                return super.deTokenize(data, slim);
-
-            super.deTokenize(data, slim);
+            super.deTokenize(data);
             this.min = data.min;
             this.max = data.max;
             this.decimals = data.decimals;
             this.interval = data.interval;
+        }
+
+        /** 
+        * Attempts to clone the property
+        * @returns {PropNum}
+        */
+        clone(clone?: PropNum): PropNum
+        {
+            return new PropNum(this.name, this._value, this.min, this.max, this.decimals, this.interval, this.category, this.options);
         }
     }
 }

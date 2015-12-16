@@ -105,7 +105,7 @@ module Animate
 					var props = behaviour.properties.tokenize();
 					for ( var pi in props )
 					{
-						var propType: ParameterType = ParameterType.fromString( props[pi].type );
+                        var propType: PropertyType = PropertyType.fromString( props[pi].type );
 						var propVal = props[pi].value;
 						containerToken.properties[props[pi].name] = ImportExport.getExportValue( propType, propVal );
 					}
@@ -162,7 +162,7 @@ module Animate
 									portalToken.value = ImportExport.getExportValue( canvasTokenItem.portals[ci].dataType, canvasTokenItem.portals[ci].value );
 
 									//Check for assets, and if so, add the asset to the assets 
-									if ( canvasTokenItem.portals[ci].dataType == ParameterType.ASSET )
+                                    if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET )
 									{
 										if ( portalToken.value != null && portalToken.value != "" )
 										{
@@ -177,7 +177,7 @@ module Animate
 											}
 										}
 									}
-									else if ( canvasTokenItem.portals[ci].dataType == ParameterType.ASSET_LIST )
+                                    else if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET_LIST )
 									{
 										if ( portalToken.value != null && portalToken.value.selectedAssets.length != 0 )
 										{
@@ -195,11 +195,11 @@ module Animate
 											}
 										}
 									}
-									else if ( canvasTokenItem.portals[ci].dataType == ParameterType.GROUP )
+                                    else if (canvasTokenItem.portals[ci].dataType == PropertyType.GROUP )
 									{
 										if ( portalToken.value != null && portalToken.value != "" )
 										{
-											var groupID: string = ImportExport.getExportValue( ParameterType.GROUP, portalToken.value );
+                                            var groupID: string = ImportExport.getExportValue(PropertyType.GROUP, portalToken.value );
 											if ( groupID != null && groupID != "" )
 											{
 												//It can also the be case that groups reference other groups. In those
@@ -247,7 +247,7 @@ module Animate
 					var aprops = asset.properties.tokenize();
 					for ( var assetPropName in aprops )
 					{
-						var propType: ParameterType = ParameterType.fromString( aprops[assetPropName].type.toString() );
+                        var propType: PropertyType = PropertyType.fromString( aprops[assetPropName].type.toString() );
 						var propVal: any = aprops[assetPropName].value;
 						assetToken.properties[aprops[assetPropName].name] = ImportExport.getExportValue( propType, propVal );
 					}
@@ -293,7 +293,7 @@ module Animate
 			//Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
 			for ( var i = 0, l = assetVars.length; i < l; i++ )
 			{
-				if ( assetVars[i].type == ParameterType.ASSET )
+                if (assetVars[i].type == PropertyType.ASSET )
 				{
 					var assetID: number = ImportExport.getExportValue( assetVars[i].type, assetVars[i].value );
 					if ( !isNaN( assetID ) && assetID != 0 && container.assets.indexOf( assetID ) == -1 )
@@ -305,7 +305,7 @@ module Animate
                         this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
 					}
 				}
-				else if ( assetVars[i].type == ParameterType.ASSET_LIST )
+                else if (assetVars[i].type == PropertyType.ASSET_LIST )
 				{
 					if ( assetVars[i].value.selectedAssets )
 					{
@@ -323,7 +323,7 @@ module Animate
 						}
 					}
 				}
-				else if ( assetVars[i].type == ParameterType.GROUP )
+                else if (assetVars[i].type == PropertyType.GROUP )
 				{
 					var groupID: string = ImportExport.getExportValue( assetVars[i].type, assetVars[i].value );
 
@@ -380,13 +380,13 @@ module Animate
 		* @param {any} value Its current value
 		* @returns {any} 
 		*/
-		static getExportValue( propType : ParameterType, value : any ) : any
+        static getExportValue(propType: PropertyType, value: any): any
 		{
-			if ( propType == ParameterType.NUMBER )
+            if (propType == PropertyType.NUMBER )
 				return value.selected || ( isNaN( parseFloat( value ) ) ? 0 : parseFloat( value ) );
-			else if ( propType == ParameterType.STRING || propType == ParameterType.BOOL || propType == ParameterType.INT )
+            else if (propType == PropertyType.STRING || propType == PropertyType.BOOL || propType == PropertyType.INT )
 				return value;
-			else if ( propType == ParameterType.ASSET )
+            else if (propType == PropertyType.ASSET )
 			{
 				var shallowId: number = 0;
 				shallowId = parseInt( value.selected );
@@ -395,19 +395,19 @@ module Animate
 
 				return shallowId;
 			}
-			else if ( propType == ParameterType.ASSET_LIST )
+            else if (propType == PropertyType.ASSET_LIST )
 			{
 				return value.selectedAssets || [];
 			}
-			else if ( propType == ParameterType.GROUP )
+            else if (propType == PropertyType.GROUP )
 				return value;
-			else if ( propType == ParameterType.FILE )
+            else if (propType == PropertyType.FILE )
 			{
 				var path :string = value.path;
 				var urlParts = path.split( "/" );
 				return "{{url}}uploads/" + urlParts[urlParts.length -1];
 			}
-			else if ( propType == ParameterType.HIDDEN_FILE )
+            else if (propType == PropertyType.HIDDEN_FILE )
             {
                 var file: Engine.IFile = Animate.User.get.project.getResourceByShallowID(value, ResourceType.FILE);
 				if ( file )
@@ -418,11 +418,11 @@ module Animate
 
 				return "";
 			}
-			else if ( propType == ParameterType.ENUM )
+            else if (propType == PropertyType.ENUM )
 				return value.selected;
-			else if ( propType == ParameterType.COLOR )
+            else if (propType == PropertyType.COLOR )
 				return value.color;
-			else if ( propType == ParameterType.OBJECT )
+            else if (propType == PropertyType.OBJECT )
 			{
 				var test = parseFloat( value );
 				if ( isNaN( test ) == false )
@@ -434,7 +434,7 @@ module Animate
 
 				return value.toString();
 			}
-			else if ( propType == ParameterType.HIDDEN )
+            else if (propType == PropertyType.HIDDEN )
 				return value.toString();
 		}
 
