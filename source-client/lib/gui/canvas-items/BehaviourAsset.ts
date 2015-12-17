@@ -8,8 +8,7 @@ module Animate
 		{
 			// Call super-class constructor
 			super( parent, text);
-
-			//this.element.removeClass("behaviour");
+            
 			this.element.addClass("behaviour-asset");
 			this._asset = null;
 		}
@@ -21,28 +20,23 @@ module Animate
 		{
 			this._asset = null;
 
-			//Call super
+			// Call super
 			super.dispose();
-		}
-
+        }
+        
 		/**
 		* Adds a portal to this behaviour.
-		* @param {PortalType} type The type of portal we are adding. It can be either PortalType.INPUT, PortalType.OUTPUT, Portal.PARAMETER & PortalType.PRODUCT
-		* @param {string} name The unique name of the Portal
-		* @param {any} value The default value of the Portal
-		* @param {PropertyType} dataType The data type that the portal represents. See the default data types.
-		* @returns {Portal} The portal that was added to this node
+		* @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
+		* @param {Prop<any>} property 
+		* @returns {Portal}
 		*/
-        addPortal(type: PortalType, name: string, value: any, dataType: PropertyType): Portal
+        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal
 		{
-			var portal = Behaviour.prototype.addPortal.call(this, type, name, value, dataType);
+            var portal = super.addPortal(type, property, update);
 
-			if (type == PortalType.PARAMETER)
-			{
-                var id = parseInt(value.selected);
-                this._asset = User.get.project.getResourceByShallowID<Asset>(id, ResourceType.ASSET);
-			}
-
+            if (type == PortalType.PARAMETER)
+                this._asset = <Asset>property.getVal();
+	
 			return portal;
 		}
 

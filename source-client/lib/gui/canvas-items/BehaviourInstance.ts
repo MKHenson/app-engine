@@ -24,39 +24,38 @@ module Animate
 				if ( this._container.canvas )
 				{
 					var children = this._container.canvas.children;
-					var ci = children.length;
-					while ( ci-- )
+                    for ( var ci = 0, cl = children.length; ci < cl; ci++ )
 						if ( children[ci] instanceof BehaviourPortal )
-						{
-							var portals : Array<Portal> = (<BehaviourPortal>children[ci]).portals;
-							var ii = portals.length;
-
-							while ( ii-- )
-								this.addPortal( (<BehaviourPortal>children[ci]).portaltype, portals[ii].property.clone(), false );
+                        {
+                            var bPortal = <BehaviourPortal>children[ci];
+                            var portals: Array<Portal> = bPortal.portals;
+                            for (var pi = 0, l = portals.length; pi < l; pi++ )
+                                this.addPortal(bPortal.portaltype, portals[pi].property.clone(), false );
 						}
-				}
-                else if (this._container.entry.json != null )
-				{
-					//Parse the saved object and get the portal data
-                    var jsonObj: CanvasToken = this._container.entry.json;
+                }
+                // TODO: What to do here??
+    //            else if (this._container.entry.json != null )
+				//{
+				//	// Parse the saved object and get the portal data
+    //                var jsonObj: CanvasToken = this._container.entry.json;
 
-					if ( jsonObj && jsonObj.items )
-					{
-						for ( var i in jsonObj.items )
-						{
-							var item = null;
+				//	if ( jsonObj && jsonObj.items )
+				//	{
+				//		for ( var i in jsonObj.items )
+				//		{
+				//			var item = null;
 
-							//Create the portals only if its a Behaviour portal
-							if ( jsonObj.items[i].type == "BehaviourPortal" )
-							{
-								this.addPortal( jsonObj.items[i].portalType,
-									jsonObj.items[i].name,
-									jsonObj.items[i].value,
-									jsonObj.items[i].dataType, false );
-							}
-						}
-					}
-				}
+				//			//Create the portals only if its a Behaviour portal
+				//			if ( jsonObj.items[i].type == "BehaviourPortal" )
+				//			{
+				//				this.addPortal( jsonObj.items[i].portalType,
+				//					jsonObj.items[i].name,
+				//					jsonObj.items[i].value,
+				//					jsonObj.items[i].dataType, false );
+				//			}
+				//		}
+				//	}
+				//}
 			}
 
 			this.updateDimensions();
@@ -65,7 +64,29 @@ module Animate
 			PluginManager.getSingleton().on( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
 			PluginManager.getSingleton().on( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
 			PluginManager.getSingleton().on( EditorEvents.CONTAINER_DELETED, this.onContainerDeleted, this );
-		}
+        }
+
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourResource}
+        */
+        tokenize(slim: boolean = false): IBehaviourResource
+        {
+            var toRet = <IBehaviourResource>super.tokenize(slim);
+            return toRet;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {IBehaviourResource} data The data to import from
+        */
+        deTokenize(data: IBehaviourResource)
+        {
+            super.deTokenize(data);
+            this.alias = data.alias;
+            this.text = data.text;
+        }
 
 		/**
 		* Called when a behaviour is disposed
@@ -101,15 +122,14 @@ module Animate
 					type = PortalType.PARAMETER;
 
 
-                if (event.container.entry.name == this._container.entry.name )
-					this.addPortal( type, event.portal.name, event.portal.value, event.portal.dataType, true );
+                if (event.container.entry.name == this._container.entry.name)
+                    this.addPortal(type, event.portal.property.clone(), true);
 			}
 			else if ( response == EditorEvents.PORTAL_REMOVED )
 			{
-				var i = this.portals.length;
-				while ( i-- )
-				{
-					if ( this.portals[i].name == event.portal.name )
+                for ( var i = 0, l = this.portals.length; i < l; i++)
+                {
+                    if (this.portals[i].property.name == event.portal.property.name)
 					{
 						this.removePortal( this.portals[i], true );
 						break;
@@ -118,13 +138,12 @@ module Animate
 			}
 			else if ( response == EditorEvents.PORTAL_EDITED )
 			{
-				var i = this.portals.length;
-				while ( i-- )
+                for (var i = 0, l = this.portals.length; i < l; i++)
 				{
-					if ( this.portals[i].name == event.oldName )
+                    if (this.portals[i].property.name == event.oldName )
 					{
-						var portal = this.portals[i];
-						portal.edit( event.portal.name, portal.type, event.portal.value, event.portal.dataType );
+                        var portal = this.portals[i];
+                        portal.edit(event.portal.property.clone());
 						break;
 					}
 				}
@@ -148,7 +167,7 @@ module Animate
 
 			this._container = null;
 
-			//Call super
+			// Call super
 			super.dispose();
 		}
 

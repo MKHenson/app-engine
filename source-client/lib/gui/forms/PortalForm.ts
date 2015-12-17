@@ -83,6 +83,7 @@ module Animate
 		showForm( item: Behaviour, type: PortalType, caption: string )
 		showForm( item: Canvas, type: PortalType, caption: string )
 		showForm( item : any, type : PortalType, caption : string )
+        //showForm(property: Prop<any>, type: PortalType)
 		{
 			var types :Array<string> = PluginManager.getSingleton().dataTypes;
 
@@ -99,7 +100,7 @@ module Animate
 			this._warning.textfield.element.css( "color", "" );
 			this._warning.text = "";
 			
-			//Fill types
+			// Fill types
 			( <ComboBox>this._type.val ).clearItems();
 			for ( var i = 0; i < types.length; i++ )
 				( <ComboBox>this._type.val ).addItem( types[i] );
@@ -127,8 +128,8 @@ module Animate
 				this.headerText = caption;
 			else if ( item instanceof Behaviour )
 				this.headerText = (<Behaviour>item).text;
-			else if ( item instanceof Canvas )
-				this.headerText = caption;
+			//else if ( item instanceof Canvas )
+			//	this.headerText = caption;
 			else
 				this.headerText = item.toString();
 
@@ -137,8 +138,10 @@ module Animate
 			(<Label>this._name.val).textfield.element.focus();
 		}
 
-		/**Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-		and pass the text either for the ok or cancel buttons. */
+		/**
+        * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+		* and pass the text either for the ok or cancel buttons. 
+        */
 		OnButtonClick( e )
 		{
 			if ( jQuery( e.target ).text() == "Ok" )
@@ -231,8 +234,8 @@ module Animate
         get value(): any { return this._value; }
         get parameterType(): PropertyType
 		{
-			if ( this._typeCombo.selectedItem )
-                return PropertyType.fromString( this._typeCombo.selectedItem );
+            if (this._typeCombo.selectedItem)
+                return <PropertyType>parseInt(this._typeCombo.selectedItem);
 			else
                 return PropertyType.BOOL;
 		}

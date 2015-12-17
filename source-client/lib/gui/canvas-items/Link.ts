@@ -3,7 +3,7 @@ module Animate
 	/**
 	* The link class are the lines drawn from behavior portals
 	*/
-	export class Link extends Component implements ICanvasItem
+    export class Link extends CanvasItem
 	{
 		public startPortal: Portal;
 		public endPortal: Portal;
@@ -14,7 +14,7 @@ module Animate
 		private mMouseUpProxy: any;
 		private mMouseUpAnchorProxy: any;
 		private mPrevPortal: Portal;
-		public frameDelay: number;
+		//public frameDelay: number;
 		private mStartClientX: number;
 		private mStartClientY: number;
 		public delta: number;
@@ -26,7 +26,8 @@ module Animate
 		private graphics: CanvasRenderingContext2D;
 		private linePoints: Array<any>;
 
-		private _selected: boolean;
+        private _selected: boolean;
+        private _properties: EditableSet;
 
 		/**
 		* @param {Canvas} parent The parent {Canvas} of the link
@@ -43,13 +44,16 @@ module Animate
 			this.mMouseUpProxy = this.onMouseUpAnchor.bind( this );
 			this.mMouseUpAnchorProxy = this.onMouseUpAnchor.bind( this );
 			this.mPrevPortal = null;
-			this.frameDelay = 1;
+			//this.frameDelay = 1;
 
 			this.canvas = <HTMLCanvasElement>document.getElementById( this.id );
             this.graphics = <CanvasRenderingContext2D>this.canvas.getContext( "2d" );
 			this.graphics.font = "14px arial";
 			this.linePoints = [];
-			this._selected = false;
+            this._selected = false;
+            this._properties = new EditableSet(this);
+            this._properties.addVar(new PropNum("Frame Delay", 1, 0, Infinity, 0, 1));
+            this.on("edited", this.onEdit, this);
 		}
 		
 		/**
@@ -461,8 +465,8 @@ module Animate
 				graphics.stroke();
 
 				//Now draw the line text
-				var canvas = this.canvas;
-				var frameDelay: number = this.frameDelay;
+                var canvas = this.canvas;
+                var frameDelay: number = <number>this._properties.getVar("Frame Delay").getVal();
 				var canvasW : number = canvas.width * 0.5 - 5;
 				var canvasH: number = canvas.height * 0.5 + 3;
 
@@ -544,9 +548,23 @@ module Animate
 			}
 
 			this.mCurTarget = null;
-		}
+        }
 
+        /** 
+        * When the link properties are edited
+        */
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
+        {
+            this.draw();
+        }
 
+        
+
+        /**
+		* Gets the properties of this link
+        * @returns {EditableSet}
+		*/
+        get properties(): EditableSet { return this._properties; }
 
 		/**
 		* Cleanup the link
@@ -558,14 +576,15 @@ module Animate
 			if ( this.endPortal && this.endPortal instanceof Portal )
 				this.endPortal.removeLink( this );
 
-			//Unbind
+			// Unbind
+            this.off("edited", this.onEdit, this);
 			this.parent.element.off( "mousemove", this.mMouseMoveProxy );
 			this.parent.element.off( "mouseup" );
 			jQuery( ".portal", this.parent.element ).off( "mouseup", this.mMouseUpAnchorProxy );
 			this.element.off();
 			this.element.data( "dragEnabled", null );
 
-			//Nullify
+			// Nullify
 			this.startPortal = null;
 			this.endPortal = null;
 			this.mMouseMoveProxy = null;
@@ -575,8 +594,8 @@ module Animate
 			this.canvas = null;
 			this.graphics = null;
 			this.linePoints = null;
-			this.mCurTarget = null;
-			this.frameDelay = null;
+            this.mCurTarget = null;
+            this._properties = null;
 
 
 			//Call parent

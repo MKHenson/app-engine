@@ -3,7 +3,7 @@ module Animate
 	/**
 	* Behaviours are the base class for all nodes placed on a <Canvas>
 	*/
-    export class Behaviour extends Component implements ICanvasItem, IRenamable
+    export class Behaviour extends CanvasItem implements IRenamable
 	{
 		private _originalName: string;
 		private _alias: string;
@@ -56,8 +56,7 @@ module Animate
             if (type == PortalType.PARAMETER)
             {
                 this._parameters.push(portal);
-                portal.dataType 
-                this._properties.addVar();
+                this._properties.addVar(portal.property);
             }
 			else if (type == PortalType.PRODUCT )
 				this._products.push( portal );
@@ -89,34 +88,35 @@ module Animate
 
 			this.removeChild( toRemove );
 
-			// Remove from arrays
-			var index = jQuery.inArray(toRemove, this._parameters )
+            // Remove from arrays
+            var index = this._parameters.indexOf(toRemove)
 			if ( index != -1 )
-			{
+            {
+                this._properties.removeVar(toRemove.property.name);
 				this._parameters.splice( index, 1 );
 				toRemove.behaviour = null;
 			}
 
-			index = jQuery.inArray(toRemove, this._products )
+            index = this._products.indexOf(toRemove);
 			if ( index != -1 )
 				this._products.splice( index, 1 );
 
-			index = jQuery.inArray(toRemove, this._outputs )
+            index = this._outputs.indexOf(toRemove);
 			if ( index != -1 )
 				this._outputs.splice( index, 1 );
 
-			index = jQuery.inArray(toRemove, this._inputs )
+            index = this._inputs.indexOf(toRemove); 
 			if ( index != -1 )
 				this._inputs.splice( index, 1 );
 
-			index = jQuery.inArray(toRemove, this._portals )
+            index = this._portals.indexOf(toRemove); 
 			if ( index != -1 )
 				this._portals.splice( index, 1 );
 
 			if ( dispose )
 				toRemove.dispose();
 
-			//Update the dimensions
+			// Update the dimensions
 			this.updateDimensions();
 			return toRemove;
 		}
@@ -156,7 +156,7 @@ module Animate
 
 			this._requiresUpdated = false;
             
-            //First get the size of a portal.
+            // First get the size of a portal.
             var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
 			var portalSpacing = 5;
             var tw = this._fontSize * this.text.length + 20;
@@ -173,7 +173,7 @@ module Animate
             tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
             th = th + padding > maxVertSize ? th + padding : maxVertSize;
 
-			//Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
+			// Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
 			tw = Math.ceil( ( tw ) / 10 ) * 10;
 			th = Math.ceil( ( th ) / 10 ) * 10;
             this.css({ width: tw + "px", height: th + "px" });
@@ -181,7 +181,7 @@ module Animate
             var width = this.element.outerWidth();
             var height = this.element.outerHeight();
 
-			//Position the portals
+			// Position the portals
             for (var i = 0; i < this._parameters.length; i++)
             {
                 var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
@@ -245,7 +245,60 @@ module Animate
             this.updateDimensions();
         }
 
-		/** Gets the text of the behaviour */
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviour}
+        */
+        tokenize(slim: boolean = false): IBehaviour
+        {
+            var toRet = <IBehaviour>super.tokenize(slim);
+            toRet.portals = <Array<IPortal>>[];
+
+            for (var i = 0, portals = this.portals, l = portals.length; i < l; i++)
+            {
+                var portal = <IPortal>{ name: portals[i].property.name, property: portals[i].property.tokenize(slim), type: portals[i].type };
+                if (!slim)
+                    portal.custom = portals[i].customPortal;
+
+                toRet.portals.push(portal);
+            }
+
+            if (!slim)
+            {
+                toRet.alias = this.alias;
+                toRet.text = this.text;
+            }
+
+            return toRet;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {IBehaviour} data The data to import from
+        */
+        deTokenize(data: IBehaviour)
+        {
+            super.deTokenize(data);
+            
+            this.alias = data.alias;
+            this.text = data.text;
+
+            // Remove all existing portals
+            while (this.portals.length > 0)
+                this.portals.pop().dispose();
+
+            for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
+            {
+                var portal = new Portal(this, portals[i].type, createProperty(portals[i].property, null);
+                portal.customPortal = portals[i].custom;
+                this.portals.push(portal);
+            }
+        }
+
+		/** 
+        * Gets the text of the behaviour 
+        */
         get text(): string { return jQuery(".text", this.element).text(); }
 
 		/**
@@ -253,8 +306,8 @@ module Animate
 		*/
 		dispose()
 		{
-			//The draggable functionality is added in the Canvas addChild function because we need to listen for the events. 
-			//To make sure its properly removed however we put it here.
+			// The draggable functionality is added in the Canvas addChild function because we need to listen for the events. 
+			// To make sure its properly removed however we put it here.
 			this.element.draggable( "destroy" );
 
 			for (var i = 0; i < this._parameters.length; i++ )
@@ -273,11 +326,12 @@ module Animate
 			this._portals = null;
 			this._alias = null;
 
-			//Call super
-			Button.prototype.dispose.call( this );
+			// Call super
+			super.dispose();
 		}
 
         get name(): string { return this._alias; }
+        get properties(): EditableSet { return this._properties; }
 		get originalName(): string { return this._originalName; }
 		get alias(): string { return this._alias; }
 		set alias( val: string ) { this._alias = val; }

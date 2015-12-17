@@ -37,18 +37,16 @@ module Animate
 	{
 		public static lastSelectedItem = null;
 		public static snapping: boolean = false;
-		private mUpProxy: any;
-		private mDownProxy: any;
-		private mContextProxy: any;
-		private keyProxy: any;
-		private mContextNode: Component;
-		private mX: number;
-		private mY: number;
-		public name: string;
+        public name: string;
+        private _upProxy: any;
+		private _downProxy: any;
+		private _contextProxy: any;
+		private _keyProxy: any;
+		private _contextNode: Component;
+		private _x: number;
+		private _y: number;
 		private _container: Container;
-
         private _containerReferences: { groups: Array<number>; assets: Array<number>; };
-
 		private _proxyMoving: any;
 		private _proxyStartDrag: any;
 		private _proxyStopDrag: any;
@@ -65,39 +63,41 @@ module Animate
 			this._proxyMoving = this.onChildMoving.bind( this );
 			this._proxyStartDrag = this.onStartingDrag.bind( this );
 			this._proxyStopDrag = this.onChildDropped.bind( this );
-
-			this.mDownProxy = this.onMouseDown.bind( this );
-			this.mUpProxy = this.onMouseUp.bind( this );
-			this.element.on( "mousedown", this.mDownProxy );
-			this.element.on( "dblclick", jQuery.proxy( this.onDoubleClick, this ) );
-			this.mX = 0;
-			this.mY = 0;
+			this._downProxy = this.onMouseDown.bind( this );
+			this._upProxy = this.onMouseUp.bind( this );
+			this._x = 0;
+			this._y = 0;
             this.name = container.entry.name;
 			this._container = container;
 			container.canvas = this;
 
 			// Define proxies
-			this.mContextProxy = this.onContext.bind( this );
-			this.keyProxy = this.onKeyDown.bind( this );
-			this.mContextNode = null;
+			this._contextProxy = this.onContext.bind( this );
+			this._keyProxy = this.onKeyDown.bind( this );
+			this._contextNode = null;
+            this._containerReferences = { groups: [], assets: [] };
 
-			// Hook listeners
-			jQuery( "body" ).on( "keydown", this.keyProxy );
-			jQuery( document ).on( "contextmenu", this.mContextProxy );
+			// Create the default portal
+            new BehaviourPortal(this, new PropBool("Start", false), PortalType.INPUT);
 
-			BehaviourPicker.getSingleton().on( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
-			PortalForm.getSingleton().on( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
-
-			new BehaviourPortal( this, "Start" );
-            PropertyGrid.getSingleton().on("edited", this.onPropertyGridEdited, this);
-            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
-			this._containerReferences = { groups: [], assets: [] };
-
+            // Hook listeners
+            this.element.on("mousedown", this._downProxy);
+            this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
+            jQuery("body").on("keydown", this._keyProxy);
+            jQuery(document).on("contextmenu", this._contextProxy);
+            //PropertyGrid.getSingleton().on("edited", this.onPropertyGridEdited, this);
+            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });			
+            BehaviourPicker.getSingleton().on(BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this);
+            PortalForm.getSingleton().on(OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
 			PluginManager.getSingleton().on(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
 		}
 
-		//onStartingDrag(response : DragManagerEvents, event: DragEvent )
-		onStartingDrag( e, ui )
+		/**
+		 * Event fired when we start dragging a behaviour
+		 * @param e
+		 * @param ui
+		 */
+        onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent)
 		{
 			var target: Behaviour = <Behaviour>jQuery( e.currentTarget ).data( "component" );
 
@@ -153,7 +153,7 @@ module Animate
 
 			target.element.css( { top: top + "px", left: left + "px" });
 
-			// Upadte the links
+			// Update the links
 			for ( var i = 0, l = target.portals.length; i < l; i++ )
 				target.portals[i].updateAllLinks();
 
@@ -176,15 +176,15 @@ module Animate
 				var scrollX = p.scrollLeft();
 				var scrollY = p.scrollTop();
 				var mouse = { x: event.pageX - offset.left - scrollX, y: event.pageY - offset.top - scrollY };
-				this.mX = mouse.x + scrollX;
-				this.mY = mouse.y + scrollY;
+				this._x = mouse.x + scrollX;
+				this._y = mouse.y + scrollY;
 
                 if (comp instanceof TreeNodeAssetInstance)
-                    this.addAssetAtLocation((<TreeNodeAssetInstance>comp).resource, this.mX, this.mY);
+                    this.addAssetAtLocation((<TreeNodeAssetInstance>comp).resource, this._x, this._y);
 				else if ( comp instanceof TreeNodePluginBehaviour )
-					this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this.mX, this.mY );
+					this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this._x, this._y );
                 else if (comp instanceof TreeNodeBehaviour)
-                    this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this.mX, this.mY, (<TreeNodeBehaviour>comp).resource);
+                    this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this._x, this._y, (<TreeNodeBehaviour>comp).resource);
 			}
 		}
 
@@ -197,8 +197,8 @@ module Animate
 		addAssetAtLocation( asset: Asset, x: number, y: number )
 		{
 			var node: BehaviourAsset = <BehaviourAsset>this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), x, y );
-			node.asset = asset;
-            node.parameters[0].value = { selected: asset.entry.shallowId, classname : "" };
+            node.asset = asset;
+            node.parameters[0].property.setVal( asset );
 
 			// Add a reference to this canvas's scene assets
 			if ( asset )
@@ -220,22 +220,22 @@ module Animate
 			PluginManager.getSingleton().off(EditorEvents.ASSET_EDITED, this.onAssetEdited, this);
 			BehaviourPicker.getSingleton().off( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
 			PortalForm.getSingleton().off( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
-			jQuery( "body" ).off( "keydown", this.keyProxy );
-			jQuery( document ).off( "contextmenu", this.mContextProxy );
-            PropertyGrid.getSingleton().off("edited", this.onPropertyGridEdited, this );
+			jQuery( "body" ).off( "keydown", this._keyProxy );
+			jQuery( document ).off( "contextmenu", this._contextProxy );
+            //PropertyGrid.getSingleton().off("edited", this.onPropertyGridEdited, this );
 
-			this.element.off( "mousedown", this.mDownProxy );
+			this.element.off( "mousedown", this._downProxy );
 
 			this._proxyMoving = null;
 			this._proxyStartDrag = null;
 			this._proxyStopDrag = null;
-			this.mX = null;
-			this.mY = null;
+			this._x = null;
+			this._y = null;
 			this.name = null;
 			this._container = null;
-			this.keyProxy = null;
-			this.mContextProxy = null;
-			this.mContextNode = null;
+			this._keyProxy = null;
+			this._contextProxy = null;
+			this._contextNode = null;
 			this._containerReferences = null;
 
 			// Call super
@@ -254,39 +254,47 @@ module Animate
             var project: Project = User.get.project;
 
 			for ( var i = 0, l = this.children.length; i < l; i++ )
-			{
-				var item: Behaviour = <Behaviour>this.children[i];
+            {
+                var item = <Component>this.children[i];
 
 				// If it contains any assests - then we make sure they are removed from this canvas
-				if ( item instanceof Behaviour )
-				{
-					for ( var ii = 0, il = item.parameters.length; ii < il; ii++ )
-					{
-                        var portal: Portal = item.parameters[ii];
-                        if (portal.dataType == PropertyType.ASSET && portal.value != null)
-						{
-                            var assetID: number = parseInt(portal.value.selected);
-                            if (project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET) == asset)
-							{
-								portal.value = { className: portal.value.className, selected : null }
+                if (item instanceof Behaviour == false)
+                    continue;
 
-								if ( item instanceof BehaviourAsset )
-									( <BehaviourAsset>item ).asset = null;
-							}
-						}
-                        else if (portal.dataType == PropertyType.ASSET_LIST && portal.value != null && portal.value.selectedAssets.length > 0 )
-						{
-							for ( var a, al = portal.value.selectedAssets.length; a < al; a++ )
-							{
-                                var assetID: number = portal.value.selectedAssets[a];
-                                if (project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET) == asset)
-								{
-									portal.value = { className: portal.value.className, selected: null };
-								}
-							}
-						}
-					}
-				}
+                var behaviour = <Behaviour>item;
+				
+                for (var ii = 0, il = behaviour.parameters.length; ii < il; ii++)
+                {
+                    var portal: Portal = behaviour.parameters[ii];
+
+                    if (portal.property.type != PropertyType.ASSET && portal.property.type != PropertyType.ASSET_LIST)
+                        continue;
+
+                    if (portal.property.getVal() == null)
+                        continue;
+
+                    var a = portal.property.getVal();
+
+                    if (a instanceof Asset)
+                    {
+                        if (a == asset)
+                        {
+                            portal.property.setVal(null);
+
+                            if (behaviour instanceof BehaviourAsset)
+                                behaviour.asset = null;
+                        }
+                    }
+                    else if ((<Array<Asset>>a).length > 0)
+                    {
+                        var arrList = (<Array<Asset>>a);
+                        for (var a, al = arrList.length; a < al; a++)
+                        {
+                            if (arrList[a] == asset)
+                                portal.property.setVal(null);
+                        }
+                    }
+                }
 			}
 
 			this.buildSceneReferences();
@@ -295,37 +303,31 @@ module Animate
 		/**
 		* Call this to remove an item from the canvas
 		* @param {Component} item The component we are removing from the canvas
-		* @extends <Canvas>
 		*/
-		removeItem( item )
+        removeItem(item: Component)
 		{
 			var toRemove = [];
 			for ( var i = 0; i < this.children.length; i++ )
 				toRemove.push( this.children[i] );
 
-			//Remove any shortcuts first
+			// Remove any shortcuts first
 			for ( var i = 0; i < toRemove.length; i++ )
-				if ( typeof ( toRemove[i] ) !== "undefined" )
-					if ( toRemove[i] instanceof BehaviourShortcut && toRemove[i].originalNode == item )
-						this.removeItem( toRemove[i] );
-
-
-
+                if (toRemove[i] instanceof BehaviourShortcut && (<BehaviourShortcut>toRemove[i]).originalNode == item )
+					this.removeItem( toRemove[i] );
+            
 			for ( var i = 0; i < toRemove.length; i++ )
-				if ( typeof ( toRemove[i] ) !== "undefined" )
-					if ( toRemove[i] == item )
-					{
-						//Notify of change
-						this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+				if ( toRemove[i] == item )
+				{
+					// Notify of change
+					this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
-						//Notify of change
-						if ( toRemove[i] instanceof BehaviourPortal )
-							PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._container, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
+					// Notify of change
+					if ( toRemove[i] instanceof BehaviourPortal )
+						PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._container, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
 
-						toRemove[i].dispose();
-
-						this.buildSceneReferences();
-					}
+					toRemove[i].dispose();
+					this.buildSceneReferences();
+				}
 
 			toRemove = null;
 		}
@@ -335,7 +337,7 @@ module Animate
 		*/
 		removeItems()
 		{
-			//Remove all selected
+			// Remove all selected
 			var toRemove: Array<Component> = [];
 			var i = this.children.length;
 			while ( i-- )
@@ -356,18 +358,17 @@ module Animate
 			if ( event.item.text == "Delete" )
 			{
 				// Delete portal
-                if (this.mContextNode instanceof Portal)
+                if (this._contextNode instanceof Portal)
                 {
-                    var behaviour: Behaviour = (<Portal>this.mContextNode).behaviour;
-                    behaviour.removePortal(<Portal>this.mContextNode);
+                    var behaviour: Behaviour = (<Portal>this._contextNode).behaviour;
+                    behaviour.removePortal(<Portal>this._contextNode);
 
-                    var toEdit: EditableSet = new EditableSet(behaviour);
-                    var i = behaviour.parameters.length;
-                    while (i--)
-                        if (behaviour.parameters[i].links.length <= 0)
-                            toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, PropertyType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
+                    //var toEdit: EditableSet = new EditableSet(behaviour);
+                    //for (var i = 0, l = behaviour.parameters.length; i < l; i++)
+                    //    if (behaviour.parameters[i].links.length <= 0)
+                    //        toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, PropertyType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
 
-                    PropertyGrid.getSingleton().editableObject(toEdit, behaviour.text + " - " + behaviour.id, null);
+                    PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, null);
                     return;
                 }
                 else
@@ -377,12 +378,10 @@ module Animate
 			{
 				// Remove all selected
 				var toRemove = [];
-				var i = this.children.length;
-				while ( i-- )
+                for (var i = 0, l = this.children.length; i < l; i++)
 					toRemove.push( this.children[i] );
-
-				var i = toRemove.length;
-				while ( i-- )
+                
+                for (var i = 0, l = toRemove.length; i < l; i++)
 					if ( typeof ( toRemove[i] ) !== "undefined" )
 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value == ":" )
 							this.removeItem( toRemove[i] );
@@ -390,7 +389,7 @@ module Animate
 			// Edit an existing portal
 			else if ( event.item.text == "Edit Portal" )
 			{
-				PortalForm.getSingleton().showForm( <Portal>this.mContextNode, null, null );
+				PortalForm.getSingleton().showForm( <Portal>this._contextNode, null, null );
 			}
 			else if ( event.item.text == "Create Behaviour" )
 			{
@@ -403,7 +402,7 @@ module Animate
 				var context = Application.getInstance().canvasContext;
 				var comment = new BehaviourComment( this, "Comment" );
 				comment.element.addClass( "scale-in-animation" );
-				comment.css( { left: this.mX + "px", top: this.mY + "px", width: "100px", height: "60px" });
+				comment.css( { left: this._x + "px", top: this._y + "px", width: "100px", height: "60px" });
 			}
 			else if ( event.item.text == "Create Input" || event.item.text == "Create Output"
 				|| event.item.text == "Create Parameter" || event.item.text == "Create Product" )
@@ -417,8 +416,8 @@ module Animate
 				if ( event.item.text == "Create Product" )
 					type = PortalType.PRODUCT;
 
-				if ( this.mContextNode )
-					PortalForm.getSingleton().showForm( <Behaviour>this.mContextNode, type, null );
+				if ( this._contextNode )
+					PortalForm.getSingleton().showForm( <Behaviour>this._contextNode, type, null );
 				else
 					PortalForm.getSingleton().showForm( this, type, event.item.text );
 			}
@@ -440,11 +439,15 @@ module Animate
             var project: Project = User.get.project;
 			var properties = asset.properties.variables;
 
-			for ( var i = 0, l = properties.length; i < l; i++ )
+            for (var i = 0, l = properties.length; i < l; i++)
                 if (properties[i].type == PropertyType.ASSET)
-                    this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
+                    this.getAssetList(properties[i].getVal(), assetMap);
                 else if (properties[i].type == PropertyType.ASSET_LIST)
-                    this.getAssetList(project.getResourceByShallowID<Asset>(parseInt(properties[i].value.selected), ResourceType.ASSET), assetMap);
+                {
+                    var aList = <Array<Asset>>properties[i].getVal();
+                    for (var a = 0, al = aList.length; a < al; a++)
+                        this.getAssetList(aList[a], assetMap);
+                }
 		}
 
 		onAssetEdited(e: ENUM, event: AssetEditedEvent, sender? : EventDispatcher)
@@ -471,33 +474,24 @@ module Animate
 					var behaviour = <Behaviour>children[i];
 					var portals: Array<Portal> = behaviour.portals;
 
-					//Check all behaviours and their portals
+					// Check all behaviours and their portals
 					for ( var ii = 0; ii < portals.length; ii++ )
-					{
-                        //If there is an asset previously and its being removed
-                        if (portals[ii].dataType == PropertyType.ASSET && portals[ii].value != null && portals[ii].value.selected)
-                        {
-                            var asset: Asset = project.getResourceByShallowID<Asset>(parseInt(portals[ii].value.selected), ResourceType.ASSET);
+                    {
+                        var val = portals[ii].property.getVal();
 
-							if ( asset )
-								this.getAssetList( asset, curAssets );
-						}
-                        else if (portals[ii].dataType == PropertyType.GROUP && portals[ii].value != null && portals[ii].value != "" )
-                        {
-                            var group = project.getResourceByShallowID<GroupArray>(parseInt(portals[ii].value.selected), ResourceType.GROUP);
-                            
-                            if (group)
-                                curGroups.push(group.entry._id);
-						}
-                        else if (portals[ii].dataType == PropertyType.ASSET_LIST && portals[ii].value != null && portals[ii].value.selectedAssets.length > 0 )
-						{
-							for ( var a, al = portals[ii].value.selectedAssets.length; a < al; a++ )
-                            {
-                                var asset: Asset = project.getResourceByShallowID<Asset>(portals[ii].value.selectedAssets[a], ResourceType.ASSET);
+                        if (!val)
+                            continue;
 
-								if ( asset )
-									this.getAssetList( asset, curAssets );
-							}
+                        // If there is an asset previously and its being removed
+                        if (val instanceof Asset)
+                            this.getAssetList(val, curAssets );
+                        else if (val instanceof GroupArray)
+                            curGroups.push(val.entry._id);
+                        else if (val.constructor === Array )
+                        {
+                            var aArray = <Array<Asset>>val;
+                            for (var a, al = aArray.length; a < al; a++ )
+                                this.getAssetList(aArray[a], curAssets );
 						}
 					}
 				}
@@ -527,61 +521,69 @@ module Animate
 			this._containerReferences.groups = curGroups;
 		}
 
+        /** 
+        * Whenever an item is edited
+        */
+        onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher)
+        {
+            this.emit(new CanvasEvent(CanvasEvents.MODIFIED, this));
+            this.buildSceneReferences();
+        }
 
-		/**
-		* Called when the property grid fires an edited event. 
-		* @param {string} type 
-		* @param {PropertyGridEvent} event
-		*/
-		onPropertyGridEdited( type: string, event: PropertyGridEvent )
-		{
-			for ( var i = 0; i < this.children.length; i++ )
-			{
-				if ( event.id == this.children[i] )
-				{
-					if ( this.children[i] instanceof BehaviourComment )
-					{
-                        var comment: BehaviourComment = <BehaviourComment>this.children[i];
-                        comment.text = event.prop.getVal();
-					}
-					else if ( this.children[i] instanceof Link )
-					{
-						var link: Link = <Link>this.children[i];
-						var num = event.propertyValue.selected;
-						num = parseInt( num );
-						if ( isNaN( num ) )
-							num = 1;
+		///**
+		//* Called when the property grid fires an edited event. 
+		//* @param {string} type 
+		//* @param {PropertyGridEvent} event
+		//*/
+		//onPropertyGridEdited( type: string, event: PropertyGridEvent )
+		//{
+		//	for ( var i = 0; i < this.children.length; i++ )
+		//	{
+		//		if ( event.id == this.children[i] )
+		//		{
+					//if ( this.children[i] instanceof BehaviourComment )
+					//{
+     //                   var comment: BehaviourComment = <BehaviourComment>this.children[i];
+     //                   comment.text = event.prop.getVal();
+					//}
+					//else if ( this.children[i] instanceof Link )
+					//{
+					//	var link: Link = <Link>this.children[i];
+					//	var num = event.propertyValue.selected;
+					//	num = parseInt( num );
+					//	if ( isNaN( num ) )
+					//		num = 1;
 
-						link.frameDelay = num;
-						link.draw();
-					}
-					else
-					{
-						var portals: Array<Portal> = ( <Behaviour>this.children[i] ).portals;
+					//	link.frameDelay = num;
+					//	link.draw();
+					//}
+					//else
+					//{
+					//	var portals: Array<Portal> = ( <Behaviour>this.children[i] ).portals;
 
-						//Check all behaviours and their portals
-						for ( var ii = 0; ii < portals.length; ii++ )
-						{
-							var item: Behaviour = <Behaviour>this.children[i];
+					//	//Check all behaviours and their portals
+					//	for ( var ii = 0; ii < portals.length; ii++ )
+					//	{
+					//		var item: Behaviour = <Behaviour>this.children[i];
 
-                            //If the portal name is the same as the one that is being edited
-                            if (portals[ii].name == event.prop.name)
-							{
-                                if (item instanceof BehaviourAsset)
-                                    (<BehaviourAsset>item).asset = event.prop.getVal();
+     //                       //If the portal name is the same as the one that is being edited
+     //                       if (portals[ii].name == event.prop.name)
+					//		{
+     //                           if (item instanceof BehaviourAsset)
+     //                               (<BehaviourAsset>item).asset = event.prop.getVal();
 
-                                item.portals[ii].value = event.prop.getVal();
+     //                           item.portals[ii].value = event.prop.getVal();
 
-								//Notify of change
-								this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
-								this.buildSceneReferences();
-								return;
-							}
-						}
-					}
-				}
-			}
-		}
+					//			//Notify of change
+					//			this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
+					//			this.buildSceneReferences();
+					//			return;
+					//		}
+					//	}
+					//}
+		//		}
+		//	}
+		//}
 
 		/**
 		* When we click ok on the portal form
@@ -594,10 +596,10 @@ module Animate
 			if ( e.text == "Ok" )
 			{
 				//If we are editing a portal
-				if ( this.mContextNode instanceof Portal )
+				if ( this._contextNode instanceof Portal )
 				{
 
-					var portal: Portal = <Portal>this.mContextNode;
+					var portal: Portal = <Portal>this._contextNode;
 					var oldName: string = portal.name;
 					portal.edit(
 						PortalForm.getSingleton().name,
@@ -624,10 +626,10 @@ module Animate
 
 					return;
 				}
-				else if ( this.mContextNode instanceof Behaviour )
+				else if ( this._contextNode instanceof Behaviour )
 				{
 					//Create a portal on a Behaviour
-					var portal: Portal = ( <Behaviour>this.mContextNode ).addPortal
+					var portal: Portal = ( <Behaviour>this._contextNode ).addPortal
 						(
 						PortalForm.getSingleton().portalType,
 						PortalForm.getSingleton().name,
@@ -646,7 +648,7 @@ module Animate
 						PortalForm.getSingleton().parameterType,
 						PortalForm.getSingleton().value );
 
-					newNode.css( { "left": this.mX + "px", "top": this.mY + "px", "position": "absolute" });
+					newNode.css( { "left": this._x + "px", "top": this._y + "px", "position": "absolute" });
 
 					//Notify of change
 					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._container, newNode.portals[0], this ) );
@@ -682,19 +684,19 @@ module Animate
 			var scrollX = p.scrollLeft();
 			var scrollY = p.scrollTop();
 			var mouse = { x: e.pageX - offset.left - scrollX, y: e.pageY - offset.top - scrollY };
-			this.mX = mouse.x + scrollX;
-			this.mY = mouse.y + scrollY;
+			this._x = mouse.x + scrollX;
+			this._y = mouse.y + scrollY;
 
 			//Now hook the context events
 			var targ = jQuery( e.target );
 			var targetComp = targ.data( "component" );
 			var context = Application.getInstance().canvasContext;
-			this.mContextNode = targ.data( "component" );
+			this._contextNode = targ.data( "component" );
 
 			//If the canvas
 			if ( targetComp instanceof Canvas )
 			{
-				this.mContextNode = null;
+				this._contextNode = null;
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, null );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
@@ -704,7 +706,7 @@ module Animate
 			else if ( targetComp instanceof Portal )
 			{
 				e.preventDefault();
-				context.showContext( e.pageX, e.pageY, this.mContextNode );
+				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
@@ -727,7 +729,7 @@ module Animate
 			else if ( targetComp instanceof BehaviourInstance || targetComp instanceof BehaviourAsset || targetComp instanceof BehaviourPortal )
 			{
 				e.preventDefault();
-				context.showContext( e.pageX, e.pageY, this.mContextNode );
+				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
@@ -737,7 +739,7 @@ module Animate
 			else if ( targetComp instanceof Behaviour )
 			{
 				e.preventDefault();
-				context.showContext( e.pageX, e.pageY, this.mContextNode );
+				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
@@ -770,11 +772,11 @@ module Animate
                         if (data.cancelled)
                             return;
                         
-                        that.createNode(template, that.mX, that.mY, null, data.newName);
+                        that.createNode(template, that._x, that._y, null, data.newName);
                     });
                 }
                 else
-                    that.createNode(template, that.mX, that.mY );
+                    that.createNode(template, that._x, that._y );
 			}
 		}
 
@@ -862,13 +864,7 @@ module Animate
 				// Create each of the portals
 				for ( var i = 0; i < portalTemplates.length; i++ )
 				{
-					var portal = toAdd.addPortal(
-						portalTemplates[i].type,
-						portalTemplates[i].name,
-						portalTemplates[i].value,
-						portalTemplates[i].dataType, false
-						);
-
+                    var portal = toAdd.addPortal( portalTemplates[i].type, portalTemplates[i].property.clone(), false );
 					if ( toAdd instanceof BehaviourScript == false )
 						portal.customPortal = false;
 				}
@@ -994,7 +990,7 @@ module Animate
 			else if ( comp instanceof BehaviourInstance )
 			{
                 var tree: TreeViewScene = TreeViewScene.getSingleton();
-                var node: TreeNode = tree.findNode("behaviour", (<BehaviourInstance>comp).container);
+                var node: TreeNode = tree.findNode("resource", (<BehaviourInstance>comp).container);
 				tree.selectNode( node );
 				( <TreeViewScene>tree ).onDblClick( null );
 				return;
@@ -1014,8 +1010,8 @@ module Animate
 
 			var mouse = { x: e.pageX - offset.left - scrollX, y: e.pageY - offset.top - scrollY };
 
-			this.mX = mouse.x + scrollX;
-			this.mY = mouse.y + scrollY;
+			this._x = mouse.x + scrollX;
+			this._y = mouse.y + scrollY;
 			BehaviourPicker.getSingleton().show( Application.getInstance(), e.pageX, e.pageY, false, true );
 			e.preventDefault();
 		}
@@ -1063,24 +1059,12 @@ module Animate
 			if ( comp instanceof Behaviour )
 			{
 				comp.element.removeClass( "scale-in-animation" );
-
-				var toEdit: EditableSet = new EditableSet();
-
+                
 				// Hand the item to the editor
 				if ( comp instanceof BehaviourComment )
-				{
-					toEdit.addVar( "text", ( <BehaviourComment>comp ).text, ParameterType.STRING, null, null )
-					PropertyGrid.getSingleton().editableObject( toEdit, "Comment", comp, "" );
-				}
+                    PropertyGrid.getSingleton().editableObject(comp.properties, "Comment", "");
 				else if ( comp instanceof BehaviourShortcut == false )
-				{
-					var len = ( <BehaviourShortcut>comp ).parameters.length;
-					for ( var i = 0; i < len; i++ )
-						if ( ( <BehaviourShortcut>comp ).parameters[i].links.length <= 0 )
-							toEdit.addVar( ( <BehaviourShortcut>comp ).parameters[i].name, ( <BehaviourShortcut>comp ).parameters[i].value, ( <BehaviourShortcut>comp ).parameters[i].dataType, ( <BehaviourShortcut>comp ).element.text(), null );
-
-					PropertyGrid.getSingleton().editableObject( toEdit, ( <BehaviourShortcut>comp ).text + " - " + comp.id, comp, "" );
-				}
+                    PropertyGrid.getSingleton().editableObject(comp.properties, comp.text + " - " + comp.id, "");
 
 				// Highlight all shortcuts
 				var children = this.children;
@@ -1093,11 +1077,7 @@ module Animate
 							children[i].element.removeClass( "green-glow-strong" );
 			}
 			else if ( comp instanceof Link && ( <Link>comp ).startPortal.type == PortalType.OUTPUT )
-			{
-                var toEdit: EditableSet = new EditableSet(comp);
-				toEdit.addVar( "Frame delay", ( <Link>comp ).frameDelay, ParameterType.NUMBER, "Link Properties", null );
-				PropertyGrid.getSingleton().editableObject( toEdit, "Link - " + ( <Link>comp ).id, "" );
-			}
+                PropertyGrid.getSingleton().editableObject(comp.properties, "Link - " + (<Link>comp).id, "");
 
 			Toolbar.getSingleton().itemSelected( comp );
 		}
@@ -1174,33 +1154,39 @@ module Animate
 		/**
 		* Use this function to add a child to this component. This has the same effect of adding some HTML as a child of another piece of HTML.
 		* It uses the jQuery append function to achieve this functionality.
-		* @param {any} child The child to add. Valid parameters are valid HTML code or other Components.
-		* @returns {Component} The child as a Component.
+		* @param {IComponent} child The child to add. Valid parameters are valid HTML code or other Components.
+		* @returns {IComponent} The child as a Component.
 		*/
-		addChild( child ): Component
+        addChild(child: IComponent): IComponent
 		{
-			// Call super
-            var toRet: Component = super.addChild.call( this, child );
+            // Call super
+            var toRet = <Component>super.addChild(child);
             if (toRet instanceof Behaviour)
                 toRet.element.draggable(<JQueryUI.DraggableOptions>{ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 });
 
-			toRet.element.on( "mouseup", this.mUpProxy );
+            if (toRet instanceof Behaviour || toRet instanceof Link)
+                toRet.on("edited", this.onItemEdited, this);
+
+			toRet.element.on( "mouseup", this._upProxy );
 
 			return toRet;
 		}
 
 		/**
 		* Use this function to remove a child from this component. It uses the jQuery detach function to achieve this functionality.
-		* @param {Component} child The child to remove. Valid parameters are valid Components.
-		* @returns {Component} The child as a Component.
+		* @param {IComponent} child The child to remove. Valid parameters are valid Components.
+		* @returns {IComponent} The child as a Component.
 		*/
-		removeChild( child ): Component
-		{
+        removeChild(child: IComponent): IComponent
+        {
+            if (toRet instanceof Behaviour || toRet instanceof Link)
+                toRet.off("edited", this.onItemEdited, this);
+
 			// Call super
-			var toRet: Component = super.removeChild.call( this, child );
+            var toRet = <Component>super.removeChild( child );
 
 			if ( toRet )
-				toRet.element.off( "mouseup", this.mUpProxy );
+				toRet.element.off( "mouseup", this._upProxy );
 
 			return toRet;
 		}
@@ -1212,12 +1198,12 @@ module Animate
 		*/
 		onChildMoving( e, ui )
 		{
-			var target: Component = jQuery( e.target ).data( "component" );
+            var target: Behaviour = jQuery( e.target ).data( "component" );
 
-			// Upadte the links
+			// Update the links
 			var i = ( <Behaviour>target ).portals.length;
-			while ( i-- )
-				( <Behaviour>target ).portals[i].updateAllLinks();
+            for (var i = 0, l = target.portals.length; i < l; i++ )
+				target.portals[i].updateAllLinks();
 
 			this.checkDimensions();
 		}
@@ -1253,56 +1239,56 @@ module Animate
 			// Create a multidimension array and pass each of the project dependencies
 			var len = items.length;
 			for ( var i = 0; i < len; i++ )
-			{
+            {
+                var comp = <Component>items[i];
+                var canvasToken = new CanvasTokenItem();
+                data.items[i] = canvasToken;
+
 				//First export all the standard item data
-				data.items[i] = new CanvasTokenItem();
-				data.items[i].id = items[i].id;
-				data.items[i].type = ( <any>items[i] ).constructor.name;
-				data.items[i].left = items[i].element.css( "left" );
-				data.items[i].top = items[i].element.css( "top" );
-				data.items[i].zIndex = items[i].element.css( "z-index" );
-				data.items[i].position = items[i].element.css( "position" );
+                canvasToken.id = comp.id;
+                canvasToken.type = (<any>comp ).constructor.name;
+                canvasToken.left = comp.element.css( "left" );
+                canvasToken.top = comp.element.css( "top" );
+                canvasToken.zIndex = comp.element.css( "z-index" );
+                canvasToken.position = comp.element.css( "position" );
 
 				// Now do all portals if its a behaviour
-				if ( items[i] instanceof Behaviour )
+                if (comp instanceof Behaviour )
 				{
-					if ( items[i] instanceof BehaviourComment )
-						data.items[i].text = ( <BehaviourComment>items[i] ).text;
-					else
+                    if (comp instanceof BehaviourComment )
+                        canvasToken.text = comp.text;
+                    else if (comp instanceof Behaviour)
 					{
-						data.items[i].name = ( <Behaviour>items[i] ).originalName;
-						data.items[i].alias = ( ( <Behaviour>items[i] ).alias ? ( <Behaviour>items[i] ).alias : "" );
+                        canvasToken.name = comp.originalName;
+                        canvasToken.alias = (comp.alias ? comp.alias : "" );
 					}
 
-					if ( items[i] instanceof BehaviourAsset )
-                        data.items[i].assetID = ((<BehaviourAsset>items[i]).asset ? (<BehaviourAsset>items[i]).asset.entry.shallowId : 0 );
-					else if ( items[i] instanceof BehaviourScript )
-						// First initialize the script node to make sure we have a DB entry
-                        data.items[i].scriptId = (<BehaviourScript>items[i]).scriptId;
-					else if ( items[i] instanceof BehaviourShortcut )
-					{
-						data.items[i].behaviourID = ( ( <BehaviourShortcut>items[i] ).originalNode ? ( <BehaviourShortcut>items[i] ).originalNode.id : "" );
-					}
-					else if ( items[i] instanceof BehaviourInstance )
-                        data.items[i].containerId = ((<BehaviourInstance>items[i]).container ? (<BehaviourInstance>items[i]).container.entry.shallowId : 0 );
+                    if (comp instanceof BehaviourAsset )
+                        canvasToken.assetID = (comp.asset ? comp.asset.entry.shallowId : 0 );
+                    else if (comp instanceof BehaviourScript )
+                        canvasToken.scriptId = comp.scriptId;
+                    else if ( comp instanceof BehaviourShortcut )
+                        canvasToken.behaviourID = (comp.originalNode ? comp.originalNode.id : "" );
+                    else if (comp instanceof BehaviourInstance )
+                        canvasToken.containerId = (comp.container ? comp.container.entry.shallowId : 0 );
 
-					if ( items[i] instanceof BehaviourPortal )
+                    if (comp instanceof BehaviourPortal )
 					{
-						data.items[i].portalType = ( <BehaviourPortal>items[i] ).portaltype;
-						data.items[i].dataType = ( <BehaviourPortal>items[i] ).dataType;
-						data.items[i].value = ( <BehaviourPortal>items[i] ).value;
+                        canvasToken.portalType = comp.portaltype;
+                        canvasToken.dataType = comp.dataType;
+                        canvasToken.value = comp.value;
 					}
 					else
 					{
-						data.items[i].portals = new Array();
-						var portalsArr: Array<CanvasTokenPortal> = data.items[i].portals;
+						canvasToken.portals = new Array();
+						var portalsArr: Array<CanvasTokenPortal> = canvasToken.portals;
 
 						var len2 = ( <Behaviour>items[i] ).portals.length;
 						for ( var ii = 0; ii < len2; ii++ )
 						{
 							portalsArr[ii] = new CanvasTokenPortal();
 
-							portalsArr[ii].name = ( <Behaviour>items[i] ).portals[ii].name;
+                            portalsArr[ii].name = (<Behaviour>items[i]).portals[ii].property.name;
 							portalsArr[ii].value = ( <Behaviour>items[i] ).portals[ii].value;
 							portalsArr[ii].type = ( <Behaviour>items[i] ).portals[ii].type;
 							portalsArr[ii].dataType = ( <Behaviour>items[i] ).portals[ii].dataType;
@@ -1311,21 +1297,21 @@ module Animate
 					}
 
 				}
-				//If its a link we store a few more bits of information.
-				else if ( items[i] instanceof Link )
+				// If its a link we store a few more bits of information.
+                else if (comp instanceof Link )
 				{
-					var sbehaviour: Behaviour = <Behaviour>( <Link>items[i] ).startPortal.parent;
-					var ebehaviour: Behaviour = <Behaviour>( <Link>items[i] ).endPortal.parent;
+                    var sbehaviour: Behaviour = <Behaviour>comp.startPortal.parent;
+                    var ebehaviour: Behaviour = <Behaviour>comp.endPortal.parent;
 
-					data.items[i].frameDelay = ( <Link>items[i] ).frameDelay;
-					data.items[i].startPortal = ( <Link>items[i] ).startPortal.name;
-					data.items[i].endPortal = ( <Link>items[i] ).endPortal.name;
-					data.items[i].startBehaviour = sbehaviour.id;
-					data.items[i].endBehaviour = ebehaviour.id;
+                    canvasToken.frameDelay = <number>comp.properties.getVar("Frame Delay").getVal();
+                    canvasToken.startPortal = comp.startPortal.property.name;
+                    canvasToken.endPortal = comp.endPortal.property.name;
+					canvasToken.startBehaviour = sbehaviour.id;
+					canvasToken.endBehaviour = ebehaviour.id;
 
 					// Create additional data for shortcuts
-					data.items[i].targetStartBehaviour = ( sbehaviour instanceof BehaviourShortcut ? ( <BehaviourShortcut>sbehaviour ).originalNode.id : sbehaviour.id );
-					data.items[i].targetEndBehaviour = ( ebehaviour instanceof BehaviourShortcut ? ( <BehaviourShortcut>ebehaviour ).originalNode.id : ebehaviour.id );
+                    canvasToken.targetStartBehaviour = (sbehaviour instanceof BehaviourShortcut ? sbehaviour.originalNode.id : sbehaviour.id );
+                    canvasToken.targetEndBehaviour = (ebehaviour instanceof BehaviourShortcut ? ebehaviour.originalNode.id : ebehaviour.id );
 				}
 			}
 
@@ -1424,8 +1410,8 @@ module Animate
 						// Links we treat differerntly. They need all the behaviours 
 						// loaded first. So we do that, and keep each link in an array
 						// to load after the behaviours
-						links.push( l );
-						l.frameDelay = ( jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1 );
+                        links.push(l);
+                        l.properties.getVar("Frame Delay").setVal( (jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1) );
 
 						// Store some temp data on the tag
 						l.tag = {};

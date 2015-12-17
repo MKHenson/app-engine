@@ -69,20 +69,20 @@ module Animate
 		//	this._grid = null;
 		//}
 
-		///* This function is called when the grid is cleaning up all the editors. */
-		//cleanup()
-		//{
-		//	var items: Array<EditorContainer> = this.mEditors;
-		//	var i: number = items.length;
+		/* This function is called when the grid is cleaning up all the editors. */
+		cleanup()
+		{
+			//var items: Array<EditorContainer> = this.mEditors;
+			//var i: number = items.length;
 
-		//	while ( i-- )
-		//	{
-		//		items[i].editor.off();
-		//		items[i].editor.remove();
-		//	}
+			//while ( i-- )
+			//{
+			//	items[i].editor.off();
+			//	items[i].editor.remove();
+			//}
 
-		//	items.splice( 0, items.length );
-		//}
+			//items.splice( 0, items.length );
+		}
 
 		///**
 		//* Updates the value of the editor object  because a value was edited externally.

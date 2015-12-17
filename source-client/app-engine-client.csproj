@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="custom-definitions\engine-definitions.d.ts" />
+    <TypeScriptCompile Include="custom-definitions\external-interfaces.ts" />
     <TypeScriptCompile Include="definitions\ace.d.ts" />
     <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
     <TypeScriptCompile Include="definitions\angular.d.ts" />
@@ -93,9 +94,6 @@
     <TypeScriptCompile Include="lib\core\project-resources\FileResource.ts" />
     <TypeScriptCompile Include="lib\core\FileUploader.ts" />
     <TypeScriptCompile Include="lib\core\project-resources\GroupArray.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\ICanvasItem.d.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\IPreviewFactory.d.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\ISettingsPage.d.ts" />
     <TypeScriptCompile Include="lib\core\loaders\LoaderBase.ts" />
     <TypeScriptCompile Include="lib\core\loaders\BinaryLoader.ts" />
     <TypeScriptCompile Include="lib\core\PageLoader.ts" />
@@ -113,7 +111,6 @@
     <TypeScriptCompile Include="lib\core\interfaces\IComponent.d.ts" />
     <TypeScriptCompile Include="lib\core\interfaces\IDockItem.d.ts" />
     <TypeScriptCompile Include="lib\core\ImportExport.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\IPlugin.d.ts" />
     <TypeScriptCompile Include="lib\core\loaders\AnimateLoader.ts" />
     <TypeScriptCompile Include="lib\core\PluginManager.ts" />
     <TypeScriptCompile Include="lib\core\PortalTemplate.ts" />
@@ -128,6 +125,7 @@
     <TypeScriptCompile Include="lib\gui\canvas-items\BehaviourAsset.ts" />
     <TypeScriptCompile Include="lib\gui\canvas-items\BehaviourComment.ts" />
     <TypeScriptCompile Include="lib\gui\canvas-items\BehaviourInstance.ts" />
+    <TypeScriptCompile Include="lib\gui\canvas-items\CanvasItem.ts" />
     <TypeScriptCompile Include="lib\gui\forms\BehaviourPicker.ts" />
     <TypeScriptCompile Include="lib\gui\canvas-items\BehaviourPortal.ts" />
     <TypeScriptCompile Include="lib\gui\canvas-items\BehaviourScript.ts" />

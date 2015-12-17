@@ -41,9 +41,9 @@ module Animate
 		/**
 		* When we click ok on the portal form
 		* @param {string} type
-		* @param {PropertyGridEvent} data 
+		* @param {EditEvent} data 
 		*/
-		onAssetEdited( type: string, data : PropertyGridEvent, sender? : EventDispatcher )
+        onAssetEdited(type: string, data: EditEvent, sender?: EventDispatcher)
 		{
             this.resource.saved = false;
             //var oldValue = this.resource.properties.getVar( data.propertyName ).value;

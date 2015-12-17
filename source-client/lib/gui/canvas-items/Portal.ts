@@ -1,35 +1,43 @@
 module Animate
 {
-	export class PortalType extends ENUM
-	{
-		constructor(v: string) { super(v); }
-		static PARAMETER: PortalType = new PortalType("parameter");
-		static PRODUCT: PortalType = new PortalType("product");
-		static INPUT: PortalType = new PortalType("input");
-		static OUTPUT: PortalType = new PortalType("output");
+    export enum PortalType
+    {
+        PARAMETER,
+        PRODUCT,
+        INPUT,
+        OUTPUT
+    }
 
-		/**
-		* Returns an enum reference by its name/value
-		* @param {string} val
-		* @returns {PortalType}
-		*/
-		static fromString(val: string): PortalType
-		{
-			switch (val)
-			{
-				case "parameter":
-					return PortalType.PARAMETER;
-				case "product":
-					return PortalType.PRODUCT;
-				case "input":
-					return PortalType.INPUT;
-				case "output":
-					return PortalType.OUTPUT;
-			}
+	//export class PortalType extends ENUM
+	//{
+	//	constructor(v: string) { super(v); }
+	//	static PARAMETER: PortalType = new PortalType("parameter");
+	//	static PRODUCT: PortalType = new PortalType("product");
+	//	static INPUT: PortalType = new PortalType("input");
+	//	static OUTPUT: PortalType = new PortalType("output");
 
-			return null;
-		}
-	}
+	//	/**
+	//	* Returns an enum reference by its name/value
+	//	* @param {string} val
+	//	* @returns {PortalType}
+	//	*/
+	//	static fromString(val: string): PortalType
+	//	{
+	//		switch (val)
+	//		{
+	//			case "parameter":
+	//				return PortalType.PARAMETER;
+	//			case "product":
+	//				return PortalType.PRODUCT;
+	//			case "input":
+	//				return PortalType.INPUT;
+	//			case "output":
+	//				return PortalType.OUTPUT;
+	//		}
+
+	//		return null;
+	//	}
+	//}
 
 	/**
 	* A portal class for behaviours. There are 4 different types of portals - 

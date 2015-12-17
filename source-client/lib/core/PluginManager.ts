@@ -13,9 +13,7 @@ module Animate
 		private _assetTemplates: Array<AssetTemplate>;
 		private _converters: Array<TypeConverter>;
 		private _dataTypes: Array<string>;
-        private scriptTemplate: BehaviourDefinition;
         private _previewVisualizers: Array<IPreviewFactory>;
-        //private _resourceCreated: any;
 
 		constructor()
 		{
@@ -33,31 +31,25 @@ module Animate
 			this._assetTemplates = new Array<AssetTemplate>();
 			this._converters = new Array<TypeConverter>();
             this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
-            //this._resourceCreated = this.onResourceCreated.bind(this);
 
-			//Create some standard templates	
+			// Create some standard templates	
 			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", false, false, false, false,
-				[
-					new PortalTemplate( "Asset In", PortalType.PARAMETER, ParameterType.ASSET, ":" ),
-					new PortalTemplate( "Asset Out", PortalType.PRODUCT, ParameterType.ASSET, ":" )
-				], null ) );
+                [
+                    new PortalTemplate(new PropResource("Asset In", null), PortalType.PARAMETER),
+                    new PortalTemplate(new PropResource("Asset Out", null), PortalType.PRODUCT )
+                ], null));
 
-			//Script nodes
-			this.scriptTemplate = new BehaviourDefinition( "Script", true, true, true, true,
-				[
-					new PortalTemplate( "Execute", PortalType.INPUT, ParameterType.BOOL, false ),
-					new PortalTemplate( "Exit", PortalType.OUTPUT, ParameterType.BOOL, false )
-				], null )
-			this.behaviourTemplates.push( this.scriptTemplate );
-
-			//Instance nodes
+            this.behaviourTemplates.push(new BehaviourDefinition("Script", true, true, true, true,
+                [
+                    new PortalTemplate(new PropBool("Execute", false), PortalType.INPUT),
+                    new PortalTemplate(new PropBool("Exit", false), PortalType.OUTPUT)
+                ], null));
+            
 			this.behaviourTemplates.push(new BehaviourDefinition("Instance", true, true, true, true, [], null));
 
 			this._loadedPlugins = [];
-
 			BehaviourPicker.getSingleton().list.addItem( "Asset" );
             BehaviourPicker.getSingleton().list.addItem("Script");
-
             this._previewVisualizers = [new ImageVisualizer()];
         }
 
@@ -147,7 +139,7 @@ module Animate
             var plugin: Animate.IPlugin = pluginDefinition.$instance;
 			this._plugins.push( plugin );
 
-			//Get behaviour definitions
+			// Get behaviour definitions
 			var btemplates: Array<BehaviourDefinition> = plugin.getBehaviourDefinitions();
 			if ( btemplates )
 			{
@@ -160,7 +152,7 @@ module Animate
 				}
 			}
 
-			//Get converters
+			// Get converters
 			var converters: Array<TypeConverter> = plugin.getTypeConverters();
 			if ( converters )
 			{
@@ -169,7 +161,7 @@ module Animate
 					this._converters.push( converters[i] );
 			}
 
-			//Get asset templates
+			// Get asset templates
 			var atemplates :Array<AssetTemplate> = plugin.getAssetsTemplate();
 			if ( atemplates )
 			{
@@ -187,14 +179,14 @@ module Animate
 		*/
 		unloadPlugin( plugin: IPlugin )
 		{
-			//Get converters
+			// Get converters
 			var toRemove : Array<BehaviourDefinition> = new Array();
 			var i = this.behaviourTemplates.length;
 			while ( i-- )
 				if ( this.behaviourTemplates[i].plugin == plugin )
 					toRemove.push( this.behaviourTemplates[i] );
 
-			//Get behaviour definitions
+			// Get behaviour definitions
 			var i = toRemove.length;
 			while ( i-- )
 			{
@@ -204,7 +196,7 @@ module Animate
 				this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
 			}
 
-			//Get converters
+			// Get converters
 			var toRemove2 : Array<TypeConverter> = [];
 			var i = this._converters.length;
 			while ( i-- )
@@ -270,7 +262,7 @@ module Animate
 		selectAsset( asset: Asset, panToNode : boolean = true, multiSelect : boolean = false )
 		{
 			Animate.TreeViewScene.getSingleton().selectNode(
-				Animate.TreeViewScene.getSingleton().findNode( "asset", asset ), panToNode, multiSelect );
+                Animate.TreeViewScene.getSingleton().findNode( "resource", asset ), panToNode, multiSelect );
 		}
 
 		///** 
@@ -414,14 +406,12 @@ module Animate
 		*/
         projectReset(project: Project)
         {
-            //Cleanup all the previous plugins
+            // Cleanup all the previous plugins
             for (var i = 0; i < this._plugins.length; i++)
                 this.unloadPlugin(this._plugins[i]);
 
             this._plugins.splice(0, this._plugins.length);
             this._loadedPlugins.splice(0, this._loadedPlugins.length);
-
-           //project.off("resource-created", this._resourceCreated);
         }
 
 		/**
@@ -430,29 +420,6 @@ module Animate
         projectReady(project: Project)
 		{
             this.emit(new Event(EditorEvents.EDITOR_READY, null));
-
-            //project.on("resource-created", this._resourceCreated);
-
-            // TODO: Determine what to do with user plans
-            if (User.get.meta.plan == UserPlan.Free)
-			{
-				if ( this.behaviourTemplates.indexOf( this.scriptTemplate ) != -1 )
-				{
-					this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( this.scriptTemplate ), 1 );
-					BehaviourPicker.getSingleton().list.removeItem( this.scriptTemplate.behaviourName );
-				}
-			}
-			else
-			{
-				if ( this.behaviourTemplates.indexOf( this.scriptTemplate ) == -1 )
-				{
-					this.behaviourTemplates.push( this.scriptTemplate );
-					BehaviourPicker.getSingleton().list.addItem( this.scriptTemplate.behaviourName );
-				}
-            }
-
-            
-           
 		}
         
 		/**

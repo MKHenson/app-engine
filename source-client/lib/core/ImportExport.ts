@@ -78,9 +78,8 @@ module Animate
 
 			var canvasToken: CanvasToken= null;
 
-			//Get all the behaviours and build them into the export object
-			var i = project.containers.length;
-			while ( i-- )
+			// Get all the behaviours and build them into the export object
+            for (var i = 0, l = project.containers.length; i < l; i++ )
 			{
                 var behaviour: Container = project.containers[i];
                 if (behaviour.entry.json === null)
@@ -88,10 +87,10 @@ module Animate
 
                 canvasToken = behaviour.entry.json;
 
-				//Check if we have valid json and items saved
+				// Check if we have valid json and items saved
 				if ( canvasToken && canvasToken.items )
 				{
-					var containerToken: ContainerToken = <ContainerToken>{};
+					var containerToken = <ContainerToken>{};
 					dataToken.containers.push( containerToken );
                     containerToken.name = behaviour.entry.name;
                     containerToken.id = behaviour.entry.shallowId;
@@ -99,24 +98,25 @@ module Animate
 					containerToken.links = [];
 					containerToken.assets = [];
 					containerToken.groups = [];
-					containerToken.properties = {};
+					//containerToken.properties = {};
 
-					//Set each of the properties
-					var props = behaviour.properties.tokenize();
-					for ( var pi in props )
-					{
-                        var propType: PropertyType = PropertyType.fromString( props[pi].type );
-						var propVal = props[pi].value;
-						containerToken.properties[props[pi].name] = ImportExport.getExportValue( propType, propVal );
-					}
+					// Set each of the properties
+					//var props = behaviour.properties.tokenize(true);
+                    containerToken.properties = behaviour.properties.tokenize(true);
+					//for ( var pi in props )
+					//{
+     //                   var propType: PropertyType = PropertyType.fromString( props[pi].type );
+					//	var propVal = props[pi].value;
+					//	containerToken.properties[props[pi].name] = ImportExport.getExportValue( propType, propVal );
+					//}
 
-					//Let the plugins export their data
+					// Let the plugins export their data
 					containerToken.plugins = canvasToken.plugins;	
 
 					PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
 
-					//Create tokens and fill each with data. First create either a behaviour
-					//or link objct
+					// Create tokens and fill each with data. First create either a behaviour
+					// or link objct
 					for ( var cti = 0, ctl = canvasToken.items.length; cti < ctl; cti++ )
 					{
 						var canvasTokenItem: CanvasTokenItem = canvasToken.items[cti];
@@ -133,7 +133,7 @@ module Animate
 							behaviourToken.name = canvasTokenItem.name;
 							behaviourToken.type = canvasTokenItem.type;
 
-							//Check the type and fill in the sub properties
+							// Check the type and fill in the sub properties
 							if ( canvasTokenItem.type == "BehaviourPortal" )
 							{
 								behaviourToken.portalType = canvasTokenItem.portalType.toString();
@@ -204,7 +204,7 @@ module Animate
 											{
 												//It can also the be case that groups reference other groups. In those
 												//situations you will want the container to keep adding to all the groups
-												this.referenceCheckGroup( <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "groupID", groupID ), containerToken );
+												this.referenceCheckGroup( <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "resource", groupID ), containerToken );
 											}
 										}
 									}
@@ -229,12 +229,12 @@ module Animate
 				}
 			}
 
-			//Get all the assets and build them into the export object			
+			// Get all the assets and build them into the export object			
 			for ( var i = 0, l = project.assets.length; i < l; i++ )
 			{
 				var asset : Asset = project.assets[i];
 
-				//Check if we have valid json and items saved
+				// Check if we have valid json and items saved
 				if ( canvasToken )
 				{
 					var assetToken: AssetToken = <AssetToken>{};
@@ -254,7 +254,7 @@ module Animate
 				}
 			}
 
-            //Get all the groups and build them into the export object
+            // Get all the groups and build them into the export object
             var groups: Array<GroupArray> = project.groups;
 			for ( var i = 0, l = groups.length; i < l; i++ )
 			{
@@ -266,7 +266,7 @@ module Animate
                 groupToken.items = group.entry.items.slice(0, group.entry.items.length);
 			}
 
-			//Send the object to the plugins
+			// Send the object to the plugins
 			PluginManager.getSingleton().emit( new EditorExportingEvent( dataToken ) );
 
 			var sceneStr = JSON.stringify( dataToken );
@@ -294,43 +294,39 @@ module Animate
 			for ( var i = 0, l = assetVars.length; i < l; i++ )
 			{
                 if (assetVars[i].type == PropertyType.ASSET )
-				{
-					var assetID: number = ImportExport.getExportValue( assetVars[i].type, assetVars[i].value );
-					if ( !isNaN( assetID ) && assetID != 0 && container.assets.indexOf( assetID ) == -1 )
-					{
-						container.assets.push( assetID );
+                {
+                    var asset = <Asset>assetVars[i].getVal();
+                    if (asset)
+                    {
+                        container.assets.push(asset.entry.shallowId);
 
 						//It can also the be case that assets reference other assets. In those
                         //situations you will want the container to keep adding to all the assets							
-                        this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
+                        this.referenceCheckAsset(asset, container);
 					}
 				}
                 else if (assetVars[i].type == PropertyType.ASSET_LIST )
-				{
-					if ( assetVars[i].value.selectedAssets )
+                {
+                    var aList = <Array<Asset>>assetVars[i].getVal();
+				
+                    for (var a = 0, al = aList.length; a < al; a++ )
 					{
-						for ( var a = 0, al = assetVars[i].value.selectedAssets.length; a < al; a++ )
-						{
-							var assetID: number = assetVars[i].value.selectedAssets[a];
-							if ( !isNaN( assetID ) && assetID != 0 && container.assets.indexOf( assetID ) == -1 )
-							{
-								container.assets.push( assetID );
+                        var asset = <Asset>aList[a];
+                        container.assets.push(asset.entry.shallowId);
 
-								//It can also the be case that assets reference other assets. In those
-                                //situations you will want the container to keep adding to all the assets							
-                                this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
-							}
-						}
+						//It can also the be case that assets reference other assets. In those
+                        //situations you will want the container to keep adding to all the assets							
+                        this.referenceCheckAsset(asset, container);
 					}
 				}
                 else if (assetVars[i].type == PropertyType.GROUP )
-				{
-					var groupID: string = ImportExport.getExportValue( assetVars[i].type, assetVars[i].value );
+                {
+                    var group = <GroupArray>assetVars[i].getVal();
 
-					if ( groupID != null && groupID != "" )
+                    if (group)
 					{
-						var groupNode: TreeNodeGroup = <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "groupID", groupID );
-						this.referenceCheckGroup( groupNode, container );
+                        var groupNode: TreeNodeGroup = <TreeNodeGroup>TreeViewScene.getSingleton().findNode("resource", group);
+                        this.referenceCheckGroup(groupNode, container );
 					}
 				}
 			}
@@ -374,69 +370,69 @@ module Animate
 		}
 
 
-		/**
-		* Gets the value of an object without any of the additional data associated with it.
-		* @param {ParameterType} propType the object type
-		* @param {any} value Its current value
-		* @returns {any} 
-		*/
-        static getExportValue(propType: PropertyType, value: any): any
-		{
-            if (propType == PropertyType.NUMBER )
-				return value.selected || ( isNaN( parseFloat( value ) ) ? 0 : parseFloat( value ) );
-            else if (propType == PropertyType.STRING || propType == PropertyType.BOOL || propType == PropertyType.INT )
-				return value;
-            else if (propType == PropertyType.ASSET )
-			{
-				var shallowId: number = 0;
-				shallowId = parseInt( value.selected );
-				if ( isNaN( shallowId ) )
-					shallowId = 0;
+		///**
+		//* Gets the value of an object without any of the additional data associated with it.
+		//* @param {ParameterType} propType the object type
+		//* @param {any} value Its current value
+		//* @returns {any} 
+		//*/
+  //      static getExportValue(propType: PropertyType, value: any): any
+		//{
+  //          if (propType == PropertyType.NUMBER )
+		//		return value.selected || ( isNaN( parseFloat( value ) ) ? 0 : parseFloat( value ) );
+  //          else if (propType == PropertyType.STRING || propType == PropertyType.BOOL || propType == PropertyType.INT )
+		//		return value;
+  //          else if (propType == PropertyType.ASSET )
+		//	{
+		//		var shallowId: number = 0;
+		//		shallowId = parseInt( value.selected );
+		//		if ( isNaN( shallowId ) )
+		//			shallowId = 0;
 
-				return shallowId;
-			}
-            else if (propType == PropertyType.ASSET_LIST )
-			{
-				return value.selectedAssets || [];
-			}
-            else if (propType == PropertyType.GROUP )
-				return value;
-            else if (propType == PropertyType.FILE )
-			{
-				var path :string = value.path;
-				var urlParts = path.split( "/" );
-				return "{{url}}uploads/" + urlParts[urlParts.length -1];
-			}
-            else if (propType == PropertyType.HIDDEN_FILE )
-            {
-                var file: Engine.IFile = Animate.User.get.project.getResourceByShallowID(value, ResourceType.FILE);
-				if ( file )
-                {
-                    var urlParts = file.url.split("/");
-					return "{{url}}uploads/" + urlParts[urlParts.length - 1];
-				}
+		//		return shallowId;
+		//	}
+  //          else if (propType == PropertyType.ASSET_LIST )
+		//	{
+		//		return value.selectedAssets || [];
+		//	}
+  //          else if (propType == PropertyType.GROUP )
+		//		return value;
+  //          else if (propType == PropertyType.FILE )
+		//	{
+		//		var path :string = value.path;
+		//		var urlParts = path.split( "/" );
+		//		return "{{url}}uploads/" + urlParts[urlParts.length -1];
+		//	}
+  //          else if (propType == PropertyType.HIDDEN_FILE )
+  //          {
+  //              var file: Engine.IFile = Animate.User.get.project.getResourceByShallowID(value, ResourceType.FILE);
+		//		if ( file )
+  //              {
+  //                  var urlParts = file.url.split("/");
+		//			return "{{url}}uploads/" + urlParts[urlParts.length - 1];
+		//		}
 
-				return "";
-			}
-            else if (propType == PropertyType.ENUM )
-				return value.selected;
-            else if (propType == PropertyType.COLOR )
-				return value.color;
-            else if (propType == PropertyType.OBJECT )
-			{
-				var test = parseFloat( value );
-				if ( isNaN( test ) == false )
-					return test;
+		//		return "";
+		//	}
+  //          else if (propType == PropertyType.ENUM )
+		//		return value.selected;
+  //          else if (propType == PropertyType.COLOR )
+		//		return value.color;
+  //          else if (propType == PropertyType.OBJECT )
+		//	{
+		//		var test = parseFloat( value );
+		//		if ( isNaN( test ) == false )
+		//			return test;
 
-				test = parseInt( value );
-				if ( isNaN( test ) == false )
-					return test;
+		//		test = parseInt( value );
+		//		if ( isNaN( test ) == false )
+		//			return test;
 
-				return value.toString();
-			}
-            else if (propType == PropertyType.HIDDEN )
-				return value.toString();
-		}
+		//		return value.toString();
+		//	}
+  //          else if (propType == PropertyType.HIDDEN )
+		//		return value.toString();
+		//}
 
 		/**
 		* This is the resonse from the server

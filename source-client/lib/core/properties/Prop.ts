@@ -24,7 +24,7 @@
         {
             this.name = name;
             this._value = value;
-            this.category = category;
+            this.category = category || "General Properties";
             this.options = options;
             this.set = null;
             this.type = type;
@@ -58,7 +58,7 @@
             if (slim)
                 return this._value;
             else
-                return { value: this._value, category: this.category, options: this.options, type: this.type };
+                return { value: this._value, name: this.name, type: this.type, category: this.category, options: this.options };
         }
 
         /**

@@ -242,7 +242,7 @@ module Animate
 			if ( !this.right )
 				return;
 
-			//Create the right panel options
+			// Create the right panel options
 			var helpers = jQuery( ".script-helpers", this.right.element );
 			helpers.empty();
 
@@ -256,47 +256,47 @@ module Animate
 
 			var toAdd = "";
 
-			//DEFAULTS
+			// DEFAULTS
 			toAdd += "<div id='local-name' style='display:block;' title='The local portal name variable' script='portalName' class='script-helper'><span class='identifier'>local</span> - <span class='name'>portalName</span> <span class='type'>(string)</span></div>";
 			toAdd += "<div id='local-portal' style='display:block;' title='The portal that entered' script='portal' class='script-helper'><span class='identifier'>local</span> - <span class='name'>portal</span> <span class='type'>(Anim.Portal)</span></div>";
 			toAdd += "<div id='local-total' style='display:none;' title='The total time that has elapsed in milliseconds' script='totalTime' class='script-helper'><span class='identifier'>local</span> - <span class='name'>totalTime</span> <span class='type'>(number)</span></div>";
 			toAdd += "<div id='local-delta' style='display:none;' title='The delta time since the last on frame call' script='delta' class='script-helper'><span class='identifier'>local</span> - <span class='name'>delta</span> <span class='type'>(number)</span></div>";
 
-			//INPUTS
+			// INPUTS
 			var portals = this.scriptNode.inputs;
 			var len = portals.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				scripts[portals[i].name] = "if ( portalName == \"" + portals[i].name + "\" )\r{\r}";
-				toAdd += "<div title='Inserts an input condition' script='" + portals[i].name + "' class='helper-onenter script-helper'><span class='identifier'>input</span> - <span class='name'>" + portals[i].name + "</span> <span class='type'>(bool)</span></div>";
+                scripts[portals[i].property.name] = "if ( portalName == \"" + portals[i].property.name + "\" )\r{\r}";
+                toAdd += "<div title='Inserts an input condition' script='" + portals[i].property.name + "' class='helper-onenter script-helper'><span class='identifier'>input</span> - <span class='name'>" + portals[i].property.name + "</span> <span class='type'>(bool)</span></div>";
 			}
 
-			//OUTPUTS
+			// OUTPUTS
 			portals = this.scriptNode.outputs;
 			len = portals.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				scripts[portals[i].name] = "this.exit( \"" + portals[i].name + "\", false );";
-				toAdd += "<div title='Inserts an exit snippet' script='" + portals[i].name + "' class='helper-onenter script-helper'><span class='identifier'>output</span> - <span class='name'>" + portals[i].name + "</span> <span class='type'>(bool)</span></div>";
+                scripts[portals[i].property.name] = "this.exit( \"" + portals[i].property.name + "\", false );";
+                toAdd += "<div title='Inserts an exit snippet' script='" + portals[i].property.name + "' class='helper-onenter script-helper'><span class='identifier'>output</span> - <span class='name'>" + portals[i].property.name + "</span> <span class='type'>(bool)</span></div>";
 			}
 
-			//PARAMS
+			// PARAMS
 			portals = this.scriptNode.parameters;
 			len = portals.length;
 			for ( var i = 0; i < len; i++ )
 			{
-				scripts[portals[i].name] = "this.getParam(\"" + portals[i].name + "\")";
-				toAdd += "<div title='Inserts a get parameter snippet' script='" + portals[i].name + "' class='helper-onenter script-helper'><span class='identifier'>parameters</span> - <span class='name'>" + portals[i].name + "</span> <span class='type'>(" + portals[i].dataType + ")</span></div>";
+                scripts[portals[i].property.name] = "this.getParam(\"" + portals[i].property.name + "\")";
+                toAdd += "<div title='Inserts a get parameter snippet' script='" + portals[i].property.name + "' class='helper-onenter script-helper'><span class='identifier'>parameters</span> - <span class='name'>" + portals[i].property.name + "</span></div>";
 			}
 
-			//PRODUCTS
+			// PRODUCTS
 			portals = this.scriptNode.products;
 			len = portals.length;
 			for ( var i = 0; i < len; i++ )
 			{
 
-				scripts[portals[i].name] = "this.setProduct( \"" + portals[i].name + "\", /*VALUE*/ );";
-				toAdd += "<div title='Inserts a set product snippet' script='" + portals[i].name + "' class='helper-onenter script-helper'><span class='identifier'>products</span> - <span class='name'>" + portals[i].name + "</span> <span class='type'>(" + portals[i].dataType + ")</span></div>";
+                scripts[portals[i].property.name] = "this.setProduct( \"" + portals[i].property.name + "\", /*VALUE*/ );";
+                toAdd += "<div title='Inserts a set product snippet' script='" + portals[i].property.name + "' class='helper-onenter script-helper'><span class='identifier'>products</span> - <span class='name'>" + portals[i].property.name + "</span></div>";
 
 			}
 
@@ -319,7 +319,7 @@ module Animate
 		{
 			var tab = this;
 
-			//When we get a user response from the message box.
+			// When we get a user response from the message box.
 			var onMessage = function ( val: string )
 			{
 				if ( val == "Yes" )
@@ -335,7 +335,7 @@ module Animate
 				}
 			};
 
-			//If not saved ask the user.
+			// If not saved ask the user.
 			if ( !this.saved )
 			{
 				data.cancel = true;
@@ -375,7 +375,7 @@ module Animate
 
 			var tab = this;
 
-			//When we return from the save
+			// When we return from the save
 			var onSave = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?:EventDispatcher )
 			{
 				if ( response == LoaderEvents.COMPLETE )
@@ -395,7 +395,7 @@ module Animate
 				}
 			};
 
-			//try to create the database entry of this node
+			// Try to create the database entry of this node
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, onSave );
 			loader.on( LoaderEvents.FAILED, onSave );

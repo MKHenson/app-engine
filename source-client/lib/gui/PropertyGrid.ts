@@ -7,41 +7,41 @@ module Animate
 	//	static PROPERTY_EDITED: PropertyGridEvents = new PropertyGridEvents("property_grid_edited");
 	//}
 
-	/**
-	* A specialised event class for the property grid
-	*/
-	export class PropertyGridEvent extends Event
-	{
-        public prop: Prop<any>;
-        public object: EditableSet;
+	///**
+	//* A specialised event class for the property grid
+	//*/
+	//export class PropertyGridEvent extends Event
+	//{
+ //       public prop: Prop<any>;
+ //       public object: EditableSet;
 
-        constructor(object: EditableSet, prop: Prop<any>)
-		{
-			super( "edited" );
+ //       constructor(object: EditableSet, prop: Prop<any>)
+	//	{
+	//		super( "edited" );
 
-            this.prop = prop;
-            this.object = object;
-		}
-	}
+ //           this.prop = prop;
+ //           this.object = object;
+	//	}
+	//}
 
-	/**
-	* A small holder class for the property grid
-	*/
-	class EditorElement
-	{
-		public html: JQuery;
-		public name: string;
-		public originalValue: any;
-		public editor: PropertyGridEditor;
+	///**
+	//* A small holder class for the property grid
+	//*/
+	//class EditorElement
+	//{
+	//	public html: JQuery;
+	//	public name: string;
+	//	public originalValue: any;
+	//	public editor: PropertyGridEditor;
 
-		constructor( html: JQuery, name: string, originalValue: any, editor: PropertyGridEditor )
-		{
-			this.html = html;
-			this.name = name;
-			this.originalValue = originalValue;
-			this.editor = editor;
-		}
-	}
+	//	constructor( html: JQuery, name: string, originalValue: any, editor: PropertyGridEditor )
+	//	{
+	//		this.html = html;
+	//		this.name = name;
+	//		this.originalValue = originalValue;
+	//		this.editor = editor;
+	//	}
+	//}
 
 	
 
@@ -57,13 +57,13 @@ module Animate
 
 		private _header: JQuery;
 		private _editors: Array<PropertyGridEditor>;
-		private _editorElements: Array<EditorElement>;
+		//private _editorElements: Array<EditorElement>;
 		private _docker: Docker;
 		private _groups: Array<PropertyGridGroup>;
-		private _endDiv: JQuery;
+		//private _endDiv: JQuery;
 		private _object: EditableSet;
-		private _targetPanel: JQuery;
-        private _activePanel: JQuery;
+		//private _targetPanel: JQuery;
+        //private _activePanel: JQuery;
         
 		constructor( parent : Component )
 		{
@@ -80,7 +80,7 @@ module Animate
 
 			// Private vars
 			this._editors = [];
-			this._editorElements = [];
+			//this._editorElements = [];
 			this._docker = null;
 			this._groups = [];
 
@@ -95,7 +95,7 @@ module Animate
 			this.addEditor( new PropAssetList( this ) );
 			//this.addEditor( new PropOptionsWindow( this ) );
 
-			this._endDiv = jQuery( "<div class='fix' style='height:1px' ></div>" );
+			//this._endDiv = jQuery( "<div class='fix' style='height:1px' ></div>" );
 		}
 
 		/**
@@ -130,11 +130,30 @@ module Animate
 		* When we scroll on either of the scroll panel's we do the same to the other.
 		* @param <jQuery> e The jQuery event object
 		*/
-		scroll( e )
-		{
-			this._targetPanel.scrollLeft( this._activePanel.scrollLeft() );
-			this._targetPanel.scrollTop( this._activePanel.scrollTop() );
-		}
+		//scroll( e )
+		//{
+		//	this._targetPanel.scrollLeft( this._activePanel.scrollLeft() );
+		//	this._targetPanel.scrollTop( this._activePanel.scrollTop() );
+        //}
+
+        /**
+        * Cleans up the groups and editors 
+        */
+        cleanup()
+        {
+            // Cleanup editors
+            for (var i = 0, l = this._editors.length; i < l; i++)
+                this._editors[i].cleanup();
+
+            // Cleanup groups
+            for (var i = 0, l = this._groups.length; i < l; i++)
+            {
+                this.removeChild(this._groups[i]);
+                this._groups[i].dispose();
+            }
+
+            this._groups = [];
+        }
         
 		/**
 		* Sets the object we are going to edit.
@@ -147,146 +166,162 @@ module Animate
 		editableObject( object: EditableSet, name: string, img : string = "" )
 		{
 			if ( !this.enabled )
-				return;
+                return;
+
 
 			if (object !== undefined && object != null )
 			{
 				this._header.html( ( img && img != "" ? "<img src='" + img + "' />" : "" ) + name );
 
 				// Remove all previous labels and HTML elements.
-				var ie = this._editorElements.length;
-				while ( ie-- )
-					jQuery( this._editorElements[ie].html ).remove();
+				//var ie = this._editorElements.length;
+				//while ( ie-- )
+				//	jQuery( this._editorElements[ie].html ).remove();
 
-				this._editorElements.splice( 0, this._editorElements.length );
+				//this._editorElements.splice( 0, this._editorElements.length );
 
-				// Cleanup editors
-				ie = this._editors.length;
-				while ( ie-- )
-					this._editors[ie].cleanup();
-
-				// Cleanup groups
-				var ig = this._groups.length;
-				while ( ig-- )
-				{
-					this.removeChild( this._groups[ig] );
-					this._groups[ig].dispose();
-				}
-
-				this._groups = [];
-				var sortable: Array<{ name: string; group: PropertyGridGroup; editor: PropertyGridEditor; divs: JQuery; category: string; }> = [];
+                this.cleanup();
+                var sortable: Array<{ group: PropertyGridGroup; prop: Prop<any>; }> = [];
 
 				// Set the editable
-				this._object = object;
-
+                this._object = object;
+                
                 var variables: Array<Prop<any>> = object.variables;
-				var len = variables.length;
-				for ( var i = 0; i < len; i++ )
+
+                // Go through each of the variables and create the group containers
+                for (var i = 0; i < variables.length; i++)
+                {
+                    var property = variables[i];
+
+                    // Check if a group exists
+                    var groupComp: PropertyGridGroup = null;
+                    for (var gi = 0, gl = this._groups.length; gi < gl; gi++)
+                        if (this._groups[gi].name == property.category)
+                        {
+                            groupComp = this._groups[gi];
+                            break;
+                        }
+
+                    // If no group exists - then add it
+                    if (groupComp == null)
+                    {
+                        groupComp = new PropertyGridGroup(property.category);
+                        this._groups.push(groupComp);
+                    }
+
+                    sortable.push({ prop: property, group: groupComp });
+                }
+
+                // Sort by the groups by name
+                sortable.sort(function (a, b)
+                {
+                    var textA = a.group.name.toUpperCase();
+                    var textB = b.group.name.toUpperCase();
+                    return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
+                });
+
+                // Now sort each of the variables by name
+                sortable.sort(function (a, b)
+                {
+                    var textA = a.prop.name.toUpperCase();
+                    var textB = b.prop.name.toUpperCase();
+                    return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
+                });
+
+                for (var i = 0; i < sortable.length; i++)
 				{
 					var editors :Array<PropertyGridEditor> = this._editors;
                     for (var editor = 0, el = editors.length; editor < el; el++ )
                     {
-                        if (variables[i].type == PropertyType.HIDDEN || variables[i].type == PropertyType.HIDDEN_FILE)
+                        if (sortable[i].prop.type == PropertyType.HIDDEN || sortable[i].prop.type == PropertyType.HIDDEN_FILE)
 							continue;
 
-                        var editorHTML: JQuery = editors[editor].edit(variables[i]);
-						if ( editorHTML != null )
-						{
-							if ( variables[i].category == null || variables[i].category == "" )
-								variables[i].category = "General Properties";
+                        var editorContainer = new Component("<div class='editor-container'></div>");
+                        sortable[i].group.addChild(editorContainer);
+                        editors[editor].edit(sortable[i].prop, editorContainer);
 
-							// First check if the group exists
-							var groupI = this._groups.length;
-							var groupComp: PropertyGridGroup = null;
-							while ( groupI-- )
-								if ( this._groups[groupI].name == variables[i].category )
-								{
-									groupComp = this._groups[groupI];
-									break;
-								}
+						//if ( editorHTML != null )
+						//{
+						//	// First check if the group exists
+						//	var groupComp: PropertyGridGroup = null;
+      //                      for (var gi = 0, gl = this._groups.length; gi < gl; gi++ )
+      //                          if (this._groups[gi].name == variables[i].category )
+						//		{
+      //                              groupComp = this._groups[gi];
+						//			break;
+						//		}
 
-							// If no group exists - then add it
-							if ( groupComp == null )
-							{
-								groupComp = new PropertyGridGroup( variables[i].category );
-								this._groups.push( groupComp );
-							}
+						//	// If no group exists - then add it
+						//	if ( groupComp == null )
+						//	{
+						//		groupComp = new PropertyGridGroup( variables[i].category );
+						//		this._groups.push( groupComp );
+						//	}
 
-							sortable.push({ name: variables[i].name, group: groupComp, editor: editors[editor], divs: editorHTML, category: variables[i].category });
+						//	sortable.push({ name: variables[i].name, group: groupComp, editor: editors[editor], divs: editorHTML, category: variables[i].category });
 
-                            var elm: EditorElement = new EditorElement(editorHTML, variables[i].name, variables[i].getVal(), editors[editor]);
-							this._editorElements.push(elm);
+      //                      var elm: EditorElement = new EditorElement(editorHTML, variables[i].name, variables[i].getVal(), editors[editor]);
+						//	this._editorElements.push(elm);
 
-							break;
-						}
+						//	break;
+						//}
 					}
 				}
 
-				// Sort by the groups first
-				sortable.sort( function ( a, b )
-				{
-					var textA = a.group.name.toUpperCase();
-					var textB = b.group.name.toUpperCase();
-					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
-				});
+				
 
-				// Finall add the elements to the DOM
-				var i = sortable.length;
-				while ( i-- )
-				{
-					if ( sortable[i].group.parent == null )
-						this.addChild( sortable[i].group );
-				}
+				//// Finall add the elements to the DOM
+				//var i = sortable.length;
+				//while ( i-- )
+				//{
+				//	if ( sortable[i].group.parent == null )
+				//		this.addChild( sortable[i].group );
+				//}
 
 				// Just add the fix after each group
-				this._endDiv.detach();
-				this.element.append( this._endDiv );
+				//this._endDiv.detach();
+				//this.element.append( this._endDiv );
 
-				// Now sort each of the sub properties
-				sortable.sort( function ( a, b )
-				{
-					var textA = a.name.toUpperCase();
-					var textB = b.name.toUpperCase();
-					return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
-				});
+				
 
-				// Finall add the sub elements to the DOM
-				i = sortable.length;
-				while ( i-- )
-					sortable[i].group.content.append( sortable[i].divs );
+				//// Finall add the sub elements to the DOM
+				//i = sortable.length;
+				//while ( i-- )
+				//	sortable[i].group.content.append( sortable[i].divs );
 
-				// Finally notify all editors they have been added
-				i = sortable.length;
-				while ( i-- )
-					sortable[i].editor.onAddedToDom();
+				//// Finally notify all editors they have been added
+				//i = sortable.length;
+				//while ( i-- )
+				//	sortable[i].editor.onAddedToDom();
 			}
 			else
 			{
 				this._header.html( "Please select an object." );
+                this.cleanup();
 
-				// Remove all previous labels and HTML elements.
-				var i = this._editorElements.length;
-				while ( i-- )
-				{
-					jQuery( this._editorElements[i].html ).remove();
-				}
+				//// Remove all previous labels and HTML elements.
+				//var i = this._editorElements.length;
+				//while ( i-- )
+				//{
+				//	jQuery( this._editorElements[i].html ).remove();
+				//}
 
-				this._editorElements.splice( 0, this._editorElements.length );
+				//this._editorElements.splice( 0, this._editorElements.length );
 
-				// Cleanup editors
-				i = this._editors.length;
-				while ( i-- )
-					this._editors[i].cleanup();
+				//// Cleanup editors
+				//i = this._editors.length;
+				//while ( i-- )
+				//	this._editors[i].cleanup();
 
-				// Cleanup groups
-				i = this._groups.length;
-				while ( i-- )
-				{
-					this.removeChild( this._groups[i] );
-					this._groups[i].dispose();
-				}
+				//// Cleanup groups
+				//i = this._groups.length;
+				//while ( i-- )
+				//{
+				//	this.removeChild( this._groups[i] );
+				//	this._groups[i].dispose();
+				//}
 
-				this._groups = [];
+				//this._groups = [];
 
 				// Set the editable
 				this._object = null;
@@ -295,17 +330,17 @@ module Animate
 			return this._object;
 		}
 
-		/**
-		* Called when a property has been updated. This will inturn get the event <PropertyGrid.PROPERTY_EDITED> dispatched.
-		* @param {Prop<any>} prop
-		*/
-        propUpdated(prop: Prop<any> )
-		{
-			// dispatches the grid event
-            var event = new PropertyGridEvent(this._object, prop);
-            this._object.parent.emit(event);
-            this.emit(event);
-		}
+		///**
+		//* Called when a property has been updated. This will inturn get the event <PropertyGrid.PROPERTY_EDITED> dispatched.
+		//* @param {Prop<any>} prop
+		//*/
+  //      propUpdated(prop: Prop<any> )
+		//{
+		//	// dispatches the grid event
+  //          var event = new PropertyGridEvent(this._object, prop);
+  //          this._object.parent.emit(event);
+  //          this.emit(event);
+		//}
 
 		/**
 		* called when we reset the project

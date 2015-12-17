@@ -4,6 +4,25 @@
     export class Utils
     {
         private static _withCredentials: boolean = true;
+        private static shallowIds: number = 0;
+
+        /**
+        * Generates a new shallow Id - an id that is unique only to this local session
+        * @param {number} reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
+        * @returns {number}
+        */
+        static generateLocalId(reference?: number): number
+        {
+            // Make sure the ID is always really high - i.e. dont allow for duplicates
+            if (reference !== undefined && reference > Utils.shallowIds)
+            {
+                Utils.shallowIds = reference + 1;
+                return reference;
+            }
+
+            Utils.shallowIds++;
+            return Utils.shallowIds;
+        }
 
         /**
         * A predefined shorthand method for calling put methods that use JSON communication

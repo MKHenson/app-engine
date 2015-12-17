@@ -27,7 +27,7 @@ module Animate
 		/**
 		* Whenever a container property is changed by the editor
 		*/
-		onPropertyGridEdited( type: string, event : PropertyGridEvent, sender? : EventDispatcher )
+        onPropertyGridEdited(type: string, event: EditEvent, sender?: EventDispatcher)
 		{
             this.resource.saved = false;
             //this.resource.properties.updateValue(event.propertyName, event.prop.getVal());

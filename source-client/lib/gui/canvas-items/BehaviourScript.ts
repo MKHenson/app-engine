@@ -10,13 +10,13 @@ module Animate
         public scriptTab: ScriptTab;
         private _loading: JQuery;
 
-		constructor( parent: Component, scriptId: string, text : string, copied : boolean = false)
+        constructor(parent: Component, scriptId: string, text: string, copied: boolean = false)
 		{
 			// Call super-class constructor
             super(parent, text);
 
             // TODO: What do we do about shallow IDs?
-            ProjectResource.generateLocalId()
+            Utils.generateLocalId()
 			
             this.scriptTab = null;
             this.scriptId = scriptId;
@@ -188,7 +188,29 @@ module Animate
 			//	return CanvasTab.getSingleton().selectTab( CanvasTab.getSingleton().getTab( "*" + tabName ) );
 
 			//this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab( "", CanvasTabType.SCRIPT, this );
-		}
+        }
+
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourScript}
+        */
+        tokenize(slim: boolean = false): IBehaviourScript
+        {
+            var toRet = <IBehaviourScript>{};
+            toRet.scriptId = this.scriptId;
+            return toRet;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {IBehaviourScript} data The data to import from
+        */
+        deTokenize(data: IBehaviourScript)
+        {
+            super.deTokenize(data);
+            this.scriptId = this.scriptId;
+        }
 
 		/**
 		* Diposes and cleans up this component and all its child Components

@@ -5,7 +5,6 @@
 	*/
     export class ProjectResource<T extends Engine.IResource> extends EventDispatcher
     {
-        private static shallowIds: number = 0;
         public entry: T;
         private _saved: boolean;
         protected _properties: EditableSet;
@@ -17,11 +16,7 @@
 
             this.entry = entry;
             var resource: Engine.IResource = <Engine.IResource>entry;
-
-            // Make sure the ID is always really high - i.e. dont allow for duplicates
-            if (resource.shallowId && resource.shallowId > ProjectResource.shallowIds)
-                ProjectResource.shallowIds = resource.shallowId + 1;
-
+            resource.shallowId = Utils.generateLocalId(resource.shallowId);
             this._saved = true;
             this._options = {};
             this._properties = new EditableSet(this);
@@ -63,11 +58,7 @@
             this.emit(new Event("modified"));
         }
 
-        static generateLocalId(): number
-		{
-			Asset.shallowIds++;
-			return Asset.shallowIds;
-		}
+        
 
         dispose()
         {

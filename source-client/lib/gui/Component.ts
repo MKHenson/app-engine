@@ -89,10 +89,9 @@ module Animate
 			if (this._parent != null)
 				this._parent.removeChild(this);
 
-			this.element
-				.data("id", null)
-				.data("component", null)
-				.remove();
+            this.element.data("id", null);
+            this.element.data("component", null);
+            this.element.remove();
 
 			this.element = null;
 			

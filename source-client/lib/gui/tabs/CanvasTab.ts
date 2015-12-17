@@ -157,7 +157,7 @@ module Animate
 			while ( i-- )
 				if ( this.tabs[i].page.children.length > 0 )
 				{
-					var canvas: Canvas = <Canvas>this.tabs[i].page.children[0];
+                    var canvas: Canvas = <Canvas><Component>this.tabs[i].page.children[0];
 					if ( canvas instanceof Canvas )
 						canvas.removeAsset(asset);
 				}
@@ -200,7 +200,7 @@ module Animate
 			for ( var i = 0, l = tabs.length; i < l; i++ )
                 if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && (<Canvas>tabs[i].page.children[0]).container.entry._id == behaviourID )
 				{
-					var canvas: Canvas = <Canvas>tabs[i].page.children[0];
+                    var canvas: Canvas = <Canvas><Component>tabs[i].page.children[0];
 					return canvas;
 				}
 			
@@ -232,8 +232,8 @@ module Animate
 				}
 			}
 
-			if ( tab.page.children[0] instanceof Canvas )
-				this._currentCanvas = <Canvas>tab.page.children[0];
+            if (tab.page.children[0] instanceof Canvas)
+                this._currentCanvas = <Canvas><Component>tab.page.children[0];
 			else
 				this._currentCanvas = null;
 
@@ -242,7 +242,7 @@ module Animate
 				var canvas: Canvas = <Canvas>this._currentCanvas.element.data( "component" );
 				canvas.onSelected();
 
-				var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "behaviour", canvas.container );
+				var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "resource", canvas.container );
 				if ( node )
 					TreeViewScene.getSingleton().selectNode( node );
 
@@ -411,8 +411,8 @@ module Animate
 			{
 				toRet = super.addTab( new CanvasTabPair( new Canvas( null, tabContent ), text ), true );
 				var canvas: Canvas = (<CanvasTabPair>toRet).canvas;
-				tabContent.canvas = canvas;
-				toRet.page.addChild( canvas );
+                tabContent.canvas = canvas;
+                toRet.page.addChild(<Component>canvas);
 
 				canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this );
 

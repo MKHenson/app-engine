@@ -43,16 +43,30 @@ module Animate
 				helper: "ui-resizable-helper",
 				resize: jQuery.proxy( this.onResizeUpdate, this ),
 				stop: jQuery.proxy( this.onResizeStop, this )
-			});
-		}
+            });
 
-		/** Does nothing...*/
+            this.on("edited", this.onEdit, this);
+        }
+
+        /** 
+        * When the text property is edited
+        */
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
+        {
+            this.text = event.property.getVal();
+        }
+
+		/** 
+        * Does nothing...
+        */
 		updateDimensions()
 		{
 			return;
 		}
 
-		/** When the mouse enters the behaviour*/
+		/** 
+        * When the mouse enters the behaviour
+        */
 		onIn( e )
 		{
 			this.element.css( "opacity", 1 );
@@ -69,13 +83,17 @@ module Animate
 			return toRet;
 		}
 
-		/** When the mouse enters the behaviour*/
+		/** 
+        * When the mouse enters the behaviour
+        */
 		onOut( e )
 		{
 			this.element.css( "opacity", 0.3 );
 		}
 
-		/** When the resize starts.*/
+		/** 
+        * When the resize starts.
+        */
 		onResizeStart( event, ui )
 		{
 			this.mStartX = this.element.css( "left" );
@@ -85,7 +103,9 @@ module Animate
 			this.mOffsetY = this.element.offset().top;
 		}
 
-		/** When the resize updates.*/
+		/** 
+        * When the resize updates.
+        */
 		onResizeUpdate( event, ui )
 		{
 			this.element.css( { left: this.mStartX, top: this.mStartY });
@@ -94,14 +114,18 @@ module Animate
 			helper.css( { left: this.mOffsetX, top: this.mOffsetY });
 		}
 
-		/** When the resize stops.*/
+		/** 
+        * When the resize stops.
+        */
 		onResizeStop( event, ui )
 		{
 			this.onStageClick( null );
 			this.element.css( { left: this.mStartX, top: this.mStartY });
 		}
 
-		/** Call this to allow for text editing in the comment.*/
+		/** 
+        * Call this to allow for text editing in the comment.
+        */
 		enterText()
 		{
 			if ( this.isInInputMode )
@@ -126,7 +150,9 @@ module Animate
 			this.input.select();
 		}
 
-		/** When we click on the stage we go out of edit mode.*/
+		/** 
+        * When we click on the stage we go out of edit mode.
+        */
 		onStageClick( e )
 		{
 			if ( this.isInInputMode == false )
@@ -146,15 +172,17 @@ module Animate
 			this.input.data( "dragEnabled", true );
 
 			this.text = this.input.val();
-			//this.textfield.element.text( this.input.val() );
 			this.element.css( { width: "95%", height: "95%", top: 0, left: 0 });
 
 
 		}
 
-		/**This will cleanup the component.*/
+		/**
+        * This will cleanup the component.
+        */
 		dispose()
-		{
+        {
+            this.off("edited", this.onEdit, this);
 			jQuery( "body" ).off( "click", this.stageClickProxy );
 			this.input.remove();
 
