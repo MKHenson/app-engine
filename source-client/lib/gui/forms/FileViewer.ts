@@ -1,29 +1,5 @@
 module Animate
 {
-    /**
-	* An event to deal with file viewer events 
-    * The event type can be 'cancelled' or 'change'
-	*/
-	export class FileViewerEvent extends Event
-	{
-        public file: Engine.IFile;
-        constructor(type: string, file: Engine.IFile )
-		{
-			super( type, file );
-			this.file = file;
-		}
-    }
-
-    /**
-	* Defines which types of files to search through 
-	*/
-    export enum FileSearchType
-    {
-        Global,
-        User,
-        Project
-    }
-    
 	/**
 	* This form is used to load and select assets.
 	*/

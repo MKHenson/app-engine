@@ -9,20 +9,7 @@ module Animate
 	}
 
 
-	export class TabEvent extends Event
-	{
-		private _pair: TabPair;
-		public cancel: boolean;
-
-		constructor( eventName: any, pair: TabPair )
-		{
-			super( eventName, pair );
-			this.cancel = false;
-			this._pair = pair;
-		}
-
-		get pair(): TabPair { return this._pair; }
-	}
+	
 
 	/**
 	* The Tab component will create a series of selectable tabs which open specific tab pages.

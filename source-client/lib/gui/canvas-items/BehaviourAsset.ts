@@ -24,6 +24,18 @@ module Animate
 			super.dispose();
         }
         
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviour}
+        */
+        tokenize(slim: boolean = false): IBehaviour
+        {
+            var toRet = <IBehaviour>super.tokenize(slim);
+            toRet.type = CanvasItemType.BehaviourAsset;
+            return toRet;
+        }
+
 		/**
 		* Adds a portal to this behaviour.
 		* @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT

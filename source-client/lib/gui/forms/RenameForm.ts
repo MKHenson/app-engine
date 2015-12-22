@@ -2,31 +2,7 @@ module Animate
 {
     export interface IRenameToken { newName: string; oldName: string; object: IRenamable; cancelled: boolean; };
     export interface IRenamable { name?: string; };
-
-    /**
-    * Event used to describe re-naming of objects. Listen for either
-    * 'renaming' or 'renamed' event types
-    */
-	export class RenameFormEvent extends Event
-	{
-		cancel: boolean;
-        name: string;
-        oldName: string;
-        object: IRenamable;
-        reason: string;
-        resourceType: ResourceType;
-
-        constructor(type: string, name: string, oldName: string, object: IRenamable, rt : ResourceType )
-		{
-            super(type, name);
-			this.cancel = false;
-            this.name = name;
-            this.oldName = oldName;
-            this.object = object;
-            this.resourceType = rt;
-		}
-	}
-
+    
 	/**
 	* This form is used to rename objects
 	*/

@@ -10,7 +10,8 @@ module Animate
 	///**
 	//* A specialised event class for the property grid
 	//*/
-	//export class PropertyGridEvent extends Event
+	//export class PropertyGridEvent 
+
 	//{
  //       public prop: Prop<any>;
  //       public object: EditableSet;

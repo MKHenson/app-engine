@@ -7,18 +7,7 @@ module Animate
 		static CONFIRM: OkCancelFormEvents = new OkCancelFormEvents("ok_cancel_confirm");
 	}
 
-	export class OkCancelFormEvent extends Event
-	{
-		public text: string;
-		public cancel: boolean;
-
-		constructor(eventName: OkCancelFormEvents, text: string )
-		{
-			super(eventName, text);
-			this.text = text;
-			this.cancel = false;
-		}
-	}
+	
 
 	/**
 	* A simple form which holds a heading, content and OK / Cancel buttons.

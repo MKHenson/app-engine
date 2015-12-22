@@ -48,6 +48,18 @@ module Animate
             this.on("edited", this.onEdit, this);
         }
 
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {ICanvasItem}
+        */
+        tokenize(slim: boolean = false): ICanvasItem
+        {
+            var toRet = <ICanvasItem>super.tokenize(slim);
+            toRet.type = CanvasItemType.BehaviourComment;
+            return toRet;
+        }
+
         /** 
         * When the text property is edited
         */

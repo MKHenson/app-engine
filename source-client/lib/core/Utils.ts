@@ -1,6 +1,7 @@
 ﻿module Animate
 {
     export interface IAjaxError { message: string; status: number; };
+
     export class Utils
     {
         private static _withCredentials: boolean = true;
@@ -173,7 +174,92 @@
             //return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         }
 
-		/*Gets the local mouse position of an event on a given dom element.*/
+        /**
+        * Creates a new canvas item based on the dataset provided
+        * @param {any} data The data, usually created from a tokenize function
+        * @returns {CanvasItem}
+        */
+        static createItem(data: ICanvasItem): CanvasItem
+        {
+            switch (data.type)
+            {
+                case CanvasItemType.Link:
+                    return new Link(null);
+                case CanvasItemType.BehaviourAsset:
+                    return new BehaviourAsset(null);
+                case CanvasItemType.BehaviourComment:
+                    return new BehaviourComment(null, "");
+                case CanvasItemType.BehaviourInstance:
+                    return new BehaviourInstance(null, null, false);
+                case CanvasItemType.BehaviourPortal:
+                    return new BehaviourPortal(null, null, PortalType.INPUT);
+                case CanvasItemType.BehaviourScript:
+                    return new BehaviourScript(null, null, "", false);
+                case CanvasItemType.BehaviourShortcut:
+                    return new BehaviourShortcut(null, null, "");
+            }
+        }
+
+        /**
+        * Creates a new property based on the dataset provided
+        * @param {any} data The data, usually created from a tokenize function
+        * @param {EditableSet} set The set to associate with this property
+        */
+        static createProperty(data: any, set: EditableSet): Prop<any>
+        {
+            if (!data.hasOwnProperty("type"))
+                return null;
+
+            var type: PropertyType = data.type;
+            var prop: Prop<any>;
+
+            switch (type)
+            {
+                case PropertyType.ASSET:
+                    prop = new PropResource(null, null, null);
+                    break;
+                case PropertyType.ASSET_LIST:
+                    prop = new PropResourceList(null, null, null);
+                    break;
+                case PropertyType.BOOL:
+                    prop = new PropBool(null, null);
+                    break;
+                case PropertyType.ENUM:
+                    prop = new PropEnum(null, null, null);
+                    break;
+                case PropertyType.FILE:
+                    prop = new PropFileResource(null, null, null);
+                    break;
+                case PropertyType.GROUP:
+                    prop = new PropResource(null, null, null);
+                    break;
+                //TODO: We dont have hidden props yet
+                case PropertyType.HIDDEN:
+                    break;
+                //TODO: We dont have hidden props yet
+                case PropertyType.HIDDEN_FILE:
+                    break;
+                case PropertyType.NUMBER:
+                    prop = new PropNum(null, null);
+                    break;
+                //TODO: We dont have objecy props yet
+                case PropertyType.OBJECT:
+                    break;
+                //TODO: We dont have objecy props yet
+                case PropertyType.OPTIONS:
+                    break;
+                case PropertyType.STRING:
+                    prop = new PropText(null, null);
+                    break;
+            }
+
+            if (prop)
+                prop.set = set;
+        }
+
+		/**
+        * Gets the local mouse position of an event on a given dom element.
+        */
 		static getMousePos( evt, id ): any
 		{
 			// get canvas position

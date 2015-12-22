@@ -30,16 +30,7 @@
 		static IMAGES: ListViewType = new ListViewType("images");
 	}
 
-	export class ListViewEvent extends Event
-	{
-		public item: ListViewItem;
-
-		constructor(eventType: ListViewEvents, item : ListViewItem)
-		{
-			super( eventType );
-			this.item = item;
-		}
-	}
+	
 
 	/**
 	* The ListView class is used to display a series of {ListViewItem}s. Each item can 

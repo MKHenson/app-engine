@@ -7,17 +7,7 @@ module Animate
 		static HIDDEN: WindowEvents = new WindowEvents("window_hidden");
 		static SHOWN: WindowEvents = new WindowEvents("window_shown");
 	}
-
-	export class WindowEvent extends Event
-	{
-		public window: Window;
-		constructor( eventName: WindowEvents, window : Window )
-		{
-			super( eventName, window );
-			this.window = window;
-		}
-	}
-
+    
 	/**
 	* This class is the base class for all windows in Animate
 	*/

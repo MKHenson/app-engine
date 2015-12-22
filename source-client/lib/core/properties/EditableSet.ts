@@ -1,17 +1,6 @@
 ﻿module Animate
 {
-    export class EditEvent extends Event
-    {
-        property: Prop<any>;
-        set: EditableSet;
-
-        constructor(property: Prop<any>, set: EditableSet)
-        {
-            super("edited");
-            this.property = property;
-            this.set = set;
-        }
-    }
+   
 
     /**
     * Defines a set of variables to use in the property grid

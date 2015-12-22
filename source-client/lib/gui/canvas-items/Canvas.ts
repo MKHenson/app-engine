@@ -19,16 +19,7 @@ module Animate
 		static MODIFIED: CanvasEvents = new CanvasEvents( "canvas_modified" );
 	}
 
-	export class CanvasEvent extends Event
-	{
-		public canvas: Canvas;
-
-		constructor( eventName: CanvasEvents, canvas: Canvas )
-		{
-			this.canvas = canvas;
-			super( eventName, canvas );
-		}
-	}
+	
 
 	/**
 	* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
@@ -322,8 +313,8 @@ module Animate
 					this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
 					// Notify of change
-					if ( toRemove[i] instanceof BehaviourPortal )
-						PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_REMOVED, "", this._container, ( <BehaviourPortal>toRemove[i] ).portals[0], this ) );
+                    if (toRemove[i] instanceof BehaviourPortal)
+                        this.emit(new PortalEvent(EventTypes.PORTAL_REMOVED, "", this._container, (<BehaviourPortal>toRemove[i]).portals[0]));
 
 					toRemove[i].dispose();
 					this.buildSceneReferences();
@@ -621,8 +612,8 @@ module Animate
 
 					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, "" );
 
-					// Notify of change
-					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_EDITED, oldName, this._container, portal, this ) );
+                    // Notify of change
+                    this.emit(new PortalEvent(EventTypes.PORTAL_EDITED, oldName, this._container, portal));
 
 					return;
 				}
@@ -651,7 +642,7 @@ module Animate
 					newNode.css( { "left": this._x + "px", "top": this._y + "px", "position": "absolute" });
 
 					//Notify of change
-					PluginManager.getSingleton().emit( new PluginPortalEvent( EditorEvents.PORTAL_ADDED, "", this._container, newNode.portals[0], this ) );
+                    this.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", this._container, newNode.portals[0]));
 				}
 
 				// Notify of change
@@ -786,8 +777,8 @@ module Animate
 		private isCyclicDependency( container : Container, ref : string ) : boolean
 		{
             var project = User.get.project;
-			var thisContainer = this._container;
-			var json: CanvasToken = null;
+            var thisContainer = this._container;
+            var json: IContainerToken = null;
 			var canvas: Canvas = null;
 
 			// If this container is the same as the one we are testing
@@ -797,8 +788,8 @@ module Animate
 
 			// Get the most updated JSON
             canvas = CanvasTab.getSingleton().getTabCanvas(container.entry._id );
-			if ( canvas && !canvas._container.saved )
-				json = canvas.buildDataObject();
+            if (canvas && !canvas._container.saved)
+                json = canvas.tokenize(false);
 			else
                 json = container.entry.json;
 
@@ -807,10 +798,10 @@ module Animate
 
 			// Go through each of the items to see if got any instance that might refer to this container
 			var items = json.items;
-			for ( var i = 0, l = items.length; i < l; i++ )
-				if ( items[i].type == "BehaviourInstance" )
+            for (var i = 0, l = items.length; i < l; i++)
+                if (items[i].type == CanvasItemType.BehaviourInstance)
                 {
-                    var childContainer = project.getResourceByShallowID<Container>(items[i].containerId, ResourceType.CONTAINER);
+                    var childContainer = project.getResourceByShallowID<Container>(items[i].shallowId, ResourceType.CONTAINER);
 					if ( childContainer && this.isCyclicDependency( childContainer, ref ) )
 					{
                         ref = childContainer.entry.name;
@@ -1215,348 +1206,402 @@ module Animate
 		open( data: any )
 		{
 
-		}
+        }
 
+        /**
+        * Tokenizes the canvas and all its items into a JSON object that can be serialized into a DB
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
+        */
+        tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken
+        {
+            var children = items || <Array<CanvasItem>>this.children;
+            var toRet: IContainerToken = {
+                items: [],
+                properties: this._container.properties.tokenize(slim)
+            };
+            
+            for (var i = 0, l = children.length; i < l; i++)
+                toRet.items.push(children[i].tokenize(slim));
+            
+            return toRet;
+        }
 
-		/**
-		* This function is called when animate is writing data to the database.
-		* @param {any} items The items we need to build
-		* @returns {CanvasToken}
-		*/
-		buildDataObject( items: Array<IComponent> = null ): CanvasToken
-		{
-            var data: CanvasToken = new CanvasToken(this.container.entry.shallowId );
-            data.name = this._container.entry.name;
-			data.properties = this._container.properties.tokenize();
+        deTokenize(data: IContainerToken, clearItems: boolean = true)
+        {
+            var children = <Array<CanvasItem>>this.children;
+            if ( clearItems )
+                while (children.length > 0 )
+                    children[0].dispose();
 
-			if ( items == null )
-				items = this.children;
+            var linkToken: LinkMap = <LinkMap>{};
+            var oldIds: Array<number> = [];
 
-			// Let the plugins save their data			
-			PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._container, data.plugins, this._containerReferences ) );
-
-
-			// Create a multidimension array and pass each of the project dependencies
-			var len = items.length;
-			for ( var i = 0; i < len; i++ )
+            // Attempt to create and initialize each of the items
+            for (var i = 0, l = data.items.length; i < l; i++)
             {
-                var comp = <Component>items[i];
-                var canvasToken = new CanvasTokenItem();
-                data.items[i] = canvasToken;
+                var item = Utils.createItem(data.items[i]);
+                if (!item)
+                {
+                    Logger.logMessage(`Could not create canvas item`, null, LogType.ERROR);
+                    continue;
+                }
+                
+                this.addChild(item);
+                item.deTokenize(data.items[i]);
+                oldIds.push(data.items[i].shallowId);
+                linkToken[data.items[i].shallowId] = { item: item, token: data.items[i] };
+            }
 
-				//First export all the standard item data
-                canvasToken.id = comp.id;
-                canvasToken.type = (<any>comp ).constructor.name;
-                canvasToken.left = comp.element.css( "left" );
-                canvasToken.top = comp.element.css( "top" );
-                canvasToken.zIndex = comp.element.css( "z-index" );
-                canvasToken.position = comp.element.css( "position" );
+            // All items are created - so lets call link to make sure they are hooked up correctly
+            for (var i = 0, l = children.length; i < l; i++)
+                children[i].link(oldIds[i], linkToken);
 
-				// Now do all portals if its a behaviour
-                if (comp instanceof Behaviour )
-				{
-                    if (comp instanceof BehaviourComment )
-                        canvasToken.text = comp.text;
-                    else if (comp instanceof Behaviour)
-					{
-                        canvasToken.name = comp.originalName;
-                        canvasToken.alias = (comp.alias ? comp.alias : "" );
-					}
-
-                    if (comp instanceof BehaviourAsset )
-                        canvasToken.assetID = (comp.asset ? comp.asset.entry.shallowId : 0 );
-                    else if (comp instanceof BehaviourScript )
-                        canvasToken.scriptId = comp.scriptId;
-                    else if ( comp instanceof BehaviourShortcut )
-                        canvasToken.behaviourID = (comp.originalNode ? comp.originalNode.id : "" );
-                    else if (comp instanceof BehaviourInstance )
-                        canvasToken.containerId = (comp.container ? comp.container.entry.shallowId : 0 );
-
-                    if (comp instanceof BehaviourPortal )
-					{
-                        canvasToken.portalType = comp.portaltype;
-                        canvasToken.dataType = comp.dataType;
-                        canvasToken.value = comp.value;
-					}
-					else
-					{
-						canvasToken.portals = new Array();
-						var portalsArr: Array<CanvasTokenPortal> = canvasToken.portals;
-
-						var len2 = ( <Behaviour>items[i] ).portals.length;
-						for ( var ii = 0; ii < len2; ii++ )
-						{
-							portalsArr[ii] = new CanvasTokenPortal();
-
-                            portalsArr[ii].name = (<Behaviour>items[i]).portals[ii].property.name;
-							portalsArr[ii].value = ( <Behaviour>items[i] ).portals[ii].value;
-							portalsArr[ii].type = ( <Behaviour>items[i] ).portals[ii].type;
-							portalsArr[ii].dataType = ( <Behaviour>items[i] ).portals[ii].dataType;
-							portalsArr[ii].customPortal = ( <Behaviour>items[i] ).portals[ii].customPortal;
-						}
-					}
-
-				}
-				// If its a link we store a few more bits of information.
-                else if (comp instanceof Link )
-				{
-                    var sbehaviour: Behaviour = <Behaviour>comp.startPortal.parent;
-                    var ebehaviour: Behaviour = <Behaviour>comp.endPortal.parent;
-
-                    canvasToken.frameDelay = <number>comp.properties.getVar("Frame Delay").getVal();
-                    canvasToken.startPortal = comp.startPortal.property.name;
-                    canvasToken.endPortal = comp.endPortal.property.name;
-					canvasToken.startBehaviour = sbehaviour.id;
-					canvasToken.endBehaviour = ebehaviour.id;
-
-					// Create additional data for shortcuts
-                    canvasToken.targetStartBehaviour = (sbehaviour instanceof BehaviourShortcut ? sbehaviour.originalNode.id : sbehaviour.id );
-                    canvasToken.targetEndBehaviour = (ebehaviour instanceof BehaviourShortcut ? ebehaviour.originalNode.id : ebehaviour.id );
-				}
-			}
-
-			return data;
-		}
-
-		/**
-		* This function is called when a behaviour is double clicked, 
-		* a canvas is created and we try and load the behavious contents.
-		* @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
-		* @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
-		* @returns {any} 
-		*/
-		openFromDataObject( dataToken?: CanvasToken, clearItems: boolean = true, addSceneAssets: boolean = false )
-		{
-			// Create the data object from the JSON
-			var jsonObj: CanvasToken = null;
-			var pManager: PluginManager = PluginManager.getSingleton();
+            this.checkDimensions();
+		    this.buildSceneReferences();
+        }
 
 
-			if ( dataToken )
-				jsonObj = dataToken;
-            else if (this._container.entry.json !== null )
-                jsonObj = this._container.entry.json;
+		///**
+		//* This function is called when animate is writing data to the database.
+		//* @param {any} items The items we need to build
+		//* @returns {CanvasToken}
+		//*/
+		//buildDataObject( items: Array<IComponent> = null ): CanvasToken
+		//{
+  //          var data: CanvasToken = new CanvasToken(this.container.entry.shallowId );
+  //          data.name = this._container.entry.name;
+		//	data.properties = this._container.properties.tokenize();
 
-			// Cleanup the 
-			if ( clearItems )
-				while ( this.children.length > 0 )
-					this.children[0].dispose();
+		//	if ( items == null )
+		//		items = this.children;
 
-			var links = [];
-			var shortcuts: Array<ShortCutHelper> = [];
-
-			if ( jsonObj && jsonObj.items )
-			{
-				for ( var i in jsonObj.items )
-				{
-					var item: Component = null;
-
-					// Create the GUI element
-					if ( jsonObj.items[i].type == "BehaviourPortal" )
-					{
-						// Check if there is already a portal with that name. if it does then it
-						// is ignored.
-						var nameInUse = false;
-						var len = this.children.length;
-						for ( var ii = 0; ii < len; ii++ )
-							if ( this.children[ii] instanceof BehaviourPortal &&
-								this.children[ii].element.text() == jsonObj.items[i].name )
-							{
-								nameInUse = true;
-								Logger.logMessage(
-									"A portal with the name '" + jsonObj.items[i].name +
-									"' already exists on the Canvas.", null, LogType.ERROR );
-								break;
-							}
-
-						if ( nameInUse == false )
-						{
-							item = new BehaviourPortal( this, jsonObj.items[i].name,
-								jsonObj.items[i].portalType,
-								jsonObj.items[i].dataType,
-								jsonObj.items[i].value
-								);
-
-							( <BehaviourPortal>item ).requiresUpdated = true;
-						}
-					}
-					else if ( jsonObj.items[i].type == "BehaviourAsset" )
-						item = new BehaviourAsset( this, jsonObj.items[i].name );
-					else if ( jsonObj.items[i].type == "BehaviourScript" )
-                        item = new BehaviourScript(this, jsonObj.items[i].scriptId, jsonObj.items[i].name, !clearItems );
-					else if ( jsonObj.items[i].type == "BehaviourInstance" )
-					{
-                        var project = User.get.project;
-                        var container = project.getResourceByShallowID<Container>(jsonObj.items[i].containerId, ResourceType.CONTAINER);
-						if ( !container )
-							continue;
-
-						item = new BehaviourInstance( this, container, false );
-					}
-					else if ( jsonObj.items[i].type == "BehaviourShortcut" )
-					{
-						item = new BehaviourShortcut( this, null, jsonObj.items[i].name );
-						shortcuts.push( new ShortCutHelper( <BehaviourShortcut>item, jsonObj.items[i] ) );
-					}
-					else if ( jsonObj.items[i].type == "BehaviourComment" )
-						item = new BehaviourComment( this, jsonObj.items[i].text );
-					else if ( jsonObj.items[i].type == "Behaviour" )
-						item = new Behaviour( this, jsonObj.items[i].name );
-					else if ( jsonObj.items[i].type == "Link" )
-					{
-						var l: Link = new Link( this );
-                        item = l;
-
-						// Links we treat differerntly. They need all the behaviours 
-						// loaded first. So we do that, and keep each link in an array
-						// to load after the behaviours
-                        links.push(l);
-                        l.properties.getVar("Frame Delay").setVal( (jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1) );
-
-						// Store some temp data on the tag
-						l.tag = {};
-						l.tag.startPortalName = jsonObj.items[i].startPortal;
-						l.tag.endPortalName = jsonObj.items[i].endPortal;
-						l.tag.startBehaviourID = jsonObj.items[i].startBehaviour;
-						l.tag.endBehaviourID = jsonObj.items[i].endBehaviour;
-						l.tag.startBehaviour = null;
-						l.tag.endBehaviour = null;
-					}
+		//	// Let the plugins save their data			
+		//	PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._container, data.plugins, this._containerReferences ) );
 
 
+		//	// Create a multidimension array and pass each of the project dependencies
+		//	var len = items.length;
+		//	for ( var i = 0; i < len; i++ )
+  //          {
+  //              var comp = <Component>items[i];
+  //              var canvasToken = new CanvasTokenItem();
+  //              data.items[i] = canvasToken;
 
-					// Check if it was created ok
-					if ( item != null )
-					{
-						item.savedID = jsonObj.items[i].id;
+		//		//First export all the standard item data
+  //              canvasToken.id = comp.id;
+  //              canvasToken.type = (<any>comp ).constructor.name;
+  //              canvasToken.left = comp.element.css( "left" );
+  //              canvasToken.top = comp.element.css( "top" );
+  //              canvasToken.zIndex = comp.element.css( "z-index" );
+  //              canvasToken.position = comp.element.css( "position" );
 
-						// Set the positioning etc...
-						item.element.css( {
-							"left": jsonObj.items[i].left,
-							"top": jsonObj.items[i].top,
-							"z-index": jsonObj.items[i].zIndex,
-							"position": jsonObj.items[i].position
-						});
+		//		// Now do all portals if its a behaviour
+  //              if (comp instanceof Behaviour )
+		//		{
+  //                  if (comp instanceof BehaviourComment )
+  //                      canvasToken.text = comp.text;
+  //                  else if (comp instanceof Behaviour)
+		//			{
+  //                      canvasToken.name = comp.originalName;
+  //                      canvasToken.alias = (comp.alias ? comp.alias : "" );
+		//			}
 
-						// Add the portals if they exist
-						if ( jsonObj.items[i].portals )
-						{
-							for ( var iii = 0; iii < jsonObj.items[i].portals.length; iii++ )
-							{
-								var portal = ( <Behaviour>item ).addPortal( jsonObj.items[i].portals[iii].type,
-									jsonObj.items[i].portals[iii].name,
-									jsonObj.items[i].portals[iii].value,
-									jsonObj.items[i].portals[iii].dataType, false
-									);
+  //                  if (comp instanceof BehaviourAsset )
+  //                      canvasToken.assetID = (comp.asset ? comp.asset.entry.shallowId : 0 );
+  //                  else if (comp instanceof BehaviourScript )
+  //                      canvasToken.scriptId = comp.scriptId;
+  //                  else if ( comp instanceof BehaviourShortcut )
+  //                      canvasToken.behaviourID = (comp.originalNode ? comp.originalNode.id : "" );
+  //                  else if (comp instanceof BehaviourInstance )
+  //                      canvasToken.containerId = (comp.container ? comp.container.entry.shallowId : 0 );
 
-								portal.customPortal = jsonObj.items[i].portals[iii].customPortal;
-								if ( portal.customPortal === undefined || portal.customPortal == null )
-									portal.customPortal = false;
-							}
+  //                  if (comp instanceof BehaviourPortal )
+		//			{
+  //                      canvasToken.portalType = comp.portaltype;
+  //                      canvasToken.dataType = comp.dataType;
+  //                      canvasToken.value = comp.value;
+		//			}
+		//			else
+		//			{
+		//				canvasToken.portals = new Array();
+		//				var portalsArr: Array<CanvasTokenPortal> = canvasToken.portals;
 
-							// Set the alias text if it exists
-							if ( jsonObj.items[i].alias && jsonObj.items[i].alias != "" && jsonObj.items[i].alias != null )
-							{
-								( <Behaviour>item ).text = jsonObj.items[i].alias;
-								( <Behaviour>item ).alias = jsonObj.items[i].alias;
-							}
-						}
+		//				var len2 = ( <Behaviour>items[i] ).portals.length;
+		//				for ( var ii = 0; ii < len2; ii++ )
+		//				{
+		//					portalsArr[ii] = new CanvasTokenPortal();
 
-						if ( item instanceof Behaviour )
-							( <Behaviour>item ).updateDimensions();
-					}
-				}
-			}
+  //                          portalsArr[ii].name = (<Behaviour>items[i]).portals[ii].property.name;
+		//					portalsArr[ii].value = ( <Behaviour>items[i] ).portals[ii].value;
+		//					portalsArr[ii].type = ( <Behaviour>items[i] ).portals[ii].type;
+		//					portalsArr[ii].dataType = ( <Behaviour>items[i] ).portals[ii].dataType;
+		//					portalsArr[ii].customPortal = ( <Behaviour>items[i] ).portals[ii].customPortal;
+		//				}
+		//			}
 
-			// Link any shortcut nodes
-			for ( var li = 0, lil = this.children.length; li < lil; li++ )
-			{
-				for ( var ii = 0, lii = shortcuts.length; ii < lii; ii++ )
-					if ( this.children[li].savedID == shortcuts[ii].datum.behaviourID )
-					{
-						shortcuts[ii].item.setOriginalNode( <Behaviour>this.children[li], false );
-					}
-			}
+		//		}
+		//		// If its a link we store a few more bits of information.
+  //              else if (comp instanceof Link )
+		//		{
+  //                  var sbehaviour: Behaviour = <Behaviour>comp.startPortal.parent;
+  //                  var ebehaviour: Behaviour = <Behaviour>comp.endPortal.parent;
 
-			// Now do each of the links
-			for ( var li = 0, llen = links.length; li < llen; li++ )
-			{
-                var link: Link = links[li];
+  //                  canvasToken.frameDelay = <number>comp.properties.getVar("Frame Delay").getVal();
+  //                  canvasToken.startPortal = comp.startPortal.property.name;
+  //                  canvasToken.endPortal = comp.endPortal.property.name;
+		//			canvasToken.startBehaviour = sbehaviour.id;
+		//			canvasToken.endBehaviour = ebehaviour.id;
 
-				// We need to find the nodes first
-				var len = this.children.length;
-				for ( var ii = 0; ii < len; ii++ )
-				{
-					if ( link.tag.startBehaviourID == ( <Behaviour>this.children[ii] ).savedID )
-					{
-						var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
-						link.tag.startBehaviour = behaviour;
+		//			// Create additional data for shortcuts
+  //                  canvasToken.targetStartBehaviour = (sbehaviour instanceof BehaviourShortcut ? sbehaviour.originalNode.id : sbehaviour.id );
+  //                  canvasToken.targetEndBehaviour = (ebehaviour instanceof BehaviourShortcut ? ebehaviour.originalNode.id : ebehaviour.id );
+		//		}
+		//	}
 
-						// Now that the nodes have been set - we have to set the portals
-						for ( var iii = 0; iii < behaviour.portals.length; iii++ )
-						{
-							var portal: Portal = behaviour.portals[iii];
-							if ( link.tag.startPortalName == portal.name )
-							{
-								link.startPortal = portal;
-								link.tag.startBehaviour = null;
-								portal.addLink( link );
+		//	return data;
+		//}
 
-								break;
-							}
-						}
-					}
+		///**
+		//* This function is called when a behaviour is double clicked, 
+		//* a canvas is created and we try and load the behavious contents.
+		//* @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
+		//* @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
+		//* @returns {any} 
+		//*/
+		//openFromDataObject( dataToken?: CanvasToken, clearItems: boolean = true, addSceneAssets: boolean = false )
+		//{
+		//	// Create the data object from the JSON
+		//	var jsonObj: CanvasToken = null;
+		//	var pManager: PluginManager = PluginManager.getSingleton();
 
 
-					if ( link.tag.endBehaviourID == this.children[ii].savedID )
-					{
-						var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
-						link.tag.endBehaviour = behaviour;
+		//	if ( dataToken )
+		//		jsonObj = dataToken;
+  //          else if (this._container.entry.json !== null )
+  //              jsonObj = this._container.entry.json;
 
-						// Now that the nodes have been set - we have to set the portals
-						for ( var iii = 0; iii < behaviour.portals.length; iii++ )
-						{
-							var portal = behaviour.portals[iii];
-							if ( link.tag.endPortalName == portal.name )
-							{
-								link.endPortal = portal;
-								link.tag.endBehaviour = null;
-								portal.addLink( link );
-								break;
-							}
-						}
-					}
-				}
+		//	// Cleanup the 
+		//	if ( clearItems )
+		//		while ( this.children.length > 0 )
+		//			this.children[0].dispose();
 
-				if ( link.startPortal == null )
-					link.dispose();
-				else
-				{
-					if ( !link.endPortal || !link.startPortal || typeof link.startPortal == "string" || typeof link.endPortal == "string" || !link.endPortal.behaviour || !link.startPortal.behaviour )
-					{
-						link.dispose();
-					}
-					else
-					{
-						link.updatePoints();
-						link.element.css( "pointer-events", "" );
-					}
-				}
+		//	var links = [];
+		//	var shortcuts: Array<ShortCutHelper> = [];
 
-				// Clear the temp tag
-				link.tag = null;
-			}
+		//	if ( jsonObj && jsonObj.items )
+		//	{
+		//		for ( var i in jsonObj.items )
+		//		{
+		//			var item: Component = null;
 
-			for ( var c = 0, cl = this.children.length; c < cl; c++ )
-				this.children[c].savedID = null;
+		//			// Create the GUI element
+		//			if ( jsonObj.items[i].type == "BehaviourPortal" )
+		//			{
+		//				// Check if there is already a portal with that name. if it does then it
+		//				// is ignored.
+		//				var nameInUse = false;
+		//				var len = this.children.length;
+		//				for ( var ii = 0; ii < len; ii++ )
+		//					if ( this.children[ii] instanceof BehaviourPortal &&
+		//						this.children[ii].element.text() == jsonObj.items[i].name )
+		//					{
+		//						nameInUse = true;
+		//						Logger.logMessage(
+		//							"A portal with the name '" + jsonObj.items[i].name +
+		//							"' already exists on the Canvas.", null, LogType.ERROR );
+		//						break;
+		//					}
 
-			// Let the plugins open their data
-			if ( jsonObj && jsonObj.plugins )				
-				pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._container, jsonObj.plugins ) );
+		//				if ( nameInUse == false )
+		//				{
+		//					item = new BehaviourPortal( this, jsonObj.items[i].name,
+		//						jsonObj.items[i].portalType,
+		//						jsonObj.items[i].dataType,
+		//						jsonObj.items[i].value
+		//						);
 
-			this.checkDimensions();
-			this.buildSceneReferences();
-		}
+		//					( <BehaviourPortal>item ).requiresUpdated = true;
+		//				}
+		//			}
+		//			else if ( jsonObj.items[i].type == "BehaviourAsset" )
+		//				item = new BehaviourAsset( this, jsonObj.items[i].name );
+		//			else if ( jsonObj.items[i].type == "BehaviourScript" )
+  //                      item = new BehaviourScript(this, jsonObj.items[i].scriptId, jsonObj.items[i].name, !clearItems );
+		//			else if ( jsonObj.items[i].type == "BehaviourInstance" )
+		//			{
+  //                      var project = User.get.project;
+  //                      var container = project.getResourceByShallowID<Container>(jsonObj.items[i].containerId, ResourceType.CONTAINER);
+		//				if ( !container )
+		//					continue;
+
+		//				item = new BehaviourInstance( this, container, false );
+		//			}
+		//			else if ( jsonObj.items[i].type == "BehaviourShortcut" )
+		//			{
+		//				item = new BehaviourShortcut( this, null, jsonObj.items[i].name );
+		//				shortcuts.push( new ShortCutHelper( <BehaviourShortcut>item, jsonObj.items[i] ) );
+		//			}
+		//			else if ( jsonObj.items[i].type == "BehaviourComment" )
+		//				item = new BehaviourComment( this, jsonObj.items[i].text );
+		//			else if ( jsonObj.items[i].type == "Behaviour" )
+		//				item = new Behaviour( this, jsonObj.items[i].name );
+		//			else if ( jsonObj.items[i].type == "Link" )
+		//			{
+		//				var l: Link = new Link( this );
+  //                      item = l;
+
+		//				// Links we treat differerntly. They need all the behaviours 
+		//				// loaded first. So we do that, and keep each link in an array
+		//				// to load after the behaviours
+  //                      links.push(l);
+  //                      l.properties.getVar("Frame Delay").setVal( (jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1) );
+
+		//				// Store some temp data on the tag
+		//				l.tag = {};
+		//				l.tag.startPortalName = jsonObj.items[i].startPortal;
+		//				l.tag.endPortalName = jsonObj.items[i].endPortal;
+		//				l.tag.startBehaviourID = jsonObj.items[i].startBehaviour;
+		//				l.tag.endBehaviourID = jsonObj.items[i].endBehaviour;
+		//				l.tag.startBehaviour = null;
+		//				l.tag.endBehaviour = null;
+		//			}
+
+
+
+		//			// Check if it was created ok
+		//			if ( item != null )
+		//			{
+		//				item.savedID = jsonObj.items[i].id;
+
+		//				// Set the positioning etc...
+		//				item.element.css( {
+		//					"left": jsonObj.items[i].left,
+		//					"top": jsonObj.items[i].top,
+		//					"z-index": jsonObj.items[i].zIndex,
+		//					"position": jsonObj.items[i].position
+		//				});
+
+		//				// Add the portals if they exist
+		//				if ( jsonObj.items[i].portals )
+		//				{
+		//					for ( var iii = 0; iii < jsonObj.items[i].portals.length; iii++ )
+		//					{
+		//						var portal = ( <Behaviour>item ).addPortal( jsonObj.items[i].portals[iii].type,
+		//							jsonObj.items[i].portals[iii].name,
+		//							jsonObj.items[i].portals[iii].value,
+		//							jsonObj.items[i].portals[iii].dataType, false
+		//							);
+
+		//						portal.customPortal = jsonObj.items[i].portals[iii].customPortal;
+		//						if ( portal.customPortal === undefined || portal.customPortal == null )
+		//							portal.customPortal = false;
+		//					}
+
+		//					// Set the alias text if it exists
+		//					if ( jsonObj.items[i].alias && jsonObj.items[i].alias != "" && jsonObj.items[i].alias != null )
+		//					{
+		//						( <Behaviour>item ).text = jsonObj.items[i].alias;
+		//						( <Behaviour>item ).alias = jsonObj.items[i].alias;
+		//					}
+		//				}
+
+		//				if ( item instanceof Behaviour )
+		//					( <Behaviour>item ).updateDimensions();
+		//			}
+		//		}
+		//	}
+
+		//	// Link any shortcut nodes
+		//	for ( var li = 0, lil = this.children.length; li < lil; li++ )
+		//	{
+		//		for ( var ii = 0, lii = shortcuts.length; ii < lii; ii++ )
+		//			if ( this.children[li].savedID == shortcuts[ii].datum.behaviourID )
+		//			{
+		//				shortcuts[ii].item.setOriginalNode( <Behaviour>this.children[li], false );
+		//			}
+		//	}
+
+		//	// Now do each of the links
+		//	for ( var li = 0, llen = links.length; li < llen; li++ )
+		//	{
+  //              var link: Link = links[li];
+
+		//		// We need to find the nodes first
+		//		var len = this.children.length;
+		//		for ( var ii = 0; ii < len; ii++ )
+		//		{
+		//			if ( link.tag.startBehaviourID == ( <Behaviour>this.children[ii] ).savedID )
+		//			{
+		//				var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
+		//				link.tag.startBehaviour = behaviour;
+
+		//				// Now that the nodes have been set - we have to set the portals
+		//				for ( var iii = 0; iii < behaviour.portals.length; iii++ )
+		//				{
+		//					var portal: Portal = behaviour.portals[iii];
+		//					if ( link.tag.startPortalName == portal.name )
+		//					{
+		//						link.startPortal = portal;
+		//						link.tag.startBehaviour = null;
+		//						portal.addLink( link );
+
+		//						break;
+		//					}
+		//				}
+		//			}
+
+
+		//			if ( link.tag.endBehaviourID == this.children[ii].savedID )
+		//			{
+		//				var behaviour: Behaviour = ( <Behaviour>this.children[ii] );
+		//				link.tag.endBehaviour = behaviour;
+
+		//				// Now that the nodes have been set - we have to set the portals
+		//				for ( var iii = 0; iii < behaviour.portals.length; iii++ )
+		//				{
+		//					var portal = behaviour.portals[iii];
+		//					if ( link.tag.endPortalName == portal.name )
+		//					{
+		//						link.endPortal = portal;
+		//						link.tag.endBehaviour = null;
+		//						portal.addLink( link );
+		//						break;
+		//					}
+		//				}
+		//			}
+		//		}
+
+		//		if ( link.startPortal == null )
+		//			link.dispose();
+		//		else
+		//		{
+		//			if ( !link.endPortal || !link.startPortal || typeof link.startPortal == "string" || typeof link.endPortal == "string" || !link.endPortal.behaviour || !link.startPortal.behaviour )
+		//			{
+		//				link.dispose();
+		//			}
+		//			else
+		//			{
+		//				link.updatePoints();
+		//				link.element.css( "pointer-events", "" );
+		//			}
+		//		}
+
+		//		// Clear the temp tag
+		//		link.tag = null;
+		//	}
+
+		//	for ( var c = 0, cl = this.children.length; c < cl; c++ )
+		//		this.children[c].savedID = null;
+
+		//	// Let the plugins open their data
+		//	if ( jsonObj && jsonObj.plugins )				
+		//		pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._container, jsonObj.plugins ) );
+
+		//	this.checkDimensions();
+		//	this.buildSceneReferences();
+		//}
 
 		/**
 		* This function is called to make sure the canvas min width and min height variables are set

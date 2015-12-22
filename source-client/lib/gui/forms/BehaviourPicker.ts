@@ -7,16 +7,7 @@ module Animate
 		static BEHAVIOUR_PICKED: BehaviourPickerEvents = new BehaviourPickerEvents("behaviour_picker_picked");
 	}
 
-	export class BehaviourPickerEvent extends Event
-	{
-		public behaviourName: string;
-
-		constructor( eventName: BehaviourPickerEvents, behaviourName: string )
-		{
-			super( eventName, behaviourName );
-			this.behaviourName = behaviourName;
-		}
-	}
+	
 
 	export class BehaviourPicker extends Window
 	{

@@ -18,13 +18,7 @@ module Animate
 		//static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
 	//}
 
-    export class UserEvent extends Event
-	{
-		constructor(type: string, data: any)
-		{
-            super(type, data);
-		}
-    }
+    
 
     
 

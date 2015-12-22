@@ -6,17 +6,6 @@ module Animate
 		static COMPLETE: ImportExportEvents = new ImportExportEvents("import_export_complete");		
 	}
 
-	export class ImportExportEvent extends Event
-	{
-		live_link: any;
-
-		constructor(eventName: ImportExportEvents, live_link : any )
-		{
-			super(eventName, live_link);
-			this.live_link = live_link;
-		}
-	}
-
 	/**
 	* A class to help with importing and exporting a project
 	*/
@@ -76,7 +65,7 @@ module Animate
 			dataToken.converters = {};
 			dataToken.data = {};
 
-			var canvasToken: CanvasToken= null;
+			var canvasToken: CanvasToken = null;
 
 			// Get all the behaviours and build them into the export object
             for (var i = 0, l = project.containers.length; i < l; i++ )

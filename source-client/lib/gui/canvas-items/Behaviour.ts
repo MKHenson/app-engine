@@ -40,6 +40,20 @@ module Animate
 			this._requiresUpdated = true;
 		}
 
+        /**
+		* Gets a portal by its name
+		* @param {string} name The portal name
+		* @returns {Portal}
+		*/
+        getPortal(name: string): Portal
+        {
+            for (var i = 0, portals = this.portals, l = portals.length; i < l; i++)
+                if (portals[i].property.name == name)
+                    return portals[i];
+
+            return null;
+        }
+
 		/**
 		* Adds a portal to this behaviour.
 		* @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
@@ -290,7 +304,7 @@ module Animate
 
             for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
             {
-                var portal = new Portal(this, portals[i].type, createProperty(portals[i].property, null);
+                var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null);
                 portal.customPortal = portals[i].custom;
                 this.portals.push(portal);
             }

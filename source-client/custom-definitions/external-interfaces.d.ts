@@ -1,4 +1,4 @@
-﻿module Animate
+﻿declare module Animate
 {
     /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
@@ -70,7 +70,7 @@
     export interface ICanvasItem
     {
         shallowId: number;
-        type: string;
+        type: number;
         left?: string;
         top?: string;
     }
@@ -114,11 +114,11 @@
     }
 
     /**
-	* A basic wrapper for a behaviour that represents another resource interface
+	* A basic wrapper for a BehaviourShortcut interface
 	*/
-    export interface IBehaviourResource extends IBehaviour
+    export interface IBehaviourShortcut extends IBehaviour
     {
-        resource: number;
+        shallowId: number;
     }
 
     /**
@@ -126,7 +126,8 @@
 	*/
     export interface IContainerToken
     {
-        items: Array<ICanvasItem>
+        items: Array<ICanvasItem>;
+        properties: any;
     }
 
     export interface IPreviewFactory

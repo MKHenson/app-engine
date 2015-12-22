@@ -43,18 +43,7 @@ module Animate
 		static ITEM_CLICKED: ContextMenuEvents = new ContextMenuEvents( "context_munu_item_clicked" );
 	}
 
-	export class ContextMenuEvent extends Event
-	{
-		public item: ContextMenuItem;
-
-
-		constructor( item: ContextMenuItem, eventName: any )
-		{
-			super( eventName, item );
-
-			this.item = item;
-		}
-	}
+	
 
 	/**
 	* A ContextMenu is a popup window which displays a list of items that can be selected.

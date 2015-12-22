@@ -14,7 +14,16 @@ module Animate
             super(parent, property.name);
 
 			this.element.addClass("behaviour-portal");
-            this.addPortal(this._portalType, property, true );
+           
+
+            if (this._portalType == PortalType.OUTPUT)
+                this.addPortal(PortalType.INPUT, property, true);
+            else if (this._portalType == PortalType.INPUT)
+                this.addPortal(PortalType.OUTPUT, property, true);
+            else if (this._portalType == PortalType.PARAMETER)
+                this.addPortal(PortalType.PRODUCT, property, true);
+            else if (this._portalType == PortalType.PRODUCT)
+                this.addPortal(PortalType.PARAMETER, property, true);
         }
 
         /**
@@ -26,6 +35,7 @@ module Animate
         {
             var toRet = <IBehaviourPortal>{};
             toRet.portal = { name: this._property.name, custom: true, type: this._portalType, property: this._property.tokenize(slim) };
+            toRet.type = CanvasItemType.BehaviourPortal;
             return toRet;
         }
 
@@ -37,7 +47,7 @@ module Animate
         {
             super.deTokenize(data);
             this._portalType = data.portal.type;
-            this._property = createProperty( data.portal.property, null );
+            this._property = Utils.createProperty( data.portal.property, null );
         }
 
 		/**

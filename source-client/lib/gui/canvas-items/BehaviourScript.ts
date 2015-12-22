@@ -199,6 +199,7 @@ module Animate
         {
             var toRet = <IBehaviourScript>{};
             toRet.scriptId = this.scriptId;
+            toRet.type = CanvasItemType.BehaviourScript;
             return toRet;
         }
 

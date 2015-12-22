@@ -1,12 +1,6 @@
 module Animate
 {
-    export enum PortalType
-    {
-        PARAMETER,
-        PRODUCT,
-        INPUT,
-        OUTPUT
-    }
+    
 
 	//export class PortalType extends ENUM
 	//{

@@ -6,9 +6,9 @@ module Animate
     export class Link extends CanvasItem
 	{
 		public startPortal: Portal;
-		public endPortal: Portal;
-		public _startBehaviour: any;
-		public _endBehaviour: any;
+        public endPortal: Portal;
+        public _startBehaviour: Behaviour;
+        public _endBehaviour: Behaviour;
 
 		private mMouseMoveProxy: any;
 		private mMouseUpProxy: any;
@@ -44,7 +44,6 @@ module Animate
 			this.mMouseUpProxy = this.onMouseUpAnchor.bind( this );
 			this.mMouseUpAnchorProxy = this.onMouseUpAnchor.bind( this );
 			this.mPrevPortal = null;
-			//this.frameDelay = 1;
 
 			this.canvas = <HTMLCanvasElement>document.getElementById( this.id );
             this.graphics = <CanvasRenderingContext2D>this.canvas.getContext( "2d" );
@@ -54,7 +53,51 @@ module Animate
             this._properties = new EditableSet(this);
             this._properties.addVar(new PropNum("Frame Delay", 1, 0, Infinity, 0, 1));
             this.on("edited", this.onEdit, this);
-		}
+        }
+
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {ILinkItem}
+        */
+        tokenize(slim: boolean = false): ILinkItem
+        {
+            var toRet = <ILinkItem>{};
+            toRet.endBehaviour = this._endBehaviour.shallowId;
+            toRet.startBehaviour = this._startBehaviour.shallowId;
+            toRet.endPortal = this.endPortal.property.name;
+            toRet.startPortal = this.startPortal.property.name;
+            toRet.frameDelay = <number>this._properties.getVar("Frame Delay").getVal();
+            toRet.type = CanvasItemType.Link;
+
+            return toRet;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {ILinkItem} data The data to import from
+        */
+        deTokenize(data: ILinkItem)
+        {
+            super.deTokenize(data);
+            this._properties.getVar("Frame Delay").setVal(data.frameDelay);
+        }
+
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized. 
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap)
+        {
+            var exportedToken = <ILinkItem>items[originalId].token;
+            
+            this._endBehaviour = <Behaviour>items[exportedToken.endBehaviour].item;
+            this._startBehaviour = <Behaviour>items[exportedToken.startBehaviour].item;
+            this.endPortal = this._endBehaviour.getPortal(exportedToken.endPortal);
+            this.startPortal = this._startBehaviour.getPortal(exportedToken.startPortal);
+        }
 		
 		/**
 		* This is called when we need a link to start drawing. This will
@@ -67,12 +110,12 @@ module Animate
 		{
 			this.startPortal = startPortal;
 
-			//Attach events
+			// Attach events
 			this.parent.element.on( "mousemove", this.mMouseMoveProxy );
 			this.parent.element.on( "mouseup", this.mMouseUpProxy );
 			jQuery( ".portal", this.parent.element ).on( "mouseup", this.mMouseUpAnchorProxy );
 
-			//Get the start coords
+			// Get the start coords
 			var positionOnCanvas = startPortal.positionOnCanvas();
 			this.mStartClientX = e.clientX;
 			this.mStartClientY = e.clientY;
@@ -85,7 +128,7 @@ module Animate
 				top: this.mStartY + "px"
 			});
 
-			//Add glow
+			// Add glow
 			if ( this.startPortal.type == PortalType.PRODUCT )
 				jQuery( ".parameter" ).addClass( "green-glow" );
 			else if ( this.startPortal.type == PortalType.OUTPUT )
@@ -102,20 +145,18 @@ module Animate
 		{
 			var mouse = Utils.getMousePos( e, this.id );// this.getMousePos( e );
 
-			// get image data at the mouse x,y pixel
+			// Get image data at the mouse x,y pixel
 			var imageData = this.graphics.getImageData( mouse.x - 4, mouse.y - 4, 8, 8 );
 			var index = ( mouse.x + mouse.y * imageData.width ) * 4;
 
-			// if the mouse pixel exists, select and break
+			// If the mouse pixel exists, select and break
 			for ( var i = 0; i < imageData.data.length; i++ )
 				if ( imageData.data[i] > 0 )
 					return true;
 
 			return false;
 		}
-
-		
-
+        
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
@@ -155,7 +196,7 @@ module Animate
 			var right = 0;
 			var bottom = 0;
 
-			//get the extremes
+			// Get the extremes
 			for ( var i = 0; i < length; i++ )
 			{
 				var x = linePoints[i].x;
@@ -182,7 +223,7 @@ module Animate
 			canvas.width = w;
 			canvas.height = h;
 
-			//Set the element size and location
+			// Set the element size and location
 			this.element.css( {
 				left: ( left - 5 ) + "px",
 				top: ( top - 5 ) + "px",
@@ -190,7 +231,7 @@ module Animate
 				height: h + "px"
 			});
 
-			//Now reset the points so that they are relative
+			// Now reset the points so that they are relative
 			for ( var i = 0; i < length; i++ )
 			{
 				var lp = linePoints[i];
@@ -206,11 +247,11 @@ module Animate
 		{
 			var linePoints = this.linePoints;
 
-			//We create a list of array points that define the link
-			//Clear all points
+			// We create a list of array points that define the link
+			// Clear all points
 			linePoints.splice( 0, linePoints.length );
 
-			//Get the start coords
+			// Get the start coords
 			var positionOnCanvas = this.startPortal.positionOnCanvas();
 			this.delta = ( this.startPortal.element.width() / 2 );
 			var delta = this.delta;
@@ -238,14 +279,14 @@ module Animate
 				endY = startY + e.clientY - this.mStartClientY + delta;
 			}
 
-			//Now the end coords
+			// Now the end coords
 			if ( this.endPortal != null )
 			{
-				//If this loops on itself then we need to make it look nice.
+				// If this loops on itself then we need to make it look nice.
 				if ( this.startPortal.behaviour == this.endPortal.behaviour &&
 					this.startPortal != this.endPortal )
 				{
-					//First the start points
+					// First the start points
 					linePoints.push( { x: startX, y: startY });
 					if ( this.startPortal.type == PortalType.OUTPUT )
 						linePoints.push( { x: startX + 10, y: startY });
@@ -271,7 +312,7 @@ module Animate
 
 					if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT )
 					{
-						//Set the 'just before end' point
+						// Set the 'just before end' point
 						if ( this.endPortal.type == PortalType.INPUT )
 							linePoints.push( { x: endX - 10, y: endY });
 						else
@@ -280,7 +321,7 @@ module Animate
 				}
 				else if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT )
 				{
-					//First the start points
+					// First the start points
 					linePoints.push( { x: startX, y: startY });
 					if ( this.startPortal.type == PortalType.OUTPUT )
 						linePoints.push( { x: startX + 20, y: startY });
@@ -288,7 +329,7 @@ module Animate
 						linePoints.push( { x: startX, y: startY + 30 });
 
 
-					//Set the 'just before end' point
+					// Set the 'just before end' point
 					if ( this.endPortal.type == PortalType.INPUT )
 						linePoints.push( { x: endX - 20, y: endY });
 					else
@@ -297,7 +338,7 @@ module Animate
 			}
 			else
 			{
-				//First the start points
+				// First the start points
 				linePoints.push( { x: startX, y: startY });
 				if ( this.startPortal.type == PortalType.OUTPUT )
 					linePoints.push( { x: startX + 20, y: startY });
@@ -307,7 +348,7 @@ module Animate
 				linePoints.push( { x: endX - 20, y: endY });
 			}
 
-			//Finally set the end point
+			// Finally set the end point
 			linePoints.push( { x: endX, y: endY });
 		}
 
@@ -316,14 +357,13 @@ module Animate
 		*/
 		updatePoints()
 		{
-			//First build the points
+			// First build the points
 			this.buildLinePoints( null );
 
-			//Set the dimensions
+			// Set the dimensions
 			this.buildDimensions();
 
 			var graphics = this.graphics;
-			//graphics.beginPath();
 			graphics.clearRect( 0, 0, this.canvas.width, this.canvas.height );
 			this.draw();
 		}
@@ -336,7 +376,7 @@ module Animate
 		{
 			var curTarget : Component = this.mCurTarget;
 
-			//Check if a portal
+			// Check if a portal
 			if ( curTarget != null )
 				curTarget.element.css( "cursor", "" );
 
@@ -360,14 +400,13 @@ module Animate
 				this.mCurTarget = target.data( "component" );
 			}
 
-			//First build the points
+			// First build the points
 			this.buildLinePoints( e );
 
-			//Set the dimensions
+			// Set the dimensions
 			this.buildDimensions();
 
 			var graphics = this.graphics;
-			//graphics.beginPath();
 			graphics.clearRect( 0, 0, this.canvas.width, this.canvas.height );
 			this.draw();
 		}
@@ -400,14 +439,13 @@ module Animate
 
 			if ( startPortal.type != PortalType.OUTPUT )
 			{
-				//Set dashed lines (only some browsers support this)
+				// Set dashed lines (only some browsers support this)
 				if ( graphics.setLineDash !== undefined ) graphics.setLineDash( [5] );
-				//if ( graphics.mozDash !== undefined ) graphics.mozDash = [5];
 			}
 
 			graphics.beginPath();
 
-			//If this loops on itself then we need to make it look nice.
+			// If this loops on itself then we need to make it look nice.
 			if ( endPortal && startPortalBehaviour == endPortalBehaviour && startPortal != endPortal )
 				loops = true;
 
@@ -418,7 +456,7 @@ module Animate
 
 				var midpt = { x: pt1.x + ( pt2.x - pt1.x ) * 0.5, y: pt1.y + ( pt2.y - pt1.y ) / 2 };
 
-				// draw the curves:
+				// Draw the curves:
 				if ( !loops )
 				{
 					if ( prevMidpt ) 
@@ -431,14 +469,14 @@ module Animate
 					}
 					else 
 					{
-						// draw start segment:
+						// Draw start segment:
 						graphics.moveTo( pt1.x, pt1.y );
 						graphics.lineTo( midpt.x, midpt.y );
 					}
 				}
 				else 
 				{
-					// draw start segment:
+					// Draw start segment:
 					graphics.moveTo( pt1.x, pt1.y );
 					graphics.lineTo( pt2.x, pt2.y );
 				}
@@ -447,16 +485,12 @@ module Animate
 			}
 
 
-			// draw end segment:
+			// Draw end segment:
 			if ( pt2 )
 				graphics.lineTo( pt2.x, pt2.y - 1 );
 
 			if ( startPortal.type == PortalType.OUTPUT )
 			{
-				//Draw pipe lines
-				//graphics.lineWidth = 5;
-				//graphics.strokeStyle="#333333";		
-				//graphics.stroke();
 				graphics.lineWidth = 3;
 				if ( element.data( "selected" ) )
 					graphics.strokeStyle = "#FF0000";
@@ -477,7 +511,7 @@ module Animate
 			}
 			else
 			{
-				//Draw pipe lines
+				// Draw pipe lines
 				graphics.lineWidth = 2;
 				if ( element.data( "selected" ) )
 					graphics.strokeStyle = "#FF0000";
@@ -500,7 +534,7 @@ module Animate
 			this.parent.element.css( "cursor", "" );
 			this.startPortal.element.css( "cursor", "" );
 
-			//Add remove glow
+			// Add remove glow
 			if ( this.startPortal.type == PortalType.PRODUCT )
 				jQuery( ".parameter" ).removeClass( "green-glow" );
 			else if ( this.startPortal.type == PortalType.OUTPUT )
@@ -532,7 +566,7 @@ module Animate
 
 							this.element.css( "pointer-events", "" );
 
-							//Notify of change
+							// Notify of change
 							this.parent.element.data( "component" ).dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, <Canvas>this.parent ) );
 						}
 
@@ -557,9 +591,7 @@ module Animate
         {
             this.draw();
         }
-
         
-
         /**
 		* Gets the properties of this link
         * @returns {EditableSet}
@@ -596,8 +628,7 @@ module Animate
 			this.linePoints = null;
             this.mCurTarget = null;
             this._properties = null;
-
-
+            
 			//Call parent
 			super.dispose();
 		}

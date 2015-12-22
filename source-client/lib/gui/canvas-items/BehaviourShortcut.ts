@@ -6,7 +6,8 @@ module Animate
 	*/
 	export class BehaviourShortcut extends Behaviour
 	{
-		private _originalNode: Behaviour;
+        private _originalNode: Behaviour;
+        private _savedResource: number;
 
 		/**
 		* @param {Canvas} parent The parent canvas
@@ -18,11 +19,35 @@ module Animate
 			super(parent, text);
 
 			this.element.addClass("behaviour-shortcut");
-			this._originalNode = originalNode;
+            this._originalNode = originalNode;
+            this._savedResource = 0;
 
 			if (originalNode)
 				this.setOriginalNode(originalNode, true);
-		}
+        }
+
+        /**
+        * Tokenizes the data into a JSON. 
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourResource}
+        */
+        tokenize(slim: boolean = false): IBehaviourShortcut
+        {
+            var toRet = <IBehaviourShortcut>{};
+            toRet.shallowId = this._originalNode.shallowId;
+            toRet.type = CanvasItemType.BehaviourShortcut;
+            return toRet;
+        }
+
+        /**
+        * De-Tokenizes data from a JSON. 
+        * @param {IBehaviourResource} data The data to import from
+        */
+        deTokenize(data: IBehaviourShortcut)
+        {
+            super.deTokenize(data);
+            this._savedResource = data.shallowId;
+        }
 
 		setOriginalNode( originalNode : Behaviour, buildPortals : boolean )
 		{

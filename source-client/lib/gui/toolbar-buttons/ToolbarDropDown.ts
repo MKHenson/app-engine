@@ -20,21 +20,7 @@ module Animate
 		}
 	}
 
-	export class ToolbarDropDownEvent extends Event
-	{
-		public item: ToolbarItem;
-
-        constructor(item: ToolbarItem, e: EventType )
-		{
-			this.item = item;
-			super( e, null );
-		}
-
-		dispose()
-		{
-			this.item = null;
-		}
-	}
+	
 
 	/**
 	*  A toolbar button for selection a list of options

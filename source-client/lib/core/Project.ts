@@ -1,13 +1,6 @@
 module Animate
 {
-    export enum ResourceType
-    {
-        GROUP = 1,
-        ASSET,
-        CONTAINER,
-        FILE,
-        SCRIPT
-    }
+   
 	//export class ProjectAssetTypes extends ENUM
 	//{
 	//	constructor(v: string) { super(v); }
@@ -83,18 +76,7 @@ module Animate
 		//static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
 
-    /**
-	* A simple project event. Always related to a project resource (null if not)
-	*/
-    export class ProjectEvent<T extends ProjectResource<Engine.IResource>> extends Event
-    {
-        public resource: T;
-        constructor(type: string, resource: T )
-        {
-            this.resource = resource;
-			super(type, null);
-		}
-	}
+    
 
 	/**
 	* A wrapper for project builds

@@ -13,8 +13,8 @@ module Animate
 		private _bottomMenu: Component;
 		private _tabHomeContainer: Component;
 		private _currentContainer: Component;
-		private _currentTab: Component;
-		private _copyPasteToken: CanvasToken;
+        private _currentTab: Component;
+        private _copyPasteToken: IContainerToken;
 
 		constructor( parent? : Component )
         {
@@ -136,7 +136,7 @@ module Animate
             if (this._copyPasteToken)
             {
                 var canvas = CanvasTab.getSingleton().currentCanvas;
-                canvas.openFromDataObject(this._copyPasteToken, false, true);
+                canvas.deTokenize(this._copyPasteToken, false);
                 canvas.emit(new CanvasEvent(CanvasEvents.MODIFIED, canvas));
             }
         }
@@ -159,7 +159,7 @@ module Animate
                 if (canvas.children[i].selected)
                     toCopy.push(canvas.children[i]);
 
-            this._copyPasteToken = canvas.buildDataObject(toCopy);
+            this._copyPasteToken = canvas.tokenize(false, toCopy);
 
             // If a cut operation then remove the selected item
             if (cut)

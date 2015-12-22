@@ -1,16 +1,16 @@
 ﻿module Animate
 {
+    export type LinkMap = {
+        [shallowId: number]: { item: CanvasItem; token: ICanvasItem; }
+    };
+
     /**
     * The base class for all canvas items
     */
     export class CanvasItem extends Component
     {
         public shallowId: number;
-        
-        // This is typically 0. But when imported from a token this is set to its shallowId in the token. This is so that 
-        // later when we re-link everything, we can match the new items with the old.
-        public savedShallowId: number;
-        
+                
         /**
         * Creates an instance
         */
@@ -18,7 +18,6 @@
         {
             super(html, parent);
             this.shallowId = Utils.generateLocalId();
-            this.savedShallowId = 0;
         }
 
         /**
@@ -40,7 +39,7 @@
         {
             var toRet = <ICanvasItem>{};
             toRet.shallowId = this.shallowId;
-            toRet.type = "CanvasItem";
+            toRet.type = CanvasItemType.Behaviour;
 
             if (!slim)
             {
@@ -57,8 +56,17 @@
         */
         deTokenize(data: ICanvasItem)
         {
-            this.savedShallowId = data.shallowId;
             this.css({ left: data.left, top: data.top });
+        }
+
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized. 
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap)
+        {
         }
     }
 }

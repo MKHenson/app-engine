@@ -32,26 +32,26 @@ module Animate
             this._properties.addVar(new PropBool("Unload On Exit", true, "Container Properties"));
 		}
 
-		/**
-		* This will download and update all data of the asset.
-		* @param {string} name The name of the behaviour
-		* @param {CanvasToken} json Its data object
-		*/
-		update( name: string, json: CanvasToken)
-        {
-            this.entry.name = name;
-            this.entry.json = json;
-			//this._name = name;
-			this.saved = true;
-			//this.json = json;
-		}
+		///**
+		//* This will download and update all data of the asset.
+		//* @param {string} name The name of the behaviour
+		//* @param {CanvasToken} json Its data object
+		//*/
+		//update( name: string, json: CanvasToken)
+  //      {
+  //          this.entry.name = name;
+  //          this.entry.json = json;
+		//	//this._name = name;
+		//	this.saved = true;
+		//	//this.json = json;
+		//}
 
 		/**
 		* This will cleanup the behaviour.
 		*/
 		dispose()
-		{
-			PluginManager.getSingleton().emit( new ContainerEvent( EditorEvents.CONTAINER_DELETED, this ) );
+        {
+            this.emit(new Event(EventTypes.CONTAINER_DELETED, this));
 
 			//Call super
 			super.dispose();

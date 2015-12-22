@@ -6,16 +6,7 @@
 		static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
 	}
 
-	export class ToolbarNumberEvent extends Event
-	{
-		public value: number;
-
-		constructor( e: ToolbarNumberEvents, value : number )
-		{
-			this.value = value;
-			super( e, null );
-		}
-	}
+	
 
 	/**
 	*  A toolbar button for numbers

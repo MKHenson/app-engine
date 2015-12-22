@@ -7,17 +7,7 @@ module Animate
 		static ITEM_SELECTED: ListEvents = new ListEvents("list_item_selected");
 	}
 
-	export class ListEvent extends Event
-	{
-		public item: string;
-
-		constructor(eventName: ListEvents, item:string )
-		{
-			super(eventName, item);
-
-			this.item = item;
-		}
-	}
+	
 
 	/**
 	* Use this class to create a select list.
