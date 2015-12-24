@@ -22,6 +22,14 @@
             this._properties = new EditableSet(this);
         }
 
+        /**
+         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+         */
+        initialize()
+        {
+            
+        }
+
         /** 
         * Gets the properties of this resource
         */

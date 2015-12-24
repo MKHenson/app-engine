@@ -186,7 +186,7 @@ module Animate
 
 				// Set the editable
                 this._object = object;
-                
+                var groups = this._groups;
                 var variables: Array<Prop<any>> = object.variables;
 
                 // Go through each of the variables and create the group containers
@@ -195,22 +195,23 @@ module Animate
                     var property = variables[i];
 
                     // Check if a group exists
-                    var groupComp: PropertyGridGroup = null;
-                    for (var gi = 0, gl = this._groups.length; gi < gl; gi++)
-                        if (this._groups[gi].name == property.category)
+                    var pGroup: PropertyGridGroup = null;
+                    for (var gi = 0, gl = groups.length; gi < gl; gi++)
+                        if (groups[gi].name == property.category)
                         {
-                            groupComp = this._groups[gi];
+                            pGroup = groups[gi];
                             break;
                         }
 
                     // If no group exists - then add it
-                    if (groupComp == null)
+                    if (pGroup == null)
                     {
-                        groupComp = new PropertyGridGroup(property.category);
-                        this._groups.push(groupComp);
+                        pGroup = new PropertyGridGroup(property.category);
+                        this.addChild(pGroup);
+                        groups.push(pGroup);
                     }
 
-                    sortable.push({ prop: property, group: groupComp });
+                    sortable.push({ prop: property, group: pGroup });
                 }
 
                 // Sort by the groups by name
@@ -232,10 +233,13 @@ module Animate
                 for (var i = 0; i < sortable.length; i++)
 				{
 					var editors :Array<PropertyGridEditor> = this._editors;
-                    for (var editor = 0, el = editors.length; editor < el; el++ )
+                    for (var editor = 0, el = editors.length; editor < el; editor++ )
                     {
                         if (sortable[i].prop.type == PropertyType.HIDDEN || sortable[i].prop.type == PropertyType.HIDDEN_FILE)
-							continue;
+                            continue;
+
+                        if (!editors[editor].canEdit(sortable[i].prop))
+                            continue;
 
                         var editorContainer = new Component("<div class='editor-container'></div>");
                         sortable[i].group.addChild(editorContainer);

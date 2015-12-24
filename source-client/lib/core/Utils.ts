@@ -190,7 +190,7 @@
                 case CanvasItemType.BehaviourComment:
                     return new BehaviourComment(null, "");
                 case CanvasItemType.BehaviourInstance:
-                    return new BehaviourInstance(null, null, false);
+                    return new BehaviourInstance(null, null);
                 case CanvasItemType.BehaviourPortal:
                     return new BehaviourPortal(null, null, PortalType.INPUT);
                 case CanvasItemType.BehaviourScript:

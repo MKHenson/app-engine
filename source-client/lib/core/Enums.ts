@@ -5,7 +5,13 @@
         export const PORTAL_ADDED: string = "portal-added";
         export const PORTAL_REMOVED: string = "portal-removed";
         export const PORTAL_EDITED: string = "edited";
+
+        // Container events
         export const CONTAINER_DELETED: string = "container-deleted";
+
+        // Plugin events
+        export const CONTAINER_SELECTED: string = "container-selected";
+        export const CONTAINER_CREATED: string = "container-created";
     }
 
     /**

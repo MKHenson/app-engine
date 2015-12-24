@@ -304,7 +304,7 @@ module Animate
 
             for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
             {
-                var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null);
+                var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
                 portal.customPortal = portals[i].custom;
                 this.portals.push(portal);
             }

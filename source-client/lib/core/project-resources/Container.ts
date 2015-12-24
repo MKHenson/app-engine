@@ -30,7 +30,26 @@ module Animate
             this.canvas = null;
             this._properties.addVar(new PropBool("Start On Load", true, "Container Properties"));
             this._properties.addVar(new PropBool("Unload On Exit", true, "Container Properties"));
-		}
+        }
+
+        /**
+         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+         */
+        initialize()
+        {
+            try
+            {
+                this.entry.json = JSON.parse(<string>this.entry.json);
+            }
+            catch (err)
+            {
+                this.entry.json = {};
+            }
+
+            var containerToken: IContainerToken = this.entry.json;
+            containerToken.items = containerToken.items || [];
+            containerToken.properties = containerToken.properties || this._properties.tokenize(false);
+        }
 
 		///**
 		//* This will download and update all data of the asset.
@@ -51,7 +70,7 @@ module Animate
 		*/
 		dispose()
         {
-            this.emit(new Event(EventTypes.CONTAINER_DELETED, this));
+            this.emit(new ContainerEvent(EventTypes.CONTAINER_DELETED, this));
 
 			//Call super
 			super.dispose();

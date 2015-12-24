@@ -103,7 +103,7 @@ module Animate
                     return false;
                 }
                 else
-                    PluginManager.getSingleton().emit(new ContainerEvent(EditorEvents.CONTAINER_SELECTED, null));
+                    PluginManager.getSingleton().emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, null));
 
             }
 
@@ -119,18 +119,18 @@ module Animate
 			var canvas: Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
             var that = this;
 
-			//Save the canvas
+			// Save the canvas
 			if ( choice == "Yes" )
 			{
-				//We need to build an array of the canvas objects we are trying to save.
-                var token = canvas.buildDataObject();
+                // We need to build an array of the canvas objects we are trying to save.
+                var token: IContainerToken = canvas.tokenize(false);
                 canvas.container.entry.json = token;
                 User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function ()
                 {
                     that.removeTab(this.closingTabPair, true);
 					that.closingTabPair = null;
 
-                }).catch(function (err: Error)
+                }).catch(function(err: Error)
                 {
                     Logger.logMessage(err.message, null, LogType.ERROR);
                 });
@@ -140,9 +140,10 @@ module Animate
     //            User.get.project.saveBehaviours([canvas.container.entry._id] );
 			}
 			else
-			{
-                that._currentCanvas.container.saved = true;  
-				that.removeTab( this.closingTabPair, true );
+            {
+                (<CanvasTabPair>that.closingTabPair).forceClose = true;
+                //that._currentCanvas.container.saved = true;  
+                that.removeTab(that.closingTabPair, true );
 				that.closingTabPair = null;
 			}
 		}
@@ -197,13 +198,13 @@ module Animate
 		getTabCanvas( behaviourID : string ) : Canvas
 		{
 			var tabs : Array<TabPair> = this.tabs;
-			for ( var i = 0, l = tabs.length; i < l; i++ )
-                if (tabs[i].page.children.length > 0 && tabs[i].page.children[0] instanceof Canvas && (<Canvas>tabs[i].page.children[0]).container.entry._id == behaviourID )
-				{
-                    var canvas: Canvas = <Canvas><Component>tabs[i].page.children[0];
-					return canvas;
-				}
-			
+            for (var i = 0, l = tabs.length; i < l; i++)
+            {
+                var t = tabs[i];
+                if (t instanceof CanvasTabPair)
+                    if (t.canvas.container.entry._id == behaviourID)
+                        return t.canvas;
+            }
 
 			return null;
 		}
@@ -246,10 +247,10 @@ module Animate
 				if ( node )
 					TreeViewScene.getSingleton().selectNode( node );
 
-				//Now we need to notify the plugins of added assets
+				// Now we need to notify the plugins of added assets
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._currentCanvas.container );
 
-				//Tell the plugins to remove the current assets
+				// Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;
 				for ( var i = 0, l = references.assets.length; i < l; i++ )
                 {
@@ -258,12 +259,12 @@ module Animate
 					pManager.emit( contEvent );
 				}
 
-				//We tell the plugins we've selected a behaviour container
-				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, canvas.container ) );
+				// We tell the plugins we've selected a behaviour container
+                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, canvas.container ) );
 			}
 			else
-				//We tell the plugins we've selected a behaviour container
-				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, null ) );
+				// We tell the plugins we've selected a behaviour container
+                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, null ) );
 
 			Tab.prototype.onTabSelected.call( this, tab );
 		}
@@ -414,13 +415,16 @@ module Animate
                 tabContent.canvas = canvas;
                 toRet.page.addChild(<Component>canvas);
 
-				canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this );
+                canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this);
+
+                // Check if its saved or not
+                toRet.modified = !canvas.container.saved;
 
 				this._currentCanvas = canvas;
 				(<Behaviour>canvas.children[0]).updateDimensions();
                 
-				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_CREATED, tabContent ) );
-				pManager.emit( new ContainerEvent( EditorEvents.CONTAINER_SELECTED, tabContent ) );
+                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_CREATED, tabContent ) );
+                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, tabContent ) );
 			}
 			else if ( type == CanvasTabType.BLANK )
 			{

@@ -429,6 +429,8 @@ module Animate
                 resource = new FileResource(entry);
                 this._files.push(resource);
             }
+
+            resource.initialize();
             
             this.emit(new ProjectEvent("resource-created", resource));
             return resource;
@@ -715,6 +717,25 @@ module Animate
                     reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
+        }
+
+        /**
+        * Copies an existing resource and assigns a new ID to the cloned item
+        * @param {string} id The id of the resource we are cloning from
+        * @param {ResourceType} type [Optional] The type of resource to clone
+        * @returns {Promise<ProjectResource<T>>}
+        */
+        copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>
+        {
+            var r = this.getResourceByID(id, type);
+            var resource: ProjectResource<Engine.IResource> = r.resource;
+
+            // Clone the resource and assign a new id
+            var dataClone: T = JSON.parse(JSON.stringify(resource));
+            dataClone.shallowId = Utils.generateLocalId();
+
+            // Create a new resource with the data
+            return this.createResource<T>(type, dataClone);
         }
 
         /**
@@ -1266,17 +1287,17 @@ module Animate
   //          loader.load("/project/update-behaviours", { projectId: this.entry._id, ids: behaviourIDs } );
 		//}
 
-		/**
-		* This function is used to copy an asset.
-		* @param {string} assetId The asset object we are trying to copy
-		*/
-		copyAsset( assetId : string )
-		{
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-            loader.on(LoaderEvents.FAILED, this.onServer, this);
-            loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: ProjectResource.generateLocalId() });
-		}
+		///**
+		//* This function is used to copy an asset.
+		//* @param {string} assetId The asset object we are trying to copy
+		//*/
+		//copyAsset( assetId : string )
+		//{
+		//	var loader = new AnimateLoader();
+		//	loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+  //          loader.on(LoaderEvents.FAILED, this.onServer, this);
+  //          loader.load("/project/copy-asset", { projectId: this.entry._id, assetId: assetId, shallowId: ProjectResource.generateLocalId() });
+		//}
 
 		///**
 		//* This function is used to delete assets.
@@ -1658,26 +1679,26 @@ module Animate
 
 						//this.emit(new ProjectEvent(ProjectEvents.ASSET_SAVED, "Asset saved", LoaderEvents.COMPLETE, null ));
 					}
-					//Update / download behaviour details
-					else if ( loader.url == "/project/update-behaviours" )
-					{
-						//Update behaviours which we fetched from the DB.
-						for ( var ii = 0, l = data.length; ii < l; ii++ )
-						{
-							for ( var i = 0, len = this._containers.length; i < len; i++ )
-                                if (this._containers[i].entry._id == data[ii]._id )
-								{
-									this._containers[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
+					////Update / download behaviour details
+					//else if ( loader.url == "/project/update-behaviours" )
+					//{
+					//	//Update behaviours which we fetched from the DB.
+					//	for ( var ii = 0, l = data.length; ii < l; ii++ )
+					//	{
+					//		for ( var i = 0, len = this._containers.length; i < len; i++ )
+     //                           if (this._containers[i].entry._id == data[ii]._id )
+					//			{
+					//				this._containers[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
 									
-									//Update the GUI elements
-									//TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
-									//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
-									break;
-								}
-						}
+					//				//Update the GUI elements
+					//				//TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
+					//				//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
+					//				break;
+					//			}
+					//	}
 
-						//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
-					}
+					//	//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOURS_UPDATED, "Behaviours updated", LoaderEvents.COMPLETE, null ) );
+					//}
 					//else if ( loader.url == "/project/get-assets" )
 					//{
 					//	//Cleanup _assets

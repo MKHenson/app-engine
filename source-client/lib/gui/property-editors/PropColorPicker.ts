@@ -10,6 +10,19 @@ module Animate
 			super( grid );
 		}
 
+        /**
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
+        */
+        canEdit(prop: Prop<any>): boolean
+        {
+            if (prop instanceof PropColor)
+                return true;
+            else
+                return false;
+        }
+
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
 		* @param {Prop<any>} prop The property being edited
@@ -17,9 +30,6 @@ module Animate
 		*/
         edit(prop: Prop<any>, container: Component)
 		{
-            if (prop instanceof PropColor == false)
-                return null;
-
             var p = <PropColor>prop;
 
             var color = p.getVal().color;

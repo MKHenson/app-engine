@@ -89,13 +89,13 @@ module Animate
 		/**
 		* Called when a behaviour is disposed
 		*/
-		onContainerDeleted( response: EditorEvents, event: ContainerEvent )
-		{
-            if (event.container.entry.name == this._container.entry.name )
-			{
-				var parent: Canvas = <Canvas>this.element.parent().data( "component" );
-				if ( parent && parent.removeItem )
-					parent.removeItem( this );
+        onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher)
+        {
+            if (<Container>event.container == this._container)
+            {
+                var canvas: Canvas = this._container.canvas;
+                if (canvas)
+                    canvas.removeItem( this );
 			}
 		}
 

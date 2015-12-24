@@ -116,7 +116,7 @@
             
             for (var t in data)
             {
-                var prop: Prop<any> = createProperty(data[t], this);
+                var prop: Prop<any> = Utils.createProperty(data[t], this);
                 prop.deTokenize(data[t]);
                 items.push(prop);
             }

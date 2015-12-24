@@ -441,7 +441,8 @@ module Animate
                 }
 		}
 
-		onAssetEdited(e: ENUM, event: AssetEditedEvent, sender? : EventDispatcher)
+        // TODO: We need to actually figure out how to respond to asset edits - this is not currently called
+		onAssetEdited(e: ENUM, event: Event, sender? : EventDispatcher)
 		{
 			// Build the scene references in case some assets were added and not accounted for
 			this.buildSceneReferences();
@@ -585,63 +586,64 @@ module Animate
 				return;
 
 			if ( e.text == "Ok" )
-			{
-				//If we are editing a portal
-				if ( this._contextNode instanceof Portal )
+            {
+                var comp: Component = this._contextNode;
+
+				// If we are editing a portal
+                if (comp instanceof Portal )
 				{
 
-					var portal: Portal = <Portal>this._contextNode;
-					var oldName: string = portal.name;
-					portal.edit(
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().value,
-						PortalForm.getSingleton().parameterType );
+					var portal: Portal = comp;
+					var oldName: string = portal.property.name;
+                    portal.edit(PortalForm.getSingleton().getProperty());
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().portalType,
+						//PortalForm.getSingleton().value,
+						//PortalForm.getSingleton().parameterType );
 
 					var p = portal.parent;
-					if ( p instanceof BehaviourPortal )
-						( <BehaviourPortal>p ).text = portal.name;
+                    if (p instanceof BehaviourPortal)
+                        p.text = portal.property.name;
 
 					// Show in prop editor
 					var behaviour = portal.behaviour;
-                    var toEdit: EditableSet = new EditableSet(behaviour);
-					var i = behaviour.parameters.length;
-					while ( i-- )
-						if ( behaviour.parameters[i].links.length <= 0 )
-							toEdit.addVar( behaviour.parameters[i].name, behaviour.parameters[i].value, behaviour.parameters[i].dataType, behaviour.element.text(), null );
-
-					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, "" );
+                    //var toEdit: EditableSet = new EditableSet(behaviour);
+					
+                    //for (var i = 0, params = behaviour.parameters, l = params.length; i < l; i++ )
+                    //    if (params[i].links.length <= 0 )
+                    //       toEdit.addVar(params[i].name, params[i].value, params[i].dataType, behaviour.element.text(), null );
+                    
+                    PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, "" );
 
                     // Notify of change
                     this.emit(new PortalEvent(EventTypes.PORTAL_EDITED, oldName, this._container, portal));
 
 					return;
 				}
-				else if ( this._contextNode instanceof Behaviour )
+				else if ( comp instanceof Behaviour )
 				{
-					//Create a portal on a Behaviour
-					var portal: Portal = ( <Behaviour>this._contextNode ).addPortal
-						(
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().value,
-						PortalForm.getSingleton().parameterType, true
-						);
+					// Create a portal on a Behaviour
+                    var portal: Portal = comp.addPortal(PortalForm.getSingleton().portalType,
+                        PortalForm.getSingleton().getProperty(), true);
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().value,
+						//PortalForm.getSingleton().parameterType, true
+						//);
 
 					portal.customPortal = true;
 				}
 				else
 				{
-					//Create a canvas portal
-					var newNode: BehaviourPortal = new BehaviourPortal( this,
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().parameterType,
-						PortalForm.getSingleton().value );
+					// Create a canvas portal
+                    var newNode: BehaviourPortal = new BehaviourPortal(this, PortalForm.getSingleton().getProperty(), PortalForm.getSingleton().portalType);
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().portalType,
+						//PortalForm.getSingleton().parameterType,
+						//PortalForm.getSingleton().value );
 
 					newNode.css( { "left": this._x + "px", "top": this._y + "px", "position": "absolute" });
 
-					//Notify of change
+					// Notify of change
                     this.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", this._container, newNode.portals[0]));
 				}
 
@@ -1228,8 +1230,10 @@ module Animate
             return toRet;
         }
 
-        deTokenize(data: IContainerToken, clearItems: boolean = true)
+        deTokenize(data?: IContainerToken, clearItems: boolean = true)
         {
+            data = data || this._container.entry.json;
+
             var children = <Array<CanvasItem>>this.children;
             if ( clearItems )
                 while (children.length > 0 )
@@ -1366,23 +1370,21 @@ module Animate
 		///**
 		//* This function is called when a behaviour is double clicked, 
 		//* a canvas is created and we try and load the behavious contents.
-		//* @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
+		//* @param {IContainerToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
 		//* @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
 		//* @returns {any} 
 		//*/
-		//openFromDataObject( dataToken?: CanvasToken, clearItems: boolean = true, addSceneAssets: boolean = false )
+  //      openFromDataObject(dataToken?: IContainerToken, clearItems: boolean = true, addSceneAssets: boolean = false )
 		//{
-		//	// Create the data object from the JSON
-		//	var jsonObj: CanvasToken = null;
+  //          // Create the data object from the JSON
+  //          var jsonObj: IContainerToken = null;
 		//	var pManager: PluginManager = PluginManager.getSingleton();
 
 
 		//	if ( dataToken )
-		//		jsonObj = dataToken;
-  //          else if (this._container.entry.json !== null )
-  //              jsonObj = this._container.entry.json;
+  //              jsonObj = dataToken || this._container.entry.json || {};
 
-		//	// Cleanup the 
+		//	// Cleanup the existing items
 		//	if ( clearItems )
 		//		while ( this.children.length > 0 )
 		//			this.children[0].dispose();

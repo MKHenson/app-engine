@@ -72,6 +72,14 @@ module Animate
 			}
 		}
 
+        /**
+		* Creates a new property from the data chosen
+		* @param {Prop<any>}
+		*/
+        getProperty(): Prop<any>
+        {
+            return new Prop((<InputBox>this._name.val).text, this._value);   
+        }
 
 		/**
 		* Shows the window by adding it to a parent.

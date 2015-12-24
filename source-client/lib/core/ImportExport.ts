@@ -50,219 +50,219 @@ module Animate
 		*/
 		exportScene()
 		{
-			this.runWhenDone = false;
-			var project = User.get.project;
+			//this.runWhenDone = false;
+			//var project = User.get.project;
 
-			var data = {};
-			data["category"] = "builds";
-            data["command"] = "build";
-            data["projectID"] = project.entry._id;
+			//var data = {};
+			//data["category"] = "builds";
+   //         data["command"] = "build";
+   //         data["projectID"] = project.entry._id;
 
-			var dataToken: ExportToken = <ExportToken>{};
-			dataToken.assets = [];
-			dataToken.groups = [];
-			dataToken.containers = [];
-			dataToken.converters = {};
-			dataToken.data = {};
+			//var dataToken: ExportToken = <ExportToken>{};
+			//dataToken.assets = [];
+			//dataToken.groups = [];
+			//dataToken.containers = [];
+			//dataToken.converters = {};
+			//dataToken.data = {};
 
-			var canvasToken: CanvasToken = null;
+			//var canvasToken: CanvasToken = null;
 
-			// Get all the behaviours and build them into the export object
-            for (var i = 0, l = project.containers.length; i < l; i++ )
-			{
-                var behaviour: Container = project.containers[i];
-                if (behaviour.entry.json === null)
-					continue;
+			//// Get all the behaviours and build them into the export object
+   //         for (var i = 0, l = project.containers.length; i < l; i++ )
+			//{
+   //             var behaviour: Container = project.containers[i];
+   //             if (behaviour.entry.json === null)
+			//		continue;
 
-                canvasToken = behaviour.entry.json;
+   //             canvasToken = behaviour.entry.json;
 
-				// Check if we have valid json and items saved
-				if ( canvasToken && canvasToken.items )
-				{
-					var containerToken = <ContainerToken>{};
-					dataToken.containers.push( containerToken );
-                    containerToken.name = behaviour.entry.name;
-                    containerToken.id = behaviour.entry.shallowId;
-					containerToken.behaviours = [];
-					containerToken.links = [];
-					containerToken.assets = [];
-					containerToken.groups = [];
-					//containerToken.properties = {};
+			//	// Check if we have valid json and items saved
+			//	if ( canvasToken && canvasToken.items )
+			//	{
+			//		var containerToken = <ContainerToken>{};
+			//		dataToken.containers.push( containerToken );
+   //                 containerToken.name = behaviour.entry.name;
+   //                 containerToken.id = behaviour.entry.shallowId;
+			//		containerToken.behaviours = [];
+			//		containerToken.links = [];
+			//		containerToken.assets = [];
+			//		containerToken.groups = [];
+			//		//containerToken.properties = {};
 
-					// Set each of the properties
-					//var props = behaviour.properties.tokenize(true);
-                    containerToken.properties = behaviour.properties.tokenize(true);
-					//for ( var pi in props )
-					//{
-     //                   var propType: PropertyType = PropertyType.fromString( props[pi].type );
-					//	var propVal = props[pi].value;
-					//	containerToken.properties[props[pi].name] = ImportExport.getExportValue( propType, propVal );
-					//}
+			//		// Set each of the properties
+			//		//var props = behaviour.properties.tokenize(true);
+   //                 containerToken.properties = behaviour.properties.tokenize(true);
+			//		//for ( var pi in props )
+			//		//{
+   //  //                   var propType: PropertyType = PropertyType.fromString( props[pi].type );
+			//		//	var propVal = props[pi].value;
+			//		//	containerToken.properties[props[pi].name] = ImportExport.getExportValue( propType, propVal );
+			//		//}
 
-					// Let the plugins export their data
-					containerToken.plugins = canvasToken.plugins;	
+			//		// Let the plugins export their data
+			//		containerToken.plugins = canvasToken.plugins;	
 
-					PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
+			//		PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
 
-					// Create tokens and fill each with data. First create either a behaviour
-					// or link objct
-					for ( var cti = 0, ctl = canvasToken.items.length; cti < ctl; cti++ )
-					{
-						var canvasTokenItem: CanvasTokenItem = canvasToken.items[cti];
-						if ( canvasTokenItem.type == "BehaviourAsset" ||
-							canvasTokenItem.type == "BehaviourScript" ||
-							canvasTokenItem.type == "BehaviourPortal" ||
-							canvasTokenItem.type == "Behaviour" ||
-							canvasTokenItem.type == "BehaviourInstance" )
-						{
-							var behaviourToken: BehaviourToken = <BehaviourToken>{};
-							containerToken.behaviours.push( behaviourToken );
+			//		// Create tokens and fill each with data. First create either a behaviour
+			//		// or link objct
+			//		for ( var cti = 0, ctl = canvasToken.items.length; cti < ctl; cti++ )
+			//		{
+			//			var canvasTokenItem: CanvasTokenItem = canvasToken.items[cti];
+			//			if ( canvasTokenItem.type == "BehaviourAsset" ||
+			//				canvasTokenItem.type == "BehaviourScript" ||
+			//				canvasTokenItem.type == "BehaviourPortal" ||
+			//				canvasTokenItem.type == "Behaviour" ||
+			//				canvasTokenItem.type == "BehaviourInstance" )
+			//			{
+			//				var behaviourToken: BehaviourToken = <BehaviourToken>{};
+			//				containerToken.behaviours.push( behaviourToken );
 							
-							behaviourToken.id = canvasTokenItem.id;
-							behaviourToken.name = canvasTokenItem.name;
-							behaviourToken.type = canvasTokenItem.type;
+			//				behaviourToken.id = canvasTokenItem.id;
+			//				behaviourToken.name = canvasTokenItem.name;
+			//				behaviourToken.type = canvasTokenItem.type;
 
-							// Check the type and fill in the sub properties
-							if ( canvasTokenItem.type == "BehaviourPortal" )
-							{
-								behaviourToken.portalType = canvasTokenItem.portalType.toString();
-								behaviourToken.dataType = canvasTokenItem.dataType.toString();
-								behaviourToken.value = ImportExport.getExportValue( canvasTokenItem.dataType, canvasTokenItem.value );
-							}
-							else
-							{
-								if ( canvasTokenItem.type == "BehaviourInstance" )
-									behaviourToken.originalContainerID = canvasTokenItem.containerId;
+			//				// Check the type and fill in the sub properties
+			//				if ( canvasTokenItem.type == "BehaviourPortal" )
+			//				{
+			//					behaviourToken.portalType = canvasTokenItem.portalType.toString();
+			//					behaviourToken.dataType = canvasTokenItem.dataType.toString();
+			//					behaviourToken.value = ImportExport.getExportValue( canvasTokenItem.dataType, canvasTokenItem.value );
+			//				}
+			//				else
+			//				{
+			//					if ( canvasTokenItem.type == "BehaviourInstance" )
+			//						behaviourToken.originalContainerID = canvasTokenItem.containerId;
 
-								if ( canvasTokenItem.type == "BehaviourScript" )
-									behaviourToken.shallowId = canvasTokenItem.shallowId;
+			//					if ( canvasTokenItem.type == "BehaviourScript" )
+			//						behaviourToken.shallowId = canvasTokenItem.shallowId;
 
-								// Create each of the portals 
+			//					// Create each of the portals 
 
-								behaviourToken.portals = [];
-								for ( var ci = 0, cl = canvasTokenItem.portals.length; ci < cl; ci++ )// objectToken.items[counter].portals[counterPortal] )
-								{
-									var portalToken: PortalToken = <PortalToken>{};
-									behaviourToken.portals.push( portalToken );
+			//					behaviourToken.portals = [];
+			//					for ( var ci = 0, cl = canvasTokenItem.portals.length; ci < cl; ci++ )// objectToken.items[counter].portals[counterPortal] )
+			//					{
+			//						var portalToken: PortalToken = <PortalToken>{};
+			//						behaviourToken.portals.push( portalToken );
 
-									portalToken.name = canvasTokenItem.portals[ci].name;
-									portalToken.type = canvasTokenItem.portals[ci].type.toString();
-									portalToken.dataType = canvasTokenItem.portals[ci].dataType.toString();
-									portalToken.value = ImportExport.getExportValue( canvasTokenItem.portals[ci].dataType, canvasTokenItem.portals[ci].value );
+			//						portalToken.name = canvasTokenItem.portals[ci].name;
+			//						portalToken.type = canvasTokenItem.portals[ci].type.toString();
+			//						portalToken.dataType = canvasTokenItem.portals[ci].dataType.toString();
+			//						portalToken.value = ImportExport.getExportValue( canvasTokenItem.portals[ci].dataType, canvasTokenItem.portals[ci].value );
 
-									//Check for assets, and if so, add the asset to the assets 
-                                    if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET )
-									{
-										if ( portalToken.value != null && portalToken.value != "" )
-										{
-											var assetID: number = portalToken.value;
-											if ( !isNaN( assetID ) && assetID != 0 && containerToken.assets.indexOf( assetID ) == -1 )
-											{
-												containerToken.assets.push( assetID );
+			//						//Check for assets, and if so, add the asset to the assets 
+   //                                 if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET )
+			//						{
+			//							if ( portalToken.value != null && portalToken.value != "" )
+			//							{
+			//								var assetID: number = portalToken.value;
+			//								if ( !isNaN( assetID ) && assetID != 0 && containerToken.assets.indexOf( assetID ) == -1 )
+			//								{
+			//									containerToken.assets.push( assetID );
 
-												//It can also the be case that assets reference other assets. In those
-                                                //situations you will want the container to keep adding to all the assets
-                                                this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
-											}
-										}
-									}
-                                    else if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET_LIST )
-									{
-										if ( portalToken.value != null && portalToken.value.selectedAssets.length != 0 )
-										{
-											for ( var a = 0, al = portalToken.value.selectedAssets.length; a < al; a++ )
-											{
-												var assetID: number = portalToken.value.selectedAssets[a];
-												if ( !isNaN( assetID ) && assetID != 0 && containerToken.assets.indexOf( assetID ) == -1 )
-												{
-													containerToken.assets.push( assetID );
+			//									//It can also the be case that assets reference other assets. In those
+   //                                             //situations you will want the container to keep adding to all the assets
+   //                                             this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
+			//								}
+			//							}
+			//						}
+   //                                 else if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET_LIST )
+			//						{
+			//							if ( portalToken.value != null && portalToken.value.selectedAssets.length != 0 )
+			//							{
+			//								for ( var a = 0, al = portalToken.value.selectedAssets.length; a < al; a++ )
+			//								{
+			//									var assetID: number = portalToken.value.selectedAssets[a];
+			//									if ( !isNaN( assetID ) && assetID != 0 && containerToken.assets.indexOf( assetID ) == -1 )
+			//									{
+			//										containerToken.assets.push( assetID );
 
-													//It can also the be case that assets reference other assets. In those
-                                                    //situations you will want the container to keep adding to all the assets
-                                                    this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
-												}
-											}
-										}
-									}
-                                    else if (canvasTokenItem.portals[ci].dataType == PropertyType.GROUP )
-									{
-										if ( portalToken.value != null && portalToken.value != "" )
-										{
-                                            var groupID: string = ImportExport.getExportValue(PropertyType.GROUP, portalToken.value );
-											if ( groupID != null && groupID != "" )
-											{
-												//It can also the be case that groups reference other groups. In those
-												//situations you will want the container to keep adding to all the groups
-												this.referenceCheckGroup( <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "resource", groupID ), containerToken );
-											}
-										}
-									}
-								}
-							}
-						}
-						else if ( canvasTokenItem.type == "Link" )
-						{
-							var linkToken: LinkToken = <LinkToken>{};
-							containerToken.links.push( linkToken );
+			//										//It can also the be case that assets reference other assets. In those
+   //                                                 //situations you will want the container to keep adding to all the assets
+   //                                                 this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), containerToken);
+			//									}
+			//								}
+			//							}
+			//						}
+   //                                 else if (canvasTokenItem.portals[ci].dataType == PropertyType.GROUP )
+			//						{
+			//							if ( portalToken.value != null && portalToken.value != "" )
+			//							{
+   //                                         var groupID: string = ImportExport.getExportValue(PropertyType.GROUP, portalToken.value );
+			//								if ( groupID != null && groupID != "" )
+			//								{
+			//									//It can also the be case that groups reference other groups. In those
+			//									//situations you will want the container to keep adding to all the groups
+			//									this.referenceCheckGroup( <TreeNodeGroup>TreeViewScene.getSingleton().findNode( "resource", groupID ), containerToken );
+			//								}
+			//							}
+			//						}
+			//					}
+			//				}
+			//			}
+			//			else if ( canvasTokenItem.type == "Link" )
+			//			{
+			//				var linkToken: LinkToken = <LinkToken>{};
+			//				containerToken.links.push( linkToken );
 
-							//fill in the sub properties
-							linkToken.id = canvasTokenItem.id;
-							linkToken.type = canvasTokenItem.type;
-							linkToken.startPortal = canvasTokenItem.startPortal;
-							linkToken.endPortal = canvasTokenItem.endPortal;
-							linkToken.startBehaviour = canvasTokenItem.targetStartBehaviour;
-							linkToken.endBehaviour = canvasTokenItem.targetEndBehaviour;
-							linkToken.frameDelay = canvasTokenItem.frameDelay;
-						}
-					}
-				}
-			}
+			//				//fill in the sub properties
+			//				linkToken.id = canvasTokenItem.id;
+			//				linkToken.type = canvasTokenItem.type;
+			//				linkToken.startPortal = canvasTokenItem.startPortal;
+			//				linkToken.endPortal = canvasTokenItem.endPortal;
+			//				linkToken.startBehaviour = canvasTokenItem.targetStartBehaviour;
+			//				linkToken.endBehaviour = canvasTokenItem.targetEndBehaviour;
+			//				linkToken.frameDelay = canvasTokenItem.frameDelay;
+			//			}
+			//		}
+			//	}
+			//}
 
-			// Get all the assets and build them into the export object			
-			for ( var i = 0, l = project.assets.length; i < l; i++ )
-			{
-				var asset : Asset = project.assets[i];
+			//// Get all the assets and build them into the export object			
+			//for ( var i = 0, l = project.assets.length; i < l; i++ )
+			//{
+			//	var asset : Asset = project.assets[i];
 
-				// Check if we have valid json and items saved
-				if ( canvasToken )
-				{
-					var assetToken: AssetToken = <AssetToken>{};
-                    dataToken.assets.push(assetToken);
-                    assetToken.name = asset.entry.name;
-                    assetToken.id = asset.entry.shallowId;
-					assetToken.properties = {};
-                    assetToken.className = asset.entry.className;
+			//	// Check if we have valid json and items saved
+			//	if ( canvasToken )
+			//	{
+			//		var assetToken: AssetToken = <AssetToken>{};
+   //                 dataToken.assets.push(assetToken);
+   //                 assetToken.name = asset.entry.name;
+   //                 assetToken.id = asset.entry.shallowId;
+			//		assetToken.properties = {};
+   //                 assetToken.className = asset.entry.className;
 
-					var aprops = asset.properties.tokenize();
-					for ( var assetPropName in aprops )
-					{
-                        var propType: PropertyType = PropertyType.fromString( aprops[assetPropName].type.toString() );
-						var propVal: any = aprops[assetPropName].value;
-						assetToken.properties[aprops[assetPropName].name] = ImportExport.getExportValue( propType, propVal );
-					}
-				}
-			}
+			//		var aprops = asset.properties.tokenize();
+			//		for ( var assetPropName in aprops )
+			//		{
+   //                     var propType: PropertyType = PropertyType.fromString( aprops[assetPropName].type.toString() );
+			//			var propVal: any = aprops[assetPropName].value;
+			//			assetToken.properties[aprops[assetPropName].name] = ImportExport.getExportValue( propType, propVal );
+			//		}
+			//	}
+			//}
 
-            // Get all the groups and build them into the export object
-            var groups: Array<GroupArray> = project.groups;
-			for ( var i = 0, l = groups.length; i < l; i++ )
-			{
-				var group = groups[i];
-				var groupToken: GroupToken = <GroupToken>{};
-                dataToken.groups.push(groupToken);
-                groupToken.name = group.entry.name;
-                groupToken.id = group.entry._id;
-                groupToken.items = group.entry.items.slice(0, group.entry.items.length);
-			}
+   //         // Get all the groups and build them into the export object
+   //         var groups: Array<GroupArray> = project.groups;
+			//for ( var i = 0, l = groups.length; i < l; i++ )
+			//{
+			//	var group = groups[i];
+			//	var groupToken: GroupToken = <GroupToken>{};
+   //             dataToken.groups.push(groupToken);
+   //             groupToken.name = group.entry.name;
+   //             groupToken.id = group.entry._id;
+   //             groupToken.items = group.entry.items.slice(0, group.entry.items.length);
+			//}
 
-			// Send the object to the plugins
-			PluginManager.getSingleton().emit( new EditorExportingEvent( dataToken ) );
+			//// Send the object to the plugins
+			//PluginManager.getSingleton().emit( new EditorExportingEvent( dataToken ) );
 
-			var sceneStr = JSON.stringify( dataToken );
-			var loader = new AnimateLoader();
-			loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-			loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load("/export/compile", { projectId: project.entry._id, json: sceneStr });
+			//var sceneStr = JSON.stringify( dataToken );
+			//var loader = new AnimateLoader();
+			//loader.on( LoaderEvents.COMPLETE, this.onServer, this );
+			//loader.on( LoaderEvents.FAILED, this.onServer, this );
+   //         loader.load("/export/compile", { projectId: project.entry._id, json: sceneStr });
 		}
 
 		/**

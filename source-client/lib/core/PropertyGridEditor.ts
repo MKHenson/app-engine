@@ -17,7 +17,7 @@ module Animate
 	/**
 	* A simple interface for property grid editors 
 	*/
-	export class PropertyGridEditor
+    export abstract class PropertyGridEditor
 	{
 		//private _grid: PropertyGrid;
 		//private mEditors: Array<EditorContainer>;
@@ -26,7 +26,14 @@ module Animate
 		{
 			//this._grid = grid;
 			//this.mEditors = [];
-		}
+        }
+
+        /**
+		* Checks a property to see if it can edit it
+		* @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
+		*/
+        abstract canEdit(prop: Prop<any>): boolean;
 
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
