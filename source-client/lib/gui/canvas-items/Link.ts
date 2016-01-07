@@ -7,25 +7,22 @@ module Animate
 	{
 		public startPortal: Portal;
         public endPortal: Portal;
-        public _startBehaviour: Behaviour;
-        public _endBehaviour: Behaviour;
+        public delta: number;
 
-		private mMouseMoveProxy: any;
-		private mMouseUpProxy: any;
-		private mMouseUpAnchorProxy: any;
-		private mPrevPortal: Portal;
-		//public frameDelay: number;
-		private mStartClientX: number;
-		private mStartClientY: number;
-		public delta: number;
-		private mStartX: number;
-		private mStartY: number;
-		private mCurTarget : Portal;
-
-		private canvas: HTMLCanvasElement;
-		private graphics: CanvasRenderingContext2D;
-		private linePoints: Array<any>;
-
+        private _startBehaviour: Behaviour;
+        private _endBehaviour: Behaviour;
+		private _mouseMoveProxy: any;
+		private _mouseUpProxy: any;
+		private _mouseUpAnchorProxy: any;
+		private _prevPortal: Portal;
+		private _startClientX: number;
+		private _startClientY: number;
+		private _startX: number;
+		private _startY: number;
+		private _curTarget : Portal;
+		private _canvas: HTMLCanvasElement;
+		private _graphics: CanvasRenderingContext2D;
+		private _linePoints: Array<any>;
         private _selected: boolean;
         private _properties: EditableSet;
 
@@ -40,18 +37,18 @@ module Animate
 			this.element.data( "dragEnabled", false );
 			this.startPortal = null;
 			this.endPortal = null;
-			this.mMouseMoveProxy = this.onMouseMove.bind( this );
-			this.mMouseUpProxy = this.onMouseUpAnchor.bind( this );
-			this.mMouseUpAnchorProxy = this.onMouseUpAnchor.bind( this );
-			this.mPrevPortal = null;
+			this._mouseMoveProxy = this.onMouseMove.bind( this );
+			this._mouseUpProxy = this.onMouseUpAnchor.bind( this );
+			this._mouseUpAnchorProxy = this.onMouseUpAnchor.bind( this );
+			this._prevPortal = null;
 
-			this.canvas = <HTMLCanvasElement>document.getElementById( this.id );
-            this.graphics = <CanvasRenderingContext2D>this.canvas.getContext( "2d" );
-			this.graphics.font = "14px arial";
-			this.linePoints = [];
+			this._canvas = <HTMLCanvasElement>document.getElementById( this.id );
+            this._graphics = <CanvasRenderingContext2D>this._canvas.getContext( "2d" );
+			this._graphics.font = "14px arial";
+			this._linePoints = [];
             this._selected = false;
             this._properties = new EditableSet(this);
-            this._properties.addVar(new PropNum("Frame Delay", 1, 0, Infinity, 0, 1));
+            this._properties.addVar(new PropNum("Frame Delay", 1, 0, Number.MAX_VALUE, 0, 1));
             this.on("edited", this.onEdit, this);
         }
 
@@ -62,7 +59,7 @@ module Animate
         */
         tokenize(slim: boolean = false): ILinkItem
         {
-            var toRet = <ILinkItem>{};
+            var toRet = <ILinkItem>super.tokenize(slim);
             toRet.endBehaviour = this._endBehaviour.shallowId;
             toRet.startBehaviour = this._startBehaviour.shallowId;
             toRet.endPortal = this.endPortal.property.name;
@@ -92,11 +89,23 @@ module Animate
         link(originalId: number, items: LinkMap)
         {
             var exportedToken = <ILinkItem>items[originalId].token;
+
+            // This link was probably copied - but not with both of the end behavours - so remove it
+            if (!items[exportedToken.endBehaviour] || !items[exportedToken.startBehaviour])
+            {
+                this.dispose();
+                return;
+            }
             
             this._endBehaviour = <Behaviour>items[exportedToken.endBehaviour].item;
             this._startBehaviour = <Behaviour>items[exportedToken.startBehaviour].item;
             this.endPortal = this._endBehaviour.getPortal(exportedToken.endPortal);
             this.startPortal = this._startBehaviour.getPortal(exportedToken.startPortal);
+            this.endPortal.addLink(this);
+            this.startPortal.addLink(this);
+            this.element.css("pointer-events", "");
+
+            this.updatePoints();
         }
 		
 		/**
@@ -111,21 +120,21 @@ module Animate
 			this.startPortal = startPortal;
 
 			// Attach events
-			this.parent.element.on( "mousemove", this.mMouseMoveProxy );
-			this.parent.element.on( "mouseup", this.mMouseUpProxy );
-			jQuery( ".portal", this.parent.element ).on( "mouseup", this.mMouseUpAnchorProxy );
+			this.parent.element.on( "mousemove", this._mouseMoveProxy );
+			this.parent.element.on( "mouseup", this._mouseUpProxy );
+			jQuery( ".portal", this.parent.element ).on( "mouseup", this._mouseUpAnchorProxy );
 
 			// Get the start coords
 			var positionOnCanvas = startPortal.positionOnCanvas();
-			this.mStartClientX = e.clientX;
-			this.mStartClientY = e.clientY;
+			this._startClientX = e.clientX;
+			this._startClientY = e.clientY;
 			this.delta = ( startPortal.element.width() / 2 );
-			this.mStartX = positionOnCanvas.left + this.delta;
-			this.mStartY = positionOnCanvas.top + this.delta;
+			this._startX = positionOnCanvas.left + this.delta;
+			this._startY = positionOnCanvas.top + this.delta;
 
 			this.element.css( {
-				left: this.mStartX + "px",
-				top: this.mStartY + "px"
+				left: this._startX + "px",
+				top: this._startY + "px"
 			});
 
 			// Add glow
@@ -146,7 +155,7 @@ module Animate
 			var mouse = Utils.getMousePos( e, this.id );// this.getMousePos( e );
 
 			// Get image data at the mouse x,y pixel
-			var imageData = this.graphics.getImageData( mouse.x - 4, mouse.y - 4, 8, 8 );
+			var imageData = this._graphics.getImageData( mouse.x - 4, mouse.y - 4, 8, 8 );
 			var index = ( mouse.x + mouse.y * imageData.width ) * 4;
 
 			// If the mouse pixel exists, select and break
@@ -186,8 +195,8 @@ module Animate
 		*/
 		buildDimensions()
 		{
-			var linePoints = this.linePoints;
-			var canvas = this.canvas;
+			var linePoints = this._linePoints;
+			var canvas = this._canvas;
 
 			var length = linePoints.length;
 
@@ -245,7 +254,7 @@ module Animate
 		*/
 		buildLinePoints( e )
 		{
-			var linePoints = this.linePoints;
+			var linePoints = this._linePoints;
 
 			// We create a list of array points that define the link
 			// Clear all points
@@ -255,12 +264,12 @@ module Animate
 			var positionOnCanvas = this.startPortal.positionOnCanvas();
 			this.delta = ( this.startPortal.element.width() / 2 );
 			var delta = this.delta;
-			this.mStartX = positionOnCanvas.left + this.delta;
-			this.mStartY = positionOnCanvas.top + this.delta;
+			this._startX = positionOnCanvas.left + this.delta;
+			this._startY = positionOnCanvas.top + this.delta;
 			var pPosition = this.parent.element.offset();
 
-			var startX = this.mStartX;
-			var startY = this.mStartY;
+			var startX = this._startX;
+			var startY = this._startY;
 			var endX = 0;
 			var endY = 0;
 
@@ -274,9 +283,10 @@ module Animate
 			{
 				if ( e == null )
 					return;
-
-				endX = startX + e.clientX - this.mStartClientX + delta;
-				endY = startY + e.clientY - this.mStartClientY + delta;
+                
+                var t = 2;
+				endX = startX + e.clientX - this._startClientX + t;
+				endY = startY + e.clientY - this._startClientY + t;
 			}
 
 			// Now the end coords
@@ -363,8 +373,8 @@ module Animate
 			// Set the dimensions
 			this.buildDimensions();
 
-			var graphics = this.graphics;
-			graphics.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+			var graphics = this._graphics;
+			graphics.clearRect( 0, 0, this._canvas.width, this._canvas.height );
 			this.draw();
 		}
 
@@ -374,7 +384,7 @@ module Animate
 		*/
 		onMouseMove( e )
 		{
-			var curTarget : Component = this.mCurTarget;
+			var curTarget : Component = this._curTarget;
 
 			// Check if a portal
 			if ( curTarget != null )
@@ -385,8 +395,8 @@ module Animate
 			this.endPortal = null;
 			if ( target.hasClass( "portal" ) )
 			{
-				this.mCurTarget = target.data( "component" );
-				curTarget = this.mCurTarget;
+				this._curTarget = target.data( "component" );
+				curTarget = this._curTarget;
 				this.endPortal = <Portal>curTarget;
 
 				if ( (<Portal>curTarget).checkPortalLink( this.startPortal ) )
@@ -397,7 +407,7 @@ module Animate
 			else
 			{
 				target.css( "cursor", "crosshair" );
-				this.mCurTarget = target.data( "component" );
+				this._curTarget = target.data( "component" );
 			}
 
 			// First build the points
@@ -406,8 +416,8 @@ module Animate
 			// Set the dimensions
 			this.buildDimensions();
 
-			var graphics = this.graphics;
-			graphics.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+			var graphics = this._graphics;
+			graphics.clearRect( 0, 0, this._canvas.width, this._canvas.height );
 			this.draw();
 		}
 
@@ -416,7 +426,7 @@ module Animate
 		*/
 		draw() : void
 		{
-			var points = this.linePoints;
+			var points = this._linePoints;
 			var len = points.length;
 
 			if ( len == 0 )
@@ -425,7 +435,7 @@ module Animate
 			var prevMidpt = null;
 			var pt1 = null;
 			var pt2 = null;
-			var graphics = this.graphics;
+			var graphics = this._graphics;
 			var element = this.element;
 			var startPortal = this.startPortal;
 			var endPortal = this.endPortal;
@@ -440,7 +450,8 @@ module Animate
 			if ( startPortal.type != PortalType.OUTPUT )
 			{
 				// Set dashed lines (only some browsers support this)
-				if ( graphics.setLineDash !== undefined ) graphics.setLineDash( [5] );
+                if (graphics.setLineDash !== undefined)
+                    graphics.setLineDash([5]);
 			}
 
 			graphics.beginPath();
@@ -499,10 +510,21 @@ module Animate
 				graphics.stroke();
 
 				//Now draw the line text
-                var canvas = this.canvas;
+                var canvas = this._canvas;
                 var frameDelay: number = <number>this._properties.getVar("Frame Delay").getVal();
-				var canvasW : number = canvas.width * 0.5 - 5;
-				var canvasH: number = canvas.height * 0.5 + 3;
+				var canvasW : number = 0;
+                var canvasH: number = 0;
+
+                if (loops)
+                {
+                    canvasW = canvas.width * 0.5 - 5;
+                    canvasH = 8;
+                }
+                else
+                {
+                    canvasW = canvas.width * 0.5 - 5;
+                    canvasH = canvas.height * 0.5 + 3;
+                }
 
 				graphics.lineWidth = 5;
 				graphics.strokeStyle = "#ffffff";
@@ -528,8 +550,8 @@ module Animate
 		*/
 		onMouseUpAnchor( e )
 		{
-			if ( this.mCurTarget )
-				this.mCurTarget.element.css( "cursor", "" );
+			if ( this._curTarget )
+				this._curTarget.element.css( "cursor", "" );
 
 			this.parent.element.css( "cursor", "" );
 			this.startPortal.element.css( "cursor", "" );
@@ -543,34 +565,37 @@ module Animate
 			var elm : JQuery = jQuery( e.target );
 			if ( elm.hasClass( "portal" ) )
 			{
-				this.mCurTarget = elm.data( "component" );
+				this._curTarget = elm.data( "component" );
 
-				if ( this.mCurTarget.type == PortalType.PRODUCT || this.mCurTarget.type == PortalType.OUTPUT )
+				if ( this._curTarget.type == PortalType.PRODUCT || this._curTarget.type == PortalType.OUTPUT )
 					this.dispose();
 				else
 				{
 					if (
-						( this.startPortal.type == PortalType.OUTPUT && this.mCurTarget.type == PortalType.INPUT ) ||
-						( this.startPortal.type == PortalType.PRODUCT && this.mCurTarget.type == PortalType.PARAMETER )
+						( this.startPortal.type == PortalType.OUTPUT && this._curTarget.type == PortalType.INPUT ) ||
+						( this.startPortal.type == PortalType.PRODUCT && this._curTarget.type == PortalType.PARAMETER )
 						)
 					{
-						if ( this.mCurTarget.checkPortalLink( this.startPortal ) )
+						if ( this._curTarget.checkPortalLink( this.startPortal ) )
 						{
 							//Drop is ok
-							this.parent.element.off( "mousemove", this.mMouseMoveProxy );
+							this.parent.element.off( "mousemove", this._mouseMoveProxy );
 							this.parent.element.off( "mouseup" );
-							jQuery( ".portal", this.parent.element ).off( "mouseup", this.mMouseUpAnchorProxy );
-							this.endPortal = this.mCurTarget;
+							jQuery( ".portal", this.parent.element ).off( "mouseup", this._mouseUpAnchorProxy );
+							this.endPortal = this._curTarget;
 							this.startPortal.addLink( this );
-							this.endPortal.addLink( this );
+                            this.endPortal.addLink(this);
+
+                            this._endBehaviour = this.endPortal.behaviour;
+                            this._startBehaviour = this.startPortal.behaviour;
 
 							this.element.css( "pointer-events", "" );
 
 							// Notify of change
-							this.parent.element.data( "component" ).dispatchEvent( new CanvasEvent( CanvasEvents.MODIFIED, <Canvas>this.parent ) );
+                            this.parent.emit( new CanvasEvent( CanvasEvents.MODIFIED, <Canvas>this.parent ) );
 						}
 
-						this.mCurTarget.element.css( "cursor", "" );
+						this._curTarget.element.css( "cursor", "" );
 					}
 					else
 						this.dispose();
@@ -581,7 +606,7 @@ module Animate
 				this.dispose();
 			}
 
-			this.mCurTarget = null;
+			this._curTarget = null;
         }
 
         /** 
@@ -610,24 +635,26 @@ module Animate
 
 			// Unbind
             this.off("edited", this.onEdit, this);
-			this.parent.element.off( "mousemove", this.mMouseMoveProxy );
+			this.parent.element.off( "mousemove", this._mouseMoveProxy );
 			this.parent.element.off( "mouseup" );
-			jQuery( ".portal", this.parent.element ).off( "mouseup", this.mMouseUpAnchorProxy );
+			jQuery( ".portal", this.parent.element ).off( "mouseup", this._mouseUpAnchorProxy );
 			this.element.off();
 			this.element.data( "dragEnabled", null );
 
 			// Nullify
 			this.startPortal = null;
 			this.endPortal = null;
-			this.mMouseMoveProxy = null;
-			this.mMouseUpProxy = null;
-			this.mMouseUpAnchorProxy = null;
-			this.mPrevPortal = null;
-			this.canvas = null;
-			this.graphics = null;
-			this.linePoints = null;
-            this.mCurTarget = null;
+			this._mouseMoveProxy = null;
+			this._mouseUpProxy = null;
+			this._mouseUpAnchorProxy = null;
+			this._prevPortal = null;
+			this._canvas = null;
+			this._graphics = null;
+			this._linePoints = null;
+            this._curTarget = null;
             this._properties = null;
+            this._endBehaviour = null;
+            this._startBehaviour = null;
             
 			//Call parent
 			super.dispose();

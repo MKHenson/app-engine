@@ -631,13 +631,14 @@ module Animate
             var r = this.getResourceByID(id, type);
             var url: string = `${paths[r.type].url}/${details.username}/${projId}/${id}`;
             var resource: ProjectResource<Engine.IResource> = r.resource;
+            resource.onSaving();
             
             return new Promise<boolean>(function (resolve, reject)
             {
                 Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
                 {
                     if (response.error)
-                        return reject(new Error(response.message));
+                        return reject(new Error(`Could not save ${ResourceType[type].toLowerCase()} resource [${resource.entry._id}]: '${response.message}'`));
 
                     resource.saved = true;
                     return resolve(true);

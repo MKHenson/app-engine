@@ -21,7 +21,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor(name: string, value: number, min: number = Infinity, max: number = Infinity, decimals: number = 0, interval: number = 1, category?: string, options?: any)
+        constructor(name: string, value: number, min: number = -Number.MAX_VALUE, max: number = Number.MAX_VALUE, decimals: number = 0, interval: number = 1, category?: string, options?: any)
         {
             super(name, value, category, options, PropertyType.NUMBER);
             this.min = min;
@@ -70,8 +70,8 @@
         deTokenize(data: PropNum)
         {
             super.deTokenize(data);
-            this.min = data.min;
-            this.max = data.max;
+            this.min = (data.min === null || data.min === undefined ? -Number.MAX_VALUE : data.min);
+            this.max = (data.max === null || data.max === undefined ? Number.MAX_VALUE  : data.max);
             this.decimals = data.decimals;
             this.interval = data.interval;
         }

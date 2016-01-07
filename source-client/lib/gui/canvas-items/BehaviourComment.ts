@@ -30,10 +30,7 @@ module Animate
 			this.isInInputMode = false;
 			this.stageClickProxy = jQuery.proxy( this.onStageClick, this );
 			this.input = jQuery( "<textarea rows='10' cols='30'></textarea>" );
-
-			this.element.css( { width: "95%", height: "95%", left: 0, top: 0 });
-			this.element.text( text );
-
+            
 			this.element.on( "mousedown", jQuery.proxy( this.onResizeStart, this ) );
 			this.mStartX = null;
             this.mStartY = null;
@@ -45,6 +42,7 @@ module Animate
 				stop: jQuery.proxy( this.onResizeStop, this )
             });
 
+            this.properties.addVar(new PropText("Comment", text ));
             this.on("edited", this.onEdit, this);
         }
 
@@ -55,9 +53,22 @@ module Animate
        */
         tokenize(slim: boolean = false): IBehaviour
         {
-            var toRet = <IBehaviour>super.tokenize(slim);
+            var toRet = <IBehaviourComment>super.tokenize(slim);
             toRet.type = CanvasItemType.BehaviourComment;
+            toRet.width = this.element.width();
+            toRet.height = this.element.height();
             return toRet;
+        }
+
+        /**
+       * De-Tokenizes data from a JSON. 
+       * @param {IBehaviourComment} data The data to import from
+       */
+        deTokenize(data: IBehaviourComment)
+        {
+            super.deTokenize(data);
+            this.element.css({ width: data.width + "px", height: data.height + "px" });
+            this.properties.getVar("Comment").setVal(data.text);
         }
 
         /** 
@@ -152,11 +163,11 @@ module Animate
 			jQuery( "body" ).append( this.input );
 			this.input.css( {
 				position: "absolute", left: this.element.offset().left + "px",
-				top: this.element.offset().top + "px", width: this.element.width() + "px",
-				height: this.element.height() + "px", "z-index": 9999
+				top: this.element.offset().top + "px", width: this.element.outerWidth() + "px",
+                height: this.element.outerHeight() + "px", "z-index": 9999
 			});
 
-			this.element.detach();
+			this.element.hide();
 			this.input.val( this.element.text() );
 			this.input.focus();
 			this.input.select();
@@ -179,12 +190,14 @@ module Animate
 			this.element.css( { width: this.input.width() + "px", height: this.input.height() + "px" });
 
 			this.input.detach();
-			this.element.append( this.element );
+            //this.element.append( this.element );
+            this.element.show();
 
 			this.input.data( "dragEnabled", true );
 
-			this.text = this.input.val();
-			this.element.css( { width: "95%", height: "95%", top: 0, left: 0 });
+            //this.text = this.input.val();
+            this.properties.getVar("Comment").setVal(this.input.val());
+            this.element.css({ width: this.input.width() + "px", height: this.input.height() + "px" });
 
 
 		}

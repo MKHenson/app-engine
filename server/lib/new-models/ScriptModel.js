@@ -15,7 +15,7 @@ var ScriptModel = (function (_super) {
     function ScriptModel() {
         _super.call(this, "en-scripts");
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("shallowId", -1, -1, Infinity, modepress_api_1.NumberType.Integer));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, modepress_api_1.NumberType.Integer));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("onEnter", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("onInitialize", ""));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("onDispose", ""));

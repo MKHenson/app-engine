@@ -85,7 +85,7 @@ var SessionManager = (function () {
         var that = this;
         var id, now, next;
         now = +new Date;
-        next = Infinity;
+        next = Number.MAX_VALUE;
         this._timeout = null;
         that._sessionCollection.find(function (err, result) {
             result.toArray(function (err, sessions) {
@@ -109,7 +109,7 @@ var SessionManager = (function () {
                 }
             });
         });
-        if (next < Infinity)
+        if (next < Number.MAX_VALUE)
             this._timeout = setTimeout(this.cleanup.bind(this), next - (+new Date) + 1000);
     };
     /**

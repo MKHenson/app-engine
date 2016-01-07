@@ -30,7 +30,7 @@
             this.type = type;
         }
 
-         /** 
+        /** 
         * Attempts to clone the property
         * @returns {Prop<T>}
         */
@@ -70,6 +70,7 @@
             this._value = data.value;
             this.category = data.category;
             this.options = data.options;
+            this.name = data.name;
             this.type = data.type;
         }
 
@@ -93,8 +94,62 @@
             this.category = null;
             this.options = null;
         }
+
+        /** 
+        * Writes this portal out to a string
+        */
+        toString(): string
+        {
+            var typeString = PropertyType[this.type].replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+            return `${this.name} : ${typeString} - ${(this._value !== undefined && this._value !== null ? this._value.toString() : "")}`;
+        }
     }
 
-    export class PropBool extends Prop<boolean> { }
-    export class PropText extends Prop<string> { }
+    export class PropBool extends Prop<boolean> {
+
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {boolean} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: boolean, category?: string, options?: any)
+        {
+            super(name, value, category, options, PropertyType.BOOL);
+        }
+
+        /** 
+        * Attempts to clone the property
+        * @returns PropBool}
+        */
+        clone(clone?: PropBool): PropBool
+        {
+            return new PropBool(this.name, this._value, this.category, this.options);
+        }
+    }
+
+    export class PropText extends Prop<string> {
+
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: string, category?: string, options?: any)
+        {
+            super(name, value, category, options, PropertyType.STRING);
+        }
+
+        /** 
+        * Attempts to clone the property
+        * @returns PropText}
+        */
+        clone(clone?: PropText): PropText
+        {
+            return new PropText(this.name, this._value, this.category, this.options);
+        }
+    }
 }

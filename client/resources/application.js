@@ -1066,10 +1066,14 @@ var Animate;
             this._properties = new Animate.EditableSet(this);
         }
         /**
-         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-         */
+        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+        */
         ProjectResource.prototype.initialize = function () {
         };
+        /**
+        * This function is called just before the entry is saved to the database.
+        */
+        ProjectResource.prototype.onSaving = function () { };
         Object.defineProperty(ProjectResource.prototype, "properties", {
             /**
             * Gets the properties of this resource
@@ -1801,25 +1805,28 @@ var Animate;
         };
         /**
         * Creates a new canvas item based on the dataset provided
+        * @param {Canvas} parent The parent component this item must be added to
         * @param {any} data The data, usually created from a tokenize function
         * @returns {CanvasItem}
         */
-        Utils.createItem = function (data) {
+        Utils.createItem = function (parent, data) {
             switch (data.type) {
                 case Animate.CanvasItemType.Link:
-                    return new Animate.Link(null);
+                    return new Animate.Link(parent);
                 case Animate.CanvasItemType.BehaviourAsset:
-                    return new Animate.BehaviourAsset(null);
+                    return new Animate.BehaviourAsset(parent);
                 case Animate.CanvasItemType.BehaviourComment:
-                    return new Animate.BehaviourComment(null, "");
+                    return new Animate.BehaviourComment(parent, "");
                 case Animate.CanvasItemType.BehaviourInstance:
-                    return new Animate.BehaviourInstance(null, null);
+                    return new Animate.BehaviourInstance(parent, null);
                 case Animate.CanvasItemType.BehaviourPortal:
-                    return new Animate.BehaviourPortal(null, null, Animate.PortalType.INPUT);
+                    return new Animate.BehaviourPortal(parent, null, Animate.PortalType.INPUT);
                 case Animate.CanvasItemType.BehaviourScript:
-                    return new Animate.BehaviourScript(null, null, "", false);
+                    return new Animate.BehaviourScript(parent, null, "", false);
                 case Animate.CanvasItemType.BehaviourShortcut:
-                    return new Animate.BehaviourShortcut(null, null, "");
+                    return new Animate.BehaviourShortcut(parent, null, "");
+                case Animate.CanvasItemType.Behaviour:
+                    return new Animate.Behaviour(parent, "");
             }
         };
         /**
@@ -1860,8 +1867,8 @@ var Animate;
                 case Animate.PropertyType.NUMBER:
                     prop = new Animate.PropNum(null, null);
                     break;
-                //TODO: We dont have objecy props yet
                 case Animate.PropertyType.OBJECT:
+                    prop = new Animate.PropObject(null, null);
                     break;
                 //TODO: We dont have objecy props yet
                 case Animate.PropertyType.OPTIONS:
@@ -1872,6 +1879,8 @@ var Animate;
             }
             if (prop)
                 prop.set = set;
+            prop.deTokenize(data);
+            return prop;
         };
         /**
         * Gets the local mouse position of an event on a given dom element.
@@ -1993,15 +2002,15 @@ var Animate;
             this._converters = new Array();
             this._dataTypes = new Array("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
             // Create some standard templates	
-            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Asset", false, false, false, false, [
+            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Asset", [
                 new Animate.PortalTemplate(new Animate.PropResource("Asset In", null), Animate.PortalType.PARAMETER),
                 new Animate.PortalTemplate(new Animate.PropResource("Asset Out", null), Animate.PortalType.PRODUCT)
-            ], null));
-            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Script", true, true, true, true, [
+            ], null, false, false, false, false));
+            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Script", [
                 new Animate.PortalTemplate(new Animate.PropBool("Execute", false), Animate.PortalType.INPUT),
                 new Animate.PortalTemplate(new Animate.PropBool("Exit", false), Animate.PortalType.OUTPUT)
-            ], null));
-            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Instance", true, true, true, true, [], null));
+            ], null, true, true, true, true));
+            this.behaviourTemplates.push(new Animate.BehaviourDefinition("Instance", [], null, true, true, true, true));
             this._loadedPlugins = [];
             Animate.BehaviourPicker.getSingleton().list.addItem("Asset");
             Animate.BehaviourPicker.getSingleton().list.addItem("Script");
@@ -2935,18 +2944,30 @@ var Animate;
             this._properties.addVar(new Animate.PropBool("Unload On Exit", true, "Container Properties"));
         }
         /**
+        * This function is called just before the entry is saved to the database.
+        */
+        Container.prototype.onSaving = function () {
+            // Make sure the container is fully serialized before saving if there is an open canvas
+            if (this.canvas) {
+                var token = this.canvas.tokenize(false);
+                this.entry.json = token;
+            }
+        };
+        /**
          * Use this function to initialize the resource. This called just after the resource is created and its entry set.
          */
         Container.prototype.initialize = function () {
-            try {
-                this.entry.json = JSON.parse(this.entry.json);
-            }
-            catch (err) {
-                this.entry.json = {};
-            }
+            //try
+            //{
+            //    this.entry.json = JSON.parse(<string>this.entry.json);
+            //}
+            //catch (err)
+            //{
+            //    this.entry.json = {};
+            //}
             var containerToken = this.entry.json;
             containerToken.items = containerToken.items || [];
-            containerToken.properties = containerToken.properties || this._properties.tokenize(false);
+            this._properties.deTokenize(containerToken.properties);
         };
         ///**
         //* This will download and update all data of the asset.
@@ -3125,20 +3146,18 @@ var Animate;
     var BehaviourDefinition = (function () {
         /**
         * @param {string} behaviourName The name of the behaviour
+        * @param {Array<PortalTemplate>} portalTemplates
+        * @param {IPlugin} plugin The plugin this is associated with
         * @param {boolean} canBuildInput
         * @param {boolean} canBuildOutput
         * @param {boolean} canBuildParameter
         * @param {boolean} canBuildProduct
-        * @param {boolean} portalTemplates
-        * @param {IPlugin} plugin The plugin this is associated with
         */
-        function BehaviourDefinition(behaviourName, canBuildInput, canBuildOutput, canBuildParameter, canBuildProduct, portalTemplates, plugin) {
-            if (canBuildInput === void 0) { canBuildInput = true; }
-            if (canBuildOutput === void 0) { canBuildOutput = true; }
-            if (canBuildParameter === void 0) { canBuildParameter = true; }
-            if (canBuildProduct === void 0) { canBuildProduct = true; }
-            if (portalTemplates === void 0) { portalTemplates = null; }
-            if (plugin === void 0) { plugin = null; }
+        function BehaviourDefinition(behaviourName, portalTemplates, plugin, canBuildInput, canBuildOutput, canBuildParameter, canBuildProduct) {
+            if (canBuildInput === void 0) { canBuildInput = false; }
+            if (canBuildOutput === void 0) { canBuildOutput = false; }
+            if (canBuildParameter === void 0) { canBuildParameter = false; }
+            if (canBuildProduct === void 0) { canBuildProduct = false; }
             for (var i = 0; i < portalTemplates.length; i++)
                 for (var ii = 0; ii < portalTemplates.length; ii++)
                     if (ii != i && portalTemplates[i].property.name == portalTemplates[ii].property.name)
@@ -4249,10 +4268,11 @@ var Animate;
             var r = this.getResourceByID(id, type);
             var url = paths[r.type].url + "/" + details.username + "/" + projId + "/" + id;
             var resource = r.resource;
+            resource.onSaving();
             return new Promise(function (resolve, reject) {
                 Animate.Utils.put(url, resource.entry).then(function (response) {
                     if (response.error)
-                        return reject(new Error(response.message));
+                        return reject(new Error("Could not save " + Animate.ResourceType[type].toLowerCase() + " resource [" + resource.entry._id + "]: '" + response.message + "'"));
                     resource.saved = true;
                     return resolve(true);
                 }).catch(function (err) {
@@ -5710,9 +5730,9 @@ var Animate;
             this.type = type;
         }
         /**
-       * Attempts to clone the property
-       * @returns {Prop<T>}
-       */
+        * Attempts to clone the property
+        * @returns {Prop<T>}
+        */
         Prop.prototype.clone = function (clone) {
             return new Prop(this.name, this._value, this.category, this.options, this.type);
         };
@@ -5743,6 +5763,7 @@ var Animate;
             this._value = data.value;
             this.category = data.category;
             this.options = data.options;
+            this.name = data.name;
             this.type = data.type;
         };
         /**
@@ -5762,22 +5783,57 @@ var Animate;
             this.category = null;
             this.options = null;
         };
+        /**
+        * Writes this portal out to a string
+        */
+        Prop.prototype.toString = function () {
+            var typeString = Animate.PropertyType[this.type].replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+            return this.name + " : " + typeString + " - " + (this._value !== undefined && this._value !== null ? this._value.toString() : "");
+        };
         return Prop;
     })();
     Animate.Prop = Prop;
     var PropBool = (function (_super) {
         __extends(PropBool, _super);
-        function PropBool() {
-            _super.apply(this, arguments);
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {boolean} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        function PropBool(name, value, category, options) {
+            _super.call(this, name, value, category, options, Animate.PropertyType.BOOL);
         }
+        /**
+        * Attempts to clone the property
+        * @returns PropBool}
+        */
+        PropBool.prototype.clone = function (clone) {
+            return new PropBool(this.name, this._value, this.category, this.options);
+        };
         return PropBool;
     })(Prop);
     Animate.PropBool = PropBool;
     var PropText = (function (_super) {
         __extends(PropText, _super);
-        function PropText() {
-            _super.apply(this, arguments);
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        function PropText(name, value, category, options) {
+            _super.call(this, name, value, category, options, Animate.PropertyType.STRING);
         }
+        /**
+        * Attempts to clone the property
+        * @returns PropText}
+        */
+        PropText.prototype.clone = function (clone) {
+            return new PropText(this.name, this._value, this.category, this.options);
+        };
         return PropText;
     })(Prop);
     Animate.PropText = PropText;
@@ -5903,8 +5959,8 @@ var Animate;
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
         function PropNum(name, value, min, max, decimals, interval, category, options) {
-            if (min === void 0) { min = Infinity; }
-            if (max === void 0) { max = Infinity; }
+            if (min === void 0) { min = -Number.MAX_VALUE; }
+            if (max === void 0) { max = Number.MAX_VALUE; }
             if (decimals === void 0) { decimals = 0; }
             if (interval === void 0) { interval = 1; }
             _super.call(this, name, value, category, options, Animate.PropertyType.NUMBER);
@@ -5946,8 +6002,8 @@ var Animate;
         */
         PropNum.prototype.deTokenize = function (data) {
             _super.prototype.deTokenize.call(this, data);
-            this.min = data.min;
-            this.max = data.max;
+            this.min = (data.min === null || data.min === undefined ? -Number.MAX_VALUE : data.min);
+            this.max = (data.max === null || data.max === undefined ? Number.MAX_VALUE : data.max);
             this.decimals = data.decimals;
             this.interval = data.interval;
         };
@@ -5961,6 +6017,34 @@ var Animate;
         return PropNum;
     })(Animate.Prop);
     Animate.PropNum = PropNum;
+})(Animate || (Animate = {}));
+var Animate;
+(function (Animate) {
+    /**
+    * Defines an any property variable.
+    */
+    var PropObject = (function (_super) {
+        __extends(PropObject, _super);
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {any} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        function PropObject(name, value, category, options) {
+            _super.call(this, name, value, category, options, Animate.PropertyType.OBJECT);
+        }
+        /**
+        * Attempts to clone the property
+        * @returns {PropObject}
+        */
+        PropObject.prototype.clone = function (clone) {
+            return new PropObject(this.name, this._value, this.category, this.options);
+        };
+        return PropObject;
+    })(Animate.Prop);
+    Animate.PropObject = PropObject;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
@@ -10375,7 +10459,7 @@ var Animate;
             toRet.type = Animate.CanvasItemType.Behaviour;
             if (!slim) {
                 toRet.left = this.element.css("left");
-                toRet.top = this.element.css("left");
+                toRet.top = this.element.css("top");
             }
             return toRet;
         };
@@ -10409,7 +10493,7 @@ var Animate;
             if (html === void 0) { html = "<div class='behaviour reg-gradient'><div class='text'>" + text + "</div></div>"; }
             // Call super-class constructor
             _super.call(this, html, parent);
-            this._fontSize = 7;
+            this._fontSize = 5;
             var tw = this._fontSize * text.length + 20;
             var th = this._fontSize + 20;
             this.element.css({ width: tw + "px", height: th + "px", margin: "" });
@@ -10512,6 +10596,17 @@ var Animate;
             this._requiresUpdated = true;
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
+            var portalSpacing = 5;
+            var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
+            var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length);
+            var maxVertPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
+            var totalPortalSpacing = portalSize + portalSpacing;
+            var maxHorSize = totalPortalSpacing * maxHorPortals;
+            var maxVertSize = totalPortalSpacing * maxVertPortals;
+            var padding = 10;
+            // If the portals increase the size - the update the dimensions
+            tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
+            th = th + padding > maxVertSize ? th + padding : maxVertSize;
             // Keep the sizes big enough so they fit nicely in the grid (i.e. round off to 10)
             tw = Math.ceil((tw) / 10) * 10;
             th = Math.ceil((th) / 10) * 10;
@@ -10546,26 +10641,14 @@ var Animate;
             var width = this.element.outerWidth();
             var height = this.element.outerHeight();
             // Position the portals
-            for (var i = 0; i < this._parameters.length; i++) {
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (-portalSize - bSize) + "px" });
-            }
-            for (var i = 0; i < this._outputs.length; i++) {
-                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-right-width'));
-                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (width - hSize) + "px" });
-            }
-            for (var i = 0; i < this._inputs.length; i++) {
-                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (-portalSize - hSize) + "px" });
-            }
-            for (var i = 0; i < this._products.length; i++) {
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-bottom-width'));
-                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (height - bSize) + "px" });
-            }
+            for (var i = 0; i < this._parameters.length; i++)
+                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i) + "px", top: -portalSize + "px" });
+            for (var i = 0; i < this._outputs.length; i++)
+                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i) + "px", left: width + "px" });
+            for (var i = 0; i < this._inputs.length; i++)
+                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i) + "px", left: -portalSize + "px" });
+            for (var i = 0; i < this._products.length; i++)
+                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i) + "px", top: height + "px" });
         };
         Object.defineProperty(Behaviour.prototype, "text", {
             /**
@@ -10640,10 +10723,12 @@ var Animate;
             while (this.portals.length > 0)
                 this.portals.pop().dispose();
             for (var i = 0, portals = data.portals, l = portals.length; i < l; i++) {
-                var portal = new Animate.Portal(this, portals[i].type, Animate.Utils.createProperty(portals[i].property, null));
+                //var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
+                //this.portals.push(portal);
+                var portal = this.addPortal(portals[i].type, Animate.Utils.createProperty(portals[i].property, null), false);
                 portal.customPortal = portals[i].custom;
-                this.portals.push(portal);
             }
+            this.updateDimensions();
         };
         /**
         * Diposes and cleans up this component and all its child components
@@ -10739,16 +10824,18 @@ var Animate;
             this._portalType = portalType;
             this._property = property;
             // Call super-class constructor
-            _super.call(this, parent, property.name);
+            _super.call(this, parent, (property ? property.name : "Portal"));
             this.element.addClass("behaviour-portal");
-            if (this._portalType == Animate.PortalType.OUTPUT)
-                this.addPortal(Animate.PortalType.INPUT, property, true);
-            else if (this._portalType == Animate.PortalType.INPUT)
-                this.addPortal(Animate.PortalType.OUTPUT, property, true);
-            else if (this._portalType == Animate.PortalType.PARAMETER)
-                this.addPortal(Animate.PortalType.PRODUCT, property, true);
-            else if (this._portalType == Animate.PortalType.PRODUCT)
-                this.addPortal(Animate.PortalType.PARAMETER, property, true);
+            if (property) {
+                if (this._portalType == Animate.PortalType.OUTPUT)
+                    this.addPortal(Animate.PortalType.INPUT, property, true);
+                else if (this._portalType == Animate.PortalType.INPUT)
+                    this.addPortal(Animate.PortalType.OUTPUT, property, true);
+                else if (this._portalType == Animate.PortalType.PARAMETER)
+                    this.addPortal(Animate.PortalType.PRODUCT, property, true);
+                else if (this._portalType == Animate.PortalType.PRODUCT)
+                    this.addPortal(Animate.PortalType.PARAMETER, property, true);
+            }
         }
         /**
         * Tokenizes the data into a JSON.
@@ -10757,7 +10844,7 @@ var Animate;
         */
         BehaviourPortal.prototype.tokenize = function (slim) {
             if (slim === void 0) { slim = false; }
-            var toRet = {};
+            var toRet = _super.prototype.tokenize.call(this, slim);
             toRet.portal = { name: this._property.name, custom: true, type: this._portalType, property: this._property.tokenize(slim) };
             toRet.type = Animate.CanvasItemType.BehaviourPortal;
             return toRet;
@@ -10814,6 +10901,7 @@ var Animate;
             this._savedResource = 0;
             if (originalNode)
                 this.setOriginalNode(originalNode, true);
+            this.tooltip = "Press C to focus on source";
         }
         /**
         * Tokenizes the data into a JSON.
@@ -10822,8 +10910,8 @@ var Animate;
         */
         BehaviourShortcut.prototype.tokenize = function (slim) {
             if (slim === void 0) { slim = false; }
-            var toRet = {};
-            toRet.shallowId = this._originalNode.shallowId;
+            var toRet = _super.prototype.tokenize.call(this, slim);
+            toRet.originalId = this._originalNode.shallowId;
             toRet.type = Animate.CanvasItemType.BehaviourShortcut;
             return toRet;
         };
@@ -10833,7 +10921,23 @@ var Animate;
         */
         BehaviourShortcut.prototype.deTokenize = function (data) {
             _super.prototype.deTokenize.call(this, data);
-            this._savedResource = data.shallowId;
+            this._savedResource = data.originalId;
+        };
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        BehaviourShortcut.prototype.link = function (originalId, items) {
+            var exportedToken = items[originalId].token;
+            // This link was probably copied - but not with both of the end behavours - so remove it
+            if (!items[exportedToken.originalId]) {
+                this.text = "NOT FOUND";
+                Animate.Logger.logMessage("Could not find original node for shortcut " + originalId, null, Animate.LogType.ERROR);
+                return;
+            }
+            this.setOriginalNode(items[exportedToken.originalId].item, false);
         };
         BehaviourShortcut.prototype.setOriginalNode = function (originalNode, buildPortals) {
             this._originalNode = originalNode;
@@ -10936,8 +11040,6 @@ var Animate;
             this.isInInputMode = false;
             this.stageClickProxy = jQuery.proxy(this.onStageClick, this);
             this.input = jQuery("<textarea rows='10' cols='30'></textarea>");
-            this.element.css({ width: "95%", height: "95%", left: 0, top: 0 });
-            this.element.text(text);
             this.element.on("mousedown", jQuery.proxy(this.onResizeStart, this));
             this.mStartX = null;
             this.mStartY = null;
@@ -10948,6 +11050,7 @@ var Animate;
                 resize: jQuery.proxy(this.onResizeUpdate, this),
                 stop: jQuery.proxy(this.onResizeStop, this)
             });
+            this.properties.addVar(new Animate.PropText("Comment", text));
             this.on("edited", this.onEdit, this);
         }
         /**
@@ -10959,7 +11062,18 @@ var Animate;
             if (slim === void 0) { slim = false; }
             var toRet = _super.prototype.tokenize.call(this, slim);
             toRet.type = Animate.CanvasItemType.BehaviourComment;
+            toRet.width = this.element.width();
+            toRet.height = this.element.height();
             return toRet;
+        };
+        /**
+       * De-Tokenizes data from a JSON.
+       * @param {IBehaviourComment} data The data to import from
+       */
+        BehaviourComment.prototype.deTokenize = function (data) {
+            _super.prototype.deTokenize.call(this, data);
+            this.element.css({ width: data.width + "px", height: data.height + "px" });
+            this.properties.getVar("Comment").setVal(data.text);
         };
         /**
         * When the text property is edited
@@ -11030,10 +11144,10 @@ var Animate;
             jQuery("body").append(this.input);
             this.input.css({
                 position: "absolute", left: this.element.offset().left + "px",
-                top: this.element.offset().top + "px", width: this.element.width() + "px",
-                height: this.element.height() + "px", "z-index": 9999
+                top: this.element.offset().top + "px", width: this.element.outerWidth() + "px",
+                height: this.element.outerHeight() + "px", "z-index": 9999
             });
-            this.element.detach();
+            this.element.hide();
             this.input.val(this.element.text());
             this.input.focus();
             this.input.select();
@@ -11050,10 +11164,12 @@ var Animate;
             jQuery("body").off("click", this.stageClickProxy);
             this.element.css({ width: this.input.width() + "px", height: this.input.height() + "px" });
             this.input.detach();
-            this.element.append(this.element);
+            //this.element.append( this.element );
+            this.element.show();
             this.input.data("dragEnabled", true);
-            this.text = this.input.val();
-            this.element.css({ width: "95%", height: "95%", top: 0, left: 0 });
+            //this.text = this.input.val();
+            this.properties.getVar("Comment").setVal(this.input.val());
+            this.element.css({ width: this.input.width() + "px", height: this.input.height() + "px" });
         };
         /**
         * This will cleanup the component.
@@ -11073,34 +11189,6 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    //export class PortalType extends ENUM
-    //{
-    //	constructor(v: string) { super(v); }
-    //	static PARAMETER: PortalType = new PortalType("parameter");
-    //	static PRODUCT: PortalType = new PortalType("product");
-    //	static INPUT: PortalType = new PortalType("input");
-    //	static OUTPUT: PortalType = new PortalType("output");
-    //	/**
-    //	* Returns an enum reference by its name/value
-    //	* @param {string} val
-    //	* @returns {PortalType}
-    //	*/
-    //	static fromString(val: string): PortalType
-    //	{
-    //		switch (val)
-    //		{
-    //			case "parameter":
-    //				return PortalType.PARAMETER;
-    //			case "product":
-    //				return PortalType.PRODUCT;
-    //			case "input":
-    //				return PortalType.INPUT;
-    //			case "output":
-    //				return PortalType.OUTPUT;
-    //		}
-    //		return null;
-    //	}
-    //}
     /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -11116,7 +11204,8 @@ var Animate;
             // Call super-class constructor
             _super.call(this, "<div class='portal " + type + "'></div>", parent);
             this._links = [];
-            this._customPortal = true;
+            this._customPortal = false;
+            this._type = type;
             this.behaviour = parent;
             this.edit(property);
             // Add events
@@ -11138,7 +11227,7 @@ var Animate;
             else if (this._type == Animate.PortalType.PRODUCT)
                 typeName = "Product";
             // Set the tooltip to be the same as the name
-            this.tooltip = property.name + " : " + typeName + " - <b>" + property.toString() + "</b>";
+            this.tooltip = property.toString();
         };
         /**
         * This function will check if the source portal is an acceptable match with the current portal.
@@ -11604,7 +11693,7 @@ var Animate;
         */
         BehaviourScript.prototype.tokenize = function (slim) {
             if (slim === void 0) { slim = false; }
-            var toRet = {};
+            var toRet = _super.prototype.tokenize.call(this, slim);
             toRet.scriptId = this.scriptId;
             toRet.type = Animate.CanvasItemType.BehaviourScript;
             return toRet;
@@ -11668,6 +11757,7 @@ var Animate;
             this._y = 0;
             this.name = container.entry.name;
             this._container = container;
+            this._loadingScene = false;
             container.canvas = this;
             // Define proxies
             this._contextProxy = this.onContext.bind(this);
@@ -11681,7 +11771,6 @@ var Animate;
             this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
             jQuery("body").on("keydown", this._keyProxy);
             jQuery(document).on("contextmenu", this._contextProxy);
-            //PropertyGrid.getSingleton().on("edited", this.onPropertyGridEdited, this);
             this.element.droppable({ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
             Animate.BehaviourPicker.getSingleton().on(Animate.BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this);
             Animate.PortalForm.getSingleton().on(Animate.OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
@@ -11786,7 +11875,6 @@ var Animate;
             Animate.PortalForm.getSingleton().off(Animate.OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
             jQuery("body").off("keydown", this._keyProxy);
             jQuery(document).off("contextmenu", this._contextProxy);
-            //PropertyGrid.getSingleton().off("edited", this.onPropertyGridEdited, this );
             this.element.off("mousedown", this._downProxy);
             this._proxyMoving = null;
             this._proxyStartDrag = null;
@@ -12015,6 +12103,8 @@ var Animate;
         * Whenever an item is edited
         */
         Canvas.prototype.onItemEdited = function (type, event, sender) {
+            if (this._loadingScene)
+                return;
             this.emit(new Animate.CanvasEvent(CanvasEvents.MODIFIED, this));
             this.buildSceneReferences();
         };
@@ -12137,7 +12227,7 @@ var Animate;
         Canvas.prototype.onContext = function (e) {
             if (this.element.is(':visible') == false)
                 return;
-            //First get the x and y cords
+            // First get the x and y cords
             var p = this.parent.element;
             var offset = this.element.offset();
             var scrollX = p.scrollLeft();
@@ -12145,12 +12235,12 @@ var Animate;
             var mouse = { x: e.pageX - offset.left - scrollX, y: e.pageY - offset.top - scrollY };
             this._x = mouse.x + scrollX;
             this._y = mouse.y + scrollY;
-            //Now hook the context events
+            // Now hook the context events
             var targ = jQuery(e.target);
             var targetComp = targ.data("component");
             var context = Animate.Application.getInstance().canvasContext;
             this._contextNode = targ.data("component");
-            //If the canvas
+            // If the canvas
             if (targetComp instanceof Canvas) {
                 this._contextNode = null;
                 e.preventDefault();
@@ -12273,7 +12363,7 @@ var Animate;
                 toAdd = new Animate.BehaviourScript(this, null, name);
             else
                 toAdd = new Animate.Behaviour(this, template.behaviourName);
-            if (template.behaviourName != "Instance")
+            if (template.behaviourName != "Instance" && template.behaviourName != "Script")
                 toAdd.text = template.behaviourName;
             var portalTemplates = template.portalsTemplates();
             // Check for name duplicates
@@ -12400,7 +12490,7 @@ var Animate;
                 // Remove all glows
                 var children = this.children;
                 for (var i = 0, l = children.length; i < l; i++) {
-                    children[i].element.removeClass("green-glow-strong");
+                    children[i].element.removeClass("green-glow-strong").removeClass("short-active");
                     if (children[i].selected)
                         children[i].selected = false;
                 }
@@ -12434,9 +12524,9 @@ var Animate;
                 while (i--)
                     if (typeof (children[i]) !== "undefined")
                         if (children[i] instanceof Animate.BehaviourShortcut && children[i].originalNode == comp)
-                            children[i].element.addClass("green-glow-strong");
+                            children[i].element.addClass("short-active");
                         else
-                            children[i].element.removeClass("green-glow-strong");
+                            children[i].element.removeClass("short-active");
             }
             else if (comp instanceof Animate.Link && comp.startPortal.type == Animate.PortalType.OUTPUT)
                 Animate.PropertyGrid.getSingleton().editableObject(comp.properties, "Link - " + comp.id, "");
@@ -12557,9 +12647,17 @@ var Animate;
                 toRet.items.push(children[i].tokenize(slim));
             return toRet;
         };
+        /**
+        * De-serializes token data and adds them to the canvas
+        * @param {boolean} Data
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
+        */
         Canvas.prototype.deTokenize = function (data, clearItems) {
             if (clearItems === void 0) { clearItems = true; }
             data = data || this._container.entry.json;
+            if (clearItems && data)
+                this._loadingScene = true;
             var children = this.children;
             if (clearItems)
                 while (children.length > 0)
@@ -12568,21 +12666,21 @@ var Animate;
             var oldIds = [];
             // Attempt to create and initialize each of the items
             for (var i = 0, l = data.items.length; i < l; i++) {
-                var item = Animate.Utils.createItem(data.items[i]);
+                var item = Animate.Utils.createItem(this, data.items[i]);
                 if (!item) {
                     Animate.Logger.logMessage("Could not create canvas item", null, Animate.LogType.ERROR);
                     continue;
                 }
-                this.addChild(item);
                 item.deTokenize(data.items[i]);
                 oldIds.push(data.items[i].shallowId);
                 linkToken[data.items[i].shallowId] = { item: item, token: data.items[i] };
             }
             // All items are created - so lets call link to make sure they are hooked up correctly
-            for (var i = 0, l = children.length; i < l; i++)
-                children[i].link(oldIds[i], linkToken);
+            for (var i = 0, l = oldIds.length; i < l; i++)
+                linkToken[oldIds[i]].item.link(oldIds[i], linkToken);
             this.checkDimensions();
             this.buildSceneReferences();
+            this._loadingScene = false;
         };
         ///**
         //* This function is called when animate is writing data to the database.
@@ -12939,17 +13037,17 @@ var Animate;
             this.element.data("dragEnabled", false);
             this.startPortal = null;
             this.endPortal = null;
-            this.mMouseMoveProxy = this.onMouseMove.bind(this);
-            this.mMouseUpProxy = this.onMouseUpAnchor.bind(this);
-            this.mMouseUpAnchorProxy = this.onMouseUpAnchor.bind(this);
-            this.mPrevPortal = null;
-            this.canvas = document.getElementById(this.id);
-            this.graphics = this.canvas.getContext("2d");
-            this.graphics.font = "14px arial";
-            this.linePoints = [];
+            this._mouseMoveProxy = this.onMouseMove.bind(this);
+            this._mouseUpProxy = this.onMouseUpAnchor.bind(this);
+            this._mouseUpAnchorProxy = this.onMouseUpAnchor.bind(this);
+            this._prevPortal = null;
+            this._canvas = document.getElementById(this.id);
+            this._graphics = this._canvas.getContext("2d");
+            this._graphics.font = "14px arial";
+            this._linePoints = [];
             this._selected = false;
             this._properties = new Animate.EditableSet(this);
-            this._properties.addVar(new Animate.PropNum("Frame Delay", 1, 0, Infinity, 0, 1));
+            this._properties.addVar(new Animate.PropNum("Frame Delay", 1, 0, Number.MAX_VALUE, 0, 1));
             this.on("edited", this.onEdit, this);
         }
         /**
@@ -12959,7 +13057,7 @@ var Animate;
         */
         Link.prototype.tokenize = function (slim) {
             if (slim === void 0) { slim = false; }
-            var toRet = {};
+            var toRet = _super.prototype.tokenize.call(this, slim);
             toRet.endBehaviour = this._endBehaviour.shallowId;
             toRet.startBehaviour = this._startBehaviour.shallowId;
             toRet.endPortal = this.endPortal.property.name;
@@ -12984,10 +13082,19 @@ var Animate;
         */
         Link.prototype.link = function (originalId, items) {
             var exportedToken = items[originalId].token;
+            // This link was probably copied - but not with both of the end behavours - so remove it
+            if (!items[exportedToken.endBehaviour] || !items[exportedToken.startBehaviour]) {
+                this.dispose();
+                return;
+            }
             this._endBehaviour = items[exportedToken.endBehaviour].item;
             this._startBehaviour = items[exportedToken.startBehaviour].item;
             this.endPortal = this._endBehaviour.getPortal(exportedToken.endPortal);
             this.startPortal = this._startBehaviour.getPortal(exportedToken.startPortal);
+            this.endPortal.addLink(this);
+            this.startPortal.addLink(this);
+            this.element.css("pointer-events", "");
+            this.updatePoints();
         };
         /**
         * This is called when we need a link to start drawing. This will
@@ -12999,19 +13106,19 @@ var Animate;
         Link.prototype.start = function (startPortal, e) {
             this.startPortal = startPortal;
             // Attach events
-            this.parent.element.on("mousemove", this.mMouseMoveProxy);
-            this.parent.element.on("mouseup", this.mMouseUpProxy);
-            jQuery(".portal", this.parent.element).on("mouseup", this.mMouseUpAnchorProxy);
+            this.parent.element.on("mousemove", this._mouseMoveProxy);
+            this.parent.element.on("mouseup", this._mouseUpProxy);
+            jQuery(".portal", this.parent.element).on("mouseup", this._mouseUpAnchorProxy);
             // Get the start coords
             var positionOnCanvas = startPortal.positionOnCanvas();
-            this.mStartClientX = e.clientX;
-            this.mStartClientY = e.clientY;
+            this._startClientX = e.clientX;
+            this._startClientY = e.clientY;
             this.delta = (startPortal.element.width() / 2);
-            this.mStartX = positionOnCanvas.left + this.delta;
-            this.mStartY = positionOnCanvas.top + this.delta;
+            this._startX = positionOnCanvas.left + this.delta;
+            this._startY = positionOnCanvas.top + this.delta;
             this.element.css({
-                left: this.mStartX + "px",
-                top: this.mStartY + "px"
+                left: this._startX + "px",
+                top: this._startY + "px"
             });
             // Add glow
             if (this.startPortal.type == Animate.PortalType.PRODUCT)
@@ -13027,7 +13134,7 @@ var Animate;
         Link.prototype.hitTestPoint = function (e) {
             var mouse = Animate.Utils.getMousePos(e, this.id); // this.getMousePos( e );
             // Get image data at the mouse x,y pixel
-            var imageData = this.graphics.getImageData(mouse.x - 4, mouse.y - 4, 8, 8);
+            var imageData = this._graphics.getImageData(mouse.x - 4, mouse.y - 4, 8, 8);
             var index = (mouse.x + mouse.y * imageData.width) * 4;
             // If the mouse pixel exists, select and break
             for (var i = 0; i < imageData.data.length; i++)
@@ -13061,8 +13168,8 @@ var Animate;
         * Builds the dimensions of link based on the line points
         */
         Link.prototype.buildDimensions = function () {
-            var linePoints = this.linePoints;
-            var canvas = this.canvas;
+            var linePoints = this._linePoints;
+            var canvas = this._canvas;
             var length = linePoints.length;
             var left = 99999;
             var top = 99999;
@@ -13107,7 +13214,7 @@ var Animate;
         * Use this function to build the line points that define the link
         */
         Link.prototype.buildLinePoints = function (e) {
-            var linePoints = this.linePoints;
+            var linePoints = this._linePoints;
             // We create a list of array points that define the link
             // Clear all points
             linePoints.splice(0, linePoints.length);
@@ -13115,11 +13222,11 @@ var Animate;
             var positionOnCanvas = this.startPortal.positionOnCanvas();
             this.delta = (this.startPortal.element.width() / 2);
             var delta = this.delta;
-            this.mStartX = positionOnCanvas.left + this.delta;
-            this.mStartY = positionOnCanvas.top + this.delta;
+            this._startX = positionOnCanvas.left + this.delta;
+            this._startY = positionOnCanvas.top + this.delta;
             var pPosition = this.parent.element.offset();
-            var startX = this.mStartX;
-            var startY = this.mStartY;
+            var startX = this._startX;
+            var startY = this._startY;
             var endX = 0;
             var endY = 0;
             if (this.endPortal != null) {
@@ -13130,8 +13237,9 @@ var Animate;
             else {
                 if (e == null)
                     return;
-                endX = startX + e.clientX - this.mStartClientX + delta;
-                endY = startY + e.clientY - this.mStartClientY + delta;
+                var t = 2;
+                endX = startX + e.clientX - this._startClientX + t;
+                endY = startY + e.clientY - this._startClientY + t;
             }
             // Now the end coords
             if (this.endPortal != null) {
@@ -13198,8 +13306,8 @@ var Animate;
             this.buildLinePoints(null);
             // Set the dimensions
             this.buildDimensions();
-            var graphics = this.graphics;
-            graphics.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            var graphics = this._graphics;
+            graphics.clearRect(0, 0, this._canvas.width, this._canvas.height);
             this.draw();
         };
         /**
@@ -13207,15 +13315,15 @@ var Animate;
         * @param {any} e
         */
         Link.prototype.onMouseMove = function (e) {
-            var curTarget = this.mCurTarget;
+            var curTarget = this._curTarget;
             // Check if a portal
             if (curTarget != null)
                 curTarget.element.css("cursor", "");
             var target = jQuery(e.target);
             this.endPortal = null;
             if (target.hasClass("portal")) {
-                this.mCurTarget = target.data("component");
-                curTarget = this.mCurTarget;
+                this._curTarget = target.data("component");
+                curTarget = this._curTarget;
                 this.endPortal = curTarget;
                 if (curTarget.checkPortalLink(this.startPortal))
                     curTarget.element.css("cursor", "");
@@ -13224,28 +13332,28 @@ var Animate;
             }
             else {
                 target.css("cursor", "crosshair");
-                this.mCurTarget = target.data("component");
+                this._curTarget = target.data("component");
             }
             // First build the points
             this.buildLinePoints(e);
             // Set the dimensions
             this.buildDimensions();
-            var graphics = this.graphics;
-            graphics.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            var graphics = this._graphics;
+            graphics.clearRect(0, 0, this._canvas.width, this._canvas.height);
             this.draw();
         };
         /**
        * Draws a series of lines
        */
         Link.prototype.draw = function () {
-            var points = this.linePoints;
+            var points = this._linePoints;
             var len = points.length;
             if (len == 0)
                 return;
             var prevMidpt = null;
             var pt1 = null;
             var pt2 = null;
-            var graphics = this.graphics;
+            var graphics = this._graphics;
             var element = this.element;
             var startPortal = this.startPortal;
             var endPortal = this.endPortal;
@@ -13300,10 +13408,18 @@ var Animate;
                     graphics.strokeStyle = "#A41CC9";
                 graphics.stroke();
                 //Now draw the line text
-                var canvas = this.canvas;
+                var canvas = this._canvas;
                 var frameDelay = this._properties.getVar("Frame Delay").getVal();
-                var canvasW = canvas.width * 0.5 - 5;
-                var canvasH = canvas.height * 0.5 + 3;
+                var canvasW = 0;
+                var canvasH = 0;
+                if (loops) {
+                    canvasW = canvas.width * 0.5 - 5;
+                    canvasH = 8;
+                }
+                else {
+                    canvasW = canvas.width * 0.5 - 5;
+                    canvasH = canvas.height * 0.5 + 3;
+                }
                 graphics.lineWidth = 5;
                 graphics.strokeStyle = "#ffffff";
                 graphics.strokeText(frameDelay.toString(), canvasW, canvasH);
@@ -13324,8 +13440,8 @@ var Animate;
         * @param {any} e
         */
         Link.prototype.onMouseUpAnchor = function (e) {
-            if (this.mCurTarget)
-                this.mCurTarget.element.css("cursor", "");
+            if (this._curTarget)
+                this._curTarget.element.css("cursor", "");
             this.parent.element.css("cursor", "");
             this.startPortal.element.css("cursor", "");
             // Add remove glow
@@ -13335,25 +13451,27 @@ var Animate;
                 jQuery(".input").removeClass("green-glow");
             var elm = jQuery(e.target);
             if (elm.hasClass("portal")) {
-                this.mCurTarget = elm.data("component");
-                if (this.mCurTarget.type == Animate.PortalType.PRODUCT || this.mCurTarget.type == Animate.PortalType.OUTPUT)
+                this._curTarget = elm.data("component");
+                if (this._curTarget.type == Animate.PortalType.PRODUCT || this._curTarget.type == Animate.PortalType.OUTPUT)
                     this.dispose();
                 else {
-                    if ((this.startPortal.type == Animate.PortalType.OUTPUT && this.mCurTarget.type == Animate.PortalType.INPUT) ||
-                        (this.startPortal.type == Animate.PortalType.PRODUCT && this.mCurTarget.type == Animate.PortalType.PARAMETER)) {
-                        if (this.mCurTarget.checkPortalLink(this.startPortal)) {
+                    if ((this.startPortal.type == Animate.PortalType.OUTPUT && this._curTarget.type == Animate.PortalType.INPUT) ||
+                        (this.startPortal.type == Animate.PortalType.PRODUCT && this._curTarget.type == Animate.PortalType.PARAMETER)) {
+                        if (this._curTarget.checkPortalLink(this.startPortal)) {
                             //Drop is ok
-                            this.parent.element.off("mousemove", this.mMouseMoveProxy);
+                            this.parent.element.off("mousemove", this._mouseMoveProxy);
                             this.parent.element.off("mouseup");
-                            jQuery(".portal", this.parent.element).off("mouseup", this.mMouseUpAnchorProxy);
-                            this.endPortal = this.mCurTarget;
+                            jQuery(".portal", this.parent.element).off("mouseup", this._mouseUpAnchorProxy);
+                            this.endPortal = this._curTarget;
                             this.startPortal.addLink(this);
                             this.endPortal.addLink(this);
+                            this._endBehaviour = this.endPortal.behaviour;
+                            this._startBehaviour = this.startPortal.behaviour;
                             this.element.css("pointer-events", "");
                             // Notify of change
-                            this.parent.element.data("component").dispatchEvent(new Animate.CanvasEvent(Animate.CanvasEvents.MODIFIED, this.parent));
+                            this.parent.emit(new Animate.CanvasEvent(Animate.CanvasEvents.MODIFIED, this.parent));
                         }
-                        this.mCurTarget.element.css("cursor", "");
+                        this._curTarget.element.css("cursor", "");
                     }
                     else
                         this.dispose();
@@ -13362,7 +13480,7 @@ var Animate;
             else {
                 this.dispose();
             }
-            this.mCurTarget = null;
+            this._curTarget = null;
         };
         /**
         * When the link properties are edited
@@ -13389,23 +13507,25 @@ var Animate;
                 this.endPortal.removeLink(this);
             // Unbind
             this.off("edited", this.onEdit, this);
-            this.parent.element.off("mousemove", this.mMouseMoveProxy);
+            this.parent.element.off("mousemove", this._mouseMoveProxy);
             this.parent.element.off("mouseup");
-            jQuery(".portal", this.parent.element).off("mouseup", this.mMouseUpAnchorProxy);
+            jQuery(".portal", this.parent.element).off("mouseup", this._mouseUpAnchorProxy);
             this.element.off();
             this.element.data("dragEnabled", null);
             // Nullify
             this.startPortal = null;
             this.endPortal = null;
-            this.mMouseMoveProxy = null;
-            this.mMouseUpProxy = null;
-            this.mMouseUpAnchorProxy = null;
-            this.mPrevPortal = null;
-            this.canvas = null;
-            this.graphics = null;
-            this.linePoints = null;
-            this.mCurTarget = null;
+            this._mouseMoveProxy = null;
+            this._mouseUpProxy = null;
+            this._mouseUpAnchorProxy = null;
+            this._prevPortal = null;
+            this._canvas = null;
+            this._graphics = null;
+            this._linePoints = null;
+            this._curTarget = null;
             this._properties = null;
+            this._endBehaviour = null;
+            this._startBehaviour = null;
             //Call parent
             _super.prototype.dispose.call(this);
         };
@@ -15664,9 +15784,6 @@ var Animate;
             var that = this;
             // Save the canvas
             if (choice == "Yes") {
-                // We need to build an array of the canvas objects we are trying to save.
-                var token = canvas.tokenize(false);
-                canvas.container.entry.json = token;
                 Animate.User.get.project.saveResource(canvas.container.entry._id, Animate.ResourceType.CONTAINER).then(function () {
                     that.removeTab(this.closingTabPair, true);
                     that.closingTabPair = null;
@@ -16398,7 +16515,7 @@ var Animate;
         * @returns {boolean}
         */
         PropComboAsset.prototype.canEdit = function (prop) {
-            if (prop instanceof Animate.PropResource == false && prop.getVal() instanceof Animate.Asset)
+            if (prop instanceof Animate.PropResource)
                 return true;
             else
                 return false;
@@ -16416,11 +16533,12 @@ var Animate;
             var eye = jQuery(".eye-picker", editor);
             // Add to DOM
             container.element.append(editor);
-            var selectedID = p.getVal().entry._id;
+            var resource = p.getVal();
+            var selectedID = (resource ? resource.entry._id : null);
             var classNames = p.classNames;
             var nodes = Animate.TreeViewScene.getSingleton().getAssets(classNames);
             // Create the blank options and select it if nothing else is chosen
-            selector.append("<option value='' " + (!selectedID || selectedID == "" ? "selected='selected'" : "") + "></option>");
+            selector.append("<option value='' " + (!selectedID ? "selected='selected'" : "") + "></option>");
             // Sort alphabetically
             nodes = nodes.sort(function (a, b) {
                 var textA = a.resource.entry.name.toUpperCase();
@@ -16618,50 +16736,12 @@ var Animate;
 })(Animate || (Animate = {}));
 var Animate;
 (function (Animate) {
-    //export class PropertyGridEvents extends ENUM
-    //{
-    //	constructor(v: string) { super(v); }
-    //	static PROPERTY_EDITED: PropertyGridEvents = new PropertyGridEvents("property_grid_edited");
-    //}
-    ///**
-    //* A specialised event class for the property grid
-    //*/
-    //export class PropertyGridEvent 
-    //{
-    //       public prop: Prop<any>;
-    //       public object: EditableSet;
-    //       constructor(object: EditableSet, prop: Prop<any>)
-    //	{
-    //		super( "edited" );
-    //           this.prop = prop;
-    //           this.object = object;
-    //	}
-    //}
-    ///**
-    //* A small holder class for the property grid
-    //*/
-    //class EditorElement
-    //{
-    //	public html: JQuery;
-    //	public name: string;
-    //	public originalValue: any;
-    //	public editor: PropertyGridEditor;
-    //	constructor( html: JQuery, name: string, originalValue: any, editor: PropertyGridEditor )
-    //	{
-    //		this.html = html;
-    //		this.name = name;
-    //		this.originalValue = originalValue;
-    //		this.editor = editor;
-    //	}
-    //}
     /**
     * A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
     * Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
     */
     var PropertyGrid = (function (_super) {
         __extends(PropertyGrid, _super);
-        //private _targetPanel: JQuery;
-        //private _activePanel: JQuery;
         function PropertyGrid(parent) {
             if (PropertyGrid._singleton != null)
                 throw new Error("PropertyGrid is a singleton, you need to call the PropertyGrid.getSingleton() function to get its instance.");
@@ -16670,9 +16750,7 @@ var Animate;
             _super.call(this, "<div class='property-grid'></div>", parent);
             this._header = jQuery("<div class='property-grid-header background-dark'>Select an Object</div>");
             this.element.append(this._header);
-            // Private vars
             this._editors = [];
-            //this._editorElements = [];
             this._docker = null;
             this._groups = [];
             this.addEditor(new Animate.PropTextbox(this));
@@ -16680,12 +16758,11 @@ var Animate;
             this.addEditor(new Animate.PropComboBool(this));
             this.addEditor(new Animate.PropComboEnum(this));
             this.addEditor(new Animate.PropComboGroup(this));
-            this.addEditor(new Animate.PropComboAsset(this));
             this.addEditor(new Animate.PropColorPicker(this));
             this.addEditor(new Animate.PropFile(this));
             this.addEditor(new Animate.PropAssetList(this));
             //this.addEditor( new PropOptionsWindow( this ) );
-            //this._endDiv = jQuery( "<div class='fix' style='height:1px' ></div>" );
+            this.addEditor(new Animate.PropComboAsset(this));
         }
         /**
         * This is called by a controlling ScreenManager class. An image string needs to be returned
@@ -16710,15 +16787,6 @@ var Animate;
         * This is called by a controlling Docker class when the component needs to be hidden.
         */
         PropertyGrid.prototype.onHide = function () { };
-        /**
-        * When we scroll on either of the scroll panel's we do the same to the other.
-        * @param <jQuery> e The jQuery event object
-        */
-        //scroll( e )
-        //{
-        //	this._targetPanel.scrollLeft( this._activePanel.scrollLeft() );
-        //	this._targetPanel.scrollTop( this._activePanel.scrollTop() );
-        //}
         /**
         * Cleans up the groups and editors
         */
@@ -16745,14 +16813,11 @@ var Animate;
             if (img === void 0) { img = ""; }
             if (!this.enabled)
                 return;
+            // Cleanup
+            this.cleanup();
             if (object !== undefined && object != null) {
+                // Set the header
                 this._header.html((img && img != "" ? "<img src='" + img + "' />" : "") + name);
-                // Remove all previous labels and HTML elements.
-                //var ie = this._editorElements.length;
-                //while ( ie-- )
-                //	jQuery( this._editorElements[ie].html ).remove();
-                //this._editorElements.splice( 0, this._editorElements.length );
-                this.cleanup();
                 var sortable = [];
                 // Set the editable
                 this._object = object;
@@ -16771,7 +16836,6 @@ var Animate;
                     // If no group exists - then add it
                     if (pGroup == null) {
                         pGroup = new Animate.PropertyGridGroup(property.category);
-                        this.addChild(pGroup);
                         groups.push(pGroup);
                     }
                     sortable.push({ prop: property, group: pGroup });
@@ -16782,11 +16846,15 @@ var Animate;
                     var textB = b.group.name.toUpperCase();
                     return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
                 });
+                // Add the groups to the DOM
+                for (var i = 0; i < sortable.length; i++)
+                    if (!sortable[i].group.parent)
+                        this.addChild(sortable[i].group);
                 // Now sort each of the variables by name
                 sortable.sort(function (a, b) {
                     var textA = a.prop.name.toUpperCase();
                     var textB = b.prop.name.toUpperCase();
-                    return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
+                    return (textA > textB) ? 1 : (textA < textB) ? -1 : 0;
                 });
                 for (var i = 0; i < sortable.length; i++) {
                     var editors = this._editors;
@@ -16803,26 +16871,6 @@ var Animate;
             }
             else {
                 this._header.html("Please select an object.");
-                this.cleanup();
-                //// Remove all previous labels and HTML elements.
-                //var i = this._editorElements.length;
-                //while ( i-- )
-                //{
-                //	jQuery( this._editorElements[i].html ).remove();
-                //}
-                //this._editorElements.splice( 0, this._editorElements.length );
-                //// Cleanup editors
-                //i = this._editors.length;
-                //while ( i-- )
-                //	this._editors[i].cleanup();
-                //// Cleanup groups
-                //i = this._groups.length;
-                //while ( i-- )
-                //{
-                //	this.removeChild( this._groups[i] );
-                //	this._groups[i].dispose();
-                //}
-                //this._groups = [];
                 // Set the editable
                 this._object = null;
             }
@@ -19463,10 +19511,10 @@ var Animate;
                 return;
             var canvas = Animate.CanvasTab.getSingleton().currentCanvas;
             var toCopy = [];
-            var i = canvas.children.length;
-            while (i--)
+            for (var i = 0, l = canvas.children.length; i < l; i++)
                 if (canvas.children[i].selected)
                     toCopy.push(canvas.children[i]);
+            // Creates a copy token
             this._copyPasteToken = canvas.tokenize(false, toCopy);
             // If a cut operation then remove the selected item
             if (cut)
@@ -19523,8 +19571,10 @@ var Animate;
             return btmContainer;
         };
         Toolbar.prototype.saveAll = function () {
-            Animate.User.get.project.saveAll();
             Animate.CanvasTab.getSingleton().saveAll();
+            Animate.User.get.project.saveAll().catch(function (err) {
+                Animate.Logger.logMessage("Error while saving a resource: " + err.message, null, Animate.LogType.ERROR);
+            });
         };
         /**
         * Called when the key is pushed down
@@ -19571,8 +19621,8 @@ var Animate;
         * @returns {ToolbarNumber}
         */
         Toolbar.prototype.createGroupNumber = function (text, defaultVal, min, max, delta, group) {
-            if (min === void 0) { min = Infinity; }
-            if (max === void 0) { max = Infinity; }
+            if (min === void 0) { min = Number.MAX_VALUE; }
+            if (max === void 0) { max = Number.MAX_VALUE; }
             if (delta === void 0) { delta = 0.1; }
             if (group === void 0) { group = null; }
             var toRet = new Animate.ToolbarNumber(group, text, defaultVal, min, max, delta);
@@ -20249,8 +20299,6 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/DataToken.ts" />
 /// <reference path="lib/core/CanvasToken.ts" />
 /// <reference path="lib/core/DB.ts" />
-/// <reference path="lib/core/interfaces/IComponent.d.ts" />
-/// <reference path="lib/core/interfaces/IDockItem.d.ts" />
 /// <reference path="lib/core/loaders/LoaderBase.ts" />
 /// <reference path="lib/core/loaders/AnimateLoader.ts" />
 /// <reference path="lib/core/loaders/BinaryLoader.ts" />
@@ -20267,6 +20315,7 @@ jQuery(document).ready(function () {
 /// <reference path="lib/core/properties/PropEnum.ts" />
 /// <reference path="lib/core/properties/PropFileResource.ts" />
 /// <reference path="lib/core/properties/PropNum.ts" />
+/// <reference path="lib/core/properties/PropObject.ts" />
 /// <reference path="lib/core/properties/PropResource.ts" />
 /// <reference path="lib/core/properties/PropResourceList.ts" />
 /// <reference path="lib/core/properties/PropColor.ts" />

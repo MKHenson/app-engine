@@ -13,11 +13,11 @@ export class AssetModel extends Model
         super("en-assets");
 
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
-        this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Infinity, NumberType.Integer));
+        this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, NumberType.Integer));
         this.defaultSchema.add(new SchemaFactory.text("className", "", 1));
         this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
-        this.defaultSchema.add(new SchemaFactory.text("json", ""));
+        this.defaultSchema.add(new SchemaFactory.json("json", {}, true));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }

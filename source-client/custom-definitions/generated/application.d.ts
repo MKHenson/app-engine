@@ -12,8 +12,6 @@
 /// <reference path="../../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../../source-server/custom-definitions/app-engine.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IComponent.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IDockItem.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
@@ -397,9 +395,13 @@ declare module Animate {
         };
         constructor(entry: T);
         /**
-         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-         */
+        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+        */
         initialize(): void;
+        /**
+        * This function is called just before the entry is saved to the database.
+        */
+        onSaving(): any;
         /**
         * Gets the properties of this resource
         */
@@ -777,10 +779,11 @@ declare module Animate {
         static delete<T>(url: string, data?: any): Promise<T>;
         /**
         * Creates a new canvas item based on the dataset provided
+        * @param {Canvas} parent The parent component this item must be added to
         * @param {any} data The data, usually created from a tokenize function
         * @returns {CanvasItem}
         */
-        static createItem(data: ICanvasItem): CanvasItem;
+        static createItem(parent: Canvas, data: ICanvasItem): CanvasItem;
         /**
         * Creates a new property based on the dataset provided
         * @param {any} data The data, usually created from a tokenize function
@@ -1005,6 +1008,10 @@ declare module Animate {
         */
         constructor(entry?: Engine.IContainer);
         /**
+        * This function is called just before the entry is saved to the database.
+        */
+        onSaving(): any;
+        /**
          * Use this function to initialize the resource. This called just after the resource is created and its entry set.
          */
         initialize(): void;
@@ -1113,14 +1120,14 @@ declare module Animate {
         private _plugin;
         /**
         * @param {string} behaviourName The name of the behaviour
+        * @param {Array<PortalTemplate>} portalTemplates
+        * @param {IPlugin} plugin The plugin this is associated with
         * @param {boolean} canBuildInput
         * @param {boolean} canBuildOutput
         * @param {boolean} canBuildParameter
         * @param {boolean} canBuildProduct
-        * @param {boolean} portalTemplates
-        * @param {IPlugin} plugin The plugin this is associated with
         */
-        constructor(behaviourName: string, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean, portalTemplates?: Array<PortalTemplate>, plugin?: IPlugin);
+        constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
         dispose(): void;
         canBuildOutput(behaviour: Behaviour): boolean;
         canBuildInput(behaviour: Behaviour): boolean;
@@ -1763,9 +1770,9 @@ declare module Animate {
         */
         constructor(name: string, value: T, category?: string, options?: any, type?: PropertyType);
         /**
-       * Attempts to clone the property
-       * @returns {Prop<T>}
-       */
+        * Attempts to clone the property
+        * @returns {Prop<T>}
+        */
         clone(clone?: Prop<T>): Prop<T>;
         /**
         * Attempts to fetch the value of this property
@@ -1792,10 +1799,40 @@ declare module Animate {
         * Cleans up the class
         */
         dispose(): void;
+        /**
+        * Writes this portal out to a string
+        */
+        toString(): string;
     }
     class PropBool extends Prop<boolean> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {boolean} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: boolean, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns PropBool}
+        */
+        clone(clone?: PropBool): PropBool;
     }
     class PropText extends Prop<string> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: string, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns PropText}
+        */
+        clone(clone?: PropText): PropText;
     }
 }
 declare module Animate {
@@ -1906,6 +1943,26 @@ declare module Animate {
         * @returns {PropNum}
         */
         clone(clone?: PropNum): PropNum;
+    }
+}
+declare module Animate {
+    /**
+    * Defines an any property variable.
+    */
+    class PropObject extends Prop<any> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {any} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: any, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns {PropObject}
+        */
+        clone(clone?: PropObject): PropObject;
     }
 }
 declare module Animate {
@@ -3461,6 +3518,13 @@ declare module Animate {
         * @param {IBehaviourResource} data The data to import from
         */
         deTokenize(data: IBehaviourShortcut): void;
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap): void;
         setOriginalNode(originalNode: Behaviour, buildPortals: boolean): void;
         /**
         * This will cleanup the component.
@@ -3512,6 +3576,11 @@ declare module Animate {
        * @returns {IBehaviour}
        */
         tokenize(slim?: boolean): IBehaviour;
+        /**
+       * De-Tokenizes data from a JSON.
+       * @param {IBehaviourComment} data The data to import from
+       */
+        deTokenize(data: IBehaviourComment): void;
         /**
         * When the text property is edited
         */
@@ -3722,6 +3791,7 @@ declare module Animate {
         private _proxyMoving;
         private _proxyStartDrag;
         private _proxyStopDrag;
+        private _loadingScene;
         /**
         * @param {Component} parent The parent component to add this canvas to
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
@@ -3870,6 +3940,12 @@ declare module Animate {
         * @returns {IContainerToken}
         */
         tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken;
+        /**
+        * De-serializes token data and adds them to the canvas
+        * @param {boolean} Data
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
+        */
         deTokenize(data?: IContainerToken, clearItems?: boolean): void;
         /**
         * This function is called to make sure the canvas min width and min height variables are set
@@ -3889,21 +3965,21 @@ declare module Animate {
     class Link extends CanvasItem {
         startPortal: Portal;
         endPortal: Portal;
-        _startBehaviour: Behaviour;
-        _endBehaviour: Behaviour;
-        private mMouseMoveProxy;
-        private mMouseUpProxy;
-        private mMouseUpAnchorProxy;
-        private mPrevPortal;
-        private mStartClientX;
-        private mStartClientY;
         delta: number;
-        private mStartX;
-        private mStartY;
-        private mCurTarget;
-        private canvas;
-        private graphics;
-        private linePoints;
+        private _startBehaviour;
+        private _endBehaviour;
+        private _mouseMoveProxy;
+        private _mouseUpProxy;
+        private _mouseUpAnchorProxy;
+        private _prevPortal;
+        private _startClientX;
+        private _startClientY;
+        private _startX;
+        private _startY;
+        private _curTarget;
+        private _canvas;
+        private _graphics;
+        private _linePoints;
         private _selected;
         private _properties;
         /**
@@ -5002,10 +5078,6 @@ declare module Animate {
         * This is called by a controlling Docker class when the component needs to be hidden.
         */
         onHide(): void;
-        /**
-        * When we scroll on either of the scroll panel's we do the same to the other.
-        * @param <jQuery> e The jQuery event object
-        */
         /**
         * Cleans up the groups and editors
         */

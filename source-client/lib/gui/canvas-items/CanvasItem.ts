@@ -44,7 +44,7 @@
             if (!slim)
             {
                 toRet.left = this.element.css("left");
-                toRet.top = this.element.css("left");   
+                toRet.top = this.element.css("top");   
             }
 
             return toRet;

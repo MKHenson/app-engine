@@ -1,38 +1,5 @@
 module Animate
 {
-    
-
-	//export class PortalType extends ENUM
-	//{
-	//	constructor(v: string) { super(v); }
-	//	static PARAMETER: PortalType = new PortalType("parameter");
-	//	static PRODUCT: PortalType = new PortalType("product");
-	//	static INPUT: PortalType = new PortalType("input");
-	//	static OUTPUT: PortalType = new PortalType("output");
-
-	//	/**
-	//	* Returns an enum reference by its name/value
-	//	* @param {string} val
-	//	* @returns {PortalType}
-	//	*/
-	//	static fromString(val: string): PortalType
-	//	{
-	//		switch (val)
-	//		{
-	//			case "parameter":
-	//				return PortalType.PARAMETER;
-	//			case "product":
-	//				return PortalType.PRODUCT;
-	//			case "input":
-	//				return PortalType.INPUT;
-	//			case "output":
-	//				return PortalType.OUTPUT;
-	//		}
-
-	//		return null;
-	//	}
-	//}
-
 	/**
 	* A portal class for behaviours. There are 4 different types of portals - 
 	* INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -43,6 +10,7 @@ module Animate
 		private _customPortal: boolean;
         private _type: PortalType;
         private _property: Prop<any>;
+
 		public behaviour: Behaviour;
 		
 		/**
@@ -56,7 +24,8 @@ module Animate
             super(`<div class='portal ${type}'></div>`, parent );
 
             this._links = [];
-            this._customPortal = true;
+            this._customPortal = false;
+            this._type = type;
             this.behaviour = parent;
             this.edit(property);
 
@@ -82,8 +51,8 @@ module Animate
             else if (this._type == PortalType.PRODUCT )
 				typeName = "Product";
 
-			// Set the tooltip to be the same as the name
-            this.tooltip = property.name + " : " + typeName + " - <b>" + property.toString() + "</b>";
+            // Set the tooltip to be the same as the name
+            this.tooltip = property.toString();
 		}
 
 		/**

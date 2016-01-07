@@ -197,7 +197,7 @@ module Animate
         */
         tokenize(slim: boolean = false): IBehaviourScript
         {
-            var toRet = <IBehaviourScript>{};
+            var toRet = <IBehaviourScript>super.tokenize(slim);
             toRet.scriptId = this.scriptId;
             toRet.type = CanvasItemType.BehaviourScript;
             return toRet;

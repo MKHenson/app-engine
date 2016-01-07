@@ -122,9 +122,6 @@ module Animate
 			// Save the canvas
 			if ( choice == "Yes" )
 			{
-                // We need to build an array of the canvas objects we are trying to save.
-                var token: IContainerToken = canvas.tokenize(false);
-                canvas.container.entry.json = token;
                 User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function ()
                 {
                     that.removeTab(this.closingTabPair, true);
