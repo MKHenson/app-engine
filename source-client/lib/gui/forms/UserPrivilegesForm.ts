@@ -47,7 +47,7 @@ module Animate
 			this.mMenu.addItem(new ListViewItem(["Ilka", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
 
 
-			//EVENTS AND LISTENERS	
+			//EVENTS AND LISTENERS
 			this.keyDownProxy = this.onInputKey.bind( this);
 			this.buttonProxy = this.onButtonClick.bind( this);
 

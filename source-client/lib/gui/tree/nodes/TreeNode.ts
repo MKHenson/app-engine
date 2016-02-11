@@ -17,7 +17,7 @@ module Animate
         private _modified: boolean;
         private _loading: boolean;
         private _modifiedStar: JQuery;
-         
+
 		/**
 		* @param {string} text The text to use for this node
 		* @param {string} img An optional image to use (image src text)
@@ -195,7 +195,7 @@ module Animate
 		* the specified name.
 		* @param {string} property The Javascript property on the node that we are evaluating
 		* @param {any} value The value of the property we are comparing.
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		findNode( property : string, value : any ) : TreeNode
 		{
@@ -233,7 +233,7 @@ module Animate
 
 		/**
 		* Set if the component is selected
-		* @param {boolean} val Pass a true or false value to select the component. 
+		* @param {boolean} val Pass a true or false value to select the component.
 		*/
 		set selected( val : boolean )
 		{
@@ -279,7 +279,7 @@ module Animate
 		* This will add a node to the treeview
 		* @param {TreeNode} node The node to add
 		* @param {boolean} collapse True if you want to make this node collapse while adding the new node
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		addNode( node: TreeNode, collapse? : boolean ) : TreeNode
 		{
@@ -314,9 +314,9 @@ module Animate
 		* @returns {boolean}
 		*/
 		get expanded(): boolean { return this._expanded; }
-		
+
         /**
-		* Use this function to remove a child from this component. 
+		* Use this function to remove a child from this component.
 		* It uses the {JQuery} detach function to achieve this functionality.
 		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
 		* @returns {IComponent} The {IComponent} we have removed
@@ -333,7 +333,7 @@ module Animate
 		/**
 		* This removes a node from the treeview
 		* @param {TreeNode} node The node to remove
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		removeNode( node: TreeNode ) : TreeNode
         {
@@ -344,11 +344,11 @@ module Animate
 				this.treeview.selectedNode = null;
 
             node.treeview = null;
-            
+
             var toRet = <TreeNode>this.removeChild( node );
 			return toRet;
 		}
-        
+
         get name(): string { return this.mText; }
 	}
 }

@@ -33,7 +33,7 @@ module Animate
 		{
 			// Call super-class constructor
 			super( "<canvas class='link' style='pointer-events:none'></canvas>", parent );
-            
+
 			this.startPortal = null;
 			this.endPortal = null;
 			this._mouseMoveProxy = this.onMouseMove.bind( this );
@@ -52,7 +52,7 @@ module Animate
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {ILinkItem}
         */
@@ -70,7 +70,7 @@ module Animate
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {ILinkItem} data The data to import from
         */
         deTokenize(data: ILinkItem)
@@ -81,7 +81,7 @@ module Animate
 
         /**
         * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized. 
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
         * or to get the token you can use items[originalId].token
         */
@@ -95,7 +95,7 @@ module Animate
                 this.dispose();
                 return;
             }
-            
+
             this._endBehaviour = <Behaviour>items[exportedToken.endBehaviour].item;
             this._startBehaviour = <Behaviour>items[exportedToken.startBehaviour].item;
             this.endPortal = this._endBehaviour.getPortal(exportedToken.endPortal);
@@ -106,15 +106,15 @@ module Animate
 
             this.updatePoints();
         }
-		
+
 		/**
 		* This is called when we need a link to start drawing. This will
 		* follow the mouse and draw a link from the original mouse co-ordinates to an
 		* end portal.
-		* @param {Portal} startPortal 
-		* @param {any} e 
+		* @param {Portal} startPortal
+		* @param {any} e
 		*/
-		start( startPortal : Portal, e ) 
+		start( startPortal : Portal, e )
 		{
 			this.startPortal = startPortal;
 
@@ -147,7 +147,7 @@ module Animate
 
 		/**
 		* Check if a point is actually selecting the link
-		* @param {any} e 
+		* @param {any} e
 		*/
 		hitTestPoint( e : any )
 		{
@@ -164,7 +164,7 @@ module Animate
 
 			return false;
 		}
-        
+
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
@@ -180,7 +180,7 @@ module Animate
 				this.element.data( "selected", false );
 
 			this._selected = val;
-			
+
 			this.updatePoints();
 		}
 
@@ -282,7 +282,7 @@ module Animate
 			{
 				if ( e == null )
 					return;
-                
+
                 var t = 2;
 				endX = startX + e.clientX - this._startClientX + t;
 				endY = startY + e.clientY - this._startClientY + t;
@@ -379,7 +379,7 @@ module Animate
 
 		/**
 		* When the mouse moves we resize the stage.
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onMouseMove( e )
 		{
@@ -459,7 +459,7 @@ module Animate
 			if ( endPortal && startPortalBehaviour == endPortalBehaviour && startPortal != endPortal )
 				loops = true;
 
-			for ( var i = 1; i < len; i++ ) 
+			for ( var i = 1; i < len; i++ )
 			{
 				pt1 = { x: points[i - 1].x, y: points[i - 1].y };
 				pt2 = { x: points[i].x, y: points[i].y };
@@ -469,7 +469,7 @@ module Animate
 				// Draw the curves:
 				if ( !loops )
 				{
-					if ( prevMidpt ) 
+					if ( prevMidpt )
 					{
 						graphics.moveTo( prevMidpt.x, prevMidpt.y );
 						if ( !loops )
@@ -477,14 +477,14 @@ module Animate
 						else
 							graphics.lineTo( pt1.x, pt1.y );
 					}
-					else 
+					else
 					{
 						// Draw start segment:
 						graphics.moveTo( pt1.x, pt1.y );
 						graphics.lineTo( midpt.x, midpt.y );
 					}
 				}
-				else 
+				else
 				{
 					// Draw start segment:
 					graphics.moveTo( pt1.x, pt1.y );
@@ -545,7 +545,7 @@ module Animate
 
 		/**
 		* Remove listeners.
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onMouseUpAnchor( e )
 		{
@@ -608,14 +608,14 @@ module Animate
 			this._curTarget = null;
         }
 
-        /** 
+        /**
         * When the link properties are edited
         */
         onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
         {
             this.draw();
         }
-        
+
         /**
 		* Gets the properties of this link
         * @returns {EditableSet}
@@ -653,7 +653,7 @@ module Animate
             this._properties = null;
             this._endBehaviour = null;
             this._startBehaviour = null;
-            
+
 			//Call parent
 			super.dispose();
 		}

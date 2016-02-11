@@ -6,7 +6,7 @@ module Animate
     export class FileViewer extends Window
     {
         private static _singleton: FileViewer;
-        
+
         // New variables
         private _browserElm: JQuery;
         private _searchType: FileSearchType;
@@ -26,14 +26,14 @@ module Animate
         private $fileToken: Engine.IFile;
         private $uploader: FileUploader;
         private $onlyFavourites: boolean;
-        
+
         public extensions: Array<string>;
         public selectedEntities: Array<UsersInterface.IFileEntry>;
         public selectedEntity: Engine.IFile;
         public selectedFolder: string;
         public multiSelect: boolean;
-        
-        
+
+
         /**
         * Creates an instance of the file uploader form
         */
@@ -89,7 +89,7 @@ module Animate
 
             // Build the element with the compiler
             Compiler.build(this._browserElm, this);
-            
+
             // Creates the filter options drop down
             var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
                 new ToolbarItem("media/assets-user.png", "Filter by My Files"),
@@ -111,7 +111,7 @@ module Animate
                 else
                     that.selectMode(FileSearchType.Global);
             });
-            
+
             // Make the form resizable
             this.element.resizable(<JQueryUI.ResizableOptions>{
                 minHeight: 50,
@@ -161,7 +161,7 @@ module Animate
         }
 
         /**
-        * Creates a new folder 
+        * Creates a new folder
         */
         newFolder()
         {
@@ -325,7 +325,7 @@ module Animate
 
         /*
         * Fetches a list of user buckets and files
-        * @param {number} index 
+        * @param {number} index
         * @param {number} limit
         */
         updateContent(index: number, limit: number)
@@ -341,7 +341,7 @@ module Animate
             this.selectedEntity = null;
 
             Animate.Compiler.digest(that._browserElm, that);
-            
+
             //if (this.selectedFolder)
             //{
             if (this._searchType == FileSearchType.Project)
@@ -370,7 +370,7 @@ module Animate
                 that.$loading = false;
                 return Animate.Compiler.digest(that._browserElm, that);
             });
-        }      
+        }
 
 		/**
 		* Called when we are dragging over the item
@@ -393,7 +393,7 @@ module Animate
             e.preventDefault();
             e.stopPropagation();
         }
-        
+
 		/**
 		* Called when we are no longer dragging items.
 		*/
@@ -452,7 +452,7 @@ module Animate
                 return this.$entries;
 
             var filtered = [];
-                
+
 
             for (var i = 0, l = files.length; i < l; i++)
             {
@@ -550,7 +550,7 @@ module Animate
                     }).catch(function (err: IAjaxError)
                     {
                         Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
-                    });                    
+                    });
                 }
             });
 
@@ -569,7 +569,7 @@ module Animate
         show(parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false)
         {
             super.show(null, undefined, undefined, true);
-            
+
             this.$errorMsg = "";
             this.$confirmDelete = false;
             this.$loading = false;
@@ -631,7 +631,7 @@ module Animate
         choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile>
         {
             // Show the form
-            this.show(); 
+            this.show();
 
             var d = jQuery.Deferred<Engine.IFile>(),
                 that = this
@@ -639,7 +639,7 @@ module Animate
                 this.extensions = ['jpg', 'jpeg', 'png', 'gif'];
             else
                 this.extensions = <Array<string>>extensions;
-            
+
             // When the file is chosen - return
             var fileChosen = function(type, event: FileViewerEvent, sender)
             {
@@ -686,9 +686,9 @@ module Animate
                 Compiler.digest(that._browserElm, that);
             });
         }
-        
-		/** 
-        * Gets the singleton instance. 
+
+		/**
+        * Gets the singleton instance.
         * @returns {FileViewer}
         */
 		static get get(): FileViewer

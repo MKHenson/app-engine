@@ -3,7 +3,7 @@ module Animate
 	export class LoaderEvents extends ENUM
 	{
 		constructor( v: string ) { super( v ); }
-		
+
 		static COMPLETE: LoaderEvents = new LoaderEvents("complete");
 		static FAILED: LoaderEvents = new LoaderEvents("failed");
 	}
@@ -90,7 +90,7 @@ module Animate
 		}
 
 		/**
-		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog) 
+		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
 		* @returns {JQuery}
 		*/
 		static createLoaderModal() : JQuery
@@ -166,8 +166,8 @@ module Animate
 				for ( var i in this.getVariables )
 					getVars += ( getVars.length != 1 ? "&" : "" ) + i + "=" + this.getVariables[i];
 			}
-			
-			this.curCall = jQuery.ajax( { 
+
+			this.curCall = jQuery.ajax( {
 				url: this.domain + this.url + getVars,
 				type: 'POST',
 				dataType: this.dataType,
@@ -180,16 +180,16 @@ module Animate
 				success: this.onData.bind( this ),
 				error: this.onError.bind( this ),
 				xhrFields: {
-					withCredentials: true					
+					withCredentials: true
 				}
 			});
 		}
 
 		/**
 		* Called when we the ajax response has an error.
-		* @param {any} e 
-		* @param {string} textStatus 
-		* @param {any} errorThrown 
+		* @param {any} e
+		* @param {string} textStatus
+		* @param {any} errorThrown
 		*/
 		onError( e, textStatus, errorThrown )
 		{
@@ -232,9 +232,9 @@ module Animate
 
 		/**
 		* Called when we get an ajax response.
-		* @param {any} data 
-		* @param {any} textStatus 
-		* @param {any} jqXHR 
+		* @param {any} data
+		* @param {any} textStatus
+		* @param {any} jqXHR
 		*/
 		onData( data, textStatus, jqXHR )
 		{
@@ -260,7 +260,7 @@ module Animate
 		}
 
 		/**
-		* Cleans up the object 
+		* Cleans up the object
 		*/
 		dispose()
 		{

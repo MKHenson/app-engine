@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	*  Use this tool bar button to pick a colour. 
+	*  Use this tool bar button to pick a colour.
 	*/
 	export class ToolbarColorPicker extends Component
 	{
@@ -11,7 +11,7 @@ module Animate
 		constructor( parent: Component, text: string, color: string )
 		{
             super( "<div class='toolbar-button tooltip'></div>", parent );
-			
+
 			this.numberInput = <Component>this.addChild( "<input class='toolbar-color' value='#ff0000'></input>" );
             this.addChild( "<div class='tooltip-text tooltip-text-bg'>" + text + "</div>" );
 

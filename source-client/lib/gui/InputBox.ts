@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* A simple {Component} that you can use to get user input by using the text function
 	*/
 	export class InputBox extends Component
@@ -13,7 +13,7 @@ module Animate
 		* @param {string} text The text of the input box
 		* @param {boolean} isTextArea True if this is a text area (for larger text)
 		* @param {boolean} isPassword True if this needs to be obscured for passwords
-		* @param {string} html 
+		* @param {string} html
 		*/
 		constructor( parent: Component, text: string, isTextArea: boolean = false, isPassword: boolean = false, html: string = "<div class='input-box'></div>" )
 		{
@@ -34,7 +34,7 @@ module Animate
 		/**
 		* Called when the text property is changed. This function will only fire if a limit has been
 		* set with the limitCharacters(val) function.
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onTextChange( e : any )
 		{
@@ -66,7 +66,7 @@ module Animate
 		}
 
 		/**
-		* @param {string} val 
+		* @param {string} val
 		*/
 		set text( val : string )
 		{

@@ -32,7 +32,7 @@ module Animate
             this.resource.saved = false;
             //this.resource.properties.updateValue(event.propertyName, event.prop.getVal());
         }
-        
+
 		/**
         * This will cleanup the component
         */

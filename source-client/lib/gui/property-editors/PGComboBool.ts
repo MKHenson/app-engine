@@ -4,7 +4,7 @@ module Animate
 	* This represents a combo property for booleans that the user can select from a list.
 	*/
     export class PGComboBool extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -32,7 +32,7 @@ module Animate
         {
             var p = <PropBool>prop;
 
-			// Create HTML	
+			// Create HTML
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>`);
 			var selector: JQuery = jQuery( "select", editor );
 
@@ -42,16 +42,16 @@ module Animate
             // Boolean
             selector.append(`<option value='true' ${(prop.getVal() ? "selected='selected'" : "")}>True</option>`);
             selector.append(`<option value='false' ${(!prop.getVal() ? "selected='selected'" : "")}>False</option>` );
-	
+
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-            var onSelect = function (e: JQueryEventObject  ) 
+            var onSelect = function (e: JQueryEventObject  )
 			{
                 var val = selector.val();
                 prop.setVal( (val == "true" ? true : false ) );
 			};
-			
+
 			// Add listeners
 			selector.on( "change", onSelect );
 

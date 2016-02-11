@@ -7,7 +7,7 @@ module Animate
 		static BEHAVIOUR_PICKED: BehaviourPickerEvents = new BehaviourPickerEvents("behaviour_picker_picked");
 	}
 
-	
+
 
 	export class BehaviourPicker extends Window
 	{
@@ -66,8 +66,8 @@ module Animate
 
 		/**
 		* Called when we click the list.
-		* @param {any} e 
-		* @returns {any} 
+		* @param {any} e
+		* @returns {any}
 		*/
 		onListClick( e )
 		{
@@ -76,10 +76,10 @@ module Animate
 
 		/**
 		* Called when we double click the list.
-		* @param {any} e 
-		* @returns {any} 
+		* @param {any} e
+		* @returns {any}
 		*/
-		onListDClick( e ) 
+		onListDClick( e )
 		{
 			this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
 			this.hide();
@@ -88,8 +88,8 @@ module Animate
 		/**
 		* When the input text changes we go through each list item
 		* and select it.
-		* @param {any} e 
-		* @returns {any} 
+		* @param {any} e
+		* @returns {any}
 		*/
 		onKeyDown( e )
 		{
@@ -148,7 +148,7 @@ module Animate
 
 		/**
 		* Gets the singleton instance.
-		* @returns {BehaviourPicker} 
+		* @returns {BehaviourPicker}
 		*/
 		static getSingleton(): BehaviourPicker
 		{

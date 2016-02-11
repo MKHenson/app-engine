@@ -9,7 +9,7 @@ module Animate
 		* @param {string} The button text
 		* @param {Component} parent The parent of the button
 		* @param {number} width The width of the button (optional)
-		* @param {number} height The height of the button (optional) 
+		* @param {number} height The height of the button (optional)
 		*/
 		constructor( text: string, parent: Component, html: string = "<div class='button reg-gradient curve-small'></div>", width: number = 70, height: number = 30 )
 		{
@@ -23,7 +23,7 @@ module Animate
 		}
 
 		/**
-		* A shortcut for jQuery's css property. 
+		* A shortcut for jQuery's css property.
 		*/
 		css( propertyName: any, value?: any ): any
 		{

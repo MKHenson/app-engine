@@ -1,14 +1,14 @@
 module Animate
 {
 	/**
-	* A simple label wrapper. This creates a div that has a textfield sub div. the 
+	* A simple label wrapper. This creates a div that has a textfield sub div. the
 	* subdiv is the DOM element that actually contains the text.
 	*/
 	export class Label extends Component
 	{
 		private _text: string;
 		public textfield: Component;
-		  
+
 		constructor( text: string, parent: Component, html: string = "<div class='label'></div>" )
 		{
 			super( html, parent );
@@ -39,10 +39,10 @@ module Animate
 
 		/**
 		* Returns the text height, in pixels, of this label. Use this function sparingly as it adds a clone
-		* of the element to the body, measures the text then removes the clone. This is so that we get the text even if 
+		* of the element to the body, measures the text then removes the clone. This is so that we get the text even if
 		* the <Component> is not on the DOM
 		* @extends <Label>
-		* @returns <number> 
+		* @returns <number>
 		*/
 		get textHeight() : number
 		{

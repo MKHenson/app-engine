@@ -1,7 +1,7 @@
 ﻿module Animate
 {
     /**
-    * Defines a set of variables. The set is typically owned by an object that can be edited by users. The set can be passed to editors like the 
+    * Defines a set of variables. The set is typically owned by an object that can be edited by users. The set can be passed to editors like the
     * PropertyGrid to expose the variables to the user.
     */
     export class EditableSet
@@ -18,9 +18,9 @@
             this._variables = [];
             this.parent = parent;
         }
-		
-        /** 
-        * Adds a variable to the set 
+
+        /**
+        * Adds a variable to the set
         * @param {Prop<any>} prop
         */
         addVar(prop: Prop<any>): void
@@ -34,8 +34,8 @@
             this._variables.push(prop);
         }
 
-        /** 
-        * Gets a variable by name 
+        /**
+        * Gets a variable by name
         * @param {string} name
         * @returns {Prop<T>}
         */
@@ -49,8 +49,8 @@
             return null;
         }
 
-        /** 
-        * Removes a variable 
+        /**
+        * Removes a variable
         * @param {string} prop
         */
         removeVar(name: string): void
@@ -74,7 +74,7 @@
         }
 
         /**
-        * Updates a variable with a new value 
+        * Updates a variable with a new value
         * @returns {T}
         */
         updateValue<T>(name: string, value: T): T
@@ -91,7 +91,7 @@
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         */
         tokenize(slim: boolean = false): any
@@ -105,7 +105,7 @@
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: any)
@@ -113,7 +113,7 @@
             var toRet: any = {};
             var items = this._variables;
             items.splice(0, items.length);
-            
+
             for (var t in data)
             {
                 var prop: Prop<any> = Utils.createProperty(data[t].name, data[t].type);
@@ -124,7 +124,7 @@
         }
 
          /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @returns {Array<Prop<any>>}
         */
         get variables(): Array<Prop<any>> { return this._variables; }

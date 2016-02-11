@@ -4,7 +4,7 @@
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
     export class PropGroup extends Prop<GroupArray>
-    {      
+    {
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -18,7 +18,7 @@
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
@@ -36,7 +36,7 @@
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: any)
@@ -47,7 +47,7 @@
             super.deTokenize(data);
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropGroup}
         */

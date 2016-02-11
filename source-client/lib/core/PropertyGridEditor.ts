@@ -15,7 +15,7 @@ module Animate
 	//}
 
 	/**
-	* A simple interface for property grid editors 
+	* A simple interface for property grid editors
 	*/
     export abstract class PropertyGridEditor
 	{

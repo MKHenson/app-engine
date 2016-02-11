@@ -3,12 +3,12 @@
 module Animate
  {
 	/**
-	* Basic set of loader events shared by all loaders 
+	* Basic set of loader events shared by all loaders
 	*/
 	export class LoaderEvents extends ENUM
 	{
 		constructor( v: string ) { super( v ); }
-		
+
 		static COMPLETE: LoaderEvents = new LoaderEvents("complete");
 		static FAILED: LoaderEvents = new LoaderEvents("failed");
 
@@ -31,7 +31,7 @@ module Animate
 		}
 	}
 
-	
+
 	/**
 	* Abstract base loader class. This should not be instantiated, instead use the sub class loaders. Keeps track of loading
 	* variables as well as functions for showing or hiding the loading dialogue
@@ -52,7 +52,7 @@ module Animate
 
 		// Protected
 		public _getQuery: string;
-	
+
 		/**
 		* Creates an instance of the Loader
 		* @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
@@ -69,7 +69,7 @@ module Animate
 			this.url = null
 			this.data = null;
 			this.numTries = null;
-			
+
 			this._getQuery = "";
 			this.getVariables = null;
 			this.dataType = "json";
@@ -98,7 +98,7 @@ module Animate
 		}
 
 		/**
-		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog) 
+		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
 		* @returns {JQuery}
 		*/
 		static createLoaderModal(): JQuery
@@ -153,7 +153,7 @@ module Animate
 		}
 
 		/**
-	   * Cleans up the object 
+	   * Cleans up the object
 	   */
 		dispose()
 		{

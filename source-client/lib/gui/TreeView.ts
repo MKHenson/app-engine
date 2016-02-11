@@ -24,7 +24,7 @@ module Animate
 
 		/**
 		* When we click the view
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onClick( e : any )
 		{
@@ -107,7 +107,7 @@ module Animate
 		{
 			if ( !this.enabled )
 				return;
-			
+
 			if ( this._selectedNode && multiSelect == false )
 			{
 				var i = this._selectedNodes.length;
@@ -151,7 +151,7 @@ module Animate
 		/**
 		* This will add a node to the treeview
 		* @param {TreeNode} node The node to add
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		addNode( node: TreeNode ) : TreeNode
 		{
@@ -189,7 +189,7 @@ module Animate
 		/**
 		* This removes a node from the treeview
 		* @param {TreeNode} node The node to remove
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		removeNode( node ) : TreeNode
 		{
@@ -201,7 +201,7 @@ module Animate
 
 			if ( this._selectedNodes.indexOf( node ) != -1 )
                 this._selectedNodes.splice(this._selectedNodes.indexOf(node), 1);
-            
+
 			return toRet;
 		}
 
@@ -210,7 +210,7 @@ module Animate
 		* the specified name.
 		* @param {string} property The name property we are evaluating
 		* @param {any} value The object we should be comparing against
-		* @returns {TreeNode} 
+		* @returns {TreeNode}
 		*/
 		findNode( property : string, value : any ) : TreeNode
 		{

@@ -19,7 +19,7 @@ module Animate
 		private _layouts: Array<ILayout>;
 		private _id: string;
 		private _parent: Component;
-		
+
 
 		//This is used in the saving process. Leave alone.
 		//private _savedID : string = null;
@@ -47,7 +47,7 @@ module Animate
 			// Create the jQuery wrapper
 			this._children = [];
 			this._layouts = [];
-			
+
 			this.savedID = null;
 			this._tooltip = null;
 			this._enabled = true;
@@ -74,12 +74,12 @@ module Animate
 		{
 			if ( this.disposed )
 				return;
-            
+
 			this._tooltip = null;
 			var children: Array<IComponent> = this._children;
-			
+
 			// Dispose method will remove child from parent and also the array
-			while ( children.length != 0 )	
+			while ( children.length != 0 )
 				children[0].dispose();
 
 			this._layouts = null;
@@ -94,17 +94,17 @@ module Animate
             this.element.remove();
 
 			this.element = null;
-			
+
 			// Call super
 			EventDispatcher.prototype.dispose.call(this);
 		}
 
 		/**
-		* This function is called to update this component and its children. 
+		* This function is called to update this component and its children.
 		* Typically used in sizing operations.
 		* @param {boolean} updateChildren Set this to true if you want the update to proliferate to all the children components.
 		*/
-		update(updateChildren : boolean = true) 
+		update(updateChildren : boolean = true)
 		{
 			var layouts: Array<ILayout> = this._layouts;
 			var i = layouts.length;
@@ -121,7 +121,7 @@ module Animate
 
 			super.emit(new Event( ComponentEvents.UPDATED ) );
 		}
-		
+
 		/**
 		* Add layout algorithms to the {Component}.
 		* @param {ILayout} layout The layout object we want to add
@@ -154,7 +154,7 @@ module Animate
 		get layouts(): Array<ILayout> { return this._layouts; }
 
 		/**
-		* Use this function to add a child to this component. 
+		* Use this function to add a child to this component.
 		* This has the same effect of adding some HTML as a child of another piece of HTML.
 		* It uses the jQuery append function to achieve this functionality.
 		* @param {string | IComponent | JQuery} child The child component we want to add
@@ -194,8 +194,8 @@ module Animate
             // If it had an existing parent - then remove it
             if (parent)
                 parent.removeChild((<IComponent>toAdd));
-            
-			
+
+
 			toAdd._parent = this;
 			this._children.push(toAdd);
 			this._element.append(toAdd._element);
@@ -213,9 +213,9 @@ module Animate
                 return false;
             return true;
         }
-        
+
 		/**
-		* Use this function to remove a child from this component. 
+		* Use this function to remove a child from this component.
 		* It uses the {JQuery} detach function to achieve this functionality.
 		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
 		* @returns {IComponent} The {IComponent} we have removed
@@ -291,7 +291,7 @@ module Animate
 				this.element.removeClass("disabled");
 
 			this._enabled = val;
-		
+
 		}
 
 		/**

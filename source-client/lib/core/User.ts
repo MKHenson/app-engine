@@ -18,12 +18,12 @@ module Animate
 		//static DETAILS_SAVED: UserEvents = new UserEvents( "user_details_saved" );
 	//}
 
-    
 
-    
 
-  
-    
+
+
+
+
 	/**
 	* This class is used to represent the user who is logged into Animate.
 	*/
@@ -34,7 +34,7 @@ module Animate
         public meta: Engine.IUserMeta;
         public project: Project;
 		private _isLoggedIn: boolean;
-        
+
         constructor()
 		{
             super();
@@ -49,9 +49,9 @@ module Animate
 
             this.project = new Project();
             this._isLoggedIn = false;
-            
+
         }
-        
+
         /**
 		* Resets the meta data
 		*/
@@ -64,9 +64,9 @@ module Animate
                 maxNumProjects: 0
             };
         }
-             
+
         /**
-		* Checks if a user is logged in or not. This checks the server using 
+		* Checks if a user is logged in or not. This checks the server using
 		* cookie and session data from the browser.
 		* @returns {Promise<boolean>}
 		*/
@@ -110,11 +110,11 @@ module Animate
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
-            
+
         }
 
         /**
-		* Tries to log the user in asynchronously. 
+		* Tries to log the user in asynchronously.
 		* @param {string} user The username of the user.
 		* @param {string} password The password of the user.
 		* @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
@@ -168,7 +168,7 @@ module Animate
         }
 
         /**
-		* Tries to register a new user. 
+		* Tries to register a new user.
 		* @param {string} user The username of the user.
 		* @param {string} password The password of the user.
 		* @param {string} email The email of the user.
@@ -214,7 +214,7 @@ module Animate
 
         /**
 		* This function is used to resend a user's activation code
-		* @param {string} user 
+		* @param {string} user
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
         resendActivation(user: string): Promise<UsersInterface.IResponse>
@@ -239,7 +239,7 @@ module Animate
 
         /**
 		* This function is used to reset a user's password.
-		* @param {string} user 
+		* @param {string} user
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
         resetPassword(user: string): Promise<UsersInterface.IResponse>
@@ -396,12 +396,12 @@ module Animate
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
-            
+
         }
-        
+
         /**
 		* Attempts to update the user's details base on the token provided
-        * @returns {Engine.IUserMeta} The user details token 
+        * @returns {Engine.IUserMeta} The user details token
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
         updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>
@@ -483,7 +483,7 @@ module Animate
 		//* @type public mfunc updateDetails
 		//* Use this function to update user details
 		//* @param {string} bio The bio of the user
-		//* @extends {User} 
+		//* @extends {User}
 		//*/
 		//updateDetails( bio )
 		//{
@@ -497,7 +497,7 @@ module Animate
 		* @type public mfunc copyProject
 		* Use this function to duplicate a project
 		* @param {number} id The project ID we are copying
-		* @extends {User} 
+		* @extends {User}
 		*/
 		copyProject( id : string )
 		{
@@ -561,7 +561,7 @@ module Animate
 			}
 			else
 				return null;
-		}		
+		}
 
 		/**
 		* This is the resonse from the server
@@ -646,7 +646,7 @@ module Animate
 					//this.project.mSubCategory = data.sub_category;
 
 					//this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
-				}				
+				}
                 else if (loader.url.match(/authenticated/) )
 				{
 					if ( data.loggedIn )
@@ -669,8 +669,8 @@ module Animate
 					}
 
 					//this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
-				}				
-								
+				}
+
 				//else
 				//	this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
 			}

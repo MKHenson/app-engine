@@ -1,4 +1,4 @@
-module Animate 
+module Animate
 {
 	/**
 	* The main GUI component of the application.
@@ -10,14 +10,14 @@ module Animate
 		private _focusObj: Component;
 
 		private _resizeProxy: any;
-		private _downProxy: any;		
+		private _downProxy: any;
 		private _dockerlefttop: Docker;
 		private _dockerleftbottom: Docker;
 		private _dockerrighttop: Docker;
 		private _dockerrightbottom: Docker;
 		private _canvasContext: CanvasContext;
 
-		constructor( domElement?: string ) 
+		constructor( domElement?: string )
 		{
 			super(domElement, null);
 
@@ -27,9 +27,9 @@ module Animate
             // Creates a common body element
             Application.bodyComponent = new Component("body");
 
-			Application._singleton = this;		
+			Application._singleton = this;
 			this._canvasContext = new CanvasContext();
-			this._focusObj = null; 
+			this._focusObj = null;
 
 			//Start the tooltip manager
             TooltipManager.create();
@@ -46,7 +46,7 @@ module Animate
 
 			this.addChild( toolbar );
 			this.addChild( stage );
-            
+
 			//Create each of the main split panels
 			var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
 			mainSplit.element.css( { width: "100%", height: "100%" });
@@ -72,7 +72,7 @@ module Animate
 			this._dockerrighttop = new Docker( rightSplit.top );
 			this._dockerrighttop.addComponent( grid, false );
 
-			
+
 
 			this.update();
 
@@ -154,7 +154,7 @@ module Animate
 			Logger.getSingleton().clearItems();
             TreeViewScene.getSingleton().projectReset(user.project);
             CanvasTab.getSingleton().projectReset();
-            
+
 
 			//Must be called after reset
             var user = User.get;
@@ -177,7 +177,7 @@ module Animate
   //          var project: Project = User.get.project;
 		//	//project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
 		//	//project.loadBehaviours();
-            
+
   //          // load each of the different resources
   //          var project: Project = User.get.project;
   //          project.loadResources()
@@ -199,7 +199,7 @@ module Animate
   //          var that = this;
   //          var project: Project = User.get.project;
 		//	project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
-			
+
   //          //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
   //          project.loadFiles().then(function ()
   //          {

@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	* A singleton class that manages displaying the tooltips of various components. 
+	* A singleton class that manages displaying the tooltips of various components.
 	*/
 	export class TooltipManager
 	{
@@ -39,7 +39,7 @@ module Animate
 			if ( tt && tt != "" )
 			{
 				label.text = tt;
-				
+
 				var h: number = label.element.height();
 				var w: number = label.element.width();
 

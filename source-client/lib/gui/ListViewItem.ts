@@ -11,7 +11,7 @@ module Animate
 		private _largeIMG: string;
 		private _rowNum: number;
 		public tag : any;
-		
+
 		/**
 		* @param {Array<string>} fields An array of strings. These strings will be evenly distributed between columns of a list view.
 		* @param {string} smallImg The URL of an image to use that can represent the small image of this item when in Image mode of the list view
@@ -61,7 +61,7 @@ module Animate
 		* Creates a preview component for the list view.
 		* @param {string} text Text to show under the preview
 		* @param {number} imgSize The size of the image
-		* @returns <Component> 
+		* @returns <Component>
 		*/
 		preview(text : string, imgSize : number )
 		{

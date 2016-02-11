@@ -35,7 +35,7 @@ module Animate
 			this._copyPasteToken = null;
 			this._currentContainer = this._tabHomeContainer;
 			this._currentTab = this._tabHomeContainer.element.data( "tab" ).element.data( "component" );
-			
+
             // Set events
 			// This plugin does not yet work with 'on' so we have to still use bind
 			jQuery( document ).bind( 'keydown', 'Ctrl+s', this.onKeyDown.bind( this ) );
@@ -47,7 +47,7 @@ module Animate
 
 		/**
 		* This is called when an item on the canvas has been selected
-		* @param {Component} item 
+		* @param {Component} item
 		*/
 		itemSelected(item : Component)
         {
@@ -71,7 +71,7 @@ module Animate
 
 		/**
 		* Called when we click one of the top toolbar tabs.
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onMajorTab( e )
 		{
@@ -97,7 +97,7 @@ module Animate
 				this._currentTab = jQuery( e.target ).data( "component" );
 			}
         }
-        
+
         /**
         * Opens the splash window
         */
@@ -115,7 +115,7 @@ module Animate
             Splash.get.reset();
             Splash.get.show();
         }
-       
+
         /**
         * Notifys the app that its about to launch a test run
         */
@@ -132,7 +132,7 @@ module Animate
         {
             if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
                 return;
-            
+
             if (this._copyPasteToken)
             {
                 var canvas = CanvasTab.getSingleton().currentCanvas;
@@ -148,17 +148,17 @@ module Animate
         {
             if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
                 return;
-            
+
             if (!Canvas.lastSelectedItem)
                 return;
 
             var canvas = CanvasTab.getSingleton().currentCanvas;
             var toCopy = [];
-            
+
             for (var i = 0, l = canvas.children.length; i < l; i++)
                 if (canvas.children[i].selected)
                     toCopy.push(canvas.children[i]);
-            
+
             // Creates a copy token
             this._copyPasteToken = canvas.tokenize(false, toCopy);
 
@@ -181,7 +181,7 @@ module Animate
             {
                 if (token.cancelled)
                     return;
-                
+
                 User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
                 {
                     // The container is created - so lets open it up
@@ -197,7 +197,7 @@ module Animate
                 });
             });
         }
-       
+
         /**
         * When we click the delete button
         */
@@ -246,7 +246,7 @@ module Animate
 
 		/**
 		* Called when the key is pushed down
-		* @param {any} event 
+		* @param {any} event
 		*/
 		onKeyDown( event : any )
 		{
@@ -266,7 +266,7 @@ module Animate
 		* Removes a tab by its name
 		* @param {string} text The name of the tab
 		*/
-		removeTab( text : string ) 
+		removeTab( text : string )
 		{
 			var children: Array<IComponent> = this._topMenu.children;
 			var i = children.length;
@@ -292,7 +292,7 @@ module Animate
 		* @param {string} text The text for the button
 		* @param {number} min The minimum limit
 		* @param {number} max The maximum limit
-		* @param {number} delta The incremental difference when scrolling 
+		* @param {number} delta The incremental difference when scrolling
 		* @param {Component} group The Component object representing the group
 		* @returns {ToolbarNumber}
 		*/

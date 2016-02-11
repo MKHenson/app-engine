@@ -24,7 +24,7 @@ module Animate
             this._fontSize = 5;
             var tw = this._fontSize * text.length + 20;
             var th = this._fontSize + 20;
-            
+
             this.element.css({ width: tw + "px", height: th + "px", margin: "" });
 
 			this._originalName = text;
@@ -57,7 +57,7 @@ module Animate
 		/**
 		* Adds a portal to this behaviour.
 		* @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
-		* @param {Prop<any>} property 
+		* @param {Prop<any>} property
 		* @returns {Portal}
 		*/
         addPortal(type: PortalType, property: Prop<any>, update: boolean, custom: boolean = false): Portal
@@ -116,11 +116,11 @@ module Animate
 			if ( index != -1 )
 				this._outputs.splice( index, 1 );
 
-            index = this._inputs.indexOf(toRemove); 
+            index = this._inputs.indexOf(toRemove);
 			if ( index != -1 )
 				this._inputs.splice( index, 1 );
 
-            index = this._portals.indexOf(toRemove); 
+            index = this._portals.indexOf(toRemove);
 			if ( index != -1 )
 				this._portals.splice( index, 1 );
 
@@ -137,15 +137,15 @@ module Animate
 		* @param {string} name The new name of the behaviour
 		*/
 		onRenamed( name : string ) { }
-		
+
 		/**
-		* A shortcut for jQuery's css property. 
+		* A shortcut for jQuery's css property.
 		*/
 		css( propertyName : any, value? : any ) : any
 		{
 			//Call super
 			var toRet = this.element.css( propertyName, value );
-			this._requiresUpdated = true;            
+			this._requiresUpdated = true;
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
 
@@ -161,7 +161,7 @@ module Animate
             // If the portals increase the size - the update the dimensions
             tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
             th = th + padding > maxVertSize ? th + padding : maxVertSize;
-            
+
 
             // Keep the sizes big enough so they fit nicely in the grid (i.e. round off to 10)
             tw = Math.ceil((tw) / 10) * 10;
@@ -174,19 +174,19 @@ module Animate
 		/**
 		* Updates the behavior width and height and organises the portals
 		*/
-		updateDimensions() 
+		updateDimensions()
 		{
 			if (this._requiresUpdated == false )
 				return;
 
 			this._requiresUpdated = false;
-            
+
             // First get the size of a portal.
             var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
 			var portalSpacing = 5;
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
-            
+
 			var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length );
 			var maxVertPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length );
             var totalPortalSpacing = portalSize + portalSpacing;
@@ -220,15 +220,15 @@ module Animate
 		/**
 		* sets the label text
 		*/
-		set text( value : string ) 
+		set text( value : string )
 		{
             jQuery(".text", this.element).text(value);
 			this._requiresUpdated = true;
 
 			if ( value !== undefined )
-				this.updateDimensions();	
+				this.updateDimensions();
         }
-        
+
         /**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
@@ -254,7 +254,7 @@ module Animate
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviour}
         */
@@ -282,20 +282,20 @@ module Animate
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {IBehaviour} data The data to import from
         */
         deTokenize(data: IBehaviour)
         {
             super.deTokenize(data);
-            
+
             this.alias = data.alias;
             this.text = data.text;
 
             // Remove all existing portals
             while (this.portals.length > 0)
                 this.portals.pop().dispose();
-            
+
             for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
             {
                 //var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
@@ -310,8 +310,8 @@ module Animate
             this.updateDimensions();
         }
 
-		/** 
-        * Gets the text of the behaviour 
+		/**
+        * Gets the text of the behaviour
         */
         get text(): string { return jQuery(".text", this.element).text(); }
 
@@ -320,7 +320,7 @@ module Animate
 		*/
 		dispose()
 		{
-			// The draggable functionality is added in the Canvas addChild function because we need to listen for the events. 
+			// The draggable functionality is added in the Canvas addChild function because we need to listen for the events.
 			// To make sure its properly removed however we put it here.
 			this.element.draggable( "destroy" );
 

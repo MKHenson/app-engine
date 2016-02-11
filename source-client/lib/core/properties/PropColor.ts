@@ -37,9 +37,9 @@
         {
             super(name, new Color(color, alpha), category, options, PropertyType.COLOR);
         }
-        
+
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
@@ -56,7 +56,7 @@
             }
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropColor}
         */
@@ -66,7 +66,7 @@
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: Color)

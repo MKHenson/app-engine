@@ -64,10 +64,10 @@
 			this._xhr.addEventListener( 'load', this._onBuffers, false );
 			this._xhr.addEventListener( 'error', this._onError, false );
 			this._xhr.withCredentials = true;
-			
+
 			if ( this._xhr.overrideMimeType )
 				this._xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
-			
+
 			var fullURL: string = this.domain + this.url + this._getQuery;
 			this._xhr.open("GET", fullURL, true);
 

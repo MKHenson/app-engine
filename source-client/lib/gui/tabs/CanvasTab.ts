@@ -62,7 +62,7 @@ module Animate
 
 		/**
 		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @param {Docker} val 
+		* @param {Docker} val
 		*/
 		setDocker( val : Docker ) { this.mDocker = val; }
 
@@ -139,7 +139,7 @@ module Animate
 			else
             {
                 (<CanvasTabPair>that.closingTabPair).forceClose = true;
-                //that._currentCanvas.container.saved = true;  
+                //that._currentCanvas.container.saved = true;
                 that.removeTab(that.closingTabPair, true );
 				that.closingTabPair = null;
 			}
@@ -163,8 +163,8 @@ module Animate
 
 		///**
 		//* When the behaviour was saved on request of the message box - we close the tab that represents it.
-		//* @param <string> response 
-		//* @param <object> behaviour 
+		//* @param <string> response
+		//* @param <object> behaviour
 		//*/
 		//onBehaviourSaved( response : ProjectEvents, event: ProjectEvent, sender? : EventDispatcher )
 		//{
@@ -217,7 +217,7 @@ module Animate
 
 			//Remove prev we need to notify the plugins of added or removed assets
 			if ( this._currentCanvas && !this._currentCanvas.disposed )
-			{	
+			{
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.container );
 
 				//Tell the plugins to remove the current assets
@@ -336,7 +336,7 @@ module Animate
 			return toRet;
 		}
 
-		
+
 		/**
 		* Removes an item from the tab
 		* @param val The label text of the tab
@@ -353,7 +353,7 @@ module Animate
 				var pManager: PluginManager = PluginManager.getSingleton();
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
 
-				//Remove prev we need to notify the plugins of added or removed assets		
+				//Remove prev we need to notify the plugins of added or removed assets
                 var project = User.get.project;
 
 				//Tell the plugins to remove the current assets
@@ -361,7 +361,7 @@ module Animate
 
 				for ( var i = 0, l = references.assets.length; i < l; i++ )
                 {
-                    var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);					
+                    var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
 				}
@@ -419,7 +419,7 @@ module Animate
 
 				this._currentCanvas = canvas;
 				(<Behaviour>canvas.children[0]).updateDimensions();
-                
+
                 pManager.emit(new ContainerEvent(EventTypes.CONTAINER_CREATED, tabContent ) );
                 pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, tabContent ) );
 			}
@@ -427,7 +427,7 @@ module Animate
 			{
 				toRet = super.addTab( text, true );
 			}
-			else 
+			else
 			{
 				if ( type == CanvasTabType.HTML )
 				{
@@ -448,7 +448,7 @@ module Animate
 					toRet = Tab.prototype.addTab.call( this, new ScriptTab( tabContent ) );
 				}
             }
-            
+
             return toRet;
 		}
 

@@ -2,7 +2,7 @@
 {
     export type ProgressCallback = (percent: number) => void;
     export type CompleteCallback = (err?: Error, files?: Array<UsersInterface.IUploadToken>) => void;
-     
+
     /*
     * A class that assembles data & files into a form and sends it as an XHR request to a server
     */
@@ -11,7 +11,7 @@
         private _dCount: number;
         private _downloads: Array<{ id: number; total: number; loaded: number; }>;
         public percent: number;
-        
+
         private _onProg: ProgressCallback;
         private _onComplete: CompleteCallback;
 
@@ -52,7 +52,7 @@
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
-            
+
             formData.append(file.name, file);
             this.upload(formData, null, file.name, parentFile);
         }
@@ -81,7 +81,7 @@
             }
             else
                 canvas = <HTMLCanvasElement>img;
-            
+
             // Get the data-URL formatted image
             // Firefox supports PNG and JPEG. You could check img.src to
             // guess the original format, but be aware the using "image/jpg"
@@ -135,7 +135,7 @@
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
-            
+
             formData.append(name, new Blob([array], { type: "application/octet-stream" }));
             return this.upload(formData, null, name, parentFile);
         }
@@ -164,7 +164,7 @@
         * Uploads a file to the users storage api
         * @param {FormData} file The file we are uploading
         * @param {string} url The URL to use
-        * @param {string} identifier Helps identify the upload 
+        * @param {string} identifier Helps identify the upload
         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
         upload(form: FormData, url: string, identifier: string, parentFile?: string)
@@ -184,7 +184,7 @@
 
             // Add the download token
             that._downloads.push( { id: id, loaded: 0, total: 0 } );
-            
+
             var calcProgress = function()
             {
                 if (!cb)
@@ -213,7 +213,7 @@
                         that._downloads.splice(i, 1);
                         break;
                     }
-                
+
                 errorMsg = `An error occurred while uploading the file '${identifier}' : `;
                 calcProgress();
             };
@@ -277,7 +277,7 @@
                     }
                 }
             };
-            
+
             xhr.withCredentials = true;
             xhr.open("post", url, true);
             xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");

@@ -4,7 +4,7 @@
     * Defines an any property variable.
     */
     export class PropObject extends Prop<any>
-    {      
+    {
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -16,8 +16,8 @@
         {
             super(name, value, category, options, PropertyType.OBJECT);
         }
-        
-        /** 
+
+        /**
         * Attempts to clone the property
         * @returns {PropObject}
         */

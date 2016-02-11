@@ -7,7 +7,7 @@ module Animate
 	{
         public type: PortalType;
         public property: Prop<any>;
-		
+
 		/**
         * @param {Prop<any>} property The property associated with this portal
 		* @param {PortalType} type The type of portal this represents

@@ -1,9 +1,9 @@
 module Animate
-{	
+{
 	export class ImportExportEvents extends ENUM
 	{
 		constructor(v: string) { super(v); }
-		static COMPLETE: ImportExportEvents = new ImportExportEvents("import_export_complete");		
+		static COMPLETE: ImportExportEvents = new ImportExportEvents("import_export_complete");
 	}
 
 	/**
@@ -45,7 +45,7 @@ module Animate
 		/**
 		* @type public mfunc exportScene
 		* This function is used to exort the Animae scene. This function creates an object which is exported as a string. Plugins
-		* can hook into this process and change the output to suit the plugin needs. 
+		* can hook into this process and change the output to suit the plugin needs.
 		* @extends <ImportExport>
 		*/
 		exportScene()
@@ -100,7 +100,7 @@ module Animate
 			//		//}
 
 			//		// Let the plugins export their data
-			//		containerToken.plugins = canvasToken.plugins;	
+			//		containerToken.plugins = canvasToken.plugins;
 
 			//		PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_EXPORTING, behaviour, containerToken.plugins ) );
 
@@ -117,7 +117,7 @@ module Animate
 			//			{
 			//				var behaviourToken: BehaviourToken = <BehaviourToken>{};
 			//				containerToken.behaviours.push( behaviourToken );
-							
+
 			//				behaviourToken.id = canvasTokenItem.id;
 			//				behaviourToken.name = canvasTokenItem.name;
 			//				behaviourToken.type = canvasTokenItem.type;
@@ -137,7 +137,7 @@ module Animate
 			//					if ( canvasTokenItem.type == "BehaviourScript" )
 			//						behaviourToken.shallowId = canvasTokenItem.shallowId;
 
-			//					// Create each of the portals 
+			//					// Create each of the portals
 
 			//					behaviourToken.portals = [];
 			//					for ( var ci = 0, cl = canvasTokenItem.portals.length; ci < cl; ci++ )// objectToken.items[counter].portals[counterPortal] )
@@ -150,7 +150,7 @@ module Animate
 			//						portalToken.dataType = canvasTokenItem.portals[ci].dataType.toString();
 			//						portalToken.value = ImportExport.getExportValue( canvasTokenItem.portals[ci].dataType, canvasTokenItem.portals[ci].value );
 
-			//						//Check for assets, and if so, add the asset to the assets 
+			//						//Check for assets, and if so, add the asset to the assets
    //                                 if (canvasTokenItem.portals[ci].dataType == PropertyType.ASSET )
 			//						{
 			//							if ( portalToken.value != null && portalToken.value != "" )
@@ -218,7 +218,7 @@ module Animate
 			//	}
 			//}
 
-			//// Get all the assets and build them into the export object			
+			//// Get all the assets and build them into the export object
 			//for ( var i = 0, l = project.assets.length; i < l; i++ )
 			//{
 			//	var asset : Asset = project.assets[i];
@@ -269,7 +269,7 @@ module Animate
 		* Adds asset references to a container token during the export.
 		* @param {Asset} asset the asset object to check
 		* @param {ContainerToken} container The container to add refernces on
-		* @returns {any} 
+		* @returns {any}
 		*/
 		referenceCheckAsset( asset: Asset, container : ContainerToken )
 		{
@@ -290,21 +290,21 @@ module Animate
                         container.assets.push(asset.entry.shallowId);
 
 						//It can also the be case that assets reference other assets. In those
-                        //situations you will want the container to keep adding to all the assets							
+                        //situations you will want the container to keep adding to all the assets
                         this.referenceCheckAsset(asset, container);
 					}
 				}
                 else if (assetVars[i].type == PropertyType.ASSET_LIST )
                 {
                     var aList = <Array<Asset>>assetVars[i].getVal();
-				
+
                     for (var a = 0, al = aList.length; a < al; a++ )
 					{
                         var asset = <Asset>aList[a];
                         container.assets.push(asset.entry.shallowId);
 
 						//It can also the be case that assets reference other assets. In those
-                        //situations you will want the container to keep adding to all the assets							
+                        //situations you will want the container to keep adding to all the assets
                         this.referenceCheckAsset(asset, container);
 					}
 				}
@@ -326,7 +326,7 @@ module Animate
 		* Adds group references to a container token during the export.
 		* @param {TreeNodeGroup} group the group object to check
 		* @param {ContainerToken} container The container to add refernces on
-		* @returns {any} 
+		* @returns {any}
 		*/
 		referenceCheckGroup( group: TreeNodeGroup, container: ContainerToken )
 		{
@@ -338,9 +338,9 @@ module Animate
 			// Add the group
             if (container.groups.indexOf(group.resource.entry._id ))
                 container.groups.push(group.resource.entry._id );
-			
 
-			//Check all the group properties. If it contains another group, then we need to make sure its added to the container		
+
+			//Check all the group properties. If it contains another group, then we need to make sure its added to the container
 			for ( var ii = 0; ii < group.children.length; ii++ )
                 if ((<TreeNodeGroupInstance>group.children[ii]).shallowId )
 				{
@@ -363,7 +363,7 @@ module Animate
 		//* Gets the value of an object without any of the additional data associated with it.
 		//* @param {ParameterType} propType the object type
 		//* @param {any} value Its current value
-		//* @returns {any} 
+		//* @returns {any}
 		//*/
   //      static getExportValue(propType: PropertyType, value: any): any
 		//{

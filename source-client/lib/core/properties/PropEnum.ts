@@ -6,7 +6,7 @@
     export class PropEnum extends Prop<string>
     {
         public choices: Array<string>;
-      
+
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -22,7 +22,7 @@
         }
 
         /**
-       * Tokenizes the data into a JSON. 
+       * Tokenizes the data into a JSON.
        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
        * @returns {any}
        */
@@ -36,7 +36,7 @@
             return token;
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropEnum}
         */
@@ -46,7 +46,7 @@
         }
 
         /**
-       * De-Tokenizes data from a JSON. 
+       * De-Tokenizes data from a JSON.
        * @param {any} data The data to import from
        */
         deTokenize(data: PropEnum)

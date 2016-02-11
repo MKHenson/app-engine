@@ -1,6 +1,6 @@
 module Animate
 {
-	
+
 
 	/**
 	* Base class for all custom enums
@@ -14,7 +14,7 @@ module Animate
 		{
 			this.value = v;
 		}
-		
+
 		toString() { return this.value; }
     }
 
@@ -24,13 +24,13 @@ module Animate
 	/**
 	* Internal class only used internally by the {EventDispatcher}
 	*/
-	export class EventListener 
+	export class EventListener
 	{
         type: EventType;
 		func: EventCallback;
 		context: any;
 
-        constructor(type: EventType, func: EventCallback, context?: any) 
+        constructor(type: EventType, func: EventCallback, context?: any)
 		{
 			this.type = type;
 			this.func = func;
@@ -60,7 +60,7 @@ module Animate
     /**
     * A simple class that allows the adding, removing and dispatching of events.
     */
-	export class EventDispatcher 
+	export class EventDispatcher
 	{
         private _listeners: Array<EventListener>;
 		public disposed: boolean;
@@ -71,7 +71,7 @@ module Animate
 			this.disposed = false;
         }
 
-       
+
         /**
         * Returns the list of {EventListener} that are currently attached to this dispatcher.
         */
@@ -83,7 +83,7 @@ module Animate
         /**
         * Adds a new listener to the dispatcher class.
         */
-        on(type: EventType, func: EventCallback, context?: any) 
+        on(type: EventType, func: EventCallback, context?: any)
 		{
 			if ( !func )
 				throw new Error("You cannot have an undefined function.");
@@ -94,7 +94,7 @@ module Animate
         /**
         * Adds a new listener to the dispatcher class.
         */
-        off(type: EventType, func: EventCallback, context?: any ) 
+        off(type: EventType, func: EventCallback, context?: any )
 		{
             var listeners: Array<EventListener> = this.listeners;
 
@@ -103,11 +103,11 @@ module Animate
 
 			if ( !func )
 				throw new Error( "You cannot have an undefined function." );
-            
+
 			for (var i = 0, li = listeners.length; i < li; i++)
 			{
                 var l: EventListener = listeners[i];
-                if (l.type == type && l.func == func && l.context == context ) 
+                if (l.type == type && l.func == func && l.context == context )
 				{
                     listeners.splice(i, 1);
                     return;
@@ -121,7 +121,7 @@ module Animate
         * @param {Event} event The event to dispatch
 		* @returns {any}
         */
-		emit( event: Event | ENUM, tag?: any ): any 
+		emit( event: Event | ENUM, tag?: any ): any
 		{
 			var e: Event = null;
 			if (event instanceof ENUM)
@@ -142,7 +142,7 @@ module Animate
 			for (var i = 0, li = listeners.length; i < li; i++)
 			{
                 var l: EventListener = listeners[i];
-				if ( l.type == e.type) 
+				if ( l.type == e.type)
 				{
                     if (!l.func)
 						throw new Error( "A listener was added for " + e.type + ", but the function is not defined.");
@@ -164,5 +164,5 @@ module Animate
 		}
 	}
 
-    
+
 }

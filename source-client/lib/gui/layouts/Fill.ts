@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	* A simple fill layout. Fills a component to its parent width and height. Optional 
+	* A simple fill layout. Fills a component to its parent width and height. Optional
 	* offsets can be used to tweak the fill.
 	*/
 	export class Fill implements ILayout

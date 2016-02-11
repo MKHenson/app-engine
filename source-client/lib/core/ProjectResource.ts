@@ -27,16 +27,16 @@
         */
         initialize()
         {
-            
+
         }
 
         /**
         * This function is called just before the entry is saved to the database.
         */
         onSaving(): any { }
-        
 
-        /** 
+
+        /**
         * Gets the properties of this resource
         */
         get properties(): EditableSet
@@ -44,7 +44,7 @@
             return this._properties;
         }
 
-        /** 
+        /**
         * Sets the properties of this resource
         */
         set properties(val: EditableSet)
@@ -72,7 +72,7 @@
             this.emit(new Event("modified"));
         }
 
-        
+
 
         dispose()
         {
@@ -82,23 +82,23 @@
             this._options = null;
         }
 
-        /** 
-        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data 
+        /**
+        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
         */
         createOption(name: string, val: any) { this._options[name] = val; }
 
-        /** 
-        * Destroys an option 
+        /**
+        * Destroys an option
         */
         removeOption(name: string) { delete this._options[name]; }
 
-        /** 
-        * Update the value of an option 
+        /**
+        * Update the value of an option
         */
         updateOption(name: string, val: any) { this._options[name] = val; }
 
-        /** 
-        * Returns the value of an option 
+        /**
+        * Returns the value of an option
         */
         getOption(name: string): any { return this._options[name]; }
     }

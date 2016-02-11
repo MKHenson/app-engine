@@ -4,7 +4,7 @@ module Animate
 	* This represents a combo property for enums that the user can select from a list.
 	*/
     export class PGComboEnum extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -32,10 +32,10 @@ module Animate
         {
             var p = <PropEnum>prop;
 
-			// Create HTML	
+			// Create HTML
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
 			var selector: JQuery = jQuery( "select", editor );
-            
+
             // Add to DOM
             container.element.append(editor);
 
@@ -47,16 +47,16 @@ module Animate
 			var len: number = vars.length;
 			for ( var i: number = 0; i < len; i++ )
                 selector.append(`<option value='${vars[i]}' ${( selectedValue == vars[i] ? "selected='selected'" : "" )}>${vars[i]}</option>` );
-		
+
 			var that = this;
 
 			// Functions to deal with user interactions with JQuery
-            var onSelect = function (e: JQueryEventObject  ) 
+            var onSelect = function (e: JQueryEventObject  )
 			{
                 var val = selector.val();
                 p.setVal(val);
 			};
-			
+
 			// Add listeners
 			selector.on( "change", onSelect );
 		}

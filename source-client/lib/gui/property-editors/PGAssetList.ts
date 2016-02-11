@@ -4,7 +4,7 @@ module Animate
 	* This represents a property for choosing a list of assets
 	*/
 	export class PGAssetList extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -32,7 +32,7 @@ module Animate
         {
             var p = <PropAssetList>prop;
 
-			// Create HTML	
+			// Create HTML
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style= 'width:90%;' ></select><div class='eye-picker'><img src='media/eye.png'/></div><div class='asset- list'><select class='asset-list-select' size='4'></select><div class='add'>Add</div><div class='remove'>Remove</div></div></div><div class='fix'></div>`);
 			var selector: JQuery = jQuery( "select.prop-combo", editor );
 			var eye: JQuery = jQuery( ".eye-picker", editor );
@@ -45,7 +45,7 @@ module Animate
             var assets = p.getVal();
 			var classNames = p.classNames;
 			var nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
-			
+
 			// Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
 			{
@@ -67,7 +67,7 @@ module Animate
                 selector.append(`<option title='${nodes[i].resource.entry.shallowId} : ${nodes[i].resource.entry.className}' value='${nodes[i].resource.entry.shallowId}' ${(i == 0 ? "selected='selected'" : "")}>${nodes[i].resource.entry.name}</option>`);
 			}
 
-            // Fill the already selected items 
+            // Fill the already selected items
             for (var i = 0, l: number = assets.length; i < l; i++)
             {
                 var selectedAsset = User.get.project.getResourceByShallowID<Asset>(assets[i].entry.shallowId, ResourceType.ASSET);
@@ -76,7 +76,7 @@ module Animate
 			}
 
 			// When we select an asset
-            var onSelect = function (e: JQueryEventObject  ) 
+            var onSelect = function (e: JQueryEventObject  )
 			{
                 assetId = parseInt(selector.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(assetId, ResourceType.ASSET);
@@ -84,13 +84,13 @@ module Animate
 
 
 			// When we select an asset in the list, select that in the drop down
-            var onItemSelect = function (e: JQueryEventObject ) 
+            var onItemSelect = function (e: JQueryEventObject )
 			{
 				selector.val( items.val() );
 			};
 
             // When we click on the eye selector
-            var onEye = function (e: JQueryEventObject ) 
+            var onEye = function (e: JQueryEventObject )
 			{
                 var val = parseInt(selector.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
@@ -102,7 +102,7 @@ module Animate
 			};
 
 			// When we click on add button
-            var onAdd = function (e: JQueryEventObject  ) 
+            var onAdd = function (e: JQueryEventObject  )
 			{
                 if (asset && assets.indexOf(asset) == -1 )
 				{
@@ -113,7 +113,7 @@ module Animate
 			}
 
 			// When we click on remove button
-            var onRemove = function (e: JQueryEventObject ) 
+            var onRemove = function (e: JQueryEventObject )
 			{
                 var toRemove: number = parseInt(items.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(toRemove, ResourceType.ASSET);

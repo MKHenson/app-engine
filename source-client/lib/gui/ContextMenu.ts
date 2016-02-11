@@ -5,7 +5,7 @@ module Animate
 		private _text: string;
 		private _imgURL: string;
 
-		/** 
+		/**
 		* Creates an instance of the item
 		* @param {string} text The text of the item
 		* @param {string} imgURL An optional image URL
@@ -43,7 +43,7 @@ module Animate
 		static ITEM_CLICKED: ContextMenuEvents = new ContextMenuEvents( "context_munu_item_clicked" );
 	}
 
-	
+
 
 	/**
 	* A ContextMenu is a popup window which displays a list of items that can be selected.
@@ -54,7 +54,7 @@ module Animate
 
 		private items: Array<ContextMenuItem>;
 		private selectedItem;
-		
+
 		/**
 		*/
 		constructor()
@@ -62,7 +62,7 @@ module Animate
 			// Call super-class constructor
 			super( 100, 100 );
 
-           
+
 			this.element.addClass( "context-menu" );
 			this.element.css( "height", "" );
 			this.items = [];
@@ -105,7 +105,7 @@ module Animate
 				this.element.css( "left", width - this.element.width() );
 			if ( y + this.element.height() > width )
 				this.element.css( "top", height - this.element.height() );
-            			
+
 			//Check if nothing is visible - if so then hide it.
 			var somethingVisible = false;
 			var i = this.items.length;
@@ -126,7 +126,7 @@ module Animate
 		/**
 		* Adds an item to the ContextMenu
 		* @param {ContextMenuItem} val The item we are adding
-		* @returns {ContextMenuItem} 
+		* @returns {ContextMenuItem}
 		*/
 		addItem( val: ContextMenuItem ): ContextMenuItem
 		{
@@ -139,7 +139,7 @@ module Animate
 		/**
 		* Removes an item from the ContextMenu
 		* @param {ContextMenuItem} val The item we are removing
-		* @returns {ContextMenuItem} 
+		* @returns {ContextMenuItem}
 		*/
 		removeItem( val: ContextMenuItem ): ContextMenuItem
 		{
@@ -160,7 +160,7 @@ module Animate
 		}
 
 
-		/** 
+		/**
 		* Checks if we selected an item - if so it closes the context and dispatches the ITEM_CLICKED event.
 		*/
 		onStageClick( e )

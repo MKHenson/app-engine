@@ -164,7 +164,7 @@
 
 //				//BuildOptionsForm.getSingleton().message( response.message, false );
 //                User.get.meta.image = response.imageUrl;
-//				this.imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );				
+//				this.imgPreview.element.html( ( response.imageUrl != "" ? "<img src='" + response.imageUrl + "'/>" : "" ) );
 //			}
 //			else
 //			{

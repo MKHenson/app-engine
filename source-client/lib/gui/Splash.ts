@@ -73,7 +73,7 @@
             jQuery("body").append(that._splashElm);
             jQuery("#en-login-username", that._loginElm).val("");
             that.$loading = true;
-            
+
             if (!that._captureInitialized)
             {
                 that._captureInitialized = true;
@@ -83,15 +83,15 @@
                 Compiler.build(this._welcomeElm, this);
                 Compiler.build(this._newProject, this);
                 Compiler.build(this._loadingProject, this);
-                Compiler.build(this._splashElm, this);                
+                Compiler.build(this._splashElm, this);
                 Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
             }
             else
             {
                 Compiler.digest(this._splashElm, that, true);
-                Recaptcha.reload();                
+                Recaptcha.reload();
             }
-           
+
             that.$user.authenticated().then(function( val )
             {
                 that.$loading = false;
@@ -117,7 +117,7 @@
             else
                 return { "compact": false, "wide": true };
         }
-        
+
         /*
         * Goes to pane state
         * @param {string} state The name of the state
@@ -128,7 +128,7 @@
             var that = this;
             that.$activePane = state;
             that.$errorMsg = "";
-           
+
             if (state == "welcome")
                 this.fetchProjects(this.$pager.index, this.$pager.limit);
             else if (state == "new-project")
@@ -136,7 +136,7 @@
                 this.$errorMsg = "Give your project a name and select the plugins you woud like to use";
                 this.$errorRed = false;
             }
-            
+
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
 
@@ -151,7 +151,7 @@
         {
             if (messageBoxAnswer == "No")
                 return;
-            
+
             var that = this;
             this.$user.removeProject(this.$selectedProject._id).then(function ()
             {
@@ -177,8 +177,8 @@
 
             //Notif of the reset
             Application.getInstance().projectReset();
-            
-            // Start Loading the plugins            
+
+            // Start Loading the plugins
             that.goState("loading-project", true);
 
             // Go through each plugin and load it
@@ -196,7 +196,7 @@
                             PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
 
                         // Load the scene in and get everything ready
-                        that.loadScene(); 
+                        that.loadScene();
                     }
                 }).catch(function (err: Error)
                 {
@@ -205,7 +205,7 @@
 
                 });
         }
-        
+
         /**
 		* Attempts to load the project and setup the scene
 		*/
@@ -213,7 +213,7 @@
         {
             var that = this;
             var project = this.$user.project;
-            project.entry = this.$selectedProject;           
+            project.entry = this.$selectedProject;
 
             // Notify of new project
             Toolbar.getSingleton().newProject(project);
@@ -224,7 +224,7 @@
             Logger.logMessage(`Loading project '${that.$selectedProject.name}'...`, null, LogType.MESSAGE);
 
             // Attempts to load all the project resources
-            project.loadResources().then(function (resources) 
+            project.loadResources().then(function (resources)
             {
                 Logger.logMessage(`Loaded [${resources.length}] resources`, null, LogType.MESSAGE);
                 return project.loadBuild();
@@ -232,11 +232,11 @@
             }).then( function(build)
             {
                 Logger.logMessage(`Loaded project build '${build.entry.name} - v${build.entry.version}'`, null, LogType.MESSAGE);
-                            
+
                 // Make sure the title tells us which project is open
                 document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-                
-                // Log 
+
+                // Log
                 Logger.logMessage(`Project '${that.$selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
 
                 // Remove splash
@@ -252,7 +252,7 @@
 
         /*
         * Fetches a list of user projects
-        * @param {number} index 
+        * @param {number} index
         * @param {number} limit
         */
         fetchProjects(index: number, limit: number)
@@ -321,7 +321,7 @@
             }
             else
                 this.$selectedPlugins.splice(this.$selectedPlugins.indexOf(plugin), 1);
-            
+
             // Set the active selected plugin
             if (this.$selectedPlugins.length > 0)
                 this.$selectedPlugin = this.$selectedPlugins[this.$selectedPlugins.length - 1];
@@ -365,7 +365,7 @@
         }
 
         /**
-		* Given a form element, we look at if it has an error and based on the expression. If there is we set 
+		* Given a form element, we look at if it has an error and based on the expression. If there is we set
         * the login error message
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
@@ -617,7 +617,7 @@
             })
             .catch(this.loginError.bind(that));
         }
-        
+
         /**
 		* Initializes the spash screen
 		* @returns {Splash}

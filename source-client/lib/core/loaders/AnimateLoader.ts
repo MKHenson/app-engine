@@ -81,7 +81,7 @@ module Animate
             else
                 var fullURL: string = this.domain + this.url + this._getQuery;
 
-			this._curCall = jQuery.ajax( { 
+			this._curCall = jQuery.ajax( {
 				url: fullURL,
                 type: type,
 				dataType: this.dataType,
@@ -101,9 +101,9 @@ module Animate
 
 		/**
 		* Called when we the ajax response has an error.
-		* @param {any} e 
-		* @param {string} textStatus 
-		* @param {any} errorThrown 
+		* @param {any} e
+		* @param {string} textStatus
+		* @param {any} errorThrown
 		*/
 		onError( e, textStatus, errorThrown )
 		{
@@ -133,7 +133,7 @@ module Animate
 			}
 			else
 			{
-				LoaderBase.hideLoader();				
+				LoaderBase.hideLoader();
 				this.emit( new AnimateLoaderEvent( LoaderEvents.FAILED, errorThrown.message, AnimateLoaderResponses.ERROR, null ) );
 				this.dispose();
 			}
@@ -141,9 +141,9 @@ module Animate
 
 		/**
 		* Called when we get an ajax response.
-		* @param {any} data 
-		* @param {any} textStatus 
-		* @param {any} jqXHR 
+		* @param {any} data
+		* @param {any} textStatus
+		* @param {any} jqXHR
 		*/
 		onData( data, textStatus, jqXHR )
 		{
@@ -162,7 +162,7 @@ module Animate
 		}
 
 		/**
-		* Cleans up the object 
+		* Cleans up the object
 		*/
 		dispose()
 		{

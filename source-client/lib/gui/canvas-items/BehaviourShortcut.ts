@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	* A node used to ghost - or act as a shortcut - for an existing node. This node is created when you hold shift and 
+	* A node used to ghost - or act as a shortcut - for an existing node. This node is created when you hold shift and
 	* move a node on the canvas. The ghost can then be as if it were the original node.
 	*/
 	export class BehaviourShortcut extends Behaviour
@@ -29,7 +29,7 @@ module Animate
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourResource}
         */
@@ -42,7 +42,7 @@ module Animate
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {IBehaviourResource} data The data to import from
         */
         deTokenize(data: IBehaviourShortcut)
@@ -53,7 +53,7 @@ module Animate
 
         /**
         * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized. 
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
         * or to get the token you can use items[originalId].token
         */
@@ -81,7 +81,7 @@ module Animate
 			else if (originalNode instanceof BehaviourPortal)
 				this.element.addClass("behaviour-portal");
 
-			// Copy each of the portals 
+			// Copy each of the portals
 			if ( buildPortals )
 			{
                 for (var i = 0, l = originalNode.portals.length; i < l; i++)

@@ -2,7 +2,7 @@ module Animate
 {
 	/**
 	* A node for displaying comments
-	*/	
+	*/
 	export class BehaviourComment extends Behaviour
 	{
 		private isInInputMode: boolean;
@@ -25,12 +25,12 @@ module Animate
 				.addClass( "behaviour-comment" )
 				.addClass( "comment" )
 				.addClass( "shadow-small" );
-			
+
 
 			this.isInInputMode = false;
 			this.stageClickProxy = jQuery.proxy( this.onStageClick, this );
 			this.input = jQuery( "<textarea rows='10' cols='30'></textarea>" );
-            
+
 			this.element.on( "mousedown", jQuery.proxy( this.onResizeStart, this ) );
 			this.mStartX = null;
             this.mStartY = null;
@@ -47,7 +47,7 @@ module Animate
         }
 
         /**
-       * Tokenizes the data into a JSON. 
+       * Tokenizes the data into a JSON.
        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
        * @returns {IBehaviour}
        */
@@ -61,7 +61,7 @@ module Animate
         }
 
         /**
-       * De-Tokenizes data from a JSON. 
+       * De-Tokenizes data from a JSON.
        * @param {IBehaviourComment} data The data to import from
        */
         deTokenize(data: IBehaviourComment)
@@ -71,7 +71,7 @@ module Animate
             this.properties.getVar("Comment").setVal(data.text);
         }
 
-        /** 
+        /**
         * When the text property is edited
         */
         onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
@@ -79,7 +79,7 @@ module Animate
             this.text = event.property.getVal();
         }
 
-		/** 
+		/**
         * Does nothing...
         */
 		updateDimensions()
@@ -87,7 +87,7 @@ module Animate
 			return;
 		}
 
-		/** 
+		/**
         * When the mouse enters the behaviour
         */
 		onIn( e )
@@ -96,7 +96,7 @@ module Animate
 		}
 
 		/**
-		* A shortcut for jQuery's css property. 
+		* A shortcut for jQuery's css property.
 		*/
 		css( propertyName: any, value?: any ): any
 		{
@@ -106,7 +106,7 @@ module Animate
 			return toRet;
 		}
 
-		/** 
+		/**
         * When the mouse enters the behaviour
         */
 		onOut( e )
@@ -114,7 +114,7 @@ module Animate
 			this.element.css( "opacity", 0.3 );
 		}
 
-		/** 
+		/**
         * When the resize starts.
         */
 		onResizeStart( event, ui )
@@ -126,7 +126,7 @@ module Animate
 			this.mOffsetY = this.element.offset().top;
 		}
 
-		/** 
+		/**
         * When the resize updates.
         */
 		onResizeUpdate( event, ui )
@@ -137,7 +137,7 @@ module Animate
 			helper.css( { left: this.mOffsetX, top: this.mOffsetY });
 		}
 
-		/** 
+		/**
         * When the resize stops.
         */
 		onResizeStop( event, ui )
@@ -146,14 +146,14 @@ module Animate
 			this.element.css( { left: this.mStartX, top: this.mStartY });
 		}
 
-		/** 
+		/**
         * Call this to allow for text editing in the comment.
         */
 		enterText()
 		{
 			if ( this.isInInputMode )
 				return false;
-                
+
 			jQuery( "body" ).on( "click", this.stageClickProxy );
             jQuery("body").append(this.input);
 
@@ -170,7 +170,7 @@ module Animate
 			this.input.select();
 		}
 
-		/** 
+		/**
         * When we click on the stage we go out of edit mode.
         */
 		onStageClick( e )
@@ -186,7 +186,7 @@ module Animate
 			this.element.css( { width: this.input.width() + "px", height: this.input.height() + "px" });
 			this.input.detach();
             this.element.show();
-            
+
             // Set the comment
             this.properties.getVar("Comment").setVal(this.input.val());
 		}
@@ -199,7 +199,7 @@ module Animate
             this.off("edited", this.onEdit, this);
 			jQuery( "body" ).off( "click", this.stageClickProxy );
 			this.input.remove();
-			
+
 			//Call super
             super.dispose();
 

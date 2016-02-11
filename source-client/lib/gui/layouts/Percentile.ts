@@ -1,8 +1,8 @@
 module Animate
 {
 	/**
-	* A simple Percentile layout. Changes a component's dimensions to be a 
-	* percentage of its parent width and height. 
+	* A simple Percentile layout. Changes a component's dimensions to be a
+	* percentage of its parent width and height.
 	*/
 	export class Percentile implements ILayout
 	{
@@ -23,7 +23,7 @@ module Animate
 		{
 			var e: JQuery = component.element;
 			var parent: JQuery = e.parent();
-			
+
 			if (parent != null && parent.length != 0)
 			{
 				var parentOverflow = parent.css("overflow");

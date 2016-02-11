@@ -7,7 +7,7 @@ module Animate
 		static CONFIRM: OkCancelFormEvents = new OkCancelFormEvents("ok_cancel_confirm");
 	}
 
-	
+
 
 	/**
 	* A simple form which holds a heading, content and OK / Cancel buttons.
@@ -31,7 +31,7 @@ module Animate
 		{
 			// Call super-class constructor
 			super( width, height, autoCenter, controlBox, title );
-			
+
 
 			this.element.css( "height", "" );
 

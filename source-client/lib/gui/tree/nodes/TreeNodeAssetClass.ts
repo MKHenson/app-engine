@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	* Treenodes are added to the treeview class. This treenode contains a reference to the 
+	* Treenodes are added to the treeview class. This treenode contains a reference to the
 	* AssetClass object defined by plugins.
 	*/
 	export class TreeNodeAssetClass extends TreeNode
@@ -42,7 +42,7 @@ module Animate
 		{
 			var toRet: Array<TreeNodeAssetInstance> = null;
 			var children: Array<IComponent> = this.children;
-			
+
 			var names: Array<string>;
 
 			if (!classNames)

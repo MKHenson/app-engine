@@ -15,7 +15,7 @@ module Animate
 		constructor( parent: Component )
 		{
 			super( parent );
-			
+
 			if ( SceneTab._singleton != null )
 				throw new Error( "The SceneTab class is a singleton. You need to call the SceneTab.get() function." );
 

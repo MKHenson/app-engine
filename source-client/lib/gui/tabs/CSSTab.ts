@@ -15,7 +15,7 @@ module Animate
             // Call super-class constructor
             super(name);
         }
-        
+
 		/**
 		* Called when the editor needs to save its content
 		*/
@@ -56,7 +56,7 @@ module Animate
         }
 
         /**
-        * Called by the tab class when the pair is to be removed. 
+        * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
         onRemove(event: TabEvent)

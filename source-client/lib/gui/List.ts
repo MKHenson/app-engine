@@ -7,7 +7,7 @@ module Animate
 		static ITEM_SELECTED: ListEvents = new ListEvents("list_item_selected");
 	}
 
-	
+
 
 	/**
 	* Use this class to create a select list.
@@ -22,8 +22,8 @@ module Animate
 		/**
 		* @param {Component} parent The parent component of this list
 		* @param {string} html An optional set of HTML to use. The default is <div class='list-box'></div>
-		* @param {string} selectHTML 
-		* @param {boolean} isDropDown 
+		* @param {string} selectHTML
+		* @param {boolean} isDropDown
 		*/
 		constructor( parent : Component, html: string = "<div class='list-box'></div>", selectHTML: string = "<select class='list' size='6'></select>", isDropDown : boolean = false )
 		{
@@ -71,8 +71,8 @@ module Animate
 			var i: number = items.length;
 			while ( i-- )
 				items[i].detach();
-		
-			
+
+
 			//jQuery( "option", this.element ).each( function ()
 			//{
 			//	jQuery( this ).detach();
@@ -99,7 +99,7 @@ module Animate
 		}
 
 		/**
-		* Removes an item from the list 
+		* Removes an item from the list
 		* @param <object> val The text of the item to remove
 		* @returns <object> The jQuery object
 		*/
@@ -160,7 +160,7 @@ module Animate
 		* Sets the selected item index from the list by its index.
 		* @param {number} val The text of the item
 		*/
-		set selectedIndex( val : number ) 
+		set selectedIndex( val : number )
 		{
 			if ( typeof ( val ) !== "undefined" )
 			{
@@ -174,7 +174,7 @@ module Animate
 		}
 
 		/**
-		* Gets the selected item index from the list by its 
+		* Gets the selected item index from the list by its
 		* index.
 		* @returns {number} The selected index or -1 if nothing was found.
 		*/

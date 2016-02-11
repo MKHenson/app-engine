@@ -46,7 +46,7 @@
                             return reject(<IAjaxError>{ message: xhttp.statusText, status: xhttp.status });
                     }
                 };
-                
+
                 xhttp.open("POST", url, true);
 
                 var str;
@@ -124,7 +124,7 @@
                     str = JSON.stringify(data);
                     xhttp.setRequestHeader('Content-type', 'application/json; charset=utf-8');
                 }
-                
+
                 xhttp.withCredentials = Utils._withCredentials;
                 xhttp.send(str);
 
@@ -252,7 +252,7 @@
                     prop = new PropText(name, "");
                     break;
             }
-            
+
             return prop;
         }
 

@@ -9,7 +9,7 @@ module Animate
 	}
 
 
-	
+
 
 	/**
 	* The Tab component will create a series of selectable tabs which open specific tab pages.
@@ -23,7 +23,7 @@ module Animate
 		private _tabPairs: Array<TabPair>;
 		private _selectedPair: TabPair;
 		private _dropButton: Component;
-		
+
 		constructor( parent : Component )
 		{
 			// Call super-class constructor
@@ -35,10 +35,10 @@ module Animate
 			this._pagesDiv.addLayout( new Fill( 0, 0, 0, -25 ) );
 			this._tabPairs = [];
 			this._selectedPair = null;
-			
+
 			if ( !Tab.contextMenu )
 				Tab.contextMenu = new ContextMenu();
-            
+
             this.addLayout(new Fill());
 
             Tab.contextMenu.on(ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
@@ -79,7 +79,7 @@ module Animate
 
 		/**
 		* Get the tab to select a tab page
-		* @param {TabPair} tab 
+		* @param {TabPair} tab
 		*/
 		selectTab( tab: TabPair ) : TabPair
 		{
@@ -107,14 +107,14 @@ module Animate
 
 		/**
 		* Called just before a tab is closed. If you return false it will cancel the operation.
-		* @param {TabPair} tabPair 
+		* @param {TabPair} tabPair
 		* @returns {boolean}
 		*/
 		onTabPairClosing( tabPair: TabPair ) { return true; }
 
 		/**
 		* When we click the tab
-		* @param {any} e 
+		* @param {any} e
 		*/
 		onClick( e )
 		{
@@ -192,7 +192,7 @@ module Animate
 		/**
 		* Adds an item to the tab
 		* @param {string} val The label text of the tab or a {TabPair} object
-		* @param {boolean} canClose 
+		* @param {boolean} canClose
 		* @returns {TabPair} The tab pair containing both the label and page <Component>s
 		*/
 		addTab( val: string, canClose: boolean ): TabPair

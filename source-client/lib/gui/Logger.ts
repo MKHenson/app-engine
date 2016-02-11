@@ -12,7 +12,7 @@ module Animate
 	}
 
 	/**
-	* The Logger is a singleton class used to write message's to Animate's log window. 
+	* The Logger is a singleton class used to write message's to Animate's log window.
 	*/
 	export class Logger extends MenuList
 	{
@@ -25,7 +25,7 @@ module Animate
 		constructor( parent: Component )
 		{
 			if ( Logger._singleton != null )
-				throw new Error( "The Logger class is a singleton. You need to call the Logger.getSingleton() function." );
+			 	throw new Error( "The Logger class is a singleton. You need to call the Logger.getSingleton() function." );
 
 			Logger._singleton = this;
 
@@ -67,7 +67,7 @@ module Animate
 		* This is called by a controlling ScreenManager class. An image string needs to be returned
 		* which will act as a preview of the component that is being viewed or hidden.
 		* @extends <Logger>
-		* @returns <string> 
+		* @returns <string>
 		*/
 		getPreviewImage() : string
 		{
@@ -96,7 +96,7 @@ module Animate
 
 		/**
 		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @param {Docker} val 
+		* @param {Docker} val
 		*/
 		setDocker( val : Docker ) { this.mDocker = val; }
 
@@ -181,7 +181,7 @@ module Animate
 
 		/**
 		* Gets the singleton instance.
-		* @param {Component} parent 
+		* @param {Component} parent
 		* @returns {Logger}
 		*/
 		static getSingleton( parent? : Component ): Logger

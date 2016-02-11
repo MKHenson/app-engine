@@ -9,7 +9,7 @@ module Animate
 		{
             // Call super-class constructor
             super(group, group.entry.name, "media/array.png", true);
-            
+
             this.element.addClass("tree-node-group");
             var project = User.get.project;
 
@@ -21,7 +21,7 @@ module Animate
             }
         }
 
-        /** 
+        /**
         * Called whenever the resource is re-downloaded
         */
         protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
@@ -42,7 +42,7 @@ module Animate
                 this.addNode(new TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
             }
         }
-                
+
 		/**
 		* Called when a draggable object is dropped onto the canvas.
 		*/

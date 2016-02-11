@@ -3,7 +3,7 @@
     "module": "amd",
     "removeComments": false,
     "outFile": "./dist/application.js",
-    "watch": true,
+    "watch": false,
     "noEmitOnError": true,
     "declaration": true,
     "sourceMap": false,

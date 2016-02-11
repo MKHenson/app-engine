@@ -27,7 +27,7 @@
         {
             this.updateFunc(this.index, this.limit);
         }
-        
+
         /**
         * Gets the current page number
         * @returns {number}

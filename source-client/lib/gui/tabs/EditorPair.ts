@@ -11,7 +11,7 @@
         protected _close: boolean;
         private _editor: AceAjax.Editor;
         private _loadingGif: JQuery;
-        
+
 		/**
 		* @param {string} name The name of the tab
 		*/
@@ -25,14 +25,14 @@
             this._proxyMessageBox = jQuery.proxy(this.onMessage, this);
             this._loadingGif = jQuery("<img src='media/buffering-gray.png' class='rotate-360' />");
 
-            
+
             this._close = false;
             this._editor = null;
         }
 
 		/**
 		* When we acknowledge the message box.
-		* @param {string} val 
+		* @param {string} val
 		*/
         onMessage(val: string)
         {
@@ -47,7 +47,7 @@
                 CanvasTab.getSingleton().removeTab(this, true);
             }
         }
-        
+
         /**
 		* Sets if this tab pair is busy loading
 		* @param {boolean} val
@@ -62,7 +62,7 @@
 
 		/**
 		* Called when the editor changes
-		* @param {any} e 
+		* @param {any} e
 		*/
         onChange(e)
         {
@@ -70,7 +70,7 @@
         }
 
 		/**
-		* Called by the tab class when the pair is to be removed. 
+		* Called by the tab class when the pair is to be removed.
 		* @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
 		*/
         onRemove(event: TabEvent)

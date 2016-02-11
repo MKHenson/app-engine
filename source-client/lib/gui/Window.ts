@@ -7,7 +7,7 @@ module Animate
 		static HIDDEN: WindowEvents = new WindowEvents("window_hidden");
 		static SHOWN: WindowEvents = new WindowEvents("window_shown");
 	}
-    
+
 	/**
 	* This class is the base class for all windows in Animate
 	*/
@@ -54,7 +54,7 @@ module Animate
 
             this._modalBackdrop = jQuery( "<div class='modal-backdrop dark-modal'></div>" );
 
-			//Proxies	
+			//Proxies
 			this._externalClickProxy = this.onStageClick.bind( this );
 			this._isVisible = false;
 
@@ -157,7 +157,7 @@ module Animate
 				this.element.css( { left: x + "px", top: y + "px" });
 
 
-			
+
 
 			if ( isPopup )
 			{
@@ -165,7 +165,7 @@ module Animate
 				jQuery( "body" ).on( "click", this._externalClickProxy );
 			}
 
-			
+
 
 			this.emit( new WindowEvent( WindowEvents.SHOWN, this ) );
 
@@ -187,7 +187,7 @@ module Animate
 
 		/**
 		* Updates the dimensions if autoCenter is true.
-		* @param {object} val 
+		* @param {object} val
 		*/
 		onWindowResized( val )
         {
@@ -236,7 +236,7 @@ module Animate
 		get headerText(): string { return this._headerText.element.text(); }
 		set headerText( value: string ) { this._headerText.element.text(value); }
 		get modalBackdrop() : JQuery { return this._modalBackdrop; }
-		
+
 		/**
 		* This will cleanup the component.
 		*/

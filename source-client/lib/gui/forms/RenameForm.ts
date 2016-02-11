@@ -2,7 +2,7 @@ module Animate
 {
     export interface IRenameToken { newName: string; oldName: string; object: IRenamable; cancelled: boolean; };
     export interface IRenamable { name?: string; };
-    
+
 	/**
 	* This form is used to rename objects
 	*/
@@ -35,7 +35,7 @@ module Animate
             // Fetch & compile the HTML
             this._projectElm = jQuery("#rename-content").remove().clone();
             this.content.element.append(this._projectElm);
-            Compiler.build(this._projectElm, this, false); 
+            Compiler.build(this._projectElm, this, false);
 			this.object = null;
         }
 
@@ -64,10 +64,10 @@ module Animate
             super.show();
             jQuery("input", this._projectElm).select();
         }
-        
+
 		/**
 		* Attempts to rename an object
-		* @param {IRenamable} object 
+		* @param {IRenamable} object
 		* @extends {RenameForm}
 		*/
         renameObject(object: IRenamable, id: string, type: ResourceType): Promise<IRenameToken>
@@ -78,7 +78,7 @@ module Animate
             this._resourceId = id;
             this._type = type;
             var that = this;
-            
+
             jQuery("input", this._projectElm).select();
             Compiler.digest(this._projectElm, this);
 
@@ -104,7 +104,7 @@ module Animate
 		* @type public mfunc OnButtonClick
 		* Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
 		* and pass the text either for the ok or cancel buttons.
-		* @param {any} e 
+		* @param {any} e
 		* @extends {RenameForm}
 		*/
 		ok()
@@ -140,7 +140,7 @@ module Animate
                 that.hide();
                 return that.emit(new RenameFormEvent("renamed", name, prevName, that.object, that._type));
             }
-            
+
             // Attempt to connect to the DB and update the object
             proj.editResource<Engine.IResource>(this._resourceId, { name: name }, this._type).then(function (resp)
             {
@@ -157,10 +157,10 @@ module Animate
 
             });
 		}
-		
+
 		/**
 		* Gets the singleton instance.
-		* @returns {RenameForm} 
+		* @returns {RenameForm}
 		*/
 		static get get() : RenameForm
 		{

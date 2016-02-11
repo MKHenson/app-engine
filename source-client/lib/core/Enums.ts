@@ -15,7 +15,7 @@
     }
 
     /**
-	* Defines which types of files to search through 
+	* Defines which types of files to search through
 	*/
     export enum FileSearchType
     {
@@ -54,7 +54,7 @@
         SCRIPT
 
     }
-    
+
     /**
     * Describes the type of access users have to a project
     */

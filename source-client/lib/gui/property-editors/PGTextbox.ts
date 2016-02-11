@@ -4,7 +4,7 @@ module Animate
 	* A property editor which edits objects and strings
 	*/
     export class PGTextbox extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -40,7 +40,7 @@ module Animate
             container.element.append(editor);
 
 			//Function to deal with user interactions with JQuery
-            var valueEdited = function (e: JQueryEventObject ) 
+            var valueEdited = function (e: JQueryEventObject )
             {
                 p.setVal( jQuery("input", editor).val() );
 			};

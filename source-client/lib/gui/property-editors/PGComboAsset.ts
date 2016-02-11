@@ -4,7 +4,7 @@ module Animate
 	* This represents a combo property for assets that the user can select from a list.
 	*/
     export class PGComboAsset extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -32,7 +32,7 @@ module Animate
         {
             var p = <PropAsset>prop;
 
-			// Create HTML	
+			// Create HTML
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>`);
 			var selector: JQuery = jQuery( "select", editor );
 			var eye: JQuery = jQuery( ".eye-picker", editor );
@@ -59,11 +59,11 @@ module Animate
 			var len: number = nodes.length;
 			for ( var i = 0; i < len; i++ )
                 selector.append(`<option title='${nodes[i].resource.entry.shallowId + " : " + nodes[i].resource.entry.className}' value='${nodes[i].resource.entry.shallowId}' ${(selectedID == nodes[i].resource.entry.shallowId ? "selected='selected'" : "")}>${nodes[i].resource.entry.name}</option>` );
-			
+
 			var that = this;
 
 			// When we select a new asset
-            var onSelect = function (e: JQueryEventObject  ) 
+            var onSelect = function (e: JQueryEventObject  )
 			{
                 var val = parseFloat(selector.val());
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
@@ -71,7 +71,7 @@ module Animate
             };
 
             // When we click on the target
-            var onEye = function (e: JQueryEventObject) 
+            var onEye = function (e: JQueryEventObject)
 			{
 				var val = parseInt( selector.val() );
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);

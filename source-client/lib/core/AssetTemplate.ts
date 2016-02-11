@@ -50,7 +50,7 @@ module Animate
 				}
 		}
 
-		/** 
+		/**
 		* Finds a class by its name. Returns null if nothing is found
 		*/
 		findClass( name: string )

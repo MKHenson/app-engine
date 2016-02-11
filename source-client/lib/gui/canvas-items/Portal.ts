@@ -1,18 +1,18 @@
 module Animate
 {
 	/**
-	* A portal class for behaviours. There are 4 different types of portals - 
+	* A portal class for behaviours. There are 4 different types of portals -
 	* INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
 	*/
 	export class Portal extends Component
 	{
-		private _links: Array<Link>;		
+		private _links: Array<Link>;
 		private _customPortal: boolean;
         private _type: PortalType;
         private _property: Prop<any>;
 
 		public behaviour: Behaviour;
-		
+
 		/**
 		* @param {Behaviour} parent The parent component of the Portal
 		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
@@ -65,7 +65,7 @@ module Animate
             }
 
             this._property = property;
-            
+
             // Set the tooltip to be the same as the name
             this.tooltip = property.toString();
 		}
@@ -104,7 +104,7 @@ module Animate
 				this._links[0].dispose();
 				len = this._links.length;
 			}
-            
+
 			this._links = null;
 			this.behaviour = null;
 			this._type = null;
@@ -137,7 +137,7 @@ module Animate
                 this.element.addClass("active");
             else
                 this.element.removeClass("active");
-			
+
 		}
 
 		/**
@@ -171,7 +171,7 @@ module Animate
 		}
 
 		/**
-		* Returns this portal's position on the canvas. 
+		* Returns this portal's position on the canvas.
 		*/
 		positionOnCanvas()
 		{
@@ -202,7 +202,7 @@ module Animate
 			};
 		}
 
-		
+
         get type(): PortalType { return this._type; }
         get property(): Prop<any> { return this._property; }
         get customPortal(): boolean { return this._customPortal; }

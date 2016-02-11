@@ -131,7 +131,7 @@ module Animate
         {
             project.on("resource-created", this.onResourceCreated, this);
 
-			//Add all the asset nodes 
+			//Add all the asset nodes
 			var assetTemplates = PluginManager.getSingleton().assetTemplates;
 			var assetClass: AssetClass;
 
@@ -159,7 +159,7 @@ module Animate
         }
 
         /**
-        * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever 
+        * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
@@ -253,7 +253,7 @@ module Animate
 		*/
 		addAssetInstance( asset : Asset, collapse : boolean = true )
 		{
-			// Add all the asset nodes 
+			// Add all the asset nodes
             var classNode: TreeNodeAssetClass = <TreeNodeAssetClass>this.findNode("className", asset.entry.className )
 
 			if ( classNode != null )
@@ -270,7 +270,7 @@ module Animate
 		}
 
 		///**
-		//* Update the asset node so that its saved. 
+		//* Update the asset node so that its saved.
 		//* @param {Asset} asset The asset to associate with the node
 		//*/
 		//updateAssetInstance( asset: Asset )
@@ -314,9 +314,9 @@ module Animate
 
 
 		/**
-		* Called when we select a menu item. 
+		* Called when we select a menu item.
 		*/
-		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) 
+		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher )
         {
             var promise: Promise<any>;
             var project = User.get.project;
@@ -382,7 +382,7 @@ module Animate
                         val.loading = true;
                         if (val instanceof TreeNodeResource)
                             resolveRequest(project.saveResource((<ProjectResource<Engine.IResource>>val.resource).entry._id), val);
-                    });	
+                    });
 
                     break;
                 case "Add Group":
@@ -517,7 +517,7 @@ module Animate
 		//onGroupResponse(response: ProjectEvents, event: ProjectEvent )
 		//{
 		//	var data = event.tag;
-			
+
             //if (response == ProjectEvents.GROUP_CREATED)
             //{
             //    this._groupsNode.addNode(new TreeNodeGroup(data.id, data.name, data.json, this));
@@ -571,7 +571,7 @@ module Animate
   //      onObjectRenamed(type: string, event: RenameFormEvent)
 		//{
 		//	var data = event.tag;
-            
+
   //          if (data.object != null)
   //          {
   //              var prevName = data.object.name;
@@ -736,7 +736,7 @@ module Animate
 
 			return toRet;
 		}
-		
+
 		/**
 		* This function will get a list of asset classes.
 		* returns {Array<TreeNodeAssetClass>}
@@ -785,12 +785,12 @@ module Animate
 				else
 					this._contextDel.element.hide();
 
-				//Show / hide the copy context 
+				//Show / hide the copy context
 				if ( component.canCopy && this.selectedNodes.length == 1 )
 					this._contextCopy.element.show();
 				else
 					this._contextCopy.element.hide();
-                
+
 				//Show / hide the update option
 				if ( component.canUpdate )
 					this._contextRefresh.element.show();
@@ -808,13 +808,13 @@ module Animate
 					this._contextAddGroup.element.show();
 				else
 					this._contextAddGroup.element.hide();
-                
+
 				//Show / hide add instance context item
 				if ( component instanceof TreeNodeAssetClass && component.assetClass.abstractClass == false )
 					this._contextAddInstance.element.show();
 				else
 					this._contextAddInstance.element.hide();
-                
+
 				this._contextNode = component;
 				e.preventDefault();
 				this._contextMenu.show( Application.getInstance(), e.pageX, e.pageY, false, true );
@@ -886,7 +886,7 @@ module Animate
 		///**
 		//* This will add a node to the treeview to represent the containers.
 		//* @param {Container} behaviour The behaviour we are associating with the node
-		//* @returns {TreeNodeBehaviour} 
+		//* @returns {TreeNodeBehaviour}
 		//*/
 		//addContainer(behaviour: Container): TreeNodeBehaviour
 		//{
@@ -898,7 +898,7 @@ module Animate
 
 		/**
 		* This will add a node to the treeview to represent the behaviours available to developers
-		* @param {BehaviourDefinition} template 
+		* @param {BehaviourDefinition} template
 		* @returns {TreeNodePluginBehaviour}
 		*/
 		addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour

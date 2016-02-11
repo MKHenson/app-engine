@@ -1,13 +1,13 @@
 ﻿module Animate
 {
     export type CompiledEval = (ctrl, event, elm, contexts) => any;
-    
-    /* 
+
+    /*
     * Directives are classes that define rules for expanding compiler blocks (eg en-repeat)
     */
     export interface IDirective
     {
-        /* 
+        /*
         * Expands the html directive
         * @param {string} expression The JS expression in the HTML value attribute
         * @param {any} ctrl The controller
@@ -18,7 +18,7 @@
         expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
     }
 
-    /* 
+    /*
     * A custom node interface for compiler nodes
     */
     export interface AppNode extends Node
@@ -32,10 +32,10 @@
 
         /* The type of expression stored */
         $expressionType: string;
-        
+
         /* The compiled eval function of the engine attribute */
         $compliledEval: { [name: number]: CompiledEval };
-        
+
         /* A context variable value. If nodes are dynamically created, any context variables are assign to the node (eg en-repeate="plugins as plugin") */
         $ctxValues: Array<{ name: string; value: any;}>
 
@@ -49,7 +49,7 @@
          If the object is different to the clone, then the dyanmic nodes are re-created */
         $clonedData: any;
     }
-    
+
     export interface InstanceNode extends AppNode
     {
         $clonedElements: Array<AppNode>;
@@ -65,7 +65,7 @@
     {
         // The controller associated with the element. Assigned on a build
         $ctrl: any;
-        
+
         /* Each root node holds a list of references that are used in expansions with attributes like en-repeat */
         $commentReferences: { [id: string]: DescriptorNode };
     }
@@ -86,9 +86,9 @@
         $pristine: boolean;
         $autoClear: boolean;
     }
-    
+
     /**
-    * Defines a set of functions for compiling template commands and a controller object. 
+    * Defines a set of functions for compiling template commands and a controller object.
     */
     export class Compiler
     {
@@ -104,7 +104,7 @@
             "email": { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email", negate: false },
             "no-html": { regex: /(<([^>]+)>)/ig, name: "no-html", negate: true }
         };
-        
+
         /**
         * Clones each of the nodes and their custom attributes
         * @param {Node} node The node to clone
@@ -121,7 +121,7 @@
             clone.$expression = node.$expression;
             clone.$expressionType = node.$expressionType;
             clone.$ieTextNodes = node.$ieTextNodes;
-            
+
             // If a descriptor node
             if (node.hasOwnProperty("$originalNode"))
             {
@@ -153,13 +153,13 @@
                 for (var i in ctxValues)
                     contexts[ctxValues[i].name] = ctxValues[i].value;
             }
-            
+
             var ctx = "";
             for (var i in contexts)
                 ctx += `var ${i} = contexts['${i}'];`;
 
 
-            return <CompiledEval>new Function("ctrl", "event", "elm", "contexts", "'use strict'; " + ctx + " var __ret = " + script + "; return __ret;");   
+            return <CompiledEval>new Function("ctrl", "event", "elm", "contexts", "'use strict'; " + ctx + " var __ret = " + script + "; return __ret;");
         }
 
         /**
@@ -181,13 +181,13 @@
                 for (var i in ctxValues)
                     contexts[ctxValues[i].name] = ctxValues[i].value;
             }
-            
+
             if (!elm.$compliledEval)
                 elm.$compliledEval = {};
-            
+
             if (!elm.$compliledEval[script])
                 elm.$compliledEval[script] = Compiler.compileEval(script, elm, $ctxValues);
-  
+
             return elm.$compliledEval[script](ctrl, event, elm, contexts);
         }
 
@@ -373,15 +373,15 @@
             function search(e: Node)
             {
                 cont = callback.call(e, e);
-                
+
                 if (cont !== false)
                 {
                     var prevL = e.childNodes.length;
                     for (var i = 0; i < e.childNodes.length; i++)
                     {
-                        prevL = e.childNodes.length; 
-                        search(e.childNodes[i]); 
-                       
+                        prevL = e.childNodes.length;
+                        search(e.childNodes[i]);
+
                         if (e.childNodes.length < prevL)
                             i = i - (e.childNodes.length - prevL);
                     }
@@ -449,7 +449,7 @@
 
 
                 var comment: JQuery;
-                var commentElement: DescriptorNode; 
+                var commentElement: DescriptorNode;
                 var commentReferenceNumbers = child.nodeValue.match(/\d+/gi);
 
                 // Get the comment reference number - and look it up in the root node registered comments
@@ -459,7 +459,7 @@
                     commentElement = references[id];
                     comment = jQuery(commentElement);
                 }
-                
+
                 // If the comment matches a root node flagged comment
                 if (commentElement && commentElement.$originalNode.$expression)
                 {
@@ -542,7 +542,7 @@
             (<HTMLElement><Node>node).addEventListener(name, func);
             node.$events.push({ name: name, func: func, tag: tag });
         }
-        
+
         /**
         * Goes through any expressions in the element and updates them according to the expression result.
         * @param {JQuery} elm The element to traverse
@@ -579,7 +579,7 @@
                     return;
 
                 var jElemWrapper = jQuery(elem);
-                
+
                 // If a text node
                 if (elem.nodeType == 3)
                 {
@@ -611,7 +611,7 @@
                                 (<AppNode>textNode.parentNode).$ieTextNodes.push(textNode);
                         }
                     }
-                    
+
                     return;
                 }
 
@@ -730,7 +730,7 @@
                                 Compiler.parse(value, controller, e, elem, null);
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            
+
                             Compiler.registerFunc(appNode, "dblclick", "en-dclick", ev);
                             break;
                         case "en-change":
@@ -738,13 +738,13 @@
                             var ev = function (e)
                             {
                                 Compiler.parse(value, controller, e, elem, null);
-                                
+
                                 if ((<NodeInput>elem).$validate)
                                     Compiler.validateNode(<NodeInput>elem);
 
                                 Compiler.digest(jElem, controller, includeSubTemplates);
                             };
-                            
+
                             Compiler.registerFunc(appNode, "change", "en-change", ev);
                             break;
                         case "en-submit":
@@ -787,7 +787,7 @@
 
                             (<NodeInput>elem).$validate = true;
                             (<NodeInput>elem).$value = value;
-                            
+
                             // Set the parent form to be pristine
                             if ((<HTMLInputElement>elem).form)
                                 (<NodeForm>(<HTMLInputElement>elem).form).$pristine = true;
@@ -819,7 +819,7 @@
 
                                 //Compiler.digest(jElem, controller, includeSubTemplates);
                             //};
-                            
+
                            // Compiler.registerFunc(appNode, "change", "en-validate", ev);
                             break;
                         case "en-auto-clear":
@@ -914,25 +914,25 @@
         {
             var rootNode = <RootNode><Node>elm.get(0);
             rootNode.$ctrl = ctrl;
-            
+
             rootNode.$commentReferences = {};
 
             var potentials: Array<Element> = [];
-                
+
             // First go through each of the nodes and find any elements that will potentially grow or shrink
             // Traverse each element
             Compiler.traverse(rootNode, function (elem: Element)
             {
                 if (!includeSubTemplates && (<RootNode><Node>elem).$ctrl && (<RootNode><Node>elem).$ctrl != ctrl)
                     return false;
-                
+
                 // Only allow element nodes
                 if (elem.nodeType != 1)
                     return;
 
                 if ((<AppNode><Node>elem).$dynamic || (<InstanceNode><Node>elem).$clonedElements)
                     return;
-                
+
                 var attrs: Array<Attr> = Compiler.attrs;
                 attrs.splice(0, attrs.length);
                 for (var i = 0; i < (<Element>elem).attributes.length; i++)
@@ -973,7 +973,7 @@
                 commentElement.$originalNode = <AppNode><Node>potentials[i];
                 commentElement.$expression = commentElement.$originalNode.$expression;
                 commentElement.$expressionType = commentElement.$originalNode.$expressionType;
-           
+
                 jQuery(potentials[i]).replaceWith(comment);
                 rootNode.$commentReferences[Compiler.$commentRefIDCounter.toString()] = commentElement;
             }

@@ -13,7 +13,7 @@ module Animate
 		private _docker: Docker;
 		private _groups: Array<PropertyGridGroup>;
 		private _object: EditableSet;
-        
+
 		constructor( parent : Component )
 		{
 			if ( PropertyGrid._singleton != null )
@@ -56,7 +56,7 @@ module Animate
 
 		/**
 		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @param <object> val 
+		* @param <object> val
 		*/
 		setDocker( val : Docker ) { this._docker = val; }
 
@@ -69,9 +69,9 @@ module Animate
 		* This is called by a controlling Docker class when the component needs to be hidden.
 		*/
 		onHide(): void { }
-        
+
         /**
-        * Cleans up the groups and editors 
+        * Cleans up the groups and editors
         */
         cleanup()
         {
@@ -88,10 +88,10 @@ module Animate
 
             this._groups = [];
         }
-        
+
 		/**
 		* Sets the object we are going to edit.
-		* @param {EditableSet} object The object we are editing. You should ideally create a new object {}, and then 
+		* @param {EditableSet} object The object we are editing. You should ideally create a new object {}, and then
 		* use the function pGridEditble to create valid property grid variables.
 		* @param {string} name The name of the object we are editing
 		* @param {string} img An optional image string
@@ -101,7 +101,7 @@ module Animate
 		{
 			if ( !this.enabled )
                 return;
-            
+
             // Cleanup
             this.cleanup();
 
@@ -140,7 +140,7 @@ module Animate
 
                     sortable.push({ prop: property, group: pGroup });
                 }
-                
+
                 // Sort by the groups by name
                 sortable.sort(function (a, b)
                 {
@@ -204,7 +204,7 @@ module Animate
 
 		/**
 		* called when we reset the project
-		* @returns <object> 
+		* @returns <object>
 		*/
 		projectReset()
 		{
@@ -212,9 +212,9 @@ module Animate
 		}
 
 		/**
-		* Add a new editor to the property grid. 
+		* Add a new editor to the property grid.
 		* @param {PropertyGridEditor} editor The PropertyGridEditor object to add
-		* @returns {PropertyGridEditor} 
+		* @returns {PropertyGridEditor}
 		*/
 		addEditor(editor: PropertyGridEditor)
 		{
@@ -224,7 +224,7 @@ module Animate
 		}
 
 		/**
-		* Removes an editor from the property grid. 
+		* Removes an editor from the property grid.
 		* @param {PropertyGridEditor} editor The PropertyGridEditor object to remove.
 		* @returns {PropertyGridEditor} The editor or null
 		*/
@@ -251,8 +251,8 @@ module Animate
 		}
 
 		/**
-		* Gets the singleton instance. 
-		* @returns <PropertyGrid> 
+		* Gets the singleton instance.
+		* @returns <PropertyGrid>
 		*/
 		static getSingleton( parent? : Component ) : PropertyGrid
 		{

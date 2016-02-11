@@ -1,6 +1,6 @@
 module Animate
 {
-   
+
 	//export class ProjectAssetTypes extends ENUM
 	//{
 	//	constructor(v: string) { super(v); }
@@ -8,7 +8,7 @@ module Animate
 	//	static BEHAVIOUR: ProjectAssetTypes = new ProjectAssetTypes("behaviour");
 	//	static ASSET: ProjectAssetTypes = new ProjectAssetTypes("asset");
  //       static GROUP: ProjectAssetTypes = new ProjectAssetTypes("group");
- 
+
 	//	/**
 	//	* Returns an enum reference by its name/value
 	//	* @param {string} val
@@ -76,7 +76,7 @@ module Animate
 		//static OBJECT_RENAMED: ProjectEvents = new ProjectEvents("object_renamed");
 	}
 
-    
+
 
 	/**
 	* A wrapper for project builds
@@ -126,8 +126,8 @@ module Animate
 	}
 
 	/**
-	* A project class is an object that is owned by a user. 
-	* The project has functions which are useful for comunicating data to the server when 
+	* A project class is an object that is owned by a user.
+	* The project has functions which are useful for comunicating data to the server when
 	* loading and saving data in the scene.
 	*/
 	export class Project extends EventDispatcher
@@ -331,7 +331,7 @@ module Animate
 
         /**
 		* Attempts to update the project details base on the token provided
-        * @returns {Engine.IProject} The project token 
+        * @returns {Engine.IProject} The project token
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
         updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>
@@ -377,7 +377,7 @@ module Animate
                     promise = Utils.get(`${DB.API}/builds/${username}/${that.entry._id}/${that.entry.build}`);
                 else
                     promise = Utils.post(`${DB.API}/builds/${username}/${that.entry._id}?set-current=true`, null);
-                
+
                 promise.then(function (data: ModepressAddons.IGetBuilds)
                 {
                     if (data.error)
@@ -431,7 +431,7 @@ module Animate
             }
 
             resource.initialize();
-            
+
             this.emit(new ProjectEvent("resource-created", resource));
             return resource;
         }
@@ -518,7 +518,7 @@ module Animate
                             for (var i = 0, l = data[0].data.length; i < l; i++)
                                 createdResources.push(that.createResourceInstance<Engine.IScript>(data[0].data[i], ResourceType.SCRIPT));
                     }
-                    
+
                     return resolve(createdResources);
 
                 }).catch(function (err: IAjaxError)
@@ -538,11 +538,11 @@ module Animate
         {
             var that = this;
             var paths = this._restPaths;
-            
+
             var r = this.getResourceByID<T>(id, type);
             if (!r)
                 return Promise.reject(new Error("Could not find a resource with that ID"));
-            
+
             return new Promise<T>(function (resolve, reject)
             {
                 Utils.get<Modepress.IGetArrayResponse<T>>(`${paths[r.type].url}/${that.entry.user}/${that.entry._id}/${id}`).then(function (response)
@@ -632,7 +632,7 @@ module Animate
             var url: string = `${paths[r.type].url}/${details.username}/${projId}/${id}`;
             var resource: ProjectResource<Engine.IResource> = r.resource;
             resource.onSaving();
-            
+
             return new Promise<boolean>(function (resolve, reject)
             {
                 Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
@@ -796,7 +796,7 @@ module Animate
         }
 
         /**
-        * Creates a new project resource. 
+        * Creates a new project resource.
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
@@ -807,7 +807,7 @@ module Animate
             var projId = this.entry._id;
             var paths = this._restPaths;
             var url: string = `${paths[type].url}/${details.username}/${projId}`;
-            
+
             return new Promise<ProjectResource<T>>(function (resolve, reject)
             {
                 Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data)
@@ -824,7 +824,7 @@ module Animate
                         resource = that.createResourceInstance<T>(data.data, ResourceType.GROUP);
                     else if (type == ResourceType.SCRIPT)
                         resource = that.createResourceInstance<T>(data.data, ResourceType.SCRIPT);
-                    
+
                     return resolve(resource);
 
                 }).catch(function (err: IAjaxError)
@@ -833,7 +833,7 @@ module Animate
                 });
             });
         }
-       
+
 
 
 
@@ -874,7 +874,7 @@ module Animate
 
 
 		/**
-		* This function is used to create an entry for this project on the DB. 
+		* This function is used to create an entry for this project on the DB.
 		*/
 		selectBuild( major: string, mid: string, minor: string ): void
 		{
@@ -894,11 +894,11 @@ module Animate
             loader.on(LoaderEvents.FAILED, this.onServer, this);
             loader.load("/project/save-build", { projectId: this.entry._id, buildId: this.entry.build, notes: notes, visibility: visibility, html: html, css: css });
 		}
-		
+
 
 		///**
 		//* This function is used to save an array of behaviors to the DB
-		//* @param { Array<string>} behavioursIds This is the array behaviour ids we are saving. 
+		//* @param { Array<string>} behavioursIds This is the array behaviour ids we are saving.
 		//*/
 		//saveBehaviours( behavioursIds: Array<string> ): void
 		//{
@@ -964,9 +964,9 @@ module Animate
 			//	if ( !groups[i].saved )
 			//		ids.push( groups[i].groupID );
 			//this.saveGroups( ids );
-            
+
 			// Animate.CanvasTab.getSingleton().saveAll();
-			
+
             // TODO: Make sure these are saved
             //this.saveHTML();
 			//this.saveCSS();
@@ -1064,12 +1064,12 @@ module Animate
   //          loader.load("/project/import-files", { projectId: this.entry._id, ids: ids, });
 		//}
 
-		
+
 
 		///**
 		//* This function is used to delete files from a project and the database. The file asset will
-		//* not be deleted if another project has a reference to it. The reference of this project to the file will be 
-		//* removed either way. 
+		//* not be deleted if another project has a reference to it. The reference of this project to the file will be
+		//* removed either way.
 		//* @param {Array<string>} ids An array of file IDs to delete
 		//*/
 		//deleteFiles( ids: Array<string> )
@@ -1082,7 +1082,7 @@ module Animate
 
 		///**
 		//* Use this function to create an empty data file for the user
-		//* @param {string} name The name of file we are creating. Please note this is not a file name. 
+		//* @param {string} name The name of file we are creating. Please note this is not a file name.
 		//*/
 		//createEmptyFile( name: string )
 		//{
@@ -1095,7 +1095,7 @@ module Animate
 		///**
 		//* Fills a data file with the contents of an XHR request
 		//* See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-		//* @param {string} id The id of the file we are 
+		//* @param {string} id The id of the file we are
 		//* @param {ArrayBufferView} view The data to fill the file with
 		//*/
 		//fillFile( id: string, view : ArrayBufferView )
@@ -1128,7 +1128,7 @@ module Animate
 
 
 		///**
-		//* This function is used to fetch the beaviours of a project. 
+		//* This function is used to fetch the beaviours of a project.
 		//*/
 		//loadBehaviours()
 		//{
@@ -1154,7 +1154,7 @@ module Animate
 		//}
 
 		///**
-		//* This function is used to fetch the groups of a project. 
+		//* This function is used to fetch the groups of a project.
 		//*/
 		//loadGroups()
 		//{
@@ -1215,7 +1215,7 @@ module Animate
 		//}
 
 		///**
-		//* This function is used to create a new asset on the server. 
+		//* This function is used to create a new asset on the server.
 		//* If the server sends a fail message then no new asset
 		//* will be created. You can use the event <Project.ASSET_CREATED> to hook into
 		//* a successful DB entry created.
@@ -1313,7 +1313,7 @@ module Animate
 		//}
 
 		///**
-		//* This function is used to fetch the _assets of a project. 
+		//* This function is used to fetch the _assets of a project.
 		//*/
 		//loadAssets()
 		//{
@@ -1341,7 +1341,7 @@ module Animate
 			//this.mSubCategory = data.project.sub_category;
 			//this.mImgPath = data.project.image;
 			//this.mVisibility = data.project.visibility;
-			
+
 			//var pluginIds = data.project.plugins;
 
 			//if ( !pluginIds )
@@ -1409,12 +1409,12 @@ module Animate
      //                           if (this._containers[ii].entry._id == data[i] )
 					//			{
 					//				var behaviour : Container = this._containers[ii];
-					//				behaviour.dispose();									
+					//				behaviour.dispose();
 					//				this._containers.splice( ii, 1 );
 					//				//this.emit( new ProjectEvent( ProjectEvents.BEHAVIOUR_DELETING, "Deleting Behaviour", LoaderEvents.COMPLETE, behaviour ) );
 					//				break;
 					//			}
-					//	}							
+					//	}
 					//}
 					////Create a new Behaviour
 					//else if ( loader.url == "/project/create-behaviour" )
@@ -1509,7 +1509,7 @@ module Animate
 					//				this._assets.splice( ii, 1 );
 					//				break;
 					//			}
-					//	}							
+					//	}
 					//}
 					////Creates each of the _files and notify they were loaded.
 					//else if ( loader.url == "/project/get-files" )
@@ -1646,7 +1646,7 @@ module Animate
 						////Notify the creation of an asset
       //                  pManager.assetCreated(asset.entry.name, asset );
 
-						////Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
+						////Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
 						//var eSet: EditableSet = asset.properties;
 						//var variables: Array<PropertyGridVariable> = eSet.variables;
 						//for ( var ii: number = 0, len = variables.length; ii < len; ii++ )
@@ -1661,7 +1661,7 @@ module Animate
 					//else if ( loader.url == "/project/save-assets" )
 					//{
 					//	for ( var ii = 0; ii < data.length; ii++ )
-					//		for ( var i = 0; i < this._assets.length; i++ )							
+					//		for ( var i = 0; i < this._assets.length; i++ )
      //                           if (this._assets[i].entry._id == data[ii] )
 					//				this.emit( new AssetEvent( ProjectEvents.ASSET_SAVED, this._assets[i] ) );
 
@@ -1690,7 +1690,7 @@ module Animate
      //                           if (this._containers[i].entry._id == data[ii]._id )
 					//			{
 					//				this._containers[i].update( data[ii].name, CanvasToken.fromDatabase( data[ii].json, data[ii]._id ) );
-									
+
 					//				//Update the GUI elements
 					//				//TreeViewScene.getSingleton().updateBehaviour( this._containers[i] );
 					//				//this.emit(new ProjectEvent(ProjectEvents.BEHAVIOUR_UPDATED, "Behaviour updated", LoaderEvents.COMPLETE, this._behaviours[i] ) );
@@ -1713,7 +1713,7 @@ module Animate
 					//	{
      //                       var dbEntry = data[i];
      //                       var asset = new Asset({ name: dbEntry["name"], className: dbEntry["className"], json: dbEntry["json"], _id: dbEntry["_id"], shallowId: dbEntry["shallowId"] });
-						
+
 					//		//Create the GUI elements
 					//		if ( TreeViewScene.getSingleton().addAssetInstance( asset ) )
 					//			this._assets.push( asset );
@@ -1793,7 +1793,7 @@ module Animate
         get scripts(): Array<ScriptResource> { return this._scripts; }
         get assets(): Array<Asset> { return this._assets; }
         get groups(): Array<GroupArray> { return this._groups; }
-        
+
 		/**
 		* This will cleanup the project and remove all data associated with it.
 		*/
@@ -1807,7 +1807,7 @@ module Animate
 			var i = this._containers.length;
 			while ( i-- )
 				this._containers[i].dispose();
-            
+
             i = this._assets.length;
 
 			event = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
@@ -1816,10 +1816,10 @@ module Animate
                 event.asset = this._assets[i];
 
 				//Notify the destruction of an asset
-				pManager.emit( event );			
+				pManager.emit( event );
 				this._assets[i].dispose();
 			}
-            
+
 			this.saved = true;
             this._containers.splice(0, this._containers.length);
             this._assets.splice(0, this._assets.length);

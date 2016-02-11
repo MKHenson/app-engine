@@ -9,7 +9,7 @@
         public max: number;
         public decimals: number;
         public interval: number;
-      
+
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -30,7 +30,7 @@
             this.interval = interval;
         }
 
-        /** 
+        /**
         * Attempts to fetch the value of this property
         * @returns {number}
         */
@@ -40,12 +40,12 @@
                 return this.min;
             if (this._value > this.max)
                 return this.max;
-            
+
             return parseInt(this._value.toFixed(this.decimals));
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
@@ -64,7 +64,7 @@
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: PropNum)
@@ -76,7 +76,7 @@
             this.interval = data.interval;
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropNum}
         */

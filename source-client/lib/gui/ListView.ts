@@ -30,10 +30,10 @@
 		static IMAGES: ListViewType = new ListViewType("images");
 	}
 
-	
+
 
 	/**
-	* The ListView class is used to display a series of {ListViewItem}s. Each item can 
+	* The ListView class is used to display a series of {ListViewItem}s. Each item can
 	* organised by a series of columns
 	*/
 	export class ListView extends Component
@@ -61,7 +61,7 @@
 		{
 			// Call super-class constructor
 			super("<div class='list-view'></div>", parent);
-            
+
 			this._mode = ListViewType.DETAILS;
 
 			this._selectedItem = null;
@@ -306,7 +306,7 @@
 
 		/**
 		* Gets all the items that are selected
-		* @returns {Array<ListViewItem>} 
+		* @returns {Array<ListViewItem>}
 		*/
 		getSelectedItems(): Array<ListViewItem>
 		{
@@ -351,7 +351,7 @@
 			i = this._items.length;
 			while (i--)
 				this._items[i].dispose();
-			
+
 			this.element.off("dblclick", this._dClickProxy);
 			this.element.off("click", this._clickProxy);
 			jQuery(document).off("mousemove", this._moveProxy);
@@ -366,7 +366,7 @@
 
 		/**
 		* Redraws the list with the items correctly synced with the column names
-		* @returns {any} 
+		* @returns {any}
 		*/
 		updateItems()
 		{
@@ -490,9 +490,9 @@
 		}
 
 		/**
-		* Adds a {ListViewItem} to this list 
+		* Adds a {ListViewItem} to this list
 		* @param {ListViewItem} item The item we are adding to the list
-		* @returns {ListViewItem} 
+		* @returns {ListViewItem}
 		*/
 		addItem(item)
 		{
@@ -522,7 +522,7 @@
 		* Sets the length of a column by its index
 		* @param <int> columnIndex The index of the column
 		* @param {string} width A CSS width property. This can be either % or px
-		* @returns {ListViewItem} 
+		* @returns {ListViewItem}
 		*/
 		setColumnWidth(columnIndex, width)
 		{
@@ -533,10 +533,10 @@
 		}
 
 		/**
-		* Removes a {ListViewItem} from this list 
-		* @param {ListViewItem} item The {ListViewItem} to remove. 
+		* Removes a {ListViewItem} from this list
+		* @param {ListViewItem} item The {ListViewItem} to remove.
 		* @param {boolean} dispose If set to true the item will be disposed
-		* @returns {ListViewItem} 
+		* @returns {ListViewItem}
 		*/
 		removeItem(item: ListViewItem, dispose : boolean = true)
 		{

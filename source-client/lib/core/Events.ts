@@ -5,7 +5,7 @@
         constructor(v: string) { super(v); }
 
 		/**
-		* This is called when the project is exporting the data object to the server. 
+		* This is called when the project is exporting the data object to the server.
 		* The token object passed to this function contains all the information needed to run the project in an Animate runtime.
 		* Associate event type is {EditorExportingEvent}
 		*/
@@ -25,7 +25,7 @@
         //static PORTAL_REMOVED: EditorEvents = new EditorEvents("portal_removed");
         //static PORTAL_EDITED: EditorEvents = new EditorEvents("portal_edited");
 
-		
+
 		/**
 		* This is called by Animate when we a container is created. Associate event type is {ContainerEvent}
 		*/
@@ -36,7 +36,7 @@
 		*/
         //static CONTAINER_DELETED: EditorEvents = new EditorEvents("plugin_container_deleted");
 
-		
+
 		/**
 		* This is called by Animate when we select a container. Associate event type is {ContainerEvent}
 		*/
@@ -53,7 +53,7 @@
 		* data with a container.This can be later, re - associated with the container when onOpenContainer is called. Associate event type is {ContainerDataEvent}
 		*/
         static CONTAINER_SAVING: EditorEvents = new EditorEvents("plugin_container_saving");
-				
+
 		/**
 		* This is called by Animate when we are opening a container. The token that gets passed is filled with optional
 		* data when onSaveContainer is called. Associate event type is {ContainerDataEvent}
@@ -236,7 +236,7 @@
  //       }
  //   }
 
-	
+
 	/**
 	* Events associated with Containers and either reading from, or writing to, a data token
 	*/
@@ -348,7 +348,7 @@
             this.oldName = oldName;
         }
     }
-	
+
 
 	/**
 	* Events assocaited with Assets in relation to Containers
@@ -499,7 +499,7 @@
     }
 
     /**
-	* An event to deal with file viewer events 
+	* An event to deal with file viewer events
     * The event type can be 'cancelled' or 'change'
 	*/
     export class FileViewerEvent extends Event

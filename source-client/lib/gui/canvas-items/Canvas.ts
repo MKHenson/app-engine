@@ -19,7 +19,7 @@ module Animate
 		static MODIFIED: CanvasEvents = new CanvasEvents( "canvas_modified" );
 	}
 
-	
+
 
 	/**
 	* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
@@ -47,7 +47,7 @@ module Animate
 		* @param {Component} parent The parent component to add this canvas to
 		* @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
-		constructor( parent: Component, container: Container ) 
+		constructor( parent: Component, container: Container )
 		{
 			// Call super-class constructor
 			super( "<div class='canvas' tabindex='0'></div>", parent );
@@ -78,8 +78,8 @@ module Animate
             this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
             jQuery("body").on("keydown", this._keyProxy);
             jQuery(document).on("contextmenu", this._contextProxy);
-            
-            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });			
+
+            this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
             BehaviourPicker.getSingleton().on(BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this);
             PortalForm.getSingleton().on(OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
 			PluginManager.getSingleton().on(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
@@ -156,7 +156,7 @@ module Animate
 
 		/**
 		* Called when a draggable object is dropped onto the canvas.
-		* @param {any} event The jQuery UI event 
+		* @param {any} event The jQuery UI event
 		* @param {any} ui The event object sent from jQuery UI
 		*/
 		onObjectDropped( event: any, ui: any )
@@ -183,9 +183,9 @@ module Animate
 
 		/**
 		* Create an asset node at a location
-		* @param {Asset} asset 
-		* @param {number} x 
-		* @param {number} y 
+		* @param {Asset} asset
+		* @param {number} x
+		* @param {number} y
 		*/
 		addAssetAtLocation( asset: Asset, x: number, y: number )
 		{
@@ -254,7 +254,7 @@ module Animate
                     continue;
 
                 var behaviour = <Behaviour>item;
-				
+
                 for (var ii = 0, il = behaviour.parameters.length; ii < il; ii++)
                 {
                     var portal: Portal = behaviour.parameters[ii];
@@ -306,7 +306,7 @@ module Animate
 			for ( var i = 0; i < toRemove.length; i++ )
                 if (toRemove[i] instanceof BehaviourShortcut && (<BehaviourShortcut>toRemove[i]).originalNode == item )
 					this.removeItem( toRemove[i] );
-            
+
 			for ( var i = 0; i < toRemove.length; i++ )
 				if ( toRemove[i] == item )
 				{
@@ -375,7 +375,7 @@ module Animate
 				var toRemove = [];
                 for (var i = 0, l = this.children.length; i < l; i++)
 					toRemove.push( this.children[i] );
-                
+
                 for (var i = 0, l = toRemove.length; i < l; i++)
 					if ( typeof ( toRemove[i] ) !== "undefined" )
 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value == ":" )
@@ -426,11 +426,11 @@ module Animate
 					type = PortalType.PRODUCT;
 
                 //if (context)
-                    //PortalForm.getSingleton().showForm(<Behaviour>context, type, null);                  
+                    //PortalForm.getSingleton().showForm(<Behaviour>context, type, null);
                 //else
                     //PortalForm.getSingleton().showForm(this, type, event.item.text);
-                  
-                
+
+
                 PortalForm.getSingleton().editPortal(null, type, function (name): boolean
                 {
                     // Make sure there are no duplicates
@@ -440,7 +440,7 @@ module Animate
                             if (portals[i].property.name == name)
                                 return false;
                     }
-                    else 
+                    else
                         for (var i = 0, children = that.children, l = children.length; i < l; i++)
                             if (children[i] instanceof BehaviourPortal)
                                 if ((<BehaviourPortal>children[i]).property.name == name)
@@ -557,7 +557,7 @@ module Animate
 					pManager.emit( removeEvent );
 				}
 
-			// Notify of asset additions			
+			// Notify of asset additions
 			for ( var i = 0, l = curAssets.length; i < l; i++ )
 				if ( this._containerReferences.assets.indexOf( curAssets[i] ) == -1 )
                 {
@@ -569,7 +569,7 @@ module Animate
 			this._containerReferences.groups = curGroups;
 		}
 
-        /** 
+        /**
         * Whenever an item is edited
         */
         onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher)
@@ -582,8 +582,8 @@ module Animate
         }
 
 		///**
-		//* Called when the property grid fires an edited event. 
-		//* @param {string} type 
+		//* Called when the property grid fires an edited event.
+		//* @param {string} type
 		//* @param {PropertyGridEvent} event
 		//*/
 		//onPropertyGridEdited( type: string, event: PropertyGridEvent )
@@ -667,11 +667,11 @@ module Animate
 					// Show in prop editor
 					var behaviour = portal.behaviour;
                     //var toEdit: EditableSet = new EditableSet(behaviour);
-					
+
                     //for (var i = 0, params = behaviour.parameters, l = params.length; i < l; i++ )
                     //    if (params[i].links.length <= 0 )
                     //       toEdit.addVar(params[i].name, params[i].value, params[i].dataType, behaviour.element.text(), null );
-                    
+
                     PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, "" );
 
                     // Notify of change
@@ -821,7 +821,7 @@ module Animate
                     {
                         if (data.cancelled)
                             return;
-                        
+
                         that.createNode(template, that._x, that._y, null, data.newName);
                     });
                 }
@@ -879,7 +879,7 @@ module Animate
 		* @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
 		* is the actual behaviour container
         * @param {string} name The name of the node
-		* @returns {Behaviour} 
+		* @returns {Behaviour}
 		*/
 		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour
 		{
@@ -888,7 +888,7 @@ module Animate
 			if ( template.behaviourName == "Instance" )
 			{
 				var nameOfBehaviour: string = "";
-				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour ); 
+				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
 				if ( cyclic )
 				{
                     MessageBox.show(`You have a cylic dependency with the behaviour '${nameOfBehaviour}'`, ["Ok"], null, null );
@@ -967,7 +967,7 @@ module Animate
                         {
                             if (token.cancelled)
                                 return;
-                            
+
                             var toEdit: Behaviour = null;
                             if (focusObj instanceof BehaviourShortcut)
                                 toEdit = focusObj.originalNode;
@@ -1020,7 +1020,7 @@ module Animate
 
 
 		/**
-		* When we double click the canvas we show the behaviour picker. 
+		* When we double click the canvas we show the behaviour picker.
 		* @param {any} e The jQuery event object
 		*/
 		onDoubleClick( e: any )
@@ -1109,7 +1109,7 @@ module Animate
 			if ( comp instanceof Behaviour )
 			{
 				comp.element.removeClass( "scale-in-animation" );
-                
+
 				// Hand the item to the editor
 				if ( comp instanceof BehaviourComment )
                     PropertyGrid.getSingleton().editableObject(comp.properties, "Comment", "");
@@ -1171,7 +1171,7 @@ module Animate
 				return;
 			}
 
-			// Not a behaviour so lets see if its a link	
+			// Not a behaviour so lets see if its a link
 			// Make sure we actually hit a link
 			var len = this.children.length;
 			for ( var i = 0; i < len; i++ )
@@ -1260,7 +1260,7 @@ module Animate
 
 		/**
 		* This function is called when animate is reading in saved data from the server.
-		* @param {any} data 
+		* @param {any} data
 		*/
 		open( data: any )
 		{
@@ -1280,10 +1280,10 @@ module Animate
                 items: [],
                 properties: this._container.properties.tokenize(slim)
             };
-            
+
             for (var i = 0, l = children.length; i < l; i++)
                 toRet.items.push(children[i].tokenize(slim));
-            
+
             return toRet;
         }
 
@@ -1317,7 +1317,7 @@ module Animate
                     Logger.logMessage(`Could not create canvas item`, null, LogType.ERROR);
                     continue;
                 }
-                
+
                 item.deTokenize(data.items[i]);
                 oldIds.push(data.items[i].shallowId);
                 linkToken[data.items[i].shallowId] = { item: item, token: data.items[i] };
@@ -1348,7 +1348,7 @@ module Animate
 		//	if ( items == null )
 		//		items = this.children;
 
-		//	// Let the plugins save their data			
+		//	// Let the plugins save their data
 		//	PluginManager.getSingleton().emit( new ContainerDataEvent( EditorEvents.CONTAINER_SAVING, this._container, data.plugins, this._containerReferences ) );
 
 
@@ -1435,11 +1435,11 @@ module Animate
 		//}
 
 		///**
-		//* This function is called when a behaviour is double clicked, 
+		//* This function is called when a behaviour is double clicked,
 		//* a canvas is created and we try and load the behavious contents.
 		//* @param {IContainerToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
 		//* @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
-		//* @returns {any} 
+		//* @returns {any}
 		//*/
   //      openFromDataObject(dataToken?: IContainerToken, clearItems: boolean = true, addSceneAssets: boolean = false )
 		//{
@@ -1521,7 +1521,7 @@ module Animate
 		//				var l: Link = new Link( this );
   //                      item = l;
 
-		//				// Links we treat differerntly. They need all the behaviours 
+		//				// Links we treat differerntly. They need all the behaviours
 		//				// loaded first. So we do that, and keep each link in an array
 		//				// to load after the behaviours
   //                      links.push(l);
@@ -1665,7 +1665,7 @@ module Animate
 		//		this.children[c].savedID = null;
 
 		//	// Let the plugins open their data
-		//	if ( jsonObj && jsonObj.plugins )				
+		//	if ( jsonObj && jsonObj.plugins )
 		//		pManager.emit( new ContainerDataEvent( EditorEvents.CONTAINER_OPENING, this._container, jsonObj.plugins ) );
 
 		//	this.checkDimensions();
@@ -1713,7 +1713,7 @@ module Animate
 				"min-height": ( h > minHi ? h : minHi ).toString() + "px"
 			});
 		}
-        
+
 		get container(): Container { return this._container; }
         get containerReferences(): { groups: Array<number>; assets: Array<number> } { return this._containerReferences; }
 	}

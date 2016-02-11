@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* The plugin manager is used to load and manage external Animate plugins.
 	*/
 	export class PluginManager extends EventDispatcher
@@ -32,8 +32,8 @@ module Animate
 			this._converters = new Array<TypeConverter>();
             //this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
 
-			// Create some standard templates	
-			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", 
+			// Create some standard templates
+			this.behaviourTemplates.push( new BehaviourDefinition( "Asset",
                 [
                     new PortalTemplate(new PropAsset("Asset In", null), PortalType.PARAMETER),
                     new PortalTemplate(new PropAsset("Asset Out", null), PortalType.PRODUCT )
@@ -44,7 +44,7 @@ module Animate
                     new PortalTemplate(new PropBool("Execute", false), PortalType.INPUT),
                     new PortalTemplate(new PropBool("Exit", false), PortalType.OUTPUT)
                 ], null, true, true, true, true));
-            
+
             this.behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
 
 			this._loadedPlugins = [];
@@ -62,7 +62,7 @@ module Animate
                 //Notify the creation of an asset
                 //this.assetCreated(resource.entry.name, resource);
 
-                //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.						
+                //Now that the asset is loaded we notify the plugins of each of its variables incase they need to initialize / set something.
                // var eSet: EditableSet = resource.properties;
                 //var variables: Array<Prop<any>> = eSet.variables;
                 //for (var ii: number = 0, len = variables.length; ii < len; ii++)
@@ -97,11 +97,11 @@ module Animate
 		//}
 
         /**
-		* Attempts to download a plugin by its URL and insert it onto the page. 
+		* Attempts to download a plugin by its URL and insert it onto the page.
         * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
         * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
 		* @param {IPlugin} pluginDefinition The plugin to load
-        * @returns {Promise<Engine.IPlugin>} 
+        * @returns {Promise<Engine.IPlugin>}
 		*/
         loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>
         {
@@ -123,12 +123,12 @@ module Animate
                     return resolve(pluginDefinition);
                 }
 
-                script.async = true; 
+                script.async = true;
                 script.src = pluginDefinition.url;
                 document.head.appendChild(script);
             });
         }
-        
+
 		/**
 		* This funtcion is used to load a plugin.
 		* @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
@@ -172,7 +172,7 @@ module Animate
 
 			return;
 		}
-        
+
 		/**
 		* Call this function to unload a plugin
 		* @param {IPlugin} plugin The IPlugin object that is to be loaded
@@ -253,7 +253,7 @@ module Animate
 			return null;
 		}
 
-		/** 
+		/**
 		* Use this function to select an asset in the tree view and property grid
 		* @param {Asset} asset The Asset object we need to select
 		* @param {boolean} panToNode When set to true, the treeview will bring the node into view
@@ -265,7 +265,7 @@ module Animate
                 Animate.TreeViewScene.getSingleton().findNode( "resource", asset ), panToNode, multiSelect );
 		}
 
-		///** 
+		///**
 		//* Gets the currently selected asset from the PropertyGrid
 		//* @returns {Asset} asset The Asset object we need to select
 		//*/
@@ -386,8 +386,8 @@ module Animate
 			//}
 
 			//// Go through all the variables and make sure that the asset has the variable (They can get lost as new ones are added over time)
-			//// Also re-assign the options as they 
-			
+			//// Also re-assign the options as they
+
 			//for ( var vi = 0, vl = variables.length; vi < vl; vi++ )
 			//{
 			//	var variable: VariableTemplate = variables[vi];
@@ -421,7 +421,7 @@ module Animate
 		{
             this.emit(new Event(EditorEvents.EDITOR_READY, null));
 		}
-        
+
 		/**
         * This function generates an html node that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
@@ -441,7 +441,7 @@ module Animate
             }
 
             return null;
-            
+
    //         var firstChild = previewComponent.element.children(":first");
    //         var firstComp = <Component>firstChild.data("component");
 
@@ -473,7 +473,7 @@ module Animate
 		//get dataTypes(): Array<string> { return this._dataTypes; }
 		get assetTemplates(): Array<AssetTemplate> { return this._assetTemplates; }
 		get loadedPlugins(): Array<IPlugin> { return this._loadedPlugins; }
-		
+
 		/**
 		* Gets the singleton instance.
 		*/

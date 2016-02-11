@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* A window to show a blocking window with a message to the user.
 	*/
 	export class MessageBox extends Window
@@ -50,16 +50,16 @@ module Animate
 		}
 
 		/**
-		* Static function to show the message box 
+		* Static function to show the message box
 		* @param {string} caption The caption of the window
 		* @param {Array<string>} buttons An array of strings which act as the forms buttons
-		* @param { ( text : string ) => void} callback A function to call when a button is clicked 
+		* @param { ( text : string ) => void} callback A function to call when a button is clicked
 		* @param {any} context The function context (ie the caller object)
 		*/
 		public static show( caption: string, buttons?: Array<string>, callback?: ( text: string ) => void, context? : any )
 		{
             var box: MessageBox = MessageBox.getSingleton();
-            
+
 			//box.mCaption.text = caption;
 			box._callback = callback;
 			box._context = context;

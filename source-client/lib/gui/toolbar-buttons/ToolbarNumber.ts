@@ -6,7 +6,7 @@
 		static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
 	}
 
-	
+
 
 	/**
 	*  A toolbar button for numbers
@@ -91,7 +91,7 @@
 		onStageUp( e )
 		{
 			var inputOnDOM: boolean = ( ToolbarNumber.input.parent ? true : false );
-			
+
 			// Remove listeners
 			var body = jQuery( window );
 			body.off( "mouseup", this.stageUpPoxy );

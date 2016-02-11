@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* This node represents a behaviour created by a plugin.
 	*/
 	export class TreeNodePluginBehaviour extends TreeNode

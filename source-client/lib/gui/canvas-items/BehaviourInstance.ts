@@ -19,7 +19,7 @@ module Animate
 
    //         if (container)
 			//{
-				//// Now that its created we need to create the starting portals. If the canvas exists we use that as a 
+				//// Now that its created we need to create the starting portals. If the canvas exists we use that as a
 				//// reference, otherwise we use the json
 				//var children = this._container.canvas.children;
     //            for ( var ci = 0, cl = children.length; ci < cl; ci++ )
@@ -66,7 +66,7 @@ module Animate
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourResource}
         */
@@ -75,10 +75,10 @@ module Animate
             var toRet = <IBehaviourShortcut>super.tokenize(slim);
             toRet.type = CanvasItemType.BehaviourInstance;
             return toRet;
-        }        
+        }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {IBehaviourResource} data The data to import from
         */
         deTokenize(data: IBehaviourShortcut)
@@ -118,7 +118,7 @@ module Animate
                     pType = PortalType.PRODUCT;
 				else if ( event.portal.type == PortalType.PRODUCT )
                     pType = PortalType.PARAMETER;
-                
+
                 this.addPortal(pType, event.portal.property.clone(), true);
 			}
             else if (type == EventTypes.PORTAL_REMOVED )
@@ -142,7 +142,7 @@ module Animate
 			}
 
 
-			//jQuery( "body" ).append( this.element ); //We need this for size calculations	
+			//jQuery( "body" ).append( this.element ); //We need this for size calculations
 			this.updateDimensions();
 			//curParent.append( this.element );
 		}
@@ -201,7 +201,7 @@ module Animate
             val.on(EventTypes.PORTAL_EDITED, this.onPortalChanged, this);
             val.on(EventTypes.CONTAINER_DELETED, this.onContainerDeleted, this);
 
-            // Now that its created we need to create the starting portals. If the canvas exists we use that as a 
+            // Now that its created we need to create the starting portals. If the canvas exists we use that as a
             // reference, otherwise we use the json
             var children = this._container.canvas.children;
             for (var ci = 0, cl = children.length; ci < cl; ci++)

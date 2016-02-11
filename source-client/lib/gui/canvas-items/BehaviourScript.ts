@@ -1,7 +1,7 @@
 module Animate
 {
 	/**
-	* A behaviour node that acts as a script. Users can create custom JS within the body. These nodes are connected to 
+	* A behaviour node that acts as a script. Users can create custom JS within the body. These nodes are connected to
 	* database entries and so need to be cleaned up properly when modified by the user.
 	*/
 	export class BehaviourScript extends Behaviour
@@ -17,7 +17,7 @@ module Animate
 
             // TODO: What do we do about shallow IDs?
             Utils.generateLocalId()
-			
+
             this.scriptTab = null;
             this.scriptId = scriptId;
             this._loading = jQuery("<img src='media/buffering-white.png' class='rotate-360' />");
@@ -36,8 +36,8 @@ module Animate
                 promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text });
             else
                 promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
-            
-        
+
+
             promise.then(function (data: ScriptResource)
             {
                 Logger.logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
@@ -53,7 +53,7 @@ module Animate
 			//if ( shallowId !== 0 && copied )
 			//{
 			//	var that = this;
-                
+
 			//	//try to create the database entry of this node
 			//	var loader = new AnimateLoader();
 			//	loader.on( LoaderEvents.COMPLETE, onServer );
@@ -86,7 +86,7 @@ module Animate
 		* Called when the behaviour is renamed
 		* @param <string> name The new name of the behaviour
 		*/
-		onRenamed( name ) 
+		onRenamed( name )
         {
 			if ( this.scriptTab )
 				this.scriptTab.rename( name );
@@ -112,8 +112,8 @@ module Animate
 			//loader.on( LoaderEvents.COMPLETE, onServer );
 			//loader.on( LoaderEvents.FAILED, onServer );
    //         loader.load("/project/delete-scripts", { projectId: User.get.project.entry._id, ids: [this.shallowId] });
-			
-			////When we 
+
+			////When we
 			//function onServer( response: LoaderEvents, event : AnimateLoaderEvent)
 			//{
 			//	loader = null;
@@ -144,8 +144,8 @@ module Animate
 		//	loader.on( LoaderEvents.COMPLETE, onServer );
 		//	loader.on( LoaderEvents.FAILED, onServer );
   //          loader.load("/project/initialize-behaviour-script", { projectId: User.get.project.entry._id, containerId: (<Canvas>this.parent).container.entry.shallowId, behaviourId: behaviour.id });
-			
-		//	//When we 
+
+		//	//When we
 		//	function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )
 		//	{
 		//		loader = null;
@@ -191,7 +191,7 @@ module Animate
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourScript}
         */
@@ -204,7 +204,7 @@ module Animate
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {IBehaviourScript} data The data to import from
         */
         deTokenize(data: IBehaviourScript)

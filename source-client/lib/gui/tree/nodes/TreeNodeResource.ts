@@ -16,7 +16,7 @@ module Animate
             this.resource = resource;
 			this.canDelete = true;
             this.canUpdate = true;
-            
+
             this._dropProxy = this.onDropped.bind( this );
             this.element.draggable(<JQueryUI.DroppableOptions>{ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
             this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this._dropProxy, accept: ".tree-node-asset,.tree-node-group" });
@@ -26,7 +26,7 @@ module Animate
             resource.on("refreshed", this.onRefreshed, this);
         }
 
-        /** 
+        /**
         * Called whenever the resource is re-downloaded
         */
         protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
@@ -34,7 +34,7 @@ module Animate
             this.text = this.resource.entry.name;
         }
 
-        /** 
+        /**
         * Called whenever the resource is modified
         */
         protected onDeleted(type: string, event: Event, sender: EventDispatcher)
@@ -42,14 +42,14 @@ module Animate
             this.dispose();
         }
 
-        /** 
+        /**
 		* Called whenever the resource is modified
 		*/
         protected onModified(type: string, event: Event, sender: EventDispatcher)
         {
             this.modified = !this.resource.saved;
         }
-                    
+
 		/**
 		* Called when a draggable object is dropped onto the node
 		*/

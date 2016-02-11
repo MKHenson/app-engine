@@ -33,7 +33,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
             continue;
 
         var pluginArray = __plugins[plugins[i].name];
-        
+
         for (var ii = 0; ii < l; ii++)
             if (plugins[ii].name == plugins[i].name)
                 pluginArray.push(plugins[ii]);
@@ -72,7 +72,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
             return 0;
         });
     }
-	
+
     // Create the application element
     var app = new Animate.Application("#application");
 
@@ -123,5 +123,5 @@ jQuery(document).ready(function ()
     }).always(function ()
     {
         Animate.LoaderBase.hideLoader();
-    });    
+    });
 });

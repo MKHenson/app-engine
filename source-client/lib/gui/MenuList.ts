@@ -6,7 +6,7 @@ module Animate
 
 		static ITEM_CLICKED: MenuListEvents = new MenuListEvents("menu_list_item_clicked");
 	}
-	
+
 	/**
 	* A specially designed type of list
 	*/
@@ -25,7 +25,7 @@ module Animate
 			this.selectedItem = null;
 		}
 
-		/** 
+		/**
 		* Adds an HTML item
 		* @returns {string} img The URL of the image
         * @returns {string} val The text of the item

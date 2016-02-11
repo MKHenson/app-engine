@@ -52,7 +52,7 @@ module Animate
 		 onResize () { }
 
 		/**
-		* Called by the tab class when the pair is to be removed. 
+		* Called by the tab class when the pair is to be removed.
 		* @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
 		*/
 		onRemove( data: TabEvent ) { }
@@ -87,9 +87,9 @@ module Animate
 		* Gets the label text of the pair
 		*/
 		get text(): string { return jQuery( ".text", this.tabSelector.element ).text(); }
-        
+
 		/**
-		* Cleans up the references 
+		* Cleans up the references
 		*/
 		dispose() : void
 		{

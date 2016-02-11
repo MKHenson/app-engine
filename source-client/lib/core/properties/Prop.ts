@@ -2,7 +2,7 @@
 {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data.
-    * Each property is typically owner by an EditableSet. 
+    * Each property is typically owner by an EditableSet.
     */
     export class Prop<T>
     {
@@ -12,7 +12,7 @@
         public options: any;
         public set: EditableSet;
         public type: PropertyType;
-		
+
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -31,7 +31,7 @@
             this.type = type;
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {Prop<T>}
         */
@@ -40,7 +40,7 @@
             return new Prop<T>(this.name, this._value, this.category, this.options, this.type);
         }
 
-        /** 
+        /**
         * Attempts to fetch the value of this property
         * @returns {T}
         */
@@ -50,7 +50,7 @@
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
@@ -63,7 +63,7 @@
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: any)
@@ -75,7 +75,7 @@
             this.type = data.type;
         }
 
-        /** 
+        /**
         * Attempts to set the value of this property
         * @param {T} val
         */
@@ -85,8 +85,8 @@
             this.set.notifyEdit(this);
         }
 
-        /** 
-        * Cleans up the class 
+        /**
+        * Cleans up the class
         */
         dispose()
         {
@@ -96,7 +96,7 @@
             this.options = null;
         }
 
-        /** 
+        /**
         * Writes this portal out to a string
         */
         toString(): string
@@ -120,7 +120,7 @@
             super(name, value, category, options, PropertyType.BOOL);
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns PropBool}
         */
@@ -144,7 +144,7 @@
             super(name, value, category, options, PropertyType.STRING);
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns PropText}
         */

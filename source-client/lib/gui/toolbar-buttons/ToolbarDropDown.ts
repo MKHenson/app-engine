@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* The interface for all layout objects.
 	*/
 	export class ToolbarItem extends Component
@@ -20,7 +20,7 @@ module Animate
 		}
 	}
 
-	
+
 
 	/**
 	*  A toolbar button for selection a list of options
@@ -53,7 +53,7 @@ module Animate
 			else
 				this._selectedItem = null;
 
-	
+
 			this._stageDownProxy = this.onStageUp.bind( this );
 			this._clickProxy = this.onClick.bind( this );
 
@@ -105,7 +105,7 @@ module Animate
 		{
 			var i = this.items.length;
 			var items : Array<any> = this.items;
-			while ( i-- )		
+			while ( i-- )
 			{
 				if ( dispose )
 					items[i].dispose()
@@ -119,7 +119,7 @@ module Animate
 
 		/**
 		* Sets the selected item
-		* @param {any} item 
+		* @param {any} item
 		*/
         set selectedItem( item : ToolbarItem )
 		{
@@ -128,13 +128,13 @@ module Animate
 
 			if ( this._selectedItem )
 				this._popupContainer.addChild( this._selectedItem );
-		
+
             this.addChild(item);
             this._selectedItem = item;
 			var e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, "clicked" );
 			this.emit( e );
 			e.dispose();
-			
+
 			return;
         }
 
@@ -146,7 +146,7 @@ module Animate
         {
             return this._selectedItem;
         }
-        
+
 		/**
 		* Called when the mouse is down on the DOM
 		* @param {any} e The jQuery event

@@ -1,7 +1,7 @@
 module Animate
 {
     /**
-    * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins. 
+    * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
     * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
     * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
     * the plugin.
@@ -9,7 +9,7 @@ module Animate
     export class Asset extends ProjectResource<Engine.IAsset>
 	{
         public class: AssetClass;
-		
+
 		/**
 		* @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
 		* @param {IAsset} entry [Optional] The asset database entry
@@ -23,7 +23,7 @@ module Animate
 
             // Build the properties from the asset class
             this.properties = assetClass.buildVariables();
-			
+
 			//this._options = {};
 			//this.id = id;
 			//this.shallowId = shallowId;
@@ -43,8 +43,8 @@ module Animate
 		//	return Asset.shallowIds;
 		//}
 
-		/** 
-        * Writes this assset to a readable string 
+		/**
+        * Writes this assset to a readable string
         * @returns {string}
         */
 		toString()
@@ -65,7 +65,7 @@ module Animate
             this.properties = json;
             this.entry.className = className;
 		}
-		
+
 		/**
 		* Disposes and cleans up the data of this asset
 		*/
@@ -81,8 +81,8 @@ module Animate
 			//this._className = null;
 			//this._options = null;
 		}
-        
+
 		//get className(): string { return this._className; }
-		
+
 	}
 }

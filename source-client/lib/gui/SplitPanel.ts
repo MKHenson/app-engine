@@ -35,14 +35,14 @@ module Animate
 		* @param {number} ratio The ratio of how far up or down, top or bottom the splitter will be. This is between 0 and 1.
 		* @param {number} dividerSize The size of the split divider.
 		*/
-		constructor( parent: Component, orientation: SplitOrientation = SplitOrientation.VERTICAL, ratio : number = 0.5, dividerSize : number = 6 ) 
+		constructor( parent: Component, orientation: SplitOrientation = SplitOrientation.VERTICAL, ratio : number = 0.5, dividerSize : number = 6 )
 		{
 			super( "<div class='split-panel' style='width:100px; height:100px;'></div>", parent );
 
 			this.offsetLeft = 0;
 			this.offsetTop = 0;
 
-			//Private vars	
+			//Private vars
 			this.mPercent = ratio;
 			this.mDividerSize = dividerSize;
 			this.mPanel1 = <Component>this.addChild( "<div class='panel1'></div>" );
@@ -224,7 +224,7 @@ module Animate
 		*/
 		get ratio() : number
 		{
-			
+
 			return this.mPercent;
 		}
 
@@ -324,12 +324,12 @@ module Animate
 		get top() { return this.mPanel1; }
 
 		/**
-		* Gets the bottom panel. 
+		* Gets the bottom panel.
 		*/
 		get bottom() { return this.mPanel2; }
 
 		/**
-		* Gets the left panel. 
+		* Gets the left panel.
 		*/
 		get left() { return this.mPanel1; }
 

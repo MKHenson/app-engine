@@ -49,7 +49,7 @@ module Animate
 			return toRet;
 		}
 
-		/** 
+		/**
 		* Finds a class by its name. Returns null if nothing is found
 		*/
         findClass(name: string): AssetClass
@@ -67,7 +67,7 @@ module Animate
 
 			return null;
 		}
-		
+
 		/**
 		* Adds a variable to the class.
 		* @param { Prop<any>} prop The property to add
@@ -138,14 +138,14 @@ module Animate
 			return toAdd;
 		}
 
-		/** 
-        * Gets the name of the class 
+		/**
+        * Gets the name of the class
         * @returns {string}
         */
 		get name(): string { return this._name; }
 
-		/** 
-        * Gets if this class is abstract or not 
+		/**
+        * Gets if this class is abstract or not
         * @returns {boolean}
         */
 		get abstractClass(): boolean { return this._abstractClass; }

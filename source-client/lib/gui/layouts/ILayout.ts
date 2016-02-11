@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* The interface for all layout objects.
 	*/
 	export interface ILayout

@@ -9,7 +9,7 @@ module Animate
 
 		private _typeCombo: ComboBox;
 		private _assetClassCombo: ComboBox;
-		//private _assetType: LabelVal;		
+		//private _assetType: LabelVal;
 		//private _name: LabelVal;
 		//private _type: LabelVal;
 		//private _warning: Label;
@@ -41,7 +41,7 @@ module Animate
             this.$class = "";
             this.$errorMsg = "";
             this._fromOk = false;
-			
+
 			//this._type = new LabelVal( this.okCancelContent, "Type", this._typeCombo );
 			//this._assetType = new LabelVal( this.okCancelContent, "Class", this._assetClassCombo );
 			//this._assetType.element.hide();
@@ -59,7 +59,7 @@ module Animate
             // Fetch & compile the HTML
             this._formElm = jQuery("#portal-editor").remove().clone();
             this.content.element.append(this._formElm);
-            Compiler.build(this._formElm, this, false); 
+            Compiler.build(this._formElm, this, false);
 
             jQuery("#portal-types", this._formElm).append(this._typeCombo.element);
             jQuery("#asset-classes", this._formElm).append(this._assetClassCombo.element);
@@ -98,7 +98,7 @@ module Animate
                     this._typeCombo.addItem(p);
         }
 
-		/** 
+		/**
         * When the type combo is selected
         */
 		onTypeSelect(responce: ListEvents, event: ListEvent )
@@ -133,7 +133,7 @@ module Animate
 		*/
         getProperty(): Prop<any>
         {
-            return new Prop(this.$name, this._value);   
+            return new Prop(this.$name, this._value);
         }
 
 		/**
@@ -168,7 +168,7 @@ module Animate
 
 			//this._warning.textfield.element.css( "color", "" );
 			//this._warning.text = "";
-			
+
 			// Fill types
             //( <ComboBox>this._type.val ).clearItems();
             //for (var i = 0; i < types.length; i++)
@@ -196,7 +196,7 @@ module Animate
 
                 //if (item instanceof Portal)
                 //    this._typeCombo.selectedItem = ((<Portal>item).property.type).toString();
-                
+
                 this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent(ListEvents.ITEM_SELECTED, this._typeCombo.selectedItem ) );
 			}
 
@@ -251,7 +251,7 @@ module Animate
 
 		/**
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-		* and pass the text either for the ok or cancel buttons. 
+		* and pass the text either for the ok or cancel buttons.
         */
         ok()
 		{
@@ -397,9 +397,9 @@ module Animate
 			else
                 return PropertyType.BOOL;
 		}
-        
-		/** 
-        * Gets the singleton instance. 
+
+		/**
+        * Gets the singleton instance.
         * @returns {PortalForm}
         */
 		static getSingleton(): PortalForm

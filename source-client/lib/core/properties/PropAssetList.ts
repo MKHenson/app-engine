@@ -6,7 +6,7 @@
     export class PropAssetList extends Prop<Array<ProjectResource<Engine.IResource>>>
     {
         public classNames: Array<string>;
-      
+
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -22,7 +22,7 @@
         }
 
         /**
-        * Tokenizes the data into a JSON. 
+        * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
@@ -32,12 +32,12 @@
                 return super.tokenize(slim);
 
             var token: PropAsset = super.tokenize(slim)
-            token.classNames = this.classNames; 
+            token.classNames = this.classNames;
             return token;
         }
 
         /**
-        * De-Tokenizes data from a JSON. 
+        * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
         deTokenize(data: PropAsset)
@@ -46,7 +46,7 @@
             this.classNames = data.classNames;
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropResourceList}
         */

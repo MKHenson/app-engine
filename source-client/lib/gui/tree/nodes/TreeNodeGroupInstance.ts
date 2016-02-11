@@ -1,6 +1,6 @@
 module Animate
 {
-	/** 
+	/**
 	* This node represents a group instance. Goups are collections of objects - think of them as arrays.
 	*/
 	export class TreeNodeGroupInstance extends TreeNode

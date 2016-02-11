@@ -1,6 +1,6 @@
 ﻿module Animate
 {
-    /* 
+    /*
     * Directive for expanding HTML from iterable objects
     * Eg usage en-repeate="array as value, index"
     */
@@ -13,7 +13,7 @@
             this._returnVal = [];
         }
 
-        /* 
+        /*
         * Expands the html directive
         * @param {string} expression The JS expression in the HTML value attribute
         * @param {any} ctrl The controller
@@ -26,7 +26,7 @@
             var e = expression.split("as");
             if (e.length < 1)
                 throw new Error("Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?");
-            
+
             var loopExpression = e[0];
             var ctxParts = e[1].split(",");
             var ctxValueName = ctxParts[0];
@@ -36,7 +36,7 @@
 
             this._returnVal.splice(0, this._returnVal.length);
             var numItems: number = 0;
-            
+
             if (iterable)
             {
                 if (!instance.$clonedData)
@@ -59,7 +59,7 @@
             }
             else
                 mustRebuild = true;
-            
+
             if (mustRebuild)
             {
                 if (iterable)
@@ -71,7 +71,7 @@
 
                         // Create new context variables. A loop is given the name and value contexts of the iterable
                         clone.$ctxValues = [{ name: ctxValueName, value: iterable[t] }];
-                        
+
                         // Optionally we can specify the index name as well
                         if (ctxIndexName && ctxIndexName.trim() != "")
                             clone.$ctxValues.push({ name: ctxIndexName, value: t });

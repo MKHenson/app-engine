@@ -7,7 +7,7 @@ module Animate
     export class Container extends ProjectResource<Engine.IContainer>
 	{
 		public canvas: Canvas;
-		
+
 		/**
 		* {string} name The name of the container
 		*/
@@ -15,7 +15,7 @@ module Animate
 		{
 			// Call super-class constructor
             super(entry);
-            
+
             this.canvas = null;
             this._properties.addVar(new PropBool("Start On Load", true, "Container Properties"));
             this._properties.addVar(new PropBool("Unload On Exit", true, "Container Properties"));
@@ -55,6 +55,6 @@ module Animate
 			//Call super
 			super.dispose();
 			this.canvas = null;
-		}		
+		}
 	}
 }

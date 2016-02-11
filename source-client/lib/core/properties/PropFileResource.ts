@@ -6,7 +6,7 @@
     export class PropFileResource extends Prop<FileResource>
     {
         public extensions: Array<string>;
-      
+
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -21,7 +21,7 @@
             this.extensions = extensions;
         }
 
-        /** 
+        /**
         * Attempts to clone the property
         * @returns {PropFileResource}
         */
@@ -31,7 +31,7 @@
         }
 
         /**
-       * Tokenizes the data into a JSON. 
+       * Tokenizes the data into a JSON.
        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
        * @returns {any}
        */
@@ -46,7 +46,7 @@
         }
 
         /**
-       * De-Tokenizes data from a JSON. 
+       * De-Tokenizes data from a JSON.
        * @param {any} data The data to import from
        */
         deTokenize(data: PropFileResource)

@@ -29,7 +29,7 @@ module Animate
 			// Call super-class constructor
 			this.originalName = scriptNode.id + " - " + scriptNode.alias;
 			super( null, null, this.originalName );
-			
+
 			this.scriptNode = scriptNode;
 
 			this.proxyFunctionClick = this.OnFunctionClick.bind( this );
@@ -49,7 +49,7 @@ module Animate
 
 		/**
 		* When we click on one of the function buttons
-		* @param <object> e 
+		* @param <object> e
 		*/
 		OnFunctionClick( e )
 		{
@@ -205,11 +205,11 @@ module Animate
 
 			this.onSelected();
 		}
-        
+
 		/**
 		* When the server responds after a save.
-		* @param <object> event 
-		* @param <object> data 
+		* @param <object> event
+		* @param <object> data
 		*/
         onServer(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>> )
 		{
@@ -312,7 +312,7 @@ module Animate
 
 
 		/**
-		* Called by the tab class when the pair is to be removed. 
+		* Called by the tab class when the pair is to be removed.
 		* @param <object> data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
 		*/
 		onRemove( data )
@@ -366,7 +366,7 @@ module Animate
 
 		/**
 		* Call this function to save the script to the database
-		* @returns <object> 
+		* @returns <object>
 		*/
 		save()
 		{

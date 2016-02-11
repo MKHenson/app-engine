@@ -73,4 +73,4 @@ module Animate
 		}
 		get radioMode(): boolean { return this._radioMode; }
 	}
-} 
+}

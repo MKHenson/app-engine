@@ -18,7 +18,7 @@
 		* Adds a new reference to the group
         * @param {number} shallowId
 		*/
-        addReference(shallowId: number)    
+        addReference(shallowId: number)
         {
             this.entry.items.push(shallowId);
             this.saved = false;
@@ -28,14 +28,14 @@
 		* Removes a reference from the group
         * @param {number} shallowId
 		*/
-        removeReference(shallowId: number)    
+        removeReference(shallowId: number)
         {
             if (this.entry.items.indexOf(shallowId) != -1)
                 this.entry.items.splice(this.entry.items.indexOf(shallowId), 1);
 
             this.saved = false;
         }
-		
+
 		/**
 		* Disposes and cleans up the data of this asset
 		*/

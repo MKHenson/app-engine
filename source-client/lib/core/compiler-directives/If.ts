@@ -1,6 +1,6 @@
 ﻿module Animate
 {
-    /* 
+    /*
     * Directive for expanding HTML based on a boolean test
     * Eg usage en-if="ctrl.value"
     */
@@ -13,7 +13,7 @@
             this._returnVal = [];
         }
 
-        /* 
+        /*
         * Expands the html directive
         * @param {string} expression The JS expression in the HTML value attribute
         * @param {any} ctrl The controller
@@ -25,8 +25,8 @@
         {
             var mustRebuild = false;
             var parsedExp = Compiler.parse(expression, ctrl, null, desc, instance.$ctxValues);
-            this._returnVal.splice(0, this._returnVal.length);            
-            
+            this._returnVal.splice(0, this._returnVal.length);
+
             if (!instance.$clonedData)
                 mustRebuild = true;
             else
@@ -35,7 +35,7 @@
                 if (Compiler.isEquivalent( prevValue, parsedExp ) == false )
                     mustRebuild = true;
             }
-            
+
             if (mustRebuild)
             {
                 if (parsedExp)
@@ -43,7 +43,7 @@
                     var clone: AppNode = <AppNode>Compiler.cloneNode(desc.$originalNode);
                     this._returnVal.push(clone);
                 }
-                
+
                 instance.$clonedData = parsedExp;
             }
             else

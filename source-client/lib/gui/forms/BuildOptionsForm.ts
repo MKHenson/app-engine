@@ -27,7 +27,7 @@ module Animate
 		//private _category: LabelVal;
 		private _buildVerMaj: LabelVal;
 		private _buildVerMid: LabelVal;
-		private _buildVerMin: LabelVal;		
+		private _buildVerMin: LabelVal;
 		//private _warning: Label;
 		private _visibility: LabelVal;
 		private _notes: LabelVal;
@@ -51,7 +51,7 @@ module Animate
 		{
 			super(600, 500, true, true, "Settings");
 			BuildOptionsForm._singleton = this;
-			
+
 			this.element.addClass( "build-options-form" );
 			//this.okCancelContent.element.css( { height: "500px" });
 
@@ -64,7 +64,7 @@ module Animate
 
             tabPage.element.append(this._projectElm);
 
-            
+
             this.$user = User.get;
             this.$project = null;
             this.$errorMsg = "";
@@ -74,7 +74,7 @@ module Animate
             this.$loadingPercent = "";
 
             // Compile the HTML
-            Compiler.build(this._projectElm, this, false); 
+            Compiler.build(this._projectElm, this, false);
 
 			//var projectGroup = new Group( "Project Options", tabPage );
 			//var imgGroup = new Group( "Image", tabPage );
@@ -124,7 +124,7 @@ module Animate
 			//this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button tooltip'><div><img src='media/add-asset.png' /></div><div class='tooltip-text'>Add</div></div></div>" );
 			//imgGroup.content.addChild( "<div class='fix'></div>" );
 
-			//Build options	
+			//Build options
 			//this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
 			//this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
 			//this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
@@ -193,7 +193,7 @@ module Animate
             });
         }
 
-        /** 
+        /**
         * Opens the file viewer and lets the user pick an image for their avatar
         */
         pickAvatar()
@@ -218,8 +218,8 @@ module Animate
                 });
             });
         }
-        
-        /** 
+
+        /**
         * Opens the file viewer and lets the user pick an image for their project
         */
         pickProjectPick()
@@ -245,7 +245,7 @@ module Animate
             });
         }
 
-        /** 
+        /**
         * Attempts to update the project
         */
         updateDetails(token: Engine.IPlugin)
@@ -344,8 +344,8 @@ module Animate
 
 		/**
 		* Called when we click on the settings tab
-		* @param {any} event 
-		* @param {any} data 
+		* @param {any} event
+		* @param {any} data
 		*/
 		onTab( response : TabEvents, event : TabEvent, sender? :EventDispatcher )
 		{
@@ -372,8 +372,8 @@ module Animate
 
 		///**
 		//* When we click one of the buttons
-		//* @param {any} e 
-		//* @returns {any} 
+		//* @param {any} e
+		//* @returns {any}
 		//*/
 		//onClick( e )
 		//{
@@ -489,13 +489,13 @@ module Animate
 		//*/
 		//onKeyDown( e )
 		//{
-		//	//Do nothing	
+		//	//Do nothing
 		//}
 
 		///**
 		//* When we recieve the server call for build requests
-		//* @param {ProjectEvents} event 
-		//* @param {Event} data 
+		//* @param {ProjectEvents} event
+		//* @param {Event} data
 		//*/
   //      onBuildResponse(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>>)
 		//{
@@ -547,7 +547,7 @@ module Animate
 
 		///**
 		//* Updates some of the version fields with data
-		//* @param {Build} data 
+		//* @param {Build} data
 		//*/
 		//updateFields( data: Build )
   //      {
@@ -563,8 +563,8 @@ module Animate
 
 		/**
 		* When we recieve the server call for saving project data.
-		* @param {UserEvents} event 
-		* @param {UserEvent} data 
+		* @param {UserEvents} event
+		* @param {UserEvent} data
 		*/
        // onRenamed( response: UserEvents, event: UserEvent )
 	//	{
@@ -581,7 +581,7 @@ module Animate
             //if (response == UserEvents.PROJECT_RENAMED )
 			//{
 				//Check if the values are valid
-                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );                
+                //(<Label>this._name.val).textfield.element.removeClass( "red-border" );
 				//(<Label>this._tags.val).textfield.element.removeClass( "red-border" );
 				//this._warning.textfield.element.css( "color", "#5DB526" );
 				//this._warning.text = "Project updated.";
@@ -598,7 +598,7 @@ module Animate
 
 		/**
 		* Shows the build options form
-		* @returns {any} 
+		* @returns {any}
 		*/
 		show()
 		{
@@ -711,7 +711,7 @@ module Animate
 		//}
 
 		/**
-		* Use this function to print a message on the settings screen. 
+		* Use this function to print a message on the settings screen.
 		* @param {string} message The message to print
 		* @param <bool> isError Should this be styled to an error or not
 		*/
@@ -802,7 +802,7 @@ module Animate
 
 		/**
 		* Gets the singleton instance.
-		* @returns {BuildOptionsForm} 
+		* @returns {BuildOptionsForm}
 		*/
 		static getSingleton() : BuildOptionsForm
 		{

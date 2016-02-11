@@ -4,7 +4,7 @@ module Animate
 	* A property editor which edits numbers
 	*/
     export class PGNumber extends PropertyGridEditor
-	{		
+	{
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
@@ -47,7 +47,7 @@ module Animate
 			var that = this;
 
 			// Function to deal with user interactions with JQuery
-            var valueEdited = function (e: JQueryEventObject ) 
+            var valueEdited = function (e: JQueryEventObject )
 			{
 				var val: number = parseFloat( jQuery( "input", editor ).val() );
 				if ( isNaN( val ) )
@@ -66,7 +66,7 @@ module Animate
             jQuery("input", editor).val(num.toString());
             jQuery("input", editor).on("keyup", valueEdited);
 
-			
+
 			// This is for when the users press the up and down buttons on chrome
 			jQuery( "input", editor ).on( "mouseup", valueEdited );
 			(<any>jQuery( "input", editor )).jStepper( {
