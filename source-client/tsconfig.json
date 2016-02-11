@@ -3,12 +3,16 @@
     "module": "amd",
     "removeComments": false,
     "outFile": "./dist/application.js",
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "watch": true,
     "noEmitOnError": true,
-    "declaration": false,
+    "declaration": true,
     "sourceMap": false,
     "preserveConstEnums": true,
     "target": "es5",
-    "outDir": "./dist/src/"
+    "outDir": "./dist/src/",
+    "allowJs": false
   },
   "files": [
     "./custom-definitions/engine-definitions.d.ts",
