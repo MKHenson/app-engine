@@ -2,12 +2,13 @@
   "compilerOptions": {
     "module": "amd",
     "removeComments": false,
-    "outFile": "../client/resources/application.js",
+    "outFile": "./dist/application.js",
     "noEmitOnError": true,
     "declaration": false,
     "sourceMap": false,
     "preserveConstEnums": true,
-    "target": "es5"
+    "target": "es5",
+    "outDir": "./dist/src/"
   }, "files": [
     "./lib/core/compiler-directives/If.ts",
     "./lib/core/compiler-directives/Repeater.ts",
