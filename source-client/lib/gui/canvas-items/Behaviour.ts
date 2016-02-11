@@ -60,18 +60,15 @@ module Animate
 		* @param {Prop<any>} property 
 		* @returns {Portal}
 		*/
-        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal
+        addPortal(type: PortalType, property: Prop<any>, update: boolean, custom: boolean = false): Portal
 		{
-			var portal = new Portal( this, type, property);
+            var portal = new Portal(this, type, property, custom);
 
 			this._requiresUpdated = true;
 
 			// Add the arrays
             if (type == PortalType.PARAMETER)
-            {
                 this._parameters.push(portal);
-                this._properties.addVar(portal.property);
-            }
 			else if (type == PortalType.PRODUCT )
 				this._products.push( portal );
 			else if (type == PortalType.OUTPUT )
@@ -303,7 +300,10 @@ module Animate
             {
                 //var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
                 //this.portals.push(portal);
-                var portal = this.addPortal(portals[i].type, Utils.createProperty(portals[i].property, null), false)
+                var prop: Prop<any> = Utils.createProperty(portals[i].property.name, portals[i].property.type);
+                prop.deTokenize(portals[i].property);
+
+                var portal = this.addPortal(portals[i].type, prop, false);
                 portal.customPortal = portals[i].custom;
             }
 

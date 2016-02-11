@@ -183,12 +183,7 @@
 
             // Go through each plugin and load it
             for (var i = 0, l = project.$plugins.length; i < l; i++)
-                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).catch(function (err: Error)
-                {
-                    that.$errorMsg = err.message;
-                    Animate.Compiler.digest(that._splashElm, that, true);
-
-                }).then(function ()
+                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).then(function ()
                 {
                     Animate.Compiler.digest(that._splashElm, that, true);
 
@@ -203,6 +198,11 @@
                         // Load the scene in and get everything ready
                         that.loadScene(); 
                     }
+                }).catch(function (err: Error)
+                {
+                    that.$errorMsg = err.message;
+                    Animate.Compiler.digest(that._splashElm, that, true);
+
                 });
         }
         

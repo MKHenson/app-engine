@@ -3,7 +3,7 @@ module Animate
 	/**
 	* An editor which allows a user to select files on the local server.
 	*/
-	export class PropFile extends PropertyGridEditor
+    export class PGFile extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{

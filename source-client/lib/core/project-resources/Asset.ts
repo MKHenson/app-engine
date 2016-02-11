@@ -1,18 +1,18 @@
 module Animate
 {
+    /**
+    * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins. 
+    * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
+    * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
+    * the plugin.
+    */
     export class Asset extends ProjectResource<Engine.IAsset>
 	{
         public class: AssetClass;
-		//public id: string;
-		//public shallowId: number;
-		//public name: string;
-		//private _className: string;
 		
 		/**
-		* @param {string} name The name of the asset
-		* @param {string} className The name of the "class" or "template" that this asset belongs to
-		* @param {any} json The JSON with all the asset properties
-		* @param {string} id The id of this asset
+		* @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
+		* @param {IAsset} entry [Optional] The asset database entry
 		*/
         constructor(assetClass: AssetClass, entry?: Engine.IAsset)
 		{

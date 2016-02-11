@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This editor is used to pick colours from a colour dialogue.
 	*/
-	export class PropColorPicker extends PropertyGridEditor
+    export class PGColorPicker extends PropertyGridEditor
 	{
 		constructor( grid: PropertyGrid )
 		{

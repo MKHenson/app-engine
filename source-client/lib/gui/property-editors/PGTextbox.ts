@@ -3,7 +3,7 @@ module Animate
 	/**
 	* A property editor which edits objects and strings
 	*/
-	export class PropTextbox extends PropertyGridEditor
+    export class PGTextbox extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{

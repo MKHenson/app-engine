@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This represents a combo property for assets that the user can select from a list.
 	*/
-	export class PropComboAsset extends PropertyGridEditor
+    export class PGComboAsset extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{
@@ -17,7 +17,7 @@ module Animate
         */
         canEdit(prop: Prop<any>): boolean
         {
-            if (prop instanceof PropResource )
+            if (prop instanceof PropAsset && prop.type == PropertyType.ASSET)
                 return true;
             else
                 return false;
@@ -30,7 +30,7 @@ module Animate
 		*/
         edit(prop: Prop<any>, container: Component)
         {
-            var p = <PropResource>prop;
+            var p = <PropAsset>prop;
 
 			// Create HTML	
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>`);

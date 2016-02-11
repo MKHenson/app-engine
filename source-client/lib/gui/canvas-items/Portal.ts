@@ -18,19 +18,19 @@ module Animate
 		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
 		* @param {Prop<any>} property The property associated with this portal
 		*/
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any> )
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom: boolean = false)
 		{
-			// Call super-class constructor
-            super(`<div class='portal ${type}'></div>`, parent );
+            // Call super-class constructor
+            super(`<div class='portal ${PortalType[type].toLowerCase()}'></div>`, parent);
 
             this._links = [];
             this._customPortal = false;
             this._type = type;
             this.behaviour = parent;
             this.edit(property);
+            this._customPortal = custom;
 
             // Add events
-			this.element.data( "dragEnabled", false );
 			if ( type == PortalType.PRODUCT || type == PortalType.OUTPUT )
 				this.element.on( "mousedown", jQuery.proxy( this.onPortalDown, this ) );
 		}
@@ -40,17 +40,32 @@ module Animate
 		* @param {Prop<any>} property The new value of the property
 		*/
         edit(property: Prop<any>)
-		{
+        {
+            var svgSize = 10;
+            var svgSizeHalf = svgSize * 0.5;
+            var svgBlockS = svgSize * 0.65;
+            var svgTriS = svgSize * 0.3;
+
+            this.element.html("");
+
+            // Create the SVG
+            if (this._type == PortalType.PARAMETER)
+                this.element.append(`<svg height="${svgSize}" width="${svgSize}"><polygon points="0,0 ${svgSizeHalf},${svgSize - svgBlockS} ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize}" /></svg>`);
+            else if (this._type == PortalType.OUTPUT)
+                this.element.append(`<svg height="${svgSize}" width="${svgSize}"><polygon points="0,0 ${svgBlockS},0 ${svgSize},${svgSizeHalf} ${svgBlockS},${svgSize} 0,${svgSize}" /></svg>`);
+            else if (this._type == PortalType.INPUT)
+                this.element.append(`<svg height="${svgSize}" width="${svgSize}"><polygon points="0,0 ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize} ${svgSize - svgBlockS},${svgSizeHalf}" /></svg>`);
+            else if (this._type == PortalType.PRODUCT)
+                this.element.append(`<svg height="${svgSize}" width="${svgSize}"><polygon points="0,0 ${svgSize},0 ${svgSize},${svgBlockS} ${svgSizeHalf},${svgSize} 0,${svgBlockS}" /></svg>`);
+
+            if (this._type == PortalType.PARAMETER)
+            {
+                this.behaviour.properties.removeVar(property.name);
+                this.behaviour.properties.addVar(property);
+            }
+
             this._property = property;
             
-			var typeName : string = "Parameter";
-			if ( this._type == PortalType.INPUT )
-				typeName = "Input";
-            else if (this._type == PortalType.OUTPUT )
-				typeName = "Output";
-            else if (this._type == PortalType.PRODUCT )
-				typeName = "Product";
-
             // Set the tooltip to be the same as the name
             this.tooltip = property.toString();
 		}
@@ -89,8 +104,7 @@ module Animate
 				this._links[0].dispose();
 				len = this._links.length;
 			}
-
-			this.element.data( "dragEnabled", null );
+            
 			this._links = null;
 			this.behaviour = null;
 			this._type = null;
@@ -191,7 +205,8 @@ module Animate
 		
         get type(): PortalType { return this._type; }
         get property(): Prop<any> { return this._property; }
-		get customPortal(): boolean { return this._customPortal; }
+        get customPortal(): boolean { return this._customPortal; }
+        set customPortal(val: boolean ){ this._customPortal = val; }
 		get links(): Array<Link> { return this._links; }
 	}
 }

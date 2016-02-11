@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This represents a property for choosing a list of assets
 	*/
-	export class PropAssetList extends PropertyGridEditor
+	export class PGAssetList extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{
@@ -17,7 +17,7 @@ module Animate
 		*/
         canEdit(prop: Prop<any>): boolean
         {
-            if (prop instanceof PropResourceList)
+            if (prop instanceof PropAssetList)
                 return true;
             else
                 return false;
@@ -30,7 +30,7 @@ module Animate
 		*/
         edit(prop: Prop<any>, container: Component)
         {
-            var p = <PropResourceList>prop;
+            var p = <PropAssetList>prop;
 
 			// Create HTML	
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style= 'width:90%;' ></select><div class='eye-picker'><img src='media/eye.png'/></div><div class='asset- list'><select class='asset-list-select' size='4'></select><div class='add'>Add</div><div class='remove'>Remove</div></div></div><div class='fix'></div>`);

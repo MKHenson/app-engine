@@ -13,8 +13,9 @@ module Animate
 			// Call super-class constructor
             super(parent, (property ? property.name : "Portal"));
 
-			this.element.addClass("behaviour-portal");
-           
+            this.element.addClass("behaviour-portal");
+            
+            
             if (property)
             {
                 if (this._portalType == PortalType.OUTPUT)
@@ -25,6 +26,8 @@ module Animate
                     this.addPortal(PortalType.PRODUCT, property, true);
                 else if (this._portalType == PortalType.PRODUCT)
                     this.addPortal(PortalType.PARAMETER, property, true);
+
+                this.element.addClass(PortalType[this._portalType].toLowerCase());
             }
         }
 
@@ -49,7 +52,9 @@ module Animate
         {
             super.deTokenize(data);
             this._portalType = data.portal.type;
-            this._property = Utils.createProperty( data.portal.property, null );
+            this.element.addClass(PortalType[this._portalType].toLowerCase());
+            this._property = Utils.createProperty(data.portal.property.name, data.portal.property.type);
+            this._property.deTokenize(data);
         }
 
 		/**

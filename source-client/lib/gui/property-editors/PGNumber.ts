@@ -3,7 +3,7 @@ module Animate
 	/**
 	* A property editor which edits numbers
 	*/
-	export class PropNumber extends PropertyGridEditor
+    export class PGNumber extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{

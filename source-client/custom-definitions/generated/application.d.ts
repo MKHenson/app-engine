@@ -786,10 +786,9 @@ declare module Animate {
         static createItem(parent: Canvas, data: ICanvasItem): CanvasItem;
         /**
         * Creates a new property based on the dataset provided
-        * @param {any} data The data, usually created from a tokenize function
-        * @param {EditableSet} set The set to associate with this property
+        * @param {PropertyType} type The type of property to create
         */
-        static createProperty(data: any, set: EditableSet): Prop<any>;
+        static createProperty(name: string, type: PropertyType): Prop<any>;
         /**
         * Gets the local mouse position of an event on a given dom element.
         */
@@ -819,7 +818,6 @@ declare module Animate {
         private behaviourTemplates;
         private _assetTemplates;
         private _converters;
-        private _dataTypes;
         private _previewVisualizers;
         constructor();
         /**
@@ -887,7 +885,6 @@ declare module Animate {
         * will continue looking for a factory than can preview the file
         */
         displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
-        dataTypes: Array<string>;
         assetTemplates: Array<AssetTemplate>;
         loadedPlugins: Array<IPlugin>;
         /**
@@ -969,13 +966,17 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+    * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
+    * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
+    * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
+    * the plugin.
+    */
     class Asset extends ProjectResource<Engine.IAsset> {
         class: AssetClass;
         /**
-        * @param {string} name The name of the asset
-        * @param {string} className The name of the "class" or "template" that this asset belongs to
-        * @param {any} json The JSON with all the asset properties
-        * @param {string} id The id of this asset
+        * @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
+        * @param {IAsset} entry [Optional] The asset database entry
         */
         constructor(assetClass: AssetClass, entry?: Engine.IAsset);
         /**
@@ -999,7 +1000,7 @@ declare module Animate {
 declare module Animate {
     /**
     * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
-    * essentially a piece of code that executes behaviour nodes and plugin logic when activated.
+    * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
     */
     class Container extends ProjectResource<Engine.IContainer> {
         canvas: Canvas;
@@ -1023,14 +1024,11 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * A simple array resource for wrapping ids
+    * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
     */
     class GroupArray extends ProjectResource<Engine.IGroup> {
         /**
-        * @param {string} name The name of the asset
-        * @param {string} className The name of the "class" or "template" that this asset belongs to
-        * @param {any} json The JSON with all the asset properties
-        * @param {string} id The id of this asset
+        * @param {IGroup} entry [Optional] The database entry of the resource
         */
         constructor(entry?: Engine.IGroup);
         /**
@@ -1694,13 +1692,15 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * Defines a set of variables to use in the property grid
+    * Defines a set of variables. The set is typically owned by an object that can be edited by users. The set can be passed to editors like the
+    * PropertyGrid to expose the variables to the user.
     */
     class EditableSet {
         private _variables;
         parent: EventDispatcher;
         /**
-        * Creates a {PropertyGridSet}
+        * Creates an instance
+        * @param {EventDispatcher} parent The owner of this set. Can be null. If not null, the parent will receive events when the properties are edited.
         */
         constructor(parent: EventDispatcher);
         /**
@@ -1751,7 +1751,8 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data.
+    * Each property is typically owner by an EditableSet.
     */
     class Prop<T> {
         name: string;
@@ -1969,7 +1970,7 @@ declare module Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropResource extends Prop<ProjectResource<Engine.IResource>> {
+    class PropAsset extends Prop<ProjectResource<Engine.IResource>> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -1990,19 +1991,50 @@ declare module Animate {
         * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
-        deTokenize(data: PropResource): void;
+        deTokenize(data: any): void;
         /**
         * Attempts to clone the property
         * @returns {PropResource}
         */
-        clone(clone?: PropResource): PropResource;
+        clone(clone?: PropAsset): PropAsset;
     }
 }
 declare module Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropResourceList extends Prop<Array<ProjectResource<Engine.IResource>>> {
+    class PropGroup extends Prop<GroupArray> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {GroupArray} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options Any optional data to be associated with the property
+        */
+        constructor(name: string, value: GroupArray, category?: string, options?: any);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: any): void;
+        /**
+        * Attempts to clone the property
+        * @returns {PropGroup}
+        */
+        clone(clone?: PropGroup): PropGroup;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropAssetList extends Prop<Array<ProjectResource<Engine.IResource>>> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -2023,12 +2055,12 @@ declare module Animate {
         * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
-        deTokenize(data: PropResource): void;
+        deTokenize(data: PropAsset): void;
         /**
         * Attempts to clone the property
         * @returns {PropResourceList}
         */
-        clone(clone?: PropResourceList): PropResourceList;
+        clone(clone?: PropAssetList): PropAssetList;
     }
 }
 declare module Animate {
@@ -2038,7 +2070,8 @@ declare module Animate {
     class Color {
         color: number;
         alpha: number;
-        constructor(color: number, alpha: number);
+        constructor(color?: number, alpha?: number);
+        toString(): string;
     }
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
@@ -3407,7 +3440,7 @@ declare module Animate {
         * @param {Prop<any>} property
         * @returns {Portal}
         */
-        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal;
+        addPortal(type: PortalType, property: Prop<any>, update: boolean, custom?: boolean): Portal;
         /**
         * Removes a portal from this behaviour
         * @param {Portal} toRemove The portal object we are removing
@@ -3643,7 +3676,7 @@ declare module Animate {
         * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
         * @param {Prop<any>} property The property associated with this portal
         */
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any>);
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom?: boolean);
         /**
         * Edits the portal variables
         * @param {Prop<any>} property The new value of the property
@@ -4866,7 +4899,7 @@ declare module Animate {
     /**
     * A property editor which edits objects and strings
     */
-    class PropTextbox extends PropertyGridEditor {
+    class PGTextbox extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4886,7 +4919,7 @@ declare module Animate {
     /**
     * A property editor which edits numbers
     */
-    class PropNumber extends PropertyGridEditor {
+    class PGNumber extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4906,7 +4939,7 @@ declare module Animate {
     /**
     * This represents a combo property for booleans that the user can select from a list.
     */
-    class PropComboBool extends PropertyGridEditor {
+    class PGComboBool extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4926,7 +4959,7 @@ declare module Animate {
     /**
     * This represents a combo property for enums that the user can select from a list.
     */
-    class PropComboEnum extends PropertyGridEditor {
+    class PGComboEnum extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4946,7 +4979,7 @@ declare module Animate {
     /**
     * An editor which allows a user to select files on the local server.
     */
-    class PropFile extends PropertyGridEditor {
+    class PGFile extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4966,7 +4999,7 @@ declare module Animate {
     /**
     * This represents a combo property for assets that the user can select from a list.
     */
-    class PropComboGroup extends PropertyGridEditor {
+    class PGComboGroup extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -4986,7 +5019,7 @@ declare module Animate {
     /**
     * This represents a combo property for assets that the user can select from a list.
     */
-    class PropComboAsset extends PropertyGridEditor {
+    class PGComboAsset extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -5006,7 +5039,7 @@ declare module Animate {
     /**
     * This represents a property for choosing a list of assets
     */
-    class PropAssetList extends PropertyGridEditor {
+    class PGAssetList extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -5026,7 +5059,7 @@ declare module Animate {
     /**
     * This editor is used to pick colours from a colour dialogue.
     */
-    class PropColorPicker extends PropertyGridEditor {
+    class PGColorPicker extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
         * Checks a property to see if it can edit it
@@ -5600,19 +5633,27 @@ declare module Animate {
     /**
     * This form is used to create or edit Portals.
     */
-    class PortalForm extends OkCancelForm {
+    class PortalForm extends Window {
         private static _singleton;
         private _typeCombo;
         private _assetClassCombo;
-        private _assetType;
-        private _name;
-        private _type;
-        private _warning;
         private _portalType;
-        private _item;
         private _value;
+        private _fromOk;
+        private _newProperty;
+        private _formElm;
+        private _nameVerifier;
+        private $name;
+        private $class;
+        private $errorMsg;
         constructor();
-        /** When the type combo is selected*/
+        /**
+        * Generates all the available classes to select for asset property types
+        */
+        generateClasses(): void;
+        /**
+        * When the type combo is selected
+        */
         onTypeSelect(responce: ListEvents, event: ListEvent): void;
         /**
         * Creates a new property from the data chosen
@@ -5625,19 +5666,27 @@ declare module Animate {
         * @param {PortalType} type The items current portal type
         * @param {string} caption The caption of the form
         */
-        showForm(item: Portal, type: PortalType, caption: string): any;
-        showForm(item: Behaviour, type: PortalType, caption: string): any;
-        showForm(item: Canvas, type: PortalType, caption: string): any;
+        editPortal(property: Prop<any>, type: PortalType, nameVerifier: (name: string) => boolean): Promise<{
+            prop: Prop<any>;
+            cancel: boolean;
+        }>;
+        /**
+        * Hides the window from view
+        */
+        hide(): void;
         /**
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
         * and pass the text either for the ok or cancel buttons.
         */
-        OnButtonClick(e: any): void;
+        ok(): Element;
         name: string;
         portalType: PortalType;
         value: any;
         parameterType: PropertyType;
-        /** Gets the singleton instance. */
+        /**
+        * Gets the singleton instance.
+        * @returns {PortalForm}
+        */
         static getSingleton(): PortalForm;
     }
 }
@@ -5665,6 +5714,9 @@ declare module Animate {
         private _type;
         private _fromOk;
         constructor();
+        /**
+        * Hides the window from view
+        */
         hide(): void;
         /**
          * Shows the window by adding it to a parent.

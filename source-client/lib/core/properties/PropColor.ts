@@ -8,10 +8,15 @@
         public color: number;
         public alpha: number;
 
-        constructor(color: number, alpha: number)
+        constructor(color: number = 0xffffff, alpha: number = 1)
         {
             this.color = color;
             this.alpha = alpha;
+        }
+
+        toString(): string
+        {
+            return `#${this.color.toString(16)}:${this.alpha}`;
         }
     }
 
@@ -45,7 +50,8 @@
             else
             {
                 var token = super.tokenize(slim);
-                token.value = { color: this._value.color, alpha: this._value.alpha };
+                token.color = this._value.color;
+                token.alpha = this._value.alpha;
                 return token;
             }
         }

@@ -1,9 +1,8 @@
 ﻿module Animate
 {
-   
-
     /**
-    * Defines a set of variables to use in the property grid
+    * Defines a set of variables. The set is typically owned by an object that can be edited by users. The set can be passed to editors like the 
+    * PropertyGrid to expose the variables to the user.
     */
     export class EditableSet
     {
@@ -11,7 +10,8 @@
         parent: EventDispatcher;
 
         /**
-        * Creates a {PropertyGridSet} 
+        * Creates an instance
+        * @param {EventDispatcher} parent The owner of this set. Can be null. If not null, the parent will receive events when the properties are edited.
         */
         constructor(parent: EventDispatcher)
         {
@@ -116,7 +116,8 @@
             
             for (var t in data)
             {
-                var prop: Prop<any> = Utils.createProperty(data[t], this);
+                var prop: Prop<any> = Utils.createProperty(data[t].name, data[t].type);
+                prop.set = this;
                 prop.deTokenize(data[t]);
                 items.push(prop);
             }

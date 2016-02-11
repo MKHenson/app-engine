@@ -195,7 +195,7 @@
                 case CanvasItemType.BehaviourPortal:
                     return new BehaviourPortal(parent, null, PortalType.INPUT);
                 case CanvasItemType.BehaviourScript:
-                    return new BehaviourScript(parent, null, "", false);
+                    return new BehaviourScript(parent, (<IBehaviourScript>data).scriptId, (<IBehaviourScript>data).text, false);
                 case CanvasItemType.BehaviourShortcut:
                     return new BehaviourShortcut(parent, null, "");
                 case CanvasItemType.Behaviour:
@@ -205,36 +205,33 @@
 
         /**
         * Creates a new property based on the dataset provided
-        * @param {any} data The data, usually created from a tokenize function
-        * @param {EditableSet} set The set to associate with this property
+        * @param {PropertyType} type The type of property to create
         */
-        static createProperty(data: any, set: EditableSet): Prop<any>
+        static createProperty(name : string, type: PropertyType): Prop<any>
         {
-            if (!data.hasOwnProperty("type"))
-                return null;
-
-            var type: PropertyType = data.type;
             var prop: Prop<any>;
-
             switch (type)
             {
                 case PropertyType.ASSET:
-                    prop = new PropResource(null, null, null);
+                    prop = new PropAsset(name, null);
                     break;
                 case PropertyType.ASSET_LIST:
-                    prop = new PropResourceList(null, null, null);
+                    prop = new PropAssetList(name, null, []);
                     break;
                 case PropertyType.BOOL:
-                    prop = new PropBool(null, null);
+                    prop = new PropBool(name, false);
                     break;
                 case PropertyType.ENUM:
-                    prop = new PropEnum(null, null, null);
+                    prop = new PropEnum(name, "", []);
                     break;
                 case PropertyType.FILE:
-                    prop = new PropFileResource(null, null, null);
+                    prop = new PropFileResource(name, null, null);
+                    break;
+                case PropertyType.COLOR:
+                    prop = new PropColor(name, 0xffffff, 1);
                     break;
                 case PropertyType.GROUP:
-                    prop = new PropResource(null, null, null);
+                    prop = new PropGroup(name, null);
                     break;
                 //TODO: We dont have hidden props yet
                 case PropertyType.HIDDEN:
@@ -243,23 +240,19 @@
                 case PropertyType.HIDDEN_FILE:
                     break;
                 case PropertyType.NUMBER:
-                    prop = new PropNum(null, null);
+                    prop = new PropNum(name, 0);
                     break;
                 case PropertyType.OBJECT:
-                    prop = new PropObject(null, null);
+                    prop = new PropObject(name, null);
                     break;
                 //TODO: We dont have objecy props yet
                 case PropertyType.OPTIONS:
                     break;
                 case PropertyType.STRING:
-                    prop = new PropText(null, null);
+                    prop = new PropText(name, "");
                     break;
             }
-
-            if (prop)
-                prop.set = set;
-
-            prop.deTokenize(data);
+            
             return prop;
         }
 

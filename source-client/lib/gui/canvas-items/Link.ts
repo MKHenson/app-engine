@@ -33,8 +33,7 @@ module Animate
 		{
 			// Call super-class constructor
 			super( "<canvas class='link' style='pointer-events:none'></canvas>", parent );
-
-			this.element.data( "dragEnabled", false );
+            
 			this.startPortal = null;
 			this.endPortal = null;
 			this._mouseMoveProxy = this.onMouseMove.bind( this );
@@ -506,7 +505,7 @@ module Animate
 				if ( element.data( "selected" ) )
 					graphics.strokeStyle = "#FF0000";
 				else
-					graphics.strokeStyle = "#A41CC9";
+                    graphics.strokeStyle = "#9D5BAF";
 				graphics.stroke();
 
 				//Now draw the line text
@@ -639,7 +638,6 @@ module Animate
 			this.parent.element.off( "mouseup" );
 			jQuery( ".portal", this.parent.element ).off( "mouseup", this._mouseUpAnchorProxy );
 			this.element.off();
-			this.element.data( "dragEnabled", null );
 
 			// Nullify
 			this.startPortal = null;

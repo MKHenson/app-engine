@@ -3,7 +3,7 @@
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    export class PropResource extends Prop<ProjectResource<Engine.IResource>>
+    export class PropAsset extends Prop<ProjectResource<Engine.IResource>>
     {
         public classNames: Array<string>;
       
@@ -31,8 +31,11 @@
             if (slim)
                 return super.tokenize(slim);
 
-            var token: PropResource = super.tokenize(slim)
-            token.classNames = this.classNames; 
+            var token = super.tokenize(slim)
+            token.classNames = this.classNames;
+
+            // Overrites the value as the resources shallow Id
+            token.value = (this._value ? this._value.entry.shallowId : -1);
             return token;
         }
 
@@ -40,8 +43,11 @@
         * De-Tokenizes data from a JSON. 
         * @param {any} data The data to import from
         */
-        deTokenize(data: PropResource)
+        deTokenize(data: any)
         {
+            // Gets the actual resource from the saved shallowId
+            data.value = User.get.project.getResourceByShallowID(data.value);
+
             super.deTokenize(data);
             this.classNames = data.classNames;
         }
@@ -50,9 +56,9 @@
         * Attempts to clone the property
         * @returns {PropResource}
         */
-        clone(clone?: PropResource): PropResource
+        clone(clone?: PropAsset): PropAsset
         {
-            return new PropResource(this.name, this._value, this.classNames, this.category, this.options);
+            return new PropAsset(this.name, this._value, this.classNames, this.category, this.options);
         }
     }
 }

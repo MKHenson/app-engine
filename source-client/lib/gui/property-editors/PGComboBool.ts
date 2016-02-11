@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This represents a combo property for booleans that the user can select from a list.
 	*/
-	export class PropComboBool extends PropertyGridEditor
+    export class PGComboBool extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{

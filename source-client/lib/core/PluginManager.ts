@@ -12,7 +12,7 @@ module Animate
 		private behaviourTemplates: Array<BehaviourDefinition>;
 		private _assetTemplates: Array<AssetTemplate>;
 		private _converters: Array<TypeConverter>;
-		private _dataTypes: Array<string>;
+		//private _dataTypes: Array<string>;
         private _previewVisualizers: Array<IPreviewFactory>;
 
 		constructor()
@@ -30,13 +30,13 @@ module Animate
 			this.behaviourTemplates = new Array<BehaviourDefinition>();
 			this._assetTemplates = new Array<AssetTemplate>();
 			this._converters = new Array<TypeConverter>();
-            this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
+            //this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
 
 			// Create some standard templates	
 			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", 
                 [
-                    new PortalTemplate(new PropResource("Asset In", null), PortalType.PARAMETER),
-                    new PortalTemplate(new PropResource("Asset Out", null), PortalType.PRODUCT )
+                    new PortalTemplate(new PropAsset("Asset In", null), PortalType.PARAMETER),
+                    new PortalTemplate(new PropAsset("Asset Out", null), PortalType.PRODUCT )
                 ], null, false, false, false, false));
 
             this.behaviourTemplates.push(new BehaviourDefinition("Script",
@@ -470,7 +470,7 @@ module Animate
 			//}
 		}
 
-		get dataTypes(): Array<string> { return this._dataTypes; }
+		//get dataTypes(): Array<string> { return this._dataTypes; }
 		get assetTemplates(): Array<AssetTemplate> { return this._assetTemplates; }
 		get loadedPlugins(): Array<IPlugin> { return this._loadedPlugins; }
 		

@@ -153,14 +153,11 @@ module Animate
 		{
 			if ( this.isInInputMode )
 				return false;
-
-			this.input.data( "dragEnabled", false );
-
+                
 			jQuery( "body" ).on( "click", this.stageClickProxy );
-			this.isInInputMode = true;
-			this.input.css( { width: this.element.width(), height: this.element.height() });
+            jQuery("body").append(this.input);
 
-			jQuery( "body" ).append( this.input );
+            this.isInInputMode = true;
 			this.input.css( {
 				position: "absolute", left: this.element.offset().left + "px",
 				top: this.element.offset().top + "px", width: this.element.outerWidth() + "px",
@@ -184,22 +181,14 @@ module Animate
 			if ( e != null && jQuery( e.target ).is( this.input ) )
 				return;
 
-			this.isInInputMode = false;
-			jQuery( "body" ).off( "click", this.stageClickProxy );
-
+            jQuery("body").off("click", this.stageClickProxy);
+            this.isInInputMode = false;
 			this.element.css( { width: this.input.width() + "px", height: this.input.height() + "px" });
-
 			this.input.detach();
-            //this.element.append( this.element );
             this.element.show();
-
-			this.input.data( "dragEnabled", true );
-
-            //this.text = this.input.val();
+            
+            // Set the comment
             this.properties.getVar("Comment").setVal(this.input.val());
-            this.element.css({ width: this.input.width() + "px", height: this.input.height() + "px" });
-
-
 		}
 
 		/**
@@ -210,12 +199,13 @@ module Animate
             this.off("edited", this.onEdit, this);
 			jQuery( "body" ).off( "click", this.stageClickProxy );
 			this.input.remove();
-
-			this.stageClickProxy = null;
-			this.isInInputMode = null;
-
+			
 			//Call super
-			super.dispose();
+            super.dispose();
+
+            this.stageClickProxy = null;
+            this.isInInputMode = null;
+            this.input = null;
 		}
 	}
 }

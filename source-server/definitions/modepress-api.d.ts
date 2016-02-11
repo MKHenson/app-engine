@@ -21,12 +21,12 @@
         /**
         * Called when the application module is being setup
         */
-        onInit: (mod: angular.IModule) => void;
+        onInit: (mod: any) => void;
 
         /**
         * Called when the states are being setup in config
         */
-        onStatesInit: (stateProvider: angular.ui.IStateProvider) => void;
+        onStatesInit: (stateProvider: any) => void;
     }
 }
 
@@ -168,12 +168,12 @@ declare module Modepress
         * An array of domains that are CORS approved
         */
         approvedDomains: Array<string>;
-    
+
         /**
         * An array of folder paths that can be used to fetch static content
         */
         staticFilesFolder: Array<string>;
-    
+
         /**
         * Set to true if you want SSL turned on
         */
@@ -208,7 +208,7 @@ declare module Modepress
         * The password to use for the SSL (optional). Only applicable if ssl is true.
         */
         sslPassPhrase: string;
-        
+
         /**
         * An array of IPath objects that define routes and where they go to
         */
@@ -241,8 +241,8 @@ declare module Modepress
         templatePath: string;
 
         /**
-        * The path or name of the template file to use. If a template path is set then the route resolves to 
-        * templatePath + index if the file exists. If it does then the express render function is used to send that jade file. 
+        * The path or name of the template file to use. If a template path is set then the route resolves to
+        * templatePath + index if the file exists. If it does then the express render function is used to send that jade file.
         * If not then the index is considered a static file and sent with the sendFile function.
         * e.g. "index"
         */
@@ -255,7 +255,7 @@ declare module Modepress
         plugins: Array<string>;
     }
 
-    /** 
+    /**
     * A server configuration
     */
     export interface IConfig
@@ -264,13 +264,13 @@ declare module Modepress
         * The length of time the assets should be cached on a user's browser. The default is 30 days.
         */
         cacheLifetime: number;
-    
+
         /**
         * [Optional] If set, modepress will communicate with this URL to serve SEO/social friendly renders of your site
         * e.g. "127.0.0.1:3000"
         */
         modepressRenderURL: string;
-    
+
         /**
         * The name of the mongo database to use
         */
@@ -285,12 +285,12 @@ declare module Modepress
         * The port number the mongo database is listening on
         */
         databasePort: number;
-    
+
         /**
         * The URL of the webinate-users api
         */
         usersURL: string;
-        
+
         /**
         * A secret token to identify this server to the Users service
         */
@@ -310,7 +310,7 @@ declare module Modepress
         * An array of javascript variables that will be inserted on the page
         */
         adminPluginVariables: { [name: string]: string };
-    
+
         /**
         * An array of servers for each host / route that modepress is supporting
         */
@@ -397,7 +397,7 @@ declare module Modepress
         public getValue(sanitize: boolean): T;
 
         /**
-        * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But 
+        * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
         * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
         * a given project. In this case the project item is set as a uniqueIndexer
         * @returns {boolean}
@@ -405,7 +405,7 @@ declare module Modepress
         public getUniqueIndexer(): boolean;
 
         /**
-        * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But 
+        * Sets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
         * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
         * a given project. In this case the project item is set as a uniqueIndexer
         * @returns {SchemaItem}
@@ -422,7 +422,7 @@ declare module Modepress
         public error: string;
 
         constructor();
-	
+
         /**
         * Creates a copy of the schema
         * @returns {Schema}
@@ -493,7 +493,7 @@ declare module Modepress
         public schema: Schema;
         public dbEntry: T;
         public _id: any;
-	
+
         /**
         * Creates a model instance
         */
@@ -507,7 +507,7 @@ declare module Modepress
     {
         public collection: any;
         public defaultSchema: Schema;
-	
+
         /**
         * Creates an instance of a Model
         * @param {string} collection The collection name associated with this model
@@ -519,14 +519,14 @@ declare module Modepress
         * @returns {string}
         */
         collectionName: string;
-            
+
         /**
         * Initializes the model by setting up the database collections
         * @param {mongodb.Db} db The database used to create this model
         * @returns {Promise<mongodb.Db>}
         */
         initialize(db: any): Promise<Model>;
-        	
+
         /**
         * Gets the number of DB entries based on the selector
         * @param {any} selector The mongodb selector
@@ -537,7 +537,7 @@ declare module Modepress
         /**
         * Gets an arrray of instances based on the selector search criteria
         * @param {any} selector The mongodb selector
-        * @param {any} sort Specify an array of items to sort. 
+        * @param {any} sort Specify an array of items to sort.
         * Each item key represents a field, and its associated number can be either 1 or -1 (asc / desc)
         * @param {number} startIndex The start index of where to select from
         * @param {number} limit The number of results to fetch
@@ -545,7 +545,7 @@ declare module Modepress
         * @returns {Promise<Array<ModelInstance>>}
         */
         findInstances<T>(selector: any, sort?: any, startIndex?: number, limit?: number, projection?: any): Promise<Array<ModelInstance<T>>>;
-	
+
         /**
         * Gets a model instance based on the selector criteria
         * @param {any} selector The mongodb selector
@@ -574,7 +574,7 @@ declare module Modepress
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
         * @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-        * by parsing the data object and setting each schema item's value by the name/value in the data object. 
+        * by parsing the data object and setting each schema item's value by the name/value in the data object.
         * @returns {Promise<boolean>}
         */
         checkUniqueness<T>(instance: ModelInstance<T>): Promise<boolean>;
@@ -582,13 +582,13 @@ declare module Modepress
         /**
         * Creates a new model instance. The default schema is saved in the database and an instance is returned on success.
         * @param {any} data [Optional] You can pass a data object that will attempt to set the instance's schema variables
-        * by parsing the data object and setting each schema item's value by the name/value in the data object. 
+        * by parsing the data object and setting each schema item's value by the name/value in the data object.
         * @returns {Promise<ModelInstance>}
         */
         createInstance<T>(data?: any): Promise<ModelInstance<T>>;
 
         /**
-        * Attempts to insert an array of instances of this model into the database. 
+        * Attempts to insert an array of instances of this model into the database.
         * @param {Promise<Array<ModelInstance>>} instances An array of instances to save
         * @returns {Promise<Array<ModelInstance>>}
         */
@@ -641,7 +641,7 @@ declare module Modepress
         * @returns {Promise<any>}
         */
         sendAdminEmail(message: string): Promise<any>;
-        
+
         /**
         * Sets a meta value by name for the specified user
         * @param {string} name The name of the meta value
@@ -692,7 +692,7 @@ declare module Modepress
         */
         public static getSingleton(usersURL?: string): UsersService;
     }
-        
+
     /**
     * Describes the type of number to store
     */
@@ -948,36 +948,36 @@ declare module Modepress
         params: any;
         query: any;
     }
-    
+
     /**
     * This funciton checks if user is logged in
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     export function isAdmin(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
     * This funciton checks if the logged in user can make changes to a target 'user'  defined in the express.params
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     export function canEdit(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
     * This funciton checks if user is logged in
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     export function getUser(req: IAuthReq, res: Express.Response, next: Function);
 
     /**
     * This funciton checks the logged in user is an admin. If not an error is thrown
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     export function isAuthenticated(req: IAuthReq, res: Express.Response, next: Function);
 

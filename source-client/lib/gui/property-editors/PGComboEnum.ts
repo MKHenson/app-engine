@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This represents a combo property for enums that the user can select from a list.
 	*/
-	export class PropComboEnum extends PropertyGridEditor
+    export class PGComboEnum extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{

@@ -13,7 +13,7 @@ module Animate
         constructor(parent: Component, scriptId: string, text: string, copied: boolean = false)
 		{
 			// Call super-class constructor
-            super(parent, text);
+            super(parent, "Script");
 
             // TODO: What do we do about shallow IDs?
             Utils.generateLocalId()
@@ -25,8 +25,8 @@ module Animate
                 that = this,
                 project = User.get.project,
                 promise: Promise<ProjectResource<Engine.IScript>>;
-            
-           
+
+            this.alias = text;
 
             element.addClass("behaviour-script");
             this._loading.insertBefore(jQuery(".text", element));

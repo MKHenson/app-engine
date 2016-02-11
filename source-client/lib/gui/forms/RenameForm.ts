@@ -39,6 +39,9 @@ module Animate
 			this.object = null;
         }
 
+        /**
+        * Hides the window from view
+        */
         hide()
         {
             if (!this._fromOk)

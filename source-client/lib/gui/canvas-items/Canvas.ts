@@ -346,14 +346,17 @@ module Animate
 		* Called when the canvas context menu is closed and an item clicked.
 		*/
 		onContextSelect( e: ContextMenuEvents, event: ContextMenuEvent )
-		{
+        {
+            var context: Component = this._contextNode;
+            var that = this;
+
 			if ( event.item.text == "Delete" )
 			{
 				// Delete portal
-                if (this._contextNode instanceof Portal)
+                if (context instanceof Portal)
                 {
-                    var behaviour: Behaviour = (<Portal>this._contextNode).behaviour;
-                    behaviour.removePortal(<Portal>this._contextNode);
+                    var behaviour: Behaviour = context.behaviour;
+                    behaviour.removePortal(context);
 
                     //var toEdit: EditableSet = new EditableSet(behaviour);
                     //for (var i = 0, l = behaviour.parameters.length; i < l; i++)
@@ -378,20 +381,34 @@ module Animate
 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value == ":" )
 							this.removeItem( toRemove[i] );
 			}
-			// Edit an existing portal
-			else if ( event.item.text == "Edit Portal" )
+            // Edit an existing portal
+            else if (event.item.text == "Edit Portal" && context instanceof Portal)
 			{
-				PortalForm.getSingleton().showForm( <Portal>this._contextNode, null, null );
+                PortalForm.getSingleton().editPortal(context.property, context.type, function (name): boolean
+                {
+                    // Make sure there are no duplicates
+                    for (var i = 0, portals = context.behaviour.portals, l = portals.length; i < l; i++)
+                        if (portals[i].property.name == name)
+                            return false;
+
+                    return true;
+
+                }).then(function (data)
+                {
+                    if (data.cancel)
+                        return;
+
+                    context.edit(data.prop);
+                });
 			}
 			else if ( event.item.text == "Create Behaviour" )
 			{
-				var context = Application.getInstance().canvasContext;
-				BehaviourPicker.getSingleton().show( Application.getInstance(), context.element.offset().left, context.element.offset().top, false, true );
+				var c = Application.getInstance().canvasContext;
+				BehaviourPicker.getSingleton().show( Application.getInstance(), c.element.offset().left, c.element.offset().top, false, true );
 			}
 			// Create a comment
 			else if ( event.item.text == "Create Comment" )
 			{
-				var context = Application.getInstance().canvasContext;
 				var comment = new BehaviourComment( this, "Comment" );
 				comment.element.addClass( "scale-in-animation" );
 				comment.css( { left: this._x + "px", top: this._y + "px", width: "100px", height: "60px" });
@@ -408,10 +425,48 @@ module Animate
 				if ( event.item.text == "Create Product" )
 					type = PortalType.PRODUCT;
 
-				if ( this._contextNode )
-					PortalForm.getSingleton().showForm( <Behaviour>this._contextNode, type, null );
-				else
-					PortalForm.getSingleton().showForm( this, type, event.item.text );
+                //if (context)
+                    //PortalForm.getSingleton().showForm(<Behaviour>context, type, null);                  
+                //else
+                    //PortalForm.getSingleton().showForm(this, type, event.item.text);
+                  
+                
+                PortalForm.getSingleton().editPortal(null, type, function (name): boolean
+                {
+                    // Make sure there are no duplicates
+                    if (context instanceof Behaviour)
+                    {
+                        for (var i = 0, portals = context.portals, l = portals.length; i < l; i++)
+                            if (portals[i].property.name == name)
+                                return false;
+                    }
+                    else 
+                        for (var i = 0, children = that.children, l = children.length; i < l; i++)
+                            if (children[i] instanceof BehaviourPortal)
+                                if ((<BehaviourPortal>children[i]).property.name == name)
+                                    return false;
+
+                    return true;
+
+                }).then(function (data)
+                {
+                    if (data.cancel)
+                        return;
+
+                    if (context instanceof Behaviour)
+                        context.addPortal(type, data.prop, true, true);
+                    else
+                    {
+                        var newNode: BehaviourPortal = new BehaviourPortal(that, data.prop, type);
+                        newNode.css({ "left": that._x + "px", "top": that._y + "px", "position": "absolute" });
+
+                        // Notify of change
+                        that.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", that._container, newNode.portals[0]));
+                    }
+
+                    // Notify of change
+                    that.emit(new CanvasEvent(CanvasEvents.MODIFIED, this));
+                });
 			}
 
 			this.onContextHide( WindowEvents.HIDDEN, null );
@@ -628,13 +683,11 @@ module Animate
 				{
 					// Create a portal on a Behaviour
                     var portal: Portal = comp.addPortal(PortalForm.getSingleton().portalType,
-                        PortalForm.getSingleton().getProperty(), true);
+                        PortalForm.getSingleton().getProperty(), true, true);
 						//PortalForm.getSingleton().name,
 						//PortalForm.getSingleton().value,
 						//PortalForm.getSingleton().parameterType, true
 						//);
-
-					portal.customPortal = true;
 				}
 				else
 				{

@@ -30,16 +30,16 @@ module Animate
 			this._docker = null;
 			this._groups = [];
 
-			this.addEditor( new PropTextbox( this ) );
-			this.addEditor( new PropNumber( this ) );
-			this.addEditor( new PropComboBool( this ) );
-			this.addEditor( new PropComboEnum( this ) );
-			this.addEditor( new PropComboGroup( this ) );
-			this.addEditor( new PropColorPicker(this) );
-			this.addEditor( new PropFile( this ) );
-			this.addEditor( new PropAssetList( this ) );
+            this.addEditor(new PGTextbox( this ) );
+            this.addEditor(new PGNumber( this ) );
+            this.addEditor(new PGComboBool( this ) );
+            this.addEditor(new PGComboEnum( this ) );
+            this.addEditor(new PGComboGroup( this ) );
+            this.addEditor(new PGColorPicker(this) );
+            this.addEditor(new PGFile( this ) );
+            this.addEditor(new PGAssetList( this ) );
 			//this.addEditor( new PropOptionsWindow( this ) );
-            this.addEditor(new PropComboAsset(this));
+            this.addEditor(new PGComboAsset(this));
 		}
 
 		/**

@@ -1,7 +1,8 @@
 ﻿module Animate
 {
     /**
-    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data.
+    * Each property is typically owner by an EditableSet. 
     */
     export class Prop<T>
     {

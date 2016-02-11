@@ -1012,6 +1012,9 @@ body {
 .login {
     line-height:40px;
 }
+.login input {
+    width:100%;
+}
 .login-msg {
     text-align: center;
     padding: 10px;
@@ -1474,25 +1477,27 @@ span.date {
 }
 
 /**
-*  RENAME FORM
+*  RENAME FORM &  PORTAL EDITOR FORM
 *  =========================
 */
-#rename-content input {
+#rename-content input, #portal-editor input, #portal-editor select {
     width:100%;
     padding:15px;
     border:none;
 }
-#rename-content .error {
+#rename-content .error, #portal-editor .error {
     padding: 5px;
     text-align: center;
     margin: 0 0 10px 0;
 }
-.buttons-container .button {
+.buttons-container .button, #portal-editor .button {
     float:right;
     height:45px;
     padding:10px 15px;
 }
-
+#portal-editor .dropdown {
+    width:100%;
+}
 /**
 *  BEHAVIOUR PICKER
 *  =========================
@@ -1509,6 +1514,9 @@ span.date {
     overflow: auto;
     height:100%; 
     border:none;
+}
+.behaviour-picker input {
+    width: 100%;
 }
 
 /**
@@ -1771,26 +1779,19 @@ span.date {
     display:none;
     vertical-align:initial;
 }
-.portal.output {
-    border-left: none !important;
-}
-.portal.input {
-    border-right: none !important;
-}
-.portal.parameter {
-    border-bottom: none !important;
-}
-.portal.product {
-    border-top: none !important;
-}
-.behaviour.selected .portal {
-    
-}
 .portal {
     width: 10px;
     height: 10px;
     position: absolute;
-    box-sizing: border-box;
+    border:none;
+}
+.portal svg {
+    top: 0;
+    left: 0;
+    position: absolute;
+}
+.portal svg {
+    pointer-events:none;
 }
 
 /**
@@ -1972,7 +1973,7 @@ a:active, a:hover {
     box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1);
 }
 html .bad-input {
-    background: #ffe9e9 !important;
+    background: #F9DDDD !important;
 }
 .background-dark {
     background: #86A1C3;
@@ -2008,31 +2009,56 @@ html .bad-input {
 .red-highlight:hover {
     color:red;
 }
-
+.behaviour-picker .list{ 
+    color:#fff; 
+}
 .portal {
-    background: #aaa;
+    
 }
 .behaviour .text {
     color:inherit;
 }
-.behaviour-portal {
-    background: #A41CC9;
+
+.portal svg polygon {
+    fill: #aaa;
 }
-.behaviour-portal:hover {
-    background: #961eb6;
+.portal svg polygon:hover {
+    fill: #969696;
 }
-.behaviour-portal:active {
-    background: #8b19aa;
+.portal svg polygon:active {
+    fill: #8e8e8e;
 }
-.behaviour-asset {
+
+
+.behaviour-portal, .portal.output.active svg polygon, .portal.input.active svg polygon  {
+    background: #9D5BAF;
+    fill: #9D5BAF;
+}
+.behaviour-portal:hover, .portal.output.active svg polygon:hover, .portal.input.active svg polygon:hover {
+    background: #8a509a;
+    fill: #8a509a;
+}
+.behaviour-portal:active, .portal.output.active svg polygon:active, .portal.input.active svg polygon:active {
+    background: #774685;
+    fill: #774685;
+}
+
+.behaviour-asset, .behaviour.product, .behaviour.parameter, .portal.parameter.active svg polygon, .portal.product.active svg polygon {
     background: #E2B31F;
+    fill: #E2B31F;
 }
-.behaviour-asset:hover {
+.behaviour-asset:hover, .behaviour.product:hover, .behaviour.parameter:hover, .portal.parameter.active svg polygon:hover, .portal.product.active svg polygon:hover {
     background: #d1a61e;
+    fill: #d1a61e;
 }
-.behaviour-asset:active {
+.behaviour-asset:active, .behaviour.product:active, .behaviour.parameter:active, .portal.parameter.active svg polygon:active, .portal.product.active svg polygon:active {
     background: #bb951b;
+    fill: #bb951b;
 }
+
+
+
+
 .behaviour-script {
     background: #1DA18F;
 }
@@ -2042,16 +2068,15 @@ html .bad-input {
 .behaviour-script:active {
     background: #16786a;
 }
-.output.active, .input.active {
-    background: #A41CC9;
+
+.behaviour.selected .portal svg polygon, .behaviour.selected .portal svg polygon:active, .behaviour.selected .portal svg polygon:hover, .short-active .portal svg polygon {
+    fill: #E83A3A !important;
 }
-.parameter.active, .product.active {
-    background: #E2B31F;
-}
-.behaviour.selected, .behaviour.selected .portal, .behaviour.selected:active, .behaviour.selected .portal:active, .short-active, .short-active .portal,
-.short-active:active, .short-active:hover {
-    background: #E83A3A;
-    color:white;
+
+.behaviour.selected, .behaviour.selected:active, .short-active, .short-active:active, .short-active:hover {
+    background: #E83A3A !important;
+    color:white !important;
+    box-shadow: inset 0px 0px 0px 2px #E83A3A, inset 0px 0px 0px 3px #fff;
 }
 
 /**
@@ -2210,7 +2235,7 @@ html .bad-input {
 ======================================================
 **/
 
-
+/**
 .hyperlink:hover{ text-decoration:underline; cursor:pointer; }
 .input-box textarea, .input-box input, .list-box select, .combo-box select {
     width: 100%;
@@ -2232,7 +2257,7 @@ html .bad-input {
 .button img{ margin-right:5px; margin-left:-5px; }
 .button .textfield { position: absolute; pointer-events: none; }
 .button { cursor:pointer; z-index:1; }
-
+    **/
 
 
 
@@ -2387,8 +2412,8 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .checkbox .text{  display:inline; }
 
 .ok-cancel-heading { margin-bottom:5px; }
-.portal-form .input-box, .portal-form .combo-box, .new-behaviour-form .input-box, .rename-form .input-box{ float: right; }
-.portal-form .input-box input, .new-behaviour-form .input-box input, .rename-form .input-box input, .portal-form .combo-box select{ width:300px; border:1px solid #ADC0DB; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; margin-bottom:5px; }
+
+
 .button-container{ float:right; padding: 3px; margin-top:3px; }
 .button-container .button{ float:left; }
 
@@ -2404,14 +2429,14 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .list-view-field select{ border:none; width:100%; box-sizing: border-box; }
 
-
+/*
 .output, .input{  }
 .parameter, .product{ }
 
 .parameter{ top:-10px; }
 .product{ top:-10px; }
 .output{ top:-10px; }
-.input{ left:-10px; }
+.input{ left:-10px; }*/
 
 
 
@@ -2468,7 +2493,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 
 input, select{ color:#666; }
-.behaviour-picker .list{ color:#fff; }
+
 
 
 .light-gradient {

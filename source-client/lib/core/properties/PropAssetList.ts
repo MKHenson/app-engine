@@ -3,7 +3,7 @@
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    export class PropResourceList extends Prop<Array<ProjectResource<Engine.IResource>>>
+    export class PropAssetList extends Prop<Array<ProjectResource<Engine.IResource>>>
     {
         public classNames: Array<string>;
       
@@ -31,7 +31,7 @@
             if (slim)
                 return super.tokenize(slim);
 
-            var token: PropResource = super.tokenize(slim)
+            var token: PropAsset = super.tokenize(slim)
             token.classNames = this.classNames; 
             return token;
         }
@@ -40,7 +40,7 @@
         * De-Tokenizes data from a JSON. 
         * @param {any} data The data to import from
         */
-        deTokenize(data: PropResource)
+        deTokenize(data: PropAsset)
         {
             super.deTokenize(data);
             this.classNames = data.classNames;
@@ -50,9 +50,9 @@
         * Attempts to clone the property
         * @returns {PropResourceList}
         */
-        clone(clone?: PropResourceList): PropResourceList
+        clone(clone?: PropAssetList): PropAssetList
         {
-            return new PropResourceList(this.name, this._value, this.classNames, this.category, this.options);
+            return new PropAssetList(this.name, this._value, this.classNames, this.category, this.options);
         }
     }
 }

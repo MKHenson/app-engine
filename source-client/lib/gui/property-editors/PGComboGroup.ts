@@ -3,7 +3,7 @@ module Animate
 	/**
 	* This represents a combo property for assets that the user can select from a list.
 	*/
-	export class PropComboGroup extends PropertyGridEditor
+    export class PGComboGroup extends PropertyGridEditor
 	{		
 		constructor( grid: PropertyGrid )
 		{
@@ -17,7 +17,7 @@ module Animate
         */
         canEdit(prop: Prop<any>): boolean
         {
-            if (prop instanceof PropResource == false && prop.getVal() instanceof GroupArray)
+            if (prop instanceof PropGroup )
                 return true;
             else
                 return false;
@@ -30,7 +30,9 @@ module Animate
 		*/
         edit(prop: Prop<any>, container: Component)
         {
-            var p = <PropResource>prop;
+            var p = <PropGroup>prop;
+            var group = <GroupArray>p.getVal();
+            var groupId = (group ? p.getVal().entry.shallowId : "");
 
 			//Create HTML	
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>`);
@@ -55,7 +57,7 @@ module Animate
             selector.append(`<option value='' ${(!p.getVal() ? "selected='selected'" : "")}></option>`);
 
             for (var i = 0; i < groups.length; i++)
-                selector.append(`<option title='${groups[i].entry.shallowId}' value='${groups[i].entry.shallowId}' ${(p.getVal().entry.shallowId == groups[i].entry.shallowId ? "selected='selected'" : "")}>${groups[i].entry.name}</option>`);
+                selector.append(`<option title='${groups[i].entry.shallowId}' value='${groups[i].entry.shallowId}' ${(groupId == groups[i].entry.shallowId ? "selected='selected'" : "")}>${groups[i].entry.name}</option>`);
 
 
 			var that = this;
@@ -64,7 +66,7 @@ module Animate
             var onSelect = function (e: JQueryEventObject  ) 
 			{
                 var val = parseFloat(selector.val());
-                var group = project.getResourceByShallowID(val, ResourceType.GROUP);
+                var group = <GroupArray>project.getResourceByShallowID(val, ResourceType.GROUP);
                 p.setVal(group);
             };
 

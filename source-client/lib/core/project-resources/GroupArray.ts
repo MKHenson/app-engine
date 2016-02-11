@@ -1,15 +1,12 @@
 ﻿module Animate
 {
     /**
-    * A simple array resource for wrapping ids
+    * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
     */
     export class GroupArray extends ProjectResource<Engine.IGroup>
     {
 		/**
-		* @param {string} name The name of the asset
-		* @param {string} className The name of the "class" or "template" that this asset belongs to
-		* @param {any} json The JSON with all the asset properties
-		* @param {string} id The id of this asset
+		* @param {IGroup} entry [Optional] The database entry of the resource
 		*/
         constructor(entry?: Engine.IGroup)
         {
