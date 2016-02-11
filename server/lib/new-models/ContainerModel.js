@@ -15,10 +15,10 @@ var ContainerModel = (function (_super) {
     function ContainerModel() {
         _super.call(this, "en-containers");
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1)).setUnique(true);
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("shallowId", -1, -1, Infinity, modepress_api_1.NumberType.Integer));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, modepress_api_1.NumberType.Integer));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.id("projectId", "", true)).setUniqueIndexer(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("user", "", 1));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("json", ""));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.json("json", {}, true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("createdOn")).setIndexable(true);
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
     }

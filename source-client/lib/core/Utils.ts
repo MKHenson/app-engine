@@ -176,27 +176,30 @@
 
         /**
         * Creates a new canvas item based on the dataset provided
+        * @param {Canvas} parent The parent component this item must be added to
         * @param {any} data The data, usually created from a tokenize function
         * @returns {CanvasItem}
         */
-        static createItem(data: ICanvasItem): CanvasItem
+        static createItem(parent : Canvas, data: ICanvasItem): CanvasItem
         {
             switch (data.type)
             {
                 case CanvasItemType.Link:
-                    return new Link(null);
+                    return new Link(parent);
                 case CanvasItemType.BehaviourAsset:
-                    return new BehaviourAsset(null);
+                    return new BehaviourAsset(parent);
                 case CanvasItemType.BehaviourComment:
-                    return new BehaviourComment(null, "");
+                    return new BehaviourComment(parent, "");
                 case CanvasItemType.BehaviourInstance:
-                    return new BehaviourInstance(null, null, false);
+                    return new BehaviourInstance(parent, null);
                 case CanvasItemType.BehaviourPortal:
-                    return new BehaviourPortal(null, null, PortalType.INPUT);
+                    return new BehaviourPortal(parent, null, PortalType.INPUT);
                 case CanvasItemType.BehaviourScript:
-                    return new BehaviourScript(null, null, "", false);
+                    return new BehaviourScript(parent, null, "", false);
                 case CanvasItemType.BehaviourShortcut:
-                    return new BehaviourShortcut(null, null, "");
+                    return new BehaviourShortcut(parent, null, "");
+                case CanvasItemType.Behaviour:
+                    return new Behaviour(parent, "");
             }
         }
 
@@ -242,8 +245,8 @@
                 case PropertyType.NUMBER:
                     prop = new PropNum(null, null);
                     break;
-                //TODO: We dont have objecy props yet
                 case PropertyType.OBJECT:
+                    prop = new PropObject(null, null);
                     break;
                 //TODO: We dont have objecy props yet
                 case PropertyType.OPTIONS:
@@ -255,6 +258,9 @@
 
             if (prop)
                 prop.set = set;
+
+            prop.deTokenize(data);
+            return prop;
         }
 
 		/**

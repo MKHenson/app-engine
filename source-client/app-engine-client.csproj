@@ -103,12 +103,11 @@
     <TypeScriptCompile Include="lib\core\properties\PropFileResource.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropEnum.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropColor.ts" />
+    <TypeScriptCompile Include="lib\core\properties\PropObject.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropResourceList.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropResource.ts" />
     <TypeScriptCompile Include="lib\core\properties\PropNum.ts" />
     <TypeScriptCompile Include="lib\core\PropertyGridEditor.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\IComponent.d.ts" />
-    <TypeScriptCompile Include="lib\core\interfaces\IDockItem.d.ts" />
     <TypeScriptCompile Include="lib\core\ImportExport.ts" />
     <TypeScriptCompile Include="lib\core\loaders\AnimateLoader.ts" />
     <TypeScriptCompile Include="lib\core\PluginManager.ts" />
@@ -212,6 +211,9 @@
     <Content Include="..\client\templates\index.jade">
       <Link>html\index.jade</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\core\interfaces\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

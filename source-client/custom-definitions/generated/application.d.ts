@@ -7,15 +7,11 @@
 /// <reference path="../../source-client/definitions/FileUploader.d.ts" />
 /// <reference path="../../source-client/definitions/Recaptcha.d.ts" />
 /// <reference path="../../source-client/definitions/ExportToken.d.ts" />
+/// <reference path="../../source-client/custom-definitions/engine-definitions.d.ts" />
+/// <reference path="../../source-client/custom-definitions/external-interfaces.d.ts" />
 /// <reference path="../../source-server/definitions/webinate-users.d.ts" />
 /// <reference path="../../source-server/definitions/modepress-api.d.ts" />
 /// <reference path="../../source-server/custom-definitions/app-engine.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IComponent.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IPlugin.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/ICanvasItem.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IDockItem.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/ISettingsPage.d.ts" />
-/// <reference path="../../source-client/lib/core/interfaces/IPreviewFactory.d.ts" />
 declare module Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
@@ -231,6 +227,43 @@ declare module Animate {
     }
 }
 declare module Animate {
+    module EventTypes {
+        const PORTAL_ADDED: string;
+        const PORTAL_REMOVED: string;
+        const PORTAL_EDITED: string;
+        const CONTAINER_DELETED: string;
+        const CONTAINER_SELECTED: string;
+        const CONTAINER_CREATED: string;
+    }
+    /**
+    * Defines which types of files to search through
+    */
+    enum FileSearchType {
+        Global = 0,
+        User = 1,
+        Project = 2,
+    }
+    enum PortalType {
+        PARAMETER = 0,
+        PRODUCT = 1,
+        INPUT = 2,
+        OUTPUT = 3,
+    }
+    enum UserPlan {
+        Free = 1,
+        Bronze = 2,
+        Silver = 3,
+        Gold = 4,
+        Platinum = 5,
+        Custom = 6,
+    }
+    enum ResourceType {
+        GROUP = 1,
+        ASSET = 2,
+        CONTAINER = 3,
+        FILE = 4,
+        SCRIPT = 5,
+    }
     /**
     * Describes the type of access users have to a project
     */
@@ -251,6 +284,37 @@ declare module Animate {
         Musical = 5,
         Technical = 6,
         Promotional = 7,
+    }
+    /**
+    * Describes a property type
+    */
+    enum PropertyType {
+        ASSET = 0,
+        ASSET_LIST = 1,
+        NUMBER = 2,
+        COLOR = 3,
+        GROUP = 4,
+        FILE = 5,
+        STRING = 6,
+        OBJECT = 7,
+        BOOL = 8,
+        ENUM = 9,
+        HIDDEN = 10,
+        HIDDEN_FILE = 11,
+        OPTIONS = 12,
+    }
+    /**
+    * Describes the type of canvas item to create
+    */
+    enum CanvasItemType {
+        Link = 0,
+        Behaviour = 1,
+        BehaviourAsset = 2,
+        BehaviourShortcut = 3,
+        BehaviourPortal = 4,
+        BehaviourScript = 5,
+        BehaviourComment = 6,
+        BehaviourInstance = 7,
     }
 }
 declare module Animate {
@@ -323,7 +387,6 @@ declare module Animate {
     * A base class for all project resources
     */
     class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
-        private static shallowIds;
         entry: T;
         private _saved;
         protected _properties: EditableSet;
@@ -331,6 +394,21 @@ declare module Animate {
             [s: string]: any;
         };
         constructor(entry: T);
+        /**
+        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+        */
+        initialize(): void;
+        /**
+        * This function is called just before the entry is saved to the database.
+        */
+        onSaving(): any;
+        /**
+        * Gets the properties of this resource
+        */
+        /**
+        * Sets the properties of this resource
+        */
+        properties: EditableSet;
         /**
         * Gets if this resource is saved
         * @returns {boolean}
@@ -340,29 +418,23 @@ declare module Animate {
         * @param {boolean} val
         */
         saved: boolean;
-        static generateLocalId(): number;
         dispose(): void;
-        /** Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data */
+        /**
+        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
+        */
         createOption(name: string, val: any): void;
-        /** Destroys an option */
+        /**
+        * Destroys an option
+        */
         removeOption(name: string): void;
-        /**  Update the value of an option */
+        /**
+        * Update the value of an option
+        */
         updateOption(name: string, val: any): void;
-        /** Returns the value of an option */
+        /**
+        * Returns the value of an option
+        */
         getOption(name: string): any;
-        properties: EditableSet;
-        setProperties(val: Array<EditableSetToken>): any;
-        setProperties(val: EditableSet): any;
-    }
-}
-declare module Animate {
-    enum UserPlan {
-        Free = 1,
-        Bronze = 2,
-        Silver = 3,
-        Gold = 4,
-        Platinum = 5,
-        Custom = 6,
     }
 }
 declare module Animate {
@@ -382,21 +454,15 @@ declare module Animate {
         * This function is called by Animate when the run button is pushed.
         */
         static EDITOR_RUN: EditorEvents;
-        static PORTAL_ADDED: EditorEvents;
-        static PORTAL_REMOVED: EditorEvents;
-        static PORTAL_EDITED: EditorEvents;
         /**
         * This is called by Animate when we a container is created. Associate event type is {ContainerEvent}
         */
-        static CONTAINER_CREATED: EditorEvents;
         /**
         * This is called by Animate when we a container is deleted. Associate event type is {ContainerEvent}
         */
-        static CONTAINER_DELETED: EditorEvents;
         /**
         * This is called by Animate when we select a container. Associate event type is {ContainerEvent}
         */
-        static CONTAINER_SELECTED: EditorEvents;
         /**
         * This is called by Animate when we are exporting a container. The token that gets passed should be used to store any optional
         * data with a container. Associate event type is {ContainerDataEvent}
@@ -435,7 +501,6 @@ declare module Animate {
         /**
         * Called when an asset is created. Associate event type is {AssetCreatedEvent}
         */
-        static ASSET_CREATED: EditorEvents;
         /**
         * Called just before an asset is saved to the server. Associate event type is {AssetEvent}
         */
@@ -454,6 +519,43 @@ declare module Animate {
         static ASSET_COPIED: EditorEvents;
     }
     /**
+    * Event used to describe re-naming of objects. Listen for either
+    * 'renaming' or 'renamed' event types
+    */
+    class RenameFormEvent extends Event {
+        cancel: boolean;
+        name: string;
+        oldName: string;
+        object: IRenamable;
+        reason: string;
+        resourceType: ResourceType;
+        constructor(type: string, name: string, oldName: string, object: IRenamable, rt: ResourceType);
+    }
+    class OkCancelFormEvent extends Event {
+        text: string;
+        cancel: boolean;
+        constructor(eventName: OkCancelFormEvents, text: string);
+    }
+    class ContainerEvent extends Event {
+        container: Container;
+        constructor(type: string, container: Container);
+    }
+    class BehaviourPickerEvent extends Event {
+        behaviourName: string;
+        constructor(eventName: BehaviourPickerEvents, behaviourName: string);
+    }
+    class ContextMenuEvent extends Event {
+        item: ContextMenuItem;
+        constructor(item: ContextMenuItem, eventName: any);
+    }
+    class UserEvent extends Event {
+        constructor(type: string, data: any);
+    }
+    class ImportExportEvent extends Event {
+        live_link: any;
+        constructor(eventName: ImportExportEvents, live_link: any);
+    }
+    /**
     * Called when an editor is being exported
     */
     class EditorExportingEvent extends Event {
@@ -462,16 +564,6 @@ declare module Animate {
         */
         token: any;
         constructor(token: any);
-    }
-    /**
-    * ContainerEvent associated events
-    */
-    class ContainerEvent extends Event {
-        /**
-        * {Container} container The container associated with this event
-        */
-        container: Container;
-        constructor(eventName: EditorEvents, container: Container);
     }
     /**
     * Events associated with Containers and either reading from, or writing to, a data token
@@ -508,38 +600,6 @@ declare module Animate {
         constructor(eventName: EditorEvents, asset: Asset);
     }
     /**
-    * Called when an asset property is edited by the property grid
-    */
-    class AssetEditedEvent extends AssetEvent {
-        /**
-        * {string} propertyName The name of the property that was edited
-        */
-        propertyName: string;
-        /**
-        * {any} newValue The updated value
-        */
-        newValue: any;
-        /**
-        * {any} oldValue The previous value
-        */
-        oldValue: any;
-        /**
-        * {ParameterType} type The parameter type of property
-        */
-        type: ParameterType;
-        constructor(eventName: EditorEvents, asset: Asset, propertyName: any, newValue: any, oldValue: any, type: ParameterType);
-    }
-    /**
-    * Called when an asset is created
-    */
-    class AssetCreatedEvent extends AssetEvent {
-        /**
-        * {string} name The name of the asset
-        */
-        name: string;
-        constructor(asset: Asset, name: string);
-    }
-    /**
     * Called when an asset is renamed
     */
     class AssetRenamedEvent extends AssetEvent {
@@ -562,60 +622,65 @@ declare module Animate {
     /**
     * Portal associated events
     */
-    class PluginPortalEvent extends Event {
-        oldName: string;
+    class PortalEvent extends Event {
         container: Container;
         portal: Portal;
+        oldName: string;
+        constructor(type: string, oldName: string, container: Container, portal: Portal);
+    }
+    class WindowEvent extends Event {
+        window: Window;
+        constructor(eventName: WindowEvents, window: Window);
+    }
+    class ToolbarNumberEvent extends Event {
+        value: number;
+        constructor(e: ToolbarNumberEvents, value: number);
+    }
+    class ToolbarDropDownEvent extends Event {
+        item: ToolbarItem;
+        constructor(item: ToolbarItem, e: EventType);
+        dispose(): void;
+    }
+    class EditEvent extends Event {
+        property: Prop<any>;
+        set: EditableSet;
+        constructor(property: Prop<any>, set: EditableSet);
+    }
+    class TabEvent extends Event {
+        private _pair;
+        cancel: boolean;
+        constructor(eventName: any, pair: TabPair);
+        pair: TabPair;
+    }
+    class CanvasEvent extends Event {
         canvas: Canvas;
-        constructor(eventName: EditorEvents, oldName: string, container: Container, portal: Portal, canvas: Canvas);
+        constructor(eventName: CanvasEvents, canvas: Canvas);
+    }
+    class ListViewEvent extends Event {
+        item: ListViewItem;
+        constructor(eventType: ListViewEvents, item: ListViewItem);
+    }
+    class ListEvent extends Event {
+        item: string;
+        constructor(eventName: ListEvents, item: string);
+    }
+    /**
+    * A simple project event. Always related to a project resource (null if not)
+    */
+    class ProjectEvent<T extends ProjectResource<Engine.IResource>> extends Event {
+        resource: T;
+        constructor(type: string, resource: T);
+    }
+    /**
+    * An event to deal with file viewer events
+    * The event type can be 'cancelled' or 'change'
+    */
+    class FileViewerEvent extends Event {
+        file: Engine.IFile;
+        constructor(type: string, file: Engine.IFile);
     }
 }
 declare module Animate {
-    /**
-    * Describes an asset variable
-    */
-    class VariableTemplate {
-        name: string;
-        value: any;
-        type: ParameterType;
-        category: string;
-        options: any;
-        constructor(name: string, value: string, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: boolean, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            color?: string;
-            opacity?: number;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            className?: string;
-            selected?: string;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            classNames?: Array<string>;
-            selected?: string;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            className?: string;
-            selectedAssets?: Array<number>;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            choices: Array<string>;
-            selected: string;
-        }, type: ParameterType, category: string, options: any);
-        constructor(name: string, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        }, type: ParameterType, category: string, options: any);
-        dispose(): void;
-    }
     /**
     * This class describes a template. These templates are used when creating assets.
     */
@@ -638,47 +703,10 @@ declare module Animate {
         findClass(name: string): AssetClass;
         /**
         * Adds a variable to the class.
-        * @param {string} name The name of the variable
-        * @param {any} value The variables default value
-        * @param {string} type A string that defines what type of variable it can be.
-        * @param {string} category An optional category tag for this variable. This is used for organisational purposes.
-        * @param {any} options Any options associated with this variable
+        * @param { Prop<any>} prop The property to add
         * @returns {AssetClass} A reference to this AssetClass
         */
-        addVar(name: string, value: string, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: boolean, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            color?: string;
-            opacity?: number;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            className?: string;
-            selected?: string;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            classNames?: string;
-            selected?: string;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            className?: string;
-            selectedAssets?: Array<number>;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            choices: Array<string>;
-            selected: string;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
-        addVar(name: string, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        }, type: ParameterType, category?: string, options?: any): AssetClass;
+        addVar(prop: Prop<any>): AssetClass;
         /**
         * This will clear and dispose of all the nodes
         */
@@ -686,11 +714,19 @@ declare module Animate {
         /**
         * Gets a variable based on its name
         * @param {string} name The name of the class
-        * @returns {VariableTemplate}
+        * @returns {Prop<T>}
         */
-        getVariablesByName(name: string): VariableTemplate;
+        getVariablesByName<T>(name: string): Prop<T>;
+        /**
+        * Gets the image URL of this template
+        * @returns {string}
+        */
         imgURL: string;
-        variables: Array<VariableTemplate>;
+        /**
+        * Gets the variables associated with this template
+        * @returns {Array<Prop<any>>}
+        */
+        variables: Array<Prop<any>>;
         /**
         * Adds a class
         * @param {string} name The name of the class
@@ -699,9 +735,15 @@ declare module Animate {
         * @returns {AssetClass}
         */
         addClass(name: string, img: string, abstractClass: boolean): AssetClass;
-        /** Gets the name of the class */
+        /**
+        * Gets the name of the class
+        * @returns {string}
+        */
         name: string;
-        /** Gets if this class is abstract or not */
+        /**
+        * Gets if this class is abstract or not
+        * @returns {boolean}
+        */
         abstractClass: boolean;
     }
 }
@@ -712,6 +754,13 @@ declare module Animate {
     }
     class Utils {
         private static _withCredentials;
+        private static shallowIds;
+        /**
+        * Generates a new shallow Id - an id that is unique only to this local session
+        * @param {number} reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
+        * @returns {number}
+        */
+        static generateLocalId(reference?: number): number;
         /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
@@ -728,6 +777,22 @@ declare module Animate {
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
         static delete<T>(url: string, data?: any): Promise<T>;
+        /**
+        * Creates a new canvas item based on the dataset provided
+        * @param {Canvas} parent The parent component this item must be added to
+        * @param {any} data The data, usually created from a tokenize function
+        * @returns {CanvasItem}
+        */
+        static createItem(parent: Canvas, data: ICanvasItem): CanvasItem;
+        /**
+        * Creates a new property based on the dataset provided
+        * @param {any} data The data, usually created from a tokenize function
+        * @param {EditableSet} set The set to associate with this property
+        */
+        static createProperty(data: any, set: EditableSet): Prop<any>;
+        /**
+        * Gets the local mouse position of an event on a given dom element.
+        */
         static getMousePos(evt: any, id: any): any;
         /**
         * Use this function to check if a value contains characters that break things.
@@ -755,20 +820,8 @@ declare module Animate {
         private _assetTemplates;
         private _converters;
         private _dataTypes;
-        private scriptTemplate;
         private _previewVisualizers;
-        private _resourceCreated;
         constructor();
-        onResourceCreated(type: string, event: ProjectEvent): void;
-        /**
-        * Updates an assets value as well as any components displaying the asset.
-        * For example the property grid or scene view.
-        * @param {Asset} asset The asset we are editing
-        * @param {string} propName The name of the asset's property
-        * @param {any} propValue The new value
-        * @param {boolean} notifyEditor If true, the manager will send out a notify event of the new value
-        */
-        updateAssetValue(asset: Asset, propName: string, propValue: any, notifyEditor?: boolean): void;
         /**
         * Attempts to download a plugin by its URL and insert it onto the page.
         * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
@@ -808,21 +861,6 @@ declare module Animate {
         */
         selectAsset(asset: Asset, panToNode?: boolean, multiSelect?: boolean): void;
         /**
-        * Gets the currently selected asset from the PropertyGrid
-        * @returns {Asset} asset The Asset object we need to select
-        */
-        getSelectedAsset(): Asset;
-        /**
-        * This is called when the scene is built. The object passed to this function represents
-        * the scene as an object.
-        * @param {Asset} asset The asset that was edited
-        * @param {string} propertyNam The name of the property that was edited
-        * @param {any} newValue The new value of the property
-        * @param {any} oldValue The old value of the property
-        * @param {ParameterType} propertyType The type of property
-        */
-        assetEdited(asset: Asset, propertyNam: string, newValue: any, oldValue: any, propertyType: ParameterType): void;
-        /**
         * Gets an asset class by its name
         * @param {string} name The name of the asset class
         * @param {AssetClass}
@@ -833,7 +871,6 @@ declare module Animate {
         * @param {string} name The name of the asset
         * @param {Asset} asset The asset itself
         */
-        assetCreated(name: string, asset: Asset): void;
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
@@ -863,10 +900,6 @@ declare module Animate {
     class ImportExportEvents extends ENUM {
         constructor(v: string);
         static COMPLETE: ImportExportEvents;
-    }
-    class ImportExportEvent extends Event {
-        live_link: any;
-        constructor(eventName: ImportExportEvents, live_link: any);
     }
     /**
     * A class to help with importing and exporting a project
@@ -904,13 +937,6 @@ declare module Animate {
         */
         referenceCheckGroup(group: TreeNodeGroup, container: ContainerToken): void;
         /**
-        * Gets the value of an object without any of the additional data associated with it.
-        * @param {ParameterType} propType the object type
-        * @param {any} value Its current value
-        * @returns {any}
-        */
-        static getExportValue(propType: ParameterType, value: any): any;
-        /**
         * This is the resonse from the server
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
@@ -925,56 +951,37 @@ declare module Animate {
     /**
     * A simple interface for property grid editors
     */
-    class PropertyGridEditor {
-        private _grid;
-        private mEditors;
+    abstract class PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        abstract canEdit(prop: Prop<any>): boolean;
         /**
-        * Use this function to create a nice wrapper for any HTML you want to use as an editor. This will surround the html and css that makes
-        * it fit in with the other property editors already available.
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        createEditorJQuery(propertyName: string, html: string, value: any): JQuery;
-        /**
-        * Call this function to tell the grid that a property has been edited.
-        */
-        notify(propertyName: string, propertyValue: any, objectType: ParameterType): void;
-        dispose(): void;
+        edit(prop: Prop<any>, container: Component): any;
         cleanup(): void;
-        /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
-        */
-        update(newValue: any, editHTML: JQuery): void;
-        /**
-        * Called when the editor is being added to the DOM
-        */
-        onAddedToDom(): void;
     }
 }
 declare module Animate {
     class Asset extends ProjectResource<Engine.IAsset> {
+        class: AssetClass;
         /**
         * @param {string} name The name of the asset
         * @param {string} className The name of the "class" or "template" that this asset belongs to
         * @param {any} json The JSON with all the asset properties
         * @param {string} id The id of this asset
         */
-        constructor(entry?: Engine.IAsset);
-        /** Writes this assset to a readable string */
+        constructor(assetClass: AssetClass, entry?: Engine.IAsset);
+        /**
+        * Writes this assset to a readable string
+        * @returns {string}
+        */
         toString(): string;
         /**
         * Use this function to reset the asset properties
@@ -1001,11 +1008,13 @@ declare module Animate {
         */
         constructor(entry?: Engine.IContainer);
         /**
-        * This will download and update all data of the asset.
-        * @param {string} name The name of the behaviour
-        * @param {CanvasToken} json Its data object
+        * This function is called just before the entry is saved to the database.
         */
-        update(name: string, json: CanvasToken): void;
+        onSaving(): any;
+        /**
+         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+         */
+        initialize(): void;
         /**
         * This will cleanup the behaviour.
         */
@@ -1110,21 +1119,21 @@ declare module Animate {
         private _portalTemplates;
         private _plugin;
         /**
-        * @param <string> behaviourName The name of the behaviour
-        * @param <bool> canBuildInput
-        * @param <bool> canBuildOutput
-        * @param <bool> canBuildParameter
-        * @param <bool> canBuildProduct
-        * @param <array> portalTemplates
-        * @param <IPlugin> plugin The plugin this is associated with
+        * @param {string} behaviourName The name of the behaviour
+        * @param {Array<PortalTemplate>} portalTemplates
+        * @param {IPlugin} plugin The plugin this is associated with
+        * @param {boolean} canBuildInput
+        * @param {boolean} canBuildOutput
+        * @param {boolean} canBuildParameter
+        * @param {boolean} canBuildProduct
         */
-        constructor(behaviourName: string, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean, portalTemplates?: Array<PortalTemplate>, plugin?: IPlugin);
+        constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
         dispose(): void;
         canBuildOutput(behaviour: Behaviour): boolean;
         canBuildInput(behaviour: Behaviour): boolean;
         canBuildProduct(behaviour: Behaviour): boolean;
         canBuildParameter(behaviour: Behaviour): boolean;
-        createPortalsTemplates(): Array<PortalTemplate>;
+        portalsTemplates(): Array<PortalTemplate>;
         behaviourName: string;
         plugin: IPlugin;
     }
@@ -1134,55 +1143,6 @@ declare module Animate {
         category: string;
         command: string;
         projectID: string;
-    }
-}
-declare module Animate {
-    class CanvasTokenPortal {
-        name: string;
-        value: string;
-        type: PortalType;
-        dataType: ParameterType;
-        customPortal: boolean;
-        constructor(token?: any);
-    }
-    class CanvasTokenItem {
-        id: string;
-        type: string;
-        left: string;
-        top: string;
-        zIndex: string;
-        position: string;
-        text: string;
-        name: string;
-        alias: string;
-        assetID: number;
-        scriptId: any;
-        shallowId: number;
-        containerId: number;
-        behaviourID: string;
-        portalType: PortalType;
-        dataType: ParameterType;
-        value: string;
-        portals: Array<CanvasTokenPortal>;
-        frameDelay: number;
-        startPortal: string;
-        endPortal: string;
-        startBehaviour: string;
-        endBehaviour: string;
-        targetStartBehaviour: string;
-        targetEndBehaviour: string;
-        constructor(token?: any);
-    }
-    class CanvasToken {
-        id: number;
-        name: string;
-        items: Array<CanvasTokenItem>;
-        properties: Array<EditableSetToken>;
-        plugins: any;
-        constructor(id: number);
-        toString(): string;
-        fromDatabase(json: any): CanvasToken;
-        static fromDatabase(json: any, id: number): CanvasToken;
     }
 }
 declare module Animate {
@@ -1372,57 +1332,16 @@ declare module Animate {
     * A simple class to define portal behaviour.
     */
     class PortalTemplate {
-        name: string;
         type: PortalType;
-        dataType: ParameterType;
-        value: any;
+        property: Prop<any>;
         /**
-        * @param {string} name This is the name of the template
-        * @param {PortalType} type The type of portal this represents. Defined in the Portal class.
-        * @param {ParameterType} dataType The portal value type (see value types)
-        * @param {any} value The default value of the portal
+        * @param {Prop<any>} property The property associated with this portal
+        * @param {PortalType} type The type of portal this represents
         */
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: string);
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: boolean);
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            color?: string;
-            opacity?: number;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            className?: string;
-            selected?: string;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            classNames?: Array<string>;
-            selected?: string;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            choices: Array<string>;
-            selected: string;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        });
-        constructor(name: string, type: PortalType, dataType: ParameterType, value: any);
+        constructor(property: Prop<any>, type: PortalType);
     }
 }
 declare module Animate {
-    enum ResourceType {
-        GROUP = 1,
-        ASSET = 2,
-        CONTAINER = 3,
-        FILE = 4,
-        SCRIPT = 5,
-    }
     class ProjectEvents {
         value: string;
         constructor(v: string);
@@ -1432,13 +1351,6 @@ declare module Animate {
         static FAILED: ProjectEvents;
         static BUILD_SELECTED: ProjectEvents;
         static BUILD_SAVED: ProjectEvents;
-    }
-    /**
-    * A simple project event. Always related to a project resource (null if not)
-    */
-    class ProjectEvent extends Event {
-        resouce: ProjectResource<any>;
-        constructor(type: string, data: ProjectResource<any>);
     }
     /**
     * A wrapper for project builds
@@ -1550,6 +1462,13 @@ declare module Animate {
         */
         deleteResource(id: string, type: ResourceType): Promise<boolean>;
         /**
+        * Copies an existing resource and assigns a new ID to the cloned item
+        * @param {string} id The id of the resource we are cloning from
+        * @param {ResourceType} type [Optional] The type of resource to clone
+        * @returns {Promise<ProjectResource<T>>}
+        */
+        copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>;
+        /**
         * Deletes several resources in 1 function call
         * @param {Array<string>} ids The ids An array of resource Ids
         * @returns {Promise<boolean>}
@@ -1573,11 +1492,6 @@ declare module Animate {
         * This function is used to update the current build data
         */
         saveBuild(notes: string, visibility: string, html: string, css: string): void;
-        /**
-        * This function is used to copy an asset.
-        * @param {string} assetId The asset object we are trying to copy
-        */
-        copyAsset(assetId: string): void;
         /**
         * This function is called whenever we get a resonse from the server
         */
@@ -1608,9 +1522,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class UserEvent extends Event {
-        constructor(type: string, data: any);
-    }
     /**
     * This class is used to represent the user who is logged into Animate.
     */
@@ -1779,6 +1690,385 @@ declare module Animate {
         * will continue looking for a factory than can preview the file
         */
         generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a set of variables to use in the property grid
+    */
+    class EditableSet {
+        private _variables;
+        parent: EventDispatcher;
+        /**
+        * Creates a {PropertyGridSet}
+        */
+        constructor(parent: EventDispatcher);
+        /**
+        * Adds a variable to the set
+        * @param {Prop<any>} prop
+        */
+        addVar(prop: Prop<any>): void;
+        /**
+        * Gets a variable by name
+        * @param {string} name
+        * @returns {Prop<T>}
+        */
+        getVar<T>(name: string): Prop<T>;
+        /**
+        * Removes a variable
+        * @param {string} prop
+        */
+        removeVar(name: string): void;
+        /**
+        * Broadcasts an "edited" event to the owner of the set
+        */
+        notifyEdit(prop: Prop<any>): void;
+        /**
+        * Updates a variable with a new value
+        * @returns {T}
+        */
+        updateValue<T>(name: string, value: T): T;
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: any): void;
+        /**
+       * Tokenizes the data into a JSON.
+       * @returns {Array<Prop<any>>}
+       */
+        variables: Array<Prop<any>>;
+        /**
+         * Cleans up and removes the references
+         */
+        dispose(): void;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class Prop<T> {
+        name: string;
+        protected _value: T;
+        category: string;
+        options: any;
+        set: EditableSet;
+        type: PropertyType;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {T} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        * @param {PropertyType} type [Optional] Define the type of property
+        */
+        constructor(name: string, value: T, category?: string, options?: any, type?: PropertyType);
+        /**
+        * Attempts to clone the property
+        * @returns {Prop<T>}
+        */
+        clone(clone?: Prop<T>): Prop<T>;
+        /**
+        * Attempts to fetch the value of this property
+        * @returns {T}
+        */
+        getVal(): T;
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: any): void;
+        /**
+        * Attempts to set the value of this property
+        * @param {T} val
+        */
+        setVal(val: T): void;
+        /**
+        * Cleans up the class
+        */
+        dispose(): void;
+        /**
+        * Writes this portal out to a string
+        */
+        toString(): string;
+    }
+    class PropBool extends Prop<boolean> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {boolean} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: boolean, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns PropBool}
+        */
+        clone(clone?: PropBool): PropBool;
+    }
+    class PropText extends Prop<string> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: string, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns PropText}
+        */
+        clone(clone?: PropText): PropText;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropEnum extends Prop<string> {
+        choices: Array<string>;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {number} choices The choices to select from
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: string, choices: Array<string>, category?: string, options?: any);
+        /**
+       * Tokenizes the data into a JSON.
+       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+       * @returns {any}
+       */
+        tokenize(slim?: boolean): any;
+        /**
+        * Attempts to clone the property
+        * @returns {PropEnum}
+        */
+        clone(clone?: PropEnum): PropEnum;
+        /**
+       * De-Tokenizes data from a JSON.
+       * @param {any} data The data to import from
+       */
+        deTokenize(data: PropEnum): void;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropFileResource extends Prop<FileResource> {
+        extensions: Array<string>;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {string} value The value of the property
+        * @param {number} extensions The valid extends to use eg: ["bmp", "jpeg"]
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: FileResource, extensions: Array<string>, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns {PropFileResource}
+        */
+        clone(clone?: PropFileResource): PropFileResource;
+        /**
+       * Tokenizes the data into a JSON.
+       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+       * @returns {any}
+       */
+        tokenize(slim?: boolean): any;
+        /**
+       * De-Tokenizes data from a JSON.
+       * @param {any} data The data to import from
+       */
+        deTokenize(data: PropFileResource): void;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropNum extends Prop<number> {
+        min: number;
+        max: number;
+        decimals: number;
+        interval: number;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {number} value The value of the property
+        * @param {number} min The minimum value this property can be
+        * @param {number} max The maximum value this property can be
+        * @param {number} decimals The number of decimals allowed
+        * @param {number} interval The increment/decrement values of this number
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: number, min?: number, max?: number, decimals?: number, interval?: number, category?: string, options?: any);
+        /**
+        * Attempts to fetch the value of this property
+        * @returns {number}
+        */
+        getVal(): number;
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: PropNum): void;
+        /**
+        * Attempts to clone the property
+        * @returns {PropNum}
+        */
+        clone(clone?: PropNum): PropNum;
+    }
+}
+declare module Animate {
+    /**
+    * Defines an any property variable.
+    */
+    class PropObject extends Prop<any> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {any} value The value of the property
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, value: any, category?: string, options?: any);
+        /**
+        * Attempts to clone the property
+        * @returns {PropObject}
+        */
+        clone(clone?: PropObject): PropObject;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropResource extends Prop<ProjectResource<Engine.IResource>> {
+        classNames: Array<string>;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {number} value The value of the property
+        * @param {Array<string>} classNames An array of class names we can pick this resource from
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options Any optional data to be associated with the property
+        */
+        constructor(name: string, value: ProjectResource<Engine.IResource>, classNames?: Array<string>, category?: string, options?: any);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: PropResource): void;
+        /**
+        * Attempts to clone the property
+        * @returns {PropResource}
+        */
+        clone(clone?: PropResource): PropResource;
+    }
+}
+declare module Animate {
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropResourceList extends Prop<Array<ProjectResource<Engine.IResource>>> {
+        classNames: Array<string>;
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {Array<ProjectResource<Engine.IResource>>} value An array of project resources
+        * @param {Array<string>} classNames An array of class names we can pick this resource from
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options Any optional data to be associated with the property
+        */
+        constructor(name: string, value: Array<ProjectResource<Engine.IResource>>, classNames: Array<string>, category?: string, options?: any);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: PropResource): void;
+        /**
+        * Attempts to clone the property
+        * @returns {PropResourceList}
+        */
+        clone(clone?: PropResourceList): PropResourceList;
+    }
+}
+declare module Animate {
+    /**
+    * A small wrapper for colors
+    */
+    class Color {
+        color: number;
+        alpha: number;
+        constructor(color: number, alpha: number);
+    }
+    /**
+    * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
+    */
+    class PropColor extends Prop<Color> {
+        /**
+        * Creates a new instance
+        * @param {string} name The name of the property
+        * @param {number} color The colour hex
+        * @param {number} alpha The alpha value (0 to 1)
+        * @param {string} category [Optional] An optional category to describe this property's function
+        * @param {any} options [Optional] Any optional data to be associated with the property
+        */
+        constructor(name: string, color: number, alpha?: number, category?: string, options?: any);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
+        * @returns {any}
+        */
+        tokenize(slim?: boolean): any;
+        /**
+        * Attempts to clone the property
+        * @returns {PropColor}
+        */
+        clone(clone?: PropColor): PropColor;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {any} data The data to import from
+        */
+        deTokenize(data: Color): void;
     }
 }
 declare module Animate {
@@ -2208,10 +2498,6 @@ declare module Animate {
         static HIDDEN: WindowEvents;
         static SHOWN: WindowEvents;
     }
-    class WindowEvent extends Event {
-        window: Window;
-        constructor(eventName: WindowEvents, window: Window);
-    }
     /**
     * This class is the base class for all windows in Animate
     */
@@ -2308,10 +2594,6 @@ declare module Animate {
     class ContextMenuEvents extends ENUM {
         constructor(v: string);
         static ITEM_CLICKED: ContextMenuEvents;
-    }
-    class ContextMenuEvent extends Event {
-        item: ContextMenuItem;
-        constructor(item: ContextMenuItem, eventName: any);
     }
     /**
     * A ContextMenu is a popup window which displays a list of items that can be selected.
@@ -2433,12 +2715,6 @@ declare module Animate {
         constructor(v: string);
         static SELECTED: TabEvents;
         static REMOVED: TabEvents;
-    }
-    class TabEvent extends Event {
-        private _pair;
-        cancel: boolean;
-        constructor(eventName: any, pair: TabPair);
-        pair: TabPair;
     }
     /**
     * The Tab component will create a series of selectable tabs which open specific tab pages.
@@ -2814,10 +3090,6 @@ declare module Animate {
         static DETAILS: ListViewType;
         static IMAGES: ListViewType;
     }
-    class ListViewEvent extends Event {
-        item: ListViewItem;
-        constructor(eventType: ListViewEvents, item: ListViewItem);
-    }
     /**
     * The ListView class is used to display a series of {ListViewItem}s. Each item can
     * organised by a series of columns
@@ -2931,10 +3203,6 @@ declare module Animate {
     class ListEvents extends ENUM {
         constructor(v: string);
         static ITEM_SELECTED: ListEvents;
-    }
-    class ListEvent extends Event {
-        item: string;
-        constructor(eventName: ListEvents, item: string);
     }
     /**
     * Use this class to create a select list.
@@ -3071,10 +3339,50 @@ declare module Animate {
     }
 }
 declare module Animate {
+    type LinkMap = {
+        [shallowId: number]: {
+            item: CanvasItem;
+            token: ICanvasItem;
+        };
+    };
+    /**
+    * The base class for all canvas items
+    */
+    class CanvasItem extends Component {
+        shallowId: number;
+        /**
+        * Creates an instance
+        */
+        constructor(html: string, parent: Component);
+        /**
+        * A shortcut for jQuery's css property.
+        */
+        css(propertyName: any, value?: any): any;
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {ICanvasItem}
+        */
+        tokenize(slim?: boolean): ICanvasItem;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {ICanvasItem} data The data to import from
+        */
+        deTokenize(data: ICanvasItem): void;
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap): void;
+    }
+}
+declare module Animate {
     /**
     * Behaviours are the base class for all nodes placed on a <Canvas>
     */
-    class Behaviour extends Component implements ICanvasItem, IRenamable {
+    class Behaviour extends CanvasItem implements IRenamable {
         private _originalName;
         private _alias;
         private _canGhost;
@@ -3085,16 +3393,21 @@ declare module Animate {
         private _inputs;
         private _portals;
         private _fontSize;
+        private _properties;
         constructor(parent: Component, text: string, html?: string);
+        /**
+        * Gets a portal by its name
+        * @param {string} name The portal name
+        * @returns {Portal}
+        */
+        getPortal(name: string): Portal;
         /**
         * Adds a portal to this behaviour.
         * @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
-        * @param {string} name The unique name of the <Portal>
-        * @param {any} value The default value of the <Portal>
-        * @param {ParameterType} dataType The data type that the portal represents. See the default data types.
-        * @returns {Portal} The portal that was added to this node
+        * @param {Prop<any>} property
+        * @returns {Portal}
         */
-        addPortal(type: PortalType, name: string, value: any, dataType: ParameterType, update: boolean): Portal;
+        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal;
         /**
         * Removes a portal from this behaviour
         * @param {Portal} toRemove The portal object we are removing
@@ -3115,7 +3428,9 @@ declare module Animate {
         * Updates the behavior width and height and organises the portals
         */
         updateDimensions(): void;
-        /** Gets the text of the behaviour */
+        /**
+        * Gets the text of the behaviour
+        */
         /**
         * sets the label text
         */
@@ -3128,10 +3443,22 @@ declare module Animate {
         */
         selected: boolean;
         /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviour}
+        */
+        tokenize(slim?: boolean): IBehaviour;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {IBehaviour} data The data to import from
+        */
+        deTokenize(data: IBehaviour): void;
+        /**
         * Diposes and cleans up this component and all its child components
         */
         dispose(): void;
         name: string;
+        properties: EditableSet;
         originalName: string;
         alias: string;
         canGhost: boolean;
@@ -3146,14 +3473,25 @@ declare module Animate {
 declare module Animate {
     class BehaviourPortal extends Behaviour {
         private _portalType;
-        private _dataType;
-        private _value;
-        constructor(parent: Component, text: string, portalType?: PortalType, dataType?: ParameterType, value?: any);
-        /**This will cleanup the component.*/
+        private _property;
+        constructor(parent: Component, property: Prop<any>, portalType?: PortalType);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourPortal}
+        */
+        tokenize(slim?: boolean): IBehaviourPortal;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {IBehaviourPortal} data The data to import from
+        */
+        deTokenize(data: IBehaviourPortal): void;
+        /**
+        * This will cleanup the component.
+        */
         dispose(): void;
         portaltype: PortalType;
-        dataType: ParameterType;
-        value: any;
+        property: Prop<any>;
     }
 }
 declare module Animate {
@@ -3163,11 +3501,30 @@ declare module Animate {
     */
     class BehaviourShortcut extends Behaviour {
         private _originalNode;
+        private _savedResource;
         /**
         * @param {Canvas} parent The parent canvas
         * @param {Behaviour} originalNode The original node we are copying from
         */
         constructor(parent: Canvas, originalNode: Behaviour, text: string);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourResource}
+        */
+        tokenize(slim?: boolean): IBehaviourShortcut;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {IBehaviourResource} data The data to import from
+        */
+        deTokenize(data: IBehaviourShortcut): void;
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap): void;
         setOriginalNode(originalNode: Behaviour, buildPortals: boolean): void;
         /**
         * This will cleanup the component.
@@ -3185,14 +3542,18 @@ declare module Animate {
         */
         dispose(): void;
         /**
-        * Adds a portal to this behaviour.
-        * @param {PortalType} type The type of portal we are adding. It can be either PortalType.INPUT, PortalType.OUTPUT, Portal.PARAMETER & PortalType.PRODUCT
-        * @param {string} name The unique name of the Portal
-        * @param {any} value The default value of the Portal
-        * @param {ParameterType} dataType The data type that the portal represents. See the default data types.
-        * @returns {Portal} The portal that was added to this node
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviour}
         */
-        addPortal(type: PortalType, name: string, value: any, dataType: ParameterType): Portal;
+        tokenize(slim?: boolean): IBehaviour;
+        /**
+        * Adds a portal to this behaviour.
+        * @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
+        * @param {Prop<any>} property
+        * @returns {Portal}
+        */
+        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal;
         asset: Asset;
     }
 }
@@ -3209,67 +3570,64 @@ declare module Animate {
         private mOffsetX;
         private mOffsetY;
         constructor(parent: Component, text: string);
-        /** Does nothing...*/
+        /**
+       * Tokenizes the data into a JSON.
+       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+       * @returns {IBehaviour}
+       */
+        tokenize(slim?: boolean): IBehaviour;
+        /**
+       * De-Tokenizes data from a JSON.
+       * @param {IBehaviourComment} data The data to import from
+       */
+        deTokenize(data: IBehaviourComment): void;
+        /**
+        * When the text property is edited
+        */
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
+        /**
+        * Does nothing...
+        */
         updateDimensions(): void;
-        /** When the mouse enters the behaviour*/
+        /**
+        * When the mouse enters the behaviour
+        */
         onIn(e: any): void;
         /**
         * A shortcut for jQuery's css property.
         */
         css(propertyName: any, value?: any): any;
-        /** When the mouse enters the behaviour*/
+        /**
+        * When the mouse enters the behaviour
+        */
         onOut(e: any): void;
-        /** When the resize starts.*/
+        /**
+        * When the resize starts.
+        */
         onResizeStart(event: any, ui: any): void;
-        /** When the resize updates.*/
+        /**
+        * When the resize updates.
+        */
         onResizeUpdate(event: any, ui: any): void;
-        /** When the resize stops.*/
+        /**
+        * When the resize stops.
+        */
         onResizeStop(event: any, ui: any): void;
-        /** Call this to allow for text editing in the comment.*/
+        /**
+        * Call this to allow for text editing in the comment.
+        */
         enterText(): boolean;
-        /** When we click on the stage we go out of edit mode.*/
+        /**
+        * When we click on the stage we go out of edit mode.
+        */
         onStageClick(e: any): void;
-        /**This will cleanup the component.*/
+        /**
+        * This will cleanup the component.
+        */
         dispose(): void;
     }
 }
 declare module Animate {
-    class PortalType extends ENUM {
-        constructor(v: string);
-        static PARAMETER: PortalType;
-        static PRODUCT: PortalType;
-        static INPUT: PortalType;
-        static OUTPUT: PortalType;
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns {PortalType}
-        */
-        static fromString(val: string): PortalType;
-    }
-    class ParameterType extends ENUM {
-        constructor(v: string);
-        static ASSET: ParameterType;
-        static ASSET_LIST: ParameterType;
-        static NUMBER: ParameterType;
-        static GROUP: ParameterType;
-        static FILE: ParameterType;
-        static STRING: ParameterType;
-        static OBJECT: ParameterType;
-        static BOOL: ParameterType;
-        static INT: ParameterType;
-        static COLOR: ParameterType;
-        static ENUM: ParameterType;
-        static HIDDEN: ParameterType;
-        static HIDDEN_FILE: ParameterType;
-        static OPTIONS: ParameterType;
-        /**
-        * Returns an enum reference by its name/value
-        * @param {string} val
-        * @returns {ParameterType}
-        */
-        static fromString(val: string): ParameterType;
-    }
     /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -3277,28 +3635,20 @@ declare module Animate {
     class Portal extends Component {
         private _links;
         private _customPortal;
-        private _name;
         private _type;
-        private _dataType;
-        value: any;
+        private _property;
         behaviour: Behaviour;
         /**
         * @param {Behaviour} parent The parent component of the Portal
-        * @param {string} name The name of the portal
         * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {any} value The default value of the portal
-        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
+        * @param {Prop<any>} property The property associated with this portal
         */
-        constructor(parent: Behaviour, name: string, type?: PortalType, value?: any, dataType?: ParameterType);
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>);
         /**
         * Edits the portal variables
-        * @param {string} name The name of the portal
-        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {any} value The default value of the portal
-        * @param {ParameterType} dataType The type of value this portal represents - eg: asset, string, number, file...etc
-        * @extends <Portal>
+        * @param {Prop<any>} property The new value of the property
         */
-        edit(name: string, type: PortalType, value: any, dataType: ParameterType): void;
+        edit(property: Prop<any>): void;
         /**
         * This function will check if the source portal is an acceptable match with the current portal.
         * @param source The source panel we are checking against
@@ -3335,8 +3685,7 @@ declare module Animate {
             top: number;
         };
         type: PortalType;
-        name: string;
-        dataType: ParameterType;
+        property: Prop<any>;
         customPortal: boolean;
         links: Array<Link>;
     }
@@ -3347,19 +3696,38 @@ declare module Animate {
     */
     class BehaviourInstance extends Behaviour {
         private _container;
-        constructor(parent: Component, container: Container, createPotrals?: boolean);
+        constructor(parent: Component, container: Container);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourResource}
+        */
+        tokenize(slim?: boolean): IBehaviourShortcut;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {IBehaviourResource} data The data to import from
+        */
+        deTokenize(data: IBehaviourShortcut): void;
         /**
         * Called when a behaviour is disposed
         */
-        onContainerDeleted(response: EditorEvents, event: ContainerEvent): void;
+        onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher): void;
         /**
         * This is called when a Canvas reports a portal being added, removed or modified.
         */
-        onPortalChanged(response: EditorEvents, event: PluginPortalEvent): void;
+        onPortalChanged(type: string, event: PortalEvent, sender?: EventDispatcher): void;
         /**
         * Diposes and cleans up this component and all its child Components
         */
         dispose(): void;
+        /**
+        * Gets the container this instance represents
+        * @returns {Container}
+        */
+        /**
+        * Sets the container this instance represents
+        * @param {Container} val
+        */
         container: Container;
     }
 }
@@ -3383,6 +3751,17 @@ declare module Animate {
         */
         edit(): void;
         /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {IBehaviourScript}
+        */
+        tokenize(slim?: boolean): IBehaviourScript;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {IBehaviourScript} data The data to import from
+        */
+        deTokenize(data: IBehaviourScript): void;
+        /**
         * Diposes and cleans up this component and all its child Components
         */
         dispose(): void;
@@ -3393,35 +3772,37 @@ declare module Animate {
         constructor(v: string);
         static MODIFIED: CanvasEvents;
     }
-    class CanvasEvent extends Event {
-        canvas: Canvas;
-        constructor(eventName: CanvasEvents, canvas: Canvas);
-    }
     /**
     * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
     */
     class Canvas extends Component {
         static lastSelectedItem: any;
         static snapping: boolean;
-        private mUpProxy;
-        private mDownProxy;
-        private mContextProxy;
-        private keyProxy;
-        private mContextNode;
-        private mX;
-        private mY;
         name: string;
+        private _upProxy;
+        private _downProxy;
+        private _contextProxy;
+        private _keyProxy;
+        private _contextNode;
+        private _x;
+        private _y;
         private _container;
         private _containerReferences;
         private _proxyMoving;
         private _proxyStartDrag;
         private _proxyStopDrag;
+        private _loadingScene;
         /**
         * @param {Component} parent The parent component to add this canvas to
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
         constructor(parent: Component, container: Container);
-        onStartingDrag(e: any, ui: any): void;
+        /**
+         * Event fired when we start dragging a behaviour
+         * @param e
+         * @param ui
+         */
+        onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent): void;
         /**
         * When an item is finished being dragged
         */
@@ -3451,9 +3832,8 @@ declare module Animate {
         /**
         * Call this to remove an item from the canvas
         * @param {Component} item The component we are removing from the canvas
-        * @extends <Canvas>
         */
-        removeItem(item: any): void;
+        removeItem(item: Component): void;
         /**
         * Removes all selected items
         */
@@ -3463,14 +3843,12 @@ declare module Animate {
         */
         onContextSelect(e: ContextMenuEvents, event: ContextMenuEvent): void;
         getAssetList(asset: Asset, assetMap: Array<number>): void;
-        onAssetEdited(e: ENUM, event: AssetEditedEvent, sender?: EventDispatcher): void;
+        onAssetEdited(e: ENUM, event: Event, sender?: EventDispatcher): void;
         buildSceneReferences(): void;
         /**
-        * Called when the property grid fires an edited event.
-        * @param {PropertyGridEvents} response
-        * @param {PropertyGridEvent} event
+        * Whenever an item is edited
         */
-        onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent): void;
+        onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher): void;
         /**
         * When we click ok on the portal form
         */
@@ -3536,16 +3914,16 @@ declare module Animate {
         /**
         * Use this function to add a child to this component. This has the same effect of adding some HTML as a child of another piece of HTML.
         * It uses the jQuery append function to achieve this functionality.
-        * @param {any} child The child to add. Valid parameters are valid HTML code or other Components.
-        * @returns {Component} The child as a Component.
+        * @param {IComponent} child The child to add. Valid parameters are valid HTML code or other Components.
+        * @returns {IComponent} The child as a Component.
         */
-        addChild(child: any): Component;
+        addChild(child: IComponent): IComponent;
         /**
         * Use this function to remove a child from this component. It uses the jQuery detach function to achieve this functionality.
-        * @param {Component} child The child to remove. Valid parameters are valid Components.
-        * @returns {Component} The child as a Component.
+        * @param {IComponent} child The child to remove. Valid parameters are valid Components.
+        * @returns {IComponent} The child as a Component.
         */
-        removeChild(child: any): Component;
+        removeChild(child: IComponent): IComponent;
         /**
         * Called when an item is moving
         */
@@ -3556,19 +3934,19 @@ declare module Animate {
         */
         open(data: any): void;
         /**
-        * This function is called when animate is writing data to the database.
-        * @param {any} items The items we need to build
-        * @returns {CanvasToken}
+        * Tokenizes the canvas and all its items into a JSON object that can be serialized into a DB
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
         */
-        buildDataObject(items?: Array<IComponent>): CanvasToken;
+        tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken;
         /**
-        * This function is called when a behaviour is double clicked,
-        * a canvas is created and we try and load the behavious contents.
-        * @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
-        * @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
-        * @returns {any}
+        * De-serializes token data and adds them to the canvas
+        * @param {boolean} Data
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
         */
-        openFromDataObject(dataToken?: CanvasToken, clearItems?: boolean, addSceneAssets?: boolean): void;
+        deTokenize(data?: IContainerToken, clearItems?: boolean): void;
         /**
         * This function is called to make sure the canvas min width and min height variables are set
         */
@@ -3584,30 +3962,48 @@ declare module Animate {
     /**
     * The link class are the lines drawn from behavior portals
     */
-    class Link extends Component implements ICanvasItem {
+    class Link extends CanvasItem {
         startPortal: Portal;
         endPortal: Portal;
-        _startBehaviour: any;
-        _endBehaviour: any;
-        private mMouseMoveProxy;
-        private mMouseUpProxy;
-        private mMouseUpAnchorProxy;
-        private mPrevPortal;
-        frameDelay: number;
-        private mStartClientX;
-        private mStartClientY;
         delta: number;
-        private mStartX;
-        private mStartY;
-        private mCurTarget;
-        private canvas;
-        private graphics;
-        private linePoints;
+        private _startBehaviour;
+        private _endBehaviour;
+        private _mouseMoveProxy;
+        private _mouseUpProxy;
+        private _mouseUpAnchorProxy;
+        private _prevPortal;
+        private _startClientX;
+        private _startClientY;
+        private _startX;
+        private _startY;
+        private _curTarget;
+        private _canvas;
+        private _graphics;
+        private _linePoints;
         private _selected;
+        private _properties;
         /**
         * @param {Canvas} parent The parent {Canvas} of the link
         */
         constructor(parent: Component);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {ILinkItem}
+        */
+        tokenize(slim?: boolean): ILinkItem;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {ILinkItem} data The data to import from
+        */
+        deTokenize(data: ILinkItem): void;
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap): void;
         /**
         * This is called when we need a link to start drawing. This will
         * follow the mouse and draw a link from the original mouse co-ordinates to an
@@ -3654,6 +4050,15 @@ declare module Animate {
         * @param {any} e
         */
         onMouseUpAnchor(e: any): void;
+        /**
+        * When the link properties are edited
+        */
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
+        /**
+        * Gets the properties of this link
+        * @returns {EditableSet}
+        */
+        properties: EditableSet;
         /**
         * Cleanup the link
         */
@@ -3714,7 +4119,7 @@ declare module Animate {
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated(type: string, event: ProjectEvent): void;
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
@@ -3999,10 +4404,10 @@ declare module Animate {
         onSelect(): void;
         /**
         * When we click ok on the portal form
-        * @param <object> response
-        * @param <object> data
+        * @param {string} type
+        * @param {EditEvent} data
         */
-        onPropertyGridEdited(response: PropertyGridEvents, data: PropertyGridEvent, sender?: EventDispatcher): void;
+        onAssetEdited(type: string, data: EditEvent, sender?: EventDispatcher): void;
         /**
         * This will cleanup the component.
         */
@@ -4025,7 +4430,7 @@ declare module Animate {
         /**
         * Whenever a container property is changed by the editor
         */
-        onPropertyGridEdited(response: PropertyGridEvents, event: PropertyGridEvent, sender?: EventDispatcher): void;
+        onPropertyGridEdited(type: string, event: EditEvent, sender?: EventDispatcher): void;
         /**
         * This will cleanup the component
         */
@@ -4276,7 +4681,7 @@ declare module Animate {
         * @param <object> event
         * @param <object> data
         */
-        onServer(response: ProjectEvents, event: ProjectEvent): void;
+        onServer(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
         /**
         * Called when the save all button is clicked
         */
@@ -4464,24 +4869,17 @@ declare module Animate {
     class PropTextbox extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
         /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        update(newValue: any, editHTML: any): void;
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4491,24 +4889,17 @@ declare module Animate {
     class PropNumber extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
         /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        update(newValue: any, editHTML: any): void;
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4518,24 +4909,17 @@ declare module Animate {
     class PropComboBool extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
         /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        update(newValue: any, editHTML: any): void;
+        edit(prop: Prop<any>, container: Component): JQuery;
     }
 }
 declare module Animate {
@@ -4545,18 +4929,17 @@ declare module Animate {
     class PropComboEnum extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
+        /**
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
+        */
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4566,58 +4949,17 @@ declare module Animate {
     class PropFile extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
         /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        update(newValue: any, editHTML: any): void;
-    }
-}
-declare module Animate {
-    class ButtonOptions {
-        onWindowShow: (component: Component) => void;
-        onWindowClosing: (component: Animate.Component, e: OkCancelFormEvent) => void;
-        getValue: () => any;
-        constructor(onWindowShow?: (component: Component) => void, onWindowClosing?: (component: Animate.Component, e: OkCancelFormEvent) => void, getValue?: () => any);
-    }
-    /**
-    * An editor which allows a user to click a button, which will popup a window  filled with options
-    */
-    class PropOptionsWindow extends PropertyGridEditor {
-        private static _window;
-        constructor(grid: PropertyGrid);
-        /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
-        */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
-        /**
-        * Updates the value of the editor object  because a value was edited externally.
-        * @param {any} newValue The new value
-        * @param {JQuery} editHTML The JQuery that was generated by this editor that needs to be updated because something has updated the value externally.
-        */
-        update(newValue: any, editHTML: any): void;
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4627,18 +4969,17 @@ declare module Animate {
     class PropComboGroup extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
+        /**
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
+        */
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4648,18 +4989,17 @@ declare module Animate {
     class PropComboAsset extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
+        /**
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
+        */
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4669,18 +5009,17 @@ declare module Animate {
     class PropAssetList extends PropertyGridEditor {
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
+        /**
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
+        */
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
@@ -4688,154 +5027,22 @@ declare module Animate {
     * This editor is used to pick colours from a colour dialogue.
     */
     class PropColorPicker extends PropertyGridEditor {
-        private mIDs;
         constructor(grid: PropertyGrid);
         /**
-        * Called when a property grid is editing an object. The property name, value and type are passed.
-        * If this editor can edit the property it returns a valid JQuery object which is responsible for editing
-        * the object. The property grid makes no effort to maintain this. It is up to the Editor to watch the JQuery through
-        * events to see when its been interacted with. Once its been edited, the editor must notify the grid - to do this
-        * call the notify method.
-        * @param {string} propertyName The name of the property we are creating an HTML element for
-        * @param {any} propertyValue The current value of that property
-        * @param {ParameterType} objectType The type of property we need to create
-        * @param {any} options Any options associated with the parameter
-        * @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
         */
-        edit(propertyName: string, propertyValue: any, objectType: ParameterType, options: any): JQuery;
+        canEdit(prop: Prop<any>): boolean;
         /**
-        * Called when the editor is being added to the DOM
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
         */
-        onAddedToDom(): void;
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare module Animate {
-    class PropertyGridEvents extends ENUM {
-        constructor(v: string);
-        static PROPERTY_EDITED: PropertyGridEvents;
-    }
-    /**
-    * A specialised event class for the property grid
-    */
-    class PropertyGridEvent extends Event {
-        propertyName: string;
-        id: any;
-        propertyValue: any;
-        propertyType: ParameterType;
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: string, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: boolean, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        }, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: {
-            className?: string;
-            selected?: string;
-        }, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: {
-            choices: Array<string>;
-            selected: string;
-        }, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        }, type: ParameterType);
-        constructor(eventName: PropertyGridEvents, propName: string, id: any, value: any, type: ParameterType);
-    }
-    class EditableSetToken {
-        name: string;
-        category: string;
-        value: any;
-        type: string;
-        options: any;
-    }
-    /**
-    * Defines a property grid variable
-    */
-    class GridVariable {
-        name: string;
-        type: ParameterType;
-        value: any;
-        category: string;
-        options: any;
-        /**
-        * Creates a {PropertyGridSet}
-        */
-        constructor(name: string, value: string, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: boolean, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        }, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: {
-            className?: string;
-            selected?: string;
-        }, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: {
-            choices: Array<string>;
-            selected: string;
-        }, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        }, type: ParameterType, category: string, options?: any);
-        constructor(name: string, value: any, type: ParameterType, category: string, options?: any);
-        /** Cleans up the class */
-        dispose(): void;
-    }
-    /**
-    * Defines a set of variables to use in the property grid
-    */
-    class EditableSet {
-        private _variables;
-        /**
-        * Creates a {PropertyGridSet}
-        */
-        constructor();
-        /** Adds a variable to the set */
-        addVar(name: string, value: string, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: boolean, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: {
-            min?: number;
-            max?: number;
-            interval?: number;
-            selected?: number;
-        }, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: {
-            className?: string;
-            selected?: string;
-        }, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: {
-            choices: Array<string>;
-            selected: string;
-        }, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: {
-            extensions?: Array<string>;
-            path?: string;
-            id?: string;
-            selectedExtension?: string;
-        }, type: ParameterType, category: string, options: any): void;
-        addVar(name: string, value: any, type: ParameterType, category: string, options: any): void;
-        /** Gets a variable by name */
-        getVar(name: string): GridVariable;
-        /** Removes a variable */
-        removeVar(variable: GridVariable): void;
-        /**
-        * Updates a variable with a new value
-        *  @returns The value
-        */
-        updateValue(name: string, value: any): any;
-        tokenize(): Array<EditableSetToken>;
-        variables: Array<GridVariable>;
-    }
     /**
     * A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
     * Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
@@ -4844,14 +5051,9 @@ declare module Animate {
         private static _singleton;
         private _header;
         private _editors;
-        private _editorElements;
-        private _idObject;
         private _docker;
         private _groups;
-        private _endDiv;
-        private _editableObject;
-        private _targetPanel;
-        private _activePanel;
+        private _object;
         constructor(parent: Component);
         /**
         * This is called by a controlling ScreenManager class. An image string needs to be returned
@@ -4877,33 +5079,18 @@ declare module Animate {
         */
         onHide(): void;
         /**
-        * When we scroll on either of the scroll panel's we do the same to the other.
-        * @param <jQuery> e The jQuery event object
+        * Cleans up the groups and editors
         */
-        scroll(e: any): void;
-        /**
-        * This function is used to update a property value in the property grid.
-        * @param {string} name The name of the property
-        * @param {any} value The new value of the property
-        */
-        updateProperty(name: string, value: any): void;
+        cleanup(): void;
         /**
         * Sets the object we are going to edit.
         * @param {EditableSet} object The object we are editing. You should ideally create a new object {}, and then
         * use the function pGridEditble to create valid property grid variables.
         * @param {string} name The name of the object we are editing
-        * @param {string} id You can give an ID to help identify this item once its edited.
         * @param {string} img An optional image string
         * @returns {any} Returns the object we are currently editing
         */
-        editableObject(object: EditableSet, name: string, id?: any, img?: string): EditableSet;
-        /**
-        * Called when a property has been updated. This will inturn get the event <PropertyGrid.PROPERTY_EDITED> dispatched.
-        * @param <string> name The name of the property
-        * @param <object> value The new value of the property
-        * @param <string> type The propert type
-        */
-        propUpdated(name: string, value: any, type: ParameterType): void;
+        editableObject(object: EditableSet, name: string, img?: string): EditableSet;
         /**
         * called when we reset the project
         * @returns <object>
@@ -4931,7 +5118,6 @@ declare module Animate {
         */
         static getSingleton(parent?: Component): PropertyGrid;
         currentObject: any;
-        idObject: any;
     }
 }
 declare module Animate {
@@ -4961,10 +5147,6 @@ declare module Animate {
     class ToolbarNumberEvents extends ENUM {
         constructor(v: string);
         static CHANGED: ToolbarNumberEvents;
-    }
-    class ToolbarNumberEvent extends Event {
-        value: number;
-        constructor(e: ToolbarNumberEvents, value: number);
     }
     /**
     *  A toolbar button for numbers
@@ -5053,11 +5235,6 @@ declare module Animate {
         */
         constructor(img: string, text: string, parent?: Component);
     }
-    class ToolbarDropDownEvent extends Event {
-        item: ToolbarItem;
-        constructor(item: ToolbarItem, e: EventType);
-        dispose(): void;
-    }
     /**
     *  A toolbar button for selection a list of options
     */
@@ -5119,11 +5296,6 @@ declare module Animate {
     class OkCancelFormEvents extends ENUM {
         constructor(v: string);
         static CONFIRM: OkCancelFormEvents;
-    }
-    class OkCancelFormEvent extends Event {
-        text: string;
-        cancel: boolean;
-        constructor(eventName: OkCancelFormEvents, text: string);
     }
     /**
     * A simple form which holds a heading, content and OK / Cancel buttons.
@@ -5201,9 +5373,7 @@ declare module Animate {
         private _notes;
         private _selectBuild;
         private _saveBuild;
-        private _renameProxy;
         private _buildProxy;
-        private _clickProxy;
         private _settingPages;
         constructor();
         /**
@@ -5241,28 +5411,6 @@ declare module Animate {
         */
         addSettingPage(component: ISettingsPage): void;
         /**
-        * When we click one of the buttons
-        * @param {any} e
-        * @returns {any}
-        */
-        onClick(e: any): void;
-        /**
-        * Catch the key down events.
-        * @param {any} e The jQuery event object
-        */
-        onKeyDown(e: any): void;
-        /**
-        * When we recieve the server call for build requests
-        * @param {ProjectEvents} event
-        * @param {Event} data
-        */
-        onBuildResponse(response: ProjectEvents, event: ProjectEvent): void;
-        /**
-        * Updates some of the version fields with data
-        * @param {Build} data
-        */
-        updateFields(data: Build): void;
-        /**
         * When we recieve the server call for saving project data.
         * @param {UserEvents} event
         * @param {UserEvent} data
@@ -5285,22 +5433,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /**
-    * An event to deal with file viewer events
-    * The event type can be 'cancelled' or 'change'
-    */
-    class FileViewerEvent extends Event {
-        file: Engine.IFile;
-        constructor(type: string, file: Engine.IFile);
-    }
-    /**
-    * Defines which types of files to search through
-    */
-    enum FileSearchType {
-        Global = 0,
-        User = 1,
-        Project = 2,
-    }
     /**
     * This form is used to load and select assets.
     */
@@ -5483,6 +5615,11 @@ declare module Animate {
         /** When the type combo is selected*/
         onTypeSelect(responce: ListEvents, event: ListEvent): void;
         /**
+        * Creates a new property from the data chosen
+        * @param {Prop<any>}
+        */
+        getProperty(): Prop<any>;
+        /**
         * Shows the window by adding it to a parent.
         * @param {Component} item The item we are editing
         * @param {PortalType} type The items current portal type
@@ -5491,13 +5628,15 @@ declare module Animate {
         showForm(item: Portal, type: PortalType, caption: string): any;
         showForm(item: Behaviour, type: PortalType, caption: string): any;
         showForm(item: Canvas, type: PortalType, caption: string): any;
-        /**Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-        and pass the text either for the ok or cancel buttons. */
+        /**
+        * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+        * and pass the text either for the ok or cancel buttons.
+        */
         OnButtonClick(e: any): void;
         name: string;
         portalType: PortalType;
         value: any;
-        parameterType: ParameterType;
+        parameterType: PropertyType;
         /** Gets the singleton instance. */
         static getSingleton(): PortalForm;
     }
@@ -5511,19 +5650,6 @@ declare module Animate {
     }
     interface IRenamable {
         name?: string;
-    }
-    /**
-    * Event used to describe re-naming of objects. Listen for either
-    * 'renaming' or 'renamed' event types
-    */
-    class RenameFormEvent extends Event {
-        cancel: boolean;
-        name: string;
-        oldName: string;
-        object: IRenamable;
-        reason: string;
-        resourceType: ResourceType;
-        constructor(type: string, name: string, oldName: string, object: IRenamable, rt: ResourceType);
     }
     /**
     * This form is used to rename objects
@@ -5612,10 +5738,6 @@ declare module Animate {
     class BehaviourPickerEvents extends ENUM {
         constructor(v: string);
         static BEHAVIOUR_PICKED: BehaviourPickerEvents;
-    }
-    class BehaviourPickerEvent extends Event {
-        behaviourName: string;
-        constructor(eventName: BehaviourPickerEvents, behaviourName: string);
     }
     class BehaviourPicker extends Window {
         private static _singleton;

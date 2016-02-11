@@ -8,18 +8,28 @@ module Animate
 		constructor( grid: PropertyGrid )
 		{
 			super( grid );
-		}
+        }
+
+        /**
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
+        */
+        canEdit(prop: Prop<any>): boolean
+        {
+            if (prop instanceof PropFileResource)
+                return true;
+            else
+                return false;
+        }
 
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
 		* @param {Prop<any>} prop The property being edited
-		* @returns {JQuery} A valid jQuery object or null if this editor does not support this property.
+		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>): JQuery
+        edit(prop: Prop<any>, container: Component)
         {
-            if (prop instanceof PropFileResource == false)
-                return null;
-
             var p = <PropFileResource>prop;
             var fileResource = p.getVal();
             var fileID: string = fileResource || fileResource.entry._id || "";

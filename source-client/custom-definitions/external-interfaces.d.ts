@@ -1,6 +1,50 @@
 ﻿declare module Animate
 {
     /**
+    * A simple interface for any component
+    */
+    export interface IComponent
+    {
+        element: JQuery;
+        parent: IComponent;
+        dispose(): void;
+        addChild(child: string): IComponent;
+        addChild(child: IComponent): IComponent;
+        addChild(child: any): IComponent;
+        removeChild(child: IComponent): IComponent
+        update(): void;
+        selected: boolean;
+        savedID: string;
+        id: string;
+        children: Array<IComponent>;
+        clear(): void;
+        disposed: boolean;
+        onDelete(): void;
+    }
+
+    /**
+	* A simple interface for any compent that needs to act as a Docker parent.
+	*/
+    export interface IDockItem extends IComponent
+    {
+		/*This is called by a controlling Docker class. An image string needs to be returned
+		* which will act as a preview of the component that is being viewed or hidden.*/
+        getPreviewImage(): string;
+
+        /*This is called by a controlling Docker class when the component needs to be shown.*/
+        onShow(): void;
+
+        /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
+        getDocker(): Docker;
+
+        /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
+        setDocker(dockItem: Docker);
+
+        /*This is called by a controlling Docker class when the component needs to be hidden.*/
+        onHide(): void;
+    }
+
+    /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
 	*/
     export interface IPlugin
@@ -106,6 +150,15 @@
     }
 
     /**
+    * A basic wrapper for a BehaviourComment interface
+    */
+    export interface IBehaviourComment extends IBehaviour
+    {
+        width: number;
+        height: number;
+    }
+
+    /**
 	* A basic wrapper for a BehaviourScript interface
 	*/
     export interface IBehaviourScript extends IBehaviour
@@ -118,7 +171,7 @@
 	*/
     export interface IBehaviourShortcut extends IBehaviour
     {
-        shallowId: number;
+        originalId: number;
     }
 
     /**

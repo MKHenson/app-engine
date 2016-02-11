@@ -1735,6 +1735,18 @@ span.date {
     position:absolute;
     text-align:center;
     box-sizing:border-box;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+.comment {
+    text-align:left;
+    text-overflow: initial;
+    white-space: initial;
+    overflow:hidden;
+    left:0; top:0;
+    width:150px;
+    height:50px;
+    padding: 5px;
 }
 .behaviour-comment textarea {
     width: 100%;
@@ -1747,6 +1759,7 @@ span.date {
 .behaviour .text {
     display:inline-block;
     vertical-align:middle;
+    pointer-events:none;
 }
 .behaviour::before {
     content:'';
@@ -1754,7 +1767,10 @@ span.date {
     display:inline-block;
     vertical-align:middle;
 }
-
+.comment::before {
+    display:none;
+    vertical-align:initial;
+}
 .portal.output {
     border-left: none !important;
 }
@@ -1768,10 +1784,7 @@ span.date {
     border-top: none !important;
 }
 .behaviour.selected .portal {
-    border-top: 1px solid red;
-    border-bottom: 1px solid red;
-    border-left: 1px solid red;
-    border-right: 1px solid red;
+    
 }
 .portal {
     width: 10px;
@@ -1954,10 +1967,6 @@ a:active, a:hover {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
     box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
 }
-.green-glow-strong {
-    -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1);
-    box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 1);
-}
 .red-glow-strong {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1);
     box-shadow: 0px 0px 7px 5px rgba(255, 0, 0, 1);
@@ -1999,17 +2008,12 @@ html .bad-input {
 .red-highlight:hover {
     color:red;
 }
-.behaviour.selected {
-    border: 2px solid red;
-}
-.behaviour.selected .portal {
-    background:red;
-}
+
 .portal {
     background: #aaa;
 }
 .behaviour .text {
-    color:#fff;
+    color:inherit;
 }
 .behaviour-portal {
     background: #A41CC9;
@@ -2043,6 +2047,11 @@ html .bad-input {
 }
 .parameter.active, .product.active {
     background: #E2B31F;
+}
+.behaviour.selected, .behaviour.selected .portal, .behaviour.selected:active, .behaviour.selected .portal:active, .short-active, .short-active .portal,
+.short-active:active, .short-active:hover {
+    background: #E83A3A;
+    color:white;
 }
 
 /**

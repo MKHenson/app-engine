@@ -480,7 +480,7 @@ declare module Modepress
         * Removes a schema item from this schema
         * @param {SchemaItem|string} val The name of the item or the item itself
         */
-        public remove(val: SchemaItem<any>|string);
+        public remove(val: SchemaItem<any> | string);
     }
 
     /**
@@ -805,6 +805,20 @@ declare module Modepress
     }
 
     /**
+    * A json scheme item for use in Models
+    */
+    class SchemaJSON extends SchemaItem<any>
+    {
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {any} val The text of this item
+        * @param {boolean} sensitive [Optional] If true, this item is treated sensitively and only authorised people can view it
+        */
+        constructor(name: string, val: any, sensitive: boolean);
+    }
+
+    /**
     * A date scheme item for use in Models
     */
     class SchemaDate extends SchemaItem<number>
@@ -876,6 +890,7 @@ declare module Modepress
         export var num: typeof SchemaNumber;
         export var text: typeof SchemaText;
         export var textArray: typeof SchemaTextArray;
+        export var json: typeof SchemaJSON;
         export var numArray: typeof SchemaNumArray;
         export var idArray: typeof SchemaIdArray;
         export var date: typeof SchemaDate;
@@ -892,7 +907,9 @@ declare module Modepress
         Login,
         Logout,
         Activated,
-        Removed
+        Removed,
+        FilesUploaded,
+        FilesRemoved
     }
 
     /**

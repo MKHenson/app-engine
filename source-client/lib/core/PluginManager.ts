@@ -33,19 +33,19 @@ module Animate
             this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
 
 			// Create some standard templates	
-			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", false, false, false, false,
+			this.behaviourTemplates.push( new BehaviourDefinition( "Asset", 
                 [
                     new PortalTemplate(new PropResource("Asset In", null), PortalType.PARAMETER),
                     new PortalTemplate(new PropResource("Asset Out", null), PortalType.PRODUCT )
-                ], null));
+                ], null, false, false, false, false));
 
-            this.behaviourTemplates.push(new BehaviourDefinition("Script", true, true, true, true,
+            this.behaviourTemplates.push(new BehaviourDefinition("Script",
                 [
                     new PortalTemplate(new PropBool("Execute", false), PortalType.INPUT),
                     new PortalTemplate(new PropBool("Exit", false), PortalType.OUTPUT)
-                ], null));
+                ], null, true, true, true, true));
             
-			this.behaviourTemplates.push(new BehaviourDefinition("Instance", true, true, true, true, [], null));
+            this.behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
 
 			this._loadedPlugins = [];
 			BehaviourPicker.getSingleton().list.addItem( "Asset" );

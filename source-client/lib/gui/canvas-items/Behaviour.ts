@@ -21,7 +21,7 @@ module Animate
 		{
             // Call super-class constructor
             super(html, parent);
-            this._fontSize = 7;
+            this._fontSize = 5;
             var tw = this._fontSize * text.length + 20;
             var th = this._fontSize + 20;
             
@@ -152,6 +152,20 @@ module Animate
             var tw = this._fontSize * this.text.length + 20;
             var th = this._fontSize + 20;
 
+            var portalSpacing = 5;
+            var portalSize = (this._portals.length > 0 ? this._portals[0].element.outerWidth() : 10);
+            var maxHorPortals = (this._products.length > this._parameters.length ? this._products.length : this._parameters.length);
+            var maxVertPortals = (this._inputs.length > this._outputs.length ? this._inputs.length : this._outputs.length);
+            var totalPortalSpacing = portalSize + portalSpacing;
+            var maxHorSize = totalPortalSpacing * maxHorPortals;
+            var maxVertSize = totalPortalSpacing * maxVertPortals;
+            var padding = 10;
+
+            // If the portals increase the size - the update the dimensions
+            tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
+            th = th + padding > maxVertSize ? th + padding : maxVertSize;
+            
+
             // Keep the sizes big enough so they fit nicely in the grid (i.e. round off to 10)
             tw = Math.ceil((tw) / 10) * 10;
             th = Math.ceil((th) / 10) * 10;
@@ -197,30 +211,13 @@ module Animate
 
 			// Position the portals
             for (var i = 0; i < this._parameters.length; i++)
-            {
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (-portalSize - bSize) + "px"});
-            }
+                this._parameters[i].element.css({ left: ((portalSize + portalSpacing) * i ) + "px", top: -portalSize + "px"});
             for (var i = 0; i < this._outputs.length; i++)
-            {
-                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-right-width'));
-                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (width - hSize) + "px" });
-            }
+                this._outputs[i].element.css({ top: ((portalSize + portalSpacing) * i ) + "px", left: width + "px" });
             for (var i = 0; i < this._inputs.length; i++)
-            {
-                var vSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-top-width'));
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i - vSize) + "px", left: (-portalSize - hSize) + "px" });
-            }
+                this._inputs[i].element.css({ top: ((portalSize + portalSpacing) * i ) + "px", left: -portalSize + "px" });
             for (var i = 0; i < this._products.length; i++)
-            {
-                var hSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-left-width'));
-                var bSize = parseFloat(window.getComputedStyle(this.element[0], null).getPropertyValue('border-bottom-width'));
-                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i - hSize) + "px", top: (height - bSize) + "px" });
-            }
-
+                this._products[i].element.css({ left: ((portalSize + portalSpacing) * i ) + "px", top: height + "px" });
 		}
 
 		/**
@@ -301,13 +298,16 @@ module Animate
             // Remove all existing portals
             while (this.portals.length > 0)
                 this.portals.pop().dispose();
-
+            
             for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
             {
-                var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null);
+                //var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
+                //this.portals.push(portal);
+                var portal = this.addPortal(portals[i].type, Utils.createProperty(portals[i].property, null), false)
                 portal.customPortal = portals[i].custom;
-                this.portals.push(portal);
             }
+
+            this.updateDimensions();
         }
 
 		/** 

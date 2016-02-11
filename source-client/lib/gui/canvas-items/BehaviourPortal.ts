@@ -11,19 +11,21 @@ module Animate
             this._property = property;
 
 			// Call super-class constructor
-            super(parent, property.name);
+            super(parent, (property ? property.name : "Portal"));
 
 			this.element.addClass("behaviour-portal");
            
-
-            if (this._portalType == PortalType.OUTPUT)
-                this.addPortal(PortalType.INPUT, property, true);
-            else if (this._portalType == PortalType.INPUT)
-                this.addPortal(PortalType.OUTPUT, property, true);
-            else if (this._portalType == PortalType.PARAMETER)
-                this.addPortal(PortalType.PRODUCT, property, true);
-            else if (this._portalType == PortalType.PRODUCT)
-                this.addPortal(PortalType.PARAMETER, property, true);
+            if (property)
+            {
+                if (this._portalType == PortalType.OUTPUT)
+                    this.addPortal(PortalType.INPUT, property, true);
+                else if (this._portalType == PortalType.INPUT)
+                    this.addPortal(PortalType.OUTPUT, property, true);
+                else if (this._portalType == PortalType.PARAMETER)
+                    this.addPortal(PortalType.PRODUCT, property, true);
+                else if (this._portalType == PortalType.PRODUCT)
+                    this.addPortal(PortalType.PARAMETER, property, true);
+            }
         }
 
         /**
@@ -33,7 +35,7 @@ module Animate
         */
         tokenize(slim: boolean = false): IBehaviourPortal
         {
-            var toRet = <IBehaviourPortal>{};
+            var toRet = <IBehaviourPortal>super.tokenize(slim);
             toRet.portal = { name: this._property.name, custom: true, type: this._portalType, property: this._property.tokenize(slim) };
             toRet.type = CanvasItemType.BehaviourPortal;
             return toRet;

@@ -15,14 +15,14 @@ module Animate
 
 		/**
 		* @param {string} behaviourName The name of the behaviour
+        * @param {Array<PortalTemplate>} portalTemplates 
+		* @param {IPlugin} plugin The plugin this is associated with
 		* @param {boolean} canBuildInput 
 		* @param {boolean} canBuildOutput 
 		* @param {boolean} canBuildParameter 
 		* @param {boolean} canBuildProduct 
-		* @param {boolean} portalTemplates 
-		* @param {IPlugin} plugin The plugin this is associated with
 		*/
-		constructor( behaviourName: string, canBuildInput: boolean = true, canBuildOutput: boolean = true, canBuildParameter: boolean = true, canBuildProduct: boolean = true, portalTemplates: Array<PortalTemplate> = null, plugin:IPlugin = null )
+        constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput: boolean = false, canBuildOutput: boolean = false, canBuildParameter: boolean = false, canBuildProduct: boolean = false )
         {
             for (var i = 0; i < portalTemplates.length; i++)
                 for (var ii = 0; ii < portalTemplates.length; ii++)

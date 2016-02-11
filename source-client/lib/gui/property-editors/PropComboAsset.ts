@@ -10,6 +10,19 @@ module Animate
 			super( grid );
 		}
 
+        /**
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
+        */
+        canEdit(prop: Prop<any>): boolean
+        {
+            if (prop instanceof PropResource )
+                return true;
+            else
+                return false;
+        }
+
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
 		* @param {Prop<any>} prop The property being edited
@@ -17,9 +30,6 @@ module Animate
 		*/
         edit(prop: Prop<any>, container: Component)
         {
-            if (prop instanceof PropResource == false && prop.getVal() instanceof Asset == false)
-                return null;
-
             var p = <PropResource>prop;
 
 			// Create HTML	
@@ -30,12 +40,13 @@ module Animate
             // Add to DOM
             container.element.append(editor);
 
-            var selectedID = p.getVal().entry._id;
+            var resource = p.getVal();
+            var selectedID = (resource ? resource.entry._id : null);
 			var classNames = p.classNames;
 			var nodes = TreeViewScene.getSingleton().getAssets( classNames );
 
 			// Create the blank options and select it if nothing else is chosen
-            selector.append(`<option value='' ${(!selectedID || selectedID == "" ? "selected='selected'" : "" )}></option>` );
+            selector.append(`<option value='' ${(!selectedID ? "selected='selected'" : "" )}></option>` );
 
 			// Sort alphabetically
 			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )

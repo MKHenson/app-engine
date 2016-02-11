@@ -29,7 +29,7 @@
 		/**
 		* This is called by Animate when we a container is created. Associate event type is {ContainerEvent}
 		*/
-        static CONTAINER_CREATED: EditorEvents = new EditorEvents("plugin_container_created");
+        //static CONTAINER_CREATED: EditorEvents = new EditorEvents("plugin_container_created");
 
 		/**
 		* This is called by Animate when we a container is deleted. Associate event type is {ContainerEvent}
@@ -40,7 +40,7 @@
 		/**
 		* This is called by Animate when we select a container. Associate event type is {ContainerEvent}
 		*/
-        static CONTAINER_SELECTED: EditorEvents = new EditorEvents("plugin_container_selected");
+        //static CONTAINER_SELECTED: EditorEvents = new EditorEvents("plugin_container_selected");
 
 		/**
 		* This is called by Animate when we are exporting a container. The token that gets passed should be used to store any optional
@@ -145,6 +145,17 @@
             super(eventName, text);
             this.text = text;
             this.cancel = false;
+        }
+    }
+
+    export class ContainerEvent extends Event
+    {
+        public container: Container;
+
+        constructor(type: string, container: Container)
+        {
+            super(type, null);
+            this.container = container;
         }
     }
 

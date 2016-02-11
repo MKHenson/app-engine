@@ -30,7 +30,39 @@ module Animate
             this.canvas = null;
             this._properties.addVar(new PropBool("Start On Load", true, "Container Properties"));
             this._properties.addVar(new PropBool("Unload On Exit", true, "Container Properties"));
-		}
+        }
+
+        /**
+        * This function is called just before the entry is saved to the database.
+        */
+        onSaving(): any
+        {
+            // Make sure the container is fully serialized before saving if there is an open canvas
+            if (this.canvas)
+            {
+                var token: IContainerToken = this.canvas.tokenize(false);
+                this.entry.json = token;
+            }
+        }
+
+        /**
+         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+         */
+        initialize()
+        {
+            //try
+            //{
+            //    this.entry.json = JSON.parse(<string>this.entry.json);
+            //}
+            //catch (err)
+            //{
+            //    this.entry.json = {};
+            //}
+
+            var containerToken: IContainerToken = this.entry.json;
+            containerToken.items = containerToken.items || [];
+            this._properties.deTokenize(containerToken.properties)
+        }
 
 		///**
 		//* This will download and update all data of the asset.
@@ -51,7 +83,7 @@ module Animate
 		*/
 		dispose()
         {
-            this.emit(new Event(EventTypes.CONTAINER_DELETED, this));
+            this.emit(new ContainerEvent(EventTypes.CONTAINER_DELETED, this));
 
 			//Call super
 			super.dispose();

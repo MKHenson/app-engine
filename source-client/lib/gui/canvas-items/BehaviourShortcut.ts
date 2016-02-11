@@ -23,7 +23,9 @@ module Animate
             this._savedResource = 0;
 
 			if (originalNode)
-				this.setOriginalNode(originalNode, true);
+                this.setOriginalNode(originalNode, true);
+
+            this.tooltip = "Press C to focus on source";
         }
 
         /**
@@ -33,8 +35,8 @@ module Animate
         */
         tokenize(slim: boolean = false): IBehaviourShortcut
         {
-            var toRet = <IBehaviourShortcut>{};
-            toRet.shallowId = this._originalNode.shallowId;
+            var toRet = <IBehaviourShortcut>super.tokenize(slim);
+            toRet.originalId = this._originalNode.shallowId;
             toRet.type = CanvasItemType.BehaviourShortcut;
             return toRet;
         }
@@ -46,7 +48,28 @@ module Animate
         deTokenize(data: IBehaviourShortcut)
         {
             super.deTokenize(data);
-            this._savedResource = data.shallowId;
+            this._savedResource = data.originalId;
+        }
+
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized. 
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap)
+        {
+            var exportedToken = <IBehaviourShortcut>items[originalId].token;
+
+            // This link was probably copied - but not with both of the end behavours - so remove it
+            if (!items[exportedToken.originalId])
+            {
+                this.text = "NOT FOUND";
+                Logger.logMessage(`Could not find original node for shortcut ${originalId}`, null, LogType.ERROR);
+                return;
+            }
+
+            this.setOriginalNode(<Behaviour>items[exportedToken.originalId].item, false);
         }
 
 		setOriginalNode( originalNode : Behaviour, buildPortals : boolean )

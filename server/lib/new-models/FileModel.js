@@ -17,7 +17,7 @@ var FileModel = (function (_super) {
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("name", "", 1));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("bucketId", "", 1, 30));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.text("bucketName", "", 1, 100));
-        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("size", 0, 0, Infinity, modepress_api_1.NumberType.Integer));
+        this.defaultSchema.add(new modepress_api_1.SchemaFactory.num("size", 0, 0, Number.MAX_VALUE, modepress_api_1.NumberType.Integer));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("favourite", false, true));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("global", false));
         this.defaultSchema.add(new modepress_api_1.SchemaFactory.bool("browsable", true));

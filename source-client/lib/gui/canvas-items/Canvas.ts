@@ -40,7 +40,8 @@ module Animate
         private _containerReferences: { groups: Array<number>; assets: Array<number>; };
 		private _proxyMoving: any;
 		private _proxyStartDrag: any;
-		private _proxyStopDrag: any;
+        private _proxyStopDrag: any;
+        private _loadingScene: boolean;
 
 		/**
 		* @param {Component} parent The parent component to add this canvas to
@@ -59,7 +60,8 @@ module Animate
 			this._x = 0;
 			this._y = 0;
             this.name = container.entry.name;
-			this._container = container;
+            this._container = container;
+            this._loadingScene = false;
 			container.canvas = this;
 
 			// Define proxies
@@ -76,7 +78,7 @@ module Animate
             this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
             jQuery("body").on("keydown", this._keyProxy);
             jQuery(document).on("contextmenu", this._contextProxy);
-            //PropertyGrid.getSingleton().on("edited", this.onPropertyGridEdited, this);
+            
             this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });			
             BehaviourPicker.getSingleton().on(BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this);
             PortalForm.getSingleton().on(OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
@@ -213,7 +215,6 @@ module Animate
 			PortalForm.getSingleton().off( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
 			jQuery( "body" ).off( "keydown", this._keyProxy );
 			jQuery( document ).off( "contextmenu", this._contextProxy );
-            //PropertyGrid.getSingleton().off("edited", this.onPropertyGridEdited, this );
 
 			this.element.off( "mousedown", this._downProxy );
 
@@ -441,7 +442,8 @@ module Animate
                 }
 		}
 
-		onAssetEdited(e: ENUM, event: AssetEditedEvent, sender? : EventDispatcher)
+        // TODO: We need to actually figure out how to respond to asset edits - this is not currently called
+		onAssetEdited(e: ENUM, event: Event, sender? : EventDispatcher)
 		{
 			// Build the scene references in case some assets were added and not accounted for
 			this.buildSceneReferences();
@@ -517,6 +519,9 @@ module Animate
         */
         onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher)
         {
+            if (this._loadingScene)
+                return;
+
             this.emit(new CanvasEvent(CanvasEvents.MODIFIED, this));
             this.buildSceneReferences();
         }
@@ -585,63 +590,64 @@ module Animate
 				return;
 
 			if ( e.text == "Ok" )
-			{
-				//If we are editing a portal
-				if ( this._contextNode instanceof Portal )
+            {
+                var comp: Component = this._contextNode;
+
+				// If we are editing a portal
+                if (comp instanceof Portal )
 				{
 
-					var portal: Portal = <Portal>this._contextNode;
-					var oldName: string = portal.name;
-					portal.edit(
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().value,
-						PortalForm.getSingleton().parameterType );
+					var portal: Portal = comp;
+					var oldName: string = portal.property.name;
+                    portal.edit(PortalForm.getSingleton().getProperty());
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().portalType,
+						//PortalForm.getSingleton().value,
+						//PortalForm.getSingleton().parameterType );
 
 					var p = portal.parent;
-					if ( p instanceof BehaviourPortal )
-						( <BehaviourPortal>p ).text = portal.name;
+                    if (p instanceof BehaviourPortal)
+                        p.text = portal.property.name;
 
 					// Show in prop editor
 					var behaviour = portal.behaviour;
-                    var toEdit: EditableSet = new EditableSet(behaviour);
-					var i = behaviour.parameters.length;
-					while ( i-- )
-						if ( behaviour.parameters[i].links.length <= 0 )
-							toEdit.addVar( behaviour.parameters[i].name, behaviour.parameters[i].value, behaviour.parameters[i].dataType, behaviour.element.text(), null );
-
-					PropertyGrid.getSingleton().editableObject( toEdit, behaviour.text + " - " + behaviour.id, "" );
+                    //var toEdit: EditableSet = new EditableSet(behaviour);
+					
+                    //for (var i = 0, params = behaviour.parameters, l = params.length; i < l; i++ )
+                    //    if (params[i].links.length <= 0 )
+                    //       toEdit.addVar(params[i].name, params[i].value, params[i].dataType, behaviour.element.text(), null );
+                    
+                    PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, "" );
 
                     // Notify of change
                     this.emit(new PortalEvent(EventTypes.PORTAL_EDITED, oldName, this._container, portal));
 
 					return;
 				}
-				else if ( this._contextNode instanceof Behaviour )
+				else if ( comp instanceof Behaviour )
 				{
-					//Create a portal on a Behaviour
-					var portal: Portal = ( <Behaviour>this._contextNode ).addPortal
-						(
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().value,
-						PortalForm.getSingleton().parameterType, true
-						);
+					// Create a portal on a Behaviour
+                    var portal: Portal = comp.addPortal(PortalForm.getSingleton().portalType,
+                        PortalForm.getSingleton().getProperty(), true);
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().value,
+						//PortalForm.getSingleton().parameterType, true
+						//);
 
 					portal.customPortal = true;
 				}
 				else
 				{
-					//Create a canvas portal
-					var newNode: BehaviourPortal = new BehaviourPortal( this,
-						PortalForm.getSingleton().name,
-						PortalForm.getSingleton().portalType,
-						PortalForm.getSingleton().parameterType,
-						PortalForm.getSingleton().value );
+					// Create a canvas portal
+                    var newNode: BehaviourPortal = new BehaviourPortal(this, PortalForm.getSingleton().getProperty(), PortalForm.getSingleton().portalType);
+						//PortalForm.getSingleton().name,
+						//PortalForm.getSingleton().portalType,
+						//PortalForm.getSingleton().parameterType,
+						//PortalForm.getSingleton().value );
 
 					newNode.css( { "left": this._x + "px", "top": this._y + "px", "position": "absolute" });
 
-					//Notify of change
+					// Notify of change
                     this.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", this._container, newNode.portals[0]));
 				}
 
@@ -669,7 +675,7 @@ module Animate
 			if ( this.element.is( ':visible' ) == false )
 				return;
 
-			//First get the x and y cords
+			// First get the x and y cords
 			var p: JQuery = this.parent.element;
 			var offset = this.element.offset();
 			var scrollX = p.scrollLeft();
@@ -678,13 +684,13 @@ module Animate
 			this._x = mouse.x + scrollX;
 			this._y = mouse.y + scrollY;
 
-			//Now hook the context events
+			// Now hook the context events
 			var targ = jQuery( e.target );
 			var targetComp = targ.data( "component" );
 			var context = Application.getInstance().canvasContext;
 			this._contextNode = targ.data( "component" );
 
-			//If the canvas
+			// If the canvas
 			if ( targetComp instanceof Canvas )
 			{
 				this._contextNode = null;
@@ -693,7 +699,7 @@ module Animate
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
-			//If a portal
+			// If a portal
 			else if ( targetComp instanceof Portal )
 			{
 				e.preventDefault();
@@ -702,7 +708,7 @@ module Animate
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 			}
-			//If a link
+			// If a link
 			else if ( targetComp instanceof Link )
 			{
 				e.preventDefault();
@@ -716,7 +722,7 @@ module Animate
 				}
 			}
 
-			//If a portal node
+			// If a portal node
 			else if ( targetComp instanceof BehaviourInstance || targetComp instanceof BehaviourAsset || targetComp instanceof BehaviourPortal )
 			{
 				e.preventDefault();
@@ -726,7 +732,7 @@ module Animate
 			}
 			else if ( targetComp instanceof BehaviourComment )
 				e.preventDefault();
-			//If a behavior node (but not a portal node)
+			// If a behavior node (but not a portal node)
 			else if ( targetComp instanceof Behaviour )
 			{
 				e.preventDefault();
@@ -844,7 +850,7 @@ module Animate
 			else
 				toAdd = new Behaviour( this, template.behaviourName );
 
-			if ( template.behaviourName != "Instance" )
+            if (template.behaviourName != "Instance" && template.behaviourName != "Script" )
 				toAdd.text = template.behaviourName;
 
 			var portalTemplates = template.portalsTemplates();
@@ -1019,8 +1025,8 @@ module Animate
 				var children = this.children;
 
 				for ( var i = 0, l = children.length; i < l; i++ )
-				{
-					children[i].element.removeClass( "green-glow-strong" );
+                {
+                    children[i].element.removeClass("green-glow-strong").removeClass("short-active");
 					if ( children[i].selected )
 						children[i].selected = false;
 				}
@@ -1063,9 +1069,9 @@ module Animate
 				while ( i-- )
 					if ( typeof ( children[i] ) !== "undefined" )
 						if ( children[i] instanceof BehaviourShortcut && ( <BehaviourShortcut>children[i] ).originalNode == comp )
-							children[i].element.addClass( "green-glow-strong" );
+                            children[i].element.addClass( "short-active" );
 						else
-							children[i].element.removeClass( "green-glow-strong" );
+                            children[i].element.removeClass( "short-active" );
 			}
 			else if ( comp instanceof Link && ( <Link>comp ).startPortal.type == PortalType.OUTPUT )
                 PropertyGrid.getSingleton().editableObject(comp.properties, "Link - " + (<Link>comp).id, "");
@@ -1228,8 +1234,19 @@ module Animate
             return toRet;
         }
 
-        deTokenize(data: IContainerToken, clearItems: boolean = true)
+        /**
+        * De-serializes token data and adds them to the canvas
+        * @param {boolean} Data
+        * @param {Array<CanvasItem>} items The items
+        * @returns {IContainerToken}
+        */
+        deTokenize(data?: IContainerToken, clearItems: boolean = true)
         {
+            data = data || this._container.entry.json;
+
+            if (clearItems && data)
+                this._loadingScene = true;
+
             var children = <Array<CanvasItem>>this.children;
             if ( clearItems )
                 while (children.length > 0 )
@@ -1241,25 +1258,26 @@ module Animate
             // Attempt to create and initialize each of the items
             for (var i = 0, l = data.items.length; i < l; i++)
             {
-                var item = Utils.createItem(data.items[i]);
+                var item = Utils.createItem(this, data.items[i]);
                 if (!item)
                 {
                     Logger.logMessage(`Could not create canvas item`, null, LogType.ERROR);
                     continue;
                 }
                 
-                this.addChild(item);
                 item.deTokenize(data.items[i]);
                 oldIds.push(data.items[i].shallowId);
                 linkToken[data.items[i].shallowId] = { item: item, token: data.items[i] };
             }
 
             // All items are created - so lets call link to make sure they are hooked up correctly
-            for (var i = 0, l = children.length; i < l; i++)
-                children[i].link(oldIds[i], linkToken);
+            for (var i = 0, l = oldIds.length; i < l; i++)
+                (<CanvasItem>linkToken[oldIds[i]].item).link(oldIds[i], linkToken);
 
             this.checkDimensions();
-		    this.buildSceneReferences();
+            this.buildSceneReferences();
+
+            this._loadingScene = false;
         }
 
 
@@ -1366,23 +1384,21 @@ module Animate
 		///**
 		//* This function is called when a behaviour is double clicked, 
 		//* a canvas is created and we try and load the behavious contents.
-		//* @param {CanvasToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
+		//* @param {IContainerToken} dataToken You can optionally pass in an data token object. These objects must contain information on each of the items we are adding to the canvas.
 		//* @param {boolean} clearItems If this is set to true the function will clear all items already on the Canvas.
 		//* @returns {any} 
 		//*/
-		//openFromDataObject( dataToken?: CanvasToken, clearItems: boolean = true, addSceneAssets: boolean = false )
+  //      openFromDataObject(dataToken?: IContainerToken, clearItems: boolean = true, addSceneAssets: boolean = false )
 		//{
-		//	// Create the data object from the JSON
-		//	var jsonObj: CanvasToken = null;
+  //          // Create the data object from the JSON
+  //          var jsonObj: IContainerToken = null;
 		//	var pManager: PluginManager = PluginManager.getSingleton();
 
 
 		//	if ( dataToken )
-		//		jsonObj = dataToken;
-  //          else if (this._container.entry.json !== null )
-  //              jsonObj = this._container.entry.json;
+  //              jsonObj = dataToken || this._container.entry.json || {};
 
-		//	// Cleanup the 
+		//	// Cleanup the existing items
 		//	if ( clearItems )
 		//		while ( this.children.length > 0 )
 		//			this.children[0].dispose();
@@ -1644,10 +1660,7 @@ module Animate
 				"min-height": ( h > minHi ? h : minHi ).toString() + "px"
 			});
 		}
-
-
-		
-
+        
 		get container(): Container { return this._container; }
         get containerReferences(): { groups: Array<number>; assets: Array<number> } { return this._containerReferences; }
 	}

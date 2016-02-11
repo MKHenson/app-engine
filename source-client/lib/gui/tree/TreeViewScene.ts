@@ -366,8 +366,10 @@ module Animate
                     break;
                 case "Copy":
                     if (context instanceof TreeNodeAssetInstance)
-                        project.copyAsset(context.resource.entry._id);
-
+                    {
+                        context.loading = true;
+                        resolveRequest(project.copyResource(context.resource.entry._id, ResourceType.ASSET), context);
+                    }
                     break;
                 case "Add Instance":
                     if ( context instanceof TreeNodeAssetClass)
@@ -472,7 +474,7 @@ module Animate
 				{
                     var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).resource );
 					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
-					canvas.openFromDataObject();
+                    canvas.deTokenize();
 					canvas.checkDimensions();
 					CanvasTab.getSingleton().selectTab( tabPair );
 				}

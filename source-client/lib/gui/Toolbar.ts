@@ -154,11 +154,12 @@ module Animate
 
             var canvas = CanvasTab.getSingleton().currentCanvas;
             var toCopy = [];
-            var i = canvas.children.length;
-            while (i--)
+            
+            for (var i = 0, l = canvas.children.length; i < l; i++)
                 if (canvas.children[i].selected)
                     toCopy.push(canvas.children[i]);
-
+            
+            // Creates a copy token
             this._copyPasteToken = canvas.tokenize(false, toCopy);
 
             // If a cut operation then remove the selected item
@@ -236,8 +237,11 @@ module Animate
 
         saveAll()
         {
-            Animate.User.get.project.saveAll();
             Animate.CanvasTab.getSingleton().saveAll();
+            Animate.User.get.project.saveAll().catch(function (err: Error)
+            {
+                Logger.logMessage("Error while saving a resource: " + err.message, null, LogType.ERROR);
+            });
         }
 
 		/**
@@ -292,7 +296,7 @@ module Animate
 		* @param {Component} group The Component object representing the group
 		* @returns {ToolbarNumber}
 		*/
-		createGroupNumber( text: string, defaultVal : number, min: number = Infinity, max: number = Infinity, delta: number = 0.1, group: Component = null ): ToolbarNumber
+        createGroupNumber(text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component = null ): ToolbarNumber
 		{
 			var toRet: ToolbarNumber = new ToolbarNumber( group, text, defaultVal, min, max, delta );
 			group.addChild( <IComponent>toRet );

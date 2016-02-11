@@ -194,6 +194,13 @@
     <TypeScriptModuleKind>commonjs</TypeScriptModuleKind>
     <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
     <TypeScriptOutDir>$(ProjectDir)..\server</TypeScriptOutDir>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptOutFile />
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
@@ -207,6 +214,6 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)../server" "$(ProjectDir)..\..\modepress\server\plugins\app-engine" /e /y /i /r</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)../server/lib" "$(ProjectDir)..\..\modepress\server\plugins\app-engine" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
 </Project>

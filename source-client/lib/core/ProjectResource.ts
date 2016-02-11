@@ -22,6 +22,20 @@
             this._properties = new EditableSet(this);
         }
 
+        /**
+        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+        */
+        initialize()
+        {
+            
+        }
+
+        /**
+        * This function is called just before the entry is saved to the database.
+        */
+        onSaving(): any { }
+        
+
         /** 
         * Gets the properties of this resource
         */

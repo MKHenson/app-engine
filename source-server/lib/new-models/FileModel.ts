@@ -15,7 +15,7 @@ export class FileModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("bucketId", "", 1, 30));
         this.defaultSchema.add(new SchemaFactory.text("bucketName", "", 1, 100));
-        this.defaultSchema.add(new SchemaFactory.num("size", 0, 0, Infinity, NumberType.Integer));
+        this.defaultSchema.add(new SchemaFactory.num("size", 0, 0, Number.MAX_VALUE, NumberType.Integer));
         this.defaultSchema.add(new SchemaFactory.bool("favourite", false, true));
         this.defaultSchema.add(new SchemaFactory.bool("global", false));
         this.defaultSchema.add(new SchemaFactory.bool("browsable", true));
