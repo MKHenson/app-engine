@@ -23,6 +23,7 @@ bld/
 [Oo]bj/
 client/resources/plugins/
 source-client/dist/
+source-client/temp/
 
 # Visual Studo 2015 cache/options directory
 .vs/
