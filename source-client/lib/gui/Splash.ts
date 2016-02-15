@@ -1,8 +1,8 @@
 ﻿module Animate
 {
     /**
-	* The splash screen when starting the app
-	*/
+    * The splash screen when starting the app
+    */
     export class Splash
     {
         private static _singleton: Splash;
@@ -27,8 +27,8 @@
         private $pager: PageLoader;
 
         /**
-		* Creates an instance of the splash screen
-		*/
+        * Creates an instance of the splash screen
+        */
         constructor(app: Application)
         {
             this._app = app;
@@ -207,8 +207,8 @@
         }
 
         /**
-		* Attempts to load the project and setup the scene
-		*/
+        * Attempts to load the project and setup the scene
+        */
         loadScene()
         {
             var that = this;
@@ -365,11 +365,11 @@
         }
 
         /**
-		* Given a form element, we look at if it has an error and based on the expression. If there is we set
+        * Given a form element, we look at if it has an error and based on the expression. If there is we set
         * the login error message
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
-		*/
+        */
         reportError(form: NodeForm): boolean
         {
             if (!form.$error)
@@ -430,10 +430,10 @@
         }
 
         /**
-		* Creates a new user project
+        * Creates a new user project
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
-		*/
+        */
         newProject(name: string, description: string, plugins: Array<Engine.IPlugin>)
         {
             var that = this;
@@ -492,11 +492,11 @@
         }
 
         /**
-		* Attempts to log the user in
+        * Attempts to log the user in
         * @param {string} user The username
         * @param {string} password The user password
         * @param {boolean} remember Should the user cookie be saved
-		*/
+        */
         login(user: string, password: string, remember: boolean)
         {
             var that = this;
@@ -521,13 +521,13 @@
         }
 
         /**
-		* Attempts to register a new user
+        * Attempts to register a new user
         * @param {string} user The username of the user.
-		* @param {string} password The password of the user.
-		* @param {string} email The email of the user.
-		* @param {string} captcha The captcha of the login screen
-		* @param {string} captha_challenge The captha_challenge of the login screen
-		*/
+        * @param {string} password The password of the user.
+        * @param {string} email The email of the user.
+        * @param {string} captcha The captcha of the login screen
+        * @param {string} captha_challenge The captha_challenge of the login screen
+        */
         register(user: string, password: string, email: string, captcha: string, challenge: string)
         {
             var that = this;
@@ -619,9 +619,9 @@
         }
 
         /**
-		* Initializes the spash screen
-		* @returns {Splash}
-		*/
+      * Initializes the spash screen
+      * @returns {Splash}
+      */
         static init(app: Application): Splash
         {
             Splash._singleton = new Splash(app);
@@ -629,9 +629,9 @@
         }
 
         /**
-		* Gets the singleton reference of this class.
-		* @returns {Splash}
-		*/
+      * Gets the singleton reference of this class.
+      * @returns {Splash}
+      */
         static get get(): Splash
         {
             return Splash._singleton;

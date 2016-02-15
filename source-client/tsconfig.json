@@ -2,14 +2,13 @@
   "compilerOptions": {
     "module": "amd",
     "removeComments": false,
-    "outFile": "./dist/application.js",
-    "watch": false,
+    "outFile": "./temp/application.js",
     "noEmitOnError": true,
     "declaration": true,
     "sourceMap": false,
     "preserveConstEnums": true,
     "target": "es5",
-    "outDir": "./dist/src/"
+    "outDir": "./temp/src/"
   },
   "files": [
     "./custom-definitions/engine-definitions.d.ts",

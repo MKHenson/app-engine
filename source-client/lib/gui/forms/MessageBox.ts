@@ -26,7 +26,7 @@ module Animate
 
 			//Hook events
 			jQuery( window ).on( 'resize', this.onResize.bind( this ) );
-		}
+		} 
 
 		/**
 		* Hide the window when ok is clicked.
@@ -34,7 +34,7 @@ module Animate
 		*/
         onButtonClick(e: MouseEvent, button: string)
 		{
-			this.hide();
+			this.hide(); 
 			if ( this._callback )
                 this._callback.call(this._context ? this._context : this, button );
 		}
@@ -60,12 +60,12 @@ module Animate
 		{
             var box: MessageBox = MessageBox.getSingleton();
 
-			//box.mCaption.text = caption;
-			box._callback = callback;
-			box._context = context;
+            //box.mCaption.text = caption;
+            box._callback = callback;
+            box._context = context;
 
-			//If no buttons specified - then add one
-			if ( !buttons )
+            //If no buttons specified - then add one
+            if ( !buttons )
                 buttons = ["Ok"];
 
             box.$message = caption;
