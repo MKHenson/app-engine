@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+    <head>
+		<meta charset="utf-8" />
+		<meta name="viewport", content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0" />
+		<meta name="fragment", content="!" />
+		<title>App Engine</title>
+		<link rel="SHORTCUT ICON" href="/media/page-icon.png" />
+		<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,300" rel="stylesheet" type="text/css" />
+		<link href="http://fonts.googleapis.com/css?family=Raleway:100" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" href="/style.css" type="text/css" />
+		<link rel="stylesheet" href="/style-directives.css" type="text/css" />
+		<link rel="stylesheet" href="/style-trike.css" type="text/css" />
+		<link rel="stylesheet" href="/loading-bar.css" type="text/css" />
+		<script type="text/javascript" src="/third-party/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="/third-party/mouse-wheel.js"></script>
+		<script type="text/javascript" src="/third-party/jquery-ui.js"></script>
+		<script type="text/javascript" src="/third-party/jscolor.js"></script>
+		<script type="text/javascript" src="/third-party/jquery-shortcut.js"></script>
+		<script type="text/javascript" src="/third-party/jstepper.js"></script>
+		<script type="text/javascript" src="/third-party/jquery.scrollTo-1.4.3.1.js"></script>
+		<script type="text/javascript" src="/third-party/es6-promise.js"></script>
+		<script type="text/javascript" src="/third-party/ace-min/ace.js"></script>
+		<script type="text/javascript" src="/third-party/recaptcha_ajax.js"></script>
+		<script type="text/javascript">
+			var _users = "#{usersURL}"
+			var _url = "#{url}"
+			window.prerenderReady = false;
+        </script>
+		<script type="text/javascript" src="/application.js">
+		  base(href="/")
+        </script>
+
+	<body>
+		<en-templates style="display:none;">
+            <!-- inject:html -->
+            <!-- endinject -->
+        </en-templates>
+		<div id="application">
+			<div id="toolbar"></div>
+			<div id="stage"></div>
+        </div>
+     </body>
+</html>

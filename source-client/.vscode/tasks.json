@@ -7,7 +7,7 @@
     ],
     "tasks": [
 		{
-			"taskName": "ts-code",
+			"taskName": "build-all",
 			"isBuildCommand": true,
 			"showOutput": "always",
             "problemMatcher": "$tsc"
