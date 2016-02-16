@@ -1,5 +1,3 @@
-/// <reference path="MenuList.ts" />
-
 module Animate
 {
 	export class LogType extends ENUM
