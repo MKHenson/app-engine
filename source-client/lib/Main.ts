@@ -1,4 +1,3 @@
-declare var _users: string;
 declare var _cache: string;
 var __plugins: { [name: string]: Array<Engine.IPlugin> } = {};
 var __newPlugin: Animate.IPlugin = null;

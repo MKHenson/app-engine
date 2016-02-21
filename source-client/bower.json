@@ -9,7 +9,7 @@
     "jquery.hotkeys": "git://github.com/jeresig/jquery.hotkeys#0.2.0",
     "jscolor": "git://github.com/EastDesire/jscolor.git#v1.4.5",
     "jstepper": "git://github.com/EmKayDK/jstepper.git#v1.5.0",
-    "ace": "git://github.com/ajaxorg/ace.git#v1.2.3",
+    "ace": "git://github.com/ajaxorg/ace-builds#v1.2.3",
     "jquery.scrollTo": "~2.1.2",
     "google-recptcha-api": "https://www.google.com/recaptcha/api.js"
   }

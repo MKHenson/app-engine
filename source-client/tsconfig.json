@@ -9,6 +9,7 @@
     "target": "es5"
   },
   "files": [
+    "./config.ts",
     "./custom-definitions/engine-definitions.d.ts",
     "./custom-definitions/external-interfaces.d.ts",
     "./definitions/ace.d.ts",
@@ -148,23 +149,23 @@
     "lib/gui/property-editors/pg-color-picker.ts",
     "lib/gui/property-grid.ts",
 
-    "lib/gui/toolbar-buttons/toolbar-button.ts",
-    "lib/gui/toolbar-buttons/toolbar-number.ts",
-    "lib/gui/toolbar-buttons/toolbar-color-picker.ts",
-    "lib/gui/toolbar-buttons/toolbar-drop-down.ts",
+    "lib/gui/toolbar/toolbar-buttons/toolbar-button.ts",
+    "lib/gui/toolbar/toolbar-buttons/toolbar-number.ts",
+    "lib/gui/toolbar/toolbar-buttons/toolbar-color-picker.ts",
+    "lib/gui/toolbar/toolbar-buttons/toolbar-drop-down.ts",
 
     "lib/gui/forms/ok-cancel-form.ts",
-    "lib/gui/forms/build-options-form.ts",
+    "lib/gui/forms/options-form/build-options-form.ts",
     "lib/gui/forms/file-viewer/file-viewer.ts",
-    "lib/gui/forms/message-box.ts",
-    "lib/gui/forms/portal-form.ts",
-    "lib/gui/forms/rename-form.ts",
+    "lib/gui/forms/message-box/message-box.ts",
+    "lib/gui/forms/portal-form/portal-form.ts",
+    "lib/gui/forms/rename-form/rename-form.ts",
     "lib/gui/forms/user-privileges-form.ts",
     "lib/gui/forms/behaviour-picker.ts",
 
     "lib/gui/logger.ts",
-    "lib/gui/toolBar.ts",
-    "lib/gui/splash.ts",
+    "lib/gui/toolbar/toolBar.ts",
+    "lib/gui/splash/splash.ts",
     "lib/gui/application.ts",
     "lib/main.ts"
   ]

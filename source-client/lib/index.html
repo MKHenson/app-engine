@@ -8,31 +8,154 @@
 		<link rel="SHORTCUT ICON" href="/media/page-icon.png" />
 		<link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300italic,300" rel="stylesheet" type="text/css" />
 		<link href="http://fonts.googleapis.com/css?family=Raleway:100" rel="stylesheet" type="text/css" />
-		<link rel="stylesheet" href="/style.css" type="text/css" />
-		<link rel="stylesheet" href="/style-directives.css" type="text/css" />
-		<link rel="stylesheet" href="/style-trike.css" type="text/css" />
-		<link rel="stylesheet" href="/loading-bar.css" type="text/css" />
-		<script type="text/javascript" src="/third-party/jquery-2.1.4.min.js"></script>
-		<script type="text/javascript" src="/third-party/mouse-wheel.js"></script>
-		<script type="text/javascript" src="/third-party/jquery-ui.js"></script>
-		<script type="text/javascript" src="/third-party/jscolor.js"></script>
-		<script type="text/javascript" src="/third-party/jquery-shortcut.js"></script>
-		<script type="text/javascript" src="/third-party/jstepper.js"></script>
-		<script type="text/javascript" src="/third-party/jquery.scrollTo-1.4.3.1.js"></script>
-		<script type="text/javascript" src="/third-party/es6-promise.js"></script>
-		<script type="text/javascript" src="/third-party/ace-min/ace.js"></script>
-		<script type="text/javascript" src="/third-party/recaptcha_ajax.js"></script>
-		<script type="text/javascript">
-			var _users = "#{usersURL}"
-			var _url = "#{url}"
-			window.prerenderReady = false;
-        </script>
-		<script type="text/javascript" src="/application.js">
-		  base(href="/")
-        </script>
+        <!-- inject:bower -->
+        <!-- endinject -->
         <!-- inject:css -->
         <!-- endinject -->
         <!-- inject:js -->
+        <script type="text/javascript" src="js/source-client/config.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/compiler.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/compiler-directives/repeater.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/compiler-directives/if.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/enums.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/event-dispatcher.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resource.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/events.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/asset-class.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/utils.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/behaviour-manager.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/plugin-manager.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/import-export.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/property-grid-editor.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resources/asset.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resources/container.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resources/group-array.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resources/file-resource.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project-resources/script-resource.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/asset-class.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/asset-template.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/behaviour-definition.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/data-token.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/canvas-token.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/db.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/loaders/loader-base.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/loaders/animate-loader.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/loaders/binary-loader.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/property-grid-editor.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/portal-template.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/project.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/type-converter.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/utils.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/user.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/page-loader.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/file-visualizers/image-visualizer.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/file-uploader.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/core/properties/editable-set.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-enum.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-file-resource.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-num.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-object.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-asset.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-group.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-asset-list.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/core/properties/prop-color.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/layouts/i-layout.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/layouts/percentile.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/layouts/fill.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tooltip-manager.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/component.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/docker.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/split-panel.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/window.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/context-menu.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/treeview.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tab.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tab-pair.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/label.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/button.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/input-box.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/group.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/checkbox.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/label-val.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/listview-item.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/listview-header.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/listview.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/list.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/combo-box.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/menu-list.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/application.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/user-preferences.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/plugin-browser.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/project-loader.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/project-browser.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/canvas-item.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-portal.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-shortcut.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-asset.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-comment.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/portal.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-instance.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/behaviour-script.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/canvas.js"></script>
+       <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/link.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/canvas-items/canvas-context.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/treeview-scene.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treenode.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-resource.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-asset-class.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-asset-instance.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-behaviour.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-group.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-group-instance.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tree/nodes/treeNode-plugin-behaviour.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/canvas-tab-pair.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/editor-pair.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/html-tab.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/css-tab.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/script-tab.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/scene-tab.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/tabs/canvas-tab.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/property-grid-group.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-textbox.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-number.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-combo-bool.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-combo-enum.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-file.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-options-window.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-combo-group.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-combo-asset.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-asset-list.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-editors/pg-color-picker.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/property-grid.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/toolbar/toolbar-buttons/toolbar-button.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/toolbar/toolbar-buttons/toolbar-number.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/toolbar/toolbar-buttons/toolbar-color-picker.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/toolbar/toolbar-buttons/toolbar-drop-down.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/ok-cancel-form.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/options-form/build-options-form.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/file-viewer/file-viewer.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/message-box/message-box.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/portal-form/portal-form.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/rename-form/rename-form.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/user-privileges-form.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/forms/behaviour-picker.js"></script>
+
+        <script type="text/javascript" src="js/source-client/lib/gui/logger.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/toolbar/toolBar.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/splash/splash.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/gui/application.js"></script>
+        <script type="text/javascript" src="js/source-client/lib/main.js"></script>
         <!-- endinject -->
 	<body>
 		<en-templates style="display:none;">
