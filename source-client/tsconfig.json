@@ -20,7 +20,7 @@
     "./definitions/jquery.scrollTo.d.ts",
     "./definitions/jqueryui.d.ts",
     "./definitions/JSColor.d.ts",
-    "./definitions/Recaptcha.d.ts",
+    "./definitions/grecaptcha.d.ts",
     "../source-server/definitions/webinate-users.d.ts",
     "../source-server/definitions/modepress-api.d.ts",
     "../source-server/custom-definitions/app-engine.d.ts",

@@ -84,12 +84,13 @@
                 Compiler.build(this._newProject, this);
                 Compiler.build(this._loadingProject, this);
                 Compiler.build(this._splashElm, this);
-                Recaptcha.create("6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT", <any>document.getElementById("animate-captcha"), { theme: "white" });
+                grecaptcha.render(<any>document.getElementById("animate-captcha"), { theme: "white",
+                    sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" });
             }
             else
             {
                 Compiler.digest(this._splashElm, that, true);
-                Recaptcha.reload();
+                grecaptcha.reset();
             }
 
             that.$user.authenticated().then(function( val )
@@ -539,7 +540,7 @@
                     that.$errorRed = true;
                     that.$errorMsg = err.message;
                     that.$loading = false;
-                    Recaptcha.reload();
+                    grecaptcha.reset();
                     Compiler.digest(that._loginElm, that);
                     Compiler.digest(that._splashElm, that);
                 });
