@@ -69,8 +69,6 @@
     <TypeScriptCompile Include="custom-definitions\engine-definitions.d.ts" />
     <TypeScriptCompile Include="custom-definitions\external-interfaces.d.ts" />
     <TypeScriptCompile Include="definitions\ace.d.ts" />
-    <TypeScriptCompile Include="definitions\angular-ui-router.d.ts" />
-    <TypeScriptCompile Include="definitions\angular.d.ts" />
     <TypeScriptCompile Include="definitions\es6-promise.d.ts" />
     <TypeScriptCompile Include="definitions\ExportToken.d.ts" />
     <TypeScriptCompile Include="definitions\FileUploader.d.ts" />

@@ -260,7 +260,6 @@ gulp.task('css', function() {
 gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
-    //return tsProject.src()
         .pipe(ts({
             "module": "amd",
             "removeComments": false,
@@ -271,6 +270,37 @@ gulp.task('ts-code', function() {
             "target": "es5"
             }))
         .pipe(gulp.dest(outDir + '/js'));
+});
+
+// Builds the definition
+gulp.task('ts-code-declaration', function() {
+
+    var requiredDeclarationFiles = gulp.src([
+        "../source-server/definitions/webinate-users.d.ts",
+        "../source-server/definitions/modepress-api.d.ts",
+        "../source-server/custom-definitions/app-engine.d.ts",
+        'custom-definitions/engine-definitions.d.ts',
+        'custom-definitions/engine-definitions.d.ts',
+        'custom-definitions/external-interfaces.d.ts'
+    ]);
+
+    var tsDefinition = gulp.src(tsFiles, { base: "." })
+        .pipe(ts({
+            "module": "amd",
+            "removeComments": false,
+            "noEmitOnError": true,
+            "declaration": true,
+            "sourceMap": false,
+            "preserveConstEnums": true,
+            "target": "es5",
+            "out":"definitions.js"
+        })).dts;
+
+
+     // Merge the streams
+     merge(requiredDeclarationFiles, tsDefinition)
+        .pipe(concat('definitions.d.ts'))
+        .pipe(gulp.dest(outDir));
 });
 
 // Concatenates and builds all TS code into a single file
@@ -288,11 +318,11 @@ gulp.task('ts-code-release', function() {
             addRootSlash: false,
             relative: true
          }))
-        .pipe(gulp.dest(outDir));
+        .pipe(gulp.dest("."));
 });
 
 gulp.task('watch', function () {
     gulp.watch('lib/**/*.ts', ['ts-code']);
 });
 
-gulp.task('build-all', ['html', 'media', 'ts-code', 'bower','css']);
+gulp.task('build-all', ['html', 'media', 'ts-code', 'ts-code-declaration', 'bower','css']);

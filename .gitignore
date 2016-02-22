@@ -26,6 +26,8 @@ source-client/dist/
 source-client/temp/
 client/
 server/
+source-client/definitions.d.ts
+source-server/definitions.d.ts
 
 # Visual Studo 2015 cache/options directory
 .vs/
