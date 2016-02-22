@@ -25,7 +25,7 @@ for (var i = 0, l = tsFiles.length; i < l; i++ )
 
 // CONFIG
 // ==============================
-var outDir = "../client/resources";
+var outDir = "dist";
 
 // Create the type script project file
 var tsProject = ts.createProject('tsconfig.json', { sortOutput: true });
@@ -103,8 +103,8 @@ gulp.task('css', function() {
     return target.pipe( inject(sassFiles, {
             starttag: '<!-- inject:css -->',
             relative: true,
-            ignorePath: '../../client/resources/css',
-            addPrefix:'css'
+            ignorePath: '../dist',
+            //addPrefix:'css'
          }))
         .pipe(gulp.dest(outDir));
 });
