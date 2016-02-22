@@ -64,14 +64,14 @@
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
         onDisplayPreview(file: Engine.IFile, previewComponent: Component): boolean;
-        
+
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
 		*/
         getTypeConverters(): Array<TypeConverter>;
 
 		/**
-		* This function is called by Animate to get an array of 
+		* This function is called by Animate to get an array of
 		* AssetsTemplate. The AssetsTemplate object is used to define what assets are available to the scene.
 		* Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
 		* is to think of it as a predefined object that contains a number of variables. You could for example
@@ -80,7 +80,7 @@
 		* @returns <Array> Returns an array of <AssetTemplate> objects
 		*/
         getAssetsTemplate(): Array<AssetTemplate>;
-		
+
 		/**
 		* This function is called by Animate when its time to unload a plugin. This should be used
 		* to cleanup all resources used by the plugin

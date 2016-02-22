@@ -22,8 +22,7 @@ and limitations under the License.
 /**
  * Interface for the AJAX setting that will configure the AJAX request
  */
-interface JQueryAjaxSettings
-{
+interface JQueryAjaxSettings {
     /**
      * The content type sent in the request header that tells the server what kind of response it will accept in return. If the accepts setting needs modification, it is recommended to do so once in the $.ajaxSetup() method.
      */
@@ -35,7 +34,7 @@ interface JQueryAjaxSettings
     /**
      * A pre-request callback function that can be used to modify the jqXHR (in jQuery 1.4.x, XMLHTTPRequest) object before it is sent. Use this to set custom headers, etc. The jqXHR and settings objects are passed as arguments. This is an Ajax Event. Returning false in the beforeSend function will cancel the request. As of jQuery 1.5, the beforeSend option will be called regardless of the type of request.
      */
-    beforeSend?(jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any;
+    beforeSend? (jqXHR: JQueryXHR, settings: JQueryAjaxSettings): any;
     /**
      * If set to false, it will force requested pages not to be cached by the browser. Note: Setting cache to false will only work correctly with HEAD and GET requests. It works by appending "_={timestamp}" to the GET parameters. The parameter is not needed for other types of requests, except in IE8 when a POST is made to a URL that has already been requested by a GET.
      */
@@ -43,7 +42,7 @@ interface JQueryAjaxSettings
     /**
      * A function to be called when the request finishes (after success and error callbacks are executed). The function gets passed two arguments: The jqXHR (in jQuery 1.4.x, XMLHTTPRequest) object and a string categorizing the status of the request ("success", "notmodified", "error", "timeout", "abort", or "parsererror"). As of jQuery 1.5, the complete setting can accept an array of functions. Each function will be called in turn. This is an Ajax Event.
      */
-    complete?(jqXHR: JQueryXHR, textStatus: string): any;
+    complete? (jqXHR: JQueryXHR, textStatus: string): any;
     /**
      * An object of string/regular-expression pairs that determine how jQuery will parse the response, given its content type. (version added: 1.5)
      */
@@ -73,7 +72,7 @@ interface JQueryAjaxSettings
     /**
      * A function to be used to handle the raw response data of XMLHttpRequest.This is a pre-filtering function to sanitize the response. You should return the sanitized data. The function accepts two arguments: The raw data returned from the server and the 'dataType' parameter.
      */
-    dataFilter?(data: any, ty: any): any;
+    dataFilter? (data: any, ty: any): any;
     /**
      * The type of data that you're expecting back from the server. If none is specified, jQuery will try to infer it based on the MIME type of the response (an XML MIME type will yield XML, in 1.4 JSON will yield a JavaScript object, in 1.4 script will execute the script, and anything else will be returned as a string). 
      */
@@ -81,7 +80,7 @@ interface JQueryAjaxSettings
     /**
      * A function to be called if the request fails. The function receives three arguments: The jqXHR (in jQuery 1.4.x, XMLHttpRequest) object, a string describing the type of error that occurred and an optional exception object, if one occurred. Possible values for the second argument (besides null) are "timeout", "error", "abort", and "parsererror". When an HTTP error occurs, errorThrown receives the textual portion of the HTTP status, such as "Not Found" or "Internal Server Error." As of jQuery 1.5, the error setting can accept an array of functions. Each function will be called in turn. Note: This handler is not called for cross-domain script and cross-domain JSONP requests. This is an Ajax Event.
      */
-    error?(jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any;
+    error? (jqXHR: JQueryXHR, textStatus: string, errorThrown: string): any;
     /**
      * Whether to trigger global Ajax event handlers for this request. The default is true. Set to false to prevent the global handlers like ajaxStart or ajaxStop from being triggered. This can be used to control various Ajax Events.
      */
@@ -107,6 +106,10 @@ interface JQueryAjaxSettings
      */
     jsonpCallback?: any;
     /**
+     * The HTTP method to use for the request (e.g. "POST", "GET", "PUT"). (version added: 1.9.0)
+     */
+    method?: string;
+    /**
      * A mime type to override the XHR mime type. (version added: 1.5.1)
      */
     mimeType?: string;
@@ -129,7 +132,7 @@ interface JQueryAjaxSettings
     /**
      * A function to be called if the request succeeds. The function gets passed three arguments: The data returned from the server, formatted according to the dataType parameter; a string describing the status; and the jqXHR (in jQuery 1.4.x, XMLHttpRequest) object. As of jQuery 1.5, the success setting can accept an array of functions. Each function will be called in turn. This is an Ajax Event.
      */
-    success?(data: any, textStatus: string, jqXHR: JQueryXHR): any;
+    success? (data: any, textStatus: string, jqXHR: JQueryXHR): any;
     /**
      * Set a timeout (in milliseconds) for the request. This will override any global timeout set with $.ajaxSetup(). The timeout period starts at the point the $.ajax call is made; if several other requests are in progress and the browser has no connections available, it is possible for a request to time out before it can be sent. In jQuery 1.4.x and below, the XMLHttpRequest object will be in an invalid state if the request times out; accessing any object members may throw an exception. In Firefox 3.0+ only, script and JSONP requests cannot be cancelled by a timeout; the script will run even if it arrives after the timeout period.
      */
@@ -163,8 +166,7 @@ interface JQueryAjaxSettings
 /**
  * Interface for the jqXHR object
  */
-interface JQueryXHR extends XMLHttpRequest, JQueryPromise<any>
-{
+interface JQueryXHR extends XMLHttpRequest, JQueryPromise<any> {
     /**
      * The .overrideMimeType() method may be used in the beforeSend() callback function, for example, to modify the response content-type header. As of jQuery 1.5.1, the jqXHR object also contains the overrideMimeType() method (it was available in jQuery 1.4.x, as well, but was temporarily removed in jQuery 1.5). 
      */
@@ -183,13 +185,16 @@ interface JQueryXHR extends XMLHttpRequest, JQueryPromise<any>
      * Property containing the parsed response if the response Content-Type is json
      */
     responseJSON?: any;
+    /**
+     * A function to be called if the request fails.
+     */
+    error(xhr: JQueryXHR, textStatus: string, errorThrown: string): void;
 }
 
 /**
  * Interface for the JQuery callback
  */
-interface JQueryCallback
-{
+interface JQueryCallback {
     /**
      * Add a callback or a collection of callbacks to a callback list.
      * 
@@ -236,7 +241,7 @@ interface JQueryCallback
      * @param context A reference to the context in which the callbacks in the list should be fired.
      * @param arguments An argument, or array of arguments, to pass to the callbacks in the list.
      */
-    fireWith(context?: any, ...args: any[]): JQueryCallback;
+    fireWith(context?: any, args?: any[]): JQueryCallback;
 
     /**
      * Determine whether a supplied callback is in a list
@@ -272,43 +277,43 @@ interface JQueryCallback
 /**
  * Allows jQuery Promises to interop with non-jQuery promises
  */
-interface JQueryGenericPromise<T>
-{
+interface JQueryGenericPromise<T> {
     /**
      * Add handlers to be called when the Deferred object is resolved, rejected, or still in progress.
      * 
      * @param doneFilter A function that is called when the Deferred is resolved.
      * @param failFilter An optional function that is called when the Deferred is rejected.
      */
-    then<U>(doneFilter: (value: T, ...values: any[]) => U|JQueryPromise<U>, failFilter?: (...reasons: any[]) => U|JQueryPromise<U>, progressFilter?: (...progression: any[]) => any): JQueryPromise<U>;
+    then<U>(doneFilter: (value?: T, ...values: any[]) => U|JQueryPromise<U>, failFilter?: (...reasons: any[]) => any, progressFilter?: (...progression: any[]) => any): JQueryPromise<U>;
 
     /**
-     * Determine the current state of a Deferred object.
+     * Add handlers to be called when the Deferred object is resolved, rejected, or still in progress.
+     * 
+     * @param doneFilter A function that is called when the Deferred is resolved.
+     * @param failFilter An optional function that is called when the Deferred is rejected.
      */
-    state(): string;
-
-    // Deprecated - given no typings
-    pipe(doneFilter?: (x: any) => any, failFilter?: (x: any) => any, progressFilter?: (x: any) => any): JQueryPromise<any>;
+    then(doneFilter: (value?: T, ...values: any[]) => void, failFilter?: (...reasons: any[]) => any, progressFilter?: (...progression: any[]) => any): JQueryPromise<void>;
 }
 
 /**
  * Interface for the JQuery promise/deferred callbacks
  */
-interface JQueryPromiseCallback<T>
-{
+interface JQueryPromiseCallback<T> {
     (value?: T, ...args: any[]): void;
 }
 
-interface JQueryPromiseOperator<T, U>
-{
+interface JQueryPromiseOperator<T, U> {
     (callback1: JQueryPromiseCallback<T>|JQueryPromiseCallback<T>[], ...callbacksN: Array<JQueryPromiseCallback<any>|JQueryPromiseCallback<any>[]>): JQueryPromise<U>;
 }
 
 /**
  * Interface for the JQuery promise, part of callbacks
  */
-interface JQueryPromise<T> extends JQueryGenericPromise<T>
-{
+interface JQueryPromise<T> extends JQueryGenericPromise<T> {
+    /**
+     * Determine the current state of a Deferred object.
+     */
+    state(): string;
     /**
      * Add handlers to be called when the Deferred object is either resolved or rejected.
      * 
@@ -336,13 +341,19 @@ interface JQueryPromise<T> extends JQueryGenericPromise<T>
      * @param progressCallbacks A function, or array of functions, to be called when the Deferred generates progress notifications.
      */
     progress(progressCallback1?: JQueryPromiseCallback<any>|JQueryPromiseCallback<any>[], ...progressCallbackN: Array<JQueryPromiseCallback<any>|JQueryPromiseCallback<any>[]>): JQueryPromise<T>;
+
+    // Deprecated - given no typings
+    pipe(doneFilter?: (x: any) => any, failFilter?: (x: any) => any, progressFilter?: (x: any) => any): JQueryPromise<any>;
 }
 
 /**
  * Interface for the JQuery deferred, part of callbacks
  */
-interface JQueryDeferred<T> extends JQueryGenericPromise<T>
-{
+interface JQueryDeferred<T> extends JQueryGenericPromise<T> {
+    /**
+     * Determine the current state of a Deferred object.
+     */
+    state(): string;
     /**
      * Add handlers to be called when the Deferred object is either resolved or rejected.
      * 
@@ -384,7 +395,7 @@ interface JQueryDeferred<T> extends JQueryGenericPromise<T>
      * @param context Context passed to the progressCallbacks as the this object.
      * @param args Optional arguments that are passed to the progressCallbacks.
      */
-    notifyWith(context: any, value?: any, ...args: any[]): JQueryDeferred<T>;
+    notifyWith(context: any, value?: any[]): JQueryDeferred<T>;
 
     /**
      * Reject a Deferred object and call any failCallbacks with the given args.
@@ -398,7 +409,7 @@ interface JQueryDeferred<T> extends JQueryGenericPromise<T>
      * @param context Context passed to the failCallbacks as the this object.
      * @param args An optional array of arguments that are passed to the failCallbacks.
      */
-    rejectWith(context: any, value?: any, ...args: any[]): JQueryDeferred<T>;
+    rejectWith(context: any, value?: any[]): JQueryDeferred<T>;
 
     /**
      * Resolve a Deferred object and call any doneCallbacks with the given args.
@@ -414,7 +425,7 @@ interface JQueryDeferred<T> extends JQueryGenericPromise<T>
      * @param context Context passed to the doneCallbacks as the this object.
      * @param args An optional array of arguments that are passed to the doneCallbacks.
      */
-    resolveWith(context: any, value?: T, ...args: any[]): JQueryDeferred<T>;
+    resolveWith(context: any, value?: T[]): JQueryDeferred<T>;
 
     /**
      * Return a Deferred's Promise object.
@@ -422,13 +433,15 @@ interface JQueryDeferred<T> extends JQueryGenericPromise<T>
      * @param target Object onto which the promise methods have to be attached
      */
     promise(target?: any): JQueryPromise<T>;
+
+    // Deprecated - given no typings
+    pipe(doneFilter?: (x: any) => any, failFilter?: (x: any) => any, progressFilter?: (x: any) => any): JQueryPromise<any>;
 }
 
 /**
  * Interface of the JQuery extension of the W3C event object
  */
-interface BaseJQueryEventObject extends Event
-{
+interface BaseJQueryEventObject extends Event {
     data: any;
     delegateTarget: Element;
     isDefaultPrevented(): boolean;
@@ -448,16 +461,14 @@ interface BaseJQueryEventObject extends Event
     metaKey: boolean;
 }
 
-interface JQueryInputEventObject extends BaseJQueryEventObject
-{
+interface JQueryInputEventObject extends BaseJQueryEventObject {
     altKey: boolean;
     ctrlKey: boolean;
     metaKey: boolean;
     shiftKey: boolean;
 }
 
-interface JQueryMouseEventObject extends JQueryInputEventObject
-{
+interface JQueryMouseEventObject extends JQueryInputEventObject {
     button: number;
     clientX: number;
     clientY: number;
@@ -469,24 +480,21 @@ interface JQueryMouseEventObject extends JQueryInputEventObject
     screenY: number;
 }
 
-interface JQueryKeyEventObject extends JQueryInputEventObject
-{
+interface JQueryKeyEventObject extends JQueryInputEventObject {
     char: any;
     charCode: number;
     key: any;
     keyCode: number;
 }
 
-interface JQueryEventObject extends BaseJQueryEventObject, JQueryInputEventObject, JQueryMouseEventObject, JQueryKeyEventObject
-{
+interface JQueryEventObject extends BaseJQueryEventObject, JQueryInputEventObject, JQueryMouseEventObject, JQueryKeyEventObject{
 }
 
 /*
     Collection of properties of the current browser
 */
 
-interface JQuerySupport
-{
+interface JQuerySupport {
     ajax?: boolean;
     boxModel?: boolean;
     changeBubbles?: boolean;
@@ -502,14 +510,13 @@ interface JQuerySupport
     opacity?: boolean;
     optDisabled?: boolean;
     optSelected?: boolean;
-    scriptEval?(): boolean;
+    scriptEval? (): boolean;
     style?: boolean;
     submitBubbles?: boolean;
     tbody?: boolean;
 }
 
-interface JQueryParam
-{
+interface JQueryParam {
     /**
      * Create a serialized representation of an array or object, suitable for use in a URL query string or Ajax request.
      * 
@@ -532,8 +539,7 @@ interface JQueryParam
  * overriding the construction function with specific strings
  * returning specific event objects.
  */
-interface JQueryEventConstructor
-{
+interface JQueryEventConstructor {
     (name: string, eventProperties?: any): JQueryEventObject;
     new (name: string, eventProperties?: any): JQueryEventObject;
 }
@@ -541,8 +547,7 @@ interface JQueryEventConstructor
 /**
  * The interface used to specify coordinates.
  */
-interface JQueryCoordinates
-{
+interface JQueryCoordinates {
     left: number;
     top: number;
 }
@@ -550,14 +555,12 @@ interface JQueryCoordinates
 /**
  * Elements in the array returned by serializeArray()
  */
-interface JQuerySerializeArrayElement
-{
+interface JQuerySerializeArrayElement {
     name: string;
     value: string;
 }
 
-interface JQueryAnimationOptions
-{ 
+interface JQueryAnimationOptions { 
     /**
      * A string or number determining how long the animation will run.
      */
@@ -604,11 +607,20 @@ interface JQueryAnimationOptions
     specialEasing?: Object;
 }
 
+interface JQueryEasingFunction {
+    ( percent: number ): number;
+}
+
+interface JQueryEasingFunctions {
+    [ name: string ]: JQueryEasingFunction;
+    linear: JQueryEasingFunction;
+    swing: JQueryEasingFunction;
+}
+
 /**
  * Static members of jQuery (those on $ and jQuery themselves)
  */
-interface JQueryStatic
-{
+interface JQueryStatic {
 
     /**
      * Perform an asynchronous HTTP (Ajax) request.
@@ -640,11 +652,11 @@ interface JQueryStatic
 
     ajaxSettings: JQueryAjaxSettings;
 
-	/**
-	 * Set default values for future Ajax requests. Its use is not recommended.
-	 *
-	 * @param options A set of key/value pairs that configure the default Ajax request. All options are optional.
-	 */
+     /**
+      * Set default values for future Ajax requests. Its use is not recommended.
+      *
+      * @param options A set of key/value pairs that configure the default Ajax request. All options are optional.
+      */
     ajaxSetup(options: JQueryAjaxSettings): void;
 
     /**
@@ -731,30 +743,42 @@ interface JQueryStatic
      * @param context A DOM Element, Document, or jQuery to use as context
      */
     (selector: string, context?: Element|JQuery): JQuery;
+
     /**
      * Accepts a string containing a CSS selector which is then used to match a set of elements.
      *
      * @param element A DOM element to wrap in a jQuery object.
      */
     (element: Element): JQuery;
+
     /**
      * Accepts a string containing a CSS selector which is then used to match a set of elements.
      *
      * @param elementArray An array containing a set of DOM elements to wrap in a jQuery object.
      */
     (elementArray: Element[]): JQuery;
+
+    /**
+     * Binds a function to be executed when the DOM has finished loading.
+     *
+     * @param callback A function to execute after the DOM is ready.
+     */
+    (callback: (jQueryAlias?: JQueryStatic) => any): JQuery;
+
     /**
      * Accepts a string containing a CSS selector which is then used to match a set of elements.
      *
      * @param object A plain object to wrap in a jQuery object.
      */
     (object: {}): JQuery;
+
     /**
      * Accepts a string containing a CSS selector which is then used to match a set of elements.
      *
      * @param object An existing jQuery object to clone.
      */
     (object: JQuery): JQuery;
+
     /**
      * Specify a function to execute when the DOM is fully loaded.
      */
@@ -767,6 +791,7 @@ interface JQueryStatic
      * @param ownerDocument A document in which the new elements will be created.
      */
     (html: string, ownerDocument?: Document): JQuery;
+
     /**
      * Creates DOM elements on the fly from the provided string of raw HTML.
      *
@@ -776,18 +801,11 @@ interface JQueryStatic
     (html: string, attributes: Object): JQuery;
 
     /**
-     * Binds a function to be executed when the DOM has finished loading.
-     *
-     * @param callback A function to execute after the DOM is ready.
-     */
-    (callback: Function): JQuery;
-
-    /**
      * Relinquish jQuery's control of the $ variable.
      *
      * @param removeAll A Boolean indicating whether to remove all jQuery variables from the global scope (including jQuery itself).
      */
-    noConflict(removeAll?: boolean): Object;
+    noConflict(removeAll?: boolean): JQueryStatic;
 
     /**
      * Provides a way to execute callback functions based on one or more objects, usually Deferred objects that represent asynchronous events.
@@ -881,6 +899,9 @@ interface JQueryStatic
     /**
      * Effects
      */
+
+    easing: JQueryEasingFunctions;
+
     fx: {
         tick: () => void;
         /**
@@ -923,7 +944,7 @@ interface JQueryStatic
     error(message: any): JQuery;
 
     expr: any;
-    fn: any;  
+    fn: any;  //TODO: Decide how we want to type this
 
     isReady: boolean;
 
@@ -1143,8 +1164,7 @@ interface JQueryStatic
 /**
  * The jQuery instance members
  */
-interface JQuery
-{
+interface JQuery {
     /**
      * Register a handler to be called when Ajax requests complete. This is an AjaxEvent.
      *
@@ -1356,9 +1376,9 @@ interface JQuery
     /**
      * Set the value of each element in the set of matched elements.
      *
-     * @param value A string of text or an array of strings corresponding to the value of each matched element to set as selected/checked.
+     * @param value A string of text, an array of strings or number corresponding to the value of each matched element to set as selected/checked.
      */
-    val(value: string|string[]): JQuery;
+    val(value: string|string[]|number): JQuery;
     /**
      * Set the value of each element in the set of matched elements.
      *
@@ -1537,19 +1557,19 @@ interface JQuery
      * @param key A string naming the piece of data to set.
      * @param value The new data value; it can be any Javascript type including Array or Object.
      */
-    data(key: string, value: any): any;
-    /**
-     * Store arbitrary data associated with the matched elements.
-     *
-     * @param obj An object of key-value pairs of data to update.
-     */
-    data(obj: { [key: string]: any; }): any;
+    data(key: string, value: any): JQuery;
     /**
      * Return the value at the named data store for the first element in the jQuery collection, as set by data(name, value) or by an HTML5 data-* attribute.
      *
      * @param key Name of the data stored.
      */
     data(key: string): any;
+    /**
+     * Store arbitrary data associated with the matched elements.
+     *
+     * @param obj An object of key-value pairs of data to update.
+     */
+    data(obj: { [key: string]: any; }): JQuery;
     /**
      * Return the value at the named data store for the first element in the jQuery collection, as set by data(name, value) or by an HTML5 data-* attribute.
      */
@@ -1574,6 +1594,10 @@ interface JQuery
      * @param list An array of strings naming the pieces of data to delete.
      */
     removeData(list: string[]): JQuery;
+    /**
+     * Remove all previously-stored piece of data.
+     */
+    removeData(): JQuery;
 
     /**
      * Return a Promise object to observe when all actions of a certain type bound to the collection, queued or not, have finished.
@@ -1992,6 +2016,10 @@ interface JQuery
     focus(eventData?: any, handler?: (eventObject: JQueryEventObject) => any): JQuery;
 
     /**
+     * Trigger the "focusin" event on an element.
+     */
+    focusin(): JQuery;
+    /**
      * Bind an event handler to the "focusin" JavaScript event
      *
      * @param handler A function to execute each time the event is triggered.
@@ -2005,6 +2033,10 @@ interface JQuery
      */
     focusin(eventData: Object, handler: (eventObject: JQueryEventObject) => any): JQuery;
 
+    /**
+     * Trigger the "focusout" event on an element.
+     */
+    focusout(): JQuery;
     /**
      * Bind an event handler to the "focusout" JavaScript event
      *
@@ -2243,6 +2275,13 @@ interface JQuery
      * Remove an event handler.
      *
      * @param events One or more space-separated event types and optional namespaces, or just namespaces, such as "click", "keydown.myPlugin", or ".myPlugin".
+     * @param handler A handler function previously attached for the event(s), or the special value false. Takes handler with extra args that can be attached with on().
+     */
+    off(events: string, handler: (eventObject: JQueryEventObject, ...args: any[]) => any): JQuery;
+    /**
+     * Remove an event handler.
+     *
+     * @param events One or more space-separated event types and optional namespaces, or just namespaces, such as "click", "keydown.myPlugin", or ".myPlugin".
      * @param handler A handler function previously attached for the event(s), or the special value false.
      */
     off(events: string, handler: (eventObject: JQueryEventObject) => any): JQuery;
@@ -2268,7 +2307,7 @@ interface JQuery
      * @param data Data to be passed to the handler in event.data when an event is triggered.
      * @param handler A function to execute when the event is triggered. The value false is also allowed as a shorthand for a function that simply does return false.
     */
-    on(events: string, data: any, handler: (eventObject: JQueryEventObject, ...args: any[]) => any): JQuery;
+    on(events: string, data : any, handler: (eventObject: JQueryEventObject, ...args: any[]) => any): JQuery;
     /**
      * Attach an event handler function for one or more events to the selected elements.
      *
@@ -2359,7 +2398,7 @@ interface JQuery
      *
      * @param handler A function to execute after the DOM is ready.
      */
-    ready(handler: Function): JQuery;
+    ready(handler: (jQueryAlias?: JQueryStatic) => any): JQuery;
 
     /**
      * Trigger the "resize" event on an element.
@@ -2455,6 +2494,14 @@ interface JQuery
      * @param extraParameters An array of additional parameters to pass along to the event handler.
      */
     triggerHandler(eventType: string, ...extraParameters: any[]): Object;
+
+    /**
+     * Execute all handlers attached to an element for an event.
+     * 
+     * @param event A jQuery.Event object.
+     * @param extraParameters An array of additional parameters to pass along to the event handler.
+     */
+    triggerHandler(event: JQueryEventObject, ...extraParameters: any[]): Object;
 
     /**
      * Remove a previously-attached event handler from the elements.
@@ -3023,7 +3070,7 @@ interface JQuery
      * 
      * @param elements One or more DOM elements to remove from the matched set.
      */
-    not(...elements: Element[]): JQuery;
+    not(elements: Element|Element[]): JQuery;
     /**
      * Remove elements from the set of matched elements.
      * 
