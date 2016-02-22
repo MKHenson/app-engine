@@ -38,8 +38,8 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
-	* Called whenever we need to process 
+	/**
+	* Called whenever we need to process
 	*/
 	processRequest( request: http.ServerRequest, response: http.ServerResponse, functionName: string )
 	{
@@ -66,10 +66,10 @@ class ProjectController extends BaseController
 				case "print":
 					that.print( parseInt( options["limit"] ), parseInt( options["index"] ), request, response );
 					break;
-				
+
 				case "print-groups":
 					that.printGeneric( "groups", __dirname + "/../views/admin/projects/print-groups.jade", parseInt( options["limit"] ), parseInt( options["index"] ), request, response );
-					break;				
+					break;
 				case "print-files":
 					that.printGeneric( "files", __dirname + "/../views/admin/projects/print-files.jade", parseInt( options["limit"] ), parseInt( options["index"] ), request, response );
 					break;
@@ -127,7 +127,7 @@ class ProjectController extends BaseController
 					break;
 				case "get-behaviours":
 					that.getBehaviours( options["projectId"], null, request, response );
-					break;				
+					break;
 				case "get-assets":
 					that.getAssets( options["projectId"], null, request, response );
 					break;
@@ -145,7 +145,7 @@ class ProjectController extends BaseController
 						that.deleteProjectObjects( "assets", options["projectId"], ids, null, request, response );
 					else if ( functionName == "delete-behaviours" )
 						that.deleteBehaviours( options["projectId"], ids, null, request, response );
-										
+
 					break;
 				case "delete-scripts":
 					var idsStr: Array<string> = ( typeof ( options["ids[]"] ) == "string" ? [options["ids[]"]] : options["ids[]"] );
@@ -162,7 +162,7 @@ class ProjectController extends BaseController
 				case "save-groups":
 				case "save-behaviours":
 				case "save-assets":
-					var ids: Array<string> = ( typeof ( options["ids[]"] ) == "string" ? [options["ids[]"]] : options["ids[]"] );					
+					var ids: Array<string> = ( typeof ( options["ids[]"] ) == "string" ? [options["ids[]"]] : options["ids[]"] );
 					var datums: Array<string> = ( typeof ( options["data[]"] ) == "string" ? [options["data[]"]] : options["data[]"] );
 
 					if ( !ids || !datums )
@@ -184,7 +184,7 @@ class ProjectController extends BaseController
 						collection = "assets";
 
 					that.saveData( collection, options["projectId"], ids, queries, null, request, response );
-					break;				
+					break;
 				case "save-build":
 					that.saveBuild( options["projectId"], options["buildId"], options["notes"], options["visibility"], options["html"], options["css"], null, request, response );
 					break;
@@ -226,7 +226,7 @@ class ProjectController extends BaseController
 					break;
 				case "copy-script":
 					that.copyBehaviourScript( options["projectId"], parseInt( options["originalId"] ), null, request, response );
-					break;					
+					break;
 				case "save-behaviour-script":
 					that.saveBehaviourScript( parseInt( options["shallowId"]), options["onEnter"], options["onInitialize"], options["onDispose"], options["onFrame"], options["projectId"], null, request, response );
 					break;
@@ -246,7 +246,7 @@ class ProjectController extends BaseController
 		}, request, response );
 	}
 
-	/** 
+	/**
 	* Creates a behaviour for a project
 	* @param {string} name The name of the new behaviour
 	* @param {number} shallowId The local id of the behaviour
@@ -363,7 +363,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Creates a script behaviour for a project
 	* @param {number} containerId The local ID of the container this script is attached to
 	* @param {string} behaviourId The ID of the behaviour this script is attached to
@@ -447,8 +447,8 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
-	* Copies a script behaviour 
+	/**
+	* Copies a script behaviour
 	* @param {string} projectId The ID of the project
 	* @param {number} originalId The local ID of the original script we are copying from
 	* @param {(script: scriptModel.Script) => void} callback The callback function
@@ -541,7 +541,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves behaviour script data
 	* @param {number} shallowId The local ID of the script
 	* @param {string} onEnter The on enter code
@@ -603,7 +603,7 @@ class ProjectController extends BaseController
 						if ( onFrame )
 							updateToken.$set.onFrame = onFrame;
 
-						// Update the script 
+						// Update the script
 						Model.collections( "scripts" ).update( { shallowId: shallowId, project_id : proj._id }, updateToken, function ( err: any, numAffected: number )
 						{
 							if ( err )
@@ -636,7 +636,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets behaviour script by ID
 	* @param {number} shallowId The local ID of the script top get
 	* @param {string} projectId The ID of the project
@@ -684,7 +684,7 @@ class ProjectController extends BaseController
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
 
-						// Update the script 
+						// Update the script
 						Model.collections( "scripts" ).findOne( { shallowId: shallowId, project_id : proj._id }, function ( err: any, script: scriptModel.Script )
 						{
 							if ( err )
@@ -725,7 +725,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Creates a new group
 	* @param {string} name The name of the group
 	* @param {string} projectId The ID of the project
@@ -784,7 +784,7 @@ class ProjectController extends BaseController
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
 
-						
+
 						// Create the group and return the new object
 						Model.collections( "groups" ).save( new groupModel.Group( name, proj._id, user._id ),
 							function ( err: any, group : groupModel.Group )
@@ -831,7 +831,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Create a new asset
 	* @param {string} name The name of the asset
 	* @param {number} shallowId The ID assigned to the asset for local identification
@@ -936,7 +936,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Use this function to copy a project asset
 	* @param {string} projectId The ID of the project
 	* @param {string} assetId The ID of the asset
@@ -1013,7 +1013,7 @@ class ProjectController extends BaseController
 								else
 									return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the asset '"+ assetId +"'").processRequest( request, response, "" );
 							}
-							
+
 							// Create the group and return the new object
 							Model.collections( "assets" ).save( new assetModel.Asset( shallowId, origAsset.name, origAsset.className, proj._id, user._id, origAsset.json ),
 								function ( err: any, asset: assetModel.Asset )
@@ -1025,7 +1025,7 @@ class ProjectController extends BaseController
 										else
 											return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
 									}
-									
+
 									// Add group reference to project
 									Model.collections( "projects" ).update( { _id: proj._id }, { $push: { assets: asset._id.toString() } }, function ( err: any, result: number )
 									{
@@ -1060,7 +1060,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets a project from the database by ID as well its current build
 	* @param {string} projectId The ID of the project
 	* @param {(project: projectModel.Project, build: buildModel.Build) => void} callback The callback function
@@ -1159,7 +1159,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Copies a project
 	* @param {string} projectId The ID of the project to copy from
 	* @param {( project: projectModel.Project, build : buildModel.Build) => void} callback The callback function
@@ -1199,7 +1199,7 @@ class ProjectController extends BaseController
 						}
 
 						// Keep a copy of all original asset ids / new ids
-						var tempAssets: Array<assetModel.Asset> = [];						
+						var tempAssets: Array<assetModel.Asset> = [];
 						var tempBehaviours: Array<behaviourModel.Behaviour>= [];
 						var tempScripts: Array<scriptModel.Script>= [];
 						var tempGroups: Array<groupModel.Group> = [];
@@ -1285,12 +1285,12 @@ class ProjectController extends BaseController
 									});
 								});
 
-								
+
 							});
 						}, request, response );
 
 
-						// Copy each of the assets 
+						// Copy each of the assets
 						function duplicateAssets( copy : projectModel.Project )
 						{
 							if ( tempAssets.length == 0 )
@@ -1311,7 +1311,7 @@ class ProjectController extends BaseController
 							});
 						}
 
-						// Copy each of the behaviours 
+						// Copy each of the behaviours
 						function duplicateBehaviours( copy: projectModel.Project )
 						{
 							if ( tempBehaviours.length == 0 )
@@ -1332,7 +1332,7 @@ class ProjectController extends BaseController
 							});
 						}
 
-						// Copy each of the scripts 
+						// Copy each of the scripts
 						function duplicateScripts( copy: projectModel.Project )
 						{
 							if ( tempScripts.length == 0 )
@@ -1354,13 +1354,13 @@ class ProjectController extends BaseController
 						}
 
 
-						// Copy each of the groups 
+						// Copy each of the groups
 						function duplicateGroups( copy: projectModel.Project )
 						{
 							if ( tempGroups.length == 0 )
 							{
 								logger.log( "Groups copied..." );
-								
+
 
 								logger.log( "Project '" + projectId + "' successfully copied", logger.LogType.SUCCESS );
 
@@ -1396,9 +1396,9 @@ class ProjectController extends BaseController
 			}, request, response );
 		}, request, response );
 	}
-	
 
-	/** 
+
+	/**
 	* Renames an object owned by a project.  Can be either 'behaviour', 'group' or 'asset'
 	* @param {string} name The new name of the object
 	* @param {string} description The project description
@@ -1443,7 +1443,7 @@ class ProjectController extends BaseController
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
 
-						
+
 						var updateToken : any = { $set: {} };
 						updateToken.$set.name = ( name === undefined ? proj.name : sanitizeHtml( name, { allowedTags: [] }) );
 						updateToken.$set.description = ( description === undefined ? proj.description : sanitizeHtml( description, { allowedTags: ["b", "strong", "ul", "ol", "li", "i", "pre"] }) );
@@ -1493,7 +1493,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Selects or creates a build by selecting its version
 	* @param {string} major The major version
 	* @param {string} mid The major version
@@ -1544,7 +1544,7 @@ class ProjectController extends BaseController
 						}
 
 						var version: string =  major + "." + mid + "." + minor;
-						
+
 						Model.collections( "builds" ).findOne( { version: version }, function ( err: any, b: buildModel.Build )
 						{
 							if ( err )
@@ -1563,21 +1563,21 @@ class ProjectController extends BaseController
 								{
 									logger.log( "Existing build has been selected.", logger.LogType.SUCCESS );
 
-									
+
 
 									if ( callback )
 										callback( b );
 									else
 										return viewJSON.render( { build: b, message: "Build selected" }, request, response, viewJSON.ReturnType.SUCCESS );
 								});
-								
+
 							}
 							else
 							{
 								// No build - so create it
 								logger.log( "No build found - creating one..." );
 
-								
+
 
 								Model.collections( "builds" ).findOne( { _id: proj.buildId }, function (err : any, curBuild : buildModel.Build  )
 								{
@@ -1633,7 +1633,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Removes all builds associated with a project
 	* @param {string} projectId The ID of the project
 	* @param {( numRemoved: number ) => void} callback The callback function
@@ -1689,10 +1689,10 @@ class ProjectController extends BaseController
 									if ( callback )
 										return callback( 0 );
 									else
-										return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );	
+										return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
 								}
 
-								
+
 
 								// Remove any files
 								for ( var i = 0, l = builds.length; i < l; i++ )
@@ -1744,7 +1744,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Renames an object owned by a project.  Can be either 'behaviour', 'group' or 'asset'
 	* @param {string} name The new name of the object
 	* @param {string} objectId The ID of the object we are renaming
@@ -1835,7 +1835,7 @@ class ProjectController extends BaseController
 
 							if ( callback )
 								callback( result );
-							else									
+							else
 								return viewJSON.render( {
 									message: type + " successfully renamed to " + name,
 									id: objectId,
@@ -1859,7 +1859,7 @@ class ProjectController extends BaseController
 
 
 
-	/** 
+	/**
 	* Gets a project from an ID
 	* @param {string} id The ID of the project
 	* @param {( project: projectModel.Project ) => void} callback The callback function
@@ -1879,7 +1879,7 @@ class ProjectController extends BaseController
 		id = id.trim();
 
 		logger.log( "Getting project " + id, logger.LogType.ADMIN );
-		
+
 
 		if ( id == "" || !validator.isValidObjectID( id ) )
 			return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Please specify a valid project" ).processRequest( request, response, "" );
@@ -1911,7 +1911,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets an array of files that are associated with a project
 	* @param {string} projectId The ID of the project
 	* @param {string} mode Which files to get - either 'user', 'project' or 'global'
@@ -1943,7 +1943,7 @@ class ProjectController extends BaseController
 				else
 					return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Authentication is required to call this function" ).processRequest( request, response, "" );
 			}
-			
+
 			// Check for rights
 			that.checkPrivileges( user._id.toString(), projectId, projectModel.PrivilegeType.READ, function ( hasRights: boolean )
 			{
@@ -1958,12 +1958,12 @@ class ProjectController extends BaseController
 							else
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
-						
+
 						// If no files - then return empty array
 						if ( mode == "project" && proj.files.length == 0 )
 							return viewJSON.render( [], request, response, viewJSON.ReturnType.SUCCESS );
 
-						// Create the file query by getting each of the file ID's associated with the project						
+						// Create the file query by getting each of the file ID's associated with the project
 						var query;
 						if ( mode == "project" )
 						{
@@ -1977,7 +1977,7 @@ class ProjectController extends BaseController
 							query = { user: user._id };
 
 						console.log( JSON.stringify( query ) );
-						
+
 						Model.collections( "files" ).find( query, function ( err: any, cursor: mongodb.Cursor )
 						{
 							if ( err )
@@ -1997,7 +1997,7 @@ class ProjectController extends BaseController
 									else
 										return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
 								}
-								
+
 								if ( callback )
 									callback( files );
 								else
@@ -2019,7 +2019,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets an array of assets that are associated with a project
 	* @param {string} projectId The ID of the project
 	* @param {( behaviours: Array<assetModel.Asset> ) => void} callback The callback function
@@ -2065,7 +2065,7 @@ class ProjectController extends BaseController
 							else
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
-						
+
 						Model.collections( "assets" ).find( { project_id : proj._id }, function ( err: any, cursor: mongodb.Cursor )
 						{
 							if ( err )
@@ -2088,7 +2088,7 @@ class ProjectController extends BaseController
 
 								if ( callback )
 									callback( assets );
-								else									
+								else
 									return viewJSON.render( assets, request, response, viewJSON.ReturnType.SUCCESS );
 							});
 						});
@@ -2108,7 +2108,7 @@ class ProjectController extends BaseController
 
 
 
-	/** 
+	/**
 	* Gets an array of groups that are associated with a project
 	* @param {string} projectId The ID of the project
 	* @param {( behaviours: Array<groupModel.Group> ) => void} callback The callback function
@@ -2196,7 +2196,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Removes project objects
 	* @param {string} collection The collection name of which objects we are deleting
 	* @param {string} projectId The ID of the project
@@ -2249,8 +2249,8 @@ class ProjectController extends BaseController
 						for ( var i = 0, l = ids.length; i < l; i++ )
 							if ( !validator.isValidObjectID( ids[i] ) )
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Some of the ID's provided are not in the correct format" ).processRequest( request, response, "" );
-						
-						// Create the group query by getting each of the group ID's associated with the project						
+
+						// Create the group query by getting each of the group ID's associated with the project
 						var query = { $or: [] };
 						for ( var i = 0, l = ids.length; i < l; i++ )
 							query.$or.push( { _id: new mongodb.ObjectID( ids[i] ) });
@@ -2288,7 +2288,7 @@ class ProjectController extends BaseController
 
 
 
-	/** 
+	/**
 	* Removes project objects
 	* @param {string} projectId The ID of the project
 	* @param {Array<number>} localIds An array of ID's that need to be removed
@@ -2333,7 +2333,7 @@ class ProjectController extends BaseController
 							if ( isNaN( localIds[i] ) )
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Some of the ID's provided are not in the correct format" ).processRequest( request, response, "" );
 
-						// Create the group query by getting each of the group ID's associated with the project						
+						// Create the group query by getting each of the group ID's associated with the project
 						var query = { $or: [] };
 						for ( var i = 0, l = localIds.length; i < l; i++ )
 							query.$or.push( { $and: [{ shallowId: localIds[i] }, { project_id: proj._id } ] });
@@ -2370,7 +2370,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Removes project behaviours
 	* @param {string} projectId The ID of the project
 	* @param {Array<string>} ids An array of ID's that need to be removed
@@ -2447,7 +2447,7 @@ class ProjectController extends BaseController
 						// Finish off the operation by deleting the behaviours
 						function finishDeleteBehaviours()
 						{
-							// Create the group query by getting each of the group ID's associated with the project						
+							// Create the group query by getting each of the group ID's associated with the project
 							var query = { $or: [] };
 							for ( var i = 0, l = ids.length; i < l; i++ )
 								query.$or.push( { _id: new mongodb.ObjectID( ids[i] ) });
@@ -2485,7 +2485,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Removes scipt objects
 	* @param {number} containerId The local ID of the container this script belongs to
 	* @param {string} projectId The ID of the project
@@ -2565,7 +2565,7 @@ class ProjectController extends BaseController
 		}, request, response );
 	}
 
-	/** 
+	/**
 	* Removes project files
 	* @param {string} projectId The ID of the project
 	* @param {Array<string>} ids An array of ID's that need to be removed
@@ -2645,14 +2645,14 @@ class ProjectController extends BaseController
 						logger.log( "Removing the references of the files in the project" );
 						removeFromProjects();
 
-						
 
-						// Since the files are removed from this project, we check if its used anywhere else. 
+
+						// Since the files are removed from this project, we check if its used anywhere else.
 						// If it is, then don't delete it
 						function checkExternalUsage()
 						{
 							logger.log( "Checking external usage of file..." );
-							
+
 
 
 							if ( tempIds.length == 0 )
@@ -2681,7 +2681,7 @@ class ProjectController extends BaseController
 						{
 							logger.log( "Deleting [" + idsToDelete.length + "] files..." );
 
-							// Create the group query by getting each of the group ID's associated with the project						
+							// Create the group query by getting each of the group ID's associated with the project
 							var query = { $or: [] };
 							for ( var i = 0, l = idsToDelete.length; i < l; i++ )
 								query.$or.push( { _id: new mongodb.ObjectID( idsToDelete[i] ) });
@@ -2759,7 +2759,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves the HTML of the project
 	* @param {string} projectId The ID of the project
 	* @param {string} html The html of the project
@@ -2773,7 +2773,7 @@ class ProjectController extends BaseController
 		var that = this;
 		logger.log( "Saving html for project '" + projectId + "'", logger.LogType.ADMIN );
 
-		
+
 		UserController.singleton.loggedIn( function ( loggedIn: boolean, user: userModel.User )
 		{
 			// If not logged in then do nothing
@@ -2825,7 +2825,7 @@ class ProjectController extends BaseController
 								allowedTags: ( <any>sanitizeHtml ).defaults.allowedTags.concat( ["img", "h2"] ),
 								allowedAttributes: { div: ["class"], img: ["class", "src"], span: ["class"], p: ["class"], a: ["class"], ul: ["class"], ol: ["class"], li: ["class"], table: ["class"], pre: ["class"], code: ["class"], h1: ["class"], h2: ["class"], h3: ["class"], h4: ["class"], h5: ["class"], h6: ["class"], b: ["class"], i: ["class"], em: ["class"], strong: ["class"]  }
 							});
-							
+
 							Model.collections( "builds" ).update( { _id: build._id }, { $set: { html: html } }, function ( err: any, result: number )
 							{
 								if ( err )
@@ -2859,7 +2859,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves the CSS of the project
 	* @param {string} projectId The ID of the project
 	* @param {string} css The css of the project
@@ -2939,7 +2939,7 @@ class ProjectController extends BaseController
 								else
 									return viewJSON.render( { message: "CSS updated" }, request, response, viewJSON.ReturnType.SUCCESS );
 							});
-						});						
+						});
 
 					}, request, response );
 				}
@@ -2955,7 +2955,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves data into a collection based on an array of object ID's
 	* @param {string} collection The collection we are saving to
 	* @param {string} projectId The ID of the project
@@ -2976,7 +2976,7 @@ class ProjectController extends BaseController
 		}
 
 		var that = this;
-		
+
 		logger.log( "Saving " + collection +" for project '" + projectId + "'", logger.LogType.ADMIN );
 
 		// Make sure arrays match
@@ -3020,8 +3020,8 @@ class ProjectController extends BaseController
 						for ( var i = 0, l = ids.length; i < l; i++ )
 							if ( !validator.isValidObjectID( ids[i] ) )
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Some of the ID's provided are not in the correct format" ).processRequest( request, response, "" );
-						
-						 
+
+
 						var numAffected: number = 0;
 						var items = [];
 
@@ -3088,7 +3088,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves build data
 	* @param {string} projectId The id of the project
 	* @param {string} buildId The build we are updating
@@ -3174,7 +3174,7 @@ class ProjectController extends BaseController
 							updateToken.$set.css = ( css === undefined ? build.css : css );
 							updateToken.$set.html = ( html === undefined ? build.html : html );
 							updateToken.$set.visibility = ( visibility === undefined ? build.visibility : visibility );
-							
+
 							Model.collections( "builds" ).update( { _id: build._id }, updateToken, function ( err: any, numAffected: number )
 							{
 								if ( callback )
@@ -3198,7 +3198,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Saves file data
 	* @param {string} projectId The id of the project
 	* @param {string} fileId The file we are updating
@@ -3312,7 +3312,7 @@ class ProjectController extends BaseController
 
 
 
-	/** 
+	/**
 	* Imports a global file into a project
 	* @param {string} projectId The id of the project
 	* @param {Array<string>} ids The id's of the files to import
@@ -3323,7 +3323,7 @@ class ProjectController extends BaseController
 	importFiles( projectId: string, ids?: Array<string>, callback?: ( numAffected : number ) => void, request?: http.ServerRequest, response?: http.ServerResponse )
 	{
 		var that = this;
-		
+
 		logger.log( "Importing files for project '" + projectId + "'", logger.LogType.ADMIN );
 
 		UserController.singleton.loggedIn( function ( loggedIn: boolean, user: userModel.User )
@@ -3443,7 +3443,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Fetches objects by specifying a collection and list of ID's
 	* @param {string} collection The collection from where the objects need to be fetched
 	* @param {string} projectId The ID of the project
@@ -3496,13 +3496,13 @@ class ProjectController extends BaseController
 						for ( var i = 0, l = ids.length; i < l; i++ )
 							if ( !validator.isValidObjectID( ids[i] ) )
 								return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Some of the ID's provided are not in the correct format" ).processRequest( request, response, "" );
-					
-						// Create the file query by getting each of the file ID's associated with the project						
+
+						// Create the file query by getting each of the file ID's associated with the project
 						var query = { $or: [] };
 						for ( var i = 0, l = ids.length; i < l; i++ )
 							query.$or.push( { _id: new mongodb.ObjectID( ids[i] ) });
 
-						
+
 						Model.collections( collection ).find( query, function( err: any, cursor: mongodb.Cursor )
 						{
 							if ( err )
@@ -3546,7 +3546,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets an array of behaviours that are associated with a project
 	* @param {string} projectId The ID of the project
 	* @param {( behaviours: Array<behaviourModel.Behaviour> ) => void} callback The callback function
@@ -3577,7 +3577,7 @@ class ProjectController extends BaseController
 				else
 					return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Authentication is required to call this function" ).processRequest( request, response, "" );
 			}
-			
+
 			// Check for rights
 			that.checkPrivileges( user._id.toString(), projectId, projectModel.PrivilegeType.READ, function ( hasRights: boolean )
 			{
@@ -3637,7 +3637,7 @@ class ProjectController extends BaseController
 	/**
 	* Checks a project to see if a user has rights act on it. A reference 'access' is passed to test the level of rights.
 	* @param {string} userID The user id of the user we are getting privileges for
-	* @param {string} projectID The id of the project 
+	* @param {string} projectID The id of the project
 	* @param {projectModel.PrivilegeType} access The type of access we are checking for
 	* @param {( hasRights: boolean ) => void} callback Callback function called with a true or false answer
 	* @param {http.ServerRequest} request
@@ -3648,7 +3648,7 @@ class ProjectController extends BaseController
 		if ( userID.toString().trim() == "" || !validator.isValidObjectID( userID.toString().trim() ) ) return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Please specify a valid user" ).processRequest( request, response, "" );
 		if ( projectID.toString().trim() == "" || !validator.isValidObjectID( projectID.toString().trim() ) ) return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Please specify a valid project" ).processRequest( request, response, "" );
 		if ( access.toString().trim() == "" ) return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Please specify a valid access type" ).processRequest( request, response, "" );
-		
+
 		logger.log( "Getting user " + userID + "'s access on project " + projectID + "...", logger.LogType.ADMIN );
 
 		if ( userID == userModel.User.adminId.toString() )
@@ -3751,7 +3751,7 @@ class ProjectController extends BaseController
 				if ( callback )
 					return callback( hasAccess );
 				else
-					return new viewJSON.render( { hasPrivileges: hasAccess, message: ( hasAccess ? "User has rights" : "User does not have rights" ) }, request, response, viewJSON.ReturnType.SUCCESS );			
+					return new viewJSON.render( { hasPrivileges: hasAccess, message: ( hasAccess ? "User has rights" : "User does not have rights" ) }, request, response, viewJSON.ReturnType.SUCCESS );
 			});
 		}
 	}
@@ -3761,7 +3761,7 @@ class ProjectController extends BaseController
 	* Gives a user privileges to a project
 	* @param {Array<string>} ids An array of user ID's to set the
 	* @param {Array<projectModel.PrivilegeType>} access The type of access we are checking for
-	* @param {string} projectId The id of the project 	
+	* @param {string} projectId The id of the project
 	* @param {( hasRights: boolean ) => void} callback Callback function called with a true or false answer
 	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
@@ -3775,7 +3775,7 @@ class ProjectController extends BaseController
 		for ( var i = 0, l = ids.length; i < l; i++)
 			if ( !validator.isValidObjectID( ids[i] ) )
 				return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Please only use valid object ID's" ).processRequest( request, response, "" );
-		
+
 		var that = this;
 
 		UserController.singleton.loggedIn( function ( loggedIn: boolean, user: userModel.User )
@@ -3895,7 +3895,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets an array of projects that are owned by the logged in user. This function will only worked for users who are logged in.
 	* @param {number} limit The number of projects to fetch
 	* @param {number} startIndex The starting index from where we are fetching projects from
@@ -3930,7 +3930,7 @@ class ProjectController extends BaseController
 					],
 				}, {}, startIndex, limit, function ( err: any, result: mongodb.Cursor )
 			{
-				
+
 				var token: any;
 				if ( err || !result )
 				{
@@ -3954,7 +3954,7 @@ class ProjectController extends BaseController
 
 
 
-	/** 
+	/**
 	* This function is used to implement plugins in a project.
 	* @param {string} projectId The id of the project
 	* @param {Array<string>} plugins An array of plugin ID's in string format
@@ -3965,7 +3965,7 @@ class ProjectController extends BaseController
 	{
 		if ( !projectId )
 			return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "invalid input detected" ).processRequest( request, response, "" );
-		
+
 
 		var that = this;
 
@@ -3999,7 +3999,7 @@ class ProjectController extends BaseController
 		function implement( user: userModel.User, project: projectModel.Project )
 		{
 			logger.log( "Implementing plugins for project '" + projectId + "'", logger.LogType.ADMIN )
-			
+
 			Model.collections( "projects" ).update( { _id: project._id }, { $set: { plugins: plugins } }, function ( err: any, result: number )
 			{
 				if ( err )
@@ -4014,7 +4014,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Creates a new Project for the user that is currently logged in.
 	* @param {string} name The name of the project
 	* @param {string} description The An optional short description
@@ -4030,8 +4030,8 @@ class ProjectController extends BaseController
 
 		if ( !name || name == "" )
 			return new ErrorController( utils.ErrorCodes.INVALID_OPTION, "Project name cannot be null or empty" ).processRequest( request, response, "" );
-		
-		
+
+
 		// Check if the user is logged in
 		function isUserLoggedIn( loggedIn: boolean, user: userModel.User )
 		{
@@ -4050,7 +4050,7 @@ class ProjectController extends BaseController
 						if ( callback )
 							return callback( null, null );
 						else
-							return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );												
+							return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
 					}
 
 					if ( result >= user.maxProjects )
@@ -4065,7 +4065,7 @@ class ProjectController extends BaseController
 				});
 		};
 
-		// Once the build has been created		
+		// Once the build has been created
 		function onBuildCreated( build: buildModel.Build, user: userModel.User )
 		{
 			// Sanitize the fields
@@ -4102,11 +4102,11 @@ class ProjectController extends BaseController
 					if ( callback )
 						return callback( null, null );
 					else
-						return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err).processRequest( request, response, "" );					
+						return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err).processRequest( request, response, "" );
 				}
 
 				onProjectCreated( project, build, user );
-			});			
+			});
 		}
 
 		// Once the project has been created
@@ -4137,13 +4137,13 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets project related objects from the database
 	* @param {string} collection The collection we are fetching objects from
 	* @param {number} limit The number of objects to fetch
 	* @param {number} startIndex The starting index from where we are fetching objectss from
 	* @param {( projects: Array<any> ) => void} callback The function to call when objects are downloaded
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public getObjects( collection: string, limit: number = 0, startIndex: number = 0, callback?: ( projects: Array<any> ) => void, request?: http.ServerRequest, response?: http.ServerResponse )
@@ -4180,11 +4180,11 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Prints project objects from the database
 	* @param {number} limit The number of projects to fetch
 	* @param {number} startIndex The starting index from where we are fetching projects from
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public print( limit: number = 0, startIndex: number = 0, request?: http.ServerRequest, response?: http.ServerResponse ): void
@@ -4201,7 +4201,7 @@ class ProjectController extends BaseController
 				return viewJade.render( __dirname + "/../views/messages/error.jade", { message: "You do not have permissions to view this content" }, response );
 
 			that.getObjects( "projects", limit, startIndex, function ( projects: Array<projectModel.Project> )
-			{	
+			{
 				for ( var i = 0, l = projects.length; i < l; i++ )
 				{
 					// Before sending data to jade, we need to get a nicely formatted html of the privileges
@@ -4224,7 +4224,7 @@ class ProjectController extends BaseController
 					if ( projects[i].write_privileges.length > 0 )
 						privileges = privileges.substr( 0, privileges.length - 2 );
 					privileges += "</td></tr>";
-					
+
 					// Read
 					privileges += "<tr><td>Read: </td><td>";
 					for ( var ps = 0, psl = projects[i].read_privileges.length; ps < psl; ps++ )
@@ -4233,26 +4233,26 @@ class ProjectController extends BaseController
 					if ( projects[i].read_privileges.length > 0 )
 						privileges = privileges.substr( 0, privileges.length - 2 );
 					privileges += "</td></tr>";
-					
+
 
 					privileges += "</table>";
-					
+
 					( <any>projects[i] ).privilegesStr = privileges;
 				}
 				return viewJade.render( __dirname + "/../views/admin/projects/print-projects.jade", { projects: projects }, response );
 			}, null, null );
-			
+
 		}, request, response );
 	}
 
 
-	/** 
+	/**
 	* Fetches models from the DB and calls its respective jade template
 	* @param {number} collection The name of the collection to use
 	* @param {number} jadePath The path of the jade file we are using to draw the objects
 	* @param {number} limit The number of groups to fetch
 	* @param {number} startIndex The starting index from where we are fetching groups from
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public printGeneric( collection: string = "", jadePath: string = "", limit: number = 0, startIndex: number = 0, request?: http.ServerRequest, response?: http.ServerResponse ): void
@@ -4283,7 +4283,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets a chunk of users and their access to the project
 	* @param {number} index The index of where to fetch users from
 	* @param {number} limit The number of users to fetch
@@ -4324,7 +4324,7 @@ class ProjectController extends BaseController
 								return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Could not find the project with the id '" + projectId + "'" ).processRequest( request, response, "" );
 						}
 
-						// Get the users 
+						// Get the users
 						UserController.singleton.getUsers( limit, index, request, response, function ( users: Array<userModel.User> )
 						{
 							if ( !users )
@@ -4337,7 +4337,7 @@ class ProjectController extends BaseController
 
 							var toReturn: Array<{ userId: string; username: string; privilege: projectModel.PrivilegeType; }> = [];
 
-							
+
 
 							var read: string = projectModel.PrivilegeType.READ.toString();
 							var write: string = projectModel.PrivilegeType.WRITE.toString();
@@ -4382,7 +4382,7 @@ class ProjectController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Use this function to delete a project
 	* @param {string} id The ID of the project
 	* @param {(success : boolean ) => void} callback An optional callback function
@@ -4414,7 +4414,7 @@ class ProjectController extends BaseController
 			}
 
 			logger.log( "Removing project " + id + "...", logger.LogType.ADMIN );
-			
+
 			that.checkPrivileges( user._id.toString(), id, projectModel.PrivilegeType.ADMIN, function( hasRights: boolean )
 			{
 				if ( hasRights )
@@ -4425,7 +4425,7 @@ class ProjectController extends BaseController
 						{
 							if ( callback )
 								callback( false );
-							else				
+							else
 								return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Could not find the project with the id '" + id + "'" ).processRequest( request, response, "" );
 						}
 
@@ -4489,7 +4489,7 @@ class ProjectController extends BaseController
 
 					}, request, response );
 
-					
+
 				}
 				else
 					return new ErrorController( utils.ErrorCodes.INSUFFICIENT_ACCESS, "Insufficient access to delete project" ).processRequest( request, response, "" );

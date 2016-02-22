@@ -1,4 +1,4 @@
-﻿// Type definitions for Nodemailer
+// Type definitions for Nodemailer
 // Project: https://github.com/andris9/Nodemailer
 // Definitions by: Vincent Bortone <https://github.com/vbortone/>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped

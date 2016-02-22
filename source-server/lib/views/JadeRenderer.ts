@@ -1,11 +1,11 @@
 import http = require( "http" );
 import path = require( "path" );
-import fs = require( "fs" ); 
-import utils = require( "../Utils" ); 
+import fs = require( "fs" );
+import utils = require( "../Utils" );
 import jade = require( "jade" );
 
 
-/** 
+/**
 * Renders a jade file
 * @param {string} path The path the jade file
 * @param {any} jadeOptions Pass in an options object that can be potentially used by jade templates
@@ -20,7 +20,7 @@ export function render( path: string, jadeOptions: any, response: http.ServerRes
 	jadeOptions.version = utils.config.version;
 
 	var html: string = fn( jadeOptions );
-	
+
 	if ( response )
 	{
 		response.setHeader( "Content-Length", html.length.toString() );

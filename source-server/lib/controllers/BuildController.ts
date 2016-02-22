@@ -32,8 +32,8 @@ class BuildController extends BaseController
 	}
 
 
-	/** 
-	* Called whenever we need to process 
+	/**
+	* Called whenever we need to process
 	*/
 	processRequest( request: http.ServerRequest, response: http.ServerResponse, functionName: string )
 	{
@@ -62,7 +62,7 @@ class BuildController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Creates a new Project for the user that is currently logged in.
 	* @param {( users: buildModel.Build ) => void} callback Callback function with the build instance
 	* @param {http.ServerRequest} request
@@ -92,20 +92,20 @@ class BuildController extends BaseController
 						return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, err ).processRequest( request, response, "" );
 				}
 
-				logger.log( "Build created...", logger.LogType.SUCCESS );				
-				
+				logger.log( "Build created...", logger.LogType.SUCCESS );
+
 				if ( callback )
 					callback( result );
 				else
-					viewJSON.render( result, request, response, viewJSON.ReturnType.SUCCESS ); 
-			});			
+					viewJSON.render( result, request, response, viewJSON.ReturnType.SUCCESS );
+			});
 		};
 
 		UserController.singleton.loggedIn( isUserLoggedIn, request, response );
 	}
 
 
-	/** 
+	/**
 	* Executes the build based on the URL and token provided
 	* @param {string} buildId The id of the build we want to run
 	* @param {string} token The token key for viewing the content
@@ -127,7 +127,7 @@ class BuildController extends BaseController
 			{
 				if ( err )
 					return viewJade.render( __dirname + "/../views/messages/error.jade", { message: "A database error has occurred" }, response );
-						
+
 				if ( !build )
 					return viewJade.render( __dirname + "/../views/messages/error.jade", { message: "Could not find build" }, response );
 
@@ -148,9 +148,9 @@ class BuildController extends BaseController
 				}
 
 				// Not logged and private, do nothing
-				if ( loggedIn == false && build.visibility == buildModel.BUILD_VISIBILITY.PRIVATE )				
+				if ( loggedIn == false && build.visibility == buildModel.BUILD_VISIBILITY.PRIVATE )
 					return viewJade.render( __dirname + "/../views/messages/error.jade", { message: "Build is not public" }, response );
-							
+
 				// logged and private - so check if they can see it
 				else if ( loggedIn && build.visibility == buildModel.BUILD_VISIBILITY.PRIVATE )
 				{
@@ -164,21 +164,21 @@ class BuildController extends BaseController
 
 					}, request, response );
 				}
-				// Public 
+				// Public
 				else
-					render();				
-						
+					render();
+
 			});
 
 		}, request, response );
 	}
 
 
-	/** 
+	/**
 	* Prints the builds currently stored in the database
 	* @param {number} limit The number of builds to fetch
 	* @param {number} startIndex The starting index from where we are fetching builds from
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	printBuilds( limit: number = 0, startIndex: number = 0, request?: http.ServerRequest, response?: http.ServerResponse )

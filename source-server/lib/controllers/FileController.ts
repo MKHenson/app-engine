@@ -49,8 +49,8 @@ class FileController extends BaseController
 	}
 
 
-	/** 
-	* Called whenever we need to process 
+	/**
+	* Called whenever we need to process
 	*/
 	processRequest( request: http.ServerRequest, response: http.ServerResponse, functionName: string )
 	{
@@ -121,7 +121,7 @@ class FileController extends BaseController
 	* @param {string} id The ID of the file we are filling
 	* @param {string} projectId The id of the project creating this file
 	* @param {( file: fileModel.File ) => void} callback The function to call when the file is created
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public fillFile( id: string, projectId: string, callback?: ( projects: fileModel.File ) => void, request?: http.ServerRequest, response?: http.ServerResponse )
@@ -250,7 +250,7 @@ class FileController extends BaseController
 
 	/**
 	* Use this function to generate a random file name
-	* @param {number} length The length of the name. 
+	* @param {number} length The length of the name.
 	* @returns {string}
 	*/
 	generateFileName( length: number ): string
@@ -264,12 +264,12 @@ class FileController extends BaseController
 		return text;
 	}
 
-	/** 
+	/**
 	* Creates a blank data file for a given user
 	* @param {string} name The name of the new file (This is not a file name - filenames are automatically generated)
 	* @param {string} projectId The id of the project creating this file
 	* @param {( file: fileModel.File ) => void} callback The function to call when the file is created
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public createEmptyFile( name: string, projectId: string, callback?: ( projects: fileModel.File ) => void, request?: http.ServerRequest, response?: http.ServerResponse )
@@ -335,7 +335,7 @@ class FileController extends BaseController
 								break;
 							}
 						}
-						
+
 						// Create the file
 						var file: fileModel.File = new fileModel.File( user._id );
 						file.name = name;
@@ -378,12 +378,12 @@ class FileController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets the files stored in the database
 	* @param {number} limit The number of files to fetch
 	* @param {number} startIndex The starting index from where we are fetching files from
 	* @param {( files: Array<fileModel.File> ) => void} callback The function to call when objects are downloaded
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public getFiles( limit: number = 0, startIndex: number = 0, callback?: ( projects: Array<fileModel.File> ) => void, request?: http.ServerRequest, response?: http.ServerResponse )
@@ -412,7 +412,7 @@ class FileController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Gets, or creates if neccessary, the user's upload directory
 	* @param {userModel.User} user The user we are getting the directory for
 	* @returns {string}
@@ -433,12 +433,12 @@ class FileController extends BaseController
 		return directory;
 	}
 
-	
+
 	/**
 	* Helper function. Looks at the request and uploads the files to the user's personal file directory.
 	* @param {userModel.User} user The user associated with this upload
 	* @param {(err: any, files : Array<formidable.IFormidableFile>) => void} callback The function to call when objects are downloaded
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	public uploadUserFile( mulitUploader : boolean, user: userModel.User, callback: ( err: any, files : Array<formidable.IFormidableFile> ) => void, request: http.ServerRequest, response: http.ServerResponse )
@@ -446,7 +446,7 @@ class FileController extends BaseController
 		try
 		{
 			// User Directory
-			var userUploadDir: string = this.getUserDirectory( user );			
+			var userUploadDir: string = this.getUserDirectory( user );
 			var form = new formidable.IncomingForm( { multiples: mulitUploader, uploadDir: userUploadDir, keepExtensions: true });
 			var files: Array<formidable.IFormidableFile> = [];
 
@@ -486,7 +486,7 @@ class FileController extends BaseController
 
 
 
-	/** 
+	/**
 	* Uploads a project image
 	* @param {string} projectId The ID of the project
 	* @param {(numUpdated : number) => void} callback The callback function
@@ -548,7 +548,7 @@ class FileController extends BaseController
 							// Delete any current thumbnails
 							if ( fs.existsSync( proj.imagePath ) )
 								fs.unlinkSync( proj.imagePath );
-							
+
 							// Get the current thumbnail
 							Model.collections( "projects" ).update( { _id: proj._id }, { $set: { imagePath: path, image: url } }, function ( err: any, numAffected: number )
 							{
@@ -559,7 +559,7 @@ class FileController extends BaseController
 									else
 										return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
 								}
-																
+
 
 								logger.log( "File uploaded and project updated!", logger.LogType.SUCCESS );
 
@@ -584,7 +584,7 @@ class FileController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Uploads a user avatar image
 	* @param {(numUpdated : number) => void} callback The callback function
 	* @param {http.ServerRequest} request
@@ -603,7 +603,7 @@ class FileController extends BaseController
 					return callback( null );
 				else
 					return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Authentication is required to call this function" ).processRequest( request, response, "" );
-			}		
+			}
 
 			logger.log( "Uploading avatar for user '" + user._id.toString(), logger.LogType.ADMIN );
 
@@ -630,7 +630,7 @@ class FileController extends BaseController
 				// Delete the current avatar
 				if ( fs.existsSync( user.imagePath ) )
 					fs.unlinkSync( user.imagePath );
-				
+
 				// Update the file entry
 				Model.collections( "users" ).update( { _id: user._id }, { $set: { imagePath: path, image: url } }, function( err: any, numAffected: number )
 				{
@@ -650,13 +650,13 @@ class FileController extends BaseController
 						return viewJSON.render( { imageUrl: url, message: "Avatar successfully uploaded" }, request, response, viewJSON.ReturnType.SUCCESS );
 				});
 			}
-		
+
 		}, request, response );
 	}
 
 
 
-	/** 
+	/**
 	* Uploads a file thumbnail
 	* @param {string} projectId The ID of the project
 	* @param {string} fileId The ID of the file
@@ -783,8 +783,8 @@ class FileController extends BaseController
 	}
 
 
-	/** 
-	* Uploads a series of files for a user 
+	/**
+	* Uploads a series of files for a user
 	* @param {string} projectId The ID of the project
 	* @param {(files: Array<fileModel.File>)=>void} callback The callback function
 	* @param {http.ServerRequest} request
@@ -797,9 +797,9 @@ class FileController extends BaseController
 
 
 		logger.log( "Uploading file for project '" + projectId + "'", logger.LogType.ADMIN );
-		
+
 		UserController.singleton.loggedIn( function ( loggedIn: boolean, user: userModel.User )
-		{			
+		{
 			// If not logged in then do nothing
 			if ( !loggedIn )
 			{
@@ -808,7 +808,7 @@ class FileController extends BaseController
 				else
 					return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, "Authentication is required to call this function" ).processRequest( request, response, "" );
 			}
-			
+
 			// Check for rights
 			projController.checkPrivileges( user._id.toString(), projectId, projectModel.PrivilegeType.WRITE, function ( hasRights: boolean )
 			{
@@ -883,7 +883,7 @@ class FileController extends BaseController
 
 									if ( callback )
 										callback( savedFiles )
-									else										
+									else
 										return viewJSON.render( { message : "Files successfully uploaded" }, request, response, viewJSON.ReturnType.SUCCESS );
 									return;
 								}
