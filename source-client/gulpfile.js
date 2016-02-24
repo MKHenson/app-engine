@@ -9,6 +9,7 @@ var filter = require('gulp-filter');
 var print = require('gulp-print');
 var merge = require('merge-stream');
 var fs = require('fs');
+var download = require('gulp-download');
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -177,6 +178,20 @@ gulp.task('ts-code-release', function() {
 
 gulp.task('watch', function () {
     gulp.watch('lib/**/*.ts', ['ts-code']);
+});
+
+/**
+ * Use this task to install all third-party libraries from github and their respective authors
+ */
+gulp.task('install-definitions', function () {
+    merge(
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery/jquery.d.ts"),
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jqueryui/jqueryui.d.ts"),
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts"),
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/es6-promise/es6-promise.d.ts"),
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery.scrollTo/jquery.scrollTo.d.ts"),
+        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/grecaptcha/grecaptcha.d.ts"))
+            .pipe(gulp.dest("definitions/"));
 });
 
 gulp.task('build-all', ['html', 'media', 'ts-code', 'ts-code-declaration', 'bower','css']);
