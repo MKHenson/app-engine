@@ -10,7 +10,6 @@
         "jscolor": "git://github.com/EastDesire/jscolor.git#v1.4.5",
         "jstepper": "git://github.com/EmKayDK/jstepper.git#v1.5.0",
         "ace": "git://github.com/ajaxorg/ace-builds#v1.2.3",
-        "jquery.scrollTo": "~2.1.2",
-        "google-recptcha-api": "https://www.gstatic.com/recaptcha/api2/r20160216085053/recaptcha__en.js"
+        "jquery.scrollTo": "~2.1.2"
     }
 }
