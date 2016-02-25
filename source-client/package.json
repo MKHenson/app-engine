@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "The client side code for App Engine. ",
   "main": "gulpfile.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Mathew Henson",
   "license": "ISC",
   "devDependencies": {
@@ -18,6 +15,11 @@
     "gulp-filter": "~3.0.1",
     "gulp-print": "~2.0.1",
     "merge-stream": "~1.0.0",
-    "gulp-download": "~0.0.1"
+    "gulp-download": "~0.0.1",
+    "gulp-gunzip": "~0.0.3",
+    "request": "~2.69.0",
+    "vinyl-source-stream": "~1.1.0",
+    "gulp-untar": "~0.0.4",
+    "mv": "~2.1.1"
   }
 }

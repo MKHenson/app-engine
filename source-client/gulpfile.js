@@ -10,6 +10,11 @@ var print = require('gulp-print');
 var merge = require('merge-stream');
 var fs = require('fs');
 var download = require('gulp-download');
+var gunzip = require('gulp-gunzip');
+var request = require('request');
+var source = require('vinyl-source-stream')
+var untar = require('gulp-untar');
+var mv = require('mv');
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -180,18 +185,41 @@ gulp.task('watch', function () {
     gulp.watch('lib/**/*.ts', ['ts-code']);
 });
 
+function downloadClient(url, folder){
+    return request(url)
+        .pipe(source('hello.tar.gz'))
+        .pipe(gunzip())
+        .pipe(untar())
+        //.pipe(filter( ['**/*.*']))
+        //.pipe(rebase('1^'))
+        //.pipe(flatten({ includeParents: [1, 1]} ))
+        .pipe(gulp.dest(folder))
+        .on('end', function() {
+            var folders = fs.readdirSync(folder)
+            var fs.readdirSync(folder)
+            mv(folder + '/' + folders[0], folder, {mkdirp: true}, function(err) {
+                // done. it first created all the necessary directories, and then
+                // tried fs.rename, then falls back to using ncp to copy the dir
+                // to dest and then rimraf to remove the source dir
+                });
+        })
+}
+
 /**
  * Use this task to install all third-party libraries from github and their respective authors
  */
 gulp.task('install-definitions', function () {
-    merge(
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery/jquery.d.ts"),
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jqueryui/jqueryui.d.ts"),
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts"),
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/es6-promise/es6-promise.d.ts"),
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery.scrollTo/jquery.scrollTo.d.ts"),
-        download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/grecaptcha/grecaptcha.d.ts"))
-            .pipe(gulp.dest("definitions/"));
+
+    downloadClient("https://github.com/ajaxorg/ace-builds/tarball/v1.2.3", './third-party/ace')
+
+    // merge(
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery/jquery.d.ts"),
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jqueryui/jqueryui.d.ts"),
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts"),
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/es6-promise/es6-promise.d.ts"),
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery.scrollTo/jquery.scrollTo.d.ts"),
+    //     download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/grecaptcha/grecaptcha.d.ts"))
+    //         .pipe(gulp.dest("definitions/"));
 });
 
 gulp.task('build-all', ['html', 'media', 'ts-code', 'ts-code-declaration', 'bower','css']);
