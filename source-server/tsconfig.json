@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": false,
+    "preserveConstEnums": true,
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "outDir": "dist"
+  },
+  "files": [
+      "lib/references.d.ts",
+      "lib/new-controllers/BuildController.ts",
+      "lib/new-controllers/FileController.ts",
+      "lib/new-controllers/PermissionController.ts",
+      "lib/new-controllers/PluginController.ts",
+      "lib/new-controllers/ProjectController.ts",
+      "lib/new-controllers/ResourceController.ts",
+      "lib/new-controllers/UserDetailsController.ts",
+      "lib/new-models/AssetModel.ts",
+      "lib/new-models/BuildModel.ts",
+      "lib/new-models/ContainerModel.ts",
+      "lib/new-models/FileModel.ts",
+      "lib/new-models/GroupModel.ts",
+      "lib/new-models/PluginModel.ts",
+      "lib/new-models/ProjectModel.ts",
+      "lib/new-models/ScriptModel.ts",
+      "lib/new-models/UserDetailsModel.ts",
+      "lib/AppEngine.ts"
+  ]
+}

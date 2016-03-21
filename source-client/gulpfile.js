@@ -15,6 +15,7 @@ var request = require('request');
 var source = require('vinyl-source-stream')
 var untar = require('gulp-untar');
 var gutil = require('gulp-util');
+var rename = require('gulp-rename');
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -28,7 +29,9 @@ var outDir = "dist";
 var tsProject = ts.createProject('tsconfig.json', { sortOutput: true });
 var target = gulp.src('./lib/index.html');
 
-// Adds the relevant bower files to the index html
+/**
+ * Adds the relevant bower files to the index html
+ */
 gulp.task('bower', function() {
 
     var sources = gulp.src([
@@ -66,7 +69,9 @@ gulp.task('bower', function() {
         .pipe(gulp.dest(outDir));
 });
 
-// Adds all HTML files to the temp/index.html
+/**
+ * Adds all HTML files to the temp/index.html
+ */
 gulp.task('html', function() {
     var sources = gulp.src(['./lib/**/*.html', '!./lib/**/index.html']);
 
@@ -78,7 +83,9 @@ gulp.task('html', function() {
         .pipe(gulp.dest(outDir));
 });
 
-// Copy all the media into the output folder
+/**
+ * Copy all the media into the output folder
+ */
 gulp.task('media', function() {
 
     // Compile all sass files into temp/css
@@ -86,7 +93,9 @@ gulp.task('media', function() {
         .pipe(gulp.dest(outDir + '/media'));
 });
 
-// Compile all sass files to css and add to the index html
+/**
+ * Compile all sass files to css and add to the index html
+ */
 gulp.task('css', function() {
 
     // Compile all sass files into temp/css
@@ -107,7 +116,7 @@ gulp.task('css', function() {
 /**
  * Checks to see that all TS files listed exist
  */
-gulp.task('check-files', function(){
+gulp.task('check-files', function() {
 
     // Make sure the files exist
     for (var i = 0, l = tsFiles.length; i < l; i++ )
@@ -118,7 +127,9 @@ gulp.task('check-files', function(){
         }
 })
 
-// Concatenates and builds all TS code into a single file
+/**
+ * Concatenates and builds all TS code into a single file
+ */
 gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
@@ -135,7 +146,9 @@ gulp.task('ts-code', function() {
         .pipe(gulp.dest(outDir + '/js'));
 });
 
-// Builds the definition
+/**
+ * Builds the definition
+ */
 gulp.task('ts-code-declaration', function() {
 
     var requiredDeclarationFiles = gulp.src([
@@ -166,7 +179,9 @@ gulp.task('ts-code-declaration', function() {
         .pipe(gulp.dest('../common-definitions/generated'));
 });
 
-// Concatenates and builds all TS code into a single file
+/**
+ * Concatenates and builds all TS code into a single file
+ */
 gulp.task('ts-code-release', function() {
 
     var jsFiles = tsProject.src()
@@ -184,10 +199,10 @@ gulp.task('ts-code-release', function() {
         .pipe(gulp.dest(outDir + '/js'));
 });
 
-gulp.task('watch', function () {
-    gulp.watch('lib/**/*.ts', ['ts-code']);
-});
-
+/**
+ * Deletes a folder and all its children recursively
+ * @param {string} path The folder path to remove
+ */
 function deleteFolderRecursive(path) {
     if( fs.existsSync(path) ) {
         fs.readdirSync(path).forEach(function(file,index){
@@ -249,17 +264,32 @@ gulp.task('install-third-parties', function () {
 });
 
 /**
+ * This function downloads a definition file from github and writes it to a destination
+ * @param {string} url The url of the file to download
+ * @param {string} dest The destination folder to move the file to
+ */
+function getDefinition(url, dest, name) {
+    return new Promise(function(resolve, reject) {
+        download(url)
+            .pipe(rename(name))
+            .pipe(gulp.dest(dest))
+            .on('error', function(err) {
+                throw(err)
+            })
+            .on('end', function() {
+                resolve(true);
+            })
+    });
+}
+
+/**
  * Downloads the definition files used in the development of the application and moves them into the definitions folder
  */
 gulp.task('install-definitions', function () {
-     return merge(
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery/jquery.d.ts"),
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jqueryui/jqueryui.d.ts"),
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts"),
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/es6-promise/es6-promise.d.ts"),
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/jquery.scrollTo/jquery.scrollTo.d.ts"),
-         download("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/grecaptcha/grecaptcha.d.ts"))
-             .pipe(gulp.dest("lib/definitions/required"));
+     return Promise.all([
+            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
+            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+         ]);
 });
 
 /**
