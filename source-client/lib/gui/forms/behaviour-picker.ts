@@ -20,14 +20,10 @@ module Animate
 
 		constructor()
 		{
-			if ( BehaviourPicker._singleton != null )
-				throw new Error( "The BehaviourPicker class is a singleton. You need to call the BehaviourPicker.get() function." );
-
-			BehaviourPicker._singleton = this;
-
-			// Call super-class constructor
+            // Call super-class constructor
 			super( 200, 250 );
 
+			BehaviourPicker._singleton = this;
             this.element.addClass( "tooltip-text-bg" );
 			this.element.addClass( "behaviour-picker" );
 

@@ -3938,7 +3938,6 @@ class ProjectController extends BaseController
 						return callback( null );
 					else
 						return new ErrorController( utils.ErrorCodes.DATABASE_ERROR, err ).processRequest( request, response, "" );
-					return;
 				}
 
 				result.toArray( function ( err: any, results: Array<projectModel.Project> )

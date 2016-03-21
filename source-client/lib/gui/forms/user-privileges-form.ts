@@ -13,13 +13,10 @@ module Animate
 
 		constructor()
 		{
-			if ( UserPrivilegesForm._singleton != null )
-				throw new Error( "The UserPrivilegesForm class is a singleton. You need to call the UserPrivilegesForm.get() function." );
+            // Call super-class constructor
+			super( 450, 600, true, true, "User Privileges" );
 
 			UserPrivilegesForm._singleton = this;
-
-			// Call super-class constructor
-			super( 450, 600, true, true, "User Privileges" );
 
 			this.content.element.addClass("user-privileges-content");
 			var top: Component = <Component>this.content.addChild( "<div class='top'></div>" );

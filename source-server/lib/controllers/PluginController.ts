@@ -29,8 +29,8 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
-	* Called whenever we need to process 
+	/**
+	* Called whenever we need to process
 	*/
 	processRequest( request: http.ServerRequest, response: http.ServerResponse, functionName: string )
 	{
@@ -43,7 +43,6 @@ class PluginController extends BaseController
 			{
 				case "get-plugins":
 					return that.getPlugins( null, request, response );
-					break;
 			}
 
 			// Check if the user is logged in
@@ -91,7 +90,7 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Deletes a plugin by ID
 	* @param {string} id The ID of the plugin
 	* @param {( result: number ) => void} callback Callback function with the model result
@@ -126,7 +125,7 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Creates a new plugin. Only allowed users who have admin access
 	* @param {( users: modelPlugin.Plugin ) => void} callback Callback function with the plugin instance
 	* @param {http.ServerRequest} request
@@ -160,15 +159,15 @@ class PluginController extends BaseController
 			}
 
 			logger.log( "Plugin created...", logger.LogType.SUCCESS );
-				
+
 			if ( callback )
 				callback( result );
 			else
-				viewJSON.render( result, request, response, viewJSON.ReturnType.SUCCESS ); 
+				viewJSON.render( result, request, response, viewJSON.ReturnType.SUCCESS );
 		});
 	}
 
-	/** 
+	/**
 	* Updates a new plugin. Only allowed users who have admin access
 	* @param {( users: modelPlugin.Plugin ) => void} callback Callback function with the build instance
 	* @param {http.ServerRequest} request
@@ -191,7 +190,7 @@ class PluginController extends BaseController
 					return callback( null );
 				else
 					return new ErrorController( utils.ErrorCodes.AUTHENTICATION_REQUIRED, err ).processRequest( request, response, "" );
-			}			
+			}
 
 			logger.log( "Plugin updated...", logger.LogType.SUCCESS );
 
@@ -203,7 +202,7 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Adds a new file to be deployed for a plugin
 	* @param {string} file The file to add
 	* @param {string} plugin The file to add
@@ -217,7 +216,7 @@ class PluginController extends BaseController
 
 		if ( !pluginId || pluginId.toString().trim() == "" || !validator.isValidObjectID( pluginId ) )
 			return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "You must provide a valid plugin id" ).processRequest( request, response, "" );
-		
+
 		if ( !file || file.toString().trim() == "" )
 			return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "You must provide a valid file" ).processRequest( request, response, "" );
 
@@ -259,7 +258,7 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Removes a file to be deployed from a plugin
 	* @param {string} file The file to add
 	* @param {string} plugin The file to add
@@ -296,7 +295,7 @@ class PluginController extends BaseController
 					return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "Could not find plugin" ).processRequest( request, response, "" );
 			}
 
-			
+
 			if ( !plugin.deployables )
 			{
 				if ( callback )
@@ -304,7 +303,7 @@ class PluginController extends BaseController
 				else
 					return viewJSON.render( { message: "No deployables found" }, request, response, viewJSON.ReturnType.SUCCESS );
 			}
-		
+
 			var updateToken = { $pull: { deployables: file } };
 
 			Model.collections( "plugins" ).update( { _id: plugin._id }, updateToken, function ( err: any, numUpdated: number )
@@ -320,11 +319,11 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Prints the plugins currently stored in the database
 	* @param {number} limit The number of builds to fetch
 	* @param {number} startIndex The starting index from where we are fetching builds from
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	printPlugins( limit: number = 0, startIndex: number = 0, request?: http.ServerRequest, response?: http.ServerResponse )
@@ -342,10 +341,10 @@ class PluginController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Fetches an array of plugins
 	* @param {( plugins: Array<modelPlugin.Plugin>) => void} callback The function to call when plugins have been collated
-	* @param {http.ServerRequest} request 
+	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response
 	*/
 	getPlugins( callback: ( plugins: Array<modelPlugin.Plugin>) => void, request?: http.ServerRequest, response?: http.ServerResponse )

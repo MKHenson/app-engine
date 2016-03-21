@@ -39,11 +39,12 @@ module Animate
         */
         constructor()
         {
+            // Call super-class constructor
+            super(1000, 600, true, true, "Asset Browser");
+
             FileViewer._singleton = this;
             var that = this;
 
-            // Call super-class constructor
-            super(1000, 600, true, true, "Asset Browser");
             this.element.attr("id", "file-viewer-window");
 
             this._browserElm = jQuery("#file-viewer").remove().clone();

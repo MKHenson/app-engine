@@ -7,11 +7,11 @@ module Animate
 
         constructor(parent: Component, property: Prop<any>, portalType: PortalType = PortalType.INPUT)
 		{
-			this._portalType = portalType;
-            this._property = property;
-
 			// Call super-class constructor
             super(parent, (property ? property.name : "Portal"));
+
+            this._portalType = portalType;
+            this._property = property;
 
             this.element.addClass("behaviour-portal");
 

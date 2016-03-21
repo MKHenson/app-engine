@@ -82,7 +82,7 @@
                 return;
             }
 
-            this._editor.off("change", this._proxyChange);
+            this._editor.removeEventListener("change", this._proxyChange);
             this._editor.destroy();
             this._editor = null;
             this._proxyChange = null;
@@ -134,7 +134,7 @@
                 exec: function () { that.save(); }
             });
 
-            editor.on("change", this._proxyChange);
+            editor.addEventListener("change", this._proxyChange);
         }
 
         /**

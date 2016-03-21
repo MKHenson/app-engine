@@ -12,17 +12,17 @@ import {IProject} from "engine";
 export class PermissionController extends Controller
 {
     public static singleton: PermissionController;
-    
+
 	/**
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        PermissionController.singleton = this;
         super([new ProjectModel(), new UserDetailsModel()]);
+        PermissionController.singleton = this;
     }
 
     /**
@@ -30,11 +30,11 @@ export class PermissionController extends Controller
     * @param {IUserEntry} user
     */
     projectsWithinLimits(user: UsersInterface.IUserEntry): Promise<boolean>
-    {        
+    {
         // If an admin - then the user can create a new projec regardless
         if (user.privileges < 3)
             return Promise.resolve(true);
-        
+
         var that = this;
 
         // Get the details

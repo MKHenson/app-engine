@@ -11,10 +11,11 @@ module Animate
 		{
             var text: string = (container.entry.name !== undefined ? container.entry.name : "Instance" );
 
-			this._container = container;
-
 			// Call super-class constructor
 			super( parent, text );
+
+            this._container = container;
+
 			this.element.addClass( "behaviour-instance" );
 
    //         if (container)

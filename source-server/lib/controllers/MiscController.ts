@@ -22,8 +22,8 @@ class MiscController extends BaseController
 	}
 
 
-	/** 
-	* Called whenever we need to process 
+	/**
+	* Called whenever we need to process
 	*/
 	processRequest( request: http.ServerRequest, response: http.ServerResponse, functionName: string )
 	{
@@ -36,7 +36,6 @@ class MiscController extends BaseController
 			{
 				case "get-news-tab":
 					return that.getNewsTab( request, response );
-					break;
 				default:
 					new ErrorController( utils.ErrorCodes.INVALID_INPUT, "No function specified" ).processRequest( request, response, functionName );
 					break;
@@ -45,7 +44,7 @@ class MiscController extends BaseController
 	}
 
 
-	/** 
+	/**
 	* Fetches the Iframe HTML for displaying news in Animate
 	* @param {http.ServerRequest} request
 	* @param {http.ServerResponse} response

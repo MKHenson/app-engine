@@ -15,14 +15,10 @@ module Animate
 			{
 				case AnimateLoaderResponses.ERROR.toString():
 					return AnimateLoaderResponses.ERROR;
-					break;
 				case AnimateLoaderResponses.SUCCESS.toString():
 				default:
 					return AnimateLoaderResponses.SUCCESS;
-					break;
 			}
-
-			return null;
 		}
 	}
 

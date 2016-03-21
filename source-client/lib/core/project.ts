@@ -213,7 +213,7 @@ module Animate
                 for (var t in types)
                     for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[t].array, l = arr.length; i < l; i++)
                         if (arr[i].entry._id == id)
-                            return { resource: <T>arr[i], type: t };
+                            return { resource: <T>arr[i], type: <ResourceType>parseInt(t) };
             }
 
             return null;
@@ -755,7 +755,7 @@ module Animate
                     {
                         if (arr[k].entry._id == ids)
                         {
-                            promises.push(this.deleteResource(arr[k].entry._id, t));
+                            promises.push(this.deleteResource(arr[k].entry._id, <ResourceType>parseInt(t) ));
                             break;
                         }
                     }
@@ -780,7 +780,7 @@ module Animate
         {
             var promises: Array<Promise<boolean>> = [];
             for (var i in this._restPaths)
-                promises.push(this.saveResources(i));
+                promises.push(this.saveResources( <ResourceType>parseInt(i) ));
 
             return new Promise<boolean>(function (resolve, reject)
             {

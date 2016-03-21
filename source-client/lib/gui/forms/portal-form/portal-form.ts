@@ -28,10 +28,11 @@ module Animate
 
 		constructor()
         {
+            // Call super-class constructor
+			super( 400, 250, true, true, "Portal Editor" );
+
             PortalForm._singleton = this;
 
-			// Call super-class constructor
-			super( 400, 250, true, true, "Portal Editor" );
             this.element.addClass("portal-form");
             this.element.css("height", "");
 

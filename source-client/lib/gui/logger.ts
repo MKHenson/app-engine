@@ -22,13 +22,10 @@ module Animate
 
 		constructor( parent: Component )
 		{
-			if ( Logger._singleton != null )
-			 	throw new Error( "The Logger class is a singleton. You need to call the Logger.getSingleton() function." );
+            // Call super-class constructor
+			super( parent );
 
 			Logger._singleton = this;
-
-			// Call super-class constructor
-			super( parent );
 
 			this.element.addClass( "logger" );
 

@@ -402,8 +402,8 @@
 
         constructor(e: ToolbarNumberEvents, value: number)
         {
-            this.value = value;
             super(e, null);
+            this.value = value;
         }
     }
 
@@ -413,8 +413,8 @@
 
         constructor(item: ToolbarItem, e: EventType)
         {
-            this.item = item;
             super(e, null);
+            this.item = item;
         }
 
         dispose()
@@ -457,8 +457,8 @@
 
         constructor(eventName: CanvasEvents, canvas: Canvas)
         {
-            this.canvas = canvas;
             super(eventName, canvas);
+            this.canvas = canvas;
         }
     }
 
@@ -493,8 +493,8 @@
         public resource: T;
         constructor(type: string, resource: T)
         {
-            this.resource = resource;
             super(type, null);
+            this.resource = resource;
         }
     }
 

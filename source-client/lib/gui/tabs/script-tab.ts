@@ -26,14 +26,13 @@ module Animate
 
 		constructor( scriptNode: BehaviourScript )
 		{
+            var originalName = scriptNode.id + " - " + scriptNode.alias;
+            super( null, null, originalName );
+
 			// Call super-class constructor
-			this.originalName = scriptNode.id + " - " + scriptNode.alias;
-			super( null, null, this.originalName );
-
+			this.originalName = originalName;
 			this.scriptNode = scriptNode;
-
 			this.proxyFunctionClick = this.OnFunctionClick.bind( this );
-
 
 			this.saved = true;
 			this.close = false;
@@ -196,7 +195,7 @@ module Animate
 				};
 
 			//Text change
-			editor.on( "change", onChange );
+			editor.addEventListener( "change", onChange );
 
 			//Get the current scripts
 			loader.on( LoaderEvents.COMPLETE, onServer );

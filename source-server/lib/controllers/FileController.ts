@@ -80,7 +80,6 @@ class FileController extends BaseController
 				{
 					case "create-empty-file":
 						return that.createEmptyFile( options["name"], options["projectId"], null, request, response );
-						break;
 				}
 			}, request, response );
 		}
@@ -94,19 +93,14 @@ class FileController extends BaseController
 				{
 					case "upload-file":
 						return that.uploadFile( options["projectId"], null, request, response );
-						break;
 					case "upload-user-avatar":
 						return that.uploadUserAvatar( null, request, response );
-						break;
 					case "upload-project-image":
 						return that.uploadProjectImage( options["projectId"], null, request, response );
-						break;
 					case "upload-thumb":
 						return that.uploadFileThumbnail( options["projectId"], options["fileId"], null, request, response );
-						break;
 					default:
 						return new ErrorController( utils.ErrorCodes.INVALID_INPUT, "No function specified" ).processRequest( request, response, functionName );
-						break;
 				}
 
 			}, request, response );

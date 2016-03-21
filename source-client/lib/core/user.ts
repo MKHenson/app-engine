@@ -95,8 +95,6 @@ module Animate
                         return resolve(false);
                     }
 
-                    return resolve(data.authenticated);
-
                 }).then(function (data: ModepressAddons.IGetDetails)
                 {
                     if (data.error)

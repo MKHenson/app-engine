@@ -30,6 +30,10 @@ module Animate
 			else
 				img = "";
 
+            // Call super-class constructor
+            super("<div class='tree-node'><div class='selectable'>" + (hasExpandButton ? "<div class='tree-node-button'>+</div>" : "") + img + "<div class='buffering'><img src='media/buffering-gray.png' class='rotate-360 gray' /><img src='media/buffering-white.png' class='rotate-360 white' /></div><span class='text'>" + text + "</span><div class='fix'></div></div></div>", null );
+			(<any>this.element).disableSelection( true );
+
 			this.mText = text;
 			this._expanded = false;
             this.hasExpandButton = hasExpandButton;
@@ -37,9 +41,7 @@ module Animate
             this._loading = false;
             this._modifiedStar = jQuery("<span>*</span>");
 
-			// Call super-class constructor
-            super("<div class='tree-node'><div class='selectable'>" + (this.hasExpandButton ? "<div class='tree-node-button'>+</div>" : "") + img + "<div class='buffering'><img src='media/buffering-gray.png' class='rotate-360 gray' /><img src='media/buffering-white.png' class='rotate-360 white' /></div><span class='text'>" + this.mText + "</span><div class='fix'></div></div></div>", null );
-			(<any>this.element).disableSelection( true );
+
 
 			jQuery( ".tree-node-button", this.element ).first().css( "visibility", "hidden" );
 

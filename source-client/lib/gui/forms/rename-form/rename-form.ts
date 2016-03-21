@@ -20,10 +20,10 @@ module Animate
 
 		constructor()
 		{
-			RenameForm._singleton = this;
-
-			// Call super-class constructor
+            // Call super-class constructor
             super(400, 250, false, true, "Please enter a name");
+
+			RenameForm._singleton = this;
             this.element.addClass("rename-form");
             this.element.css("height", "");
 

@@ -16,13 +16,10 @@ module Animate
 
 		constructor( parent : Component )
 		{
-			if ( PropertyGrid._singleton != null )
-				throw new Error( "PropertyGrid is a singleton, you need to call the PropertyGrid.getSingleton() function to get its instance." );
+            // Call super-class constructor
+			super( "<div class='property-grid'></div>", parent );
 
 			PropertyGrid._singleton = this;
-
-			// Call super-class constructor
-			super( "<div class='property-grid'></div>", parent );
 
             this._header = jQuery( "<div class='property-grid-header background-dark'>Select an Object</div>" );
 			this.element.append( this._header );
