@@ -151,15 +151,7 @@ gulp.task('ts-code', function() {
  */
 gulp.task('ts-code-declaration', function() {
 
-    var requiredDeclarationFiles = gulp.src([
-        "../common-definitions/webinate-users.d.ts",
-        "../common-definitions/modepress-api.d.ts",
-        "../common-definitions/app-engine.d.ts",
-        './custom-definitions/engine-definitions.d.ts',
-        './custom-definitions/external-interfaces.d.ts'
-    ]);
-
-    var tsDefinition = gulp.src(tsFiles, { base: "." })
+    gulp.src(tsFiles, { base: "." })
         .pipe(ts({
             "module": "amd",
             "removeComments": false,
@@ -170,13 +162,8 @@ gulp.task('ts-code-declaration', function() {
             "target": "es5",
             "out":"definitions.js",
             "noImplicitAny": false
-        })).dts;
-
-
-     // Merge the streams
-     merge(requiredDeclarationFiles, tsDefinition)
-        .pipe(concat('definitions.d.ts'))
-        .pipe(gulp.dest( outDir + "/definitions" ));
+        })).dts
+        .pipe( gulp.dest( "./generated-definitions" ) );
 });
 
 /**
