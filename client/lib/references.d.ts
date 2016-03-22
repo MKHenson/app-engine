@@ -11,6 +11,6 @@
 
 /// <reference path="./definitions/custom/ace.d.ts" />
 /// <reference path="./definitions/custom/jscolor.d.ts" />
-/// <reference path="./definitions/custom/ExportToken.d.ts" />
+/// <reference path="./definitions/custom/export-token.d.ts" />
 /// <reference path="./definitions/custom/engine-definitions.d.ts" />
 /// <reference path="./definitions/custom/external-interfaces.d.ts" />
