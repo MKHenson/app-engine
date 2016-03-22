@@ -160,10 +160,10 @@ gulp.task('ts-code-declaration', function() {
             "sourceMap": false,
             "preserveConstEnums": true,
             "target": "es5",
-            "out":"definitions.js",
+            "out":"app-engine-client.js",
             "noImplicitAny": false
         })).dts
-        .pipe( gulp.dest( "./generated-definitions" ) );
+        .pipe( gulp.dest( "../generated-definitions" ) );
 });
 
 /**
