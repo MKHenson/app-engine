@@ -10,7 +10,7 @@ module HatcheryPlugin
         constructor()
         {
             this.dashboardLinks = [{
-                icon: "/admin/plugins/app-engine/resources/media/hatchery-icon.png",
+                icon: "/admin/plugins/app-engine/media/hatchery-icon.png",
                 label: "Hatchery",
                 state: "default.hatchery-users",
                 children: [{
@@ -19,13 +19,13 @@ module HatcheryPlugin
                     state: "default.hatchery-users"
                 },
                 {
-                    icon: "/admin/plugins/app-engine/resources/media/hatchery-plugins.png",
+                    icon: "/admin/plugins/app-engine/media/hatchery-plugins.png",
                     label: "Plugins",
                     state: "default.hatchery-plugins"
                 }]
             }];
         }
-    
+
         /**
         * Called when the application module is being setup
         */
@@ -41,7 +41,7 @@ module HatcheryPlugin
         {
             stateProvider
                 .state('default.hatchery-plugins', <ng.ui.IState>{
-                    templateUrl: 'admin/plugins/app-engine/resources/templates/hatchery-plugins.html',
+                    templateUrl: 'admin/plugins/app-engine/templates/hatchery-plugins.html',
                     authenticate: true,
                     controller: "pluginCtrl",
                     controllerAs: "controller",
