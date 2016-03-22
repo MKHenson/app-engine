@@ -19,7 +19,7 @@
     "lib/definitions/required/node.d.ts",
     "lib/definitions/required/express.d.ts",
     "lib/definitions/required/modepress-api.d.ts",
-    "../source-server/dist/definitions/app-engine.d.ts",
+    "../server/dist/definitions/app-engine.d.ts",
 
     "lib/definitions/custom/ace.d.ts",
     "lib/definitions/custom/jscolor.d.ts",

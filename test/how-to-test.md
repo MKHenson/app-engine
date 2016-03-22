@@ -1,13 +1,13 @@
-First install unitjs
+First install/update the dependencies
 
-	npm install unit.js
+	npm install
 
 Make sure mocha is installed globally
 
 	npm install -g mocha
-	
-Ensure that the server is running and a config.json file is located in the server folder (this is read in and the credentials are used)
 
-Then run the tests
+Ensure that both the modepress and users servers are running
 
-	mocha tests.js -R spec
+Then run the tests. Make sure you pass in as arguments the users "--uconfig" file location. You also need to specify the apiUrl the --apiUrl argument. The apiUrl is the URL endpoint for the modepress plugin created in ./server
+
+	mocha tests.js -R spec --uconfig="../../users/server/config.json" --apiUrl="http://animate.webinate-test.net"

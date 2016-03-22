@@ -1,21 +1,25 @@
 var test = require('unit.js');
 var fs = require('fs');
+var yargs = require('yargs');
+var args = yargs.argv;
 
+if (!args.uconfig || !fs.existsSync(args.uconfig)) {
+	console.log("Please specify a users --uconfig file to use in the command line. Eg --uconfig=\"../users/example-config.json\" ");
+	process.exit();
+}
 
-// REPLACE THIS WITH A VALID WEBINATE-USERS CONFIG.JSON
-var config = "../../webinate-users/server/config.json";
+if (!args.apiUrl) {
+	console.log("Please specify a valid --apiUrl file to use in the command line. Eg --apiUrl=\"http://animate.webinate-test.net\"");
+	process.exit();
+}
 
-// REPLACE THIS WITH A VALID URL FOR PLUGIN API CALLS
-var apiUrl = "http://animate.webinate-test.net"
-
-// Load the file
-config = fs.readFileSync( config, "utf8");
+// Load the files
+var uconfig = fs.readFileSync(args.uconfig);
 try
 {
-    // Parse the config
-    console.log("Parsing file configs...");
-	config = JSON.parse(config);
-	
+    // Parse the config files
+    console.log("Parsing files...");
+    uconfig = JSON.parse(uconfig);
 }
 catch (exp)
 {
@@ -23,15 +27,15 @@ catch (exp)
 	process.exit();
 }
 
-var usersAgent = test.httpAgent("http://"+ config.host +":" + config.portHTTP);
-var apiAgent = test.httpAgent(apiUrl);
+var usersAgent = test.httpAgent("http://"+ uconfig.host +":" + uconfig.portHTTP);
+var apiAgent = test.httpAgent(args.apiUrl);
 var adminCookie = "";
 var georgeCookie = "";
 var janeCookie = "";
 var project = null;
 var plugin = null;
 
-console.log("Logged in as " + config.adminUser.username + ",  " + config.adminUser.password);
+console.log("Logged in as " + uconfig.adminUser.username + ",  " + uconfig.adminUser.password);
 
 describe('Testing REST with admin user', function(){
 	
@@ -49,7 +53,7 @@ describe('Testing REST with admin user', function(){
 	it('should log in with a valid admin username & valid password', function(done){
 		usersAgent
 			.post('/users/login').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
-			.send({username: config.adminUser.username, password: config.adminUser.password })
+			.send({username: uconfig.adminUser.username, password: uconfig.adminUser.password })
 			.end(function(err, res){
 				if (err) return done(err);
 				test.bool(res.body.error).isNotTrue()
@@ -172,7 +176,7 @@ describe('Testing the user-details API', function(){
 			});
 	}).timeout(25000)
 	
-	it('george should have user details when he registered & they are blank', function(done){
+	it('george should have user details when he registered & they are blank', function(done) {
 		apiAgent
 			.get('/app-engine/user-details/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', georgeCookie)
@@ -180,7 +184,7 @@ describe('Testing the user-details API', function(){
 				test.string(res.body.message).is("Found details for user 'george'")
 				test.string(res.body.data.user).is("george")
 				test.string(res.body.data.bio).is("")
-				test.value(res.body.data.image).isNull()
+				test.value(res.body.data.image).is("")
 				test.number(res.body.data.plan).is(0)
 				test.string(res.body.data.website).is("")
 				test.string(res.body.data.customerId).is("")
@@ -276,7 +280,7 @@ describe('Testing plugin related functions', function(){
 				plugin = res.body.data;
 				test.string(res.body.message).is("Created new plugin 'Dinosaurs'")
 				test.bool(res.body.error).isFalse()
-				test.string(res.body.data.author).is(config.adminUser.username)
+				test.string(res.body.data.author).is(uconfig.adminUser.username)
 				test.string(res.body.data.description).is("This is about dinosaurs")
 				test.number(res.body.data.plan).is(1)
 				test.array(res.body.data.deployables).isEmpty()
@@ -386,7 +390,7 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("description has html code that is not allowed")
+				test.string(res.body.message).is("'description' has html code that is not allowed")
 				test.bool(res.body.error).isTrue()
 				done();
 			});
