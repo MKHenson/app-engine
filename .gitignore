@@ -23,6 +23,7 @@ bld/
 [Oo]bj/
 source-client/dist/
 source-server/dist/
+source-plugin/dist/
 client/
 server/
 third-party/
