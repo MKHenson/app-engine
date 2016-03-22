@@ -4,7 +4,7 @@ import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, isAuthenticated, UserEvent, canEdit, IAuthReq, Model, getUser, IRemoveResponse, EventManager, isValidID} from "modepress-api";
 import {PermissionController} from "./permission-controller";
 import {BuildController} from "./build-controller";
-import {ProjectModel} from "../new-models/project-model";
+import {ProjectModel} from "../models/project-model";
 import {IProject} from "engine";
 import * as winston from "winston";
 

@@ -1,17 +1,17 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import {Controller, IServer, IConfig} from "modepress-api";
-import {ProjectController} from "./new-controllers/project-controller";
-import {PluginController} from "./new-controllers/plugin-controller";
-import {ResourceController} from "./new-controllers/resource-controller";
-import {UserDetailsController} from "./new-controllers/user-details-controller";
-import {PermissionController} from "./new-controllers/permission-controller";
-import {FileController} from "./new-controllers/file-controller";
-import {BuildController} from "./new-controllers/build-controller";
-import {AssetModel} from "./new-models/asset-model";
-import {ContainerModel} from "./new-models/container-model";
-import {ScriptModel} from "./new-models/script-model";
-import {GroupModel} from "./new-models/group-model";
+import {ProjectController} from "./controllers/project-controller";
+import {PluginController} from "./controllers/plugin-controller";
+import {ResourceController} from "./controllers/resource-controller";
+import {UserDetailsController} from "./controllers/user-details-controller";
+import {PermissionController} from "./controllers/permission-controller";
+import {FileController} from "./controllers/file-controller";
+import {BuildController} from "./controllers/build-controller";
+import {AssetModel} from "./models/asset-model";
+import {ContainerModel} from "./models/container-model";
+import {ScriptModel} from "./models/script-model";
+import {GroupModel} from "./models/group-model";
 
 /**
 * A plugin that loads the app engine controllers for use in Modepress

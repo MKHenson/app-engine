@@ -2,7 +2,7 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
-import {BuildModel} from "../new-models/build-model";
+import {BuildModel} from "../models/build-model";
 import {IProject} from "engine";
 import * as winston from "winston"
 

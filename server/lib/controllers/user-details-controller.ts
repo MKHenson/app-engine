@@ -2,7 +2,7 @@ import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, isAuthenticated, getUser, UsersService} from "modepress-api";
-import {UserDetailsModel} from "../new-models/user-details-model";
+import {UserDetailsModel} from "../models/user-details-model";
 import {IProject} from "engine";
 import * as winston from "winston";
 

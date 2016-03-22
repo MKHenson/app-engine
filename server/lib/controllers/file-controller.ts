@@ -2,11 +2,11 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {IServer, IConfig, IResponse, isValidID, ModelInstance, EventManager, Controller, IAuthReq, canEdit} from "modepress-api";
-import {UserDetailsModel} from "../new-models/user-details-model";
+import {UserDetailsModel} from "../models/user-details-model";
 import {ResourceController} from "./Resource-controller";
 import {IProject} from "engine";
 import * as winston from "winston";
-import {FileModel} from "../new-models/file-model";
+import {FileModel} from "../models/file-model";
 import * as request from "request"
 
 /**
