@@ -21,11 +21,9 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
-source-client/dist/
-source-server/dist/
-source-plugin/dist/
-client/
-server/
+client/dist/
+server/dist/
+admin-plugin/dist/
 third-party/
 
 
