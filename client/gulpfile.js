@@ -152,7 +152,8 @@ gulp.task('ts-code', function() {
 gulp.task('ts-code-declaration', function() {
 
     var requiredDeclarationFiles = gulp.src([
-        "./lib/definitions/custom/engine-definitions.d.ts"
+        "./lib/definitions/custom/engine-definitions.d.ts",
+        "./lib/definitions/custom/external-interfaces.d.ts"
     ], { base : "lib/definitions/custom"});
 
     var tsDefinition = gulp.src(tsFiles, { base: "." })
