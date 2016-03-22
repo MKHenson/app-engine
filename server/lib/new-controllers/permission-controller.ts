@@ -2,8 +2,8 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, isAuthenticated, IAuthReq, Model} from "modepress-api";
-import {UserDetailsModel} from "../new-models/UserDetailsModel";
-import {ProjectModel} from "../new-models/ProjectModel";
+import {UserDetailsModel} from "../new-models/user-details-model";
+import {ProjectModel} from "../new-models/project-model";
 import {IProject} from "engine";
 
 /**

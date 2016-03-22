@@ -2,7 +2,7 @@ import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, isAdmin, getUser, IAuthReq, isValidID} from "modepress-api";
-import {PluginModel} from "../new-models/PluginModel";
+import {PluginModel} from "../new-models/plugin-model";
 import {IPlugin} from "engine";
 import * as winston from "winston";
 
@@ -15,7 +15,7 @@ export class PluginController extends Controller
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
@@ -37,9 +37,9 @@ export class PluginController extends Controller
 
     /**
     * Attempts to remove a plugin by ID
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private remove(req: express.Request, res: express.Response, next: Function)
     {
@@ -68,9 +68,9 @@ export class PluginController extends Controller
 
     /**
     * Updates a plugin with new details
-    * @param {IAuthReq} req 
+    * @param {IAuthReq} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private update(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -97,9 +97,9 @@ export class PluginController extends Controller
 
     /**
     * Gets plugins based on the format of the request
-    * @param {IAuthReq} req 
+    * @param {IAuthReq} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private create(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -131,9 +131,9 @@ export class PluginController extends Controller
 
     /**
     * Gets plugins based on the format of the request
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private getPlugins(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -163,7 +163,7 @@ export class PluginController extends Controller
         // Check for keywords
         if (req.query.search)
             (<IPlugin>findToken).name = <any>new RegExp(req.query.search, "i");
-        
+
         // First get the count
         model.count(findToken).then(function (num)
         {

@@ -2,7 +2,7 @@ import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, isAuthenticated, getUser, UsersService} from "modepress-api";
-import {UserDetailsModel} from "../new-models/UserDetailsModel";
+import {UserDetailsModel} from "../new-models/user-details-model";
 import {IProject} from "engine";
 import * as winston from "winston";
 
@@ -17,7 +17,7 @@ export class UserDetailsController extends Controller
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
@@ -29,7 +29,7 @@ export class UserDetailsController extends Controller
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        
+
         router.get("/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
         router.post("/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
         router.put("/:user", <any>[canEdit, this.updateDetails.bind(this)]);
@@ -40,7 +40,7 @@ export class UserDetailsController extends Controller
         EventManager.singleton.on("Activated", this.onActivated.bind(this));
         EventManager.singleton.on("Removed", this.onRemoved.bind(this));
     }
-    
+
     /**
     * Called whenever a user has had their account removed
     * @param {UserEvent} event
@@ -60,9 +60,9 @@ export class UserDetailsController extends Controller
 
     /**
     * Attempts to update users details
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private updateDetails(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -72,7 +72,7 @@ export class UserDetailsController extends Controller
         var user: string = req.params.user;
         var updateToken: Engine.IUserMeta = { user: user };
         var token: Engine.IUserMeta = req.body;
-        
+
         model.update(updateToken, token).then(function (instance)
         {
             if (instance.error)
@@ -115,12 +115,12 @@ export class UserDetailsController extends Controller
             winston.error(`An error occurred while creating creating user details for ${event.username} : ${err.message}`, { process: process.pid });
         });
     }
-    
+
     /**
     * Gets user details for a target 'user'. By default the data is santized, but you can use the verbose query to get all data values.
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     getDetails(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -134,7 +134,7 @@ export class UserDetailsController extends Controller
         {
             if (!instance)
                 return Promise.reject(new Error("User does not exist"));
-            
+
             return res.end(JSON.stringify(<ModepressAddons.IGetDetails>{
                 error: false,
                 message: `Found details for user '${target}'`,
@@ -153,9 +153,9 @@ export class UserDetailsController extends Controller
 
     /**
     * Creates user details for a target user
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     createDetails(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -165,15 +165,15 @@ export class UserDetailsController extends Controller
         {
             if (getReq.error)
                 return res.end(JSON.stringify(<IResponse>{ error: true, message: getReq.message }));
-            
+
             var user = getReq.data;
 
             if (!user)
                 return res.end(JSON.stringify(<IResponse>{ error: true, message: `No user exists with the name '${req.params.target}'` }));
 
             var model = that.getModel("en-user-details");
-            
-            // User exists and is ok - so lets create their details            
+
+            // User exists and is ok - so lets create their details
             model.createInstance(<Engine.IUserMeta>{ user: user.username }).then(function (instance)
             {
                 return res.end(JSON.stringify(<IResponse>{

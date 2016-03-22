@@ -92,11 +92,11 @@ gulp.task('copy-dist', function() {
 /**
  * Copies the distribution files to the modepress plugin folder
  */
-gulp.task('copy-dist', function() {
+gulp.task('copy-dist', ['ts-code', 'generate-declarations'], function() {
 
     return gulp.src(outDir + "/**", { base: "dist" })
         .pipe(gulp.dest(modepressPluginDir));
 });
 
 gulp.task('install', ['install-definitions']);
-gulp.task('build-all', ['ts-code', 'copy-dist', 'generate-declarations']);
+gulp.task('build-all', [ 'copy-dist' ]);

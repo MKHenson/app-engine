@@ -1,17 +1,17 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import {Controller, IServer, IConfig} from "modepress-api";
-import {ProjectController} from "./new-controllers/ProjectController";
-import {PluginController} from "./new-controllers/PluginController";
-import {ResourceController} from "./new-controllers/ResourceController";
-import {UserDetailsController} from "./new-controllers/UserDetailsController";
-import {PermissionController} from "./new-controllers/PermissionController";
-import {FileController} from "./new-controllers/FileController";
-import {BuildController} from "./new-controllers/BuildController";
-import {AssetModel} from "./new-models/AssetModel";
-import {ContainerModel} from "./new-models/ContainerModel";
-import {ScriptModel} from "./new-models/ScriptModel";
-import {GroupModel} from "./new-models/GroupModel";
+import {ProjectController} from "./new-controllers/project-controller";
+import {PluginController} from "./new-controllers/plugin-controller";
+import {ResourceController} from "./new-controllers/resource-controller";
+import {UserDetailsController} from "./new-controllers/user-details-controller";
+import {PermissionController} from "./new-controllers/permission-controller";
+import {FileController} from "./new-controllers/file-controller";
+import {BuildController} from "./new-controllers/build-controller";
+import {AssetModel} from "./new-models/asset-model";
+import {ContainerModel} from "./new-models/container-model";
+import {ScriptModel} from "./new-models/script-model";
+import {GroupModel} from "./new-models/group-model";
 
 /**
 * A plugin that loads the app engine controllers for use in Modepress
@@ -19,12 +19,12 @@ import {GroupModel} from "./new-models/GroupModel";
 export default class AppEngine extends Controller
 {
     private _controllers: Array<Controller>;
-    
+
 	/**
 	* Creates a new instance of the email controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {

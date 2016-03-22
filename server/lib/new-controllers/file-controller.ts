@@ -2,11 +2,11 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {IServer, IConfig, IResponse, isValidID, ModelInstance, EventManager, Controller, IAuthReq, canEdit} from "modepress-api";
-import {UserDetailsModel} from "../new-models/UserDetailsModel";
-import {ResourceController} from "./ResourceController";
+import {UserDetailsModel} from "../new-models/user-details-model";
+import {ResourceController} from "./Resource-controller";
 import {IProject} from "engine";
 import * as winston from "winston";
-import {FileModel} from "../new-models/FileModel";
+import {FileModel} from "../new-models/file-model";
 import * as request from "request"
 
 /**
@@ -17,7 +17,7 @@ export class FileController extends Controller
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
         super([new FileModel()]);
-        
+
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
@@ -31,30 +31,30 @@ export class FileController extends Controller
 
         EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
         EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
-        
+
         // Register the path
         e.use("/app-engine/files", router);
     }
 
     /**
     * Attempts to update a single file's details
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected editFileDetails(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-files");
         var that = this;
-        
+
         // Verify the resource ID
         if (!isValidID(req.params.id))
             return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid resource ID" }));
 
         var searchToken: Engine.IFile = { _id: new mongodb.ObjectID(req.params.id) };
         var token: Engine.IResource = req.body;
-        
+
         model.update(searchToken, token).then(function (instance)
         {
             if (instance.error)
@@ -83,7 +83,7 @@ export class FileController extends Controller
     * @param {any} query A mongo DB style query
     * @param {number} index The index start
     * @param {number} limit The limit
-    * @param {number} verbose Weather or not to use verbose 
+    * @param {number} verbose Weather or not to use verbose
     */
     private getFiles(query: any, index: number, limit: number, verbose: boolean = true ): Promise<ModepressAddons.IGetFiles>
     {
@@ -114,10 +114,10 @@ export class FileController extends Controller
             });
         });
     }
-    
+
     /**
     * Checks for and adds any optional file queries
-    * @param {Engine.IFile} query 
+    * @param {Engine.IFile} query
     * @param {any} params
     */
     private appendOptionalQueries(query: Engine.IFile, params: any)
@@ -144,18 +144,18 @@ export class FileController extends Controller
 
     /**
     * Gets the files from the project
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected getByProject(req: IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
-       
+
         var project = req.params.project;
         if (!isValidID(project))
             return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
-       
+
         // Create the query
         var query: Engine.IFile = { projectId: new mongodb.ObjectID(project), user: req._user.username, browsable : true };
         this.appendOptionalQueries(query, req.query);
@@ -176,9 +176,9 @@ export class FileController extends Controller
 
     /**
     * Gets the files from just the user
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected getByUser(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -211,7 +211,7 @@ export class FileController extends Controller
         var model = this.getModel("en-files");
         var files = event.files;
         var promises: Array<Promise<ModelInstance<Engine.IFile>>> = [];
-        
+
 
         // Add an IFile reference for each file thats added
         for (var i = 0, l = files.length; i < l; i++)
@@ -250,16 +250,16 @@ export class FileController extends Controller
     private onFilesRemoved(event: UsersInterface.SocketEvents.IFilesRemovedEvent)
     {
         var model = this.getModel("en-files");
-        
+
         // Remove each IFile reference
         var removeQuery = [];
         for (var i = 0, l = event.files.length; i < l; i++)
             removeQuery.push(<Engine.IFile>{ identifier: event.files[i].identifier });
-        
+
         model.deleteInstances({ $or: removeQuery }).then(function (numRemoved: number)
         {
             winston.info(`[${numRemoved}] Files have been removed`, { process: process.pid });
-            
+
         }).catch(function (err: Error)
         {
             winston.error(`Could not remove file instances : ${err.message}`, { process: process.pid });

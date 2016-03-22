@@ -2,9 +2,9 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, isAuthenticated, UserEvent, canEdit, IAuthReq, Model, getUser, IRemoveResponse, EventManager, isValidID} from "modepress-api";
-import {PermissionController} from "./PermissionController";
-import {BuildController} from "./BuildController";
-import {ProjectModel} from "../new-models/ProjectModel";
+import {PermissionController} from "./permission-controller";
+import {BuildController} from "./build-controller";
+import {ProjectModel} from "../new-models/project-model";
 import {IProject} from "engine";
 import * as winston from "winston";
 
@@ -17,7 +17,7 @@ export class ProjectController extends Controller
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
@@ -27,7 +27,7 @@ export class ProjectController extends Controller
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-        
+
         router.get("/:user/:id?", <any>[getUser, this.getProjects.bind(this)]);
         router.put("/:user/:id", <any>[canEdit, this.updateProject.bind(this)]);
         router.delete("/:user/:ids", <any>[canEdit, this.remove.bind(this)]);
@@ -101,7 +101,7 @@ export class ProjectController extends Controller
             });
         });
     }
-    
+
     /**
     * Removes a project by user
     * @param {string} user
@@ -121,7 +121,7 @@ export class ProjectController extends Controller
     {
         var findToken: Engine.IProject = { user: user };
         var $or: Array<Engine.IProject> = [];
-        
+
         for (var i = 0, l = ids.length; i < l; i++)
             $or.push({ _id: new mongodb.ObjectID(ids[i]) });
 
@@ -133,9 +133,9 @@ export class ProjectController extends Controller
 
     /**
     * Attempts to update a project
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     private updateProject(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -145,7 +145,7 @@ export class ProjectController extends Controller
         var project: string = req.params.id;
         var updateToken: Engine.IProject = {};
         var token: Engine.IProject = req.body;
-        
+
         // Verify the project ID
         if (!isValidID(project))
             return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
@@ -181,9 +181,9 @@ export class ProjectController extends Controller
 
     /**
     * Removes all projects by ID
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     remove(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -212,15 +212,15 @@ export class ProjectController extends Controller
 
     /**
     * Gets projects based on the format of the request
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     createProject(req: IAuthReq, res: express.Response, next: Function)
     {
         // ✔ Check logged in + has rights to do request
-        // ✔ Create a build 
-        // ✔ Sanitize details 
+        // ✔ Create a build
+        // ✔ Sanitize details
         // ✔ Create a project
         // ✔ Associate build with project and vice-versa
         // ✔ Check if project limit was reached - if over then remove project
@@ -248,7 +248,7 @@ export class ProjectController extends Controller
             newProject = project;
 
             // Link build with new project
-            return buildCtrl.linkProject(newBuild._id, newProject._id); 
+            return buildCtrl.linkProject(newBuild._id, newProject._id);
 
         }).then(function ()
         {
@@ -264,10 +264,10 @@ export class ProjectController extends Controller
 
             }).catch(function (err: Error)
             {
-                // Not in the limit - so remove the project and tell the user to upgrade 
+                // Not in the limit - so remove the project and tell the user to upgrade
                 that.removeByIds([newProject._id], req._user.username);
                 res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
-            });           
+            });
 
         }).catch(function (err: Error)
         {
@@ -293,9 +293,9 @@ export class ProjectController extends Controller
 
     /**
     * Gets projects based on the format of the request. You can optionally pass a 'search', 'index' and 'limit' query parameter.
-    * @param {IAuthReq} req 
+    * @param {IAuthReq} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     getProjects(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -317,7 +317,7 @@ export class ProjectController extends Controller
         // Check for keywords
         if (req.query.search)
             findToken.name = <any>new RegExp(req.query.search, "i");
-        
+
         // First get the count
         model.count(findToken).then(function (num)
         {

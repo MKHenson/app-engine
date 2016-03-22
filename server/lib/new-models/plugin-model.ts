@@ -1,5 +1,5 @@
 ﻿import {Model, SchemaFactory, NumberType} from "modepress-api";
-import {Plan} from "./UserDetailsModel";
+import {Plan} from "./user-details-model";
 
 /**
 * A class that is used to describe the plugin model

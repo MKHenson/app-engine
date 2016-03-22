@@ -2,7 +2,7 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
-import {BuildModel} from "../new-models/BuildModel";
+import {BuildModel} from "../new-models/build-model";
 import {IProject} from "engine";
 import * as winston from "winston"
 
@@ -17,7 +17,7 @@ export class BuildController extends Controller
 	* Creates a new instance of the  controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
@@ -27,8 +27,8 @@ export class BuildController extends Controller
         var router = express.Router();
         router.use(bodyParser.urlencoded({ 'extended': true }));
         router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));        
-        
+        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+
         // Define the routes
         router.get("/:user/:project/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
         router.post("/:user/:project", <any>[canEdit, this.create.bind(this)]);
@@ -40,9 +40,9 @@ export class BuildController extends Controller
 
     /**
     * Gets all builds associated with a particular user & project
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     getBuilds(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -57,7 +57,7 @@ export class BuildController extends Controller
             return res.end(JSON.stringify(<IResponse>{ error: true, message: `Please use a valid project ID` }));
 
         var findToken: Engine.IBuild = { user: target, projectId: new mongodb.ObjectID(project) };
-        
+
         if (req.params.id && isValidID(req.params.id))
             findToken._id = new mongodb.ObjectID(req.params.id);
 
@@ -74,7 +74,7 @@ export class BuildController extends Controller
                 count: totalMatches,
                 data: that.getSanitizedData(instances, !req._verbose)
             }));
-            
+
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
@@ -218,9 +218,9 @@ export class BuildController extends Controller
 
     /**
     * Attempts to update a build's data
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected edit(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -270,9 +270,9 @@ export class BuildController extends Controller
 
     /**
     * Creates a new build for a user in a specific project.
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     create(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -285,7 +285,7 @@ export class BuildController extends Controller
 
         if (!isValidID(project))
             return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{ error: true, message: `Please use a valid project ID` }));
-        
+
         var newBuild;
 
         that.createBuild(target, new mongodb.ObjectID(project) ).then(function (instance)
