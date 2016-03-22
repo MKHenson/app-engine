@@ -176,7 +176,7 @@ gulp.task('ts-code-declaration', function() {
      // Merge the streams
      merge(requiredDeclarationFiles, tsDefinition)
         .pipe(concat('definitions.d.ts'))
-        .pipe(gulp.dest('../common-definitions/generated'));
+        .pipe(gulp.dest( outDir + "/definitions" ));
 });
 
 /**
