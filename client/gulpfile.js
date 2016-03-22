@@ -151,7 +151,11 @@ gulp.task('ts-code', function() {
  */
 gulp.task('ts-code-declaration', function() {
 
-    gulp.src(tsFiles, { base: "." })
+    var requiredDeclarationFiles = gulp.src([
+        "./lib/definitions/custom/engine-definitions.d.ts"
+    ], { base : "lib/definitions/custom"});
+
+    var tsDefinition = gulp.src(tsFiles, { base: "." })
         .pipe(ts({
             "module": "amd",
             "removeComments": false,
@@ -162,8 +166,12 @@ gulp.task('ts-code-declaration', function() {
             "target": "es5",
             "out":"app-engine-client.js",
             "noImplicitAny": false
-        })).dts
-        .pipe( gulp.dest( "../generated-definitions" ) );
+        })).dts;
+
+
+     // Merge the streams
+     merge(requiredDeclarationFiles, tsDefinition)
+       .pipe( gulp.dest( "../generated-definitions" ) );
 });
 
 /**
