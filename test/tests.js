@@ -421,7 +421,7 @@ describe('Testing project related functions', function(){
 				test.bool(res.body.error).isFalse()
 				test.string(res.body.data.name).is("Test project")
 				test.string(res.body.data.description).is("<b>Hello world!</b>")
-				test.value(res.body.data.image).isNull()
+				test.value(res.body.data.image).is("")
 				test.number(res.body.data.category).is(1)
 				test.string(res.body.data.subCategory).is("")
 				test.bool(res.body.data.public).isFalse()
