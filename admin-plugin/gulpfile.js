@@ -10,7 +10,7 @@ var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 var outDir = tsConfig.compilerOptions.outDir;
 var outFile = tsConfig.compilerOptions.out;
-var modepressPluginDir = "../../modepress/server/resources/admin/plugins/app-engine";
+var modepressPluginDir = "../../modepress/admin/dist/plugins/app-engine";
 
 /**
  * Checks to see that all TS files listed exist
