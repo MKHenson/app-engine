@@ -9,7 +9,7 @@ var rename = require("gulp-rename");
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 var outDir = tsConfig.compilerOptions.outDir;
-var modepressPluginDir = "../../modepress/server/plugins/app-engine";
+var modepressPluginDir = "../../modepress/server/dist/plugins/app-engine";
 
 /**
  * Checks to see that all TS files listed exist
@@ -32,14 +32,14 @@ gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "lib" })
         .pipe(ts({
-            "module": "commonjs",
-            "removeComments": false,
-            "noEmitOnError": true,
-            "declaration": false,
-            "sourceMap": false,
-            "preserveConstEnums": true,
-            "target": "es5",
-            "noImplicitAny": false
+            "module": tsConfig.compilerOptions.module,
+            "removeComments": tsConfig.compilerOptions.removeComments,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "declaration": tsConfig.compilerOptions.declaration,
+            "sourceMap": tsConfig.compilerOptions.sourceMap,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny
             }))
         .pipe(gulp.dest(outDir));
 });
