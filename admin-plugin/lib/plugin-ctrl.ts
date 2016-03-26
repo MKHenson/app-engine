@@ -53,7 +53,7 @@
             this.showNewPluginForm = true;
 
             var that = this;
-            that.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins/${plugin._id}`).then(function (response)
+            that.http.get<ModepressAddons.IGetPlugins>(`${_variables['appEngineURL']}/app-engine/plugins/${plugin._id}`).then(function (response)
             {
                 that.pluginToken = response.data.data[0];
                 that.loading = false;
@@ -70,7 +70,7 @@
             that.error = false;
             that.errorMsg = "";
 
-            that.http.delete<Modepress.IResponse>(`${appEngineURL}/app-engine/plugins/${plugin._id}`).then(function (response)
+            that.http.delete<Modepress.IResponse>(`${_variables['appEngineURL']}/app-engine/plugins/${plugin._id}`).then(function (response)
             {
                 that.loading = false;
                 (<any>plugin).confirmDelete = false;
@@ -94,9 +94,9 @@
             var that = this;
             that.loading = true;
             that.error = false;
-            that.errorMsg = "";            
+            that.errorMsg = "";
 
-            var toRet = this.http.get<ModepressAddons.IGetPlugins>(`${appEngineURL}/app-engine/plugins?index=${index}&limit=${limit}&search=${that.searchKeyword}`);
+            var toRet = this.http.get<ModepressAddons.IGetPlugins>(`${_variables['appEngineURL']}/app-engine/plugins?index=${index}&limit=${limit}&search=${that.searchKeyword}`);
             toRet.then(function (response)
             {
                 that.plugins = response.data.data;
@@ -105,7 +105,7 @@
             {
                 that.error = true;
                 that.errorMsg = err.message;
-                
+
             }).finally(function ()
             {
                 that.loading = false
@@ -132,7 +132,7 @@
 
             if (this.editMode)
             {
-                that.http.put<Modepress.IGetPost>(`${appEngineURL}/app-engine/plugins/${pluginToken._id}`, pluginToken).then(function (token)
+                that.http.put<Modepress.IGetPost>(`${_variables['appEngineURL']}/app-engine/plugins/${pluginToken._id}`, pluginToken).then(function (token)
                 {
                     if (token.data.error)
                     {
@@ -156,7 +156,7 @@
             }
             else
             {
-                that.http.post<ModepressAddons.ICreatePlugin>(`${appEngineURL}/app-engine/plugins/create`, pluginToken).then(function (response)
+                that.http.post<ModepressAddons.ICreatePlugin>(`${_variables['appEngineURL']}/app-engine/plugins/create`, pluginToken).then(function (response)
                 {
                     if (response.data.error)
                     {
@@ -210,7 +210,7 @@
                 name: "",
                 description: "",
                 plan: Animate.UserPlan.Free,
-                deployables: [],                
+                deployables: [],
                 image: "",
                 author: "Mathew Henson",
                 version: "0.0.1"

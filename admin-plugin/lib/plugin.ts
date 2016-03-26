@@ -1,5 +1,5 @@
 ﻿declare var _plugins: Array<ModepressAdmin.IAdminPlugin>;
-declare var appEngineURL: string;
+declare var _variables : { [name: string]: string };
 
 module HatcheryPlugin
 {
