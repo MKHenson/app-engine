@@ -6,7 +6,9 @@
     "declaration": true,
     "sourceMap": false,
     "preserveConstEnums": true,
-    "target": "es5"
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
   },
   "files": [
     "./config.ts",

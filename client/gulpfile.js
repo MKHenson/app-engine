@@ -134,14 +134,16 @@ gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
         .pipe(ts({
-            "module": "amd",
-            "removeComments": false,
-            "noEmitOnError": true,
-            "declaration": true,
-            "sourceMap": false,
-            "preserveConstEnums": true,
-            "target": "es5",
-            "noImplicitAny": false
+            "module": tsConfig.compilerOptions.module,
+            "removeComments": tsConfig.compilerOptions.removeComments,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "declaration": tsConfig.compilerOptions.declaration,
+            "sourceMap": tsConfig.compilerOptions.sourceMap,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels
             }))
         .pipe(gulp.dest(outDir + '/js'));
 });
@@ -285,7 +287,7 @@ function getDefinition(url, dest, name) {
 gulp.task('install-definitions', function () {
      return Promise.all([
             getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/dist/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
          ]);
 });
 

@@ -71,8 +71,8 @@ function getDefinition(url, dest, name) {
 gulp.task('install-definitions', function () {
      return Promise.all([
             getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/definitions/modepress-client.d.ts", "lib/definitions/required/", "modepress-client.d.ts")
+            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/dist/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts"),
+            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/dist/definitions/modepress-client.d.ts", "lib/definitions/required/", "modepress-client.d.ts")
          ]);
 });
 
