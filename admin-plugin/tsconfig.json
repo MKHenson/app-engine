@@ -14,7 +14,7 @@
   },
   "files": [
       "lib/references.d.ts",
-      "../server/dist/definitions/app-engine.d.ts",
+      "../generated-definitions/app-engine.d.ts",
       "../client/lib/core/enums.ts",
       "lib/paged-content.ts",
       "lib/plugin-ctrl.ts",

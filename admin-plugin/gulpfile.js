@@ -29,7 +29,7 @@ gulp.task('check-files', function() {
 /**
  * Builds each of the ts files into JS files in the output folder
  */
-gulp.task('ts-code', function() {
+gulp.task('ts-code', ['check-files'], function() {
 
     return gulp.src(tsFiles, { base: "lib" })
         .pipe(ts({
