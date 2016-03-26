@@ -30,9 +30,9 @@ var tsProject = ts.createProject('tsconfig.json', { sortOutput: true });
 var target = gulp.src('./lib/index.html');
 
 /**
- * Adds the relevant bower files to the index html
+ * Adds the relevant deploy third party files to the index html
  */
-gulp.task('bower', function() {
+gulp.task('deploy-third-party', function() {
 
     var sources = gulp.src([
         './third-party/jquery/dist/jquery.js',
@@ -296,4 +296,4 @@ gulp.task('install-definitions', function () {
  */
 gulp.task('install', ['install-third-parties', 'install-definitions']);
 
-gulp.task('build-all', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'bower','css']);
+gulp.task('build-all', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css']);
