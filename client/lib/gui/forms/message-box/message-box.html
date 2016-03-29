@@ -1,0 +1,8 @@
+<div id="en-message-box" class="message-box">
+	<div class="message">{{ctrl.$message}}</div>
+	<div class="buttons">
+		<div class="button reg-gradient curve-small" en-repeat="ctrl.$buttons as button" en-click="ctrl.onButtonClick(event, button)">
+			{{button}}
+		</div>
+	</div>
+</div>

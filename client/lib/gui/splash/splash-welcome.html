@@ -1,0 +1,54 @@
+﻿<div id='splash-welcome' class="fade-in" en-show="ctrl.$activePane == 'welcome'">
+	<div class="projects-toolbar">
+		<div class="button reg-gradient" en-click="ctrl.goState('new-project', true)"><div class="cross"></div>New Appling</div>
+		<div class="search"><input placeholder="Keywords" class="background-view-light" type="text" /></div>
+	</div>
+	<div style="position:relative;">
+		<div class="projects-view background-view animate-all" en-style="{ width: (ctrl.$selectedProject ? '70%' : '') }">
+			<div class="project-items">
+				<div class="error bad-input" en-if="ctrl.$errorMsg && ctrl.$errorMsg != ''">{{ctrl.$errorMsg}}</div>
+				<div class="project-item img-preview unselectable" en-repeat="ctrl.$projects as project" en-click="ctrl.selectProject(project)">
+					<div class="preview-child">
+						<div class="background-tiles inner ng-scope">
+							<img class="vert-align" en-src="( project.image && project.image != '' ? project.image : './media/appling.png' )" />
+							<div class="div-center"></div>
+						</div>
+					</div>
+					<div class="item-name" en-class="{ 'reg-gradient' : project.selected }">{{project.name}}</div>
+				</div>
+				<div class="no-items unselectable" en-if="ctrl.$projects.length == 0">Welcome {{ctrl.$user.entry.username}}, click New Appling to start</div>
+			</div>
+			<div class="projects-footer background">
+				<div class="navigation-column back soft-text">
+					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goFirst()">First</a>
+					<a en-show="ctrl.$pager.index" en-click="ctrl.$pager.goPrev()">Prev</a>
+				</div>
+				<div class="navigation-column index soft-text">
+					{{ctrl.$pager.getPageNum()}} of {{ctrl.$pager.getTotalPages()}}
+				</div>
+				<div class="navigation-column next soft-text">
+					<a en-show="ctrl.$pager.index + ctrl.$pager.limit < ctrl.$pager.last" en-click="ctrl.$pager.goNext()">Next</a>
+					<a en-show="ctrl.$pager.index < ctrl.$pager.last - ctrl.$pager.limit" en-click="ctrl.$pager.goLast()">Last</a>
+				</div>
+				<div class="fix"></div>
+			</div>
+		</div>
+		<div class="project-info background animate-all" en-style="{ width: (ctrl.$selectedProject ? '30%' : ''), left :  (ctrl.$selectedProject ? '70%' : '') }">
+			<div en-if="ctrl.$selectedProject" class="fade-in" style="height:100%;">
+				<div class="project-details">
+					<h2>{{ctrl.$selectedProject.name}}</h2>
+					<p><span class="info">Created By</span>: <span class="detail"><b>{{ctrl.$selectedProject.user}}</b></span></p>
+					<p><span class="info">Created On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.createdOn).toLocaleDateString()}}</span></p>
+					<p><span class="info">Last Modified On</span>: <span class="detail">{{new Date(ctrl.$selectedProject.lastModified).toLocaleDateString()}}</span></p>
+					<p><span class="info">No. Plugins</span>: <span class="detail">{{ctrl.$selectedProject.plugins.length}}</span></p>
+					<div class="fix"></div>
+					<p en-html="ctrl.$selectedProject.description"></p>
+				</div>
+				<div class="buttons ">
+					<div class="button"><a en-click="Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + ctrl.$selectedProject.name + '`?', ['Yes Delete It', 'No'], ctrl.removeProject, ctrl)">REMOVE</a></div>
+					<div class="button green animate-all" en-click="ctrl.openProject(ctrl.$selectedProject)">OPEN &nbsp; &#10148;</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

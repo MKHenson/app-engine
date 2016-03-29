@@ -1,0 +1,93 @@
+﻿<div id='toolbar-main'>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="ctrl.onHome()">
+			<div>
+				<img src="media/animate-home.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Home</div>
+		</div>
+		<div class="toolbar-button tooltip" en-click="ctrl.saveAll()">
+			<div><img src="media/save.png"></div>
+			<div class="tooltip-text tooltip-text-bg">Save</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="ctrl.onDuplicate()" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/copy.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Copy</div>
+		</div>
+		<div class="toolbar-button tooltip" en-click="ctrl.onDuplicate(true)" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/cut.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Cut</div>
+		</div>
+		<div class="toolbar-button tooltip" en-click="ctrl.onPaste()" en-class="{ disabled : !ctrl._copyPasteToken }">
+			<div>
+				<img src="media/paste.png">
+			</div><div class="tooltip-text tooltip-text-bg">Paste</div>
+		</div>
+		<div class="toolbar-button tooltip" en-click="ctrl.onDelete()" en-class="{ disabled : !ctrl.$itemSelected }">
+			<div>
+				<img src="media/delete.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Delete</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="Animate.Canvas.snapping = !Animate.Canvas.snapping" en-class="{ selected : Animate.Canvas.snapping }">
+			<div>
+				<img src="media/snap.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Snapping</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip " en-click="ctrl.onRun()">
+			<div>
+				<img src="media/play.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Run</div>
+		</div><div class="toolbar-button tooltip" en-click="Animate.BuildOptionsForm.getSingleton().show()">
+			<div>
+				<img src="media/build.png">
+			</div><div class="tooltip-text tooltip-text-bg">Settings</div>
+		</div>
+		<div class="toolbar-button tooltip" en-click="Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML )">
+			<div>
+				<img src="media/html.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">HTML</div>
+		</div><div class="toolbar-button tooltip" en-click="Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS )">
+			<div>
+				<img src="media/css.png">
+			</div><div class="tooltip-text tooltip-text-bg">CSS</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="ctrl.newContainer()">
+			<div>
+				<img src="media/add-behaviour.png">
+			</div><div class="tooltip-text tooltip-text-bg">New Behaviour</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="Animate.UserPrivilegesForm.getSingleton().show()">
+			<div>
+				<img src="media/privaledges.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">Privileges</div>
+		</div>
+	</div>
+	<div class="tool-bar-group background-view-light">
+		<div class="toolbar-button tooltip" en-click="Animate.FileViewer.get.show()">
+			<div>
+				<img src="media/plug-detailed.png">
+			</div>
+			<div class="tooltip-text tooltip-text-bg">File Manager</div>
+		</div>
+	</div>
+	<div class="fix"></div>
+</div>

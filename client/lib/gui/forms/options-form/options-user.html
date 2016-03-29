@@ -1,0 +1,59 @@
+<div id='options-user'>
+	<div class="group">
+		<div class="label group-header background">
+			Details
+		</div>
+		<div class="group-content">
+			<div class="field-option">
+				<div class="label">Username: <span class="soft-text">{{ctrl.$user.entry.username}}</span></div>
+				<div class="fix"></div>
+			</div>
+			<div class="field-option">
+				<div class="label">Email: <span class="soft-text">{{ctrl.$user.entry.email}}</span></div>
+				<div class="fix"></div>
+			</div>
+			<div class="field-option">
+				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.entry.createdOn).toLocaleDateString()}} {{new Date(ctrl.$user.entry.createdOn).toLocaleTimeString()}}</span></div>
+				<div class="fix"></div>
+			</div>
+			<div class="field-option">
+				<div class="label">Joined On: <span class="soft-text">{{new Date(ctrl.$user.entry.lastLoggedIn).toLocaleDateString()}} {{new Date(ctrl.$user.entry.lastLoggedIn).toLocaleTimeString()}}</span></div>
+				<div class="fix"></div>
+			</div>
+		</div>
+	</div>
+	<div class="group">		
+		<div class="label group-header background">Avatar</div>
+		<div class="group-content">
+			<div class="img-preview unselectable">
+				<div class="preview-child">
+					<div class="background-tiles inner ng-scope">
+						<img class="vert-align" en-src="( Animate.User.get.meta.image && Animate.User.get.meta.image.trim() != '' ? Animate.User.get.meta.image : './media/appling.png')">
+						<div class="div-center"></div>
+					</div>
+				</div>
+				<div class="item-name reg-gradient" id="upload-projet-img" en-click="ctrl.pickAvatar()"><div class="cross"></div>Upload Image {{ctrl.$loadingPercent}}</div>
+			</div>
+			<div class="img-data">
+				<div class="info">Your avatar is the image others see you as. Use the upload button to change your profile picture.</div>
+			</div>
+			<div class="error" en-show="ctrl.$errorMsgUserImg && ctrl.$errorMsgUserImg != ''">{{ctrl.$errorMsgUserImg}}</div>
+			<div class="fix"></div>
+		</div>
+	</div>
+	<div class="group">
+		<div class="label group-header background">
+			User information
+		</div>
+		<div class="group-content">
+			<div class="field-option">
+				<div class="label">Bio</div>
+				<textarea id="meta-bio" class="background-view-light">{{ctrl.$user.meta.bio}}</textarea>
+				<div class="soft-text info">Use the above pad to write about yourself. This will show up on Webinate next to your projects.</div>
+				<div class="fix"></div>
+			</div>
+			<div class="error" en-show="ctrl.$errorMsgImg != ''">{{ctrl.$errorMsgImg}}</div>
+			<div class="button reg-gradient curve-small"  en-click="ctrl.updateBio(jQuery('#meta-bio').val());" en-class="{ disabled : ctrl.$loading }">Update Information</div>
+		</div>
+	</div>
+</div>

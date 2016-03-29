@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "removeComments": false,
+    "noEmitOnError": true,
+    "declaration": false,
+    "sourceMap": false,
+    "preserveConstEnums": true,
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "out": "plugin.js",
+    "outDir": "dist"
+  },
+  "files": [
+      "lib/references.d.ts",
+      "../generated-definitions/app-engine.d.ts",
+      "../client/lib/core/enums.ts",
+      "lib/paged-content.ts",
+      "lib/plugin-ctrl.ts",
+      "lib/plugin.ts"
+  ]
+}

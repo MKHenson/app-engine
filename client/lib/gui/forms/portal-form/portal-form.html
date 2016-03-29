@@ -1,0 +1,17 @@
+﻿<div id="portal-editor">
+	<form action="" en-submit="false">
+		<input type="text" id="portal-name" placeholder="Portal name" class="background-view-light" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|no-html" en-model="ctrl.$name"  />
+		<div id="portal-types" class="dropdown"></div>
+		<div id="asset-classes" class="dropdown"></div>
+		<div class="buttons-container">
+			<div class="error" en-show="ctrl.$errorMsg != ''">{{ctrl.$errorMsg}}</div>
+			<button type="submit" class="button green" en-click="ctrl.ok()">
+				<div class="tick"></div>OK
+			</button>
+			<div class="button" en-click="ctrl.hide()">
+				<div class="red-highlight">CANCEL</div>
+			</div>
+			<div class="fix"></div>
+		</div>
+	</form>
+</div>
