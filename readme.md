@@ -6,7 +6,7 @@ through the use of server & client side plugins.
 The goal of the application is to greatly simplify the creation, deployment and management of
 interactive web apps.
 
-* version 0.0.1
+* version 0.1.0
 
 ## Requirements
 
