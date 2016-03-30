@@ -1,7 +1,7 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, isAuthenticated, UserEvent, canEdit, IAuthReq, Model, getUser, IRemoveResponse, EventManager, isValidID} from "modepress-api";
+import * as modepress from "modepress-api";
 import {PermissionController} from "./permission-controller";
 import {BuildController} from "./build-controller";
 import {ProjectModel} from "../models/project-model";
@@ -11,7 +11,7 @@ import * as winston from "winston";
 /**
 * A controller that deals with project models
 */
-export class ProjectController extends Controller
+export class ProjectController extends modepress.Controller
 {
 	/**
 	* Creates a new instance of the controller
@@ -19,7 +19,7 @@ export class ProjectController extends Controller
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(server: IServer, config: IConfig, e: express.Express)
+    constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
         super([new ProjectModel()]);
 
@@ -28,22 +28,22 @@ export class ProjectController extends Controller
         router.use(bodyParser.json());
         router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-        router.get("/:user/:id?", <any>[getUser, this.getProjects.bind(this)]);
-        router.put("/:user/:id", <any>[canEdit, this.updateProject.bind(this)]);
-        router.delete("/:user/:ids", <any>[canEdit, this.remove.bind(this)]);
-        router.post("/create", <any>[isAuthenticated, this.createProject.bind(this)]);
+        router.get("/:user/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
+        router.put("/:user/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
+        router.delete("/:user/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
+        router.post("/create", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
 
         // Register the path
         e.use("/app-engine/projects", router);
 
-        EventManager.singleton.on("Removed", this.onUserRemoved.bind(this));
+        modepress.EventManager.singleton.on("Removed", this.onUserRemoved.bind(this));
     }
 
     /**
     * Called whenever a user has had their account removed
     * @param {UserEvent} event
     */
-    private onUserRemoved(event: UserEvent)
+    private onUserRemoved(event: modepress.UserEvent)
     {
         this.removeByUser(event.username );
     }
@@ -53,14 +53,14 @@ export class ProjectController extends Controller
     * @param {any} selector
     * @returns {Promise<IRemoveResponse>}
     */
-    removeByQuery(selector: any): Promise<IRemoveResponse>
+    removeByQuery(selector: any): Promise<modepress.IRemoveResponse>
     {
-        var toRet: IRemoveResponse = { error: false, message: "0 items have been removed", itemsRemoved: [] };
+        var toRet: modepress.IRemoveResponse = { error: false, message: "0 items have been removed", itemsRemoved: [] };
         var model = this.getModel("en-projects");
         var buildCtrl = BuildController.singleton;
         var numRemoved = 0;
 
-        return new Promise<IRemoveResponse>(function (resolve, reject)
+        return new Promise<modepress.IRemoveResponse>(function (resolve, reject)
         {
             model.findInstances<Engine.IProject>(selector).then(function (instances)
             {
@@ -107,7 +107,7 @@ export class ProjectController extends Controller
     * @param {string} user
     * @returns {Promise<IRemoveResponse>}
     */
-    removeByUser(user: string): Promise<IRemoveResponse>
+    removeByUser(user: string): Promise<modepress.IRemoveResponse>
     {
         return this.removeByQuery(<Engine.IProject>{ user: user });
     }
@@ -117,7 +117,7 @@ export class ProjectController extends Controller
     * @param {Array<string>} ids
     * @returns {Promise<IRemoveResponse>}
     */
-    removeByIds(ids: Array<string>, user: string): Promise<IRemoveResponse>
+    removeByIds(ids: Array<string>, user: string): Promise<modepress.IRemoveResponse>
     {
         var findToken: Engine.IProject = { user: user };
         var $or: Array<Engine.IProject> = [];
@@ -137,7 +137,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    private updateProject(req: IAuthReq, res: express.Response, next: Function)
+    private updateProject(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-projects");
@@ -147,8 +147,8 @@ export class ProjectController extends Controller
         var token: Engine.IProject = req.body;
 
         // Verify the project ID
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         updateToken._id = new mongodb.ObjectID(project);
         updateToken.user = req._user.username;
@@ -158,13 +158,13 @@ export class ProjectController extends Controller
             if (instance.error)
             {
                 winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<IResponse>{
+                return res.end(JSON.stringify(<modepress.IResponse>{
                     error: true,
                     message: <string>instance.tokens[0].error
                 }));
             }
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: `[${instance.tokens.length}] Projects updated`
             }));
@@ -172,7 +172,7 @@ export class ProjectController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -185,7 +185,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    remove(req: IAuthReq, res: express.Response, next: Function)
+    remove(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var that = this;
@@ -193,17 +193,17 @@ export class ProjectController extends Controller
         var projectIds = req.params.ids.split(",");
 
         for (var i = 0, l = projectIds.length; i < l; i++)
-            if (!isValidID(projectIds[i]))
-                return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid object id" }));
+            if (!modepress.isValidID(projectIds[i]))
+                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
 
         that.removeByIds(projectIds, target).then(function(response)
         {
-            res.end(JSON.stringify(<IRemoveResponse>response));
+            res.end(JSON.stringify(<modepress.IRemoveResponse>response));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -216,7 +216,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    createProject(req: IAuthReq, res: express.Response, next: Function)
+    createProject(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         // ✔ Check logged in + has rights to do request
         // ✔ Create a build
@@ -266,7 +266,7 @@ export class ProjectController extends Controller
             {
                 // Not in the limit - so remove the project and tell the user to upgrade
                 that.removeByIds([newProject._id], req._user.username);
-                res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+                res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: err.message }));
             });
 
         }).catch(function (err: Error)
@@ -278,16 +278,16 @@ export class ProjectController extends Controller
             {
                 buildCtrl.removeByIds([newBuild._id.toString()], req._user.username).then(function ()
                 {
-                    res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+                    res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: err.message }));
 
                 }).catch(function (err: Error)
                 {
                     winston.error(err.message, { process: process.pid });
-                    res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+                    res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: err.message }));
                 });
             }
             else
-                res.end(JSON.stringify(<IResponse>{ error: true, message: err.message }));
+                res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: err.message }));
         });
     }
 
@@ -297,7 +297,7 @@ export class ProjectController extends Controller
     * @param {express.Response} res
     * @param {Function} next
     */
-    getProjects(req: IAuthReq, res: express.Response, next: Function)
+    getProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-projects");
@@ -309,10 +309,10 @@ export class ProjectController extends Controller
 
         // Check for valid ID
         if (req.params.id)
-            if (isValidID(req.params.id))
+            if (modepress.isValidID(req.params.id))
                 findToken._id = new mongodb.ObjectID(req.params.id);
             else
-                return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid object id" }));
+                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
 
         // Check for keywords
         if (req.query.search)
@@ -336,7 +336,7 @@ export class ProjectController extends Controller
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
