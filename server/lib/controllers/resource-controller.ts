@@ -16,27 +16,23 @@ export class ResourceController extends Controller
 	* Creates a new instance of the controller
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
-    * @param {express.Express} e The express instance of this server	
+    * @param {express.Express} e The express instance of this server
 	*/
-    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express, r?: express.Router )
+    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express)
     {
         super([model]);
 
         this._model = model;
 
-        var router = r;
-        if (!r)
-        {
-            router = express.Router();
-            router.use(bodyParser.urlencoded({ 'extended': true }));
-            router.use(bodyParser.json());
-            router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+        var router = express.Router();
+        router.use(bodyParser.urlencoded({ 'extended': true }));
+        router.use(bodyParser.json());
+        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
-            router.delete("/:user/:project/:ids", <any>[canEdit, this.removeResources.bind(this)]);
-            router.put("/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
-            router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
-            router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
-        }
+        router.delete("/:user/:project/:ids", <any>[canEdit, this.removeResources.bind(this)]);
+        router.put("/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
+        router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
+        router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
 
         // Register the path
         e.use(restUrl, router);
@@ -44,9 +40,9 @@ export class ResourceController extends Controller
 
     /**
     * Creates a new resource item
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected create(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -88,9 +84,9 @@ export class ResourceController extends Controller
 
     /**
     * Attempts to update a single resource
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected editResource(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -140,9 +136,9 @@ export class ResourceController extends Controller
 
     /**
     * Removes a single/array of resource items
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected removeResources(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -197,9 +193,9 @@ export class ResourceController extends Controller
 
     /**
     * Returns a single/array of resource items
-    * @param {express.Request} req 
+    * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next 
+    * @param {Function} next
     */
     protected getResources(req: IAuthReq, res: express.Response, next: Function)
     {
@@ -219,11 +215,11 @@ export class ResourceController extends Controller
             findToken._id = new mongodb.ObjectID(id);
 
         findToken.projectId = new mongodb.ObjectID(project);
-        
+
         // Check for keywords
         if (req.query.search)
             findToken.name = <any>new RegExp(req.query.search, "i");
-        
+
         // First get the count
         model.count(findToken).then(function (num)
         {
