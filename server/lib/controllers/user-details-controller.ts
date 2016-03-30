@@ -25,9 +25,9 @@ export class UserDetailsController extends EngineController
 
         UserDetailsController.singleton = this;
 
-        router.get("/user-details/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
-        router.post("/user-details/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
-        router.put("/user-details/:user", <any>[canEdit, this.updateDetails.bind(this)]);
+        this.router.get("/user-details/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
+        this.router.post("/user-details/:target", <any>[isAdmin, this.createDetails.bind(this)]);
+        this.router.put("/user-details/:user", <any>[canEdit, this.updateDetails.bind(this)]);
 
         EventManager.singleton.on("Activated", this.onActivated.bind(this));
         EventManager.singleton.on("Removed", this.onRemoved.bind(this));

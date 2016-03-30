@@ -156,7 +156,7 @@
             }
             else
             {
-                that.http.post<ModepressAddons.ICreatePlugin>(`${_variables['appEngineURL']}/app-engine/plugins/create`, pluginToken).then(function (response)
+                that.http.post<ModepressAddons.ICreatePlugin>(`${_variables['appEngineURL']}/app-engine/plugins`, pluginToken).then(function (response)
                 {
                     if (response.data.error)
                     {

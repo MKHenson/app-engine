@@ -17,9 +17,9 @@ export class FileController extends EngineController
     {
         super([new FileModel()], server, config, e);
 
-        this.router.put("/files/:user/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
-        this.router.get("/files/:user/:project", <any>[canEdit, this.getByProject.bind(this)]);
-        this.router.get("/files/:user", <any>[canEdit, this.getByUser.bind(this)]);
+        this.router.put("/users/:user/files/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
+        this.router.get("/users/:user/projects/:project/files", <any>[canEdit, this.getByProject.bind(this)]);
+        this.router.get("/users/:user/files", <any>[canEdit, this.getByUser.bind(this)]);
 
         EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
         EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));

@@ -306,7 +306,7 @@ module Animate
 
             return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject)
             {
-                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/projects/${that.entry.username}?verbose=true&index=${index}&limit=${limit}`).then(function (data)
+                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -349,7 +349,7 @@ module Animate
 
             return new Promise<ModepressAddons.ICreateProject>(function (resolve, reject)
             {
-                Utils.post<ModepressAddons.ICreateProject>(`${DB.API}/projects/create`, token).then(function (data)
+                Utils.post<ModepressAddons.ICreateProject>(`${DB.API}/projects`, token).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -382,7 +382,7 @@ module Animate
 
             return new Promise<Modepress.IResponse>(function (resolve, reject)
             {
-                Utils.delete<Modepress.IResponse>(`${DB.API}/projects/${that.entry.username}/${pid}`).then(function (data)
+                Utils.delete<Modepress.IResponse>(`${DB.API}/users/${that.entry.username}/projects/${pid}`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));

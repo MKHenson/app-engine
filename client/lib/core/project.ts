@@ -104,7 +104,7 @@ module Animate
             var that = this;
             return new Promise<boolean>(function (resolve, reject)
             {
-                Utils.put<UsersInterface.IResponse>(`${DB.API}/builds/${that.entry.user}/${that.entry.projectId}/${that.entry._id}`, token).then(function (data)
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry.projectId}/builds/${that.entry._id}`, token).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -340,7 +340,7 @@ module Animate
             var that = this;
             return new Promise<UsersInterface.IResponse>(function(resolve, reject)
             {
-                Utils.put<UsersInterface.IResponse>(`${DB.API}/projects/${that.entry.user}/${that.entry._id}`, token).then(function (data)
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}`, token).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -374,9 +374,9 @@ module Animate
 
                 // If the project has a build then load it - otherwise create a new one
                 if (that.entry.build && that.entry.build != "")
-                    promise = Utils.get(`${DB.API}/builds/${username}/${that.entry._id}/${that.entry.build}`);
+                    promise = Utils.get(`${DB.API}/users/${username}/projects/${that.entry._id}/builds/${that.entry.build}`);
                 else
-                    promise = Utils.post(`${DB.API}/builds/${username}/${that.entry._id}?set-current=true`, null);
+                    promise = Utils.post(`${DB.API}/users/${username}/projects/${that.entry._id}/builds?set-current=true`, null);
 
                 promise.then(function (data: ModepressAddons.IGetBuilds)
                 {

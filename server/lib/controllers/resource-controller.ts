@@ -29,6 +29,11 @@ export class ResourceController extends EngineController
         this.router.put(restUrl + "/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
         this.router.get(restUrl + "/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
         this.router.post(restUrl + "/:user/:project/", <any>[canEdit, this.create.bind(this)]);
+
+        // this.router.delete(`/user/:user/project/:project${restUrl}/:ids`, <any>[canEdit, this.removeResources.bind(this)]);
+        // this.router.put(`/user/:user/project/:project${restUrl}/:id`, <any>[canEdit, this.editResource.bind(this)]);
+        // this.router.get(`/user/:user/project/:project${restUrl}/:id?`, <any>[canEdit, this.getResources.bind(this)]);
+        // this.router.post(`/user/:user/project/:project${restUrl}`, <any>[canEdit, this.create.bind(this)]);
     }
 
     /**

@@ -25,9 +25,9 @@ export class BuildController extends EngineController
         BuildController.singleton = this;
 
         // Define the routes
-        router.get("/builds/:user/:project/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
-        router.post("/builds/:user/:project", <any>[canEdit, this.create.bind(this)]);
-        router.put("/builds/:user/:project/:id", <any>[canEdit, this.edit.bind(this)]);
+        this.router.get("/users/:user/projects/:project/builds/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
+        this.router.post("/users/:user/projects/:project/builds", <any>[canEdit, this.create.bind(this)]);
+        this.router.put("/users/:user/projects/:project/builds/:id", <any>[canEdit, this.edit.bind(this)]);
     }
 
     /**

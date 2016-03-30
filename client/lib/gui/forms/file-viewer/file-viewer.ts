@@ -346,9 +346,9 @@ module Animate
             //if (this.selectedFolder)
             //{
             if (this._searchType == FileSearchType.Project)
-                command = `${DB.API}/files/${details.username}/${project.entry._id}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
+                command = `${DB.API}/users/${details.username}/projects/${project.entry._id}/files?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
             else
-                command = `${DB.API}/files/${details.username}/?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
+                command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
             //}
             //else
             //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
@@ -541,7 +541,7 @@ module Animate
                 else
                 {
                     // Associate the uploaded preview with the file
-                    Utils.put(`${DB.API}/files/${details.username}/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse)
+                    Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse)
                     {
                         if (token.error)
                             Logger.logMessage(err.message, null, LogType.ERROR);
@@ -666,7 +666,7 @@ module Animate
             that.$confirmDelete = false;
             Compiler.digest(that._browserElm, that);
 
-            Utils.put(`${DB.API}/files/${details.username}/${token._id}`, token).then(function (response: UsersInterface.IResponse)
+            Utils.put(`${DB.API}/user/${details.username}/files/${token._id}`, token).then(function (response: UsersInterface.IResponse)
             {
                 that.$loading = false;
                 if (response.error)

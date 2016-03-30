@@ -23,7 +23,7 @@ export class PluginController extends EngineController
 
         this.router.get("/plugins/:id?", <any>[getUser, this.getPlugins.bind(this)]);
         this.router.delete("/plugins/:id", <any>[isAdmin, this.remove.bind(this)]);
-        this.router.post("/plugins/create", <any>[isAdmin, this.create.bind(this)]);
+        this.router.post("/plugins", <any>[isAdmin, this.create.bind(this)]);
         this.router.put("/plugins/:id", <any>[isAdmin, this.update.bind(this)]);
     }
 

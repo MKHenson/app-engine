@@ -23,11 +23,11 @@ export class ProjectController extends EngineController
     {
         super([new ProjectModel()], server, config, e);
 
-        this.router.get("/projects/", <any>[modepress.isAdmin, this.getAllProjects.bind(this)]);
-        this.router.get("/projects/:user/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
-        this.router.put("/projects/:user/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
-        this.router.delete("/projects/:user/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
-        this.router.post("/projects/create", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
+        this.router.get("/projects", <any>[modepress.isAdmin, this.getAllProjects.bind(this)]);
+        this.router.post("/projects", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
+        this.router.get("/users/:user/projects/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
+        this.router.put("/users/:user/projects/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
+        this.router.delete("/users/:user/projects/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
 
         modepress.EventManager.singleton.on("Removed", this.onUserRemoved.bind(this));
     }
