@@ -1,15 +1,15 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
-import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, isAdmin, getUser, IAuthReq, isValidID} from "modepress-api";
+import {IServer, IConfig, IResponse, isAdmin, getUser, IAuthReq, isValidID} from "modepress-api";
 import {PluginModel} from "../models/plugin-model";
 import {IPlugin} from "engine";
 import * as winston from "winston";
+import {EngineController} from "./engine-controller";
 
 /**
 * A controller that deals with plugin models
 */
-export class PluginController extends Controller
+export class PluginController extends EngineController
 {
 	/**
 	* Creates a new instance of the controller
@@ -19,20 +19,12 @@ export class PluginController extends Controller
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new PluginModel()]);
+        super([new PluginModel()], server, config, e);
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-        router.get("/:id?", <any>[getUser, this.getPlugins.bind(this)]);
-        router.delete("/:id", <any>[isAdmin, this.remove.bind(this)]);
-        router.post("/create", <any>[isAdmin, this.create.bind(this)]);
-        router.put("/:id", <any>[isAdmin, this.update.bind(this)]);
-
-        // Register the path
-        e.use("/app-engine/plugins", router);
+        this.router.get("/plugins/:id?", <any>[getUser, this.getPlugins.bind(this)]);
+        this.router.delete("/plugins/:id", <any>[isAdmin, this.remove.bind(this)]);
+        this.router.post("/plugins/create", <any>[isAdmin, this.create.bind(this)]);
+        this.router.put("/plugins/:id", <any>[isAdmin, this.update.bind(this)]);
     }
 
     /**

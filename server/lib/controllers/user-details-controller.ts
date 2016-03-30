@@ -1,15 +1,15 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
-import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, isAuthenticated, getUser, UsersService} from "modepress-api";
+import {IServer, IConfig, IResponse, EventManager, UserEvent, IAuthReq, isAdmin, canEdit, isAuthenticated, getUser, UsersService} from "modepress-api";
 import {UserDetailsModel} from "../models/user-details-model";
 import {IProject} from "engine";
 import * as winston from "winston";
+import {EngineController} from "./engine-controller";
 
 /**
 * A controller that deals with project models
 */
-export class UserDetailsController extends Controller
+export class UserDetailsController extends EngineController
 {
     public static singleton: UserDetailsController;
 
@@ -21,21 +21,13 @@ export class UserDetailsController extends Controller
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new UserDetailsModel()]);
+        super([new UserDetailsModel()], server, config, e);
 
         UserDetailsController.singleton = this;
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-        router.get("/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
-        router.post("/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
-        router.put("/:user", <any>[canEdit, this.updateDetails.bind(this)]);
-
-        // Register the path
-        e.use("/app-engine/user-details", router);
+        router.get("/user-details/:user", <any>[isAuthenticated, this.getDetails.bind(this)]);
+        router.post("/user-details/create/:target", <any>[isAdmin, this.createDetails.bind(this)]);
+        router.put("/user-details/:user", <any>[canEdit, this.updateDetails.bind(this)]);
 
         EventManager.singleton.on("Activated", this.onActivated.bind(this));
         EventManager.singleton.on("Removed", this.onRemoved.bind(this));

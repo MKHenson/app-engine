@@ -1,41 +1,34 @@
 ﻿import * as express from "express";
-import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, IAuthReq, isValidID, canEdit, Model} from "modepress-api";
+import {IServer, IConfig, IResponse, IAuthReq, isValidID, canEdit, Model} from "modepress-api";
 import * as winston from "winston";
 import * as mongodb from "mongodb";
+import {EngineController} from "./engine-controller"
 
 /**
 * An abstract controller that deals with a general set of resources. This is usually sub-classed
 * to a higer level controller
 */
-export class ResourceController extends Controller
+export class ResourceController extends EngineController
 {
     private _model: Model;
 
 	/**
 	* Creates a new instance of the controller
+    * @param {string} restUrl The url to represent this resource
+    * @param {Model} model The model to associate with this resource
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
     constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express)
     {
-        super([model]);
+        super([model], server, config, e );
 
         this._model = model;
-
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-        router.delete("/:user/:project/:ids", <any>[canEdit, this.removeResources.bind(this)]);
-        router.put("/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
-        router.get("/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
-        router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
-
-        // Register the path
-        e.use(restUrl, router);
+        this.router.delete(restUrl + "/:user/:project/:ids", <any>[canEdit, this.removeResources.bind(this)]);
+        this.router.put(restUrl + "/:user/:project/:id", <any>[canEdit, this.editResource.bind(this)]);
+        this.router.get(restUrl + "/:user/:project/:id?", <any>[canEdit, this.getResources.bind(this)]);
+        this.router.post(restUrl + "/:user/:project/", <any>[canEdit, this.create.bind(this)]);
     }
 
     /**

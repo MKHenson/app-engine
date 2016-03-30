@@ -13,6 +13,7 @@
   },
   "files": [
       "lib/references.d.ts",
+      "lib/controllers/engine-controller.ts",
       "lib/controllers/build-controller.ts",
       "lib/controllers/file-controller.ts",
       "lib/controllers/permission-controller.ts",

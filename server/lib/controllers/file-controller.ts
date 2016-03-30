@@ -1,38 +1,28 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import * as bodyParser from "body-parser";
-import {IServer, IConfig, IResponse, isValidID, ModelInstance, EventManager, Controller, IAuthReq, canEdit} from "modepress-api";
+import {IServer, IConfig, IResponse, isValidID, ModelInstance, EventManager, IAuthReq, canEdit} from "modepress-api";
 import {UserDetailsModel} from "../models/user-details-model";
 import {IProject} from "engine";
 import * as winston from "winston";
 import {FileModel} from "../models/file-model";
 import * as request from "request"
+import {EngineController} from "./engine-controller";
 
 /**
 * A controller that deals with project models
 */
-export class FileController extends Controller
+export class FileController extends EngineController
 {
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new FileModel()]);
+        super([new FileModel()], server, config, e);
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-        //router.delete("/:user/:project/:ids?", <any>[canEdit, this.removeResources.bind(this)]);
-        router.put("/:user/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
-        router.get("/:user/:project", <any>[canEdit, this.getByProject.bind(this)]);
-        router.get("/:user", <any>[canEdit, this.getByUser.bind(this)]);
-        //router.post("/:user/:project/", <any>[canEdit, this.create.bind(this)]);
+        this.router.put("/files/:user/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
+        this.router.get("/files/:user/:project", <any>[canEdit, this.getByProject.bind(this)]);
+        this.router.get("/files/:user", <any>[canEdit, this.getByUser.bind(this)]);
 
         EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
         EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
-
-        // Register the path
-        e.use("/app-engine/files", router);
     }
 
     /**

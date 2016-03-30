@@ -1,17 +1,17 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import * as bodyParser from "body-parser";
 import * as modepress from "modepress-api";
 import {PermissionController} from "./permission-controller";
 import {BuildController} from "./build-controller";
 import {ProjectModel} from "../models/project-model";
 import {IProject} from "engine";
 import * as winston from "winston";
+import {EngineController} from "./engine-controller";
 
 /**
 * A controller that deals with project models
 */
-export class ProjectController extends modepress.Controller
+export class ProjectController extends EngineController
 {
 	/**
 	* Creates a new instance of the controller
@@ -21,20 +21,13 @@ export class ProjectController extends modepress.Controller
 	*/
     constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new ProjectModel()]);
+        super([new ProjectModel()], server, config, e);
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
-        router.get("/:user/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
-        router.put("/:user/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
-        router.delete("/:user/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
-        router.post("/create", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
-
-        // Register the path
-        e.use("/app-engine/projects", router);
+        this.router.get("/projects/", <any>[modepress.isAdmin, this.getAllProjects.bind(this)]);
+        this.router.get("/projects/:user/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
+        this.router.put("/projects/:user/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
+        this.router.delete("/projects/:user/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
+        this.router.post("/projects/create", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
 
         modepress.EventManager.singleton.on("Removed", this.onUserRemoved.bind(this));
     }
@@ -288,6 +281,39 @@ export class ProjectController extends modepress.Controller
             }
             else
                 res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: err.message }));
+        });
+    }
+
+     /**
+    * Gets all projects. Request only valid for admin's
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    getAllProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var model = this.getModel("en-projects");
+        var that = this;
+        var findToken: IProject = {};
+
+        // First get the count
+        model.findInstances<IProject>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), <IProject>{ _id : 1 }).then(function (instances)
+        {
+             res.end(JSON.stringify(<ModepressAddons.IGetProjects> {
+                error: false,
+                count: instances.length,
+                message: `Found ${instances.length} projects`,
+                data: that.getSanitizedData(instances, true)
+            }));
+
+        }).catch(function (error: Error)
+        {
+            winston.error(error.message, { process: process.pid });
+            res.end(JSON.stringify(<modepress.IResponse>{
+                error: true,
+                message: error.message
+            }));
         });
     }
 

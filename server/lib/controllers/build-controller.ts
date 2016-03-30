@@ -1,15 +1,15 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import * as bodyParser from "body-parser";
-import {Controller, IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
+import {IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
 import {BuildModel} from "../models/build-model";
 import {IProject} from "engine";
-import * as winston from "winston"
+import * as winston from "winston";
+import {EngineController} from "./engine-controller";
 
 /**
 * A controller that deals with build models
 */
-export class BuildController extends Controller
+export class BuildController extends EngineController
 {
     public static singleton: BuildController;
 
@@ -21,21 +21,13 @@ export class BuildController extends Controller
 	*/
     constructor(server: IServer, config: IConfig, e: express.Express)
     {
-        super([new BuildModel()]);
+        super([new BuildModel()], server, config, e);
         BuildController.singleton = this;
 
-        var router = express.Router();
-        router.use(bodyParser.urlencoded({ 'extended': true }));
-        router.use(bodyParser.json());
-        router.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-
         // Define the routes
-        router.get("/:user/:project/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
-        router.post("/:user/:project", <any>[canEdit, this.create.bind(this)]);
-        router.put("/:user/:project/:id", <any>[canEdit, this.edit.bind(this)]);
-
-        // Register the path
-        e.use("/app-engine/builds", router);
+        router.get("/builds/:user/:project/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
+        router.post("/builds/:user/:project", <any>[canEdit, this.create.bind(this)]);
+        router.put("/builds/:user/:project/:id", <any>[canEdit, this.edit.bind(this)]);
     }
 
     /**
