@@ -187,11 +187,11 @@ module Animate
             this._groups = [];
 
             this._restPaths = {};
-            this._restPaths[ResourceType.FILE] = { url: `${DB.API}/files`, array: this._files };
-            this._restPaths[ResourceType.ASSET] = { url: `${DB.API}/assets`, array: this._assets };
-            this._restPaths[ResourceType.CONTAINER] = { url: `${DB.API}/containers`, array: this._containers };
-            this._restPaths[ResourceType.GROUP] = { url: `${DB.API}/groups`, array: this._groups };
-            this._restPaths[ResourceType.SCRIPT] = { url: `${DB.API}/scripts`, array: this._scripts };
+            this._restPaths[ResourceType.FILE] = { url: `files`, array: this._files };
+            this._restPaths[ResourceType.ASSET] = { url: `assets`, array: this._assets };
+            this._restPaths[ResourceType.CONTAINER] = { url: `containers`, array: this._containers };
+            this._restPaths[ResourceType.GROUP] = { url: `groups`, array: this._groups };
+            this._restPaths[ResourceType.SCRIPT] = { url: `scripts`, array: this._scripts };
         }
 
         /**
@@ -460,11 +460,11 @@ module Animate
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
 
-                arr.push(Utils.get(`${paths[ResourceType.FILE].url}/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${paths[ResourceType.ASSET].url}/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${paths[ResourceType.CONTAINER].url}/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${paths[ResourceType.GROUP].url}/${this.entry.user}/${this.entry._id}`));
-                arr.push(Utils.get(`${paths[ResourceType.SCRIPT].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.FILE].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.ASSET].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.CONTAINER].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.GROUP].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.SCRIPT].url}`));
             }
             else
             {
@@ -472,7 +472,7 @@ module Animate
                 for (var i = 0, pArr = paths[type].array, l = pArr.length; i < l; i++)
                     pArr[i].emit(new Event("deleted"));
 
-                arr.push(Utils.get(`${paths[type].url}/${this.entry.user}/${this.entry._id}`));
+                arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[type].url}`));
                 paths[type].array.splice(0, paths[type].array.length);
             }
 
@@ -545,7 +545,7 @@ module Animate
 
             return new Promise<T>(function (resolve, reject)
             {
-                Utils.get<Modepress.IGetArrayResponse<T>>(`${paths[r.type].url}/${that.entry.user}/${that.entry._id}/${id}`).then(function (response)
+                Utils.get<Modepress.IGetArrayResponse<T>>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}/${paths[r.type].url}/${id}`).then(function (response)
                 {
                     if (response.error)
                         return reject(new Error(response.message));
@@ -581,7 +581,7 @@ module Animate
             var details = User.get.entry;
             var projId = this.entry._id;
             var paths = this._restPaths;
-            var url: string = `${paths[type].url}/${details.username}/${projId}/${id}`;
+            var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[type].url}/${id}`;
             var array = paths[type].array;
             var resource: ProjectResource<Engine.IResource>;
 
@@ -629,7 +629,7 @@ module Animate
             var details = User.get.entry;
             var projId = this.entry._id;
             var r = this.getResourceByID(id, type);
-            var url: string = `${paths[r.type].url}/${details.username}/${projId}/${id}`;
+            var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[r.type].url}/${id}`;
             var resource: ProjectResource<Engine.IResource> = r.resource;
             resource.onSaving();
 
@@ -688,7 +688,7 @@ module Animate
             var details = User.get.entry;
             var projId = this.entry._id;
             var paths = this._restPaths;
-            var url: string = `${paths[type].url}/${details.username}/${projId}/${id}`;
+            var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[type].url}/${id}`;
             var array = paths[type].array;
             var resource: ProjectResource<Engine.IResource>;
 
@@ -806,7 +806,7 @@ module Animate
             var details = User.get.entry;
             var projId = this.entry._id;
             var paths = this._restPaths;
-            var url: string = `${paths[type].url}/${details.username}/${projId}`;
+            var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[type].url}`;
 
             return new Promise<ProjectResource<T>>(function (resolve, reject)
             {
