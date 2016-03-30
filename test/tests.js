@@ -34,8 +34,9 @@ var georgeCookie = "";
 var janeCookie = "";
 var project = null;
 var plugin = null;
+var totalProjects = 0;
 
-console.log("Logged in as " + uconfig.adminUser.username + ",  " + uconfig.adminUser.password);
+console.log("Logged in as " + uconfig.adminUser.username);
 
 describe('Testing REST with admin user', function(){
 	
@@ -63,6 +64,23 @@ describe('Testing REST with admin user', function(){
 				done();
 			});
 	}).timeout(25000)
+})
+
+describe('Testing admin polling endpoints', function(){
+	
+	it('did get an array of projects', function(done){
+		apiAgent
+			.get('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count)
+				totalProjects = res.body.count;
+				done();
+			});
+	}).timeout(25000)
+	
 })
 
 describe('Creating two regular users geoge and jane', function(){
@@ -670,4 +688,19 @@ describe('Cleaning up', function(){
 				done();
 			});
 	}).timeout(25000)
+})
+
+describe('Testing cleanup has removed all resources', function(){
+	
+	it('did remove all projects', function(done){
+		apiAgent
+			.get('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				test.number(res.body.count)
+				test.bool(totalProjects == res.body.count).isTrue();
+				done();
+			});
+	}).timeout(25000)
+	
 })
