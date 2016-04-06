@@ -284,71 +284,17 @@ export class ProjectController extends EngineController
         });
     }
 
-     /**
-    * Gets all projects. Request only valid for admin's
-    * @param {IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    getAllProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
+    getByQuery(query: any, req: modepress.IAuthReq, res: express.Response)
     {
-        res.setHeader('Content-Type', 'application/json');
-        var model = this.getModel("en-projects");
-        var that = this;
-        var findToken: IProject = {};
-
-        // First get the count
-        model.findInstances<IProject>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit), <IProject>{ _id : 1 }).then(function (instances)
-        {
-             res.end(JSON.stringify(<ModepressAddons.IGetProjects> {
-                error: false,
-                count: instances.length,
-                message: `Found ${instances.length} projects`,
-                data: that.getSanitizedData(instances, true)
-            }));
-
-        }).catch(function (error: Error)
-        {
-            winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<modepress.IResponse>{
-                error: true,
-                message: error.message
-            }));
-        });
-    }
-
-    /**
-    * Gets projects based on the format of the request. You can optionally pass a 'search', 'index' and 'limit' query parameter.
-    * @param {IAuthReq} req
-    * @param {express.Response} res
-    * @param {Function} next
-    */
-    getProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
-    {
-        res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-projects");
         var that = this;
         var count = 0;
 
-        var findToken: IProject = {};
-        findToken.user = req.params.user;
-
-        // Check for valid ID
-        if (req.params.id)
-            if (modepress.isValidID(req.params.id))
-                findToken._id = new mongodb.ObjectID(req.params.id);
-            else
-                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
-
-        // Check for keywords
-        if (req.query.search)
-            findToken.name = <any>new RegExp(req.query.search, "i");
-
         // First get the count
-        model.count(findToken).then(function (num)
+        model.count(query).then(function (num)
         {
             count = num;
-            return model.findInstances<IProject>(findToken, [], parseInt(req.query.index), parseInt(req.query.limit));
+            return model.findInstances<IProject>(query, [], parseInt(req.query.index), parseInt(req.query.limit));
 
         }).then(function (instances)
         {
@@ -367,5 +313,43 @@ export class ProjectController extends EngineController
                 message: error.message
             }));
         });
+    }
+
+     /**
+    * Gets all projects. Request only valid for admin's
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    getAllProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        this.getByQuery({}, req, res);
+    }
+
+    /**
+    * Gets projects based on the format of the request. You can optionally pass a 'search', 'index' and 'limit' query parameter.
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    getProjects(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var findToken: IProject = {};
+        findToken.user = req.params.user;
+
+        // Check for valid ID
+        if (req.params.id)
+            if (modepress.isValidID(req.params.id))
+                findToken._id = new mongodb.ObjectID(req.params.id);
+            else
+                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
+
+        // Check for keywords
+        if (req.query.search)
+            findToken.name = <any>new RegExp(req.query.search, "i");
+
+        this.getByQuery(findToken, req, res);
     }
 }

@@ -1,5 +1,5 @@
 ﻿import * as express from "express";
-import {IServer, IConfig, IResponse, IAuthReq, isValidID, canEdit, Model} from "modepress-api";
+import * as modepress from "modepress-api";
 import * as winston from "winston";
 import * as mongodb from "mongodb";
 import {EngineController} from "./engine-controller"
@@ -10,25 +10,28 @@ import {EngineController} from "./engine-controller"
 */
 export class ResourceController extends EngineController
 {
-    private _model: Model;
+    private _model: modepress.Model;
+    protected _resourceType: string;
 
 	/**
 	* Creates a new instance of the controller
-    * @param {string} restUrl The url to represent this resource
+    * @param {string} resourceType The url to represent this resource
     * @param {Model} model The model to associate with this resource
 	* @param {IServer} server The server configuration options
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(restUrl: string, model: Model, server: IServer, config: IConfig, e: express.Express)
+    constructor(resourceType: string, model: modepress.Model, server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
         super([model], server, config, e );
 
         this._model = model;
-        this.router.delete(`/users/:user/projects/:project/${restUrl}/:ids`, <any>[canEdit, this.removeResources.bind(this)]);
-        this.router.put(`/users/:user/projects/:project/${restUrl}/:id`, <any>[canEdit, this.editResource.bind(this)]);
-        this.router.get(`/users/:user/projects/:project/${restUrl}/:id?`, <any>[canEdit, this.getResources.bind(this)]);
-        this.router.post(`/users/:user/projects/:project/${restUrl}`, <any>[canEdit, this.create.bind(this)]);
+        this._resourceType = resourceType;
+        this.router.get(`/${resourceType}`, <any>[modepress.isAdmin, this.getAll.bind(this)]);
+        this.router.delete(`/users/:user/projects/:project/${resourceType}/:ids`, <any>[modepress.canEdit, this.removeResources.bind(this)]);
+        this.router.put(`/users/:user/projects/:project/${resourceType}/:id`, <any>[modepress.canEdit, this.editResource.bind(this)]);
+        this.router.get(`/users/:user/projects/:project/${resourceType}/:id?`, <any>[modepress.canEdit, this.getResources.bind(this)]);
+        this.router.post(`/users/:user/projects/:project/${resourceType}`, <any>[modepress.canEdit, this.create.bind(this)]);
     }
 
     /**
@@ -37,7 +40,7 @@ export class ResourceController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected create(req: IAuthReq, res: express.Response, next: Function)
+    protected create(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this._model;
@@ -50,8 +53,8 @@ export class ResourceController extends EngineController
 
         // Check for the project and verify its valid
         var project = req.params.project;
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         // Valid project
         newResource.projectId = new mongodb.ObjectID(project);
@@ -68,7 +71,7 @@ export class ResourceController extends EngineController
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: `An error occurred while creating the resource '${newResource.name}' : ${err.message}`
             }));
@@ -81,7 +84,7 @@ export class ResourceController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected editResource(req: IAuthReq, res: express.Response, next: Function)
+    protected editResource(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this._model;
@@ -92,12 +95,12 @@ export class ResourceController extends EngineController
         var token: Engine.IResource = req.body;
 
         // Verify the resource ID
-        if (!isValidID(id))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid resource ID" }));
+        if (!modepress.isValidID(id))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid resource ID" }));
 
         // Verify the project ID
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         updateToken._id = new mongodb.ObjectID(id);
         updateToken.projectId = new mongodb.ObjectID(project);
@@ -106,13 +109,13 @@ export class ResourceController extends EngineController
             if (instance.error)
             {
                 winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<IResponse>{
+                return res.end(JSON.stringify(<modepress.IResponse>{
                     error: true,
                     message: <string>instance.tokens[0].error
                 }));
             }
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: `[${instance.tokens.length}] Resources updated`
             }));
@@ -120,7 +123,7 @@ export class ResourceController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -133,7 +136,7 @@ export class ResourceController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected removeResources(req: IAuthReq, res: express.Response, next: Function)
+    protected removeResources(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this._model;
@@ -143,8 +146,8 @@ export class ResourceController extends EngineController
         var deleteToken: Engine.IResource = {};
 
         // Check for the project and verify its valid
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         // Set the user parameter
         deleteToken.user = req.params.user;
@@ -159,8 +162,8 @@ export class ResourceController extends EngineController
                 (<any>deleteToken).$or = [];
 
                 for (var i = 0, l = idsArray.length; i < l; i++)
-                    if (!isValidID(idsArray[i]))
-                        return res.end(JSON.stringify(<IResponse>{ error: true, message: `ID '${idsArray[i]}' is not a valid ID` }));
+                    if (!modepress.isValidID(idsArray[i]))
+                        return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: `ID '${idsArray[i]}' is not a valid ID` }));
                     else
                         (<any>deleteToken).$or.push(<Engine.IResource>{ _id : new mongodb.ObjectID(idsArray[i]) });
             }
@@ -169,7 +172,7 @@ export class ResourceController extends EngineController
         // Delete the instances based onthe token
         model.deleteInstances(deleteToken).then(function (numRemoved)
         {
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: "Resources have been successfully removed"
             }));
@@ -177,7 +180,7 @@ export class ResourceController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -185,33 +188,20 @@ export class ResourceController extends EngineController
     }
 
     /**
-    * Returns a single/array of resource items
+    * Given a find query, returns all resources.
+    * Optional query parameters:
+    *   {number} index The start index from where to fetch resources
+    *   {number} limit The number of entries to be returned in the call
+    *   {boolean} verbose If true, all information is returned. If false, then only public non-sensitive data
+    * @param {Engine.IResource} findToken
     * @param {express.Request} req
     * @param {express.Response} res
-    * @param {Function} next
     */
-    protected getResources(req: IAuthReq, res: express.Response, next: Function)
+    protected getFromQuery( findToken: Engine.IResource, req: modepress.IAuthReq, res: express.Response )
     {
-        res.setHeader('Content-Type', 'application/json');
         var model = this._model;
         var that = this;
         var count = 0;
-
-        var findToken: Engine.IResource = {};
-        var project = req.params.project;
-        var id = req.params.id;
-
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
-
-        if (id && isValidID(id))
-            findToken._id = new mongodb.ObjectID(id);
-
-        findToken.projectId = new mongodb.ObjectID(project);
-
-        // Check for keywords
-        if (req.query.search)
-            findToken.name = <any>new RegExp(req.query.search, "i");
 
         // First get the count
         model.count(findToken).then(function (num)
@@ -224,17 +214,65 @@ export class ResourceController extends EngineController
             return res.end(JSON.stringify(<ModepressAddons.IGetResources>{
                 error: false,
                 count: count,
-                message: `Found ${count} resources`,
+                message: `Found ${count} ${that._resourceType}`,
                 data: that.getSanitizedData<Engine.IResource>(instances, !req._verbose)
             }));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
         });
+    }
+
+    /**
+    * Gets all resources of a given type. Only available for admin calls
+    * Optional query parameters:
+    *   {number} index The start index from where to fetch resources
+    *   {number} limit The number of entries to be returned in the call
+    *   {boolean} verbose If true, all information is returned. If false, then only public non-sensitive data
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    protected getAll(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        this.getFromQuery({}, req, res);
+    }
+
+    /**
+    * Returns a single/array of resource items
+    * Optional query parameters:
+    *   {number} index The start index from where to fetch resources
+    *   {number} limit The number of entries to be returned in the call
+    *   {boolean} verbose If true, all information is returned. If false, then only public non-sensitive data
+    * @param {express.Request} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    protected getResources(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var findToken: Engine.IResource = {};
+        var project = req.params.project;
+        var id = req.params.id;
+
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
+
+        if (id && modepress.isValidID(id))
+            findToken._id = new mongodb.ObjectID(id);
+
+        findToken.projectId = new mongodb.ObjectID(project);
+
+        // Check for keywords
+        if (req.query.search)
+            findToken.name = <any>new RegExp(req.query.search, "i");
+
+        this.getFromQuery(findToken, req, res);
     }
 }
