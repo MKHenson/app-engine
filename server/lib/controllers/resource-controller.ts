@@ -2,7 +2,8 @@
 import * as modepress from "modepress-api";
 import * as winston from "winston";
 import * as mongodb from "mongodb";
-import {EngineController} from "./engine-controller"
+import {EngineController} from "./engine-controller";
+import {ProjectModel} from "../models/project-model";
 
 /**
 * An abstract controller that deals with a general set of resources. This is usually sub-classed
@@ -23,7 +24,7 @@ export class ResourceController extends EngineController
 	*/
     constructor(resourceType: string, model: modepress.Model, server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([model], server, config, e );
+        super([model, new ProjectModel()], server, config, e );
 
         this._model = model;
         this._resourceType = resourceType;
@@ -44,6 +45,7 @@ export class ResourceController extends EngineController
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this._model;
+        var projectModel = this.getModel("projects");
         var that = this;
 
         var newResource: Engine.IResource = req.body;

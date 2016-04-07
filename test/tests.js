@@ -35,6 +35,10 @@ var janeCookie = "";
 var project = null;
 var plugin = null;
 var totalProjects = 0;
+var totalAssets = 0;
+var totalContainers = 0;
+var totalScripts = 0;
+var totalGroups = 0;
 
 console.log("Logged in as " + uconfig.adminUser.username);
 
@@ -77,6 +81,58 @@ describe('Testing admin polling endpoints', function(){
 				test.bool(res.body.error).isFalse()
 				test.number(res.body.count)
 				totalProjects = res.body.count;
+				done();
+			});
+	}).timeout(25000)
+
+  it('did get an array of assets', function(done){
+		apiAgent
+			.get('/app-engine/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count)
+				totalAssets = res.body.count;
+				done();
+			});
+	}).timeout(25000)
+
+  it('did get an array of containers', function(done){
+		apiAgent
+			.get('/app-engine/containers').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count)
+				totalContainers = res.body.count;
+				done();
+			});
+	}).timeout(25000)
+
+  it('did get an array of scripts', function(done){
+		apiAgent
+			.get('/app-engine/scripts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count)
+				totalScripts = res.body.count;
+				done();
+			});
+	}).timeout(25000)
+
+  it('did get an array of groups', function(done){
+		apiAgent
+			.get('/app-engine/groups').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				if (err) return done(err);
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count)
+				totalGroups = res.body.count;
 				done();
 			});
 	}).timeout(25000)
@@ -626,7 +682,12 @@ describe('Testing project related functions', function(){
 			.post('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({name: "Test project 1", description: "<b>Hello world!</b>", plugins:["111111111111111111111111"] })
 			.set('Cookie', georgeCookie)
-			.end(function(err, res){ if (err) return done(err); });
+			.end(function(err, res){
+        if (err)
+          return done(err);
+
+        project = res.body.data;
+      });
 
 		apiAgent
 			.post('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
@@ -667,6 +728,41 @@ describe('Testing project related functions', function(){
 
 })
 
+describe('Testing resource related functions', function(){
+
+  it('should not allow george to create an asset with invalid project id', function(done){
+    apiAgent
+        .post('/app-engine/users/george/projects/wrong_id/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "asset 1"})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("Please use a valid project ID")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+
+  it('should not allow george to create an asset with invalid project', function(done){
+    apiAgent
+        .post('/app-engine/users/george/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "asset 1"})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("An error occurred while creating the resource")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+
+
+});
+
 describe('Cleaning up', function(){
 
 	it('did remove any users called george', function(done){
@@ -699,6 +795,50 @@ describe('Testing cleanup has removed all resources', function(){
 			.end(function(err, res){
 				test.number(res.body.count)
 				test.bool(totalProjects == res.body.count).isTrue();
+				done();
+			});
+	}).timeout(25000)
+
+  it('did remove all scripts', function(done){
+		apiAgent
+			.get('/app-engine/scripts').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				test.number(res.body.count)
+				test.bool(totalScripts == res.body.count).isTrue();
+				done();
+			});
+	}).timeout(25000)
+
+  it('did remove all containers', function(done){
+		apiAgent
+			.get('/app-engine/containers').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				test.number(res.body.count)
+				test.bool(totalContainers == res.body.count).isTrue();
+				done();
+			});
+	}).timeout(25000)
+
+  it('did remove all groups', function(done){
+		apiAgent
+			.get('/app-engine/groups').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				test.number(res.body.count)
+				test.bool(totalGroups == res.body.count).isTrue();
+				done();
+			});
+	}).timeout(25000)
+
+  it('did remove all assets', function(done){
+		apiAgent
+			.get('/app-engine/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie', adminCookie)
+			.end(function(err, res){
+				test.number(res.body.count)
+				test.bool(totalAssets == res.body.count).isTrue();
 				done();
 			});
 	}).timeout(25000)
