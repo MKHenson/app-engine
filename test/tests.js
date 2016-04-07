@@ -510,7 +510,7 @@ describe('Testing project related functions', function(){
 				test.array(res.body.data.tags).isEmpty()
 				test.array(res.body.data.readPrivileges).isEmpty()
 				test.array(res.body.data.writePrivileges).isEmpty()
-				test.array(res.body.data.adminPrivileges).isEmpty()
+				test.array(res.body.data.adminPrivileges).isNotEmpty()
 				test.array(res.body.data.plugins).isNotEmpty()
 				test.array(res.body.data.files).isEmpty()
 				test.number(res.body.data.createdOn).isNot(0)
@@ -675,6 +675,21 @@ describe('Testing project related functions', function(){
 				done();
 			});
 	}).timeout(25000)
+	
+
+	it('should create a temp project', function(done){
+		apiAgent
+			.post('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.send({name: "Test project 1", description: "<b>Hello world!</b>", plugins:["111111111111111111111111"] })
+			.set('Cookie', georgeCookie)
+			.end(function(err, res){
+				if (err)
+				  return done(err);
+
+				project = res.body.data;
+				done();
+			  });
+	}).timeout(25000);
 
 
 	it('should not allow george to create 6 projects', function(done){
@@ -683,11 +698,9 @@ describe('Testing project related functions', function(){
 			.send({name: "Test project 1", description: "<b>Hello world!</b>", plugins:["111111111111111111111111"] })
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
-        if (err)
-          return done(err);
-
-        project = res.body.data;
-      });
+				if (err)
+				  return done(err);
+			  });
 
 		apiAgent
 			.post('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
@@ -744,6 +757,20 @@ describe('Testing resource related functions', function(){
           done(err);
         });
   }).timeout(25000)
+  
+  it('should not allow to create an asset when not logged in', function(done){
+    apiAgent
+        .post('/app-engine/users/george/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "asset 1"})
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("You must be logged in to make this request")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
 
   it('should not allow george to create an asset with invalid project', function(done){
     apiAgent
@@ -754,7 +781,52 @@ describe('Testing resource related functions', function(){
           if (err)
             return done(err);
 
-          test.string(res.body.message).is("An error occurred while creating the resource")
+          test.string(res.body.message).is("No project exists with that ID")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to create an asset with invalid user', function(done){
+    apiAgent
+        .post('/app-engine/users/george2/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "asset 1"})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("You do not have permission")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow jane to create an asset for george\'s project', function(done){
+    apiAgent
+        .post('/app-engine/users/george2/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "asset 1"})
+        .set('Cookie', janeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("You do not have permission")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to create an asset with empty data', function(done) {
+    apiAgent
+        .post('/app-engine/users/george/projects/' + project._id + '/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("name cannot be empty")
           test.bool(res.body.error).isTrue()
           done(err);
         });

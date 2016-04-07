@@ -228,6 +228,9 @@ export class ProjectController extends EngineController
 
         // User is passed from the authentication function
         token.user = req._user.username;
+        token.adminPrivileges = [req._user.username];
+        token.readPrivileges = [];
+        token.writePrivileges = [];
 
         // Create build
         buildCtrl.createBuild(req._user.username).then(function (build)

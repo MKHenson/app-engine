@@ -4,6 +4,7 @@ import * as winston from "winston";
 import * as mongodb from "mongodb";
 import {EngineController} from "./engine-controller";
 import {ProjectModel} from "../models/project-model";
+import {PermissionController} from "./permission-controller";
 
 /**
 * An abstract controller that deals with a general set of resources. This is usually sub-classed
@@ -28,11 +29,16 @@ export class ResourceController extends EngineController
 
         this._model = model;
         this._resourceType = resourceType;
+
+        // Get the project privilege controllers
+        var canRead = PermissionController.singleton.canReadProject.bind(PermissionController.singleton);
+        var canWrite = PermissionController.singleton.canWriteProject.bind(PermissionController.singleton);
+
         this.router.get(`/${resourceType}`, <any>[modepress.isAdmin, this.getAll.bind(this)]);
-        this.router.delete(`/users/:user/projects/:project/${resourceType}/:ids`, <any>[modepress.canEdit, this.removeResources.bind(this)]);
-        this.router.put(`/users/:user/projects/:project/${resourceType}/:id`, <any>[modepress.canEdit, this.editResource.bind(this)]);
-        this.router.get(`/users/:user/projects/:project/${resourceType}/:id?`, <any>[modepress.canEdit, this.getResources.bind(this)]);
-        this.router.post(`/users/:user/projects/:project/${resourceType}`, <any>[modepress.canEdit, this.create.bind(this)]);
+        this.router.delete(`/users/:user/projects/:project/${resourceType}/:ids`, <any>[modepress.canEdit, canWrite, this.removeResources.bind(this)]);
+        this.router.put(`/users/:user/projects/:project/${resourceType}/:id`, <any>[modepress.canEdit, canWrite, this.editResource.bind(this)]);
+        this.router.get(`/users/:user/projects/:project/${resourceType}/:id?`, <any>[modepress.canEdit, canRead, this.getResources.bind(this)]);
+        this.router.post(`/users/:user/projects/:project/${resourceType}`, <any>[modepress.canEdit, canWrite, this.create.bind(this)]);
     }
 
     /**
@@ -75,7 +81,7 @@ export class ResourceController extends EngineController
             winston.error(err.message, { process: process.pid });
             return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
-                message: `An error occurred while creating the resource '${newResource.name}' : ${err.message}`
+                message: err.message
             }));
         });
     }

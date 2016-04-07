@@ -26,14 +26,68 @@ export class PermissionController extends modepress.Controller
     }
 
     /**
-    * Checks if the logged in user is part
+    * Checks if the logged in user has read access to a project's data
     * @param {modepress.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
     */
-    canReadProject(req: modepress.IAuthReq, res : Express.Response, next: Function )
+    canReadProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    {
+         var query = {
+            $or : [
+                { readPrivileges: { $in: [ req._user.username ] } },
+                { writePrivileges: { $in: [ req._user.username ] } },
+                { adminPrivileges: { $in: [ req._user.username ] } }
+            ]
+         };
+
+        this.checkProjectPrivilege( query, req, res, next );
+    }
+
+    /**
+    * Checks if the logged in user has write access to a project's data
+    * @param {modepress.IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    canWriteProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    {
+        var query = {
+            $or : [
+                { writePrivileges: { $in: [ req._user.username ] } },
+                { adminPrivileges: { $in: [ req._user.username ] } }
+            ]
+         };
+
+        this.checkProjectPrivilege( query, req, res, next );
+    }
+
+    /**
+    * Checks if the logged in user has admin access to a project's data
+    * @param {modepress.IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    canAdminProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    {
+        var query = {
+            adminPrivileges: { $in: [ req._user.username ] }
+         };
+
+        this.checkProjectPrivilege( query, req, res, next );
+    }
+
+    /**
+    * Checks if the logged in user has rights to a project
+    * @param {any} query
+    * @param {modepress.IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    private checkProjectPrivilege( query: any, req: modepress.IAuthReq, res : express.Response, next: Function )
     {
         var project = req.params.project;
+        var user = req.params.user;
 
         if (!project)
         {
@@ -57,28 +111,25 @@ export class PermissionController extends modepress.Controller
         if (req._user.privileges < 3)
             return next();
 
-        var projectModel = this.getModel("projects");
+        var projectModel = this.getModel("en-projects");
         var that = this;
-        var selector = {
-            readPrivileges: { $in: [ req._user.username ] },
-            writePrivileges: { $in: [ req._user.username ] },
-            adminPrivileges: { $in: [ req._user.username ] }
-         };
 
-        projectModel.count(selector).then(function(count){
+        projectModel.count( <Engine.IProject>{ _id : new mongodb.ObjectID(project), user: user }).then(function(count)
+        {
             if (count == 0)
-            {
-                res.setHeader('Content-Type', 'application/json');
-                return res.end(JSON.stringify(<modepress.IResponse>{
-                    error: true,
-                    message: `User does not have read permissions for project`
-                }));
-            }
+                throw new Error("No project exists with that ID");
+
+            return projectModel.count(query)
+
+        }).then(function(count)
+        {
+            if (count == 0)
+                throw new Error("User does not have permissions for project");
             else
                 next();
 
-        }).catch(function( err : Error ){
-
+        }).catch(function( err : Error )
+        {
             res.setHeader('Content-Type', 'application/json');
             return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
