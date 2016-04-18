@@ -88,7 +88,7 @@ export class BuildController extends EngineController
 
         return new Promise<Modepress.ModelInstance<Engine.IBuild>>(function (resolve, reject)
         {
-            model.createInstance(<Engine.IBuild>{ user: username, projectId:project }).then(function (instance)
+            model.createInstance(<Engine.IBuild>{ name: '', user: username, projectId : project }).then(function (instance)
             {
                 return resolve(instance);
 

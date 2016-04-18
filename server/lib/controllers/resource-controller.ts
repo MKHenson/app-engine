@@ -182,7 +182,7 @@ export class ResourceController extends EngineController
         {
             res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
-                message: "Resources have been successfully removed"
+                message: `[${numRemoved}] resources have been removed`
             }));
 
         }).catch(function (error: Error)
