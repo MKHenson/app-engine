@@ -30,18 +30,51 @@ export class PermissionController extends modepress.Controller
     * @param {modepress.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
+    * @returns {Promise<boolean>} Returns a promise of true or false if the user can read a project. If false, you
+    * don't need to handle an response as the function does that for you.
     */
-    canReadProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    canReadProject(req: modepress.IAuthReq, res : express.Response, next: Function) : Promise<boolean>
     {
-         var query = {
+        var suppressNext = req._suppressNext;
+        var user = ( req._user ? req._user.username : null );
+        var project = req.params.project;
+        var that = this;
+        var query = {
             $or : [
-                { readPrivileges: { $in: [ req._user.username ] } },
-                { writePrivileges: { $in: [ req._user.username ] } },
-                { adminPrivileges: { $in: [ req._user.username ] } }
+                { readPrivileges: { $in: [ user ] } },
+                { writePrivileges: { $in: [ user ] } },
+                { adminPrivileges: { $in: [ user ] } }
             ]
          };
 
-        this.checkProjectPrivilege( query, req, res, next );
+        return new Promise(function(resolve, reject) {
+
+            if ( !user )
+            {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: "Please login to make this call"
+                }));
+                return resolve(false);
+            }
+
+            that.checkProjectPrivilege( query, req, project ).then(function() {
+                if (!suppressNext)
+                    next();
+                return resolve(true);
+
+            }).catch(function(err:Error) {
+
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: err.message
+                }));
+
+                return resolve(false);
+            });
+        });
     }
 
     /**
@@ -49,9 +82,15 @@ export class PermissionController extends modepress.Controller
     * @param {modepress.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
+    * @returns {Promise<boolean>} Returns a promise of true or false if the user can write a project. If false, you
+    * don't need to handle an response as the function does that for you.
     */
-    canWriteProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    canWriteProject(req: modepress.IAuthReq, res : express.Response, next: Function): Promise<boolean>
     {
+        var suppressNext = req._suppressNext;
+        var project = req.params.project;
+        var user = ( req._user ? req._user.username : null );
+        var that = this;
         var query = {
             $or : [
                 { writePrivileges: { $in: [ req._user.username ] } },
@@ -59,7 +98,33 @@ export class PermissionController extends modepress.Controller
             ]
          };
 
-        this.checkProjectPrivilege( query, req, res, next );
+        return new Promise(function(resolve, reject) {
+
+            if ( !user )
+            {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: "Please login to make this call"
+                }));
+                return resolve(false);
+            }
+
+            that.checkProjectPrivilege( query, req, project ).then(function() {
+                if (!suppressNext)
+                    next();
+                return resolve(true);
+
+            }).catch(function(err:Error) {
+
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: err.message
+                }));
+                return resolve(false);
+            });
+        });
     }
 
     /**
@@ -67,74 +132,94 @@ export class PermissionController extends modepress.Controller
     * @param {modepress.IAuthReq} req
     * @param {express.Response} res
     * @param {Function} next
+    * @returns {Promise<boolean>} Returns a promise of true or false if the user can admin a project. If false, you
+    * don't need to handle an response as the function does that for you.
     */
-    canAdminProject(req: modepress.IAuthReq, res : express.Response, next: Function )
+    canAdminProject(req: modepress.IAuthReq, res : express.Response, next: Function ): Promise<boolean>
     {
+        var suppressNext = req._suppressNext;
+        var project = req.params.project;
+        var that = this;
+        var user = ( req._user ? req._user.username : null );
         var query = {
             adminPrivileges: { $in: [ req._user.username ] }
          };
 
-        this.checkProjectPrivilege( query, req, res, next );
+        return new Promise(function(resolve, reject) {
+
+            if ( !user )
+            {
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: "Please login to make this call"
+                }));
+                return resolve(false);
+            }
+
+            that.checkProjectPrivilege( query, req, project ).then(function() {
+
+                if (!suppressNext)
+                    next();
+                return resolve(true);
+
+            }).catch(function(err:Error) {
+
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(<modepress.IResponse>{
+                    error: true,
+                    message: err.message
+                }));
+                return resolve(false);
+
+            });
+        });
     }
 
     /**
     * Checks if the logged in user has rights to a project
     * @param {any} query
     * @param {modepress.IAuthReq} req
-    * @param {express.Response} res
     * @param {Function} next
+    * @param {string} project Specify the project instead of get it from the req.parameters
     */
-    private checkProjectPrivilege( query: any, req: modepress.IAuthReq, res : express.Response, next: Function )
+    checkProjectPrivilege( query: any, req: modepress.IAuthReq, project? : string ) : Promise<boolean>
     {
-        var project = req.params.project;
+        var project : string = project || req.params.project;
         var user = req.params.user;
-
-        if (!project)
-        {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify(<modepress.IResponse>{
-                error: true,
-                message: `Project not specified`
-            }));
-        }
-
-        if (!modepress.isValidID(project))
-        {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify(<modepress.IResponse>{
-                error: true,
-                message: "Please use a valid project ID"
-            }));
-        }
-
-        // If an admin - then the user can manage the project
-        if (req._user.privileges < 3)
-            return next();
-
         var projectModel = this.getModel("en-projects");
         var that = this;
 
-        projectModel.count( <Engine.IProject>{ _id : new mongodb.ObjectID(project), user: user }).then(function(count)
-        {
-            if (count == 0)
-                throw new Error("No project exists with that ID");
+        return new Promise(function(resolve, reject) {
 
-            return projectModel.count(query)
+            if (!project)
+                return reject(new Error(`Project not specified`));
 
-        }).then(function(count)
-        {
-            if (count == 0)
-                throw new Error("User does not have permissions for project");
-            else
-                next();
+            if (!modepress.isValidID(project))
+                return reject(new Error("Please use a valid project ID"));
 
-        }).catch(function( err : Error )
-        {
-            res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify(<modepress.IResponse>{
-                error: true,
-                message: err.message
-            }));
+            // If an admin - then the user can manage the project
+            if (req._user.privileges < 3)
+                return resolve(true);
+
+            projectModel.count( <Engine.IProject>{ _id : new mongodb.ObjectID(project), user: user }).then(function(count)
+            {
+                if (count == 0)
+                    throw new Error("No project exists with that ID");
+
+                return projectModel.count(query)
+
+            }).then(function(count)
+            {
+                if (count == 0)
+                    throw new Error("User does not have permissions for project");
+                else
+                    return resolve(true);
+
+            }).catch(function( err : Error )
+            {
+                return reject(err);
+            });
         });
     }
 

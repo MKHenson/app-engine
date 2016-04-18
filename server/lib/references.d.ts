@@ -17,3 +17,4 @@
 /// <reference path="./definitions/required/modepress-api.d.ts" />
 
 /// <reference path="./definitions/custom/app-engine.d.ts" />
+/// <reference path="./definitions/custom/modepress-api.d.ts" />

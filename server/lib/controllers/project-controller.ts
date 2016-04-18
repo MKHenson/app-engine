@@ -23,11 +23,15 @@ export class ProjectController extends EngineController
     {
         super([new ProjectModel()], server, config, e);
 
+        // Get the project privilege controllers
+        var canRead = PermissionController.singleton.canReadProject.bind(PermissionController.singleton);
+        var canAdmin = PermissionController.singleton.canAdminProject.bind(PermissionController.singleton);
+
         this.router.get("/projects", <any>[modepress.isAdmin, this.getAllProjects.bind(this)]);
         this.router.post("/projects", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
-        this.router.get("/users/:user/projects/:id?", <any>[modepress.getUser, this.getProjects.bind(this)]);
-        this.router.put("/users/:user/projects/:id", <any>[modepress.canEdit, this.updateProject.bind(this)]);
-        this.router.delete("/users/:user/projects/:ids", <any>[modepress.canEdit, this.remove.bind(this)]);
+        this.router.get("/users/:user/projects/:project?", <any>[modepress.getUser, canRead, this.getProjects.bind(this)]);
+        this.router.put("/users/:user/projects/:project", <any>[modepress.canEdit, canAdmin, this.updateProject.bind(this)]);
+        this.router.delete("/users/:user/projects/:projects", <any>[modepress.canEdit, this.remove.bind(this)]);
 
         modepress.EventManager.singleton.on("Removed", this.onUserRemoved.bind(this));
     }
@@ -135,7 +139,7 @@ export class ProjectController extends EngineController
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-projects");
         var that = this;
-        var project: string = req.params.id;
+        var project: string = req.params.project;
         var updateToken: Engine.IProject = {};
         var token: Engine.IProject = req.body;
 
@@ -180,22 +184,41 @@ export class ProjectController extends EngineController
     */
     remove(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
-        res.setHeader('Content-Type', 'application/json');
         var that = this;
         var target = req.params.user;
-        var projectIds = req.params.ids.split(",");
+        var projectIds = req.params.projects.split(",");
+        var validityPromises: Array<Promise<boolean>> = [];
+
+        req._suppressNext = true;
 
         for (var i = 0, l = projectIds.length; i < l; i++)
-            if (!modepress.isValidID(projectIds[i]))
-                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
-
-        that.removeByIds(projectIds, target).then(function(response)
         {
+            req.params.project = projectIds[i];
+            validityPromises.push(PermissionController.singleton.canAdminProject( req, res, next ));
+        }
+
+        // Check all the validity promises. If any one of them is false, then there is something wrong.
+        Promise.all(validityPromises).then( function( validityArray ) {
+
+            for ( var i = 0, l = validityArray.length; i < l; i++ )
+                if ( !validityArray[i] )
+                    return null;
+
+            return that.removeByIds(projectIds, target);
+
+        }).then(function(response)
+        {
+            // No response - this means it was handled in the validity checks
+            if (!response)
+                return;
+
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(<modepress.IRemoveResponse>response));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
+            res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
@@ -343,9 +366,9 @@ export class ProjectController extends EngineController
         findToken.user = req.params.user;
 
         // Check for valid ID
-        if (req.params.id)
-            if (modepress.isValidID(req.params.id))
-                findToken._id = new mongodb.ObjectID(req.params.id);
+        if (req.params.project)
+            if (modepress.isValidID(req.params.project))
+                findToken._id = new mongodb.ObjectID(req.params.project);
             else
                 return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
 
