@@ -39,6 +39,7 @@ var totalAssets = 0;
 var totalContainers = 0;
 var totalScripts = 0;
 var totalGroups = 0;
+var resourceId = "";
 
 console.log("Logged in as " + uconfig.adminUser.username);
 
@@ -46,7 +47,7 @@ describe('Testing REST with admin user', function(){
 
 	it('should not be logged in', function(done){
 		usersAgent
-			.get('/users/logout').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.get('/logout').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.end(function(err, res){
 				if (err) return done(err);
 				test.bool(res.body.error).isNotTrue()
@@ -143,7 +144,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did remove any users called george', function(done){
 		usersAgent
-			.delete('/users/remove-user/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.delete('/users/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
@@ -153,7 +154,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did remove any users called jane', function(done){
 		usersAgent
-			.delete('/users/remove-user/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.delete('/users/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
@@ -163,7 +164,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did create regular user george', function(done){
 		usersAgent
-			.post('/users/create-user').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.post('/users').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({username: "george", password: "password", email: "test@test.com", privileges: 3 })
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
@@ -176,7 +177,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did create another regular user jane with valid details', function(done){
 		usersAgent
-			.post('/users/create-user').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.post('/users').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.send({username: "jane", password: "password", email: "test2@test.com", privileges: 3 })
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
@@ -189,7 +190,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did active george through the admin', function(done){
 		usersAgent
-			.put('/users/approve-activation/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.put('/users/george/approve-activation').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
@@ -200,7 +201,7 @@ describe('Creating two regular users geoge and jane', function(){
 
 	it('did active jane through the admin', function(done){
 		usersAgent
-			.put('/users/approve-activation/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.put('/users/jane/approve-activation').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
@@ -539,7 +540,7 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Please use a valid object id")
+				test.string(res.body.message).is("Please use a valid project ID")
 				test.bool(res.body.error).isTrue()
 				done();
 			});
@@ -551,9 +552,8 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Found 0 projects")
-				test.bool(res.body.error).isFalse()
-				test.number(res.body.count).is(0)
+				test.string(res.body.message).is("No project exists with that ID")
+				test.bool(res.body.error).isTrue()
 				done();
 			});
 	}).timeout(25000)
@@ -592,23 +592,19 @@ describe('Testing project related functions', function(){
 			.set('Cookie', janeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Found 1 projects")
-				test.bool(res.body.error).isFalse()
-				test.number(res.body.count).is(1)
-				test.value(res.body.data[0].readPrivileges).isNull()
+				test.string(res.body.message).is("User does not have permissions for project")
+				test.bool(res.body.error).isTrue()
 				done();
 			});
 	}).timeout(25000)
 
-	it('should get a sanitized project when no user cookie is detected', function(done){
+	it('should not get a project when no user cookie is detected', function(done){
 		apiAgent
 			.get('/app-engine/users/george/projects/' + project._id + "?verbose=true").set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Found 1 projects")
-				test.bool(res.body.error).isFalse()
-				test.number(res.body.count).is(1)
-				test.value(res.body.data[0].readPrivileges).isNull()
+				test.string(res.body.message).is("Please login to make this call")
+				test.bool(res.body.error).isTrue()
 				done();
 			});
 	}).timeout(25000)
@@ -619,9 +615,8 @@ describe('Testing project related functions', function(){
 			.set('Cookie', janeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Found 0 projects")
-				test.bool(res.body.error).isFalse()
-				test.number(res.body.count).is(0)
+				test.string(res.body.message).is("No project exists with that ID")
+				test.bool(res.body.error).isTrue()
 				done();
 			});
 	}).timeout(25000)
@@ -644,7 +639,7 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("Please use a valid object id")
+				test.string(res.body.message).is("Please use a valid project ID")
 				test.bool(res.body.error).isTrue()
 				done();
 			});
@@ -656,9 +651,8 @@ describe('Testing project related functions', function(){
 			.set('Cookie', georgeCookie)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("0 items have been removed")
-				test.bool(res.body.error).isFalse()
-				test.array(res.body.itemsRemoved).isEmpty()
+				test.string(res.body.message).is("No project exists with that ID")
+				test.bool(res.body.error).isTrue()
 				done();
 			});
 	}).timeout(25000)
@@ -804,7 +798,7 @@ describe('Testing resource related functions', function(){
   
   it('should not allow jane to create an asset for george\'s project', function(done){
     apiAgent
-        .post('/app-engine/users/george2/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .post('/app-engine/users/george/projects/111111111111111111111111/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
         .send({name: "asset 1"})
         .set('Cookie', janeCookie)
         .end(function(err, res){
@@ -826,7 +820,106 @@ describe('Testing resource related functions', function(){
           if (err)
             return done(err);
 
-          test.string(res.body.message).is("name cannot be empty")
+          test.string(res.body.message).is("name is required")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to create an asset without a shallowId', function(done) {
+    apiAgent
+        .post('/app-engine/users/george/projects/' + project._id + '/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name : "chicken"})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("shallowId is required")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to create an asset without a className', function(done) {
+    apiAgent
+        .post('/app-engine/users/george/projects/' + project._id + '/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name : "chicken", shallowId: 1})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("className is required")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should allow george to create a valid asset', function(done) {
+    apiAgent
+        .post('/app-engine/users/george/projects/' + project._id + '/assets').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .send({name: "chicken", shallowId: 1, className: "Classy"})
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+		
+		console.log(JSON.stringify(res.body.data))
+		  
+		  resourceId = res.body.data._id;
+          test.string(res.body.message).is("New resource 'chicken' created")
+		  test.string(res.body.data.name).is("chicken");
+		  test.string(res.body.data.className).is("Classy");
+		  test.string(res.body.data.user).is("george");
+		  test.object(res.body.data.json);
+		  test.number(res.body.data.createdOn);
+		  test.number(res.body.data.lastModified);
+		  test.number(res.body.data.shallowId).is(1);
+		  test.string(res.body.data._id);
+          test.bool(res.body.error).isFalse()
+		  
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to delete an asset with invalid id', function(done) {
+    apiAgent
+        .delete('/app-engine/users/george/projects/' + project._id + '/assets/badId').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("ID 'badId' is not a valid ID")
+          test.bool(res.body.error).isTrue()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow george to delete an asset that does not exist', function(done) {
+    apiAgent
+        .delete('/app-engine/users/george/projects/' + project._id + '/assets/111111111111111111111111').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .set('Cookie', georgeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("[0] resources have been removed")
+          test.bool(res.body.error).isFalse()
+          done(err);
+        });
+  }).timeout(25000)
+  
+  it('should not allow jane to delete an asset of george', function(done) {
+    apiAgent
+        .delete('/app-engine/users/george/projects/' + project._id + '/assets/' + resourceId).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+        .set('Cookie', janeCookie)
+        .end(function(err, res){
+          if (err)
+            return done(err);
+
+          test.string(res.body.message).is("You do not have permission")
           test.bool(res.body.error).isTrue()
           done(err);
         });
@@ -839,7 +932,7 @@ describe('Cleaning up', function(){
 
 	it('did remove any users called george', function(done){
 		usersAgent
-			.delete('/users/remove-user/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.delete('/users/george').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
@@ -849,7 +942,7 @@ describe('Cleaning up', function(){
 
 	it('did remove any users called jane', function(done){
 		usersAgent
-			.delete('/users/remove-user/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.delete('/users/jane').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.set('Cookie', adminCookie)
 			.end(function(err, res){
 				if (err) return done(err);
