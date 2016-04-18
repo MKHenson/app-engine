@@ -11,16 +11,16 @@ export class FileModel extends Model
     constructor()
     {
         super("en-files");
-        
-        this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
-        this.defaultSchema.add(new SchemaFactory.text("bucketId", "", 1, 30));
-        this.defaultSchema.add(new SchemaFactory.text("bucketName", "", 1, 100));
+
+        this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.text("bucketId", "", 1, 30)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.text("bucketName", "", 1, 100)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.num("size", 0, 0, Number.MAX_VALUE, NumberType.Integer));
         this.defaultSchema.add(new SchemaFactory.bool("favourite", false, true));
         this.defaultSchema.add(new SchemaFactory.bool("global", false));
         this.defaultSchema.add(new SchemaFactory.bool("browsable", true));
-        this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
-        this.defaultSchema.add(new SchemaFactory.text("identifier", "", 1, 50));
+        this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.text("identifier", "", 1, 50)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("extension", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("url", "", 1, 1024, true));
         this.defaultSchema.add(new SchemaFactory.textArray("tags", [], 0, 20, 0, 50, true));

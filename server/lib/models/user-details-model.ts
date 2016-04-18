@@ -24,8 +24,8 @@ export class UserDetailsModel extends Model
     constructor()
     {
         super("en-user-details");
-        
-        this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setIndexable(true).setUnique(true);
+
+        this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setIndexable(true).setUnique(true).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("bio", ""));
         this.defaultSchema.add(new SchemaFactory.text("image", ""));
         this.defaultSchema.add(new SchemaFactory.num("plan", Plan.Free, undefined, undefined, undefined, undefined, true)).setIndexable(true);

@@ -11,10 +11,10 @@ export class BuildModel extends Model
     constructor()
     {
         super("en-builds");
-              
-        this.defaultSchema.add(new SchemaFactory.text("name", "New Build", 1));
-        this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
+
+        this.defaultSchema.add(new SchemaFactory.text("name", "New Build", 0));
+        this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("notes", ""));
         this.defaultSchema.add(new SchemaFactory.text("version", "0.0.1"));
         this.defaultSchema.add(new SchemaFactory.html("html", "", SchemaFactory.html.defaultTags.concat("h1", "h2", "h3", "h4", "img"), SchemaFactory.html.defaultAllowedAttributes));

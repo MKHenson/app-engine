@@ -13,7 +13,7 @@ export class PluginModel extends Model
     {
         super("en-plugins");
 
-        this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
+        this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("description", ""));
         this.defaultSchema.add(new SchemaFactory.num("plan", Plan.Free, 1));
         this.defaultSchema.add(new SchemaFactory.text("url", ""));

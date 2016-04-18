@@ -13,7 +13,7 @@ export class ScriptModel extends Model
         super("en-scripts");
 
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1));
-        this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, NumberType.Integer));
+        this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, NumberType.Integer)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("onEnter", ""));
         this.defaultSchema.add(new SchemaFactory.text("onInitialize", ""));
         this.defaultSchema.add(new SchemaFactory.text("onDispose", ""));

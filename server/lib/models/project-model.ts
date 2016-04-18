@@ -12,7 +12,7 @@ export class ProjectModel extends Model
     {
         super("en-projects");
 
-        this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setIndexable(true).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.html("description", ""));
         this.defaultSchema.add(new SchemaFactory.text("image", ""));
         this.defaultSchema.add(new SchemaFactory.num("category", 1, 1)).setIndexable(true);
