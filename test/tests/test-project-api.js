@@ -154,7 +154,7 @@
 				test.string(res.body.message).is("Found 1 projects")
 				test.bool(res.body.error).isFalse()
 				test.number(res.body.count).is(1)
-				test.value(res.body.data[0].readPrivileges).isNull()
+				test.value(res.body.data[0].readPrivileges).isUndefined()
 				done();
 			});
 	}).timeout(25000)
@@ -225,7 +225,7 @@
 			.delete('/app-engine/users/george/projects/' + header.variables().project._id).set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
 			.end(function(err, res){
 				if (err) return done(err);
-				test.string(res.body.message).is("You must be logged in the make this request")
+				test.string(res.body.message).is("You must be logged in to make this request")
 				test.bool(res.body.error).isTrue()
 				done();
 			});

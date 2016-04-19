@@ -27,10 +27,10 @@
 				test.string(res.body.data.user).is("george")
 				test.string(res.body.data.bio).is("")
 				test.value(res.body.data.image).is("")
-				test.number(res.body.data.plan).is(0)
+				test.value(res.body.data.plan).isUndefined()
 				test.string(res.body.data.website).is("")
-				test.string(res.body.data.customerId).is("")
-				test.number(res.body.data.maxProjects).is(0)
+				test.value(res.body.data.customerId).isUndefined()
+				test.value(res.body.data.maxProjects).isUndefined()
 				test.value(res.body.data._id).isNull()
 				done();
 			});
@@ -63,10 +63,10 @@
 				test.string(res.body.message).is("Found details for user 'jane'")
 				test.string(res.body.data.user).is("jane")
 				test.string(res.body.data.bio).is("")
-				test.number(res.body.data.plan).is(0)
+				test.value(res.body.data.plan).isUndefined()
 				test.string(res.body.data.website).is("")
-				test.string(res.body.data.customerId).is("")
-				test.number(res.body.data.maxProjects).is(0)
+				test.value(res.body.data.customerId).isUndefined()
+				test.value(res.body.data.maxProjects).isUndefined()
 				test.value(res.body.data._id).isNull()
 				done();
 			});
