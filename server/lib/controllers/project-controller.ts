@@ -29,7 +29,8 @@ export class ProjectController extends EngineController
 
         this.router.get("/projects", <any>[modepress.isAdmin, this.getAllProjects.bind(this)]);
         this.router.post("/projects", <any>[modepress.isAuthenticated, this.createProject.bind(this)]);
-        this.router.get("/users/:user/projects/:project?", <any>[modepress.getUser, canRead, this.getProjects.bind(this)]);
+        this.router.get("/users/:user/projects", <any>[modepress.getUser, this.getProjects.bind(this)]);
+        this.router.get("/users/:user/projects/:project", <any>[modepress.getUser, canRead, this.getProject.bind(this)]);
         this.router.put("/users/:user/projects/:project", <any>[modepress.canEdit, canAdmin, this.updateProject.bind(this)]);
         this.router.delete("/users/:user/projects/:projects", <any>[modepress.canEdit, this.remove.bind(this)]);
 
@@ -365,16 +366,31 @@ export class ProjectController extends EngineController
         var findToken: IProject = {};
         findToken.user = req.params.user;
 
+        // Check for keywords
+        if (req.query.search)
+            findToken.name = <any>new RegExp(req.query.search, "i");
+
+        this.getByQuery(findToken, req, res);
+    }
+
+    /**
+    * Gets projects based on the format of the request. You can optionally pass a 'search', 'index' and 'limit' query parameter.
+    * @param {IAuthReq} req
+    * @param {express.Response} res
+    * @param {Function} next
+    */
+    getProject(req: modepress.IAuthReq, res: express.Response, next: Function)
+    {
+        res.setHeader('Content-Type', 'application/json');
+        var findToken: IProject = {};
+        findToken.user = req.params.user;
+
         // Check for valid ID
         if (req.params.project)
             if (modepress.isValidID(req.params.project))
                 findToken._id = new mongodb.ObjectID(req.params.project);
             else
                 return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object id" }));
-
-        // Check for keywords
-        if (req.query.search)
-            findToken.name = <any>new RegExp(req.query.search, "i");
 
         this.getByQuery(findToken, req, res);
     }
