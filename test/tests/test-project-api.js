@@ -289,9 +289,9 @@
 			.end(function(err, res){
 				if (err)
 				  return done(err);
- 				test.bool(res.body.error).isFalse()
-                test.number(res.body.count).is(1)
-                test.array(res.body.data).hasLength(1)
+				test.bool(res.body.error).isFalse()
+				test.number(res.body.count).is(1)
+				test.array(res.body.data).hasLength(1)
 				test.string(res.body.data[0]._id).is(header.variables().project._id)
 				test.value(res.body.data[0].readPrivileges).isUndefined()
 				done();
