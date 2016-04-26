@@ -268,7 +268,6 @@
 			});
 	}).timeout(25000)
 
-
 	it('should create a temp project', function(done){
 		apiAgent
 			.post('/app-engine/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
@@ -283,6 +282,37 @@
 			  });
 	}).timeout(25000);
 
+	it('should allow george to get a list of projects without sensitive data', function(done) {
+		apiAgent
+			.get('/app-engine/users/george/projects').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie',  header.variables().georgeCookie)
+			.end(function(err, res){
+				if (err)
+				  return done(err);
+ 				test.bool(res.body.error).isFalse()
+                test.number(res.body.count).is(1)
+                test.array(res.body.data).hasLength(1)
+				test.string(res.body.data[0]._id).is(header.variables().project._id)
+				test.value(res.body.data[0].readPrivileges).isUndefined()
+				done();
+			  });
+	}).timeout(25000)
+
+	it('should allow george to get a list of projects with sensitive data', function(done) {
+		apiAgent
+			.get('/app-engine/users/george/projects?verbose=true').set('Accept', 'application/json').expect(200).expect('Content-Type', /json/)
+			.set('Cookie',  header.variables().georgeCookie)
+			.end(function(err, res){
+				if (err)
+				  return done(err);
+ 				test.bool(res.body.error).isFalse()
+                test.number(res.body.count).is(1)
+                test.array(res.body.data).hasLength(1)
+				test.string(res.body.data[0]._id).is(header.variables().project._id)
+				test.array(res.body.data[0].readPrivileges)
+				done();
+			  });
+	}).timeout(25000)
 
 	it('should not allow george to create 6 projects', function(done){
 		apiAgent

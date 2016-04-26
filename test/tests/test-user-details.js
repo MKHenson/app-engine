@@ -31,6 +31,7 @@
 				test.string(res.body.data.website).is("")
 				test.value(res.body.data.customerId).isUndefined()
 				test.value(res.body.data.maxProjects).isUndefined()
+				test.string(res.body.data._id)
 				done();
 			});
 	}).timeout(25000)
@@ -66,6 +67,7 @@
 				test.string(res.body.data.website).is("")
 				test.value(res.body.data.customerId).isUndefined()
 				test.value(res.body.data.maxProjects).isUndefined()
+				test.string(res.body.data._id)
 				done();
 			});
 	}).timeout(25000)
