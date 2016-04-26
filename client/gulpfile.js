@@ -249,6 +249,9 @@ function downloadClient(url, folder){
  * Downloads each of the third party archives and unzips them into the third-party folder respectively
  */
 gulp.task('install-third-parties', function () {
+
+    deleteFolderRecursive('./third-party');
+
     return Promise.all([
         downloadClient("https://github.com/jquery/jquery/tarball/2.2.1", './third-party/jquery'),
         downloadClient("https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0", './third-party/jquery-hotkeys'),
