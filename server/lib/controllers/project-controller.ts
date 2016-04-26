@@ -21,7 +21,7 @@ export class ProjectController extends EngineController
 	*/
     constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new ProjectModel()], server, config, e);
+        super([ modepress.Model.registerModel(ProjectModel)], server, config, e);
 
         // Get the project privilege controllers
         var canRead = PermissionController.singleton.canReadProject.bind(PermissionController.singleton);
@@ -274,11 +274,15 @@ export class ProjectController extends EngineController
             // Make sure we're still in the limit
             PermissionController.singleton.projectsWithinLimits(req._user).then(function ()
             {
+                return newProject.schema.getAsJson(false, newProject._id);
+
+            }).then(function( json ){
+
                 // Finished
                 res.end(JSON.stringify(<ModepressAddons.ICreateProject>{
                     error: false,
                     message: `Created project '${token.name}'`,
-                    data: newProject.schema.generateCleanData(false, newProject._id)
+                    data: json
                 }));
 
             }).catch(function (err: Error)
@@ -324,11 +328,15 @@ export class ProjectController extends EngineController
 
         }).then(function (instances)
         {
-            res.end(JSON.stringify(<ModepressAddons.IGetProjects> {
+            return that.getSanitizedData(instances, req._verbose);
+
+        }).then(function(sanitizedData){
+
+             res.end(JSON.stringify(<ModepressAddons.IGetProjects> {
                 error: false,
                 count: count,
                 message: `Found ${count} projects`,
-                data: that.getSanitizedData(instances, req._verbose)
+                data:sanitizedData
             }));
 
         }).catch(function (error: Error)

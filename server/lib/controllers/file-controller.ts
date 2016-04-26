@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import {IServer, IConfig, IResponse, isValidID, ModelInstance, EventManager, IAuthReq, canEdit} from "modepress-api";
+import * as modepress from "modepress-api";
 import {UserDetailsModel} from "../models/user-details-model";
 import {IProject} from "engine";
 import * as winston from "winston";
@@ -13,16 +13,16 @@ import {EngineController} from "./engine-controller";
 */
 export class FileController extends EngineController
 {
-    constructor(server: IServer, config: IConfig, e: express.Express)
+    constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new FileModel()], server, config, e);
+        super([ modepress.Model.registerModel(FileModel)], server, config, e);
 
-        this.router.put("/users/:user/files/:id", <any>[canEdit, this.editFileDetails.bind(this)]);
-        this.router.get("/users/:user/projects/:project/files", <any>[canEdit, this.getByProject.bind(this)]);
-        this.router.get("/users/:user/files", <any>[canEdit, this.getByUser.bind(this)]);
+        this.router.put("/users/:user/files/:id", <any>[modepress.canEdit, this.editFileDetails.bind(this)]);
+        this.router.get("/users/:user/projects/:project/files", <any>[modepress.canEdit, this.getByProject.bind(this)]);
+        this.router.get("/users/:user/files", <any>[modepress.canEdit, this.getByUser.bind(this)]);
 
-        EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
-        EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
+        modepress.EventManager.singleton.on("FilesUploaded", this.onFilesUploaded.bind(this));
+        modepress.EventManager.singleton.on("FilesRemoved", this.onFilesRemoved.bind(this));
     }
 
     /**
@@ -31,15 +31,15 @@ export class FileController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected editFileDetails(req: IAuthReq, res: express.Response, next: Function)
+    protected editFileDetails(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-files");
         var that = this;
 
         // Verify the resource ID
-        if (!isValidID(req.params.id))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid resource ID" }));
+        if (!modepress.isValidID(req.params.id))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid resource ID" }));
 
         var searchToken: Engine.IFile = { _id: new mongodb.ObjectID(req.params.id) };
         var token: Engine.IResource = req.body;
@@ -49,13 +49,13 @@ export class FileController extends EngineController
             if (instance.error)
             {
                 winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<IResponse>{
+                return res.end(JSON.stringify(<modepress.IResponse>{
                     error: true,
                     message: <string>instance.tokens[0].error
                 }));
             }
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: `[${instance.tokens.length}] Files updated`
             }));
@@ -63,7 +63,7 @@ export class FileController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error("Could not update file details: " + error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{ error: true, message: "Could not update file details: " + error.message }));
+            res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Could not update file details: " + error.message }));
         });
     }
 
@@ -90,11 +90,15 @@ export class FileController extends EngineController
 
             }).then(function (instances)
             {
-                resolve({
+                return that.getSanitizedData<Engine.IFile>(instances, verbose);
+
+            }).then(function(sanitizedData){
+
+              resolve({
                     error: false,
                     count: count,
                     message: `Found ${count} files`,
-                    data: that.getSanitizedData<Engine.IFile>(instances, verbose)
+                    data: sanitizedData
                 });
 
             }).catch(function (error: Error)
@@ -137,13 +141,13 @@ export class FileController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected getByProject(req: IAuthReq, res: express.Response, next: Function)
+    protected getByProject(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
 
         var project = req.params.project;
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         // Create the query
         var query: Engine.IFile = { projectId: new mongodb.ObjectID(project), user: req._user.username, browsable : true };
@@ -156,7 +160,7 @@ export class FileController extends EngineController
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: `An error occurred while fetching the files : ${err.message}`
             }));
@@ -169,7 +173,7 @@ export class FileController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected getByUser(req: IAuthReq, res: express.Response, next: Function)
+    protected getByUser(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
 
@@ -184,7 +188,7 @@ export class FileController extends EngineController
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: `An error occurred while fetching the files : ${err.message}`
             }));
@@ -199,7 +203,7 @@ export class FileController extends EngineController
     {
         var model = this.getModel("en-files");
         var files = event.files;
-        var promises: Array<Promise<ModelInstance<Engine.IFile>>> = [];
+        var promises: Array<Promise<modepress.ModelInstance<Engine.IFile>>> = [];
 
 
         // Add an IFile reference for each file thats added

@@ -14,10 +14,10 @@ export class GroupModel extends Model
 
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, NumberType.Integer)).setRequired(true);
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "")).setRequired(true).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.numArray("items", [], 0, Number.MAX_VALUE, 0, Number.MAX_VALUE, NumberType.Integer));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
     }
 }

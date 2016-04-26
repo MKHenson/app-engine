@@ -18,9 +18,9 @@ export class ScriptModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("onInitialize", ""));
         this.defaultSchema.add(new SchemaFactory.text("onDispose", ""));
         this.defaultSchema.add(new SchemaFactory.text("onFrame", ""));
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "")).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
     }
 }

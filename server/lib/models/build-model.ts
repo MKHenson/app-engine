@@ -14,7 +14,7 @@ export class BuildModel extends Model
 
         this.defaultSchema.add(new SchemaFactory.text("name", "New Build", 0));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setRequired(true);
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true)).setRequired(true);
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "")).setRequired(true).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.text("notes", ""));
         this.defaultSchema.add(new SchemaFactory.text("version", "0.0.1"));
         this.defaultSchema.add(new SchemaFactory.html("html", "", SchemaFactory.html.defaultTags.concat("h1", "h2", "h3", "h4", "img"), SchemaFactory.html.defaultAllowedAttributes));
@@ -26,6 +26,6 @@ export class BuildModel extends Model
         this.defaultSchema.add(new SchemaFactory.num("totalVotes", 0));
         this.defaultSchema.add(new SchemaFactory.num("totalVoters", 0));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
     }
 }

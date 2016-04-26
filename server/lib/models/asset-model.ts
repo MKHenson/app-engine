@@ -15,10 +15,10 @@ export class AssetModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("name", "", 1)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.num("shallowId", -1, -1, Number.MAX_VALUE, NumberType.Integer)).setRequired(true);
         this.defaultSchema.add(new SchemaFactory.text("className", "", 1)).setRequired(true);
-        this.defaultSchema.add(new SchemaFactory.id("projectId", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("projectId", "")).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setRequired(true);
-        this.defaultSchema.add(new SchemaFactory.json("json", {}, true));
+        this.defaultSchema.add(new SchemaFactory.json("json", {})).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
     }
 }

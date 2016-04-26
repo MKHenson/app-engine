@@ -21,7 +21,11 @@ export class PermissionController extends modepress.Controller
 	*/
     constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new ProjectModel(), new UserDetailsModel()]);
+        super([
+            modepress.Model.registerModel(ProjectModel),
+            modepress.Model.registerModel(UserDetailsModel)
+        ]);
+
         PermissionController.singleton = this;
     }
 

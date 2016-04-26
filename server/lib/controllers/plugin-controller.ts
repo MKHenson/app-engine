@@ -1,6 +1,6 @@
 import * as mongodb from "mongodb";
 import * as express from "express";
-import {IServer, IConfig, IResponse, isAdmin, getUser, IAuthReq, isValidID} from "modepress-api";
+import * as modepress from "modepress-api";
 import {PluginModel} from "../models/plugin-model";
 import {IPlugin} from "engine";
 import * as winston from "winston";
@@ -17,14 +17,14 @@ export class PluginController extends EngineController
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(server: IServer, config: IConfig, e: express.Express)
+    constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new PluginModel()], server, config, e);
+        super([modepress.Model.registerModel(PluginModel)], server, config, e);
 
-        this.router.get("/plugins/:id?", <any>[getUser, this.getPlugins.bind(this)]);
-        this.router.delete("/plugins/:id", <any>[isAdmin, this.remove.bind(this)]);
-        this.router.post("/plugins", <any>[isAdmin, this.create.bind(this)]);
-        this.router.put("/plugins/:id", <any>[isAdmin, this.update.bind(this)]);
+        this.router.get("/plugins/:id?", <any>[modepress.getUser, this.getPlugins.bind(this)]);
+        this.router.delete("/plugins/:id", <any>[modepress.isAdmin, this.remove.bind(this)]);
+        this.router.post("/plugins", <any>[modepress.isAdmin, this.create.bind(this)]);
+        this.router.put("/plugins/:id", <any>[modepress.isAdmin, this.update.bind(this)]);
     }
 
     /**
@@ -43,7 +43,7 @@ export class PluginController extends EngineController
             if (numRemoved == 0)
                 return Promise.reject(new Error("Could not find a plugin with that ID"));
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: "Plugin has been successfully removed"
             }));
@@ -51,7 +51,7 @@ export class PluginController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -64,7 +64,7 @@ export class PluginController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    private update(req: IAuthReq, res: express.Response, next: Function)
+    private update(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-plugins");
@@ -72,7 +72,7 @@ export class PluginController extends EngineController
         var pluginToken = <IPlugin>req.body;
         model.update<IPlugin>(<IPlugin>{ _id: new mongodb.ObjectID(req.params.id) }, pluginToken).then(function (data)
         {
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: "Plugin Updated"
             }));
@@ -80,7 +80,7 @@ export class PluginController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -93,7 +93,7 @@ export class PluginController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    private create(req: IAuthReq, res: express.Response, next: Function)
+    private create(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-plugins");
@@ -105,16 +105,20 @@ export class PluginController extends EngineController
         // Create the new plugin
         model.createInstance<ModepressAddons.ICreatePlugin>(pluginToken).then(function (instance)
         {
-            res.end(JSON.stringify(<ModepressAddons.ICreatePlugin>{
+            return instance.schema.getAsJson(false, instance._id);
+
+        }).then(function(json){
+
+          res.end(JSON.stringify(<ModepressAddons.ICreatePlugin>{
                 error: false,
                 message: `Created new plugin '${pluginToken.name}'`,
-                data: instance.schema.generateCleanData(false, instance._id)
+                data: json
             }));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -127,7 +131,7 @@ export class PluginController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    private getPlugins(req: IAuthReq, res: express.Response, next: Function)
+    private getPlugins(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var model = this.getModel("en-plugins");
@@ -146,8 +150,8 @@ export class PluginController extends EngineController
 
         if (req.params.id)
         {
-            if (!isValidID(req.params.id))
-                return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid object ID" }));
+            if (!modepress.isValidID(req.params.id))
+                return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid object ID" }));
 
             findToken._id = new mongodb.ObjectID(req.params.id);
         }
@@ -164,17 +168,21 @@ export class PluginController extends EngineController
 
         }).then(function (instances)
         {
-            res.end(JSON.stringify(<ModepressAddons.IGetPlugins>{
+            return that.getSanitizedData(instances, true);
+
+        }).then(function(sanitizedData){
+
+          res.end(JSON.stringify(<ModepressAddons.IGetPlugins>{
                 error: false,
                 count: count,
                 message: `Found ${count} plugins`,
-                data: that.getSanitizedData(instances, true)
+                data: sanitizedData
             }));
 
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));

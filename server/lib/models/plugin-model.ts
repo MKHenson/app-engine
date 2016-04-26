@@ -22,7 +22,7 @@ export class PluginModel extends Model
         this.defaultSchema.add(new SchemaFactory.text("author", "", 1));
         this.defaultSchema.add(new SchemaFactory.text("version", "0.0.1", 1));
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.bool("isPublic", false, true));
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.bool("isPublic", false)).setSensitive(true);
     }
 }

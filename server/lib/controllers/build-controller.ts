@@ -1,6 +1,6 @@
 ﻿import * as mongodb from "mongodb";
 import * as express from "express";
-import {IServer, IConfig, IResponse, canEdit, isAuthenticated, IAuthReq, isValidID} from "modepress-api";
+import * as modepress from "modepress-api";
 import {BuildModel} from "../models/build-model";
 import {IProject} from "engine";
 import * as winston from "winston";
@@ -19,15 +19,15 @@ export class BuildController extends EngineController
     * @param {IConfig} config The configuration options
     * @param {express.Express} e The express instance of this server
 	*/
-    constructor(server: IServer, config: IConfig, e: express.Express)
+    constructor(server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([new BuildModel()], server, config, e);
+        super([modepress.Model.registerModel(BuildModel)], server, config, e);
         BuildController.singleton = this;
 
         // Define the routes
-        this.router.get("/users/:user/projects/:project/builds/:id?", <any>[canEdit, this.getBuilds.bind(this)]);
-        this.router.post("/users/:user/projects/:project/builds", <any>[canEdit, this.create.bind(this)]);
-        this.router.put("/users/:user/projects/:project/builds/:id", <any>[canEdit, this.edit.bind(this)]);
+        this.router.get("/users/:user/projects/:project/builds/:id?", <any>[modepress.canEdit, this.getBuilds.bind(this)]);
+        this.router.post("/users/:user/projects/:project/builds", <any>[modepress.canEdit, this.create.bind(this)]);
+        this.router.put("/users/:user/projects/:project/builds/:id", <any>[modepress.canEdit, this.edit.bind(this)]);
     }
 
     /**
@@ -36,7 +36,7 @@ export class BuildController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    getBuilds(req: IAuthReq, res: express.Response, next: Function)
+    getBuilds(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
@@ -45,12 +45,12 @@ export class BuildController extends EngineController
         var model = that.getModel("en-builds");
         var totalMatches = 0;
 
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: `Please use a valid project ID` }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: `Please use a valid project ID` }));
 
         var findToken: Engine.IBuild = { user: target, projectId: new mongodb.ObjectID(project) };
 
-        if (req.params.id && isValidID(req.params.id))
+        if (req.params.id && modepress.isValidID(req.params.id))
             findToken._id = new mongodb.ObjectID(req.params.id);
 
         model.count(findToken).then(function(total)
@@ -60,17 +60,21 @@ export class BuildController extends EngineController
 
         }).then(function (instances)
         {
-            return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
+            return that.getSanitizedData(instances, !req._verbose);
+
+        }).then(function(sanitizedData) {
+
+          return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
                 error: false,
                 message: `Found [${totalMatches}] builds for user '${target}'`,
                 count: totalMatches,
-                data: that.getSanitizedData(instances, !req._verbose)
+                data: sanitizedData
             }));
 
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: `Could not get builds for '${target}' : ${err.message}`
             }));
@@ -214,7 +218,7 @@ export class BuildController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    protected edit(req: IAuthReq, res: express.Response, next: Function)
+    protected edit(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         res.setHeader('Content-Type', 'application/json');
         var that = this;
@@ -225,12 +229,12 @@ export class BuildController extends EngineController
         var token: Engine.IBuild = req.body;
 
         // Verify the resource ID
-        if (!isValidID(id))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid resource ID" }));
+        if (!modepress.isValidID(id))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid resource ID" }));
 
         // Verify the project ID
-        if (!isValidID(project))
-            return res.end(JSON.stringify(<IResponse>{ error: true, message: "Please use a valid project ID" }));
+        if (!modepress.isValidID(project))
+            return res.end(JSON.stringify(<modepress.IResponse>{ error: true, message: "Please use a valid project ID" }));
 
         search._id = new mongodb.ObjectID(id);
         search.projectId = new mongodb.ObjectID(project);
@@ -239,13 +243,13 @@ export class BuildController extends EngineController
             if (instance.error)
             {
                 winston.error(<string>instance.tokens[0].error, { process: process.pid });
-                return res.end(JSON.stringify(<IResponse>{
+                return res.end(JSON.stringify(<modepress.IResponse>{
                     error: true,
                     message: <string>instance.tokens[0].error
                 }));
             }
 
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: false,
                 message: `[${instance.tokens.length}] Build updated`
             }));
@@ -253,7 +257,7 @@ export class BuildController extends EngineController
         }).catch(function (error: Error)
         {
             winston.error(error.message, { process: process.pid });
-            res.end(JSON.stringify(<IResponse>{
+            res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: error.message
             }));
@@ -266,7 +270,7 @@ export class BuildController extends EngineController
     * @param {express.Response} res
     * @param {Function} next
     */
-    create(req: IAuthReq, res: express.Response, next: Function)
+    create(req: modepress.IAuthReq, res: express.Response, next: Function)
     {
         var that = this;
         res.setHeader('Content-Type', 'application/json');
@@ -275,7 +279,7 @@ export class BuildController extends EngineController
         var model = that.getModel("en-builds");
         var setAsCurrent = (req.query["set-current"] ? true : false);
 
-        if (!isValidID(project))
+        if (!modepress.isValidID(project))
             return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{ error: true, message: `Please use a valid project ID` }));
 
         var newBuild;
@@ -294,17 +298,21 @@ export class BuildController extends EngineController
             if (updateToken.error)
                 return Promise.reject(new Error(updateToken.tokens[0].error.toString()));
 
-            return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
+            return that.getSanitizedData([newBuild], true);
+
+        }).then(function(sanitizedData){
+
+          return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
                 error: false,
                 message: `Created new build for user '${target}'`,
                 count: 1,
-                data: that.getSanitizedData([newBuild], true)
+                data: sanitizedData
             }));
 
         }).catch(function (err: Error)
         {
             winston.error(err.message, { process: process.pid });
-            return res.end(JSON.stringify(<IResponse>{
+            return res.end(JSON.stringify(<modepress.IResponse>{
                 error: true,
                 message: `Could not create build for '${target}' : ${err.message}`
             }));

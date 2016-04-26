@@ -18,14 +18,14 @@ export class ProjectModel extends Model
         this.defaultSchema.add(new SchemaFactory.num("category", 1, 1)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.text("subCategory", "")).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.bool("public", false)).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.id("curFile", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("curFile", "")).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.num("rating", 0)).setIndexable(true);
         this.defaultSchema.add(new SchemaFactory.num("score", 0));
         this.defaultSchema.add(new SchemaFactory.num("numRaters", 0));
-        this.defaultSchema.add(new SchemaFactory.bool("suspicious", false, true));
+        this.defaultSchema.add(new SchemaFactory.bool("suspicious", false)).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.bool("deleted", false));
         this.defaultSchema.add(new SchemaFactory.text("user", "", 1)).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.id("build", "", true));
+        this.defaultSchema.add(new SchemaFactory.id("build", "")).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.num("type", 0));
         this.defaultSchema.add(new SchemaFactory.textArray("tags", []));
         this.defaultSchema.add(new SchemaFactory.textArray("readPrivileges", [])).setSensitive(true);
@@ -34,6 +34,6 @@ export class ProjectModel extends Model
         this.defaultSchema.add(new SchemaFactory.idArray("plugins", [], 1));
         this.defaultSchema.add(new SchemaFactory.textArray("files", [])).setSensitive(true);
         this.defaultSchema.add(new SchemaFactory.date("createdOn")).setIndexable(true);
-        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, false, true)).setIndexable(true);
+        this.defaultSchema.add(new SchemaFactory.date("lastModified", undefined, true)).setIndexable(true);
     }
 }

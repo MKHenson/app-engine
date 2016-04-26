@@ -25,7 +25,7 @@ export class ResourceController extends EngineController
 	*/
     constructor(resourceType: string, model: modepress.Model, server: modepress.IServer, config: modepress.IConfig, e: express.Express)
     {
-        super([model, new ProjectModel()], server, config, e );
+        super([model, modepress.Model.registerModel(ProjectModel)], server, config, e );
 
         this._model = model;
         this._resourceType = resourceType;
@@ -70,10 +70,14 @@ export class ResourceController extends EngineController
         // Save it in the DB
         model.createInstance<Engine.IResource>(newResource).then(function(instance)
         {
-            return res.end(JSON.stringify(<ModepressAddons.ICreateResource<any>>{
+            return instance.schema.getAsJson(false, instance._id);
+
+        }).then(function(json){
+
+          return res.end(JSON.stringify(<ModepressAddons.ICreateResource<any>>{
                 error: false,
                 message: `New resource '${newResource.name}' created`,
-                data: instance.schema.generateCleanData(false, instance._id)
+                data:json
             }));
 
         }).catch(function (err: Error)
@@ -219,11 +223,15 @@ export class ResourceController extends EngineController
 
         }).then(function (instances)
         {
-            return res.end(JSON.stringify(<ModepressAddons.IGetResources>{
+            return that.getSanitizedData<Engine.IResource>(instances, !req._verbose);
+
+        }).then(function(sanitizedData){
+
+          return res.end(JSON.stringify(<ModepressAddons.IGetResources>{
                 error: false,
                 count: count,
                 message: `Found ${count} ${that._resourceType}`,
-                data: that.getSanitizedData<Engine.IResource>(instances, !req._verbose)
+                data: sanitizedData
             }));
 
         }).catch(function (error: Error)
