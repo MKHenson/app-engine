@@ -77,7 +77,7 @@ module Animate
             var that = this;
             return new Promise<boolean>(function (resolve, reject)
             {
-                Utils.get<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/authenticated`).then(function (data)
+                Utils.get<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/authenticated`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -221,7 +221,7 @@ module Animate
 
             return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/resend-activation/${user}`).then(function (data)
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/resend-activation`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -246,7 +246,7 @@ module Animate
 
             return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/request-password-reset/${user}`).then(function (data)
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/request-password-reset`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
@@ -270,7 +270,7 @@ module Animate
 
             return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/logout`).then(function (data)
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/logout`).then(function (data)
                 {
                     if (data.error)
                         return reject(new Error(data.message));
