@@ -329,7 +329,11 @@ export class ProjectController extends EngineController
 
         }).then(function (instances)
         {
-            return that.getSanitizedData(instances, req._verbose);
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(req._verbose, instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 

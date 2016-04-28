@@ -168,7 +168,11 @@ export class PluginController extends EngineController
 
         }).then(function (instances)
         {
-            return that.getSanitizedData(instances, true);
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(true, instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 

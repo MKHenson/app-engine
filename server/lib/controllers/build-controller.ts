@@ -60,7 +60,11 @@ export class BuildController extends EngineController
 
         }).then(function (instances)
         {
-            return that.getSanitizedData(instances, !req._verbose);
+            var sanitizedData = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData) {
 
@@ -282,7 +286,7 @@ export class BuildController extends EngineController
         if (!modepress.isValidID(project))
             return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{ error: true, message: `Please use a valid project ID` }));
 
-        var newBuild;
+        var newBuild : modepress.ModelInstance<Engine.IBuild>;
 
         that.createBuild(target, new mongodb.ObjectID(project) ).then(function (instance)
         {
@@ -298,7 +302,7 @@ export class BuildController extends EngineController
             if (updateToken.error)
                 return Promise.reject(new Error(updateToken.tokens[0].error.toString()));
 
-            return that.getSanitizedData([newBuild], true);
+            return newBuild.schema.getAsJson(true, newBuild._id);
 
         }).then(function(sanitizedData){
 

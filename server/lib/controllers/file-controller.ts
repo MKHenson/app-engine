@@ -90,11 +90,15 @@ export class FileController extends EngineController
 
             }).then(function (instances)
             {
-                return that.getSanitizedData<Engine.IFile>(instances, verbose);
+                var sanitizedData : Array<Engine.IFile> = [];
+                for (var i = 0, l = instances.length; i < l; i++)
+                    sanitizedData.push(instances[i].schema.getAsJson(verbose, instances[i]._id));
+
+                return Promise.all(sanitizedData);
 
             }).then(function(sanitizedData){
 
-              resolve({
+              resolve( {
                     error: false,
                     count: count,
                     message: `Found ${count} files`,

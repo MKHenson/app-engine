@@ -223,7 +223,11 @@ export class ResourceController extends EngineController
 
         }).then(function (instances)
         {
-            return that.getSanitizedData<Engine.IResource>(instances, !req._verbose);
+            var sanitizedData: Array<Engine.IResource> = [];
+            for (var i = 0, l = instances.length; i < l; i++)
+                sanitizedData.push(instances[i].schema.getAsJson(req._verbose, instances[i]._id));
+
+            return Promise.all(sanitizedData);
 
         }).then(function(sanitizedData){
 
