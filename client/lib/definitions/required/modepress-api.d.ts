@@ -7,7 +7,19 @@ declare module Modepress
     {
         _id?: any;
         _requiredDependencies?: Array<{ collection: string, _id : any }>
-        _optionalDependencies?: Array<{ collection: string, _id : any }>
+        _optionalDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
+    }
+
+    /**
+     * A list of optional parameters that can be passed to schema items that determines how they are
+     * serialized
+     */
+    export interface ISchemaOptions
+    {
+        /**
+         * If true, foreign keys will serialize their values
+         */
+        expandForeignKeys? : boolean;
     }
 
     /*
@@ -370,15 +382,22 @@ declare module Modepress
 
         /**
         * Checks the value stored to see if its correct in its current form
-        * @returns {boolean | string} Returns true if successful or an error message string if unsuccessful
+        * @returns {Promise<boolean>}
         */
-        public validate(): boolean | string;
+        public validate(): Promise<boolean>;
+
+        /**
+        * Gets the value of this item in a database safe format
+        * @returns {T}
+        */
+        public getDbValue(): T
 
         /**
         * Gets the value of this item
-        * @returns {SchemaValue}
+        * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
+        * @returns {T | Promise<T>}
         */
-        public getValue(): T;
+        public getValue(options? : ISchemaOptions ): T | Promise<T>;
 
         /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
@@ -402,8 +421,6 @@ declare module Modepress
     */
     class Schema
     {
-        public error: string;
-
         constructor();
 
         /**
@@ -437,19 +454,20 @@ declare module Modepress
         */
         public serialize(): any;
 
-         /**
+        /**
         * Serializes the schema items into the JSON format for mongodb
-        * @param {boolean} sanitize If true, the item has to sanitize the data before sending it
+        * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
         * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
+        * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {Promise<T>}
         */
-        public getAsJson<T>( sanitize: boolean, id: any ): Promise<T>;
+        public getAsJson<T>( verbose: boolean, id: any, options? : ISchemaOptions ): Promise<T>;
 
         /**
-        * Checks the value stored to see if its correct in its current form
-        * @returns {boolean} Returns true if successful
+        * Checks the values stored in the items to see if they are correct
+        * @returns {Promise<bool>} Returns true if successful
         */
-        public validate(): boolean;
+        public validate(): Promise<boolean>;
 
         /**
         * Gets a schema item from this schema by name
@@ -616,14 +634,6 @@ declare module Modepress
         * returns {models.Model}
         */
         getModel(collectionName: string): Model;
-
-        /**
-        * Transforms an array of model instances to its data ready state that can be sent to the client
-        * @param {ModelInstance} instances The instances to transform
-        * @param {boolean} verbose If true, sensitive data will not be sanitized
-        * @returns {Promise<Array<T>>}
-        */
-        getSanitizedData<T>(instances: Array<ModelInstance<T>>, verbose?: boolean): Promise<Array<T>>;
     }
 
     /**
