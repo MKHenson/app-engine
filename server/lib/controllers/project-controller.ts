@@ -275,7 +275,7 @@ export class ProjectController extends EngineController
             // Make sure we're still in the limit
             PermissionController.singleton.projectsWithinLimits(req._user).then(function ()
             {
-                return newProject.schema.getAsJson(false, newProject._id);
+                return newProject.schema.getAsJson(true, newProject._id);
 
             }).then(function( json ){
 
