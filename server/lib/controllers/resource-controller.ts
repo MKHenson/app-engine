@@ -70,7 +70,7 @@ export class ResourceController extends EngineController
         // Save it in the DB
         model.createInstance<Engine.IResource>(newResource).then(function(instance)
         {
-            return instance.schema.getAsJson(false, instance._id);
+            return instance.schema.getAsJson(true, instance._id);
 
         }).then(function(json){
 

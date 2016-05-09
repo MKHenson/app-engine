@@ -105,7 +105,7 @@ export class PluginController extends EngineController
         // Create the new plugin
         model.createInstance<ModepressAddons.ICreatePlugin>(pluginToken).then(function (instance)
         {
-            return instance.schema.getAsJson(false, instance._id);
+            return instance.schema.getAsJson(true, instance._id);
 
         }).then(function(json){
 
