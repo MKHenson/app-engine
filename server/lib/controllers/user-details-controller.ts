@@ -122,10 +122,10 @@ export class UserDetailsController extends EngineController
         var model = that.getModel("en-user-details");
         var target = req.params.user;
 
-        model.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: target }).then(function(instance)
+        model.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: target }).then(function(instance) : Promise<Error|Promise<Engine.IUserMeta>>
         {
             if (!instance)
-                return Promise.reject(new Error("User does not exist"));
+                return Promise.reject<Error>(new Error("User does not exist"));
 
             return instance.schema.getAsJson(!req._verbose, instance._id);
 

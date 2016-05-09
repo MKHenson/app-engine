@@ -247,10 +247,10 @@ export class PermissionController extends modepress.Controller
             var username = user.username;
             var maxProjects = 0;
 
-            userModel.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: username }).then(function (instance)
+            userModel.findOne<Engine.IUserMeta>(<Engine.IUserMeta>{ user: username }).then(function (instance) : Promise<Error|number>
             {
                 if (!instance)
-                    return Promise.reject(new Error("Not found"));
+                    return Promise.reject<Error>(new Error("Not found"));
 
                 maxProjects = instance.dbEntry.maxProjects;
 

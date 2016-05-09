@@ -288,25 +288,34 @@ export class BuildController extends EngineController
 
         var newBuild : modepress.ModelInstance<Engine.IBuild>;
 
-        that.createBuild(target, new mongodb.ObjectID(project) ).then(function (instance)
-        {
+
+
+        that.createBuild( target, new mongodb.ObjectID(project) ).then(function( instance ) {
+
             newBuild = instance;
+            var toRet : Promise<Modepress.UpdateRequest<Engine.IProject>>;
 
             if (setAsCurrent)
-                return that.getModel("en-projects").update(<Engine.IProject>{ _id: new mongodb.ObjectID(project) }, <Engine.IProject>{ build: instance._id });
+            {
+                var m = that.getModel("en-projects")
+                toRet = m.update<Engine.IProject>(<Engine.IProject>{
+                    _id: new mongodb.ObjectID(project) }, { build: instance._id });
+            }
             else
-                return Promise.resolve();
+                toRet = Promise.resolve( <Modepress.UpdateRequest<Engine.IProject>>{ error: false, tokens: [] } );
 
-        }).then(function(updateToken)
-        {
+            return toRet;
+
+        }).then(function( updateToken ) : Promise<Error|Engine.IBuild> {
+
             if (updateToken.error)
-                return Promise.reject(new Error(updateToken.tokens[0].error.toString()));
+                return Promise.reject<Error>(new Error( <string>updateToken.tokens[0].error ));
 
-            return newBuild.schema.getAsJson(true, newBuild._id);
+            return newBuild.schema.getAsJson<Engine.IBuild>(true, newBuild._id);
 
-        }).then(function(sanitizedData){
+        }).then(function(sanitizedData : Engine.IBuild ){
 
-          return res.end(JSON.stringify(<ModepressAddons.IGetBuilds>{
+          return res.end(JSON.stringify( <ModepressAddons.IGetBuilds> {
                 error: false,
                 message: `Created new build for user '${target}'`,
                 count: 1,

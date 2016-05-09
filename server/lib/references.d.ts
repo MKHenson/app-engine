@@ -1,6 +1,5 @@
 /// <reference path="./definitions/required/node.d.ts" />
 /// <reference path="./definitions/required/body-parser.d.ts" />
-/// <reference path="./definitions/required/es6-promise.d.ts" />
 /// <reference path="./definitions/required/express.d.ts" />
 /// <reference path="./definitions/required/form-data.d.ts" />
 /// <reference path="./definitions/required/method-override.d.ts" />
