@@ -1,4 +1,4 @@
-declare module Modepress
+﻿declare module Modepress
 {
     /*
     * Base interface for all models
@@ -8,6 +8,7 @@ declare module Modepress
         _id?: any;
         _requiredDependencies?: Array<{ collection: string, _id : any }>
         _optionalDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
+        _arrayDependencies?: Array<{ collection: string, propertyName: string, _id : any }>
     }
 
     /**
@@ -20,6 +21,25 @@ declare module Modepress
          * If true, foreign keys will serialize their values
          */
         expandForeignKeys? : boolean;
+
+        /**
+         * When fetching schema data, we need to define if the query is verbose or not.
+         * If true, then all data is returned and is not stripped of sensitive items
+         */
+        verbose : boolean
+
+        /**
+         * Defines how many levels deep foreign key traversal iterates. If 1, then only the immediate foreign keys
+         * are fetched. For example  Model X references model Y, which in turn references another model X. When expandMaxDepth=1
+         * only model X and its model Y instance are returned (Model Y's reference to any X is ignored)
+         * Only read if expandForeignKeys is true.
+         */
+        expandMaxDepth? : number;
+
+        /**
+         * Defines an array of schema names that must not be expanded when expandForeignKeys is true.
+         */
+        expandSchemaBlacklist?: Array<string>;
     }
 
     /*
@@ -46,10 +66,11 @@ declare module Modepress
     export interface IComment extends IModelEntry
     {
         author?: string;
-        target?: string;
-        responseTarget?: string;
+        post?: string;
+        parent?: string;
         public?: boolean;
         content?: string;
+        children?: Array<string>;
         createdOn?: number;
         lastUpdated?: number;
     }
@@ -225,11 +246,6 @@ declare module Modepress
     export interface IPath
     {
         /**
-        * The name of this path
-        */
-        name: string;
-
-        /**
         * The express end point route to use. E.g. "*" or "/some-route"
         */
         path: string;
@@ -400,6 +416,21 @@ declare module Modepress
         public getValue(options? : ISchemaOptions ): T | Promise<T>;
 
         /**
+         * Called once a model instance and its schema has been validated and inserted/updated into the database. Useful for
+         * doing any post update/insert operations
+         * @param {ModelInstance<T  extends Modepress.IModelEntry>} instance The model instance that was inserted or updated
+         * @param {string} collection The DB collection that the model was inserted into
+         */
+        public postUpsert<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<void>;
+
+        /**
+         * Called after a model instance is deleted. Useful for any schema item cleanups.
+         * @param {ModelInstance<T>} instance The model instance that was deleted
+         * @param {string} collection The DB collection that the model was deleted from
+         */
+        public postDelete<T extends Modepress.IModelEntry>( instance: ModelInstance<T>, collection : string ): Promise<Schema>;
+
+        /**
         * Gets if this item must be indexed when searching for uniqueness. For example, an item 'name' might be set as unique. But
         * we might not be checking uniqueness for all items where name is the same. It might be where name is the same, but only in
         * a given project. In this case the project item is set as a uniqueIndexer
@@ -456,12 +487,11 @@ declare module Modepress
 
         /**
         * Serializes the schema items into the JSON format for mongodb
-        * @param {boolean} verbose If true all items will be serialized, if false, only the items that are non-sensitive
         * @param {ObjectID} id The models dont store the _id property directly, and so this has to be passed for serialization
         * @param {ISchemaOptions} options [Optional] A set of options that can be passed to control how the data must be returned
         * @returns {Promise<T>}
         */
-        public getAsJson<T>( verbose: boolean, id: any, options? : ISchemaOptions ): Promise<T>;
+        public getAsJson<T>( id: any, options? : ISchemaOptions ): Promise<T>;
 
         /**
         * Checks the values stored in the items to see if they are correct
@@ -665,6 +695,13 @@ declare module Modepress
         authenticated(req: any, res: any): Promise<UsersInterface.IAuthenticationResponse>;
 
         /**
+        * Checks a user has admin rights
+        * @param {UsersInterface.IUserEntry} user The user we are checking
+        * @returns {boolean}
+        */
+        isAdmin(user: UsersInterface.IUserEntry): boolean;
+
+        /**
         * Checks a user has the desired permission
         * @param {UsersInterface.IUserEntry} user The user we are checking
         * @param {UsersInterface.UserPrivileges} level The level we are checking against
@@ -721,6 +758,28 @@ declare module Modepress
         */
         constructor(name: string, val: number, min?: number, max?: number, type?: NumberType, decimalPlaces?: number)
     }
+
+    /**
+     * Represents a mongodb ObjectID of a document in separate collection.
+     * Foreign keys are used as a way of relating models to one another. They can be required or optional.
+     * Required keys will mean that the current document cannot exist if the target does not. Optional keys
+     * will simply be nullified if the target no longer exists.
+     */
+    export class SchemaForeignKey extends SchemaItem<any | string | Modepress.IModelEntry>
+    {
+        public targetCollection : string;
+        public optionalKey : boolean;
+
+        /**
+        * Creates a new schema item
+        * @param {string} name The name of this item
+        * @param {string} val The string representation of the foreign key's _id
+        * @param {string} targetCollection The name of the collection to which the target exists
+        * @param {boolean} optionalKey If true, then this key will only be nullified if the target is removed
+        */
+        constructor(name: string, val: string, targetCollection : string, optionalKey?: boolean );
+    }
+
 
     /**
     * A text scheme item for use in Models
@@ -894,6 +953,7 @@ declare module Modepress
         export var bool: typeof SchemaBool;
         export var id: typeof SchemaId;
         export var html: typeof SchemaHtml;
+        export var foreignKey: typeof SchemaForeignKey;
     }
 
     /**
