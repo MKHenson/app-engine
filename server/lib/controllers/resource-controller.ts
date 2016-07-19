@@ -70,7 +70,7 @@ export class ResourceController extends EngineController
         // Save it in the DB
         model.createInstance<Engine.IResource>(newResource).then(function(instance)
         {
-            return instance.schema.getAsJson(true, instance._id);
+            return instance.schema.getAsJson(instance._id, {verbose: true});
 
         }).then(function(json){
 
@@ -225,7 +225,7 @@ export class ResourceController extends EngineController
         {
             var sanitizedData: Array<Engine.IResource> = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(req._verbose, instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson(  instances[i]._id, {verbose: req._verbose}));
 
             return Promise.all(sanitizedData);
 

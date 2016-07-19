@@ -127,7 +127,7 @@ export class UserDetailsController extends EngineController
             if (!instance)
                 return Promise.reject<Error>(new Error("User does not exist"));
 
-            return instance.schema.getAsJson(req._verbose, instance._id);
+            return instance.schema.getAsJson( instance._id, {verbose: req._verbose});
 
         }).then(function(json){
 

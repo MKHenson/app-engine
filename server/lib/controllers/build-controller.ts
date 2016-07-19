@@ -62,7 +62,7 @@ export class BuildController extends EngineController
         {
             var sanitizedData = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(Boolean(req.query.verbose), instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson( instances[i]._id, {verbose: Boolean(req.query.verbose)}));
 
             return Promise.all(sanitizedData);
 
@@ -311,7 +311,7 @@ export class BuildController extends EngineController
             if (updateToken.error)
                 return Promise.reject<Error>(new Error( <string>updateToken.tokens[0].error ));
 
-            return newBuild.schema.getAsJson<Engine.IBuild>(true, newBuild._id);
+            return newBuild.schema.getAsJson<Engine.IBuild>(newBuild._id, {verbose: true});
 
         }).then(function(sanitizedData : Engine.IBuild ){
 

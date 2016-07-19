@@ -105,7 +105,7 @@ export class PluginController extends EngineController
         // Create the new plugin
         model.createInstance<ModepressAddons.ICreatePlugin>(pluginToken).then(function (instance)
         {
-            return instance.schema.getAsJson(true, instance._id);
+            return instance.schema.getAsJson( instance._id, {verbose: true});
 
         }).then(function(json){
 
@@ -170,7 +170,7 @@ export class PluginController extends EngineController
         {
             var sanitizedData = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(true, instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson(instances[i]._id, {verbose: true}));
 
             return Promise.all(sanitizedData);
 

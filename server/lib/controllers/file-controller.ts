@@ -92,7 +92,7 @@ export class FileController extends EngineController
             {
                 var sanitizedData : Array<Engine.IFile> = [];
                 for (var i = 0, l = instances.length; i < l; i++)
-                    sanitizedData.push(instances[i].schema.getAsJson(verbose, instances[i]._id));
+                    sanitizedData.push(instances[i].schema.getAsJson(instances[i]._id, {verbose: verbose}));
 
                 return Promise.all(sanitizedData);
 
@@ -203,31 +203,28 @@ export class FileController extends EngineController
     * Called whenever a user has uploaded files
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
-    private onFilesUploaded(event: UsersInterface.SocketEvents.IFilesAddedEvent)
+    private onFilesUploaded(event: UsersInterface.SocketEvents.IFileAddedEvent)
     {
         var model = this.getModel("en-files");
-        var files = event.files;
+        var file = event.file;
         var promises: Array<Promise<modepress.ModelInstance<Engine.IFile>>> = [];
 
 
         // Add an IFile reference for each file thats added
-        for (var i = 0, l = files.length; i < l; i++)
-        {
-            // Check for file meta
-            var fileMeta: Engine.IFileMeta = files[i].meta;
+        // Check for file meta
+        var fileMeta: Engine.IFileMeta = file.meta;
 
-            promises.push(model.createInstance<Engine.IFile>(<Engine.IFile>{
-                bucketId: files[i].bucketId,
-                bucketName: files[i].bucketName,
-                user: files[i].user,
-                url: files[i].publicURL,
-                extension: files[i].mimeType,
-                name: files[i].name,
-                identifier: files[i].identifier,
-                size: files[i].size,
-                browsable: (fileMeta && fileMeta.browsable ? true : false)
-            }));
-        }
+        promises.push(model.createInstance<Engine.IFile>(<Engine.IFile>{
+            bucketId: file.bucketId,
+            bucketName: file.bucketName,
+            user: file.user,
+            url: file.publicURL,
+            extension: file.mimeType,
+            name: file.name,
+            identifier: file.identifier,
+            size: file.size,
+            browsable: (fileMeta && fileMeta.browsable ? true : false)
+        }));
 
         // Save it in the DB
         Promise.all(promises).then(function(instances)
@@ -244,16 +241,11 @@ export class FileController extends EngineController
     * Called whenever a user has uploaded files
     * @param {UsersInterface.SocketEvents.IFileEvent} event
     */
-    private onFilesRemoved(event: UsersInterface.SocketEvents.IFilesRemovedEvent)
+    private onFilesRemoved(event: UsersInterface.SocketEvents.IFileRemovedEvent)
     {
         var model = this.getModel("en-files");
 
-        // Remove each IFile reference
-        var removeQuery = [];
-        for (var i = 0, l = event.files.length; i < l; i++)
-            removeQuery.push(<Engine.IFile>{ identifier: event.files[i].identifier });
-
-        model.deleteInstances({ $or: removeQuery }).then(function (numRemoved: number)
+        model.deleteInstances( <Engine.IFile>{ identifier: event.file.identifier }).then(function (numRemoved: number)
         {
             winston.info(`[${numRemoved}] Files have been removed`, { process: process.pid });
 

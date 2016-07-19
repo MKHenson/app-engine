@@ -275,7 +275,7 @@ export class ProjectController extends EngineController
             // Make sure we're still in the limit
             PermissionController.singleton.projectsWithinLimits(req._user).then(function ()
             {
-                return newProject.schema.getAsJson(true, newProject._id);
+                return newProject.schema.getAsJson(newProject._id, {verbose: true});
 
             }).then(function( json ){
 
@@ -331,7 +331,7 @@ export class ProjectController extends EngineController
         {
             var sanitizedData = [];
             for (var i = 0, l = instances.length; i < l; i++)
-                sanitizedData.push(instances[i].schema.getAsJson(req._verbose, instances[i]._id));
+                sanitizedData.push(instances[i].schema.getAsJson( instances[i]._id, {verbose: req._verbose}));
 
             return Promise.all(sanitizedData);
 
