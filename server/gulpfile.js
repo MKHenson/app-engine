@@ -9,7 +9,7 @@ var rename = require("gulp-rename");
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
 var tsFiles = tsConfig.files;
 var outDir = tsConfig.compilerOptions.outDir;
-var modepressPluginDir = "../../modepress/server/dist/plugins/app-engine";
+var modepressPluginDir = "../../modepress/dist/plugins/app-engine";
 
 /**
  * Checks to see that all TS files listed exist
@@ -75,8 +75,8 @@ gulp.task('generate-declarations', function() {
  */
 gulp.task('install-definitions', function () {
      return Promise.all([
-            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/server/dist/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+            getDefinition("https://raw.githubusercontent.com/MKHenson/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
+            getDefinition("https://raw.githubusercontent.com/MKHenson/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
          ]);
 });
 
