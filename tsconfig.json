@@ -8,12 +8,12 @@
     "preserveConstEnums": true,
     "target": "es5",
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false
+    "allowUnusedLabels": false,
+    "noImplicitAny": false
   },
   "files": [
     "./config.ts",
     "lib/references.d.ts",
-
     "lib/core/compiler.ts",
     "lib/core/compiler-directives/repeater.ts",
     "lib/core/compiler-directives/if.ts",

@@ -16,6 +16,7 @@ var source = require('vinyl-source-stream')
 var untar = require('gulp-untar');
 var gutil = require('gulp-util');
 var rename = require('gulp-rename');
+var rimraf = require('rimraf');
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -61,9 +62,9 @@ gulp.task('deploy-third-party', function() {
         .pipe( gulp.dest( outDir ) );
     var mergedStream = merge(sourceNoAce, sourceWithAce);
 
-    // Add each of the bower files as a reference
+    // Add each of the third party files as a reference
     return target.pipe(inject( mergedStream, {
-            starttag: '<!-- inject:bower -->',
+            starttag: '<!-- inject:third-party -->',
                 relative: true
             }))
         .pipe(gulp.dest(outDir));
@@ -174,8 +175,9 @@ gulp.task('ts-code-declaration', function() {
 
 
      // Merge the streams
-     merge(requiredDeclarationFiles, tsDefinition)
-       .pipe( gulp.dest( "../generated-definitions" ) );
+    return merge(requiredDeclarationFiles, tsDefinition)
+        .pipe(concat("hatchery-editor.d.ts"))
+        .pipe( gulp.dest( "lib/definitions/generated" ) );
 });
 
 /**
@@ -199,24 +201,6 @@ gulp.task('ts-code-release', function() {
 });
 
 /**
- * Deletes a folder and all its children recursively
- * @param {string} path The folder path to remove
- */
-function deleteFolderRecursive(path) {
-    if( fs.existsSync(path) ) {
-        fs.readdirSync(path).forEach(function(file,index){
-            var curPath = path + "/" + file;
-            if(fs.lstatSync(curPath).isDirectory()) { // recurse
-                deleteFolderRecursive(curPath);
-            }
-            else
-                fs.unlinkSync(curPath);
-        });
-        fs.rmdirSync(path);
-    }
-};
-
-/**
  * Downloads a tarbal from a given url and unzips it into a specified folder
  * @param {string} url The URL of the tarball to download
  * @param {string} folder The folder we are moving the contents to
@@ -237,7 +221,7 @@ function downloadClient(url, folder){
             gulp.src( folder + '/' + folders[0] + "/**/*.*" )
                 .pipe(gulp.dest(folder))
                 .on('end', function() {
-                    deleteFolderRecursive(folder + '/' + folders[0]);
+                    rimraf.sync(folder + '/' + folders[0]);
                     gutil.log(gutil.colors.green('Finished download of "'+ url +'"'));
                     resolve(true);
                 });
@@ -249,8 +233,7 @@ function downloadClient(url, folder){
  * Downloads each of the third party archives and unzips them into the third-party folder respectively
  */
 gulp.task('install-third-parties', function () {
-
-    deleteFolderRecursive('./third-party');
+    rimraf.sync('./third-party')
 
     return Promise.all([
         downloadClient("https://github.com/jquery/jquery/tarball/2.2.1", './third-party/jquery'),
@@ -289,8 +272,9 @@ function getDefinition(url, dest, name) {
  */
 gulp.task('install-definitions', function () {
      return Promise.all([
-            getDefinition("https://raw.githubusercontent.com/Webinate/users/dev/dist/definitions/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/Webinate/modepress/dev/server/dist/definitions/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+            getDefinition("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/master/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "app-engine.d.ts"),
+            getDefinition("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
+            getDefinition("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
          ]);
 });
 
@@ -299,4 +283,4 @@ gulp.task('install-definitions', function () {
  */
 gulp.task('install', ['install-third-parties', 'install-definitions']);
 
-gulp.task('build-all', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css']);
+gulp.task('build', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css']);
