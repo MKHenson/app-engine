@@ -25,6 +25,8 @@ client/dist/
 server/dist/
 admin-plugin/dist/
 third-party/
+.vscode/
+dist/
 
 
 # Visual Studo 2015 cache/options directory
@@ -68,7 +70,6 @@ dlldata.c
 *.svclog
 *.scc
 *.bat
-config.json
 
 # Chutzpah Test files
 _Chutzpah*
