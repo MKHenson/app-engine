@@ -8,6 +8,9 @@
 /// <reference path="./definitions/required/express.d.ts" />
 /// <reference path="./definitions/required/modepress-api.d.ts" />
 /// <reference path="./definitions/required/app-engine.d.ts" />
+/// <reference path="./definitions/required/react/react.d.ts" />
+/// <reference path="./definitions/required/react/react-dom.d.ts" />
+/// <reference path="./definitions/required/react/react-global.d.ts" />
 
 /// <reference path="./definitions/custom/ace.d.ts" />
 /// <reference path="./definitions/custom/jscolor.d.ts" />

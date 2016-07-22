@@ -47,6 +47,8 @@ gulp.task('deploy-third-party', function() {
         './third-party/jquery-ui/ui/draggable.js',
         './third-party/jquery-ui/ui/droppable.js',
         './third-party/jquery-ui/ui/resizable.js',
+        './third-party/react/react-15.2.1.js',
+        './third-party/react/react-dom-15.2.1.js',
         './third-party/es6-promise/dist/es6-promise.js',
         './third-party/jscolor/*.*',
         './third-party/ace/src-noconflict/*.js',
@@ -135,6 +137,7 @@ gulp.task('ts-code', function() {
 
     return gulp.src(tsFiles, { base: "." })
         .pipe(ts({
+            "jsx": tsConfig.compilerOptions.jsx,
             "module": tsConfig.compilerOptions.module,
             "removeComments": tsConfig.compilerOptions.removeComments,
             "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
@@ -162,15 +165,18 @@ gulp.task('ts-code-declaration', function() {
 
     var tsDefinition = gulp.src(tsFiles, { base: "." })
         .pipe(ts({
-            "module": "amd",
+            "jsx": tsConfig.compilerOptions.jsx,
+            "module": tsConfig.compilerOptions.module,
             "removeComments": false,
             "noEmitOnError": true,
             "declaration": true,
             "sourceMap": false,
             "preserveConstEnums": true,
-            "target": "es5",
-            "out":"app-engine-client.js",
-            "noImplicitAny": false
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
+            "out":"app-engine-client.js"
         })).dts;
 
 
@@ -244,16 +250,19 @@ gulp.task('install-third-parties', function () {
         downloadClient("https://github.com/jquery/jquery-ui/tarball/1.11.4", './third-party/jquery-ui'),
         downloadClient("https://github.com/stefanpenner/es6-promise/tarball/v3.1.2", './third-party/es6-promise'),
         downloadClient("https://github.com/jquery/jquery-mousewheel/tarball/3.1.13", './third-party/jquery-mousewheel'),
-        downloadClient("https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo')
+        downloadClient("https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo'),
+
+        downloadFile("https://fb.me/react-15.2.1.js", "./third-party/react/", "react-15.2.1.js"),
+        downloadFile("https://fb.me/react-dom-15.2.1.js", "./third-party/react/", "react-dom-15.2.1.js")
     ]);
 });
 
 /**
- * This function downloads a definition file from github and writes it to a destination
+ * This function downloads a file and writes it to a destination
  * @param {string} url The url of the file to download
  * @param {string} dest The destination folder to move the file to
  */
-function getDefinition(url, dest, name) {
+function downloadFile(url, dest, name) {
     return new Promise(function(resolve, reject) {
         download(url)
             .pipe(rename(name))
@@ -272,9 +281,9 @@ function getDefinition(url, dest, name) {
  */
 gulp.task('install-definitions', function () {
      return Promise.all([
-            getDefinition("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/master/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "app-engine.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            getDefinition("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+            downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/master/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "app-engine.d.ts"),
+            downloadFile("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
+            downloadFile("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
          ]);
 });
 

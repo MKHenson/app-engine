@@ -9,7 +9,8 @@
     "target": "es5",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "jsx": "react"
   },
   "files": [
     "./config.ts",
