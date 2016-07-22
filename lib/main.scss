@@ -312,7 +312,6 @@ html body .error {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-    user-select: none;
 }
 
 input, textarea {
@@ -1338,7 +1337,7 @@ body {
     line-height: 25px;
 }
 .tool-bar-dropdown {
-    -webkit-border-radius: 5px;
+    border-radius: 5px;
     margin: 5px 0 5px 5px;
     left: 0px;
     top: 0px;
@@ -1363,9 +1362,6 @@ body {
 .property-grid-group-header {
     text-transform:uppercase;
     padding: 5px;
-}
-.property-grid-group .content {
-
 }
 
 .property-grid-label{ width:40%; float:left; min-width: 50px; white-space: nowrap; overflow: hidden; }
@@ -1433,8 +1429,6 @@ span.date {
 }
 #upload-projet-img {
     cursor:pointer;
-}
-.build-options-form .img-data {
 }
 #options-project .error {
     margin: 10px 0;
@@ -2012,9 +2006,6 @@ html .bad-input {
 .behaviour-picker .list{
     color:#fff;
 }
-.portal {
-
-}
 .behaviour .text {
     color:inherit;
 }
@@ -2375,7 +2366,7 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 .filter-item-selected{ color:#111 !important; font-weight: bold; }
 
 
-.quick-button{ pointer-events: all; display:inline; height:16px; margin-left:15px;}
+.quick-button{ pointer-events: all; display:inline; margin-left:15px;}
 .quick-button img{ pointer-events: none; height:16px; }
 
 
@@ -2476,7 +2467,6 @@ select.asset-list-select { width: 100%; border: none; outline: none; overflow:au
 
 .tooltip.label{ float:left; position:absolute; left:0; top:0; z-index:1000; padding:5px; background:#FFFDBA; }
 .tool-icon-lower{ text-align:center; }
-.tool-icon-upper{}
 
 
 .pages-div{ position:relative; }
