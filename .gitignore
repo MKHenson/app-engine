@@ -21,9 +21,6 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
-client/dist/
-server/dist/
-admin-plugin/dist/
 third-party/
 .vscode/
 dist/
