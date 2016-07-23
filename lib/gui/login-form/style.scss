@@ -1,0 +1,60 @@
+#log-reg {
+
+    .input-box {
+        position:relative;
+    }
+
+    .avatar {
+        margin:15px 0;
+    }
+
+    input[type="text"], input[type="password"] {
+        padding:25px;
+        background:#F5F5F5;
+    }
+
+    form input[type="submit"], form .button {
+        width: 100%;
+        height: 80px;
+        margin: 10px 0 0 0;
+        line-height:60px;
+    }
+
+    .checkbox {
+        margin:15px 0 10px 0
+    }
+
+    .login-msg {
+        text-align: center;
+        padding: 10px;
+        overflow:hidden;
+        max-height:0px;
+    }
+
+    #forgot-pass {
+        position: absolute;
+        left: 80%;
+        top: 20px;
+        color: #aaa;
+    }
+
+    .login {
+        line-height:40px;
+
+        input {
+            width:100%;
+        }
+    }
+
+    #animate-captcha {
+        display: inline-block;
+        margin: 20px 0 0 0;
+    }
+}
+
+
+
+
+
+
+

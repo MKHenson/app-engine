@@ -102,18 +102,9 @@ gulp.task('media', function() {
 gulp.task('css', function() {
 
     // Compile all sass files into temp/css
-    var sassFiles = gulp.src('./lib/**/*.scss', { base: "./lib" })
+    return gulp.src('./lib/main.scss', { base: "./lib" })
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest(outDir + '/css'))
-
-    // Add each css file in temp to the index in temp/index.html
-    return target.pipe( inject(sassFiles, {
-            starttag: '<!-- inject:css -->',
-            relative: true,
-            ignorePath: '../dist',
-            //addPrefix:'css'
-         }))
-        .pipe(gulp.dest(outDir));
+        .pipe(gulp.dest(outDir + '/css'));
 });
 
 /**

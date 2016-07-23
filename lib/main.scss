@@ -983,47 +983,7 @@ body {
 *  SPLASH SCREEN - LOGIN + REGISTER
 *  ================================
 */
-#log-reg .input-box {
-    position:relative;
-}
-#log-reg .avatar {
-    margin:15px 0;
-}
-#log-reg input[type="text"], #splash-view input[type="password"] {
-    padding:25px;
-    background:#F5F5F5;
-}
-#forgot-pass {
-    position: absolute;
-    left: 80%;
-    top: 20px;
-    color: #aaa;
-}
-#log-reg .checkbox {
-    margin:15px 0 10px 0
-}
-#log-reg form input[type="submit"], #log-reg form .button {
-    width: 100%;
-    height: 80px;
-    margin: 10px 0 0 0;
-    line-height:60px;
-}
-.login {
-    line-height:40px;
-}
-.login input {
-    width:100%;
-}
-.login-msg {
-    text-align: center;
-    padding: 10px;
-    overflow:hidden;
-    max-height:0px;
-}
-#animate-captcha {
-    display: inline-block;
-    margin: 20px 0 0 0;
-}
+@import 'gui/login-form/style.scss';
 
 /**
 *  SPLASH SCREEN - WELCOME
