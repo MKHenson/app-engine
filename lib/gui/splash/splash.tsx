@@ -3,7 +3,7 @@
     /**
     * The splash screen when starting the app
     */
-    export class Splash
+    export class Splash extends React.Component<any, any>
     {
         private static _singleton: Splash;
         private _splashElm: JQuery;
@@ -14,7 +14,7 @@
         private _app: Application;
         private _captureInitialized: boolean;
         private $user: User;
-        private $theme: any;
+        private $theme: string;
         private $activePane: string;
         private $errorMsg: string;
         private $errorRed: boolean;
@@ -31,6 +31,7 @@
         */
         constructor(app: Application)
         {
+            super()
             this._app = app;
             this._captureInitialized = false;
             this._splashElm = jQuery("#splash").remove().clone();
@@ -52,15 +53,29 @@
 
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
-                this.$theme = { "welcome-blue": true };
+                this.$theme = "welcome-blue";
             else
-                this.$theme = { "welcome-pink": true };
+                this.$theme = "welcome-pink";
 
             // Add the elements
             jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
             jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
             jQuery("#splash-view", this._splashElm).prepend(this._newProject);
             jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
+        }
+
+        render()
+        {
+            return <div id='splash' className={this.$theme}>
+                <div className="logo">
+                    {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={this.logout()}>Logout</a></div> : null )}
+                    <h2>
+                        <img id="splash-loading-icon" style={( !this.$loading ? {display:'none'} : null )} className="loading" src='media/loading-white.gif' />Hatchery
+                    </h2>
+                </div>
+                <div id="splash-view" style={( this.$activePane == 'loading' && this.$loading ? {display : 'none'} : null )} className={ this.splashDimensions() + 'background curve-small animate-slow shadow-med fade-in' }>
+                </div>
+            </div>
         }
 
         /*
@@ -84,7 +99,7 @@
                 Compiler.build(this._newProject, this);
                 Compiler.build(this._loadingProject, this);
                 Compiler.build(this._splashElm, this);
-                grecaptcha.render(<any>document.getElementById("animate-captcha"), { theme: "white",
+                grecaptcha.render(document.getElementById("animate-captcha"), { theme: "white",
                     sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" });
             }
             else
@@ -288,15 +303,15 @@
         selectProject(project: Engine.IProject)
         {
             if (this.$selectedProject)
-                (<any>this.$selectedProject).selected = false;
+                (this.$selectedProject as any).selected = false;
 
-            (<any>project).selected = true;
+            (project as any).selected = true;
 
             if (this.$selectedProject != project)
                 this.$selectedProject = project;
             else
             {
-                (<any>this.$selectedProject).selected = false;
+                (this.$selectedProject as any).selected = false;
                 this.$selectedProject = null;
             }
         }
@@ -341,7 +356,7 @@
                 {
                     if (this.$plugins[n][i].name == plugin.name)
                     {
-                        (<any>this.$plugins[n][i]).$showVersions = !(<any>this.$plugins[n][i]).$showVersions;
+                        (this.$plugins[n][i] as any).$showVersions = !(this.$plugins[n][i] as any).$showVersions;
                     }
                 }
         }
@@ -411,10 +426,10 @@
 
             if (this.$activePane == "register")
             {
-                (<any>this).$regCaptcha = jQuery("#recaptcha_response_field").val();
-                (<any>this).$regChallenge = jQuery("#recaptcha_challenge_field").val();
+                (this as any).$regCaptcha = jQuery("#recaptcha_response_field").val();
+                (this as any).$regChallenge = jQuery("#recaptcha_challenge_field").val();
 
-                if ((<any>this).$regCaptcha == "")
+                if ((this as any).$regCaptcha == "")
                     this.$errorMsg = "Please enter the capture code";
             }
 

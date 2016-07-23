@@ -6261,11 +6261,17 @@ declare module Animate {
         static getSingleton(parent?: Component): Toolbar;
     }
 }
+declare module Animate.Components {
+    class LoginForm extends React.Component<any, any> {
+        constructor();
+        render(): any;
+    }
+}
 declare module Animate {
     /**
     * The splash screen when starting the app
     */
-    class Splash {
+    class Splash extends React.Component<any, any> {
         private static _singleton;
         private _splashElm;
         private _loginElm;
@@ -6290,6 +6296,7 @@ declare module Animate {
         * Creates an instance of the splash screen
         */
         constructor(app: Application);
+        render(): JSX.Element;
         show(): void;
         splashDimensions(): any;
         goState(state: string, digest?: boolean): void;

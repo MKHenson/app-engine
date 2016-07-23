@@ -144,7 +144,8 @@
     "lib/gui/forms/behaviour-picker.ts",
     "lib/gui/logger.ts",
     "lib/gui/toolbar/toolBar.ts",
-    "lib/gui/splash/splash.ts",
+    "lib/gui/login-form/login-form.tsx",
+    "lib/gui/splash/splash.tsx",
     "lib/gui/application.ts",
     "lib/main.ts"
   ]
