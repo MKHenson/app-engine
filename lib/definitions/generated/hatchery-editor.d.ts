@@ -6261,17 +6261,79 @@ declare module Animate {
         static getSingleton(parent?: Component): Toolbar;
     }
 }
-declare module Animate.Components {
-    class LoginForm extends React.Component<any, any> {
+declare module Animate {
+    enum LoginMode {
+        LOGIN = 0,
+        REGISTER = 1,
+    }
+    interface ILoginForm {
+        mode?: LoginMode;
+        loading?: boolean;
+        $logRemember?: boolean;
+        $logUsername?: string;
+        $regUsername?: string;
+        $regEmail?: string;
+        $regPassword?: string;
+        $logPassword?: string;
+        $regCaptcha?: string;
+        $regChallenge?: string;
+    }
+    class LoginForm extends React.Component<{
+        onLogin: () => void;
+    }, ILoginForm> {
+        $user: User;
+        $errorMsg: string;
+        $errorRed: boolean;
+        $error: boolean;
         constructor();
-        render(): any;
+        loginError(err: Error): void;
+        loginSuccess(data: UsersInterface.IResponse): void;
+        /**
+         * Attempts to reset the users password
+         * @param {string} user The username or email of the user to resend the activation
+         */
+        resetPassword(user: string): void;
+        /**
+         * Attempts to resend the activation code
+         * @param {string} user The username or email of the user to resend the activation
+         */
+        resendActivation(user: string): void;
+        /**
+        * Attempts to register a new user
+        * @param {string} user The username of the user.
+        * @param {string} password The password of the user.
+        * @param {string} email The email of the user.
+        * @param {string} captcha The captcha of the login screen
+        * @param {string} captha_challenge The captha_challenge of the login screen
+        */
+        register(user: string, password: string, email: string, captcha: string, challenge: string): void;
+        /**
+        * Attempts to log the user in
+        * @param {string} user The username
+        * @param {string} password The user password
+        * @param {boolean} remember Should the user cookie be saved
+        */
+        login(user: string, password: string, remember: boolean): void;
+        validateRegister(): boolean;
+        validateLogin(): boolean;
+        render(): JSX.Element;
     }
 }
 declare module Animate {
+    enum SplashMode {
+        WELCOME = 0,
+        LOGIN = 1,
+        NEW_PROJECT = 2,
+        OPENING = 3,
+    }
+    interface ISplash {
+        mode?: SplashMode;
+        $loading?: boolean;
+    }
     /**
     * The splash screen when starting the app
     */
-    class Splash extends React.Component<any, any> {
+    class Splash extends React.Component<any, ISplash> {
         private static _singleton;
         private _splashElm;
         private _loginElm;
@@ -6295,10 +6357,10 @@ declare module Animate {
         /**
         * Creates an instance of the splash screen
         */
-        constructor(app: Application);
+        constructor(app?: Application);
         render(): JSX.Element;
         show(): void;
-        splashDimensions(): any;
+        splashDimensions(): string;
         goState(state: string, digest?: boolean): void;
         removeProject(messageBoxAnswer: string): void;
         openProject(project: Engine.IProject): void;

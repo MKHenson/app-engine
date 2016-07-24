@@ -1,9 +1,23 @@
 ﻿module Animate
 {
+    export enum SplashMode
+    {
+        WELCOME,
+        LOGIN,
+        NEW_PROJECT,
+        OPENING
+    }
+
+    export interface ISplash
+    {
+        mode? : SplashMode
+        $loading?: boolean;
+    }
+
     /**
     * The splash screen when starting the app
     */
-    export class Splash extends React.Component<any, any>
+    export class Splash extends React.Component<any, ISplash >
     {
         private static _singleton: Splash;
         private _splashElm: JQuery;
@@ -29,7 +43,7 @@
         /**
         * Creates an instance of the splash screen
         */
-        constructor(app: Application)
+        constructor(app?: Application)
         {
             super()
             this._app = app;
@@ -50,22 +64,34 @@
             this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new PageLoader(this.fetchProjects.bind(this));
-
+            var t = SplashMode.LOGIN;
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
                 this.$theme = "welcome-blue";
             else
                 this.$theme = "welcome-pink";
 
-            // Add the elements
-            jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
-            jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
-            jQuery("#splash-view", this._splashElm).prepend(this._newProject);
-            jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
+            this.state = {
+                mode: SplashMode.LOGIN,
+                $loading: true
+            };
+
+            // // Add the elements
+            // jQuery("#splash-view", this._splashElm).prepend(this._loginElm);
+            // jQuery("#splash-view", this._splashElm).prepend(this._welcomeElm);
+            // jQuery("#splash-view", this._splashElm).prepend(this._newProject);
+            // jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
         }
 
-        render()
+        render() : JSX.Element
         {
+            var mainView : JSX.Element;
+            if (this.state.mode == SplashMode.LOGIN)
+                mainView = <LoginForm
+                    onLogin={()=>{
+                        alert("Logged in");
+                    }} />;
+
             return <div id='splash' className={this.$theme}>
                 <div className="logo">
                     {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={this.logout()}>Logout</a></div> : null )}
@@ -73,7 +99,11 @@
                         <img id="splash-loading-icon" style={( !this.$loading ? {display:'none'} : null )} className="loading" src='media/loading-white.gif' />Hatchery
                     </h2>
                 </div>
-                <div id="splash-view" style={( this.$activePane == 'loading' && this.$loading ? {display : 'none'} : null )} className={ this.splashDimensions() + 'background curve-small animate-slow shadow-med fade-in' }>
+                <div
+                    id="splash-view"
+                    style={( this.$activePane == 'loading' && this.$loading ? {display : 'none'} : null )}
+                    className={ this.splashDimensions() + ' background curve-small animate-slow shadow-med fade-in' }>
+                        {mainView}
                 </div>
             </div>
         }
@@ -83,55 +113,69 @@
         */
         show()
         {
-            var that = this;
-            that._app.element.detach();
-            jQuery("body").append(that._splashElm);
-            jQuery("#en-login-username", that._loginElm).val("");
-            that.$loading = true;
+            // var that = this;
+            // that._app.element.detach();
+            // jQuery("body").append(that._splashElm);
+            // jQuery("#en-login-username", that._loginElm).val("");
+            // that.$loading = true;
 
-            if (!that._captureInitialized)
-            {
-                that._captureInitialized = true;
+            // if (!that._captureInitialized)
+            // {
+            //     that._captureInitialized = true;
 
-                // Build each of the templates
-                Compiler.build(this._loginElm, this);
-                Compiler.build(this._welcomeElm, this);
-                Compiler.build(this._newProject, this);
-                Compiler.build(this._loadingProject, this);
-                Compiler.build(this._splashElm, this);
-                grecaptcha.render(document.getElementById("animate-captcha"), { theme: "white",
-                    sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" });
-            }
-            else
-            {
-                Compiler.digest(this._splashElm, that, true);
-                grecaptcha.reset();
-            }
+            //     // Build each of the templates
+            //     Compiler.build(this._loginElm, this);
+            //     Compiler.build(this._welcomeElm, this);
+            //     Compiler.build(this._newProject, this);
+            //     Compiler.build(this._loadingProject, this);
+            //     Compiler.build(this._splashElm, this);
+            //     grecaptcha.render(document.getElementById("animate-captcha"), { theme: "white",
+            //         sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" });
+            // }
+            // else
+            // {
+            //     Compiler.digest(this._splashElm, that, true);
+            //     grecaptcha.reset();
+            // }
 
-            that.$user.authenticated().then(function( val )
+            this.$user.authenticated().then( ( val ) =>
             {
-                that.$loading = false;
-                if (!val)
-                    that.goState("login", true);
-                else
-                    that.goState("welcome", true);
+                // that.$loading = false;
+                // if (!val)
+                //     that.goState("login", true);
+                // else
+                //     that.goState("welcome", true);
 
-            }).catch(function (err: Error)
+                this.setState({
+                    $loading: false,
+                    mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
+                });
+
+            }).catch( (err: Error) =>
             {
-                that.$loading = false;
-                that.goState("login", true);
+                // that.$loading = false;
+                // that.goState("login", true);
+
+                this.setState({
+                    $loading: false,
+                    mode: SplashMode.LOGIN
+                });
+            });
+
+            this.setState({
+                $loading: true
             });
         }
 
         /*
         * Gets the dimensions of the splash screen based on the active pane
         */
-        splashDimensions(): any
+        splashDimensions(): string
         {
-            if (this.$activePane == "login" || this.$activePane == "register" || this.$activePane == "loading-project")
-                return { "compact": true, "wide": false };
+            if (this.state.mode == SplashMode.LOGIN || this.state.mode == SplashMode.OPENING )
+                return "compact";
             else
-                return { "compact": false, "wide": true };
+                return "wide";
         }
 
         /*
