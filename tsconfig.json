@@ -147,6 +147,6 @@
     "lib/gui/login-form/login-form.tsx",
     "lib/gui/splash/splash.tsx",
     "lib/gui/application.ts",
-    "lib/main.ts"
+    "lib/main.tsx"
   ]
 }

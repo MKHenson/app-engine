@@ -75,11 +75,15 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
     // Create the application element
     var app = new Animate.Application("#application");
 
-    // Initialize the splash instance
-    Animate.Splash.init(app);
+    app.element.detach();
+
+    // // Initialize the splash instance
+    // var splash = Animate.Splash.init(app);
+
+    var splash = ReactDOM.render( <Animate.Splash />, jQuery("body")[0]) as Animate.Splash;
 
     // Show Splash screen
-	Animate.Splash.get.show();
+	splash.show();
 }
 
 /**
