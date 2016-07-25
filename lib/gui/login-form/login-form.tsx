@@ -17,23 +17,24 @@ module Animate
         $logPassword?: string;
         $regCaptcha?: string;
         $regChallenge?: string;
+        $errorMsg?: string;
+        $errorRed?: boolean;
+        $error?: boolean;
     }
 
     export class LoginForm extends React.Component<{ onLogin: () => void }, ILoginForm>
     {
         $user: User;
-        $errorMsg: string;
-        $errorRed: boolean;
-        $error: boolean;
+
+
 
         constructor()
         {
             super();
             this.$user = User.get;
-            this.$errorMsg = "";
 
-            this.$error = false;
-            this.$errorRed = true;
+
+
 
             this.state = {
                 mode : LoginMode.LOGIN,
@@ -45,7 +46,10 @@ module Animate
                 $logPassword : "",
                 $regCaptcha : "",
                 $regChallenge : "",
-                $logRemember : false
+                $logRemember : false,
+                $errorMsg : "",
+                $error : false,
+                $errorRed : true
             };
         }
 
@@ -54,9 +58,11 @@ module Animate
         */
         loginError(err: Error)
         {
-            this.setState({ loading: false });
-            this.$errorRed = true;
-            this.$errorMsg = err.message;
+            this.setState({
+                loading: false,
+                $errorMsg: err.message,
+                $errorRed: true
+            });
         }
 
         /*
@@ -64,25 +70,26 @@ module Animate
         */
         loginSuccess(data: UsersInterface.IResponse)
         {
-            if (data.error)
-                this.$errorRed = true;
-            else
-                this.$errorRed = false;
-
-            this.setState({ loading: false });
-            this.$errorMsg = data.message;
+            this.setState({
+                loading: false,
+                $errorMsg: data.message,
+                $errorRed: data.error
+            });
         }
 
         /**
          * Attempts to reset the users password
-         * @param {string} user The username or email of the user to resend the activation
          */
-        resetPassword(user: string)
+        resetPassword()
         {
             var that = this;
-            if (!user)
+            if (this.state.$logUsername == "")
             {
-                // this.$errorMsg = "Please specify a username or email to fetch";
+                this.setState({
+                    $error : true,
+                    $errorMsg: "Please specify a username or email to fetch"
+                });
+                // this.$errorMsg = ;
                 // jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
                 // {
                 //     this.$error = true;
@@ -92,21 +99,25 @@ module Animate
             }
 
             this.setState({ loading: true });
-            this.$user.resetPassword(user)
+            this.$user.resetPassword(this.state.$logUsername)
                 .then(this.loginSuccess.bind(that))
                 .catch(this.loginError.bind(that));
         }
 
         /**
          * Attempts to resend the activation code
-         * @param {string} user The username or email of the user to resend the activation
          */
-        resendActivation(user: string)
+        resendActivation()
         {
+            var user = this.state.$logUsername || this.state.$regUsername || this.state.$regEmail;
             var that = this;
 
-            if (!user)
+            if (user == "")
             {
+                 this.setState({
+                    $error : true,
+                    $errorMsg: "Please specify a username or email to fetch"
+                });
                 // this.$errorMsg = "Please specify a username or email to fetch";
                 // jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
                 // {
@@ -124,47 +135,39 @@ module Animate
 
         /**
         * Attempts to register a new user
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
         */
-        register(user: string, password: string, email: string, captcha: string, challenge: string)
+        register()
         {
             var that = this;
             this.setState({ loading: true });
-            this.$user.register(user, password, email, captcha, challenge)
+            this.$user.register(this.state.$regUsername, this.state.$regPassword, this.state.$regEmail, this.state.$regCaptcha, this.state.$regChallenge)
                 .then(this.loginSuccess.bind(that))
                 .catch(function (err: Error)
                 {
-                    that.$errorRed = true;
-                    that.$errorMsg = err.message;
-                    this.setState({ loading: false });
                     grecaptcha.reset();
+                    this.setState({
+                        loading: false,
+                        $errorRed: true,
+                        $errorMsg: err.message
+                    });
                 });
         }
 
         /**
         * Attempts to log the user in
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
         */
-        login(user: string, password: string, remember: boolean)
+        login()
         {
             var that = this;
             this.setState({ loading: true });
-            this.$user.login(user, password, remember)
+            this.$user.login(this.state.$logUsername, this.state.$logPassword, this.state.$logRemember)
                 .then(function (data)
                 {
-                    if (data.error)
-                        that.$errorRed = true;
-                    else
-                        that.$errorRed = false;
-
-                    that.$errorMsg = data.message;
-                    this.setState({ loading: false });
+                    this.setState({
+                        loading: false,
+                        $errorMsg: data.message,
+                        $errorRed: data.error
+                    });
 
                     if (that.$user.isLoggedIn)
                         this.props.onLogin();
@@ -212,21 +215,22 @@ module Animate
                         autoComplete="off"
                         onSubmit={(e) => {
                             e.preventDefault();
-                            this.validateLogin() && this.login(this.state.$logUsername, this.state.$logPassword, this.state.$logRemember)}
+                            this.validateLogin() && this.login()}
                         }>
 
                         <div className="avatar"><img src="media/blank-user.png" /></div>
                         <div className='input-box'>
-                            <input autoComplete="off"
+                            <VInput
+                                autoComplete="off"
                                 placeholder="Email or Username"
                                 autoFocus=""
                                 type='text'
                                 name="username"
                                 id="en-login-username"
                                 onChange={(e)=>{ this.setState({ $logUsername : (e.target as HTMLInputElement).value })}}
-                                className={( this.$error ? 'bad-input' : null )}
                                 value={this.state.$logUsername}
-                                />
+                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL} />
+
                         </div>
                         <div className='input-box'>
                             <input autoComplete="off"
@@ -235,19 +239,19 @@ module Animate
                                 type='password'
                                 name="password"
                                 id="en-login-password"
-                                className={( this.$error ? 'bad-input' : null )}
+                                className={( this.state.$error ? 'bad-input' : null )}
                                 onChange={(e)=>{ this.setState({ $logPassword : (e.target as HTMLInputElement).value })}}
                                 value={this.state.$logPassword}
                                 />
                             <a id="forgot-pass" className={(this.state.loading ? 'disabled' : null)}
-                                onClick={(e) => this.resetPassword(this.state.$logUsername)}>
+                                onClick={(e) => this.resetPassword()}>
                                 Forgot
                             </a>
                         </div>
                         <div
-                            className={( this.$errorRed ? 'error' : null ) + 'label login-msg fade-in animate-slow'}
-                            style={{ maxHeight: (this.$errorMsg != '' ? '150px' : ''), padding: (this.$errorMsg != '' ? '10px' : '0') }}>
-                            {this.$errorMsg}
+                            className={( this.state.$errorRed ? 'error' : '' ) + 'label login-msg fade-in animate-slow'}
+                            style={{ maxHeight: (this.state.$errorMsg != '' ? '150px' : ''), padding: (this.state.$errorMsg != '' ? '10px' : '0') }}>
+                            {this.state.$errorMsg}
                         </div>
                         <div className="checkbox">
                             <div className="tick-box" onClick={(e)=>this.setState({$logRemember: !this.state.$logRemember})}>
@@ -256,21 +260,21 @@ module Animate
                             Remember me
                         </div>
                         <a
-                            className={(this.state.loading ? 'disabled' : null)}
-                            onClick={(e) => this.resendActivation(this.state.$logUsername || this.state.$regUsername || this.state.$regEmail )}>
+                            className={(this.state.loading ? 'disabled' : '')}
+                            onClick={(e) => this.resendActivation()}>
                             Resend Activation Email
                         </a>
                         <br />
                         <div className="double-column">
                             <div
-                                className={(this.state.loading ? 'disabled' : null) + "button reg-gradient en-register animate-all"}
+                                className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-register animate-all"}
                                 onClick={(e) => this.setState({ mode : LoginMode.REGISTER })}>
                                 Register
                             </div>
                         </div>
                         <div className="double-column">
                             <input type='submit'
-                                className={(this.state.loading ? 'disabled' : null) + "button reg-gradient en-login animate-all"}
+                                className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-login animate-all"}
                                 value="Login"
                             />
                         </div>
@@ -285,7 +289,7 @@ module Animate
                         autoComplete="off"
                         onSubmit={(e) => {
                             e.preventDefault();
-                            this.validateRegister() && this.register(this.state.$regUsername, this.state.$regPassword, this.state.$regEmail, this.state.$regCaptcha, this.state.$regChallenge )}
+                            this.validateRegister() && this.register()}
                         }>
 
                         <div className='input-box'>
@@ -296,7 +300,7 @@ module Animate
                                 value={this.state.$regUsername}
                                 onChange={(e)=>this.setState({$regUsername: (e.target as HTMLInputElement).value})}
                                 id="en-reg-username"
-                                className={( this.$error ? 'bad-input' : null )}
+                                className={( this.state.$error ? 'bad-input' : null )}
                                 />
                         </div>
                         <div className='input-box'>
@@ -307,7 +311,7 @@ module Animate
                                 value={this.state.$regEmail}
                                 onChange={(e)=>this.setState({$regEmail: (e.target as HTMLInputElement).value})}
                                 id="en-reg-email"
-                                className={( this.$error ? 'bad-input' : null )}
+                                className={( this.state.$error ? 'bad-input' : null )}
                                 />
                         </div>
                         <div className='input-box'>
@@ -318,13 +322,13 @@ module Animate
                                 value={this.state.$regPassword}
                                 onChange={(e)=>this.setState({$regPassword: (e.target as HTMLInputElement).value})}
                                 id="en-reg-password"
-                                className={( this.$error ? 'bad-input' : null )}
+                                className={( this.state.$error ? 'bad-input' : null )}
                                 />
                         </div>
                         <div
-                            className={( this.$errorRed ? 'error' : null ) + 'label login-msg fade-in animate-slow'}
-                            style={{ maxHeight: (this.$errorMsg != '' ? '150px' : ''), padding: (this.$errorMsg != '' ? '10px' : '0') }}>
-                                {this.$errorMsg}
+                            className={( this.state.$errorRed ? 'error' : null ) + 'label login-msg fade-in animate-slow'}
+                            style={{ maxHeight: (this.state.$errorMsg != '' ? '150px' : ''), padding: (this.state.$errorMsg != '' ? '10px' : '0') }}>
+                                {this.state.$errorMsg}
                         </div>
                         <div id='animate-captcha'></div>
                         <div className="double-column">
@@ -337,7 +341,7 @@ module Animate
                         <div className="double-column">
                             <input
                                 type='submit'
-                                className={(this.state.loading ? 'disabled' : null) + "button reg-gradient en-register animate-all"}
+                                className={(this.state.loading ? 'disabled ' : '') + "button reg-gradient en-register animate-all"}
                                 value="Register"
                                 />
                         </div>
