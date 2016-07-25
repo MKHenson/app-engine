@@ -40,9 +40,6 @@ module Animate
             super();
             User._singleton = this;
 
-			// Call super-class constructor
-            EventDispatcher.call(this);
-
             // Create the default entry
             this.entry = { username : "" };
             this.resetMeta();
