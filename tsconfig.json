@@ -6,14 +6,14 @@
     "declaration": true,
     "sourceMap": false,
     "preserveConstEnums": true,
-    "target": "es5",
+    "target": "es6",
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "noImplicitAny": false,
     "jsx": "react"
   },
   "files": [
-    "./config.ts",
+    "config.ts",
     "lib/references.d.ts",
     "lib/core/compiler.ts",
     "lib/core/compiler-directives/repeater.ts",
@@ -144,6 +144,9 @@
     "lib/gui/forms/behaviour-picker.ts",
     "lib/gui/logger.ts",
     "lib/gui/toolbar/toolBar.ts",
+
+    "lib/gui/v-input/v-input.tsx",
+
     "lib/gui/login-form/login-form.tsx",
     "lib/gui/splash/splash.tsx",
     "lib/gui/application.ts",

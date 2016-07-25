@@ -444,7 +444,7 @@ module Animate
         loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>
         {
             var that = this;
-            var arr: Array<Promise<Modepress.IGetArrayResponse<any>>> = [];
+            var arr: Array<Promise<Modepress.IGetArrayResponse<Engine.IResource>>> = [];
             var paths = this._restPaths;
 
             if (!type)
@@ -476,9 +476,9 @@ module Animate
                 paths[type].array.splice(0, paths[type].array.length);
             }
 
-            return new Promise<Array<ProjectResource<any>>>(function (resolve, reject)
+            return new Promise<Array<ProjectResource<Engine.IResource>>>(function (resolve, reject)
             {
-                Promise.all(arr).then(function (data)
+                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>(arr).then(function (data)
                 {
                     // Check for any errors
                     for (var i = 0, l = data.length; i < l; i++)
@@ -532,16 +532,16 @@ module Animate
         * This function is used to fetch a project resource by Id
         * @param {string} id the Id of the resource to update
         * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<T>}
+        * @returns {Promise<T | Error>}
         */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T>
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error>
         {
             var that = this;
             var paths = this._restPaths;
 
             var r = this.getResourceByID<T>(id, type);
             if (!r)
-                return Promise.reject(new Error("Could not find a resource with that ID"));
+                return Promise.reject<Error>(new Error("Could not find a resource with that ID"));
 
             return new Promise<T>(function (resolve, reject)
             {
@@ -573,9 +573,9 @@ module Animate
 		* @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
 		* @param {ResourceType} type The type of resource we are editing
-        * @returns {Promise<Modepress.IResponse>}
+        * @returns {Promise<Modepress.IResponse | Error>}
 		*/
-        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>
+        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse | Error>
         {
             var that = this;
             var details = User.get.entry;
@@ -593,7 +593,7 @@ module Animate
                 }
 
             if (!resource)
-                return Promise.reject(new Error("No resource with that ID exists"));
+                return Promise.reject<Error>(new Error("No resource with that ID exists"));
 
             return new Promise<UsersInterface.IResponse>(function (resolve, reject)
             {
@@ -680,9 +680,9 @@ module Animate
 		* Use this to delete a resource by its Id
 		* @param {string} id The id of the object we are deleting
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {Promise<boolean>}
+        * @returns {Promise<boolean | Error>}
 		*/
-        deleteResource(id: string, type: ResourceType): Promise<boolean>
+        deleteResource(id: string, type: ResourceType): Promise<boolean | Error>
         {
             var that = this;
             var details = User.get.entry;
@@ -700,7 +700,7 @@ module Animate
                 }
 
             if (!resource)
-                return Promise.reject(new Error("No resource with that ID exists"));
+                return Promise.reject<Error>(new Error("No resource with that ID exists"));
 
             return new Promise<boolean>(function (resolve, reject)
             {

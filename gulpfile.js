@@ -121,6 +121,7 @@ gulp.task('check-files', function() {
         }
 })
 
+
 /**
  * Concatenates and builds all TS code into a single file
  */
@@ -278,9 +279,30 @@ gulp.task('install-definitions', function () {
          ]);
 });
 
+
+gulp.task('build-all', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css'], function () {
+
+    var index = './dist/index.html';
+    var str = "<!-- inject:js -->\n";
+    var jsArray = [];
+
+    for ( var i = 0, l = tsFiles.length; i < l; i++ )
+        if ( tsFiles[i].indexOf('.d.ts') == -1 )
+        jsArray.push( 'js/' + tsFiles[i].replace(/(\.tsx|\.ts)/, '.js'))
+
+    str += ( jsArray.map(function(item, i){ return `<script type="text/javascript" src="${item}"></script>` }) ).join("\n");
+
+    var contents = fs.readFileSync( index, 'utf8');
+
+
+    contents = contents.replace(/<!-- inject:js -->/, str );
+    fs.writeFileSync('./dist/index.html', contents, 'utf8');
+    return Promise.resolve();
+});
+
 /**
  * Use this task to install all third-party libraries from github and their respective authors
  */
 gulp.task('install', ['install-third-parties', 'install-definitions']);
 
-gulp.task('build', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css']);
+gulp.task('build', ['build-all']);
