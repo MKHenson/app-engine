@@ -1,4 +1,3 @@
-/// <reference path="./definitions/required/es6-promise.d.ts" />
 /// <reference path="./definitions/required/jquery.d.ts" />
 /// <reference path="./definitions/required/jquery.scrollTo.d.ts" />
 /// <reference path="./definitions/required/jqueryui.d.ts" />
