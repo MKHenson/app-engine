@@ -1716,17 +1716,17 @@ declare module Animate {
         * This function is used to fetch a project resource by Id
         * @param {string} id the Id of the resource to update
         * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<T>}
+        * @returns {Promise<T | Error>}
         */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T>;
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error>;
         /**
         * Use this to edit the properties of a resource
         * @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
         * @param {ResourceType} type The type of resource we are editing
-        * @returns {Promise<Modepress.IResponse>}
+        * @returns {Promise<Modepress.IResponse | Error>}
         */
-        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse>;
+        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse | Error>;
         /**
         * Use this to save the properties of a resource
         * @param {string} id The id of the object we are saving.
@@ -1744,9 +1744,9 @@ declare module Animate {
         * Use this to delete a resource by its Id
         * @param {string} id The id of the object we are deleting
         * @param {ResourceType} type The type of resource we are renaming
-        * @returns {Promise<boolean>}
+        * @returns {Promise<boolean | Error>}
         */
-        deleteResource(id: string, type: ResourceType): Promise<boolean>;
+        deleteResource(id: string, type: ResourceType): Promise<boolean | Error>;
         /**
         * Copies an existing resource and assigns a new ID to the cloned item
         * @param {string} id The id of the resource we are cloning from
@@ -6262,6 +6262,35 @@ declare module Animate {
     }
 }
 declare module Animate {
+    enum ValidationType {
+        EMAIL = 1,
+        NUMBER = 2,
+        ALPHANUMERIC = 4,
+        NOT_EMPTY = 8,
+        NO_HTML = 16,
+        ALPHANUMERIC_PLUS = 32,
+        ALPHA_EMAIL = 64,
+    }
+    interface IVInputProps extends React.HTMLAttributes {
+        validator?: ValidationType;
+        value: string;
+        minCharacters?: number;
+        maxCharacters?: number;
+    }
+    class VInput extends React.Component<IVInputProps, {
+        error?: boolean;
+        value?: string;
+    }> {
+        private static validators;
+        private _originalClassName;
+        constructor(parameters: any);
+        componentWillMount(): void;
+        validate(val: string): boolean;
+        private onChange(e);
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     enum LoginMode {
         LOGIN = 0,
         REGISTER = 1,
@@ -6277,43 +6306,33 @@ declare module Animate {
         $logPassword?: string;
         $regCaptcha?: string;
         $regChallenge?: string;
+        $errorMsg?: string;
+        $errorRed?: boolean;
+        $error?: boolean;
     }
     class LoginForm extends React.Component<{
         onLogin: () => void;
     }, ILoginForm> {
         $user: User;
-        $errorMsg: string;
-        $errorRed: boolean;
-        $error: boolean;
         constructor();
         loginError(err: Error): void;
         loginSuccess(data: UsersInterface.IResponse): void;
         /**
          * Attempts to reset the users password
-         * @param {string} user The username or email of the user to resend the activation
          */
-        resetPassword(user: string): void;
+        resetPassword(): void;
         /**
          * Attempts to resend the activation code
-         * @param {string} user The username or email of the user to resend the activation
          */
-        resendActivation(user: string): void;
+        resendActivation(): void;
         /**
         * Attempts to register a new user
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
         */
-        register(user: string, password: string, email: string, captcha: string, challenge: string): void;
+        register(): void;
         /**
         * Attempts to log the user in
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
         */
-        login(user: string, password: string, remember: boolean): void;
+        login(): void;
         validateRegister(): boolean;
         validateLogin(): boolean;
         render(): JSX.Element;

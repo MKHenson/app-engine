@@ -106,7 +106,7 @@ module Animate
         loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>
         {
             if (pluginDefinition.$loaded)
-                return Promise.resolve();
+                return Promise.resolve(null);
 
             return new Promise<Engine.IPlugin>(function (resolve, reject)
             {
