@@ -146,6 +146,7 @@
     "lib/gui/toolbar/toolBar.ts",
 
     "lib/gui/v-input/v-input.tsx",
+    "lib/gui/v-form/v-form.tsx",
 
     "lib/gui/login-form/login-form.tsx",
     "lib/gui/splash/splash.tsx",

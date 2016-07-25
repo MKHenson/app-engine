@@ -211,35 +211,35 @@ module Animate
             if ( this.state.mode == LoginMode.LOGIN )
             {
                 activePane = <div className='login animate-all fade-in'>
-                    <form name="login"
+                    <VForm name="login"
                         autoComplete="off"
                         onSubmit={(e) => {
-                            e.preventDefault();
-                            this.validateLogin() && this.login()}
+                            this.login()}
                         }>
 
                         <div className="avatar"><img src="media/blank-user.png" /></div>
-                        <div className='input-box'>
+
                             <VInput
                                 autoComplete="off"
                                 placeholder="Email or Username"
                                 autoFocus=""
                                 type='text'
+                                required={true}
                                 name="username"
                                 id="en-login-username"
                                 onChange={(e)=>{ this.setState({ $logUsername : (e.target as HTMLInputElement).value })}}
                                 value={this.state.$logUsername}
-                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL} />
-
-                        </div>
+                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
+                                />
                         <div className='input-box'>
-                            <input autoComplete="off"
+                            <VInput
+                                autoComplete="off"
                                 placeholder="Password"
                                 autoFocus=""
                                 type='password'
                                 name="password"
                                 id="en-login-password"
-                                className={( this.state.$error ? 'bad-input' : null )}
+                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                                 onChange={(e)=>{ this.setState({ $logPassword : (e.target as HTMLInputElement).value })}}
                                 value={this.state.$logPassword}
                                 />
@@ -278,7 +278,7 @@ module Animate
                                 value="Login"
                             />
                         </div>
-                    </form>
+                    </VForm>
                 </div>
             }
             else

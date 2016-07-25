@@ -6276,6 +6276,7 @@ declare module Animate {
         value: string;
         minCharacters?: number;
         maxCharacters?: number;
+        onValidationError?: (e: Error, target: VInput) => void;
     }
     class VInput extends React.Component<IVInputProps, {
         error?: boolean;
@@ -6285,8 +6286,21 @@ declare module Animate {
         private _originalClassName;
         constructor(parameters: any);
         componentWillMount(): void;
-        validate(val: string): boolean;
+        validate(val: string): string;
         private onChange(e);
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    class VForm extends React.Component<any, {
+        error?: boolean;
+    }> {
+        private _proxyInputProblem;
+        constructor();
+        onInputProblem(e: Error, input: VInput): void;
+        componentDidMount(): void;
+        componentWillUnmount(): void;
+        onSubmit(e: React.FormEvent): void;
         render(): JSX.Element;
     }
 }
