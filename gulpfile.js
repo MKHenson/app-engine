@@ -73,6 +73,15 @@ gulp.task('deploy-third-party', function() {
 });
 
 /**
+ * Adds fonts to the dist folder
+ */
+gulp.task('deploy-fonts', function() {
+
+    return gulp.src([ './third-party/font-awesome/fonts/**/*.*' ], { base: "./third-party/font-awesome/fonts" } )
+        .pipe(gulp.dest(outDir + '/fonts'));
+});
+
+/**
  * Adds all HTML files to the temp/index.html
  */
 gulp.task('html', function() {
@@ -234,6 +243,7 @@ gulp.task('install-third-parties', function () {
     rimraf.sync('./third-party')
 
     return Promise.all([
+        downloadClient("https://github.com/FortAwesome/Font-Awesome/tarball/v4.6.3", './third-party/font-awesome'),
         downloadClient("https://github.com/jquery/jquery/tarball/2.2.1", './third-party/jquery'),
         downloadClient("https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0", './third-party/jquery-hotkeys'),
         downloadClient("https://github.com/EastDesire/jscolor/tarball/v1.4.5", './third-party/jscolor'),
@@ -280,7 +290,7 @@ gulp.task('install-definitions', function () {
 });
 
 
-gulp.task('build-all', ['html', 'media', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css'], function () {
+gulp.task('build-all', ['html', 'media', 'deploy-fonts', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css'], function () {
 
     var index = './dist/index.html';
     var str = "<!-- inject:js -->\n";
