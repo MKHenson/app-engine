@@ -6273,34 +6273,48 @@ declare module Animate {
     }
     interface IVInputProps extends React.HTMLAttributes {
         validator?: ValidationType;
-        value: string;
+        value?: string;
         minCharacters?: number;
         maxCharacters?: number;
         onValidationError?: (e: Error, target: VInput) => void;
+        onValidationResolved?: (target: VInput) => void;
+        errorMsg?: string;
     }
     class VInput extends React.Component<IVInputProps, {
         error?: boolean;
         value?: string;
+        highlightError?: boolean;
     }> {
         private static validators;
         private _originalClassName;
         constructor(parameters: any);
         componentWillMount(): void;
+        highlightError(val?: boolean): void;
         validate(val: string): string;
         private onChange(e);
         render(): JSX.Element;
     }
 }
 declare module Animate {
-    class VForm extends React.Component<any, {
+    interface IVFormProps extends React.HTMLAttributes {
+        onSubmitted: (e: React.FormEvent, json: any) => void;
+        onValidationError: (e: {
+            name: string;
+            error: string;
+        }[], form: VForm) => void;
+        onValidationsResolved: (form: VForm) => void;
+    }
+    class VForm extends React.Component<IVFormProps, {
         error?: boolean;
     }> {
         private _proxyInputProblem;
+        private _className;
+        private _values;
         constructor();
-        onInputProblem(e: Error, input: VInput): void;
-        componentDidMount(): void;
-        componentWillUnmount(): void;
         onSubmit(e: React.FormEvent): void;
+        componentWillMount(): void;
+        onChange(e: React.FormEvent): void;
+        onError(e: Error, target: VInput): void;
         render(): JSX.Element;
     }
 }
@@ -6321,7 +6335,6 @@ declare module Animate {
         $regCaptcha?: string;
         $regChallenge?: string;
         $errorMsg?: string;
-        $errorRed?: boolean;
         $error?: boolean;
     }
     class LoginForm extends React.Component<{
@@ -6342,13 +6355,13 @@ declare module Animate {
         /**
         * Attempts to register a new user
         */
-        register(): void;
+        register(json: any): void;
         /**
         * Attempts to log the user in
         */
-        login(): void;
-        validateRegister(): boolean;
-        validateLogin(): boolean;
+        login(json: any): void;
+        capitalize(str: string): string;
+        mountCaptcha(div: HTMLDivElement): void;
         render(): JSX.Element;
     }
 }

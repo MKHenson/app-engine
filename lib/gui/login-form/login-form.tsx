@@ -18,7 +18,6 @@ module Animate
         $regCaptcha?: string;
         $regChallenge?: string;
         $errorMsg?: string;
-        $errorRed?: boolean;
         $error?: boolean;
     }
 
@@ -26,15 +25,10 @@ module Animate
     {
         $user: User;
 
-
-
         constructor()
         {
             super();
             this.$user = User.get;
-
-
-
 
             this.state = {
                 mode : LoginMode.LOGIN,
@@ -48,8 +42,7 @@ module Animate
                 $regChallenge : "",
                 $logRemember : false,
                 $errorMsg : "",
-                $error : false,
-                $errorRed : true
+                $error : false
             };
         }
 
@@ -61,7 +54,7 @@ module Animate
             this.setState({
                 loading: false,
                 $errorMsg: err.message,
-                $errorRed: true
+                $error: true
             });
         }
 
@@ -73,7 +66,7 @@ module Animate
             this.setState({
                 loading: false,
                 $errorMsg: data.message,
-                $errorRed: data.error
+                $error: data.error
             });
         }
 
@@ -136,7 +129,7 @@ module Animate
         /**
         * Attempts to register a new user
         */
-        register()
+        register( json : any )
         {
             var that = this;
             this.setState({ loading: true });
@@ -147,7 +140,7 @@ module Animate
                     grecaptcha.reset();
                     this.setState({
                         loading: false,
-                        $errorRed: true,
+                        $error: true,
                         $errorMsg: err.message
                     });
                 });
@@ -156,7 +149,7 @@ module Animate
         /**
         * Attempts to log the user in
         */
-        login()
+        login( json )
         {
             var that = this;
             this.setState({ loading: true });
@@ -166,7 +159,7 @@ module Animate
                     this.setState({
                         loading: false,
                         $errorMsg: data.message,
-                        $errorRed: data.error
+                        $error: data.error
                     });
 
                     if (that.$user.isLoggedIn)
@@ -175,14 +168,16 @@ module Animate
                 .catch(this.loginError.bind(that));
         }
 
-        validateRegister()
+        capitalize( str : string ): string
         {
-            return  true;
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
-        validateLogin()
+        mountCaptcha(div : HTMLDivElement)
         {
-            return  true;
+            if (div && div.childNodes.length == 0)
+                grecaptcha.render(div, { theme: "white", sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" } );
+
         }
 
         render()
@@ -211,45 +206,47 @@ module Animate
             if ( this.state.mode == LoginMode.LOGIN )
             {
                 activePane = <div className='login animate-all fade-in'>
+                    <div className="avatar"><img src="media/blank-user.png" /></div>
                     <VForm name="login"
                         autoComplete="off"
-                        onSubmit={(e) => {
-                            this.login()}
-                        }>
+                        onValidationError={(errors)=> {
+                            this.setState({ $errorMsg: `${this.capitalize(errors[0].name)} : ${errors[0].error}`, $error : true })
+                        }}
+                        onValidationsResolved={(form)=> {
+                            this.setState({ $errorMsg: '' })
+                        }}
+                        onSubmitted={(e,json) => {
+                            this.login(json)} }>
+                        <VInput
+                            autoComplete="off"
+                            placeholder="Email or Username"
+                            autoFocus=""
+                            type='text'
+                            name="username"
+                            id="en-login-username"
+                            onChange={(e)=>{ this.setState({ $logUsername : (e.target as HTMLInputElement).value })}}
+                            value={this.state.$logUsername}
+                            validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
+                            />
 
-                        <div className="avatar"><img src="media/blank-user.png" /></div>
+                        <VInput
+                            autoComplete="off"
+                            placeholder="Password"
+                            autoFocus=""
+                            type='password'
+                            name="password"
+                            id="en-login-password"
+                            validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
+                            onChange={(e)=>{ this.setState({ $logPassword : (e.target as HTMLInputElement).value })}}
+                            value={this.state.$logPassword}
+                            />
 
-                            <VInput
-                                autoComplete="off"
-                                placeholder="Email or Username"
-                                autoFocus=""
-                                type='text'
-                                required={true}
-                                name="username"
-                                id="en-login-username"
-                                onChange={(e)=>{ this.setState({ $logUsername : (e.target as HTMLInputElement).value })}}
-                                value={this.state.$logUsername}
-                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
-                                />
-                        <div className='input-box'>
-                            <VInput
-                                autoComplete="off"
-                                placeholder="Password"
-                                autoFocus=""
-                                type='password'
-                                name="password"
-                                id="en-login-password"
-                                validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                                onChange={(e)=>{ this.setState({ $logPassword : (e.target as HTMLInputElement).value })}}
-                                value={this.state.$logPassword}
-                                />
-                            <a id="forgot-pass" className={(this.state.loading ? 'disabled' : null)}
-                                onClick={(e) => this.resetPassword()}>
-                                Forgot
-                            </a>
-                        </div>
+                        <a id="forgot-pass" className={(this.state.loading ? 'disabled' : null)}
+                            onClick={(e) => this.resetPassword()}>
+                            Forgot
+                        </a>
                         <div
-                            className={( this.state.$errorRed ? 'error' : '' ) + 'label login-msg fade-in animate-slow'}
+                            className={( this.state.$error ? 'error ' : '' ) + 'label login-msg fade-in animate-slow'}
                             style={{ maxHeight: (this.state.$errorMsg != '' ? '150px' : ''), padding: (this.state.$errorMsg != '' ? '10px' : '0') }}>
                             {this.state.$errorMsg}
                         </div>
@@ -266,17 +263,17 @@ module Animate
                         </a>
                         <br />
                         <div className="double-column">
-                            <div
+                            <button
+                                type="button"
                                 className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-register animate-all"}
                                 onClick={(e) => this.setState({ mode : LoginMode.REGISTER })}>
                                 Register
-                            </div>
+                            </button>
                         </div>
                         <div className="double-column">
-                            <input type='submit'
-                                className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-login animate-all"}
-                                value="Login"
-                            />
+                            <button type='submit' className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-login animate-all"}>
+                            Login
+                            </button>
                         </div>
                     </VForm>
                 </div>
@@ -284,68 +281,68 @@ module Animate
             else
             {
                 activePane = <div className='login animate-all fade-in'>
-                    <form
+                    <VForm
                         name="register"
                         autoComplete="off"
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            this.validateRegister() && this.register()}
+                        onValidationError={(errors)=> {
+                            this.setState({ $errorMsg: `${this.capitalize(errors[0].name)} : ${errors[0].error}`, $error : true })
+                        }}
+                        onValidationsResolved={(form)=> {
+                            this.setState({ $errorMsg: '' })
+                        }}
+                        onSubmitted={(e, json) => {
+                            this.register(json)}
                         }>
 
-                        <div className='input-box'>
-                            <input type='text'
-                                placeholder="Username"
-                                autoComplete="off"
-                                name="username"
-                                value={this.state.$regUsername}
-                                onChange={(e)=>this.setState({$regUsername: (e.target as HTMLInputElement).value})}
-                                id="en-reg-username"
-                                className={( this.state.$error ? 'bad-input' : null )}
-                                />
-                        </div>
-                        <div className='input-box'>
-                            <input type='text'
-                                placeholder="Email"
-                                autoComplete="off"
-                                name="email"
-                                value={this.state.$regEmail}
-                                onChange={(e)=>this.setState({$regEmail: (e.target as HTMLInputElement).value})}
-                                id="en-reg-email"
-                                className={( this.state.$error ? 'bad-input' : null )}
-                                />
-                        </div>
-                        <div className='input-box'>
-                            <input type='password'
-                                placeholder="Password"
-                                autoComplete="off"
-                                name="password"
-                                value={this.state.$regPassword}
-                                onChange={(e)=>this.setState({$regPassword: (e.target as HTMLInputElement).value})}
-                                id="en-reg-password"
-                                className={( this.state.$error ? 'bad-input' : null )}
-                                />
-                        </div>
+                        <VInput type='text'
+                            placeholder="Username"
+                            autoComplete="off"
+                            name="username"
+                            value={this.state.$regUsername}
+                            onChange={(e)=>this.setState({$regUsername: (e.target as HTMLInputElement).value})}
+                            validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
+                            id="en-reg-username"
+                            />
+
+                        <VInput type='text'
+                            placeholder="Email"
+                            autoComplete="off"
+                            name="email"
+                            validator={ValidationType.NOT_EMPTY | ValidationType.EMAIL}
+                            value={this.state.$regEmail}
+                            onChange={(e)=>this.setState({$regEmail: (e.target as HTMLInputElement).value})}
+                            id="en-reg-email"
+                            />
+
+                        <VInput type='password'
+                            placeholder="Password"
+                            autoComplete="off"
+                            name="password"
+                            validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
+                            value={this.state.$regPassword}
+                            onChange={(e)=>this.setState({$regPassword: (e.target as HTMLInputElement).value})}
+                            id="en-reg-password"
+                            />
                         <div
-                            className={( this.state.$errorRed ? 'error' : null ) + 'label login-msg fade-in animate-slow'}
+                            className={( this.state.$error ? 'error ' : '' ) + 'label login-msg fade-in animate-slow'}
                             style={{ maxHeight: (this.state.$errorMsg != '' ? '150px' : ''), padding: (this.state.$errorMsg != '' ? '10px' : '0') }}>
                                 {this.state.$errorMsg}
                         </div>
-                        <div id='animate-captcha'></div>
+                        <div id='animate-captcha' ref={(e) => { this.mountCaptcha(e) }}></div>
                         <div className="double-column">
-                            <div
+                            <button
+                                type="button"
                                 className={(this.state.loading ? 'disabled' : null) + "button reg-gradient en-register animate-all"}
                                 onClick={(e) => this.setState({ mode : LoginMode.LOGIN })}>
-                                &#10094; Login
-                            </div>
+                                ❮ Login
+                            </button>
                         </div>
                         <div className="double-column">
-                            <input
-                                type='submit'
-                                className={(this.state.loading ? 'disabled ' : '') + "button reg-gradient en-register animate-all"}
-                                value="Register"
-                                />
+                            <button type='submit'  className={(this.state.loading ? 'disabled ' : '') + "button reg-gradient en-register animate-all"}>
+                                Register
+                            </button>
                         </div>
-                    </form>
+                    </VForm>
                 </div>
             }
 

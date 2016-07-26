@@ -15,14 +15,16 @@ module Animate
     export interface IVInputProps extends React.HTMLAttributes
     {
         validator?: ValidationType;
-        value: string;
+        value?: string;
         minCharacters?: number;
         maxCharacters?: number;
         onValidationError?: (e: Error, target: VInput) => void;
+        onValidationResolved?: (target: VInput) => void;
+        errorMsg?: string;
     }
 
 
-    export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string }>
+    export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string, highlightError? : boolean }>
     {
         private static validators : { [type: number ] : { regex: RegExp, name : string, negate : boolean; message : string; } };
         private _originalClassName: string;
@@ -40,18 +42,34 @@ module Animate
                 VInput.validators[ValidationType.NO_HTML] = { regex: /(<([^>]+)>)/ig, name: "no-html", negate: true, message: "HTML is not allowed" };
                 VInput.validators[ValidationType.ALPHA_EMAIL] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus", negate: false, message: "Only alphanumeric, '_', '-', '@' and '!' characters accepted" };
             }
+
+            this.state = {
+                value : '',
+                error: false,
+                highlightError: false
+            };
         }
 
         componentWillMount(): void
         {
             this._originalClassName = this.props.className || '';
-            var err = this.validate(this.props.value);
+            this._originalClassName += ' v-input';
+
+            var err = this.validate( this.props.value );
 
              // Call the optional error callback
             if ( err && this.props.onValidationError )
                this.props.onValidationError( new Error(err), this );
 
-            this.setState({ value : this.props.value, error: (err? true: false) });
+            this.setState({
+                value : this.props.value,
+                error: (err? true: false)
+            });
+        }
+
+        highlightError( val : boolean = true )
+        {
+            this.setState({ highlightError : val });
         }
 
         validate(val : string): string
@@ -98,19 +116,27 @@ module Animate
                 }
             }
 
-            return errorMsg;
+            return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
 
         private onChange(e: React.FormEvent)
         {
+            var wasAnError = this.state.error;
             var val = (e.target as HTMLInputElement).value;
-            var err = this.validate(val)
+            var err = this.validate(val);
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
                this.props.onValidationError( new Error(err), this );
+            else if (wasAnError && !err && this.props.onValidationResolved)
+                this.props.onValidationResolved(this);
 
-            this.setState({ value: val, error: (err? true : false) });
+            this.setState({
+                value: val,
+                error: (err? true : false),
+                highlightError: (err && this.state.highlightError ? true : false)
+            });
+
             if (!err)
                 this.props.onChange(e);
         }
@@ -122,11 +148,19 @@ module Animate
             delete divProps.validator;
             delete divProps.minCharacters;
             delete divProps.maxCharacters;
+            delete divProps.errorMsg;
+            delete divProps.onValidationError;
+            delete divProps.onValidationResolved;
 
+            var className = this._originalClassName;
+            if (this.state.error)
+                className += ' bad-input';
+            if (this.state.highlightError)
+                className += ' highlight-error';
 
             return <input
                 {...divProps}
-                className={(this.state.error ? 'bad-input ' + this._originalClassName : this._originalClassName)}
+                className={className}
                 value={this.state.value}
                 onChange={(e)=>{ this.onChange(e); }}
             />;
