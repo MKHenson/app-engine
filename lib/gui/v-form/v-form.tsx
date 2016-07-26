@@ -2,7 +2,7 @@ module Animate
 {
     export interface IVFormProps extends React.HTMLAttributes
     {
-        onSubmitted: (e: React.FormEvent, json: any ) => void;
+        onSubmitted: (e: React.FormEvent, json: any, form : VForm ) => void;
         onValidationError: (e : { name:string, error: string }[], form: VForm) => void;
         onValidationsResolved: (form: VForm) => void;
     }
@@ -11,6 +11,7 @@ module Animate
     {
         private _proxyInputProblem: any;
         private _className: string;
+        private _pristine: boolean;
 
         private _values: {
             [name:string]: {
@@ -23,6 +24,7 @@ module Animate
         {
             super();
             this._values = {};
+            this._pristine = true;
             this.state = {
                 error : false
             }
@@ -32,6 +34,7 @@ module Animate
         {
             e.preventDefault();
             let error = false;
+            this._pristine = false;
 
             for (let i in this.refs)
                 if ((this.refs[i] as VInput).state.error)
@@ -46,7 +49,7 @@ module Animate
                 return;
 
 
-            this.props.onSubmitted( e, this._values );
+            this.props.onSubmitted( e, this._values, this );
         }
 
         componentWillMount()
@@ -62,6 +65,9 @@ module Animate
 
         onError(e : Error, target : VInput )
         {
+            if (!target.pristine)
+                this._pristine = false;
+
             let wasError = this.state
             let errors: { name:string, error: string }[] = [];
 
@@ -86,6 +92,15 @@ module Animate
                 this.props.onValidationsResolved(this);
         }
 
+        /**
+         * Gets if this form has been touched by the user
+         * @returns {boolean}
+         */
+        get pristine() : boolean
+        {
+            return this._pristine;
+        }
+
         render(): JSX.Element
         {
             // Remove the custom properties
@@ -94,9 +109,15 @@ module Animate
             delete props.onValidationError;
             delete props.onValidationsResolved;
 
+            let className = 'v-form ' + this._className;
+            if (!this._pristine)
+                className += ' dirty';
+            else
+                className += ' pristine';
+
             return <form
                 {...props}
-                className={'v-form ' + this._className}
+                className={className}
                 onSubmit={(e)=>{ this.onSubmit(e); }}>
                 {
                     React.Children.map( this.props.children, ( i : React.ReactElement<any>, index ) => {

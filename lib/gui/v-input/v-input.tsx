@@ -28,6 +28,7 @@ module Animate
     {
         private static validators : { [type: number ] : { regex: RegExp, name : string, negate : boolean; message : string; } };
         private _originalClassName: string;
+        private _pristine: boolean;
 
         constructor(parameters)
         {
@@ -43,6 +44,7 @@ module Animate
                 VInput.validators[ValidationType.ALPHA_EMAIL] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus", negate: false, message: "Only alphanumeric, '_', '-', '@' and '!' characters accepted" };
             }
 
+            this._pristine = true;
             this.state = {
                 value : '',
                 error: false,
@@ -141,6 +143,15 @@ module Animate
                 this.props.onChange(e);
         }
 
+        /**
+         * Gets if this has been touched by the user
+         * @returns {boolean}
+         */
+        get pristine() : boolean
+        {
+            return this._pristine;
+        }
+
         render(): JSX.Element
         {
             // Remove the custom properties
@@ -157,9 +168,14 @@ module Animate
                 className += ' bad-input';
             if (this.state.highlightError)
                 className += ' highlight-error';
+            if (!this._pristine)
+                className += ' dirty';
 
             return <input
                 {...divProps}
+                onFocus={(e) => {
+                    this._pristine = false;
+                }}
                 className={className}
                 value={this.state.value}
                 onChange={(e)=>{ this.onChange(e); }}

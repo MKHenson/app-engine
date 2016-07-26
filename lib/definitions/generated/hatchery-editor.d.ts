@@ -6287,17 +6287,23 @@ declare module Animate {
     }> {
         private static validators;
         private _originalClassName;
+        private _pristine;
         constructor(parameters: any);
         componentWillMount(): void;
         highlightError(val?: boolean): void;
         validate(val: string): string;
         private onChange(e);
+        /**
+         * Gets if this has been touched by the user
+         * @returns {boolean}
+         */
+        pristine: boolean;
         render(): JSX.Element;
     }
 }
 declare module Animate {
     interface IVFormProps extends React.HTMLAttributes {
-        onSubmitted: (e: React.FormEvent, json: any) => void;
+        onSubmitted: (e: React.FormEvent, json: any, form: VForm) => void;
         onValidationError: (e: {
             name: string;
             error: string;
@@ -6309,12 +6315,18 @@ declare module Animate {
     }> {
         private _proxyInputProblem;
         private _className;
+        private _pristine;
         private _values;
         constructor();
         onSubmit(e: React.FormEvent): void;
         componentWillMount(): void;
         onChange(e: React.FormEvent): void;
         onError(e: Error, target: VInput): void;
+        /**
+         * Gets if this form has been touched by the user
+         * @returns {boolean}
+         */
+        pristine: boolean;
         render(): JSX.Element;
     }
 }
@@ -6326,21 +6338,21 @@ declare module Animate {
     interface ILoginForm {
         mode?: LoginMode;
         loading?: boolean;
-        $logRemember?: boolean;
-        $logUsername?: string;
-        $regUsername?: string;
-        $regEmail?: string;
-        $regPassword?: string;
-        $logPassword?: string;
-        $regCaptcha?: string;
-        $regChallenge?: string;
-        $errorMsg?: string;
-        $error?: boolean;
+        logRemember?: boolean;
+        logUsername?: string;
+        regUsername?: string;
+        regEmail?: string;
+        regPassword?: string;
+        logPassword?: string;
+        regCaptcha?: string;
+        regChallenge?: string;
+        errorMsg?: string;
+        error?: boolean;
     }
     class LoginForm extends React.Component<{
         onLogin: () => void;
     }, ILoginForm> {
-        $user: User;
+        private _user;
         constructor();
         loginError(err: Error): void;
         loginSuccess(data: UsersInterface.IResponse): void;
