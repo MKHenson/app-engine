@@ -57,10 +57,9 @@ module Animate
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
      * with the VForm.
      */
-    export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string, highlightError? : boolean }>
+    export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string, highlightError? : boolean, className? : string }>
     {
         private static validators : { [type: number ] : { regex: RegExp, name : string, negate : boolean; message : string; } };
-        private _originalClassName: string;
         private _pristine: boolean;
 
         /**
@@ -82,9 +81,10 @@ module Animate
 
             this._pristine = true;
             this.state = {
-                value : props.value,
+                value : props.value || '',
                 error: false,
-                highlightError: false
+                highlightError: false,
+                className:  ( props.className ? props.className + ' v-input' : 'v-input' )
             };
         }
 
@@ -93,9 +93,6 @@ module Animate
          */
         componentWillMount(): void
         {
-            this._originalClassName = this.props.className || '';
-            this._originalClassName += ' v-input';
-
             var err = this.getValidationErrorMsg( this.props.value );
 
              // Call the optional error callback
@@ -217,7 +214,7 @@ module Animate
             delete divProps.onValidationError;
             delete divProps.onValidationResolved;
 
-            var className = this._originalClassName;
+            var className = this.state.className;
             if (this.state.error)
                 className += ' bad-input';
             if (this.state.highlightError)
