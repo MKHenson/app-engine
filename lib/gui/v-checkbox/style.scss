@@ -1,0 +1,36 @@
+.v-checkbox {
+
+    input, label {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    label {
+        position: relative;
+    }
+
+    input + label:before {
+        content: $fa-var-check;
+        padding: 2px 4px;
+        background: $input;
+        color: $input;
+        display: inline-block;
+        vertical-align: middle;
+        padding: 2px;
+        margin-right: 10px;
+        @include fa-icon();
+    }
+
+    input:checked + label:before {
+        content: $fa-var-check;
+        color: inherit;
+    }
+
+
+    input {
+        opacity: 0;
+        position: absolute;
+    }
+}
