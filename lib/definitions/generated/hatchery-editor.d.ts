@@ -6262,24 +6262,51 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     * An enum to describe the different types of validation
+     * */
     enum ValidationType {
+        /** The value must be a valid email format */
         EMAIL = 1,
+        /** The value must be a number */
         NUMBER = 2,
+        /** The value must only have alphanumeric characters */
         ALPHANUMERIC = 4,
+        /** The value must not be empty */
         NOT_EMPTY = 8,
+        /** The value cannot contain html */
         NO_HTML = 16,
+        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
         ALPHANUMERIC_PLUS = 32,
+        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
         ALPHA_EMAIL = 64,
     }
     interface IVInputProps extends React.HTMLAttributes {
+        /**
+         * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
+         * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
+         * */
         validator?: ValidationType;
         value?: string;
+        /** The minimum number of characters allowed */
         minCharacters?: number;
+        /** The maximum number of characters allowed */
         maxCharacters?: number;
+        /** Called whenever the input fails a validation test */
         onValidationError?: (e: Error, target: VInput) => void;
+        /** Called whenever the input passes a previously failed validation test*/
         onValidationResolved?: (target: VInput) => void;
+        /**
+         * An optional error message to use to describe when a problem occurs. If for example you have validation against
+         * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
+         * provided, then that is used instead (for example 'Please specify a value for X')
+         */
         errorMsg?: string;
     }
+    /**
+     * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
+     * with the VForm.
+     */
     class VInput extends React.Component<IVInputProps, {
         error?: boolean;
         value?: string;
@@ -6288,45 +6315,105 @@ declare module Animate {
         private static validators;
         private _originalClassName;
         private _pristine;
-        constructor(parameters: any);
+        /**
+         * Creates a new instance
+         */
+        constructor();
+        /**
+         * Called when the component is about to be mounted.
+         */
         componentWillMount(): void;
-        highlightError(val?: boolean): void;
-        validate(val: string): string;
+        /**
+         * Sets the highlight error state. This state adds a 'highlight-error' class which
+         * can be used to bring attention to the component
+         */
+        highlightError: boolean;
+        /**
+         * Checks the string against all validators.
+         * @returns {string} An error string or null if there are no errors
+         */
+        getValidationErrorMsg(val: string): string;
+        /**
+         * Called whenever the value changes
+         * @param {React.FormEvent} e
+         */
         private onChange(e);
         /**
-         * Gets if this has been touched by the user
+         * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
          */
         pristine: boolean;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element;
     }
 }
 declare module Animate {
     interface IVFormProps extends React.HTMLAttributes {
-        onSubmitted: (e: React.FormEvent, json: any, form: VForm) => void;
-        onValidationError: (e: {
+        /** If true, prevents the form being automatically submitted */
+        preventDefault?: boolean;
+        /** A callback for when submit is called and there are no validation errors */
+        onSubmitted?: (e: React.FormEvent, json: any, form: VForm) => void;
+        /** A callback for when a validation error has occurred */
+        onValidationError?: (e: {
             name: string;
             error: string;
         }[], form: VForm) => void;
-        onValidationsResolved: (form: VForm) => void;
+        /** A callback for when a previously invalid form is validated */
+        onValidationsResolved?: (form: VForm) => void;
     }
+    /**
+     * A validated form is one which checks its children inputs for validation errors
+     * before allowing the form to be submitted. If there are errors the submit is not allowed.
+     * Only validated inputs are checked by the form (eg VInput). When the form is submitted
+     * via the onSubmitted callback, it sends a json object with the name and values of each of
+     * the validated inputs. The name is taken from the name of the input name attribute and the
+     * value from its value.
+     */
     class VForm extends React.Component<IVFormProps, {
         error?: boolean;
+        pristine?: boolean;
     }> {
+        static defaultProps: IVFormProps;
         private _proxyInputProblem;
         private _className;
-        private _pristine;
         private _values;
+        /**
+         * Creates a new instance
+         */
         constructor();
+        /**
+         * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
+         * This can be disabled with the preventDefault property.
+         * @param {React.FormEvent} e
+         */
         onSubmit(e: React.FormEvent): void;
+        /**
+         * Called when the component is about to be mounted.
+         */
         componentWillMount(): void;
+        /**
+         * Called whenever any of the inputs fire a change event
+         * @param {React.FormEvent} e
+         */
         onChange(e: React.FormEvent): void;
+        /**
+         * Called if any of the validated inputs reported or resolved an error
+         * @param {Error} e The error that occurred
+         * @param {VInput} target The input that triggered the error
+         */
         onError(e: Error, target: VInput): void;
         /**
-         * Gets if this form has been touched by the user
+         * Gets if this form has not been touched by the user. False is returned if it has been,
          * @returns {boolean}
          */
         pristine: boolean;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element;
     }
 }
@@ -6353,6 +6440,9 @@ declare module Animate {
         onLogin: () => void;
     }, ILoginForm> {
         private _user;
+        /**
+         * Creates a new instance
+         */
         constructor();
         loginError(err: Error): void;
         loginSuccess(data: UsersInterface.IResponse): void;
@@ -6372,8 +6462,22 @@ declare module Animate {
         * Attempts to log the user in
         */
         login(json: any): void;
+        /**
+         * Capitalizes the first character of a string
+         * @param {string} str
+         * @returns {string}
+         */
         capitalize(str: string): string;
+        /**
+         * Called when the captcha div has been mounted and is ready
+         * to be rendered
+         * @param {HTMLDivElement} div The div being rendered
+         */
         mountCaptcha(div: HTMLDivElement): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element;
     }
 }
