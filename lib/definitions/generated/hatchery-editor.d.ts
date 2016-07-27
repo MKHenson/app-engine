@@ -6506,6 +6506,9 @@ declare module Animate {
          * @param {HTMLDivElement} div The div being rendered
          */
         mountCaptcha(div: HTMLDivElement): void;
+        /**
+         * Called when the component is unmounted
+         */
         componentWillUnmount(): void;
         /**
          * Creates the component elements

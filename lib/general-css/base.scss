@@ -72,7 +72,6 @@ a {
   border: 1px solid transparent;
   text-decoration: none;
   cursor:pointer;
-  display: block;
 }
 
 a:active,
@@ -174,6 +173,7 @@ textarea {
   margin: 0; /* 3 */
   border: 1px solid #ddd;
   resize:vertical;
+  outline: none;
 }
 
 button {
@@ -289,8 +289,14 @@ input.error {
 button[disabled], html input[disabled] {
 	opacity:0.5;
 }
+
 html body .error {
 	color:$error;
+}
+
+.disabled {
+  opacity:0.4;
+  pointer-events: none;
 }
 
 .hidden {

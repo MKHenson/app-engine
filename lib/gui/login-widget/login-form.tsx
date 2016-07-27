@@ -201,6 +201,7 @@ module Animate
                         checked={true}
                         name="remember"
                         />
+                    <br />
                     <a
                         className={(this.state.loading ? 'disabled' : '')}
                         onClick={(e) => this.resendActivation()}>
@@ -210,13 +211,14 @@ module Animate
                     <div className="double-column">
                         <button
                             type="button"
-                            className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-register animate-all"}
+                            disabled={this.state.loading}
+                            className=" button reg-gradient en-register animate-all"
                             onClick={(e) => this.props.switchMode() }>
                             Register <span className='fa fa-user' />
                         </button>
                     </div>
                     <div className="double-column">
-                        <button type='submit' className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-login animate-all"}>
+                        <button type='submit' disabled={this.state.loading} className=" button reg-gradient en-login animate-all">
                         Login <span className='fa fa-sign-in' />
                         </button>
                     </div>
