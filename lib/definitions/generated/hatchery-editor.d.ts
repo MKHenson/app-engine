@@ -6441,14 +6441,8 @@ declare module Animate {
     interface ILoginForm {
         mode?: LoginMode;
         loading?: boolean;
-        logRemember?: boolean;
         logUsername?: string;
         regUsername?: string;
-        regEmail?: string;
-        regPassword?: string;
-        logPassword?: string;
-        regCaptcha?: string;
-        regChallenge?: string;
         errorMsg?: string;
         error?: boolean;
     }
