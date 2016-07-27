@@ -586,13 +586,12 @@
         * @param {string} password The password of the user.
         * @param {string} email The email of the user.
         * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
         */
-        register(user: string, password: string, email: string, captcha: string, challenge: string)
+        register(user: string, password: string, email: string, captcha: string)
         {
             var that = this;
             that.$loading = true;
-            this.$user.register(user, password, email, captcha, challenge)
+            this.$user.register(user, password, email, captcha)
                 .then(this.loginSuccess.bind(that))
                 .catch(function (err: Error)
                 {

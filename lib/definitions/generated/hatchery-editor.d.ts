@@ -1842,10 +1842,9 @@ declare module Animate {
         * @param {string} password The password of the user.
         * @param {string} email The email of the user.
         * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
         */
-        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): Promise<UsersInterface.IAuthenticationResponse>;
+        register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse>;
         /**
         * This function is used to resend a user's activation code
         * @param {string} user
@@ -6262,6 +6261,27 @@ declare module Animate {
     }
 }
 declare module Animate {
+    class VCheckbox extends React.Component<React.HTMLAttributes, {
+        checked?: boolean;
+        className?: string;
+    }> {
+        /**
+         * Creates an instance
+         */
+        constructor(props: React.HTMLAttributes);
+        /**
+         * Called whenever the checkbox input changes
+         * @param {React.FormEvent} e
+         */
+        private onChange(e);
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     /**
      * An enum to describe the different types of validation
      * */
@@ -6318,7 +6338,7 @@ declare module Animate {
         /**
          * Creates a new instance
          */
-        constructor();
+        constructor(props: any);
         /**
          * Called when the component is about to be mounted.
          */
@@ -6383,17 +6403,13 @@ declare module Animate {
         /**
          * Creates a new instance
          */
-        constructor();
+        constructor(props: IVFormProps);
         /**
          * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
          * This can be disabled with the preventDefault property.
          * @param {React.FormEvent} e
          */
         onSubmit(e: React.FormEvent): void;
-        /**
-         * Called when the component is about to be mounted.
-         */
-        componentWillMount(): void;
         /**
          * Called whenever any of the inputs fire a change event
          * @param {React.FormEvent} e
@@ -6564,9 +6580,8 @@ declare module Animate {
         * @param {string} password The password of the user.
         * @param {string} email The email of the user.
         * @param {string} captcha The captcha of the login screen
-        * @param {string} captha_challenge The captha_challenge of the login screen
         */
-        register(user: string, password: string, email: string, captcha: string, challenge: string): void;
+        register(user: string, password: string, email: string, captcha: string): void;
         /**
         * Attempts to resend the activation code
         * @param {string} user The username or email of the user to resend the activation

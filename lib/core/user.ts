@@ -168,18 +168,16 @@ module Animate
 		* @param {string} password The password of the user.
 		* @param {string} email The email of the user.
 		* @param {string} captcha The captcha of the login screen
-		* @param {string} captha_challenge The captha_challenge of the login screen
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 		*/
-        register(user: string, password: string, email: string, captcha: string, captha_challenge: string): Promise<UsersInterface.IAuthenticationResponse>
+        register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse>
         {
             var that = this,
                 token: UsersInterface.IRegisterToken = {
                     username: user,
                     password: password,
                     email: email,
-                    captcha: captcha,
-                    challenge: captha_challenge
+                    captcha: captcha
                 };
 
 
