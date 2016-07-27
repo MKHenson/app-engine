@@ -1,7 +1,24 @@
 #log-reg {
+    overflow: hidden;
+    position: relative;
+
+    .fa-cog {
+        display: none;
+        position: absolute;
+        right: 0;
+        font-size: 25px;
+    }
+
+    &.loading .fa-cog {
+        display: inherit;
+    }
 
     .avatar {
-        margin:15px 0;
+    	margin: 15px auto;
+        width: 100px;
+        img {
+            width: 100%;
+        }
     }
 
     form {
@@ -16,16 +33,10 @@
     input[type="text"], input[type="password"] {
         padding:25px;
         border-top:none;
+        border-left:none;
+        border-right:none;
+        width:100%;
     }
-
-    input[type="text"]:first-child, input[type="password"]:first-child {
-        border-top:1px solid transparent;
-
-        &.highlight-error {
-            border-color : $input-highlight;
-        }
-    }
-
 
     button {
         border:none;
@@ -46,8 +57,6 @@
         max-height:0px;
     }
 
-
-
     #forgot-pass {
         position: absolute;
         left: 80%;
@@ -57,10 +66,6 @@
 
     .login {
         line-height:40px;
-
-        input {
-            width:100%;
-        }
     }
 
     #animate-captcha {

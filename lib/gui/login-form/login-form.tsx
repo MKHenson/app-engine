@@ -9,14 +9,8 @@ module Animate
     {
         mode?: LoginMode;
         loading?: boolean;
-        logRemember?: boolean;
         logUsername?: string;
         regUsername?: string;
-        regEmail?: string;
-        regPassword?: string;
-        logPassword?: string;
-        regCaptcha?: string;
-        regChallenge?: string;
         errorMsg?: string;
         error?: boolean;
     }
@@ -37,12 +31,6 @@ module Animate
                 loading: false,
                 logUsername : "",
                 regUsername : "",
-                regEmail : "",
-                regPassword : "",
-                logPassword : "",
-                regCaptcha : "",
-                regChallenge : "",
-                logRemember : false,
                 errorMsg : "",
                 error : false
             };
@@ -97,7 +85,7 @@ module Animate
          */
         resendActivation()
         {
-            var user = this.state.logUsername || this.state.regUsername || this.state.regEmail;
+            var user = this.state.logUsername;
             var that = this;
 
             if (user == "")
@@ -120,16 +108,19 @@ module Animate
         register( json : any )
         {
             var that = this;
-            this.setState({ loading: true });
-            this._user.register(this.state.regUsername, this.state.regPassword, this.state.regEmail, this.state.regCaptcha, this.state.regChallenge)
+            this.setState({
+                loading: true
+            });
+
+            this._user.register(json.username, json.password, json.email, grecaptcha.getResponse() )
                 .then(this.loginSuccess.bind(that))
-                .catch(function (err: Error)
+                .catch( (err: Error) =>
                 {
                     grecaptcha.reset();
                     this.setState({
                         loading: false,
-                        $error: true,
-                        $errorMsg: err.message
+                        error: true,
+                        errorMsg: err.message
                     });
                 });
         }
@@ -140,14 +131,17 @@ module Animate
         login( json )
         {
             var that = this;
-            this.setState({ loading: true });
-            this._user.login(this.state.logUsername, this.state.logPassword, this.state.logRemember)
-                .then(function (data)
+            this.setState({
+                loading: true
+            });
+
+            this._user.login( json.username, json.password, json.remember )
+                .then((data) =>
                 {
                     this.setState({
                         loading: false,
-                        $errorMsg: data.message,
-                        $error: data.error
+                        errorMsg: data.message,
+                        error: data.error
                     });
 
                     if (that._user.isLoggedIn)
@@ -187,7 +181,6 @@ module Animate
             if ( this.state.mode == LoginMode.LOGIN )
             {
                 activePane = <div className='login animate-all fade-in'>
-                    <div className="avatar"><img src="media/blank-user.png" /></div>
                     <VForm name="login"
                         autoComplete="off"
                         onValidationError={(errors, form)=> {
@@ -222,8 +215,6 @@ module Animate
                             name="password"
                             id="en-login-password"
                             validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                            onChange={(e)=>{ this.setState({ logPassword : (e.target as HTMLInputElement).value })}}
-                            value={this.state.logPassword}
                             />
 
                         <a id="forgot-pass" className={(this.state.loading ? 'disabled' : null)}
@@ -232,17 +223,16 @@ module Animate
                         </a>
                         <div
                             className={
-                                ( this.state.error ? 'error ' : '' ) +
+                                ( this.state.error ? 'error ' : 'success ' ) +
                                 ( this.state.errorMsg != '' ? 'show-msg ' : '' ) +
                                 'label login-msg fade-in animate-slow'}>
                             {this.state.errorMsg}
                         </div>
-                        <div className="checkbox">
-                            <div className="tick-box" onClick={(e)=>this.setState({logRemember: !this.state.logRemember})}>
-                                <div className="tick" style={( !this.state.logRemember ? { display : 'none' } : null )}></div>
-                            </div>
-                            Remember me
-                        </div>
+                        <VCheckbox
+                            label="Remember me"
+                            checked={true}
+                            name="remember"
+                            />
                         <a
                             className={(this.state.loading ? 'disabled' : '')}
                             onClick={(e) => this.resendActivation()}>
@@ -254,7 +244,7 @@ module Animate
                                 type="button"
                                 className={(this.state.loading ? 'disabled' : '') + " button reg-gradient en-register animate-all"}
                                 onClick={(e) => this.setState({ mode : LoginMode.REGISTER })}>
-                                Register
+                                Register <span className='fa fa-user' />
                             </button>
                         </div>
                         <div className="double-column">
@@ -299,8 +289,6 @@ module Animate
                             autoComplete="off"
                             name="email"
                             validator={ValidationType.NOT_EMPTY | ValidationType.EMAIL}
-                            value={this.state.regEmail}
-                            onChange={(e)=>this.setState({regEmail: (e.target as HTMLInputElement).value})}
                             id="en-reg-email"
                             />
 
@@ -309,13 +297,11 @@ module Animate
                             autoComplete="off"
                             name="password"
                             validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                            value={this.state.regPassword}
-                            onChange={(e)=>this.setState({regPassword: (e.target as HTMLInputElement).value})}
                             id="en-reg-password"
                             />
                         <div
                             className={
-                                ( this.state.error ? 'error ' : '' ) +
+                                ( this.state.error ? 'error ' : 'success ' ) +
                                 ( this.state.errorMsg != '' ? 'show-msg ' : '' ) +
                                 'label login-msg fade-in animate-slow'}>
                                 {this.state.errorMsg}
@@ -338,7 +324,13 @@ module Animate
                 </div>
             }
 
-            return <div id="log-reg">{activePane}</div>;
+            return <div id="log-reg" className={( this.state.loading ? 'loading' : null )}>
+                <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                <div className="avatar">
+                    <img src="media/blank-user.png" />
+                </div>
+                {activePane}
+            </div>;
         }
     }
 }
