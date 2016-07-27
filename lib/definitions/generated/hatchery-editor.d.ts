@@ -1050,6 +1050,12 @@ declare module Animate {
         */
         static generateLocalId(reference?: number): number;
         /**
+         * Capitalizes the first character of a string
+         * @param {string} str
+         * @returns {string}
+         */
+        static capitalize(str: string): string;
+        /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         static post<T>(url: string, data: any): Promise<T>;
@@ -6331,9 +6337,9 @@ declare module Animate {
         error?: boolean;
         value?: string;
         highlightError?: boolean;
+        className?: string;
     }> {
         private static validators;
-        private _originalClassName;
         private _pristine;
         /**
          * Creates a new instance
@@ -6434,21 +6440,18 @@ declare module Animate {
     }
 }
 declare module Animate {
-    enum LoginMode {
-        LOGIN = 0,
-        REGISTER = 1,
+    interface ILoginFormProps {
+        onLogin: () => void;
+        onLoadingChange?: (loading: boolean) => void;
+        switchMode: () => void;
     }
-    interface ILoginForm {
-        mode?: LoginMode;
+    interface ILoginFormState {
         loading?: boolean;
-        logUsername?: string;
-        regUsername?: string;
+        username?: string;
         errorMsg?: string;
         error?: boolean;
     }
-    class LoginForm extends React.Component<{
-        onLogin: () => void;
-    }, ILoginForm> {
+    class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
         private _user;
         /**
          * Creates a new instance
@@ -6465,25 +6468,70 @@ declare module Animate {
          */
         resendActivation(): void;
         /**
-        * Attempts to register a new user
-        */
-        register(json: any): void;
-        /**
         * Attempts to log the user in
         */
         login(json: any): void;
         /**
-         * Capitalizes the first character of a string
-         * @param {string} str
-         * @returns {string}
+         * Creates the component elements
+         * @returns {JSX.Element}
          */
-        capitalize(str: string): string;
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IRegisterFormProps {
+        onLogin?: () => void;
+        onLoadingChange?: (loading: boolean) => void;
+        switchMode: () => void;
+    }
+    interface IRegisterFormState {
+        loading?: boolean;
+        errorMsg?: string;
+        error?: boolean;
+    }
+    class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
+        private _user;
+        private _captchaId;
+        /**
+         * Creates a new instance
+         */
+        constructor();
+        /**
+        * Attempts to register a new user
+        */
+        register(json: any): void;
         /**
          * Called when the captcha div has been mounted and is ready
          * to be rendered
          * @param {HTMLDivElement} div The div being rendered
          */
         mountCaptcha(div: HTMLDivElement): void;
+        componentWillUnmount(): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    enum LoginMode {
+        LOGIN = 0,
+        REGISTER = 1,
+    }
+    interface ILoginWidgetState {
+        mode?: LoginMode;
+        loading?: boolean;
+    }
+    class LoginWidget extends React.Component<{
+        onLogin: () => void;
+    }, ILoginWidgetState> {
+        private _user;
+        /**
+         * Creates a new instance
+         */
+        constructor();
+        switchState(): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}

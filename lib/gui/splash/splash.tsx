@@ -87,7 +87,7 @@
         {
             var mainView : JSX.Element;
             if (this.state.mode == SplashMode.LOGIN)
-                mainView = <LoginForm
+                mainView = <LoginWidget
                     onLogin={()=>{
                         alert("Logged in");
                     }} />;

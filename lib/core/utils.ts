@@ -26,6 +26,16 @@
         }
 
         /**
+         * Capitalizes the first character of a string
+         * @param {string} str
+         * @returns {string}
+         */
+        static capitalize( str : string ): string
+        {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        /**
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         static post<T>(url: string, data: any): Promise<T>
