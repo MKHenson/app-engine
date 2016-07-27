@@ -66,7 +66,7 @@ module Animate
         /**
          * Creates a new instance
          */
-        constructor()
+        constructor(props)
         {
             super();
             if (!VInput.validators)
@@ -82,7 +82,7 @@ module Animate
 
             this._pristine = true;
             this.state = {
-                value : '',
+                value : props.value,
                 error: false,
                 highlightError: false
             };
@@ -103,7 +103,6 @@ module Animate
                this.props.onValidationError( new Error(err), this );
 
             this.setState({
-                value : this.props.value,
                 error: (err? true: false)
             });
         }

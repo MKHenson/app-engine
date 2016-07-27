@@ -39,10 +39,11 @@ module Animate
         /**
          * Creates a new instance
          */
-        constructor()
+        constructor(props: IVFormProps)
         {
             super();
             this._values = {};
+            this._className = ( props.className ? props.className + ' v-form' : 'v-form' );
             this.state = {
                 error : false,
                 pristine: true
@@ -74,15 +75,11 @@ module Animate
             if (error)
                 return;
 
-            this.props.onSubmitted( e, this._values, this );
-        }
+            let json = {};
+            for ( let i in  this._values )
+                json[i] = this._values[i].value;
 
-        /**
-         * Called when the component is about to be mounted.
-         */
-        componentWillMount()
-        {
-            this._className = this.props.className || '';
+            this.props.onSubmitted( e, json, this );
         }
 
         /**
@@ -154,7 +151,7 @@ module Animate
             delete props.onValidationsResolved;
             delete props.preventDefault;
 
-            let className = 'v-form ' + this._className;
+            let className = this._className;
             if (this.state.error)
                 className += ' has-errors';
             if (!this.state.pristine)
@@ -175,6 +172,13 @@ module Animate
                                 onValidationError : (e, input) => { this.onError( e, input ) },
                                 onValidationResolved : (input) => { this.onError( null, input ) }
                             } as Animate.IVInputProps )
+                        else if ( i.type == VCheckbox )
+                        {
+                            return React.cloneElement( i, {
+                                ref: index.toString(),
+                                onChange : (e)=>{ this.onChange( e ); }
+                            } as React.HTMLAttributes )
+                        }
                         else
                             return i;
                     })

@@ -8,7 +8,7 @@ input[type="text"].v-input, input[type="password"].v-input {
     border:1px solid transparent;
     transition: border-color 1s;
     padding:10px;
-    background:#F5F5F5;
+    background: $input;
 
     &.highlight-error {
         border-color : $input-highlight;
