@@ -281,16 +281,16 @@ input {
 	outline:none;
 }
 input.error {
-	border:1px solid red;
+	border:1px solid $error;
 }
 .success {
-	color:green;
+	color:$success;
 }
 button[disabled], html input[disabled] {
 	opacity:0.5;
 }
 html body .error {
-	color:red;
+	color:$error;
 }
 
 .hidden {
