@@ -7,8 +7,9 @@
     form {
         position: relative;
 
-        &.pristine .login-msg {
-            max-height:0px;
+        &.dirty .show-msg{
+            max-height:150px;
+            padding: 10px;
         }
     }
 
@@ -43,12 +44,9 @@
         padding: 0px;
         overflow:hidden;
         max-height:0px;
-
-        &.show-msg{
-            max-height:150px;
-            padding: 10px;
-        }
     }
+
+
 
     #forgot-pass {
         position: absolute;
