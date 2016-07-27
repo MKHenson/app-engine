@@ -2,16 +2,32 @@ module Animate
 {
     export interface IVFormProps extends React.HTMLAttributes
     {
-        onSubmitted: (e: React.FormEvent, json: any, form : VForm ) => void;
-        onValidationError: (e : { name:string, error: string }[], form: VForm) => void;
-        onValidationsResolved: (form: VForm) => void;
+        /** If true, prevents the form being automatically submitted */
+        preventDefault?: boolean;
+        /** A callback for when submit is called and there are no validation errors */
+        onSubmitted?: (e: React.FormEvent, json: any, form : VForm ) => void;
+        /** A callback for when a validation error has occurred */
+        onValidationError?: (e : { name:string, error: string }[], form: VForm) => void;
+        /** A callback for when a previously invalid form is validated */
+        onValidationsResolved?: (form: VForm) => void;
     }
 
-    export class VForm extends React.Component<IVFormProps, { error? : boolean }>
+    /**
+     * A validated form is one which checks its children inputs for validation errors
+     * before allowing the form to be submitted. If there are errors the submit is not allowed.
+     * Only validated inputs are checked by the form (eg VInput). When the form is submitted
+     * via the onSubmitted callback, it sends a json object with the name and values of each of
+     * the validated inputs. The name is taken from the name of the input name attribute and the
+     * value from its value.
+     */
+    export class VForm extends React.Component<IVFormProps, { error? : boolean, pristine?: boolean }>
     {
+        public static defaultProps : IVFormProps = {
+            preventDefault: true
+        };
+
         private _proxyInputProblem: any;
         private _className: string;
-        private _pristine: boolean;
 
         private _values: {
             [name:string]: {
@@ -20,53 +36,75 @@ module Animate
             }
         };
 
+        /**
+         * Creates a new instance
+         */
         constructor()
         {
             super();
             this._values = {};
-            this._pristine = true;
             this.state = {
-                error : false
+                error : false,
+                pristine: true
             }
         }
 
+        /**
+         * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
+         * This can be disabled with the preventDefault property.
+         * @param {React.FormEvent} e
+         */
         onSubmit(e: React.FormEvent)
         {
-            e.preventDefault();
-            let error = false;
-            this._pristine = false;
+            if (this.props.preventDefault)
+                e.preventDefault();
 
+            let error = false;
             for (let i in this.refs)
                 if ((this.refs[i] as VInput).state.error)
                 {
-                    (this.refs[i] as VInput).highlightError();
+                    (this.refs[i] as VInput).highlightError = true;
                     error = true;
                 }
                 else
-                    (this.refs[i] as VInput).highlightError(false);
+                    (this.refs[i] as VInput).highlightError = false;
+
+            this.setState({pristine : false, error : error });
 
             if (error)
                 return;
 
-
             this.props.onSubmitted( e, this._values, this );
         }
 
+        /**
+         * Called when the component is about to be mounted.
+         */
         componentWillMount()
         {
             this._className = this.props.className || '';
         }
 
+        /**
+         * Called whenever any of the inputs fire a change event
+         * @param {React.FormEvent} e
+         */
         onChange(e : React.FormEvent)
         {
             let input = (e.target as HTMLInputElement);
             this._values[input.name] = { value: input.value, error : null };
         }
 
+        /**
+         * Called if any of the validated inputs reported or resolved an error
+         * @param {Error} e The error that occurred
+         * @param {VInput} target The input that triggered the error
+         */
         onError(e : Error, target : VInput )
         {
+            let pristine = this.state.pristine;
             if (!target.pristine)
-                this._pristine = false;
+                pristine = false;
 
             let wasError = this.state
             let errors: { name:string, error: string }[] = [];
@@ -90,17 +128,23 @@ module Animate
                 this.props.onValidationError( errors, this);
             else if ( wasError && errors.length == 0 && this.props.onValidationsResolved )
                 this.props.onValidationsResolved(this);
+
+            this.setState({ error: errors.length > 0 ? true : false, pristine : pristine });
         }
 
         /**
-         * Gets if this form has been touched by the user
+         * Gets if this form has not been touched by the user. False is returned if it has been,
          * @returns {boolean}
          */
         get pristine() : boolean
         {
-            return this._pristine;
+            return this.state.pristine;
         }
 
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element
         {
             // Remove the custom properties
@@ -108,9 +152,12 @@ module Animate
             delete props.onSubmitted;
             delete props.onValidationError;
             delete props.onValidationsResolved;
+            delete props.preventDefault;
 
             let className = 'v-form ' + this._className;
-            if (!this._pristine)
+            if (this.state.error)
+                className += ' has-errors';
+            if (!this.state.pristine)
                 className += ' dirty';
             else
                 className += ' pristine';
