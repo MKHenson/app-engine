@@ -1,36 +1,72 @@
 module Animate
 {
+    /**
+     * An enum to describe the different types of validation
+     * */
     export enum ValidationType
     {
+        /** The value must be a valid email format */
         EMAIL = 1,
+        /** The value must be a number */
         NUMBER = 2,
+        /** The value must only have alphanumeric characters */
         ALPHANUMERIC = 4,
+        /** The value must not be empty */
         NOT_EMPTY = 8,
+        /** The value cannot contain html */
         NO_HTML = 16,
+        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
         ALPHANUMERIC_PLUS = 32,
+        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
         ALPHA_EMAIL = 64
     }
 
 
     export interface IVInputProps extends React.HTMLAttributes
     {
+        /**
+         * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
+         * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
+         * */
         validator?: ValidationType;
+
         value?: string;
+
+        /** The minimum number of characters allowed */
         minCharacters?: number;
+
+        /** The maximum number of characters allowed */
         maxCharacters?: number;
+
+        /** Called whenever the input fails a validation test */
         onValidationError?: (e: Error, target: VInput) => void;
+
+        /** Called whenever the input passes a previously failed validation test*/
         onValidationResolved?: (target: VInput) => void;
+
+        /**
+         * An optional error message to use to describe when a problem occurs. If for example you have validation against
+         * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
+         * provided, then that is used instead (for example 'Please specify a value for X')
+         */
         errorMsg?: string;
     }
 
 
+    /**
+     * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
+     * with the VForm.
+     */
     export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string, highlightError? : boolean }>
     {
         private static validators : { [type: number ] : { regex: RegExp, name : string, negate : boolean; message : string; } };
         private _originalClassName: string;
         private _pristine: boolean;
 
-        constructor(parameters)
+        /**
+         * Creates a new instance
+         */
+        constructor()
         {
             super();
             if (!VInput.validators)
@@ -52,12 +88,15 @@ module Animate
             };
         }
 
+        /**
+         * Called when the component is about to be mounted.
+         */
         componentWillMount(): void
         {
             this._originalClassName = this.props.className || '';
             this._originalClassName += ' v-input';
 
-            var err = this.validate( this.props.value );
+            var err = this.getValidationErrorMsg( this.props.value );
 
              // Call the optional error callback
             if ( err && this.props.onValidationError )
@@ -69,12 +108,20 @@ module Animate
             });
         }
 
-        highlightError( val : boolean = true )
+        /**
+         * Sets the highlight error state. This state adds a 'highlight-error' class which
+         * can be used to bring attention to the component
+         */
+        set highlightError( val : boolean )
         {
             this.setState({ highlightError : val });
         }
 
-        validate(val : string): string
+        /**
+         * Checks the string against all validators.
+         * @returns {string} An error string or null if there are no errors
+         */
+        getValidationErrorMsg(val : string): string
         {
             let validators = VInput.validators;
             let validator = null;
@@ -121,11 +168,15 @@ module Animate
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
 
+        /**
+         * Called whenever the value changes
+         * @param {React.FormEvent} e
+         */
         private onChange(e: React.FormEvent)
         {
             var wasAnError = this.state.error;
             var val = (e.target as HTMLInputElement).value;
-            var err = this.validate(val);
+            var err = this.getValidationErrorMsg(val);
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
@@ -144,7 +195,7 @@ module Animate
         }
 
         /**
-         * Gets if this has been touched by the user
+         * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
          */
         get pristine() : boolean
@@ -152,6 +203,10 @@ module Animate
             return this._pristine;
         }
 
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element
         {
             // Remove the custom properties

@@ -25,6 +25,9 @@ module Animate
     {
         private _user: User;
 
+        /**
+         * Creates a new instance
+         */
         constructor()
         {
             super();
@@ -153,18 +156,32 @@ module Animate
                 .catch(this.loginError.bind(that));
         }
 
+        /**
+         * Capitalizes the first character of a string
+         * @param {string} str
+         * @returns {string}
+         */
         capitalize( str : string ): string
         {
             return str.charAt(0).toUpperCase() + str.slice(1);
         }
 
+        /**
+         * Called when the captcha div has been mounted and is ready
+         * to be rendered
+         * @param {HTMLDivElement} div The div being rendered
+         */
         mountCaptcha(div : HTMLDivElement)
         {
             if (div && div.childNodes.length == 0)
-                grecaptcha.render(div, { theme: "white", sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" } );
+                grecaptcha.render(div, { theme: "white", sitekey : "6LcLGSYTAAAAAMr0sDto-BBfQYoLhs21CubsZxWb" } );
         }
 
-        render()
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render() : JSX.Element
         {
             var activePane : JSX.Element;
             if ( this.state.mode == LoginMode.LOGIN )
