@@ -6389,6 +6389,14 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     * Project List
+     */
+    class ProjectList {
+        constructor(props: any);
+    }
+}
+declare module Animate {
     interface ILoginFormProps {
         onLogin: () => void;
         onLoadingChange?: (loading: boolean) => void;
