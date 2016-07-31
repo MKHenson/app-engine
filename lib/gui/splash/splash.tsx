@@ -94,7 +94,7 @@
 
             return <div id='splash' className={this.$theme}>
                 <div className="logo">
-                    {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={this.logout()}>Logout</a></div> : null )}
+                    {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}>Logout</a></div> : null )}
                     <h2>
                         <img id="splash-loading-icon" style={( !this.$loading ? {display:'none'} : null )} className="loading" src='media/loading-white.gif' />Hatchery
                     </h2>
@@ -496,13 +496,11 @@
         */
         logout()
         {
-            var that = this;
             this.setState({ $loading : true });
-
-            this.$user.logout().then(function ()
+            this.$user.logout().then( () =>
             {
-                that.$loading = false;
-                that.$errorMsg = "";
+                this.$loading = false;
+                this.$errorMsg = "";
 
                 Application.getInstance().projectReset();
                 this.setState({
