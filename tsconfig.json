@@ -85,7 +85,6 @@
     "lib/gui/list.ts",
     "lib/gui/combo-box.ts",
     "lib/gui/menu-list.ts",
-    "lib/gui/application.ts",
     "lib/gui/user-preferences.ts",
     "lib/gui/plugin-browser.ts",
     "lib/gui/project-loader.ts",
@@ -152,7 +151,7 @@
     "lib/gui/login-widget/register-form.tsx",
     "lib/gui/login-widget/login-widget.tsx",
     "lib/gui/splash/splash.tsx",
-    "lib/gui/application.ts",
+    "lib/gui/application.tsx",
     "lib/main.tsx"
   ]
 }

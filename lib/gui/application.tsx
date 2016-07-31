@@ -79,6 +79,11 @@ module Animate
 			//Hook the resize event
 			jQuery( window ).on( 'resize', this._resizeProxy );
 			jQuery( document ).on( 'mousedown', this._downProxy );
+
+			var splash = ReactDOM.render( <Animate.Splash />, this.element[0] ) as Animate.Splash;
+
+			// Show Splash screen
+			splash.show();
 		}
 
 		/**
@@ -88,7 +93,7 @@ module Animate
 		onMouseDown( e ) : void
 		{
 			var elem : JQuery = jQuery( e.target );
-            var comp: Component = <Component>elem.data( "component" );
+            var comp: Component = elem.data( "component" ) as Component;
 
 			while ( !comp && elem.length != 0 )
 			{

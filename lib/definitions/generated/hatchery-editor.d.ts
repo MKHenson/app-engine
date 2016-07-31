@@ -3632,57 +3632,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /**
-    * The main GUI component of the application.
-    */
-    class Application extends Component {
-        private static _singleton;
-        static bodyComponent: Component;
-        private _focusObj;
-        private _resizeProxy;
-        private _downProxy;
-        private _dockerlefttop;
-        private _dockerleftbottom;
-        private _dockerrighttop;
-        private _dockerrightbottom;
-        private _canvasContext;
-        constructor(domElement?: string);
-        /**
-        * Deals with the focus changes
-        * @param {object} e The jQuery event object
-        */
-        onMouseDown(e: any): void;
-        /**
-        * Sets a component to be focused.
-        * @param {Component} comp The component to focus on.
-        */
-        setFocus(comp: Component): void;
-        /**
-        * Updates the dimensions of the application
-        * @param {object} val The jQuery event object
-        */
-        onWindowResized(val: any): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-        /**
-        *  This is called when a project is unloaded and we need to reset the GUI.
-        */
-        projectReset(): void;
-        /**
-        * Gets the singleton instance
-        */
-        static getInstance(domElement?: string): Application;
-        focusObj: Component;
-        canvasContext: CanvasContext;
-        dockerLeftTop: Docker;
-        dockerLeftBottom: Docker;
-        dockerRightTop: Docker;
-        dockerRightBottom: Docker;
-    }
-}
-declare module Animate {
     type LinkMap = {
         [shallowId: number]: {
             item: CanvasItem;
@@ -6610,33 +6559,6 @@ declare module Animate {
         * @param {boolean} True if there is an error
         */
         newProject(name: string, description: string, plugins: Array<Engine.IPlugin>): void;
-        loginError(err: Error): void;
-        loginSuccess(data: UsersInterface.IResponse): void;
-        /**
-        * Attempts to log the user in
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
-        */
-        login(user: string, password: string, remember: boolean): void;
-        /**
-        * Attempts to register a new user
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        */
-        register(user: string, password: string, email: string, captcha: string): void;
-        /**
-        * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resendActivation(user: string): void;
-        /**
-        * Attempts to reset the users password
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resetPassword(user: string): void;
         /**
         * Attempts to resend the activation code
         */
@@ -6651,6 +6573,57 @@ declare module Animate {
         * @returns {Splash}
         */
         static get: Splash;
+    }
+}
+declare module Animate {
+    /**
+    * The main GUI component of the application.
+    */
+    class Application extends Component {
+        private static _singleton;
+        static bodyComponent: Component;
+        private _focusObj;
+        private _resizeProxy;
+        private _downProxy;
+        private _dockerlefttop;
+        private _dockerleftbottom;
+        private _dockerrighttop;
+        private _dockerrightbottom;
+        private _canvasContext;
+        constructor(domElement?: string);
+        /**
+        * Deals with the focus changes
+        * @param {object} e The jQuery event object
+        */
+        onMouseDown(e: any): void;
+        /**
+        * Sets a component to be focused.
+        * @param {Component} comp The component to focus on.
+        */
+        setFocus(comp: Component): void;
+        /**
+        * Updates the dimensions of the application
+        * @param {object} val The jQuery event object
+        */
+        onWindowResized(val: any): void;
+        /**
+        * This will cleanup the component.
+        */
+        dispose(): void;
+        /**
+        *  This is called when a project is unloaded and we need to reset the GUI.
+        */
+        projectReset(): void;
+        /**
+        * Gets the singleton instance
+        */
+        static getInstance(domElement?: string): Application;
+        focusObj: Component;
+        canvasContext: CanvasContext;
+        dockerLeftTop: Docker;
+        dockerLeftBottom: Docker;
+        dockerRightTop: Docker;
+        dockerRightBottom: Docker;
     }
 }
 declare var _cache: string;
