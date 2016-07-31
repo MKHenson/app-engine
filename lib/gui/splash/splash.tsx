@@ -89,7 +89,7 @@
             if (this.state.mode == SplashMode.LOGIN)
                 mainView = <LoginWidget
                     onLogin={()=>{
-                        alert("Logged in");
+                        this.setState({ mode : SplashMode.WELCOME });
                     }} />;
 
             return <div id='splash' className={this.$theme}>
@@ -113,39 +113,8 @@
         */
         show()
         {
-            // var that = this;
-            // that._app.element.detach();
-            // jQuery("body").append(that._splashElm);
-            // jQuery("#en-login-username", that._loginElm).val("");
-            // that.$loading = true;
-
-            // if (!that._captureInitialized)
-            // {
-            //     that._captureInitialized = true;
-
-            //     // Build each of the templates
-            //     Compiler.build(this._loginElm, this);
-            //     Compiler.build(this._welcomeElm, this);
-            //     Compiler.build(this._newProject, this);
-            //     Compiler.build(this._loadingProject, this);
-            //     Compiler.build(this._splashElm, this);
-            //     grecaptcha.render(document.getElementById("animate-captcha"), { theme: "white",
-            //         sitekey : "6LdiW-USAAAAAGxGfZnQEPP2gDW2NLZ3kSMu3EtT" });
-            // }
-            // else
-            // {
-            //     Compiler.digest(this._splashElm, that, true);
-            //     grecaptcha.reset();
-            // }
-
             this.$user.authenticated().then( ( val ) =>
             {
-                // that.$loading = false;
-                // if (!val)
-                //     that.goState("login", true);
-                // else
-                //     that.goState("welcome", true);
-
                 this.setState({
                     $loading: false,
                     mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
@@ -153,9 +122,6 @@
 
             }).catch( (err: Error) =>
             {
-                // that.$loading = false;
-                // that.goState("login", true);
-
                 this.setState({
                     $loading: false,
                     mode: SplashMode.LOGIN
@@ -199,8 +165,6 @@
 
             if (digest)
                 Animate.Compiler.digest(that._splashElm, that, true);
-
-
         }
 
         /*
@@ -524,139 +488,8 @@
 
         }
 
-        /*
-        * General error handler
-        */
-        loginError(err: Error)
-        {
-            this.$loading = false;
-            this.$errorRed = true;
-            this.$errorMsg = err.message;
-            Compiler.digest(this._loginElm, this);
-            Compiler.digest(this._splashElm, this);
-        }
 
-        /*
-        * General success handler
-        */
-        loginSuccess(data: UsersInterface.IResponse)
-        {
-            if (data.error)
-                this.$errorRed = true;
-            else
-                this.$errorRed = false;
 
-            this.$loading = false;
-            this.$errorMsg = data.message;
-            Compiler.digest(this._splashElm, this, true);
-        }
-
-        /**
-        * Attempts to log the user in
-        * @param {string} user The username
-        * @param {string} password The user password
-        * @param {boolean} remember Should the user cookie be saved
-        */
-        login(user: string, password: string, remember: boolean)
-        {
-            var that = this;
-            that.$loading = true;
-            this.$user.login(user, password, remember)
-                .then(function (data)
-                {
-                    if (data.error)
-                        that.$errorRed = true;
-                    else
-                        that.$errorRed = false;
-
-                    that.$errorMsg = data.message;
-
-                    that.$loading = false;
-                    if (that.$user.isLoggedIn)
-                        that.goState("welcome", true)
-                    else
-                        Compiler.digest(that._splashElm, that, true);
-                })
-                .catch(this.loginError.bind(that));
-        }
-
-        /**
-        * Attempts to register a new user
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        */
-        register(user: string, password: string, email: string, captcha: string)
-        {
-            var that = this;
-            that.$loading = true;
-            this.$user.register(user, password, email, captcha)
-                .then(this.loginSuccess.bind(that))
-                .catch(function (err: Error)
-                {
-                    that.$errorRed = true;
-                    that.$errorMsg = err.message;
-                    that.$loading = false;
-                    grecaptcha.reset();
-                    Compiler.digest(that._loginElm, that);
-                    Compiler.digest(that._splashElm, that);
-                });
-        }
-
-        /**
-        * Attempts to resend the activation code
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resendActivation(user: string)
-        {
-            var that = this;
-
-            if (!user)
-            {
-                this.$errorMsg = "Please specify a username or email to fetch";
-                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
-                {
-                    this.$error = true;
-                });
-
-                Compiler.digest(that._loginElm, that);
-                Compiler.digest(that._splashElm, that);
-                return;
-            }
-
-            that.$loading = true;
-            this.$user.resendActivation(user)
-                .then(this.loginSuccess.bind(that))
-                .catch(this.loginError.bind(that));
-        }
-
-        /**
-        * Attempts to reset the users password
-        * @param {string} user The username or email of the user to resend the activation
-        */
-        resetPassword(user: string)
-        {
-            var that = this;
-
-            if (!user)
-            {
-                this.$errorMsg = "Please specify a username or email to fetch";
-                jQuery("form[name='register'] input[name='username'], form[name='register'] input[name='email']", this._loginElm).each(function (index, elem)
-                {
-                    this.$error = true;
-                });
-
-                Compiler.digest(that._loginElm, that);
-                Compiler.digest(that._splashElm, that);
-                return;
-            }
-
-            that.$loading = true;
-            this.$user.resetPassword(user)
-                .then(this.loginSuccess.bind(that))
-                .catch(this.loginError.bind(that));
-        }
 
         /**
         * Attempts to resend the activation code
@@ -664,17 +497,29 @@
         logout()
         {
             var that = this;
-            that.$loading = true;
+            this.setState({ $loading : true });
+
             this.$user.logout().then(function ()
             {
                 that.$loading = false;
                 that.$errorMsg = "";
 
                 Application.getInstance().projectReset();
-                that.$loading = false;
-                that.goState("login", true);
+                this.setState({
+                    $loading : false,
+                    mode : SplashMode.LOGIN
+                });
             })
-            .catch(this.loginError.bind(that));
+            .catch((err) => {
+                this.$errorRed = true;
+                this.$errorMsg = err.message;
+                Compiler.digest(this._loginElm, this);
+                Compiler.digest(this._splashElm, this);
+
+                this.setState({
+                    $loading : false
+                });
+            });
         }
 
         /**
