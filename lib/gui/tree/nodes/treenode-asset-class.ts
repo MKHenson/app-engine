@@ -1,11 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* Treenodes are added to the treeview class. This treenode contains a reference to the
 	* AssetClass object defined by plugins.
 	*/
-	export class TreeNodeAssetClass extends TreeNode
-	{
+	export class TreeNodeAssetClass extends TreeNode {
 		public assetClass: AssetClass;
 		public className: string;
 
@@ -13,8 +11,7 @@ module Animate
 		* @param {AssetClas} assetClass The asset class this node represents
 		* @param {TreeView} treeview The treeview to which this is added
 		*/
-		constructor( assetClass : AssetClass, treeview : TreeView )
-		{
+		constructor( assetClass : AssetClass, treeview : TreeView ) {
 			// Call super-class constructor
 			super( assetClass.name, assetClass.imgURL, true );
 
@@ -25,8 +22,7 @@ module Animate
 			this.canUpdate = true;
 
 			//Add the sub - class nodes
-			for ( var ii = 0; ii < assetClass.classes.length; ii++ )
-			{
+			for ( var ii = 0; ii < assetClass.classes.length; ii++ ) {
 				var c = assetClass.classes[ii];
 				var toRet = new TreeNodeAssetClass( c, treeview );
 				this.addNode( toRet );
@@ -38,8 +34,7 @@ module Animate
 		* @param {string|Array<string>} classNames The class name of the asset, or an array of class names
 		* @returns Array<TreeNodeAssetInstance>
 		*/
-		getInstances(classNames: string|Array<string> ): Array<TreeNodeAssetInstance>
-		{
+		getInstances(classNames: string|Array<string> ): Array<TreeNodeAssetInstance> {
 			var toRet: Array<TreeNodeAssetInstance> = null;
 			var children: Array<IComponent> = this.children;
 
@@ -54,21 +49,16 @@ module Animate
 
 			toRet = [];
 
-			for (var i = 0, l = names.length; i < l; i++)
-			{
-				if (names[i] == null || names[i] == this.assetClass.name || names[i] == "")
-				{
+			for (var i = 0, l = names.length; i < l; i++) {
+				if (names[i] == null || names[i] == this.assetClass.name || names[i] == "") {
 					//Add the sub - class nodes
 					var len = children.length;
-					for (var i = 0; i < len; i++)
-					{
+					for (var i = 0; i < len; i++) {
 						if (children[i] instanceof TreeNodeAssetInstance)
 							toRet.push(<TreeNodeAssetInstance>children[i]);
-						else if (children[i] instanceof TreeNodeAssetClass)
-						{
+						else if (children[i] instanceof TreeNodeAssetClass) {
 							var instances: Array<TreeNodeAssetInstance> = (<TreeNodeAssetClass>children[i]).getInstances(null);
-							if (instances != null)
-							{
+							if (instances != null) {
 								for (var ii = 0; ii < instances.length; ii++)
 									toRet.push(instances[ii]);
 							}
@@ -79,10 +69,8 @@ module Animate
 				{
 					//Add the sub - class nodes
 					var len: number = children.length;
-					for (var ii = 0; ii < len; ii++)
-					{
-						if (children[ii] instanceof TreeNodeAssetClass)
-						{
+					for (var ii = 0; ii < len; ii++) {
+						if (children[ii] instanceof TreeNodeAssetClass) {
 							var instances: Array<TreeNodeAssetInstance> = (<TreeNodeAssetClass>children[ii]).getInstances(names);
 							if (instances != null)
 								for (var iii = 0, liii = instances.length; iii < liii; iii++)
@@ -100,17 +88,14 @@ module Animate
 		* This will get all sub TreeNodeAssetClass nodes
 		* @returns Array<AssetClass>
 		*/
-		getClasses(): Array<AssetClass>
-		{
+		getClasses(): Array<AssetClass> {
 			var toRet: Array<AssetClass> = [];
 			var children: Array<IComponent> = this.children;
 
 			//Add the sub - class nodes
 			var len : number = this.children.length;
-			for ( var i = 0; i < len; i++ )
-			{
-				if ( children[i] instanceof TreeNodeAssetClass )
-				{
+			for ( var i = 0; i < len; i++ ) {
+				if ( children[i] instanceof TreeNodeAssetClass ) {
 					toRet.push( ( (<TreeNodeAssetClass>children[i]).assetClass ) );
 
 					var instances: Array<AssetClass> = ( <TreeNodeAssetClass>children[i] ).getClasses();
@@ -126,8 +111,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-		{
+		dispose() {
 			this.canDelete = null;
 			this.assetClass = null;
 			this.treeview = null;

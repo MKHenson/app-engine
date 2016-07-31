@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* An editor which allows a user to select files on the local server.
 	*/
-    export class PGFile extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGFile extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropFileResource)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropFileResource>prop;
             var fileResource = p.getVal();
             var fileID: string = fileResource || fileResource.entry._id || "";
@@ -41,8 +36,7 @@ module Animate
 			var that = this;
 
 			// Functions to deal with user interactions with JQuery
-            var onFileChosen = function(response: string, event: FileViewerEvent )
-			{
+            var onFileChosen = function(response: string, event: FileViewerEvent ) {
                 FileViewer.get.off( "cancelled", onFileChosen );
                 FileViewer.get.off( "change", onFileChosen );
 
@@ -56,8 +50,7 @@ module Animate
                 p.setVal(fileResource);
 			};
 
-            var mouseUp = function (e: JQueryEventObject  )
-			{
+            var mouseUp = function (e: JQueryEventObject  ) {
 				// Remove any previous references
                 FileViewer.get.off("cancelled", onFileChosen );
                 FileViewer.get.off("change", onFileChosen );

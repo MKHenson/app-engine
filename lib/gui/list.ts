@@ -1,7 +1,5 @@
-module Animate
-{
-	export class ListEvents extends ENUM
-	{
+module Animate {
+	export class ListEvents extends ENUM {
 		constructor(v: string) { super(v); }
 
 		static ITEM_SELECTED: ListEvents = new ListEvents("list_item_selected");
@@ -12,8 +10,7 @@ module Animate
 	/**
 	* Use this class to create a select list.
 	*/
-	export class List extends  Component
-	{
+	export class List extends  Component {
 		public selectBox: Component;
 
 		private selectProxy: any;
@@ -25,8 +22,7 @@ module Animate
 		* @param {string} selectHTML
 		* @param {boolean} isDropDown
 		*/
-		constructor( parent : Component, html: string = "<div class='list-box'></div>", selectHTML: string = "<select class='list' size='6'></select>", isDropDown : boolean = false )
-		{
+		constructor( parent : Component, html: string = "<div class='list-box'></div>", selectHTML: string = "<select class='list' size='6'></select>", isDropDown : boolean = false ) {
 			if ( isDropDown )
 				selectHTML = "<select></select>";
 
@@ -44,8 +40,7 @@ module Animate
 		* Called when a selection is made
 		* @param <object> val Called when we make a selection
 		*/
-		onSelection( val )
-		{
+		onSelection( val ) {
 			this.emit(new ListEvent( ListEvents.ITEM_SELECTED, this.selectedItem ) );
 		}
 
@@ -54,8 +49,7 @@ module Animate
 		* @param {string} val The text of the item
 		* @returns {JQuery} The jQuery object created
 		*/
-		addItem( val : string ) : JQuery
-		{
+		addItem( val : string ) : JQuery {
 			var toAdd = jQuery( "<option value='" + this.items.length + "'>" + val + "</option>" );
 			this.items.push( toAdd );
 			this.selectBox.element.append( toAdd );
@@ -65,8 +59,7 @@ module Animate
 		/**
 		* Sorts  the  list alphabetically
 		*/
-		sort()
-		{
+		sort() {
 			var items :Array<JQuery> = this.items;
 			var i: number = items.length;
 			while ( i-- )
@@ -86,8 +79,7 @@ module Animate
 			//	return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
 			//});
 
-			this.items = items.sort( function ( a: JQuery, b: JQuery )
-			{
+			this.items = items.sort( function ( a: JQuery, b: JQuery ) {
 				var textA = a.text().toUpperCase();
 				var textB = b.text().toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -103,14 +95,11 @@ module Animate
 		* @param <object> val The text of the item to remove
 		* @returns <object> The jQuery object
 		*/
-		removeItem( val )
-		{
+		removeItem( val ) {
 			var len = this.items.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				var text = this.items[i].text();
-				if ( text == val )
-				{
+				if ( text == val ) {
 					var item : JQuery = this.items[i];
 					this.items.splice( i, 1 );
 					item.detach();
@@ -131,10 +120,8 @@ module Animate
 		* Sets thee selected item from the list.
 		* @param {string} val The text of the item
 		*/
-		set selectedItem( val: string )
-		{
-			jQuery( "select option", this.element ).filter( function ()
-			{
+		set selectedItem( val: string ) {
+			jQuery( "select option", this.element ).filter( function () {
 				//may want to use $.trim in here
 				return jQuery( this ).text() == val;
 			}).prop( 'selected', true );
@@ -144,8 +131,7 @@ module Animate
 		* Gets thee selected item from the list.
 		* @returns {JQuery} The selected jQuery object
 		*/
-		get selectedItem(): string
-		{
+		get selectedItem(): string {
 			//Return selected list item
 			var len = this.items.length;
 			for ( var i = 0; i < len; i++ )
@@ -160,10 +146,8 @@ module Animate
 		* Sets the selected item index from the list by its index.
 		* @param {number} val The text of the item
 		*/
-		set selectedIndex( val : number )
-		{
-			if ( typeof ( val ) !== "undefined" )
-			{
+		set selectedIndex( val : number ) {
+			if ( typeof ( val ) !== "undefined" ) {
 				//Remove any previously selected items
 				var len = this.items.length;
 				for ( var i = 0; i < len; i++ )
@@ -178,8 +162,7 @@ module Animate
 		* index.
 		* @returns {number} The selected index or -1 if nothing was found.
 		*/
-		get selectedIndex(): number
-		{
+		get selectedIndex(): number {
 			//Return selected list item by index
 			var len : number = this.items.length;
 			for ( var i = 0; i < len; i++ )
@@ -194,11 +177,9 @@ module Animate
 		* @param {string} val The text of the item
 		* @returns {JQuery} The jQuery object
 		*/
-		getItem( val: string): JQuery
-		{
+		getItem( val: string): JQuery {
 			var len = this.items.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				var v = this.items[i].text();
 				if ( v == val )
 					return this.items[i];
@@ -210,8 +191,7 @@ module Animate
 		/**
 		* Removes all items
 		*/
-		clearItems()
-		{
+		clearItems() {
 			var len = this.items.length;
 			for ( var i = 0; i < len; i++ )
 				this.items[i].remove();
@@ -223,8 +203,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child <Component>s
 		*/
-		dispose()
-		{
+		dispose() {
 			this.selectProxy = null;
 			this.selectBox.element.off();
 			this.items = null;

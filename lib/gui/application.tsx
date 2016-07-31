@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* The main GUI component of the application.
 	*/
-	export class Application extends Component
-	{
+	export class Application extends Component {
         private static _singleton: Application;
         public static bodyComponent: Component;
 		private _focusObj: Component;
@@ -17,8 +15,7 @@ module Animate
 		private _dockerrightbottom: Docker;
 		private _canvasContext: CanvasContext;
 
-		constructor( domElement?: string )
-		{
+		constructor( domElement?: string ) {
 			super(domElement, null);
 
             if (Application._singleton != null)
@@ -90,13 +87,11 @@ module Animate
 		* Deals with the focus changes
 		* @param {object} e The jQuery event object
 		*/
-		onMouseDown( e ) : void
-		{
+		onMouseDown( e ) : void {
 			var elem : JQuery = jQuery( e.target );
             var comp: Component = elem.data( "component" ) as Component;
 
-			while ( !comp && elem.length != 0 )
-			{
+			while ( !comp && elem.length != 0 ) {
 				elem = jQuery( elem ).parent();
 				comp = elem.data( "component" );
 			}
@@ -108,13 +103,11 @@ module Animate
 		* Sets a component to be focused.
 		* @param {Component} comp The component to focus on.
 		*/
-		setFocus( comp : Component ) : void
-		{
+		setFocus( comp : Component ) : void {
 			if ( this._focusObj )
 				this._focusObj.element.data( "focus", false );
 
-			if ( comp != null )
-			{
+			if ( comp != null ) {
 				comp.element.data( "focus", true );
 				this._focusObj = comp;
 			}
@@ -124,8 +117,7 @@ module Animate
 		* Updates the dimensions of the application
 		* @param {object} val The jQuery event object
 		*/
-		onWindowResized( val ) : void
-        {
+		onWindowResized( val ) : void {
             // Do not update everything if the event is from JQ UI
             if (val && $(val.target).hasClass('ui-resizable'))
                 return;
@@ -136,8 +128,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-		{
+		dispose() {
 			jQuery( window ).off( 'resize', this._resizeProxy );
 			jQuery( document ).off( 'mousedown', this._downProxy );
 
@@ -151,8 +142,7 @@ module Animate
 		/**
 		*  This is called when a project is unloaded and we need to reset the GUI.
 		*/
-		projectReset()
-        {
+		projectReset() {
             var user = User.get;
 
 			PropertyGrid.getSingleton().projectReset();
@@ -163,8 +153,7 @@ module Animate
 
 			//Must be called after reset
             var user = User.get;
-			if ( user.project )
-			{
+			if ( user.project ) {
                 user.project.reset();
 				//user.project = null;
 			}
@@ -261,8 +250,7 @@ module Animate
 		/**
 		* Gets the singleton instance
 		*/
-		public static getInstance( domElement? : string ): Application
-		{
+		public static getInstance( domElement? : string ): Application {
             if (Application._singleton === undefined)
 				Application._singleton = new Application(domElement);
 

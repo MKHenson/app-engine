@@ -1,10 +1,8 @@
-﻿declare module Animate
-{
+﻿declare module Animate {
     /**
     * A simple interface for any component
     */
-    export interface IComponent
-    {
+    export interface IComponent {
         element: JQuery;
         parent: IComponent;
         dispose(): void;
@@ -25,8 +23,7 @@
     /**
 	* A simple interface for any compent that needs to act as a Docker parent.
 	*/
-    export interface IDockItem extends IComponent
-    {
+    export interface IDockItem extends IComponent {
 		/*This is called by a controlling Docker class. An image string needs to be returned
 		* which will act as a preview of the component that is being viewed or hidden.*/
         getPreviewImage(): string;
@@ -47,8 +44,7 @@
     /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
 	*/
-    export interface IPlugin
-    {
+    export interface IPlugin {
 		/**
 		* This function is called by Animate to get an array of
 		* behvaiour definitions. These definitions describe what kind
@@ -100,8 +96,7 @@
     /**
 	* A basic wrapper for a Portal interface
 	*/
-    export class IPortal
-    {
+    export class IPortal {
         name: string;
         type: number;
         custom: boolean;
@@ -111,8 +106,7 @@
     /**
 	* A basic wrapper for a CanvasItem interface
 	*/
-    export interface ICanvasItem
-    {
+    export interface ICanvasItem {
         shallowId: number;
         type: number;
         left?: string;
@@ -122,8 +116,7 @@
     /**
 	* A basic wrapper for a Link interface
 	*/
-    export interface ILinkItem extends ICanvasItem
-    {
+    export interface ILinkItem extends ICanvasItem {
         frameDelay: number;
         startPortal: string;
         endPortal: string;
@@ -134,8 +127,7 @@
     /**
 	* A basic wrapper for a Behaviour interface
 	*/
-    export interface IBehaviour extends ICanvasItem
-    {
+    export interface IBehaviour extends ICanvasItem {
         alias: string;
         text: string;
         portals: Array<IPortal>
@@ -144,16 +136,14 @@
     /**
     * A basic wrapper for a BehaviourPortal interface
     */
-    export interface IBehaviourPortal extends IBehaviour
-    {
+    export interface IBehaviourPortal extends IBehaviour {
         portal: IPortal;
     }
 
     /**
     * A basic wrapper for a BehaviourComment interface
     */
-    export interface IBehaviourComment extends IBehaviour
-    {
+    export interface IBehaviourComment extends IBehaviour {
         width: number;
         height: number;
     }
@@ -161,30 +151,26 @@
     /**
 	* A basic wrapper for a BehaviourScript interface
 	*/
-    export interface IBehaviourScript extends IBehaviour
-    {
+    export interface IBehaviourScript extends IBehaviour {
         scriptId: string;
     }
 
     /**
 	* A basic wrapper for a BehaviourShortcut interface
 	*/
-    export interface IBehaviourShortcut extends IBehaviour
-    {
+    export interface IBehaviourShortcut extends IBehaviour {
         originalId: number;
     }
 
     /**
 	* A basic interface for a container object
 	*/
-    export interface IContainerToken
-    {
+    export interface IContainerToken {
         items: Array<ICanvasItem>;
         properties: any;
     }
 
-    export interface IPreviewFactory
-    {
+    export interface IPreviewFactory {
         /**
         * This function generates an html node that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
@@ -195,8 +181,7 @@
         generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
     }
 
-    export interface ISettingsPage extends IComponent
-    {
+    export interface ISettingsPage extends IComponent {
         onShow(project: Project, user: User);
         name: string;
         onTab(): void;

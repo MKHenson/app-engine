@@ -1,17 +1,12 @@
-module Animate
-{
-
-
+module Animate {
 	/**
 	* Base class for all custom enums
 	*/
-	export class ENUM
-	{
+	export class ENUM {
 		private static allEnums: any;
 
 		public value: string;
-		constructor( v: string )
-		{
+		constructor( v: string ) {
 			this.value = v;
 		}
 
@@ -24,14 +19,12 @@ module Animate
 	/**
 	* Internal class only used internally by the {EventDispatcher}
 	*/
-	export class EventListener
-	{
+	export class EventListener {
         type: EventType;
 		func: EventCallback;
 		context: any;
 
-        constructor(type: EventType, func: EventCallback, context?: any)
-		{
+        constructor(type: EventType, func: EventCallback, context?: any) {
 			this.type = type;
 			this.func = func;
 			this.context = context;
@@ -41,8 +34,7 @@ module Animate
 	/**
 	* The base class for all events dispatched by the {EventDispatcher}
 	*/
-	export class Event
-	{
+	export class Event {
         public type: EventType;
 		public tag: any;
 
@@ -50,8 +42,7 @@ module Animate
 		* Creates a new event object
 		* @param {EventType} eventType The type event
 		*/
-        constructor(type: EventType, tag?: any)
-		{
+        constructor(type: EventType, tag?: any) {
             this.type = type;
 			this.tag = tag;
 		}
@@ -60,13 +51,11 @@ module Animate
     /**
     * A simple class that allows the adding, removing and dispatching of events.
     */
-	export class EventDispatcher
-	{
+	export class EventDispatcher {
         private _listeners: Array<EventListener>;
 		public disposed: boolean;
 
-		constructor()
-		{
+		constructor() {
 			this._listeners = [];
 			this.disposed = false;
         }
@@ -75,16 +64,14 @@ module Animate
         /**
         * Returns the list of {EventListener} that are currently attached to this dispatcher.
         */
-		get listeners(): Array<EventListener>
-		{
+		get listeners(): Array<EventListener> {
             return this._listeners;
         }
 
         /**
         * Adds a new listener to the dispatcher class.
         */
-        on(type: EventType, func: EventCallback, context?: any)
-		{
+        on(type: EventType, func: EventCallback, context?: any) {
 			if ( !func )
 				throw new Error("You cannot have an undefined function.");
 
@@ -94,8 +81,7 @@ module Animate
         /**
         * Adds a new listener to the dispatcher class.
         */
-        off(type: EventType, func: EventCallback, context?: any )
-		{
+        off(type: EventType, func: EventCallback, context?: any ) {
             var listeners: Array<EventListener> = this.listeners;
 
             if (!listeners)
@@ -104,11 +90,9 @@ module Animate
 			if ( !func )
 				throw new Error( "You cannot have an undefined function." );
 
-			for (var i = 0, li = listeners.length; i < li; i++)
-			{
+			for (var i = 0, li = listeners.length; i < li; i++) {
                 var l: EventListener = listeners[i];
-                if (l.type == type && l.func == func && l.context == context )
-				{
+                if (l.type == type && l.func == func && l.context == context ) {
                     listeners.splice(i, 1);
                     return;
                 }
@@ -121,8 +105,7 @@ module Animate
         * @param {Event} event The event to dispatch
 		* @returns {any}
         */
-		emit( event: Event | ENUM, tag?: any ): any
-		{
+		emit( event: Event | ENUM, tag?: any ): any {
 			var e: Event = null;
 			if (event instanceof ENUM)
 				e = new Event( event, tag );
@@ -139,11 +122,9 @@ module Animate
 				return null;
 
 			var toRet: any = null;
-			for (var i = 0, li = listeners.length; i < li; i++)
-			{
+			for (var i = 0, li = listeners.length; i < li; i++) {
                 var l: EventListener = listeners[i];
-				if ( l.type == e.type)
-				{
+				if ( l.type == e.type) {
                     if (!l.func)
 						throw new Error( "A listener was added for " + e.type + ", but the function is not defined.");
 
@@ -157,8 +138,7 @@ module Animate
 		/**
 		* This will cleanup the component by nullifying all its variables and clearing up all memory.
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			this._listeners = null;
 			this.disposed = true;
 		}

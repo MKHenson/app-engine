@@ -1,5 +1,4 @@
-module Animate
-{
+module Animate {
 	//export class UserEvents extends ENUM
 	//{
 		//constructor( v: string ) { super( v ); }
@@ -27,16 +26,14 @@ module Animate
 	/**
 	* This class is used to represent the user who is logged into Animate.
 	*/
-    export class User extends EventDispatcher
-	{
+    export class User extends EventDispatcher {
         private static _singleton = null;
         public entry: UsersInterface.IUserEntry;
         public meta: Engine.IUserMeta;
         public project: Project;
 		private _isLoggedIn: boolean;
 
-        constructor()
-		{
+        constructor() {
             super();
             User._singleton = this;
 
@@ -52,8 +49,7 @@ module Animate
         /**
 		* Resets the meta data
 		*/
-        resetMeta()
-        {
+        resetMeta() {
             this.meta = <Engine.IUserMeta>{
                 bio: "",
                 plan: UserPlan.Free,
@@ -67,41 +63,34 @@ module Animate
 		* cookie and session data from the browser.
 		* @returns {Promise<boolean>}
 		*/
-        authenticated(): Promise<boolean>
-        {
+        authenticated(): Promise<boolean> {
             this._isLoggedIn = false;
 
             var that = this;
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Utils.get<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/authenticated`).then(function (data)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Utils.get<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/authenticated`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    if (data.authenticated)
-                    {
+                    if (data.authenticated) {
                         that.entry = <UsersInterface.IUserEntry>data.user;
                         that._isLoggedIn = true;
                         return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                     }
-                    else
-                    {
+                    else {
                         that._isLoggedIn = false;
                         that.resetMeta();
                         return resolve(false);
                     }
 
-                }).then(function (data: ModepressAddons.IGetDetails)
-                {
+                }).then(function (data: ModepressAddons.IGetDetails) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     that.meta = data.data;
                     return resolve(true);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -115,8 +104,7 @@ module Animate
 		* @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 		*/
-        login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse>
-        {
+        login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse> {
             var  token: UsersInterface.ILoginToken = {
                     username: user,
                     password: password,
@@ -125,37 +113,31 @@ module Animate
                 response: UsersInterface.IAuthenticationResponse;
 
             var that = this;
-            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
-            {
-                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/login`, token).then(function (data)
-                {
+            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject) {
+                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/login`, token).then(function (data) {
                     response = data;
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    if (data.authenticated)
-                    {
+                    if (data.authenticated) {
                         that._isLoggedIn = true;
                         that.entry = <UsersInterface.IUserEntry>data.user;
                         return jQuery.getJSON(`${DB.API}/user-details/${data.user.username}`);
                     }
-                    else
-                    {
+                    else {
                         that._isLoggedIn = false;
                         that.resetMeta();
                         return resolve(data);
                     }
 
-                }).then(function (data: ModepressAddons.IGetDetails)
-                {
+                }).then(function (data: ModepressAddons.IGetDetails) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     that.meta = data.data;
                     return resolve(response);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     that._isLoggedIn = false;
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
@@ -170,8 +152,7 @@ module Animate
 		* @param {string} captcha The captcha of the login screen
         * @returns {Promise<UsersInterface.IAuthenticationResponse>}
 		*/
-        register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse>
-        {
+        register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse> {
             var that = this,
                 token: UsersInterface.IRegisterToken = {
                     username: user,
@@ -181,15 +162,12 @@ module Animate
                 };
 
 
-            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject)
-            {
-                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/register`, token).then(function (data)
-                {
+            return new Promise<UsersInterface.IAuthenticationResponse>(function (resolve, reject) {
+                Utils.post<UsersInterface.IAuthenticationResponse>(`${DB.USERS}/users/register`, token).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
-                    if (data.authenticated)
-                    {
+                    if (data.authenticated) {
                         that._isLoggedIn = false;
                         that.entry = <UsersInterface.IUserEntry>data.user;
                     }
@@ -198,8 +176,7 @@ module Animate
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -210,21 +187,17 @@ module Animate
 		* @param {string} user
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        resendActivation(user: string): Promise<UsersInterface.IResponse>
-        {
+        resendActivation(user: string): Promise<UsersInterface.IResponse> {
             var that = this;
 
-            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-            {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/resend-activation`).then(function (data)
-                {
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject) {
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/resend-activation`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
             });
@@ -235,21 +208,17 @@ module Animate
 		* @param {string} user
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        resetPassword(user: string): Promise<UsersInterface.IResponse>
-        {
+        resetPassword(user: string): Promise<UsersInterface.IResponse> {
             var  that = this;
 
-            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-            {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/request-password-reset`).then(function (data)
-                {
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject) {
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/users/${user}/request-password-reset`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
             });
@@ -259,14 +228,11 @@ module Animate
 		* Attempts to log the user out
         * @return {Promise<UsersInterface.IResponse>}
 		*/
-        logout(): Promise<UsersInterface.IResponse>
-        {
+        logout(): Promise<UsersInterface.IResponse> {
             var that = this;
 
-            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-            {
-                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/logout`).then(function (data)
-                {
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject) {
+                Utils.get<UsersInterface.IResponse>(`${DB.USERS}/logout`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
@@ -281,8 +247,7 @@ module Animate
                     that._isLoggedIn = false;
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
             });
@@ -295,20 +260,16 @@ module Animate
         * @param {number} limit The limit of how many items to fetch
         * @return {Promise<ModepressAddons.IGetProjects>}
 		*/
-        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects>
-        {
+        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects> {
             var that = this;
 
-            return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject)
-            {
-                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}`).then(function (data)
-                {
+            return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject) {
+                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     // Assign the actual plugins
-                    for (var i = 0, l = data.data.length; i < l; i++)
-                    {
+                    for (var i = 0, l = data.data.length; i < l; i++) {
                         var project = data.data[i];
                         var plugins: Array<Engine.IPlugin> = [];
                         for (var ii = 0, il = project.plugins.length; ii < il; ii++)
@@ -319,8 +280,7 @@ module Animate
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
             });
@@ -333,8 +293,7 @@ module Animate
         * @param {string} description [Optional] A short description
         * @return {Promise<ModepressAddons.ICreateProject>}
 		*/
-        newProject(name: string, plugins: Array<string>, description: string = ""): Promise<ModepressAddons.ICreateProject>
-        {
+        newProject(name: string, plugins: Array<string>, description: string = ""): Promise<ModepressAddons.ICreateProject> {
             var  that = this,
                 token: Engine.IProject  = {
                     name: name,
@@ -342,10 +301,8 @@ module Animate
                     plugins: plugins
                 };
 
-            return new Promise<ModepressAddons.ICreateProject>(function (resolve, reject)
-            {
-                Utils.post<ModepressAddons.ICreateProject>(`${DB.API}/projects`, token).then(function (data)
-                {
+            return new Promise<ModepressAddons.ICreateProject>(function (resolve, reject) {
+                Utils.post<ModepressAddons.ICreateProject>(`${DB.API}/projects`, token).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
@@ -359,8 +316,7 @@ module Animate
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError)  {
                     reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 })
             });
@@ -371,21 +327,17 @@ module Animate
         * @param {string} pid The id of the project to remove
         * @return {Promise<Modepress.IResponse>}
 		*/
-        removeProject(pid: string): Promise<Modepress.IResponse>
-        {
+        removeProject(pid: string): Promise<Modepress.IResponse> {
             var that = this;
 
-            return new Promise<Modepress.IResponse>(function (resolve, reject)
-            {
-                Utils.delete<Modepress.IResponse>(`${DB.API}/users/${that.entry.username}/projects/${pid}`).then(function (data)
-                {
+            return new Promise<Modepress.IResponse>(function (resolve, reject) {
+                Utils.delete<Modepress.IResponse>(`${DB.API}/users/${that.entry.username}/projects/${pid}`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -397,19 +349,15 @@ module Animate
         * @returns {Engine.IUserMeta} The user details token
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>
-        {
+        updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse> {
             var meta = this.meta;
             var that = this;
 
-            return new Promise<Modepress.IResponse>(function (resolve, reject)
-            {
-                Utils.put(`${DB.API}/user-details/${that.entry.username}`, token).then(function (data: UsersInterface.IResponse)
-                {
+            return new Promise<Modepress.IResponse>(function (resolve, reject) {
+                Utils.put(`${DB.API}/user-details/${that.entry.username}`, token).then(function (data: UsersInterface.IResponse) {
                     if (data.error)
                         return reject(new Error(data.message));
-                    else
-                    {
+                    else {
                         for (var i in token)
                             if (meta.hasOwnProperty(i))
                                 meta[i] = token[i];
@@ -417,8 +365,7 @@ module Animate
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });

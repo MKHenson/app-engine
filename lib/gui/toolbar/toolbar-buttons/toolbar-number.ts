@@ -1,7 +1,5 @@
-﻿module Animate
-{
-	export class ToolbarNumberEvents extends ENUM
-	{
+﻿module Animate {
+	export class ToolbarNumberEvents extends ENUM {
 		constructor( v: string ) { super( v ); }
 		static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
 	}
@@ -11,8 +9,7 @@
 	/**
 	*  A toolbar button for numbers
 	*/
-	export class ToolbarNumber extends Component
-	{
+	export class ToolbarNumber extends Component {
 		private static input: InputBox;
 		private static numInstances: number = 0;
 
@@ -38,8 +35,7 @@
 		/**
 		* @param {Component} parent The parent of this toolbar
 		*/
-		constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 )
-		{
+		constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 ) {
             super( "<div class='toolbar-button tooltip scrolling-number'></div>", parent );
 
 			var container : IComponent = this.addChild( "<div class='number-holder'></div>" );
@@ -50,8 +46,7 @@
 			this.maxValue = maxValue;
 			this.delta = delta;
 
-			if ( !ToolbarNumber.input )
-			{
+			if ( !ToolbarNumber.input ) {
 				ToolbarNumber.input = new InputBox( null, "" );
 				ToolbarNumber.input.element.css( { "pointer-events": "all" });
 				ToolbarNumber.numInstances = 0;
@@ -88,8 +83,7 @@
 		* Called when the mouse is down on the DOM
 		* @param <object> e The jQuery event
 		*/
-		onStageUp( e )
-		{
+		onStageUp( e ) {
 			var inputOnDOM: boolean = ( ToolbarNumber.input.parent ? true : false );
 
 			// Remove listeners
@@ -99,8 +93,7 @@
 			jQuery( document ).off( 'keydown', this.keyProxy );
 
 			// If input present, then check what we are over
-			if ( inputOnDOM )
-			{
+			if ( inputOnDOM ) {
 				var targetComp = jQuery( e.target ).data( "component" );
 
 				if ( !targetComp )
@@ -127,8 +120,7 @@
 		* Called when we move on the stage
 		* @param <object> e The jQuery event
 		*/
-		onStageMove( e )
-		{
+		onStageMove( e ) {
 			var delta = e.screenX - this.startPos;
 			this.startPos = e.screenX;
 
@@ -152,8 +144,7 @@
 		* Set or get the value
 		* @param {number} val The value we are setting
 		*/
-		set value( val: number )
-		{
+		set value( val: number ) {
 			this.defaultVal = val;
 			if ( this.defaultVal < this.minValue )
 				this.defaultVal = this.minValue;
@@ -170,8 +161,7 @@
 		*/
 		get value() : number { return this.defaultVal; }
 
-		onWheel( event, delta, deltaX, deltaY )
-		{
+		onWheel( event, delta, deltaX, deltaY ) {
 			if ( delta < 0 )
 				this.defaultVal -= this.delta;
 			else
@@ -188,18 +178,15 @@
 			this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
 		}
 
-		onKeyDown( e )
-		{
+		onKeyDown( e ) {
 			//If enter
-			if ( e.keyCode == 13 )
-			{
+			if ( e.keyCode == 13 ) {
 				this.onStageUp( e );
 			}
 		}
 
 
-		onDown( e )
-		{
+		onDown( e ) {
 			var body = jQuery( window );
 			body.off( "mouseup", this.stageUpPoxy );
 			body.off( "mousemove", this.stageMovePoxy );
@@ -213,8 +200,7 @@
 			e.preventDefault();
 		}
 
-		onClick( e )
-		{
+		onClick( e ) {
 			// Do nothing if the input box is present
 			if ( ToolbarNumber.input.parent )
 				return;
@@ -222,8 +208,7 @@
 			var target = jQuery( e.currentTarget ).data( "component" );
 
 			//If you click on the label, we replace it with an input box so you can enter data by typing
-			if ( target == this.label )
-			{
+			if ( target == this.label ) {
 				ToolbarNumber.input.text = target.element.text();
 				target.element.text( "" );
 				target.addChild( ToolbarNumber.input );
@@ -254,8 +239,7 @@
 		/**
 		* Cleans up the component
 		*/
-		dispose(): void
-		{
+		dispose(): void {
 			var body = jQuery( window );
 			body.off( "mouseup", this.stageUpPoxy );
 			body.off( "mousemove", this.stageMovePoxy );
@@ -281,8 +265,7 @@
 			this.startPos = null;
 
 			ToolbarNumber.numInstances--;
-			if ( ToolbarNumber.numInstances <= 0 )
-			{
+			if ( ToolbarNumber.numInstances <= 0 ) {
 				ToolbarNumber.numInstances = 0;
 				ToolbarNumber.input.dispose();
 				ToolbarNumber.input = null;

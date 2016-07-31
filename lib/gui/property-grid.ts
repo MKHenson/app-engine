@@ -1,11 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
 	* Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
 	*/
-	export class PropertyGrid extends Component implements IDockItem
-	{
+	export class PropertyGrid extends Component implements IDockItem {
 		private static _singleton: PropertyGrid;
 
 		private _header: JQuery;
@@ -14,8 +12,7 @@ module Animate
 		private _groups: Array<PropertyGridGroup>;
 		private _object: EditableSet;
 
-		constructor( parent : Component )
-		{
+		constructor( parent : Component ) {
             // Call super-class constructor
 			super( "<div class='property-grid'></div>", parent );
 
@@ -70,15 +67,13 @@ module Animate
         /**
         * Cleans up the groups and editors
         */
-        cleanup()
-        {
+        cleanup() {
             // Cleanup editors
             for (var i = 0, l = this._editors.length; i < l; i++)
                 this._editors[i].cleanup();
 
             // Cleanup groups
-            for (var i = 0, l = this._groups.length; i < l; i++)
-            {
+            for (var i = 0, l = this._groups.length; i < l; i++) {
                 this.removeChild(this._groups[i]);
                 this._groups[i].dispose();
             }
@@ -94,16 +89,14 @@ module Animate
 		* @param {string} img An optional image string
 		* @returns {any} Returns the object we are currently editing
 		*/
-		editableObject( object: EditableSet, name: string, img : string = "" )
-		{
+		editableObject( object: EditableSet, name: string, img : string = "" ) {
 			if ( !this.enabled )
                 return;
 
             // Cleanup
             this.cleanup();
 
-			if (object !== undefined && object != null )
-            {
+			if (object !== undefined && object != null ) {
                 // Set the header
                 this._header.html((img && img != "" ? "<img src='" + img + "' />" : "") + name);
 
@@ -115,22 +108,19 @@ module Animate
                 var variables: Array<Prop<any>> = object.variables;
 
                 // Go through each of the variables and create the group containers
-                for (var i = 0; i < variables.length; i++)
-                {
+                for (var i = 0; i < variables.length; i++) {
                     var property = variables[i];
 
                     // Check if a group exists
                     var pGroup: PropertyGridGroup = null;
                     for (var gi = 0, gl = groups.length; gi < gl; gi++)
-                        if (groups[gi].name == property.category)
-                        {
+                        if (groups[gi].name == property.category) {
                             pGroup = groups[gi];
                             break;
                         }
 
                     // If no group exists - then add it
-                    if (pGroup == null)
-                    {
+                    if (pGroup == null) {
                         pGroup = new PropertyGridGroup(property.category);
                         groups.push(pGroup);
                     }
@@ -139,8 +129,7 @@ module Animate
                 }
 
                 // Sort by the groups by name
-                sortable.sort(function (a, b)
-                {
+                sortable.sort(function (a, b) {
                     var textA = a.group.name.toUpperCase();
                     var textB = b.group.name.toUpperCase();
                     return (textA > textB) ? -1 : (textA < textB) ? 1 : 0;
@@ -152,18 +141,15 @@ module Animate
                         this.addChild(sortable[i].group);
 
                 // Now sort each of the variables by name
-                sortable.sort(function (a, b)
-                {
+                sortable.sort(function (a, b) {
                     var textA = a.prop.name.toUpperCase();
                     var textB = b.prop.name.toUpperCase();
                     return (textA > textB) ? 1 : (textA < textB) ? -1 : 0;
                 });
 
-                for (var i = 0; i < sortable.length; i++)
-				{
+                for (var i = 0; i < sortable.length; i++) {
 					var editors :Array<PropertyGridEditor> = this._editors;
-                    for (var editor = 0, el = editors.length; editor < el; editor++ )
-                    {
+                    for (var editor = 0, el = editors.length; editor < el; editor++ ) {
                         if (sortable[i].prop.type == PropertyType.HIDDEN || sortable[i].prop.type == PropertyType.HIDDEN_FILE)
                             continue;
 
@@ -176,8 +162,7 @@ module Animate
 					}
 				}
 			}
-			else
-			{
+			else {
 				this._header.html( "Please select an object." );
 
 				// Set the editable
@@ -203,8 +188,7 @@ module Animate
 		* called when we reset the project
 		* @returns <object>
 		*/
-		projectReset()
-		{
+		projectReset() {
 			this.editableObject( null, "", "" );
 		}
 
@@ -213,8 +197,7 @@ module Animate
 		* @param {PropertyGridEditor} editor The PropertyGridEditor object to add
 		* @returns {PropertyGridEditor}
 		*/
-		addEditor(editor: PropertyGridEditor)
-		{
+		addEditor(editor: PropertyGridEditor) {
 			this._editors.push( editor );
 
 			return editor;
@@ -225,10 +208,8 @@ module Animate
 		* @param {PropertyGridEditor} editor The PropertyGridEditor object to remove.
 		* @returns {PropertyGridEditor} The editor or null
 		*/
-		removeEditor(editor: PropertyGridEditor )
-		{
-			if ( this._editors.indexOf( editor ) != -1 )
-			{
+		removeEditor(editor: PropertyGridEditor ) {
+			if ( this._editors.indexOf( editor ) != -1 ) {
 				this._editors.splice( this._editors.indexOf( editor ), 1 );
 				return editor;
 			}
@@ -239,8 +220,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-		{
+		dispose() {
 			this._object = null;
 
 			// Call super
@@ -251,8 +231,7 @@ module Animate
 		* Gets the singleton instance.
 		* @returns <PropertyGrid>
 		*/
-		static getSingleton( parent? : Component ) : PropertyGrid
-		{
+		static getSingleton( parent? : Component ) : PropertyGrid {
 			if ( !PropertyGrid._singleton )
 				new PropertyGrid( parent );
 

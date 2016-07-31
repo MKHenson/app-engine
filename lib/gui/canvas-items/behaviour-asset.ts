@@ -1,11 +1,8 @@
-module Animate
-{
-	export class BehaviourAsset extends Behaviour
-	{
+module Animate {
+	export class BehaviourAsset extends Behaviour {
 		private _asset : Asset;
 
-		constructor(parent : Canvas, text :string = "Asset" )
-		{
+		constructor(parent : Canvas, text :string = "Asset" ) {
 			// Call super-class constructor
 			super( parent, text);
 
@@ -16,8 +13,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child <Component>s
 		*/
-		dispose()
-		{
+		dispose() {
 			this._asset = null;
 
 			// Call super
@@ -29,8 +25,7 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviour}
         */
-        tokenize(slim: boolean = false): IBehaviour
-        {
+        tokenize(slim: boolean = false): IBehaviour {
             var toRet = <IBehaviour>super.tokenize(slim);
             toRet.type = CanvasItemType.BehaviourAsset;
             return toRet;
@@ -42,8 +37,7 @@ module Animate
 		* @param {Prop<any>} property
 		* @returns {Portal}
 		*/
-        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal
-		{
+        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal {
             var portal = super.addPortal(type, property, update);
 
             if (type == PortalType.PARAMETER)

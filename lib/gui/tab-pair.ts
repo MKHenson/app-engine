@@ -1,12 +1,10 @@
-module Animate
-{
+module Animate {
 	/**
 	* This class is a small container class that is used by the Tab class. It creates TabPairs
 	* each time a tab is created with the addTab function. This creates a TabPair object that keeps a reference to the
 	* label and page as well as a few other things.
 	*/
-	export class TabPair
-    {
+	export class TabPair {
         public tab: Tab;
 		public tabSelector: Component;
 		public page: Component;
@@ -14,8 +12,7 @@ module Animate
         private _savedSpan: JQuery;
         private _modified: boolean;
 
-        constructor(selector: Component, page: Component, name: string)
-        {
+        constructor(selector: Component, page: Component, name: string) {
             this.tab = null;
             this.tabSelector = selector;
             this._modified = false;
@@ -28,8 +25,7 @@ module Animate
         * Gets if this tab pair has been modified or not
         * @returns {boolean}
         */
-        public get modified(): boolean
-        {
+        public get modified(): boolean {
             return this._modified;
         }
 
@@ -37,8 +33,7 @@ module Animate
         * Sets if this tab pair has been modified or not
         * @param {boolean} val
         */
-        public set modified(val: boolean)
-        {
+        public set modified(val: boolean) {
             this._modified = val;
             if (val)
                 jQuery(".text", this.tabSelector.element).prepend(this._savedSpan);
@@ -75,8 +70,7 @@ module Animate
 		/**
 		* Sets the label text of the pair
 		*/
-         set text(text: string)
-         {
+         set text(text: string) {
              jQuery(".text", this.tabSelector.element).text(text);
 
              if (this._modified)
@@ -91,8 +85,7 @@ module Animate
 		/**
 		* Cleans up the references
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			this.tabSelector.dispose();
             this.page.dispose();
             this._savedSpan.remove();

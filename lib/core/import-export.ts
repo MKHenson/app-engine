@@ -1,7 +1,5 @@
-module Animate
-{
-	export class ImportExportEvents extends ENUM
-	{
+module Animate {
+	export class ImportExportEvents extends ENUM {
 		constructor(v: string) { super(v); }
 		static COMPLETE: ImportExportEvents = new ImportExportEvents("import_export_complete");
 	}
@@ -9,15 +7,13 @@ module Animate
 	/**
 	* A class to help with importing and exporting a project
 	*/
-	export class ImportExport extends EventDispatcher
-	{
+	export class ImportExport extends EventDispatcher {
 		private static _singleton: ImportExport;
 
 		private runWhenDone: boolean;
 		private mRequest: string;
 
-		constructor()
-		{
+		constructor() {
 			// Call super-class constructor
 			super();
 
@@ -36,8 +32,7 @@ module Animate
 		* This function will first export the scene and then attempt to create a window that runs the application.
 		* @extends <ImportExport>
 		*/
-		run()
-		{
+		run() {
 			this.exportScene();
 			this.runWhenDone = true;
 		}
@@ -48,8 +43,7 @@ module Animate
 		* can hook into this process and change the output to suit the plugin needs.
 		* @extends <ImportExport>
 		*/
-		exportScene()
-		{
+		exportScene() {
 			//this.runWhenDone = false;
 			//var project = User.get.project;
 
@@ -271,8 +265,7 @@ module Animate
 		* @param {ContainerToken} container The container to add refernces on
 		* @returns {any}
 		*/
-		referenceCheckAsset( asset: Asset, container : ContainerToken )
-		{
+		referenceCheckAsset( asset: Asset, container : ContainerToken ) {
 			if ( asset == null )
 				return;
 
@@ -280,13 +273,10 @@ module Animate
             var project = User.get.project;
 
 			//Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
-			for ( var i = 0, l = assetVars.length; i < l; i++ )
-			{
-                if (assetVars[i].type == PropertyType.ASSET )
-                {
+			for ( var i = 0, l = assetVars.length; i < l; i++ ) {
+                if (assetVars[i].type == PropertyType.ASSET ) {
                     var asset = <Asset>assetVars[i].getVal();
-                    if (asset)
-                    {
+                    if (asset) {
                         container.assets.push(asset.entry.shallowId);
 
 						//It can also the be case that assets reference other assets. In those
@@ -294,12 +284,10 @@ module Animate
                         this.referenceCheckAsset(asset, container);
 					}
 				}
-                else if (assetVars[i].type == PropertyType.ASSET_LIST )
-                {
+                else if (assetVars[i].type == PropertyType.ASSET_LIST ) {
                     var aList = <Array<Asset>>assetVars[i].getVal();
 
-                    for (var a = 0, al = aList.length; a < al; a++ )
-					{
+                    for (var a = 0, al = aList.length; a < al; a++ ) {
                         var asset = <Asset>aList[a];
                         container.assets.push(asset.entry.shallowId);
 
@@ -308,12 +296,10 @@ module Animate
                         this.referenceCheckAsset(asset, container);
 					}
 				}
-                else if (assetVars[i].type == PropertyType.GROUP )
-                {
+                else if (assetVars[i].type == PropertyType.GROUP ) {
                     var group = <GroupArray>assetVars[i].getVal();
 
-                    if (group)
-					{
+                    if (group) {
                         var groupNode: TreeNodeGroup = <TreeNodeGroup>TreeViewScene.getSingleton().findNode("resource", group);
                         this.referenceCheckGroup(groupNode, container );
 					}
@@ -328,8 +314,7 @@ module Animate
 		* @param {ContainerToken} container The container to add refernces on
 		* @returns {any}
 		*/
-		referenceCheckGroup( group: TreeNodeGroup, container: ContainerToken )
-		{
+		referenceCheckGroup( group: TreeNodeGroup, container: ContainerToken ) {
 			if ( group == null )
 				return;
 
@@ -342,13 +327,11 @@ module Animate
 
 			//Check all the group properties. If it contains another group, then we need to make sure its added to the container
 			for ( var ii = 0; ii < group.children.length; ii++ )
-                if ((<TreeNodeGroupInstance>group.children[ii]).shallowId )
-				{
+                if ((<TreeNodeGroupInstance>group.children[ii]).shallowId ) {
                     var assetID: number = (<TreeNodeGroupInstance>group.children[ii]).shallowId;
 
 					//Check if the asset was added to the container
-					if ( container.assets.indexOf( assetID ) == -1 )
-					{
+					if ( container.assets.indexOf( assetID ) == -1 ) {
 						container.assets.push( assetID );
 
 						//It can also the be case that assets reference other assets. In those
@@ -426,15 +409,11 @@ module Animate
 		/**
 		* This is the resonse from the server
 		*/
-		onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender? : EventDispatcher )
-		{
+		onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender? : EventDispatcher ) {
 			var loader: AnimateLoader = <AnimateLoader>sender;
-			if ( response == LoaderEvents.COMPLETE )
-			{
-				if ( event.return_type == AnimateLoaderResponses.SUCCESS )
-				{
-					if ( loader.url == "/export/compile" )
-					{
+			if ( response == LoaderEvents.COMPLETE ) {
+				if ( event.return_type == AnimateLoaderResponses.SUCCESS ) {
+					if ( loader.url == "/export/compile" ) {
 						Logger.getSingleton().clearItems();
 						var now: Date = new Date();
 						Logger.logMessage( "Build complete at " + new Date( Date.now() ).toDateString(), null, LogType.MESSAGE );
@@ -446,8 +425,7 @@ module Animate
 						this.emit(new ImportExportEvent(ImportExportEvents.COMPLETE, event.tag.liveLink) );
 					}
 				}
-				else
-				{
+				else {
 					MessageBox.show(event.message, Array<string>("Ok"), null, null );
 					//this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
 				}
@@ -460,8 +438,7 @@ module Animate
 		* Gets the singleton instance.
 		* @extends <ImportExport>
 		*/
-		static getSingleton() : ImportExport
-		{
+		static getSingleton() : ImportExport {
 			if ( !ImportExport._singleton )
 				new ImportExport();
 

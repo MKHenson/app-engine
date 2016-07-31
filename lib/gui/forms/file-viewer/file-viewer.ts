@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This form is used to load and select assets.
 	*/
-    export class FileViewer extends Window
-    {
+    export class FileViewer extends Window {
         private static _singleton: FileViewer;
 
         // New variables
@@ -37,8 +35,7 @@ module Animate
         /**
         * Creates an instance of the file uploader form
         */
-        constructor()
-        {
+        constructor() {
             // Call super-class constructor
             super(1000, 600, true, true, "Asset Browser");
 
@@ -72,14 +69,11 @@ module Animate
 
             // Create the file uploader
             this.$uploader = new FileUploader(
-                function (loaded: number)
-                {
+                function (loaded: number) {
                     Compiler.digest(that._browserElm, that);
                 },
-                function (err: Error)
-                {
-                    if (err)
-                    {
+                function (err: Error) {
+                    if (err) {
                         that.$errorMsg = err.message;
                         Compiler.digest(that._browserElm, that);
                     }
@@ -103,8 +97,7 @@ module Animate
             $(document).on('keyup keydown', function (e) { that._shiftkey = e.shiftKey });
 
             // Set the mode when they are clicked
-            searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown)
-            {
+            searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown) {
                 if (sender.selectedItem.text == "Filter by Project Files")
                     that.selectMode(FileSearchType.Project);
                 else if (sender.selectedItem.text == "Filter by My Files")
@@ -130,8 +123,7 @@ module Animate
         * Returns a URL of a file preview image
         * @returns {string}
         */
-        getThumbnail(file: Engine.IFile): string
-        {
+        getThumbnail(file: Engine.IFile): string {
             if (file.previewUrl)
                 return file.previewUrl;
             else
@@ -141,8 +133,7 @@ module Animate
         /**
         * Specifies the type of file search
         */
-        selectMode(type: FileSearchType)
-        {
+        selectMode(type: FileSearchType) {
             this._searchType = type;
             this.$pager.invalidate();
         }
@@ -150,8 +141,7 @@ module Animate
         /**
         * Attempts to open a folder
         */
-        openFolder(folder: string)
-        {
+        openFolder(folder: string) {
             this.$pager.index = 0;
             this.selectedFolder = folder;
             this.$confirmDelete = false;
@@ -164,16 +154,14 @@ module Animate
         /**
         * Creates a new folder
         */
-        newFolder()
-        {
+        newFolder() {
             var that = this;
             var details = User.get.entry;
             var folderName: string = $("#new-folder-name").val();
             var mediaURL = DB.USERS + "/media";
 
             // Empty names not allowed
-            if (folderName.trim() == "")
-            {
+            if (folderName.trim() == "") {
                 that.$errorMsg = "Please specify a valid folder name";
                 return Animate.Compiler.digest(that._browserElm, that);
             }
@@ -181,12 +169,10 @@ module Animate
             that.$errorMsg = "";
             that.$loading = true;
 
-            jQuery.post(`${mediaURL}/create-bucket/${details.username}/${folderName}`, null).then(function (token: UsersInterface.IResponse)
-            {
+            jQuery.post(`${mediaURL}/create-bucket/${details.username}/${folderName}`, null).then(function (token: UsersInterface.IResponse) {
                 if (token.error)
                     that.$errorMsg = token.message;
-                else
-                {
+                else {
                     $("#new-folder-name").val("");
                     that.$newFolder = false;
                     that.$pager.invalidate();
@@ -200,11 +186,9 @@ module Animate
         /**
         * Shows / Hides the delete buttons
         */
-        confirmDelete()
-        {
+        confirmDelete() {
             this.$confirmDelete = !this.$confirmDelete;
-            if (this.$confirmDelete)
-            {
+            if (this.$confirmDelete) {
                 //var fileType = (this.selectedFolder ? "file" : "folder");
                 var fileType = "file";
                 this.$errorMsg = `Are you sure you want to delete ${(this.selectedEntities.length > 1 ? `these [${this.selectedEntities.length}]` : "the ") } ${fileType}${(this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'") }`;
@@ -217,8 +201,7 @@ module Animate
         * Called in the HTML once a file is clicked and we need to get a preview of it
         * @param {IFile} file The file to preview
         */
-        getPreview(file: Engine.IFile)
-        {
+        getPreview(file: Engine.IFile) {
             var preview = <HTMLDivElement>this._browserElm[0].querySelector("#file-preview");
             var child = PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
             var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
@@ -233,18 +216,15 @@ module Animate
         /**
         * Sets the selected status of a file or folder
         */
-        selectEntity(entity)
-        {
+        selectEntity(entity) {
             this.$errorMsg = "";
             this.$confirmDelete = false;
 
             entity.selected = !entity.selected;
             var ents = this.selectedEntities;
 
-            if (entity.selected)
-            {
-                if (this.multiSelect && this._shiftkey == false)
-                {
+            if (entity.selected) {
+                if (this.multiSelect && this._shiftkey == false) {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (<any>ents[i]).selected = false;
 
@@ -275,8 +255,7 @@ module Animate
         /**
 		* Removes the window and modal from the DOM.
 		*/
-        hide()
-        {
+        hide() {
             this.emit(new FileViewerEvent("selected", (this._cancelled ? null : this.selectedEntity)));
             super.hide();
             this.extensions.splice(0, this.extensions.length);
@@ -285,8 +264,7 @@ module Animate
         /**
         * Called whenever we select a file
         */
-        fileChosen(file: Engine.IFile)
-        {
+        fileChosen(file: Engine.IFile) {
             this._cancelled = false;
             this.hide();
             this._cancelled = true;
@@ -295,8 +273,7 @@ module Animate
         /**
         * Removes the selected entities
         */
-        removeEntities()
-        {
+        removeEntities() {
             var that = this;
             that.$errorMsg = "";
             that.$editMode = false;
@@ -314,8 +291,7 @@ module Animate
             //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
 
             entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-            Utils.delete(`${mediaURL}/${command}/${entities}`).then(function (token: UsersInterface.IResponse)
-            {
+            Utils.delete(`${mediaURL}/${command}/${entities}`).then(function (token: UsersInterface.IResponse) {
                 if (token.error)
                     that.$errorMsg = token.message;
                 that.$loading = false;
@@ -329,8 +305,7 @@ module Animate
         * @param {number} index
         * @param {number} limit
         */
-        updateContent(index: number, limit: number)
-        {
+        updateContent(index: number, limit: number) {
             var that = this;
             var details = User.get.entry;
             var project = User.get.project;
@@ -353,16 +328,13 @@ module Animate
             //else
             //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
 
-            jQuery.getJSON(command).then(function (token: UsersInterface.IGetFiles)
-            {
-                if (token.error)
-                {
+            jQuery.getJSON(command).then(function (token: UsersInterface.IGetFiles) {
+                if (token.error) {
                     that.$errorMsg = token.message;
                     that.$entries = [];
                     that.$pager.last = 1;
                 }
-                else
-                {
+                else {
                     that.$entries = token.data;
                     that.$entries = that.filterByExtensions();
                     that.$pager.last = token.count;
@@ -376,13 +348,10 @@ module Animate
 		/**
 		* Called when we are dragging over the item
 		*/
-        onDragOver(e)
-        {
-            if (this.visible)
-            {
+        onDragOver(e) {
+            if (this.visible) {
                 var items = e.originalEvent.dataTransfer.items;
-                if (items.length > 0)
-                {
+                if (items.length > 0) {
                     if (!jQuery(".file-items", this.element).hasClass("drag-here"))
                         jQuery(".file-items", this.element).addClass("drag-here");
                 }
@@ -398,10 +367,8 @@ module Animate
 		/**
 		* Called when we are no longer dragging items.
 		*/
-        onDragLeave(e)
-        {
-            if (this.visible)
-            {
+        onDragLeave(e) {
+            if (this.visible) {
                 if (jQuery(".file-items", this.element).hasClass("drag-here"))
                     jQuery(".file-items", this.element).removeClass("drag-here");
             }
@@ -411,22 +378,18 @@ module Animate
         * Checks if a file list has approved extensions
         * @return {boolean}
         */
-        checkIfAllowed(files: FileList): boolean
-        {
+        checkIfAllowed(files: FileList): boolean {
             var extensions = this.extensions;
 
             // Approve all extensions unless otherwise stated
-            if (extensions.length > 0)
-            {
-                for (var f = 0, fl = files.length; f < fl; f++)
-                {
+            if (extensions.length > 0) {
+                for (var f = 0, fl = files.length; f < fl; f++) {
                     var split = files[f].name.split("."),
                         ext = split[split.length - 1].toLowerCase(),
                         extFound = false;
 
                     for (var i = 0, l = extensions.length; i < l; i++)
-                        if (extensions[i] == ext)
-                        {
+                        if (extensions[i] == ext) {
                             extFound = true;
                             break;
                         }
@@ -442,8 +405,7 @@ module Animate
         /**
 		* Makes sure we only view the file types specified in the exension array
 		*/
-        filterByExtensions(): Array<Engine.IFile>
-        {
+        filterByExtensions(): Array<Engine.IFile> {
             var extensions = this.extensions,
                 files = this.$entries,
                 ext = "",
@@ -455,15 +417,12 @@ module Animate
             var filtered = [];
 
 
-            for (var i = 0, l = files.length; i < l; i++)
-            {
+            for (var i = 0, l = files.length; i < l; i++) {
                 ext = files[i].extension.split(/\\|\//).pop().trim();
                 hasExtension = false;
 
-                for (var ii = 0, li = extensions.length; ii < li; ii++)
-                {
-                    if (ext == extensions[ii])
-                    {
+                for (var ii = 0, li = extensions.length; ii < li; ii++) {
+                    if (ext == extensions[ii]) {
                         hasExtension = true;
                         break;
                     }
@@ -479,12 +438,10 @@ module Animate
 		/**
 		* Called when we are no longer dragging items.
 		*/
-        onDrop(e: JQueryEventObject)
-        {
+        onDrop(e: JQueryEventObject) {
             var details = User.get.entry;
 
-            if (this.visible)
-            {
+            if (this.visible) {
                 if (jQuery(".file-items", this.element).hasClass("drag-here"))
                     jQuery(".file-items", this.element).removeClass("drag-here");
 
@@ -492,11 +449,9 @@ module Animate
                 e.stopPropagation();
 
                 var files = (<DragEvent>e.originalEvent).dataTransfer.files;
-                if (files.length > 0)
-                {
+                if (files.length > 0) {
                     // Make sure the file types are allowed
-                    if (!this.checkIfAllowed(files))
-                    {
+                    if (!this.checkIfAllowed(files)) {
                         this.$errorMsg = `Only ${this.extensions.join(', ') } file types are allowed`;
                         Compiler.digest(this._browserElm, this);
                         return false;
@@ -516,40 +471,33 @@ module Animate
         * @param {Engine.IFile} file The target file we are setting the preview for
         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
 		*/
-        uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement)
-        {
+        uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement) {
             var that = FileViewer._singleton;
             var details = User.get.entry;
             var loaderDiv = jQuery(".preview-loader", that._browserElm);
             loaderDiv.css({ "width": "0%", "height": "1px" });
 
             // Create the uploader
-            var fu = new FileUploader(function (p)
-            {
+            var fu = new FileUploader(function (p) {
                 // Update the loading bar
                 loaderDiv.css({ "width": p + "%", "height": "1px"} );
 
-            }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>)
-            {
+            }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>) {
                 // Remove loading bar
                 loaderDiv.css({ "width": "", "height" : "" });
-                if (err)
-                {
+                if (err) {
                     Logger.logMessage(err.message, null, LogType.ERROR);
                     return;
                 }
-                else
-                {
+                else {
                     // Associate the uploaded preview with the file
-                    Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse)
-                    {
+                    Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse) {
                         if (token.error)
                             Logger.logMessage(err.message, null, LogType.ERROR);
 
                         file.previewUrl = tokens[1].url;
 
-                    }).catch(function (err: IAjaxError)
-                    {
+                    }).catch(function (err: IAjaxError) {
                         Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
                     });
                 }
@@ -567,8 +515,7 @@ module Animate
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-        show(parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false)
-        {
+        show(parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false) {
             super.show(null, undefined, undefined, true);
 
             this.$errorMsg = "";
@@ -584,8 +531,7 @@ module Animate
             // Call update and redraw the elements
             this.$pager.invalidate();
 
-            var onChanged = function ()
-            {
+            var onChanged = function () {
                 var input = <HTMLInputElement>this;
 
                 //if (that.selectedFolder)
@@ -594,8 +540,7 @@ module Animate
                 //    return;
 
                 // Make sure the file types are allowed
-                if (!that.checkIfAllowed(input.files))
-                {
+                if (!that.checkIfAllowed(input.files)) {
                     that.$errorMsg = `Only ${that.extensions.join(', ') } file types are allowed`;
                     Compiler.digest(that._browserElm, that);
 
@@ -606,8 +551,7 @@ module Animate
                 }
 
                 // Upload each file
-                for (var i = 0; i < input.files.length; i++)
-                {
+                for (var i = 0; i < input.files.length; i++) {
                     var file = input.files[i];
                     that.$uploader.uploadFile(file, { browsable: true });
                 }
@@ -629,8 +573,7 @@ module Animate
 		/**
 		* Use this function to show the file viewer and listen for when the user has selected a file
 		*/
-        choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile>
-        {
+        choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile> {
             // Show the form
             this.show();
 
@@ -642,8 +585,7 @@ module Animate
                 this.extensions = <Array<string>>extensions;
 
             // When the file is chosen - return
-            var fileChosen = function(type, event: FileViewerEvent, sender)
-            {
+            var fileChosen = function(type, event: FileViewerEvent, sender) {
                 that.off("selected", fileChosen);
                 d.resolve(event.file);
             }
@@ -656,8 +598,7 @@ module Animate
 		* Attempts to update the selected file
         * @param {IFile} token The file token to update with
 		*/
-        updateFile(token: Engine.IFile)
-        {
+        updateFile(token: Engine.IFile) {
             var that = this,
                 details = User.get.entry;
 
@@ -666,13 +607,11 @@ module Animate
             that.$confirmDelete = false;
             Compiler.digest(that._browserElm, that);
 
-            Utils.put(`${DB.API}/user/${details.username}/files/${token._id}`, token).then(function (response: UsersInterface.IResponse)
-            {
+            Utils.put(`${DB.API}/user/${details.username}/files/${token._id}`, token).then(function (response: UsersInterface.IResponse) {
                 that.$loading = false;
                 if (response.error)
                     that.$errorMsg = response.message;
-                else
-                {
+                else {
                     that.$editMode = false;
                     for (var i in token)
                         if (that.$selectedFile.hasOwnProperty(i))
@@ -681,8 +620,7 @@ module Animate
 
                 Compiler.digest(that._browserElm, that);
 
-            }).catch(function (err: IAjaxError)
-            {
+            }).catch(function (err: IAjaxError) {
                 that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.message}`;
                 Compiler.digest(that._browserElm, that);
             });
@@ -692,8 +630,7 @@ module Animate
         * Gets the singleton instance.
         * @returns {FileViewer}
         */
-		static get get(): FileViewer
-		{
+		static get get(): FileViewer {
 			if ( !FileViewer._singleton )
 				new FileViewer();
 

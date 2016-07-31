@@ -1,16 +1,13 @@
-module Animate
-{
+module Animate {
 	/**
 	* A simple label wrapper. This creates a div that has a textfield sub div. the
 	* subdiv is the DOM element that actually contains the text.
 	*/
-	export class Label extends Component
-	{
+	export class Label extends Component {
 		private _text: string;
 		public textfield: Component;
 
-		constructor( text: string, parent: Component, html: string = "<div class='label'></div>" )
-		{
+		constructor( text: string, parent: Component, html: string = "<div class='label'></div>" ) {
 			super( html, parent );
 			this._text = text;
 			this.textfield = <Component>this.addChild( "<div class='textfield'>" + text + "</div>" );
@@ -29,8 +26,7 @@ module Animate
 		/**
 		* This will cleanup the {Label}
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			this.textfield = null;
 
 			//Call super
@@ -44,8 +40,7 @@ module Animate
 		* @extends <Label>
 		* @returns <number>
 		*/
-		get textHeight() : number
-		{
+		get textHeight() : number {
 			var clone : JQuery = this.textfield.element.clone();
 			clone.css( { width: this.element.width() });
 			jQuery( "body" ).append( clone );

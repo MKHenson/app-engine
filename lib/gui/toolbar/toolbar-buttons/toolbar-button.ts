@@ -1,14 +1,11 @@
-module Animate
-{
+module Animate {
 	/** A very simple class to represent tool bar buttons */
-	export class ToolBarButton extends Component
-	{
+	export class ToolBarButton extends Component {
 		private _radioMode: boolean;
 		private _pushButton: boolean;
 		private _proxyDown: any;
 
-		constructor( text : string, image : string, pushButton : boolean = false, parent?: Component )
-		{
+		constructor( text : string, image : string, pushButton : boolean = false, parent?: Component ) {
             super("<div class='toolbar-button tooltip'><div><img src='" + image + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent );
 
 			this._pushButton = pushButton;
@@ -19,20 +16,17 @@ module Animate
 		}
 
 		/** Cleans up the button */
-		dispose()
-		{
+		dispose() {
 			this.element.off( "mousedown", this._proxyDown );
 			this._proxyDown = null;
 
 			super.dispose();
 		}
 
-		onClick( e )
-		{
+		onClick( e ) {
 			var element: JQuery = this.element;
 
-			if ( this._pushButton )
-			{
+			if ( this._pushButton ) {
 				if ( !element.hasClass( "selected" ) )
 					this.selected = true;
 				else
@@ -43,15 +37,13 @@ module Animate
 		/**
 		* Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-		set selected( val: boolean )
-		{
+		set selected( val: boolean ) {
 			if ( val )
 				this.element.addClass( "selected" );
 			else
 				this.element.removeClass( "selected" );
 
-			if ( this._radioMode && val && this.parent )
-			{
+			if ( this._radioMode && val && this.parent ) {
 				var pChildren: Array<IComponent> = this.parent.children;
 				for ( var i = 0, len = pChildren.length; i < len; i++ )
 					if ( pChildren[i] != this && pChildren[i] instanceof ToolBarButton )

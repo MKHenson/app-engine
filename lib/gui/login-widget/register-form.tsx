@@ -1,29 +1,24 @@
-module Animate
-{
-    export interface IRegisterFormProps
-    {
+module Animate {
+    export interface IRegisterFormProps {
         onLogin?: () => void;
         onLoadingChange? : (loading: boolean) => void;
         switchMode: () => void;
     }
 
-    export interface IRegisterFormState
-    {
+    export interface IRegisterFormState {
         loading?: boolean;
         errorMsg?: string;
         error?: boolean;
     }
 
-    export class RegisterForm extends React.Component< IRegisterFormProps, IRegisterFormState>
-    {
+    export class RegisterForm extends React.Component< IRegisterFormProps, IRegisterFormState> {
         private _user: User;
         private _captchaId: number;
 
         /**
          * Creates a new instance
          */
-        constructor()
-        {
+        constructor() {
             super();
             this._user = User.get;
             this.state = {
@@ -36,8 +31,7 @@ module Animate
         /**
         * Attempts to register a new user
         */
-        register( json : any )
-        {
+        register( json : any ) {
             var that = this;
 
             if ( this.props.onLoadingChange )
@@ -47,8 +41,7 @@ module Animate
                 loading: true
             });
 
-            this._user.register(json.username, json.password, json.email, grecaptcha.getResponse(this._captchaId) )
-                .then((data) => {
+            this._user.register(json.username, json.password, json.email, grecaptcha.getResponse(this._captchaId) ).then((data) => {
                     if ( this.props.onLoadingChange )
                         this.props.onLoadingChange(false);
 
@@ -58,8 +51,7 @@ module Animate
                         error:false
                     });
                 })
-                .catch( (err: Error) =>
-                {
+                .catch( (err: Error) => {
                     if ( this.props.onLoadingChange )
                         this.props.onLoadingChange(false);
 
@@ -77,8 +69,7 @@ module Animate
          * to be rendered
          * @param {HTMLDivElement} div The div being rendered
          */
-        mountCaptcha(div : HTMLDivElement)
-        {
+        mountCaptcha(div : HTMLDivElement) {
             if (div && div.childNodes.length == 0)
                 this._captchaId = grecaptcha.render(div, { theme: "white", sitekey : "6LcLGSYTAAAAAMr0sDto-BBfQYoLhs21CubsZxWb" } );
         }
@@ -86,8 +77,7 @@ module Animate
         /**
          * Called when the component is unmounted
          */
-        componentWillUnmount()
-        {
+        componentWillUnmount() {
             grecaptcha.reset(this._captchaId);
         }
 
@@ -95,8 +85,7 @@ module Animate
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render() : JSX.Element
-        {
+        render() : JSX.Element {
             return <div className='login animate-all fade-in'>
                 <VForm
                     name="register"

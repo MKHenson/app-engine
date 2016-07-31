@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* This represents a combo property for assets that the user can select from a list.
 	*/
-    export class PGComboGroup extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGComboGroup extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropGroup )
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropGroup>prop;
             var group = <GroupArray>p.getVal();
             var groupId = (group ? p.getVal().entry.shallowId : "");
@@ -46,8 +41,7 @@ module Animate
             var groups = project.groups.slice(0, project.groups.length);
 
             //Sort alphabetically
-            groups = groups.sort(function (a: GroupArray, b: GroupArray)
-            {
+            groups = groups.sort(function (a: GroupArray, b: GroupArray) {
                 var textA = a.entry.name;
                 var textB = b.entry.name;
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -63,15 +57,13 @@ module Animate
 			var that = this;
 
 			// Functions to deal with user interactions with JQuery
-            var onSelect = function (e: JQueryEventObject  )
-			{
+            var onSelect = function (e: JQueryEventObject  ) {
                 var val = parseFloat(selector.val());
                 var group = <GroupArray>project.getResourceByShallowID(val, ResourceType.GROUP);
                 p.setVal(group);
             };
 
-            var onEye = function (e: JQueryEventObject )
-			{
+            var onEye = function (e: JQueryEventObject ) {
                 var val = parseFloat(selector.val());
                 var group = project.getResourceByShallowID(val, ResourceType.GROUP);
                 TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("resource", group ), true );

@@ -1,25 +1,21 @@
-module Animate
-{
+module Animate {
     export enum LoginMode {
         LOGIN,
         REGISTER
     }
 
-    export interface ILoginWidgetState
-    {
+    export interface ILoginWidgetState {
         mode?: LoginMode;
         loading?: boolean;
     }
 
-    export class LoginWidget extends React.Component<{ onLogin: () => void }, ILoginWidgetState>
-    {
+    export class LoginWidget extends React.Component<{ onLogin: () => void }, ILoginWidgetState> {
         private _user: User;
 
         /**
          * Creates a new instance
          */
-        constructor()
-        {
+        constructor() {
             super();
             this._user = User.get;
             this.state = {
@@ -28,8 +24,7 @@ module Animate
             };
         }
 
-        switchState()
-        {
+        switchState() {
             this.setState({ mode : ( this.state.mode == LoginMode.LOGIN ? LoginMode.REGISTER : LoginMode.LOGIN ) })
         }
 
@@ -37,8 +32,7 @@ module Animate
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render() : JSX.Element
-        {
+        render() : JSX.Element {
             var activePane : JSX.Element;
             if ( this.state.mode == LoginMode.LOGIN )
                 activePane = <LoginForm

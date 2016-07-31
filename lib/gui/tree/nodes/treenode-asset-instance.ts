@@ -1,19 +1,16 @@
-module Animate
-{
+module Animate {
 	/**
 	* Treenodes are added to the treeview class. This treenode contains a reference to the
 	* AssetClass object defined by plugins.
 	*/
-    export class TreeNodeAssetInstance extends TreeNodeResource<Asset>
-	{
+    export class TreeNodeAssetInstance extends TreeNodeResource<Asset> {
 		public assetClass: AssetClass;
 
 		/**
 		* @param {AssetClass} assetClass The name of the asset's template
 		* @param {Asset} asset The asset itself
 		*/
-		constructor( assetClass: AssetClass, asset : Asset )
-		{
+		constructor( assetClass: AssetClass, asset : Asset ) {
 			// Call super-class constructor
             super(asset, (jQuery.trim(asset.entry.name) == "" ? "New " + assetClass.name : asset.entry.name ), "media/variable.png", false );
 
@@ -32,8 +29,7 @@ module Animate
 		/**
 		* Called when the node is selected
 		*/
-		onSelect()
-        {
+		onSelect() {
             PropertyGrid.getSingleton().editableObject(this.resource.properties, this.text + "  [" + this.resource.entry.shallowId + "]", "media/variable.png");
             PluginManager.getSingleton().emit(new AssetEvent(EditorEvents.ASSET_SELECTED, this.resource ) );
 		}
@@ -43,8 +39,7 @@ module Animate
 		* @param {string} type
 		* @param {EditEvent} data
 		*/
-        onAssetEdited(type: string, data: EditEvent, sender?: EventDispatcher)
-		{
+        onAssetEdited(type: string, data: EditEvent, sender?: EventDispatcher) {
             this.resource.saved = false;
             //var oldValue = this.resource.properties.getVar( data.propertyName ).value;
             //this.resource.properties.updateValue( data.propertyName, data.propertyValue );
@@ -53,8 +48,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-        {
+		dispose() {
             this.resource.off("edited", this.onAssetEdited, this);
 			this.assetClass = null;
 

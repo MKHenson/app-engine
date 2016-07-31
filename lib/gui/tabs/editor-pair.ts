@@ -1,10 +1,8 @@
-﻿module Animate
-{
+﻿module Animate {
 	/**
 	* A tab pair that uses the ace editor
 	*/
-    export abstract class EditorPair extends TabPair
-    {
+    export abstract class EditorPair extends TabPair {
         private _originalName: string;
         private _proxyChange: any;
         private _proxyMessageBox: any;
@@ -15,8 +13,7 @@
 		/**
 		* @param {string} name The name of the tab
 		*/
-        constructor(name: string)
-        {
+        constructor(name: string) {
             // Call super-class constructor
             super(null, null, name);
 
@@ -34,15 +31,12 @@
 		* When we acknowledge the message box.
 		* @param {string} val
 		*/
-        onMessage(val: string)
-        {
-            if (val == "Yes")
-            {
+        onMessage(val: string) {
+            if (val == "Yes") {
                 this._close = true;
                 this.save();
             }
-            else
-            {
+            else {
                 this.modified = false;
                 CanvasTab.getSingleton().removeTab(this, true);
             }
@@ -52,8 +46,7 @@
 		* Sets if this tab pair is busy loading
 		* @param {boolean} val
 		*/
-        protected loading(val: boolean)
-        {
+        protected loading(val: boolean) {
             if (val)
                 jQuery(".text", this.tabSelector.element).prepend(this._loadingGif);
             else
@@ -64,8 +57,7 @@
 		* Called when the editor changes
 		* @param {any} e
 		*/
-        onChange(e)
-        {
+        onChange(e) {
             this.modified = true;
         }
 
@@ -73,10 +65,8 @@
 		* Called by the tab class when the pair is to be removed.
 		* @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
 		*/
-        onRemove(event: TabEvent)
-        {
-            if (this.modified)
-            {
+        onRemove(event: TabEvent) {
+            if (this.modified) {
                 event.cancel = true;
                 MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
                 return;
@@ -93,8 +83,7 @@
 		/**
 		* Called when the tab is resized
 		*/
-        onResize()
-        {
+        onResize() {
             this._editor.resize();
         }
 
@@ -111,8 +100,7 @@
 		/**
 		* Called when the pair has been added to the tab. The ace editor is added and initialized
 		*/
-        onAdded()
-        {
+        onAdded() {
             var comp = new Component("<pre style='position:absolute; margin: 0; top: 0; bottom: 0; left: 0; right: 0;'></pre>", this.page);
             var that = this;
             var editor: AceAjax.Editor = ace.edit(comp.id);

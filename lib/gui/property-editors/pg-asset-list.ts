@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* This represents a property for choosing a list of assets
 	*/
-	export class PGAssetList extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+	export class PGAssetList extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
         * @returns {boolean}
 		*/
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropAssetList)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropAssetList>prop;
 
 			// Create HTML
@@ -47,8 +42,7 @@ module Animate
 			var nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
 
 			// Sort alphabetically
-			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
-			{
+			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
                 var textA = a.resource.entry.name.toUpperCase();
                 var textB = b.resource.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -56,10 +50,8 @@ module Animate
 
 
             // Fill the select with assets
-            for (var i = 0, l: number = nodes.length; i < l; i++)
-			{
-				if ( i == 0 )
-				{
+            for (var i = 0, l: number = nodes.length; i < l; i++) {
+				if ( i == 0 ) {
                     assetId = nodes[i].resource.entry.shallowId;
                     asset = nodes[i].resource;
 				}
@@ -68,30 +60,26 @@ module Animate
 			}
 
             // Fill the already selected items
-            for (var i = 0, l: number = assets.length; i < l; i++)
-            {
+            for (var i = 0, l: number = assets.length; i < l; i++) {
                 var selectedAsset = User.get.project.getResourceByShallowID<Asset>(assets[i].entry.shallowId, ResourceType.ASSET);
 				if ( selectedAsset )
                     items.append(`<option title='${assets[i] + " : " + selectedAsset.entry.className}' value='${selectedAsset.entry.shallowId}'>${selectedAsset.entry.name}</option>`);
 			}
 
 			// When we select an asset
-            var onSelect = function (e: JQueryEventObject  )
-			{
+            var onSelect = function (e: JQueryEventObject  ) {
                 assetId = parseInt(selector.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(assetId, ResourceType.ASSET);
 			};
 
 
 			// When we select an asset in the list, select that in the drop down
-            var onItemSelect = function (e: JQueryEventObject )
-			{
+            var onItemSelect = function (e: JQueryEventObject ) {
 				selector.val( items.val() );
 			};
 
             // When we click on the eye selector
-            var onEye = function (e: JQueryEventObject )
-			{
+            var onEye = function (e: JQueryEventObject ) {
                 var val = parseInt(selector.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 
@@ -102,10 +90,8 @@ module Animate
 			};
 
 			// When we click on add button
-            var onAdd = function (e: JQueryEventObject  )
-			{
-                if (asset && assets.indexOf(asset) == -1 )
-				{
+            var onAdd = function (e: JQueryEventObject  ) {
+                if (asset && assets.indexOf(asset) == -1 ) {
                     assets.push(asset);
                     items.append(`<option title='${assetId + " : " + asset.entry.className}' value='${asset.entry.shallowId}'>${asset.entry.name}</option>`);
                     p.setVal(assets);
@@ -113,13 +99,11 @@ module Animate
 			}
 
 			// When we click on remove button
-            var onRemove = function (e: JQueryEventObject )
-			{
+            var onRemove = function (e: JQueryEventObject ) {
                 var toRemove: number = parseInt(items.val());
                 asset = User.get.project.getResourceByShallowID<Asset>(toRemove, ResourceType.ASSET);
 
-                if (assets.indexOf(asset) != -1 )
-				{
+                if (assets.indexOf(asset) != -1 ) {
                     assets.splice(assets.indexOf(asset ), 1 );
                     jQuery('option:selected', items).remove();
                     p.setVal(assets);

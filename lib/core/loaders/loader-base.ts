@@ -1,12 +1,10 @@
 ﻿// TODO : Remove this class
 
-module Animate
- {
+module Animate {
 	/**
 	* Basic set of loader events shared by all loaders
 	*/
-	export class LoaderEvents extends ENUM
-	{
+	export class LoaderEvents extends ENUM {
 		constructor( v: string ) { super( v ); }
 
 		static COMPLETE: LoaderEvents = new LoaderEvents("complete");
@@ -17,10 +15,8 @@ module Animate
 		* @param {string} val
 		* @returns {LoaderEvents}
 		*/
-		static fromString(val: string): LoaderEvents
-		{
-			switch (val)
-			{
+		static fromString(val: string): LoaderEvents {
+			switch (val) {
 				case "complete":
 					return LoaderEvents.COMPLETE;
 				case "failed":
@@ -36,8 +32,7 @@ module Animate
 	* Abstract base loader class. This should not be instantiated, instead use the sub class loaders. Keeps track of loading
 	* variables as well as functions for showing or hiding the loading dialogue
 	*/
-	export class LoaderBase extends EventDispatcher
-	{
+	export class LoaderBase extends EventDispatcher {
 		private static loaderBackdrop: JQuery;
 		private static showCount: number = 0;
 
@@ -57,8 +52,7 @@ module Animate
 		* Creates an instance of the Loader
 		* @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
 		*/
-		constructor( domain?: string )
-		{
+		constructor( domain?: string ) {
 			// Call super-class constructor
 			super();
 
@@ -83,14 +77,12 @@ module Animate
 		* @param {any} data The data associated with this load
 		* @param {number} numTries The number of attempts allowed to make this load
 		*/
-		load( url: string, data: any, numTries: number = 3 )
-		{
+		load( url: string, data: any, numTries: number = 3 ) {
 			this.url = url;
 			this.data = data;
 			this.numTries = numTries;
 
-			if ( this.getVariables )
-			{
+			if ( this.getVariables ) {
 				this._getQuery = "?";
 				for ( var i in this.getVariables )
 					this._getQuery += ( this._getQuery.length != 1 ? "&" : "" ) + i + "=" + this.getVariables[i];
@@ -101,10 +93,8 @@ module Animate
 		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
 		* @returns {JQuery}
 		*/
-		static createLoaderModal(): JQuery
-		{
-			if ( !LoaderBase.loaderBackdrop )
-			{
+		static createLoaderModal(): JQuery {
+			if ( !LoaderBase.loaderBackdrop ) {
                 var str = "<div class='modal-backdrop dark-modal'><div class='logo-container'>" +
 					"<div class='logo-1 animated-logo rotate-360-slow'><img src='media/logo-1.png'/></div>" +
 					"<div class='logo-2 animated-logo rotate-360'><img src='media/logo-2.png'/></div>" +
@@ -127,8 +117,7 @@ module Animate
 		* number of times as the showLoader function. I.e. if you call showLoader 5 times and call hideLoader 4 times, it will not hide
 		* the loader. If you call hideLoader one more time - it will.
 		*/
-		public static showLoader(): void
-		{
+		public static showLoader(): void {
 			if ( !LoaderBase.loaderBackdrop )
 				LoaderBase.createLoaderModal();
 
@@ -142,8 +131,7 @@ module Animate
 		/**
 		* see showLoader for information on the hideLoader
 		*/
-		public static hideLoader()
-		{
+		public static hideLoader() {
 			LoaderBase.showCount--;
 
 			jQuery( ".loader-text", LoaderBase.loaderBackdrop ).text( "LOADING: " + LoaderBase.showCount + "%..." );
@@ -155,8 +143,7 @@ module Animate
 		/**
 	   * Cleans up the object
 	   */
-		dispose()
-		{
+		dispose() {
 			//Call super
 			super.dispose();
 			this.data = null;

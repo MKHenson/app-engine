@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* A property editor which edits objects and strings
 	*/
-    export class PGTextbox extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGTextbox extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropText)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component)  {
             var p = <PropText>prop;
 
             // Create HTML
@@ -40,8 +35,7 @@ module Animate
             container.element.append(editor);
 
 			//Function to deal with user interactions with JQuery
-            var valueEdited = function (e: JQueryEventObject )
-            {
+            var valueEdited = function (e: JQueryEventObject ) {
                 p.setVal( jQuery("input", editor).val() );
 			};
 

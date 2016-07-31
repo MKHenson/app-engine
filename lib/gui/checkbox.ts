@@ -1,18 +1,15 @@
-module Animate
-{
+module Animate {
 	/**
 	* A wrapper class for checkboxes
 	*/
-	export class Checkbox extends Component
-	{
+	export class Checkbox extends Component {
 		private checkbox: Component;
 		private textfield: Component;
 
 		/**
 		* A wrapper class for checkboxes
 		*/
-		constructor( parent: Component, text : string, checked : boolean, html: string = "<div class='checkbox'></div>" )
-		{
+		constructor( parent: Component, text : string, checked : boolean, html: string = "<div class='checkbox'></div>" ) {
 			// Call super-class constructor
 			super( html, parent );
 
@@ -24,32 +21,27 @@ module Animate
 		}
 
 		/**Sets if the checkbox is checked.*/
-		set checked( val : boolean )
-		{
+		set checked( val : boolean ) {
 			this.checkbox.element.prop( "checked", val );
 		}
 
 		/**Gets if the checkbox is checked.*/
-		get checked(): boolean
-		{
+		get checked(): boolean {
 			return this.checkbox.element.prop( "checked" );
 		}
 
 		/**Sets the checkbox label text*/
-		set text( val: string )
-		{
+		set text( val: string ) {
 			this.textfield.element.val( val );
 		}
 
 		/**Gets the checkbox label text*/
-		get text() : string
-		{
+		get text() : string {
 			return this.textfield.element.val();
 		}
 
 		/**This will cleanup the component.*/
-		dispose()
-		{
+		dispose() {
 			this.textfield = null;
 			this.checkbox = null;
 

@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This form is used to create or edit Portals.
 	*/
-    export class PortalForm extends Window
-	{
+    export class PortalForm extends Window {
 		private static _singleton: PortalForm;
 
 		private _typeCombo: ComboBox;
@@ -26,8 +24,7 @@ module Animate
         private $errorMsg: string;
 
 
-		constructor()
-        {
+		constructor() {
             // Call super-class constructor
 			super( 400, 250, true, true, "Portal Editor" );
 
@@ -69,8 +66,7 @@ module Animate
         /**
         * Generates all the available classes to select for asset property types
         */
-        generateClasses()
-        {
+        generateClasses() {
             // Clear cobos
             this._assetClassCombo.clearItems();
             this._typeCombo.clearItems();
@@ -82,8 +78,7 @@ module Animate
             // Get and sort all asset classes
             var classes: Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
 
-            classes = classes.sort(function (a: AssetClass, b: AssetClass)
-            {
+            classes = classes.sort(function (a: AssetClass, b: AssetClass) {
                 var textA = a.name.toUpperCase();
                 var textB = b.name.toUpperCase();
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
@@ -102,10 +97,8 @@ module Animate
 		/**
         * When the type combo is selected
         */
-		onTypeSelect(responce: ListEvents, event: ListEvent )
-        {
-            if (event.item == Animate.PropertyType[Animate.PropertyType.ASSET] )
-            {
+		onTypeSelect(responce: ListEvents, event: ListEvent ) {
+            if (event.item == Animate.PropertyType[Animate.PropertyType.ASSET] ) {
     //            // Get and sort all asset classes
 				//this._assetClassCombo.clearItems();
 				//var classes : Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
@@ -132,8 +125,7 @@ module Animate
 		* Creates a new property from the data chosen
 		* @param {Prop<any>}
 		*/
-        getProperty(): Prop<any>
-        {
+        getProperty(): Prop<any> {
             return new Prop(this.$name, this._value);
         }
 
@@ -147,8 +139,7 @@ module Animate
 		//showForm( item: Behaviour, type: PortalType, caption: string )
 		//showForm( item: Canvas, type: PortalType, caption: string )
         //showForm( item : any, type : PortalType, caption : string )
-        editPortal(property: Prop<any>, type: PortalType, nameVerifier : (name: string) => boolean)
-        {
+        editPortal(property: Prop<any>, type: PortalType, nameVerifier : (name: string) => boolean) {
             this.generateClasses();
 			//var types :Array<string> = PluginManager.getSingleton().dataTypes;
 
@@ -182,16 +173,14 @@ module Animate
 			//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
 			//( <ComboBox>this._type.val).selectBox.element.removeClass( "red-border" );
 
-			if ( type == PortalType.OUTPUT || type == PortalType.INPUT )
-			{
+			if ( type == PortalType.OUTPUT || type == PortalType.INPUT ) {
 				//this._type.element.hide();
                 //this._assetType.element.hide();
                 this._typeCombo.element.hide();
                 this._assetClassCombo.element.hide();
 				this._value = true;
 			}
-			else
-			{
+			else {
 				//this._type.element.show();
                 this._typeCombo.element.show();
 
@@ -220,10 +209,8 @@ module Animate
             jQuery("#portal-name", this._formElm).focus();
 
             var that = this;
-            return new Promise<{ prop: Prop<any>, cancel: boolean }>(function (resolve, reject)
-            {
-                var onEvent = function (type, event: RenameFormEvent)
-                {
+            return new Promise<{ prop: Prop<any>, cancel: boolean }>(function (resolve, reject) {
+                var onEvent = function (type, event: RenameFormEvent) {
                     if (type == "property-created")
                         resolve({ prop: that._newProperty, cancel: false });
                     else
@@ -241,8 +228,7 @@ module Animate
         /**
         * Hides the window from view
         */
-        hide()
-        {
+        hide() {
             if (!this._fromOk)
                 this.emit(new Event("cancelled"));
 
@@ -254,8 +240,7 @@ module Animate
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
 		* and pass the text either for the ok or cancel buttons.
         */
-        ok()
-		{
+        ok() {
 			//if ( jQuery( e.target ).text() == "Ok" )
 			//{
 				//Check if the values are valid
@@ -265,20 +250,17 @@ module Animate
             var newName = this.$name;// jQuery.trim( (<Label>this._name.val).text);
             this.$errorMsg = "";
 
-            if (newName.trim() == "")
-            {
+            if (newName.trim() == "") {
                 this.$errorMsg = "Name cannot be empty";
                 return Compiler.digest(this._formElm, this);
             }
 
-            if (this._typeCombo.selectedIndex == 0 && (this._portalType == PortalType.PARAMETER || this._portalType == PortalType.PRODUCT) )
-            {
+            if (this._typeCombo.selectedIndex == 0 && (this._portalType == PortalType.PARAMETER || this._portalType == PortalType.PRODUCT) ) {
                 this.$errorMsg = "Please select a valid property type";
                 return Compiler.digest(this._formElm, this);
             }
 
-            if (this._typeCombo.selectedItem == PropertyType[PropertyType.ASSET] && this._assetClassCombo.selectedIndex == 0)
-            {
+            if (this._typeCombo.selectedItem == PropertyType[PropertyType.ASSET] && this._assetClassCombo.selectedIndex == 0) {
                 this.$errorMsg = "Please select a valid asset sub-class";
                 return Compiler.digest(this._formElm, this);
             }
@@ -344,16 +326,14 @@ module Animate
             else
                 this._newProperty = Utils.createProperty(this.$name, PropertyType[this._typeCombo.selectedItem]);
 
-            if (this._newProperty instanceof PropAsset && this._newProperty.type == PropertyType.ASSET)
-            {
+            if (this._newProperty instanceof PropAsset && this._newProperty.type == PropertyType.ASSET) {
                 if (this._assetClassCombo.selectedIndex < 2)
                     (<PropAsset>this._newProperty).classNames = [];
                 else
                     (<PropAsset>this._newProperty).classNames = [this._assetClassCombo.selectedItem];
             }
 
-            if (!this._nameVerifier(this.$name))
-            {
+            if (!this._nameVerifier(this.$name)) {
                 this.$errorMsg = `The name ${this.$name} is already in use, please choose another`;
                 return Compiler.digest(this._formElm, this);
             }
@@ -390,8 +370,7 @@ module Animate
 		get portalType(): PortalType { return this._portalType; }
         //get value(): any { return this._value; }
         get value(): any { return this._newProperty.getVal(); }
-        get parameterType(): PropertyType
-        {
+        get parameterType(): PropertyType {
             if (this._portalType != PortalType.INPUT && this._portalType != PortalType.OUTPUT)
                 //    return <PropertyType>parseInt(this._typeCombo.selectedItem);
                 this._newProperty.type;
@@ -403,8 +382,7 @@ module Animate
         * Gets the singleton instance.
         * @returns {PortalForm}
         */
-		static getSingleton(): PortalForm
-		{
+		static getSingleton(): PortalForm {
 			if ( !PortalForm._singleton )
 				new PortalForm();
 

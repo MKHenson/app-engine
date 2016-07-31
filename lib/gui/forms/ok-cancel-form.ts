@@ -1,7 +1,5 @@
-module Animate
-{
-	export class OkCancelFormEvents extends ENUM
-	{
+module Animate {
+	export class OkCancelFormEvents extends ENUM {
 		constructor(v: string) { super(v); }
 
 		static CONFIRM: OkCancelFormEvents = new OkCancelFormEvents("ok_cancel_confirm");
@@ -12,8 +10,7 @@ module Animate
 	/**
 	* A simple form which holds a heading, content and OK / Cancel buttons.
 	*/
-	export class OkCancelForm extends Window
-	{
+	export class OkCancelForm extends Window {
 		public okCancelContent: Component;
 		private mButtonContainer: Component;
 		private mOk: Button;
@@ -27,8 +24,7 @@ module Animate
 		* @param {boolean} controlBox Does this window have a draggable title bar and close button
 		* @param {string} title The text for window heading. Only applicable if we are using a control box.
 		*/
-		constructor( width: number = 400, height : number = 400, autoCenter : boolean = true, controlBox : boolean = false, title : string = "", hideCancel : boolean = false )
-		{
+		constructor( width: number = 400, height : number = 400, autoCenter : boolean = true, controlBox : boolean = false, title : string = "", hideCancel : boolean = false ) {
 			// Call super-class constructor
 			super( width, height, autoCenter, controlBox, title );
 
@@ -58,8 +54,7 @@ module Animate
 		* When we click on the close button
 		* @param {any} e The jQuery event object
 		*/
-		onCloseClicked( e )
-		{
+		onCloseClicked( e ) {
 			var event: OkCancelFormEvent = new OkCancelFormEvent( OkCancelFormEvents.CONFIRM, "Cancel" );
 			this.emit( event );
 			if ( event.cancel === false )
@@ -71,8 +66,7 @@ module Animate
 		* and pass the text either for the ok or cancel buttons.
 		* @param {any} e The jQuery event
 		*/
-		OnButtonClick( e )
-		{
+		OnButtonClick( e ) {
 			var event: OkCancelFormEvent = new OkCancelFormEvent( OkCancelFormEvents.CONFIRM, jQuery( e.target ).text() )
 			this.emit( event );
 			if ( event.cancel === false )
@@ -82,8 +76,7 @@ module Animate
 		/**
 		* Hides the window
 		*/
-		hide()
-		{
+		hide() {
 			super.hide();
 
 			jQuery( "body" ).off( "keydown", this.keyProxy );
@@ -92,8 +85,7 @@ module Animate
 		/**
 		* This function is used to cleanup the object before its removed from memory.
 		*/
-		dispose()
-		{
+		dispose() {
 			this.mOk.element.off();
 			this.mCancel.element.off();
 			jQuery( "body" ).off( "keydown", this.keyProxy );
@@ -117,8 +109,7 @@ module Animate
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-		show( parent: Component = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false )
-		{
+		show( parent: Component = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
 			//var x = jQuery( "body" ).width() / 2 - this.element.width() / 2;
 			//var y = jQuery( "body" ).height() / 2 - this.element.height() / 2;
 
@@ -138,8 +129,7 @@ module Animate
 		* Catch the key down events.
 		* @param {any} e The jQuery event object
 		*/
-		onKeyDown( e )
-		{
+		onKeyDown( e ) {
 			//If delete pressed
 			if ( e.keyCode == 13 )
 				this.mOk.element.trigger( "click" );

@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* The link class are the lines drawn from behavior portals
 	*/
-    export class Link extends CanvasItem
-	{
+    export class Link extends CanvasItem {
 		public startPortal: Portal;
         public endPortal: Portal;
         public delta: number;
@@ -29,8 +27,7 @@ module Animate
 		/**
 		* @param {Canvas} parent The parent {Canvas} of the link
 		*/
-		constructor( parent : Component )
-		{
+		constructor( parent : Component ) {
 			// Call super-class constructor
 			super( "<canvas class='link' style='pointer-events:none'></canvas>", parent );
 
@@ -56,8 +53,7 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {ILinkItem}
         */
-        tokenize(slim: boolean = false): ILinkItem
-        {
+        tokenize(slim: boolean = false): ILinkItem {
             var toRet = <ILinkItem>super.tokenize(slim);
             toRet.endBehaviour = this._endBehaviour.shallowId;
             toRet.startBehaviour = this._startBehaviour.shallowId;
@@ -73,8 +69,7 @@ module Animate
         * De-Tokenizes data from a JSON.
         * @param {ILinkItem} data The data to import from
         */
-        deTokenize(data: ILinkItem)
-        {
+        deTokenize(data: ILinkItem) {
             super.deTokenize(data);
             this._properties.getVar("Frame Delay").setVal(data.frameDelay);
         }
@@ -85,13 +80,11 @@ module Animate
         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
         * or to get the token you can use items[originalId].token
         */
-        link(originalId: number, items: LinkMap)
-        {
+        link(originalId: number, items: LinkMap) {
             var exportedToken = <ILinkItem>items[originalId].token;
 
             // This link was probably copied - but not with both of the end behavours - so remove it
-            if (!items[exportedToken.endBehaviour] || !items[exportedToken.startBehaviour])
-            {
+            if (!items[exportedToken.endBehaviour] || !items[exportedToken.startBehaviour]) {
                 this.dispose();
                 return;
             }
@@ -114,8 +107,7 @@ module Animate
 		* @param {Portal} startPortal
 		* @param {any} e
 		*/
-		start( startPortal : Portal, e )
-		{
+		start( startPortal : Portal, e ) {
 			this.startPortal = startPortal;
 
 			// Attach events
@@ -149,8 +141,7 @@ module Animate
 		* Check if a point is actually selecting the link
 		* @param {any} e
 		*/
-		hitTestPoint( e : any )
-		{
+		hitTestPoint( e : any ) {
 			var mouse = Utils.getMousePos( e, this.id );// this.getMousePos( e );
 
 			// Get image data at the mouse x,y pixel
@@ -168,8 +159,7 @@ module Animate
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-		set selected( val: boolean )
-		{
+		set selected( val: boolean ) {
 			// If we are not changing the selected state, then do nothing
 			if ( this._selected === val )
 				return;
@@ -192,8 +182,7 @@ module Animate
 		/**
 		* Builds the dimensions of link based on the line points
 		*/
-		buildDimensions()
-		{
+		buildDimensions() {
 			var linePoints = this._linePoints;
 			var canvas = this._canvas;
 
@@ -205,8 +194,7 @@ module Animate
 			var bottom = 0;
 
 			// Get the extremes
-			for ( var i = 0; i < length; i++ )
-			{
+			for ( var i = 0; i < length; i++ ) {
 				var x = linePoints[i].x;
 				var y = linePoints[i].y;
 
@@ -240,8 +228,7 @@ module Animate
 			});
 
 			// Now reset the points so that they are relative
-			for ( var i = 0; i < length; i++ )
-			{
+			for ( var i = 0; i < length; i++ ) {
 				var lp = linePoints[i];
 				lp.x = ( lp.x - left ) + 5;
 				lp.y = ( lp.y - top ) + 5;
@@ -251,8 +238,7 @@ module Animate
 		/**
 		* Use this function to build the line points that define the link
 		*/
-		buildLinePoints( e )
-		{
+		buildLinePoints( e ) {
 			var linePoints = this._linePoints;
 
 			// We create a list of array points that define the link
@@ -272,14 +258,12 @@ module Animate
 			var endX = 0;
 			var endY = 0;
 
-			if ( this.endPortal != null )
-			{
+			if ( this.endPortal != null ) {
 				var endPositionOnCanvas = this.endPortal.positionOnCanvas();
 				endX = endPositionOnCanvas.left + delta;
 				endY = endPositionOnCanvas.top + delta;
 			}
-			else
-			{
+			else {
 				if ( e == null )
 					return;
 
@@ -289,12 +273,10 @@ module Animate
 			}
 
 			// Now the end coords
-			if ( this.endPortal != null )
-			{
+			if ( this.endPortal != null ) {
 				// If this loops on itself then we need to make it look nice.
 				if ( this.startPortal.behaviour == this.endPortal.behaviour &&
-					this.startPortal != this.endPortal )
-				{
+					this.startPortal != this.endPortal ) {
 					// First the start points
 					linePoints.push( { x: startX, y: startY });
 					if ( this.startPortal.type == PortalType.OUTPUT )
@@ -313,14 +295,12 @@ module Animate
 					linePoints.push( { x: behaviourLeft + behaviourWidth + 20, y: startY });
 					linePoints.push( { x: behaviourLeft + behaviourWidth + 20, y: behaviourTop - 20 });
 
-					if ( this.endPortal.type == PortalType.INPUT )
-					{
+					if ( this.endPortal.type == PortalType.INPUT ) {
 						linePoints.push( { x: behaviourLeft - 20, y: behaviourTop - 20 });
 						linePoints.push( { x: behaviourLeft - 20, y: endY });
 					}
 
-					if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT )
-					{
+					if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT ) {
 						// Set the 'just before end' point
 						if ( this.endPortal.type == PortalType.INPUT )
 							linePoints.push( { x: endX - 10, y: endY });
@@ -328,8 +308,7 @@ module Animate
 							linePoints.push( { x: endX, y: endY - 10 });
 					}
 				}
-				else if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT )
-				{
+				else if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT ) {
 					// First the start points
 					linePoints.push( { x: startX, y: startY });
 					if ( this.startPortal.type == PortalType.OUTPUT )
@@ -345,8 +324,7 @@ module Animate
 						linePoints.push( { x: endX, y: endY - 20 });
 				}
 			}
-			else
-			{
+			else {
 				// First the start points
 				linePoints.push( { x: startX, y: startY });
 				if ( this.startPortal.type == PortalType.OUTPUT )
@@ -364,8 +342,7 @@ module Animate
 		/**
 		* Updates the link points (should they have been moved).
 		*/
-		updatePoints()
-		{
+		updatePoints() {
 			// First build the points
 			this.buildLinePoints( null );
 
@@ -381,8 +358,7 @@ module Animate
 		* When the mouse moves we resize the stage.
 		* @param {any} e
 		*/
-		onMouseMove( e )
-		{
+		onMouseMove( e ) {
 			var curTarget : Component = this._curTarget;
 
 			// Check if a portal
@@ -392,8 +368,7 @@ module Animate
 
 			var target = jQuery( e.target );
 			this.endPortal = null;
-			if ( target.hasClass( "portal" ) )
-			{
+			if ( target.hasClass( "portal" ) ) {
 				this._curTarget = target.data( "component" );
 				curTarget = this._curTarget;
 				this.endPortal = <Portal>curTarget;
@@ -403,8 +378,7 @@ module Animate
 				else
 					curTarget.element.css( "cursor", "no-drop" );
 			}
-			else
-			{
+			else {
 				target.css( "cursor", "crosshair" );
 				this._curTarget = target.data( "component" );
 			}
@@ -423,8 +397,7 @@ module Animate
 		 /**
 		* Draws a series of lines
 		*/
-		draw() : void
-		{
+		draw() : void {
 			var points = this._linePoints;
 			var len = points.length;
 
@@ -446,8 +419,7 @@ module Animate
 			graphics.lineJoin = 'round';
 
 
-			if ( startPortal.type != PortalType.OUTPUT )
-			{
+			if ( startPortal.type != PortalType.OUTPUT ) {
 				// Set dashed lines (only some browsers support this)
                 if (graphics.setLineDash !== undefined)
                     graphics.setLineDash([5]);
@@ -459,33 +431,28 @@ module Animate
 			if ( endPortal && startPortalBehaviour == endPortalBehaviour && startPortal != endPortal )
 				loops = true;
 
-			for ( var i = 1; i < len; i++ )
-			{
+			for ( var i = 1; i < len; i++ ) {
 				pt1 = { x: points[i - 1].x, y: points[i - 1].y };
 				pt2 = { x: points[i].x, y: points[i].y };
 
 				var midpt = { x: pt1.x + ( pt2.x - pt1.x ) * 0.5, y: pt1.y + ( pt2.y - pt1.y ) / 2 };
 
 				// Draw the curves:
-				if ( !loops )
-				{
-					if ( prevMidpt )
-					{
+				if ( !loops ) {
+					if ( prevMidpt ) {
 						graphics.moveTo( prevMidpt.x, prevMidpt.y );
 						if ( !loops )
 							graphics.quadraticCurveTo( pt1.x, pt1.y, midpt.x, midpt.y );
 						else
 							graphics.lineTo( pt1.x, pt1.y );
 					}
-					else
-					{
+					else {
 						// Draw start segment:
 						graphics.moveTo( pt1.x, pt1.y );
 						graphics.lineTo( midpt.x, midpt.y );
 					}
 				}
-				else
-				{
+				else {
 					// Draw start segment:
 					graphics.moveTo( pt1.x, pt1.y );
 					graphics.lineTo( pt2.x, pt2.y );
@@ -499,8 +466,7 @@ module Animate
 			if ( pt2 )
 				graphics.lineTo( pt2.x, pt2.y - 1 );
 
-			if ( startPortal.type == PortalType.OUTPUT )
-			{
+			if ( startPortal.type == PortalType.OUTPUT ) {
 				graphics.lineWidth = 3;
 				if ( element.data( "selected" ) )
 					graphics.strokeStyle = "#FF0000";
@@ -514,13 +480,11 @@ module Animate
 				var canvasW : number = 0;
                 var canvasH: number = 0;
 
-                if (loops)
-                {
+                if (loops) {
                     canvasW = canvas.width * 0.5 - 5;
                     canvasH = 8;
                 }
-                else
-                {
+                else {
                     canvasW = canvas.width * 0.5 - 5;
                     canvasH = canvas.height * 0.5 + 3;
                 }
@@ -530,8 +494,7 @@ module Animate
 				graphics.strokeText( frameDelay.toString(), canvasW, canvasH );
 				graphics.fillText( frameDelay.toString(), canvasW, canvasH );
 			}
-			else
-			{
+			else {
 				// Draw pipe lines
 				graphics.lineWidth = 2;
 				if ( element.data( "selected" ) )
@@ -547,8 +510,7 @@ module Animate
 		* Remove listeners.
 		* @param {any} e
 		*/
-		onMouseUpAnchor( e )
-		{
+		onMouseUpAnchor( e ) {
 			if ( this._curTarget )
 				this._curTarget.element.css( "cursor", "" );
 
@@ -562,21 +524,17 @@ module Animate
 				jQuery( ".input" ).removeClass( "green-glow" );
 
 			var elm : JQuery = jQuery( e.target );
-			if ( elm.hasClass( "portal" ) )
-			{
+			if ( elm.hasClass( "portal" ) ) {
 				this._curTarget = elm.data( "component" );
 
 				if ( this._curTarget.type == PortalType.PRODUCT || this._curTarget.type == PortalType.OUTPUT )
 					this.dispose();
-				else
-				{
+				else {
 					if (
 						( this.startPortal.type == PortalType.OUTPUT && this._curTarget.type == PortalType.INPUT ) ||
 						( this.startPortal.type == PortalType.PRODUCT && this._curTarget.type == PortalType.PARAMETER )
-						)
-					{
-						if ( this._curTarget.checkPortalLink( this.startPortal ) )
-						{
+						) {
+						if ( this._curTarget.checkPortalLink( this.startPortal ) ) {
 							//Drop is ok
 							this.parent.element.off( "mousemove", this._mouseMoveProxy );
 							this.parent.element.off( "mouseup" );
@@ -600,8 +558,7 @@ module Animate
 						this.dispose();
 				}
 			}
-			else
-			{
+			else {
 				this.dispose();
 			}
 
@@ -611,8 +568,7 @@ module Animate
         /**
         * When the link properties are edited
         */
-        onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
-        {
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher) {
             this.draw();
         }
 
@@ -625,8 +581,7 @@ module Animate
 		/**
 		* Cleanup the link
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			if ( this.startPortal && this.startPortal instanceof Portal )
 				this.startPortal.removeLink( this );
 			if ( this.endPortal && this.endPortal instanceof Portal )

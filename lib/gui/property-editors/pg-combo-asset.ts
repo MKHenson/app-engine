@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* This represents a combo property for assets that the user can select from a list.
 	*/
-    export class PGComboAsset extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGComboAsset extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
 		}
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropAsset && prop.type == PropertyType.ASSET)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropAsset>prop;
 
 			// Create HTML
@@ -49,8 +44,7 @@ module Animate
             selector.append(`<option value='' ${(!selectedID ? "selected='selected'" : "" )}></option>` );
 
 			// Sort alphabetically
-			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance )
-			{
+			nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
                 var textA = a.resource.entry.name.toUpperCase();
                 var textB = b.resource.entry.name.toUpperCase();
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -63,16 +57,14 @@ module Animate
 			var that = this;
 
 			// When we select a new asset
-            var onSelect = function (e: JQueryEventObject  )
-			{
+            var onSelect = function (e: JQueryEventObject  ) {
                 var val = parseFloat(selector.val());
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
                 p.setVal(asset);
             };
 
             // When we click on the target
-            var onEye = function (e: JQueryEventObject)
-			{
+            var onEye = function (e: JQueryEventObject) {
 				var val = parseInt( selector.val() );
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 				if ( asset )

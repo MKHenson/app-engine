@@ -1,15 +1,12 @@
-module Animate
-{
+module Animate {
 	/**
 	* A small holder div that emulates C# style grids. Use the content variable instead of the group directly
 	*/
-	export class Group extends Component
-	{
+	export class Group extends Component {
 		private heading: Label;
 		public content: Component;
 
-		constructor( text, parent  )
-		{
+		constructor( text, parent  ) {
             super( "<div class='group'><div class='group-header background'></div><div class='group-content'></div></div>", parent );
 
 			this.heading = new Label( text, this );
@@ -29,8 +26,7 @@ module Animate
 		/**
 		* This will cleanup the <Group>.
 		*/
-		dispose()
-		{
+		dispose() {
 			this.heading = null;
 			this.content = null;
 

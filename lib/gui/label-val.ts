@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* A small component that represents a text - value pair
 	*/
-	export class LabelVal extends Component
-	{
+	export class LabelVal extends Component {
 		private label: Label;
 		private _val: Component;
 
@@ -14,8 +12,7 @@ module Animate
 		* @param {Component} val The component we are pairing with the label
 		* @param {any} css An optional css object to apply to the val component
 		*/
-		constructor( parent: Component, text: string, val : Component, css : any = null )
-		{
+		constructor( parent: Component, text: string, val : Component, css : any = null ) {
 			// Call super-class constructor
 			super( "<div class='label-val'></div>", parent );
 
@@ -29,8 +26,7 @@ module Animate
 		}
 
 		/**This will cleanup the component.*/
-		dispose()
-		{
+		dispose() {
 			this.label.dispose();
 			this.val.dispose();
 

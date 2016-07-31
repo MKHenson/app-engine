@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* A property editor which edits numbers
 	*/
-    export class PGNumber extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGNumber extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropNum)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropNum>prop;
 
             //Create HTML
@@ -47,8 +42,7 @@ module Animate
 			var that = this;
 
 			// Function to deal with user interactions with JQuery
-            var valueEdited = function (e: JQueryEventObject )
-			{
+            var valueEdited = function (e: JQueryEventObject ) {
 				var val: number = parseFloat( jQuery( "input", editor ).val() );
 				if ( isNaN( val ) )
 					val = 0;

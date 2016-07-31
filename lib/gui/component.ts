@@ -1,7 +1,5 @@
-module Animate
-{
-	export class ComponentEvents extends ENUM
-	{
+module Animate {
+	export class ComponentEvents extends ENUM {
 		constructor(v: string) { super(v); }
 		static UPDATED: ComponentEvents = new ComponentEvents("component_updated");
 	}
@@ -10,8 +8,7 @@ module Animate
 	* The base class for all visual elements in the application. The {Component} class
 	* contains a reference of a jQuery object that points to the {Component}'s DOM representation.
 	*/
-	export class Component extends EventDispatcher implements IComponent
-	{
+	export class Component extends EventDispatcher implements IComponent {
 		public static idCounter: number = 0;
 
 		private _element : JQuery;
@@ -30,8 +27,7 @@ module Animate
 
 		public savedID: string;
 
-        constructor(html: string | JQuery, parent: Component = null)
-		{
+        constructor(html: string | JQuery, parent: Component = null) {
 			super();
 
 			if ( !html )
@@ -55,8 +51,7 @@ module Animate
 			this._parent = parent;
 
 			// Associate the id and component
-            if (!this._element.attr("id"))
-            {
+            if (!this._element.attr("id")) {
                 this._id = "i" + Component.idCounter;
                 this._element.attr("id", this._id);
             }
@@ -70,8 +65,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child {Component}s
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			if ( this.disposed )
 				return;
 
@@ -104,15 +98,13 @@ module Animate
 		* Typically used in sizing operations.
 		* @param {boolean} updateChildren Set this to true if you want the update to proliferate to all the children components.
 		*/
-		update(updateChildren : boolean = true)
-		{
+		update(updateChildren : boolean = true) {
 			var layouts: Array<ILayout> = this._layouts;
 			var i = layouts.length;
 			while (i--)
 				layouts[i].update(this);
 
-			if (updateChildren)
-			{
+			if (updateChildren) {
 				var children: Array<IComponent> = this._children;
 				i = children.length;
 				while (i--)
@@ -127,8 +119,7 @@ module Animate
 		* @param {ILayout} layout The layout object we want to add
 		* @returns {ILayout} The layout that was added
 		*/
-		addLayout(layout: ILayout): ILayout
-		{
+		addLayout(layout: ILayout): ILayout {
 			this._layouts.push(layout);
 			return layout;
 		}
@@ -138,8 +129,7 @@ module Animate
 		* @param {ILayout} layout The layout to remove
 		* @returns {ILayout} The layout that was removed
 		*/
-		removeLayout(layout: ILayout): ILayout
-		{
+		removeLayout(layout: ILayout): ILayout {
 			if (jQuery.inArray(layout, this._layouts) == -1)
 				return null;
 
@@ -160,23 +150,19 @@ module Animate
 		* @param {string | IComponent | JQuery} child The child component we want to add
 		* @returns {IComponent} The added component
 		*/
-        addChild(child: string | IComponent | JQuery): IComponent
-		{
+        addChild(child: string | IComponent | JQuery): IComponent {
 			// Remove from previous parent
             var parent: Component;
             var toAdd: Component = null;
 
-            if (child instanceof Component)
-            {
+            if (child instanceof Component) {
                 toAdd = child;
                 parent = child.parent;
             }
-            else
-            {
+            else {
                 if (typeof child === "string")
                     toAdd = new Component(child);
-                else if ((<JQuery>child).length != 0)
-                {
+                else if ((<JQuery>child).length != 0) {
                     var jq = <JQuery>child;
                     if (jq.parent() && jq.parent().data("component"))
                         parent = jq.parent().data("component");
@@ -207,8 +193,7 @@ module Animate
 		* @param {IComponent} child The {IComponent} to check
 		* @returns {boolean} true if the component is a child
 		*/
-        contains(child: IComponent): boolean
-        {
+        contains(child: IComponent): boolean {
             if (this._children.indexOf(child) == -1)
                 return false;
             return true;
@@ -220,8 +205,7 @@ module Animate
 		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
 		* @returns {IComponent} The {IComponent} we have removed
 		*/
-		removeChild(child: IComponent): IComponent
-		{
+		removeChild(child: IComponent): IComponent {
 			//Determine if the child is pure html or a component
 			if (jQuery.inArray(child, this._children) == -1)
 				return child;
@@ -236,8 +220,7 @@ module Animate
 		/**
 		* Removes all child nodes
 		*/
-		clear() : void
-		{
+		clear() : void {
 			var children: Array<IComponent> = this._children;
 			var i = children.length;
 			while (i--)
@@ -280,8 +263,7 @@ module Animate
 		/**
 		* Get or Set if the component is enabled and recieves mouse events
 		*/
-		set enabled(val : boolean)
-		{
+		set enabled(val : boolean) {
 			if (this._enabled == val)
 				return;
 
@@ -302,8 +284,7 @@ module Animate
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-		get selected(): boolean
-		{
+		get selected(): boolean {
 			if (this._element.hasClass("selected"))
 				return true;
 			else
@@ -313,8 +294,7 @@ module Animate
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-		set selected(val : boolean)
-		{
+		set selected(val : boolean) {
 			if (val)
 				this._element.addClass("selected");
 			else

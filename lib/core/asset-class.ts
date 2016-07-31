@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This class describes a template. These templates are used when creating assets.
 	*/
-	export class AssetClass
-	{
+	export class AssetClass {
 		private _abstractClass : boolean;
 		private _name: string;
 		public parentClass: AssetClass;
@@ -12,8 +10,7 @@ module Animate
         private _variables: Array<Prop<any>>;
 		public classes: Array<AssetClass>;
 
-		constructor( name: string, parent: AssetClass, imgURL : string, abstractClass : boolean = false )
-		{
+		constructor( name: string, parent: AssetClass, imgURL : string, abstractClass : boolean = false ) {
 			this._abstractClass = abstractClass;
 			this._name = name;
 			this.parentClass = parent;
@@ -26,15 +23,12 @@ module Animate
 		* Creates an object of all the variables for an instance of this class.
 		* @returns {EditableSet} The variables we are editing
 		*/
-		buildVariables(): EditableSet
-		{
+		buildVariables(): EditableSet {
 			var toRet: EditableSet = new EditableSet(null);
             var topClass: AssetClass = this;
-			while ( topClass != null )
-			{
+			while ( topClass != null ) {
 				//Add all the variables to the object we are returning
-				for ( var i = 0; i < topClass._variables.length; i++ )
-				{
+				for ( var i = 0; i < topClass._variables.length; i++ )  {
 					var variable = topClass._variables[i];
 
 					// If the variable is added by a child class - then do not add it from the parent
@@ -52,14 +46,12 @@ module Animate
 		/**
 		* Finds a class by its name. Returns null if nothing is found
 		*/
-        findClass(name: string): AssetClass
-		{
+        findClass(name: string): AssetClass {
 			if ( this._name == name )
 				return this;
 
 			var classes: Array<AssetClass> = this.classes;
-			for ( var i = 0, l = classes.length; i < l; i++ )
-			{
+			for ( var i = 0, l = classes.length; i < l; i++ ) {
 				var aClass: AssetClass = classes[i].findClass( name );
 				if ( aClass )
 					return aClass;
@@ -73,8 +65,7 @@ module Animate
 		* @param { Prop<any>} prop The property to add
 		* @returns {AssetClass} A reference to this AssetClass
 		*/
-        addVar(prop: Prop<any> ): AssetClass
-		{
+        addVar(prop: Prop<any> ): AssetClass  {
             this._variables.push(prop);
 			return this;
 		}
@@ -82,8 +73,7 @@ module Animate
 		/**
 		* This will clear and dispose of all the nodes
 		*/
-		dispose()
-		{
+		dispose() {
 			for ( var i = 0, l = this._variables.length; i < l; i++ )
 				this._variables[i].dispose();
 
@@ -103,8 +93,7 @@ module Animate
 		* @param {string} name The name of the class
 		* @returns {Prop<T>}
 		*/
-        getVariablesByName<T>(name: string): Prop<T>
-		{
+        getVariablesByName<T>(name: string): Prop<T> {
 			for ( var i = 0, l = this._variables.length; i < l; i++ )
 				if ( this._variables[i].name == name )
 					return this._variables[i];
@@ -131,8 +120,7 @@ module Animate
 		* @param {boolean} abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
 		* @returns {AssetClass}
 		*/
-		addClass( name: string, img: string, abstractClass: boolean ): AssetClass
-		{
+		addClass( name: string, img: string, abstractClass: boolean ): AssetClass {
 			var toAdd = new AssetClass( name, this, img, abstractClass );
 			this.classes.push( toAdd );
 			return toAdd;

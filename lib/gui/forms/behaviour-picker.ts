@@ -1,7 +1,5 @@
-module Animate
-{
-	export class BehaviourPickerEvents extends ENUM
-	{
+module Animate {
+	export class BehaviourPickerEvents extends ENUM {
 		constructor( v: string ) { super( v ); }
 
 		static BEHAVIOUR_PICKED: BehaviourPickerEvents = new BehaviourPickerEvents("behaviour_picker_picked");
@@ -9,8 +7,7 @@ module Animate
 
 
 
-	export class BehaviourPicker extends Window
-	{
+	export class BehaviourPicker extends Window {
 		private static _singleton: BehaviourPicker;
 
 		private _input: InputBox;
@@ -18,8 +15,7 @@ module Animate
 		private _X: number;
 		private _Y: number;
 
-		constructor()
-		{
+		constructor() {
             // Call super-class constructor
 			super( 200, 250 );
 
@@ -46,8 +42,7 @@ module Animate
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-		show( parent: Component = null, x: number = 0, y: number = 0, isModal: boolean = false, isPopup: boolean = false )
-		{
+		show( parent: Component = null, x: number = 0, y: number = 0, isModal: boolean = false, isPopup: boolean = false ) {
 			this._list.sort();
 
 			if ( y + this.element.height() > jQuery( "body" ).height() )
@@ -65,8 +60,7 @@ module Animate
 		* @param {any} e
 		* @returns {any}
 		*/
-		onListClick( e )
-		{
+		onListClick( e ) {
 			this._input.text = this._list.selectedItem;
 		}
 
@@ -75,8 +69,7 @@ module Animate
 		* @param {any} e
 		* @returns {any}
 		*/
-		onListDClick( e )
-		{
+		onListDClick( e ) {
 			this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
 			this.hide();
 		}
@@ -87,29 +80,24 @@ module Animate
 		* @param {any} e
 		* @returns {any}
 		*/
-		onKeyDown( e )
-		{
+		onKeyDown( e ) {
 			//Check for up and down keys
-			if ( e.keyCode == 38 || e.keyCode == 40 )
-			{
+			if ( e.keyCode == 38 || e.keyCode == 40 ) {
 				e.preventDefault();
 
 				//Get the selected item and move it up and down
 				var selected = this._list.selectedIndex;
-				if ( selected != -1 )
-				{
+				if ( selected != -1 ) {
 					var items: number = this._list.numItems();
 					//If up
-					if ( e.keyCode == 38 )
-					{
+					if ( e.keyCode == 38 ) {
 						if ( selected - 1 < 0 )
 							this._list.selectedIndex = items - 1;
 						else
 							this._list.selectedIndex = selected - 1;
 					}
 					//If down
-					else
-					{
+					else {
 						if ( selected + 1 < items )
 							this._list.selectedIndex = selected + 1;
 						else
@@ -123,15 +111,13 @@ module Animate
 			}
 
 			//If enter is pressed we select the current item
-			if ( e.keyCode == 13 )
-			{
+			if ( e.keyCode == 13 ) {
 				this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
 				this.hide();
 			}
 
 			var len = this._list.items.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				var v1 = this._list.items[i].text().toLowerCase();
 				var v2 = this._input.text.toLowerCase();
 				if ( v1.indexOf( v2 ) != -1 )
@@ -146,8 +132,7 @@ module Animate
 		* Gets the singleton instance.
 		* @returns {BehaviourPicker}
 		*/
-		static getSingleton(): BehaviourPicker
-		{
+		static getSingleton(): BehaviourPicker {
 			if ( !BehaviourPicker._singleton )
 				new BehaviourPicker();
 

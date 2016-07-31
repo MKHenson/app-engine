@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* A node for displaying comments
 	*/
-	export class BehaviourComment extends Behaviour
-	{
+	export class BehaviourComment extends Behaviour {
 		private isInInputMode: boolean;
 		private input: JQuery;
 		private stageClickProxy: any;
@@ -13,8 +11,7 @@ module Animate
 		private mOffsetX: number;
 		private mOffsetY: number;
 
-		constructor( parent : Component, text : string )
-		{
+		constructor( parent : Component, text : string ) {
 			// Call super-class constructor
 			super( parent, text );
 
@@ -51,8 +48,7 @@ module Animate
        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
        * @returns {IBehaviour}
        */
-        tokenize(slim: boolean = false): IBehaviour
-        {
+        tokenize(slim: boolean = false): IBehaviour {
             var toRet = <IBehaviourComment>super.tokenize(slim);
             toRet.type = CanvasItemType.BehaviourComment;
             toRet.width = this.element.width();
@@ -64,8 +60,7 @@ module Animate
        * De-Tokenizes data from a JSON.
        * @param {IBehaviourComment} data The data to import from
        */
-        deTokenize(data: IBehaviourComment)
-        {
+        deTokenize(data: IBehaviourComment) {
             super.deTokenize(data);
             this.element.css({ width: data.width + "px", height: data.height + "px" });
             this.properties.getVar("Comment").setVal(data.text);
@@ -74,32 +69,28 @@ module Animate
         /**
         * When the text property is edited
         */
-        onEdit(type: string, event: EditEvent, sender?: EventDispatcher)
-        {
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher) {
             this.text = event.property.getVal();
         }
 
 		/**
         * Does nothing...
         */
-		updateDimensions()
-		{
+		updateDimensions() {
 			return;
 		}
 
 		/**
         * When the mouse enters the behaviour
         */
-		onIn( e )
-		{
+		onIn( e ) {
 			this.element.css( "opacity", 1 );
 		}
 
 		/**
 		* A shortcut for jQuery's css property.
 		*/
-		css( propertyName: any, value?: any ): any
-		{
+		css( propertyName: any, value?: any ): any {
 			//Call super
 			var toRet = super.css( propertyName, value );
 
@@ -109,16 +100,14 @@ module Animate
 		/**
         * When the mouse enters the behaviour
         */
-		onOut( e )
-		{
+		onOut( e ) {
 			this.element.css( "opacity", 0.3 );
 		}
 
 		/**
         * When the resize starts.
         */
-		onResizeStart( event, ui )
-		{
+		onResizeStart( event, ui ) {
 			this.mStartX = this.element.css( "left" );
 			this.mStartY = this.element.css( "top" );
 
@@ -129,8 +118,7 @@ module Animate
 		/**
         * When the resize updates.
         */
-		onResizeUpdate( event, ui )
-		{
+		onResizeUpdate( event, ui ) {
 			this.element.css( { left: this.mStartX, top: this.mStartY });
 
 			var helper = jQuery( ui.helper );
@@ -140,8 +128,7 @@ module Animate
 		/**
         * When the resize stops.
         */
-		onResizeStop( event, ui )
-		{
+		onResizeStop( event, ui ) {
 			this.onStageClick( null );
 			this.element.css( { left: this.mStartX, top: this.mStartY });
 		}
@@ -149,8 +136,7 @@ module Animate
 		/**
         * Call this to allow for text editing in the comment.
         */
-		enterText()
-		{
+		enterText() {
 			if ( this.isInInputMode )
 				return false;
 
@@ -173,8 +159,7 @@ module Animate
 		/**
         * When we click on the stage we go out of edit mode.
         */
-		onStageClick( e )
-		{
+		onStageClick( e ) {
 			if ( this.isInInputMode == false )
 				return;
 
@@ -194,8 +179,7 @@ module Animate
 		/**
         * This will cleanup the component.
         */
-		dispose()
-        {
+		dispose() {
             this.off("edited", this.onEdit, this);
 			jQuery( "body" ).off( "click", this.stageClickProxy );
 			this.input.remove();

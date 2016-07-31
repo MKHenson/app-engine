@@ -1,13 +1,11 @@
-﻿module Animate
-{
+﻿module Animate {
     export type ProgressCallback = (percent: number) => void;
     export type CompleteCallback = (err?: Error, files?: Array<UsersInterface.IUploadToken>) => void;
 
     /*
     * A class that assembles data & files into a form and sends it as an XHR request to a server
     */
-    export class FileUploader
-    {
+    export class FileUploader {
         private _dCount: number;
         private _downloads: Array<{ id: number; total: number; loaded: number; }>;
         public percent: number;
@@ -20,8 +18,7 @@
         * @param {ProgressCallback} onProg Called when progress is made in the upload
         * @param {CompleteCallback} onComp Called when all uploads are complete
         */
-        constructor(onProg?: ProgressCallback, onComp?: CompleteCallback )
-        {
+        constructor(onProg?: ProgressCallback, onComp?: CompleteCallback ) {
             this.percent = 0;
             this._dCount = 0;
             this._onProg = onProg;
@@ -33,8 +30,7 @@
         * Returns the number of active downloads
         * @returns {number}
         */
-        get numDownloads(): number
-        {
+        get numDownloads(): number {
             return this._downloads.length;
         }
 
@@ -45,8 +41,7 @@
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        uploadFile(file: File, meta?: any, parentFile?: string)
-        {
+        uploadFile(file: File, meta?: any, parentFile?: string) {
             var formData = new FormData();
 
             // Attaching meta
@@ -64,12 +59,10 @@
        * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string)
-        {
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string)  {
             var canvas: HTMLCanvasElement;
 
-            if (img instanceof HTMLImageElement)
-            {
+            if (img instanceof HTMLImageElement) {
                 // Create an empty canvas element
                 canvas = document.createElement("canvas");
                 canvas.width = img.width;
@@ -128,8 +121,7 @@
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string)
-        {
+        uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string ) {
             var formData = new FormData();
 
             // Attaching meta
@@ -147,8 +139,7 @@
         * @param {any} meta [Optional] Any additional meta to be associated with the upload
         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string)
-        {
+        uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string) {
             var formData = new FormData();
 
             // Attaching meta
@@ -167,10 +158,8 @@
         * @param {string} identifier Helps identify the upload
         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        upload(form: FormData, url: string, identifier: string, parentFile?: string)
-        {
-            if (!url)
-            {
+        upload(form: FormData, url: string, identifier: string, parentFile?: string) {
+            if (!url) {
                 var details = User.get.entry;
                 url = `${DB.USERS}/media/upload/${details.username}-bucket${(parentFile ? "/" + parentFile : "")}`;
             }
@@ -185,8 +174,7 @@
             // Add the download token
             that._downloads.push( { id: id, loaded: 0, total: 0 } );
 
-            var calcProgress = function()
-            {
+            var calcProgress = function() {
                 if (!cb)
                     return;
 
@@ -194,8 +182,7 @@
                 var total = 0;
                 var loaded = 0;
 
-                for (var i = 0, l = that._downloads.length; i < l; i++)
-                {
+                for (var i = 0, l = that._downloads.length; i < l; i++) {
                     total += that._downloads[i].total;
                     loaded += that._downloads[i].loaded;
                 }
@@ -204,12 +191,10 @@
                 cb(that.percent);
             }
 
-            xhr.onerror = function (ev)
-            {
+            xhr.onerror = function (ev) {
                 // Remove the download from the array
                 for (var i = 0, l = that._downloads.length; i < l; i++)
-                    if (that._downloads[i].id == id)
-                    {
+                    if (that._downloads[i].id == id) {
                         that._downloads.splice(i, 1);
                         break;
                     }
@@ -218,13 +203,10 @@
                 calcProgress();
             };
 
-            if (cb && xhr.upload)
-            {
-                xhr.upload.onprogress = function (e)
-                {
+            if (cb && xhr.upload) {
+                xhr.upload.onprogress = function (e) {
                     for (var i = 0, l = that._downloads.length; i < l; i++)
-                        if (that._downloads[i].id == id)
-                        {
+                        if (that._downloads[i].id == id) {
                             that._downloads[i].total = e.total;
                             that._downloads[i].loaded = e.loaded;
                             break;
@@ -234,15 +216,12 @@
                 };
             }
 
-            xhr.onreadystatechange = function ()
-            {
+            xhr.onreadystatechange = function () {
                 // Every thing ok, file uploaded
-                if (xhr.readyState == 4)
-                {
+                if (xhr.readyState == 4) {
                     // Remove the download from the array
                     for (var i = 0, l = that._downloads.length; i < l; i++)
-                        if (that._downloads[i].id == id)
-                        {
+                        if (that._downloads[i].id == id) {
                             that._downloads.splice(i, 1);
                             break;
                         }
@@ -252,21 +231,16 @@
 
                     if (xhr.status !== 200)
                         errorMsg = "XHR returned response code : " + xhr.status;
-                    else
-                    {
+                    else {
                         var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
 
-                        if (data.error)
-                        {
+                        if (data.error) {
                             errorMsg = data.message;
                             comp(new Error(errorMsg), null);
                         }
-                        else
-                        {
-                            if (that._downloads.length == 0)
-                            {
-                                if (comp)
-                                {
+                        else {
+                            if (that._downloads.length == 0) {
+                                if (comp) {
                                     if (errorMsg)
                                         comp(new Error(errorMsg), null);
                                     else

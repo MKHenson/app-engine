@@ -1,29 +1,24 @@
-module Animate
-{
-    export interface ILoginFormProps
-    {
+module Animate {
+    export interface ILoginFormProps {
         onLogin: () => void;
         onLoadingChange? : (loading: boolean) => void;
         switchMode: () => void;
     }
 
-    export interface ILoginFormState
-    {
+    export interface ILoginFormState {
         loading?: boolean;
         username?: string;
         errorMsg?: string;
         error?: boolean;
     }
 
-    export class LoginForm extends React.Component< ILoginFormProps, ILoginFormState>
-    {
+    export class LoginForm extends React.Component< ILoginFormProps, ILoginFormState> {
         private _user: User;
 
         /**
          * Creates a new instance
          */
-        constructor()
-        {
+        constructor() {
             super();
             this._user = User.get;
             this.state = {
@@ -37,8 +32,7 @@ module Animate
         /*
         * General error handler
         */
-        loginError(err: Error)
-        {
+        loginError(err: Error) {
             if ( this.props.onLoadingChange )
                 this.props.onLoadingChange(false);
 
@@ -52,8 +46,7 @@ module Animate
         /*
         * General success handler
         */
-        loginSuccess(data: UsersInterface.IResponse)
-        {
+        loginSuccess(data: UsersInterface.IResponse) {
             if ( this.props.onLoadingChange )
                 this.props.onLoadingChange(false);
 
@@ -67,11 +60,9 @@ module Animate
         /**
          * Attempts to reset the users password
          */
-        resetPassword()
-        {
+        resetPassword() {
             var that = this;
-            if (this.state.username == "")
-            {
+            if (this.state.username == "") {
                 return this.setState({
                     error : true,
                     errorMsg: "Please specify a username or email to fetch"
@@ -90,13 +81,11 @@ module Animate
         /**
          * Attempts to resend the activation code
          */
-        resendActivation()
-        {
+        resendActivation() {
             var user = this.state.username;
             var that = this;
 
-            if (user == "")
-            {
+            if (user == "") {
                  return this.setState({
                     error : true,
                     errorMsg: "Please specify a username or email to fetch"
@@ -115,8 +104,7 @@ module Animate
         /**
         * Attempts to log the user in
         */
-        login( json )
-        {
+        login( json ) {
             var that = this;
 
             if ( this.props.onLoadingChange )
@@ -126,9 +114,7 @@ module Animate
                 loading: true
             });
 
-            this._user.login( json.username, json.password, json.remember )
-                .then((data) =>
-                {
+            this._user.login( json.username, json.password, json.remember ).then((data) =>  {
                     if ( this.props.onLoadingChange )
                         this.props.onLoadingChange(false);
 
@@ -148,8 +134,7 @@ module Animate
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render() : JSX.Element
-        {
+        render() : JSX.Element {
             return <div className='login animate-all fade-in'>
                 <VForm name="login"
                     autoComplete="off"

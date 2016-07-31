@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* This represents a combo property for booleans that the user can select from a list.
 	*/
-    export class PGComboBool extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGComboBool extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
         }
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropBool)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-        {
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropBool>prop;
 
 			// Create HTML
@@ -46,8 +41,7 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-            var onSelect = function (e: JQueryEventObject  )
-			{
+            var onSelect = function (e: JQueryEventObject  ) {
                 var val = selector.val();
                 prop.setVal( (val == "true" ? true : false ) );
 			};

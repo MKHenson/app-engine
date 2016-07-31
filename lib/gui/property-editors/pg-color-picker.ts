@@ -1,12 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* This editor is used to pick colours from a colour dialogue.
 	*/
-    export class PGColorPicker extends PropertyGridEditor
-	{
-		constructor( grid: PropertyGrid )
-		{
+    export class PGColorPicker extends PropertyGridEditor {
+		constructor( grid: PropertyGrid ) {
 			super( grid );
 		}
 
@@ -15,8 +12,7 @@ module Animate
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean
-        {
+        canEdit(prop: Prop<any>): boolean {
             if (prop instanceof PropColor)
                 return true;
             else
@@ -28,8 +24,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-		{
+        edit(prop: Prop<any>, container: Component) {
             var p = <PropColor>prop;
 
             var color = p.getVal().color;
@@ -49,8 +44,7 @@ module Animate
 			var that = this;
 
 			//Functions to deal with user interactions with JQuery
-            var onValueEdited = function (e: JQueryEventObject )
-            {
+            var onValueEdited = function (e: JQueryEventObject ) {
                 var col = parseFloat(jQuery(`#${_id1}`).val() );
                 var alpha = parseFloat(jQuery(`#${_id2}`).val());
                 jQuery(`#${_id1}`).css("opacity", alpha);

@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* Behaviours are the base class for all nodes placed on a <Canvas>
 	*/
-    export class Behaviour extends CanvasItem implements IRenamable
-	{
+    export class Behaviour extends CanvasItem implements IRenamable {
 		private _originalName: string;
 		private _alias: string;
 		private _canGhost: boolean;
@@ -17,8 +15,7 @@ module Animate
         private _fontSize: number;
         private _properties: EditableSet;
 
-        constructor(parent: Component, text: string, html: string = `<div class='behaviour reg-gradient'><div class='text'>${text}</div></div>` )
-		{
+        constructor(parent: Component, text: string, html: string = `<div class='behaviour reg-gradient'><div class='text'>${text}</div></div>` ) {
             // Call super-class constructor
             super(html, parent);
             this._fontSize = 5;
@@ -45,8 +42,7 @@ module Animate
 		* @param {string} name The portal name
 		* @returns {Portal}
 		*/
-        getPortal(name: string): Portal
-        {
+        getPortal(name: string): Portal {
             for (var i = 0, portals = this.portals, l = portals.length; i < l; i++)
                 if (portals[i].property.name == name)
                     return portals[i];
@@ -60,8 +56,7 @@ module Animate
 		* @param {Prop<any>} property
 		* @returns {Portal}
 		*/
-        addPortal(type: PortalType, property: Prop<any>, update: boolean, custom: boolean = false): Portal
-		{
+        addPortal(type: PortalType, property: Prop<any>, update: boolean, custom: boolean = false): Portal {
             var portal = new Portal(this, type, property, custom);
 
 			this._requiresUpdated = true;
@@ -93,16 +88,14 @@ module Animate
 		* @param {any} dispose Should the portal be disposed. The default is true.
 		* @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
 		*/
-		removePortal(toRemove: Portal, dispose : boolean = true): Portal
-		{
+		removePortal(toRemove: Portal, dispose : boolean = true): Portal {
 			this._requiresUpdated = true;
 
 			this.removeChild( toRemove );
 
             // Remove from arrays
             var index = this._parameters.indexOf(toRemove)
-			if ( index != -1 )
-            {
+			if ( index != -1 ) {
                 this._properties.removeVar(toRemove.property.name);
 				this._parameters.splice( index, 1 );
 				toRemove.behaviour = null;
@@ -141,8 +134,7 @@ module Animate
 		/**
 		* A shortcut for jQuery's css property.
 		*/
-		css( propertyName : any, value? : any ) : any
-		{
+		css( propertyName : any, value? : any ) : any {
 			//Call super
 			var toRet = this.element.css( propertyName, value );
 			this._requiresUpdated = true;
@@ -174,8 +166,7 @@ module Animate
 		/**
 		* Updates the behavior width and height and organises the portals
 		*/
-		updateDimensions()
-		{
+		updateDimensions() {
 			if (this._requiresUpdated == false )
 				return;
 
@@ -220,8 +211,7 @@ module Animate
 		/**
 		* sets the label text
 		*/
-		set text( value : string )
-		{
+		set text( value : string ) {
             jQuery(".text", this.element).text(value);
 			this._requiresUpdated = true;
 
@@ -232,8 +222,7 @@ module Animate
         /**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-        get selected(): boolean
-        {
+        get selected(): boolean {
             if (this.element.hasClass("selected"))
                 return true;
             else
@@ -243,8 +232,7 @@ module Animate
 		/**
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
-        set selected(val: boolean)
-        {
+        set selected(val: boolean) {
             if (val)
                 this.element.addClass("selected");
             else
@@ -258,13 +246,11 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviour}
         */
-        tokenize(slim: boolean = false): IBehaviour
-        {
+        tokenize(slim: boolean = false): IBehaviour {
             var toRet = <IBehaviour>super.tokenize(slim);
             toRet.portals = <Array<IPortal>>[];
 
-            for (var i = 0, portals = this.portals, l = portals.length; i < l; i++)
-            {
+            for (var i = 0, portals = this.portals, l = portals.length; i < l; i++) {
                 var portal = <IPortal>{ name: portals[i].property.name, property: portals[i].property.tokenize(slim), type: portals[i].type };
                 if (!slim)
                     portal.custom = portals[i].customPortal;
@@ -272,8 +258,7 @@ module Animate
                 toRet.portals.push(portal);
             }
 
-            if (!slim)
-            {
+            if (!slim) {
                 toRet.alias = this.alias;
                 toRet.text = this.text;
             }
@@ -285,8 +270,7 @@ module Animate
         * De-Tokenizes data from a JSON.
         * @param {IBehaviour} data The data to import from
         */
-        deTokenize(data: IBehaviour)
-        {
+        deTokenize(data: IBehaviour) {
             super.deTokenize(data);
 
             this.alias = data.alias;
@@ -296,8 +280,7 @@ module Animate
             while (this.portals.length > 0)
                 this.portals.pop().dispose();
 
-            for (var i = 0, portals = data.portals, l = portals.length; i < l; i++)
-            {
+            for (var i = 0, portals = data.portals, l = portals.length; i < l; i++) {
                 //var portal = new Portal(this, portals[i].type, Utils.createProperty(portals[i].property, null));
                 //this.portals.push(portal);
                 var prop: Prop<any> = Utils.createProperty(portals[i].property.name, portals[i].property.type);
@@ -318,8 +301,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child components
 		*/
-		dispose()
-		{
+		dispose() {
 			// The draggable functionality is added in the Canvas addChild function because we need to listen for the events.
 			// To make sure its properly removed however we put it here.
 			this.element.draggable( "destroy" );

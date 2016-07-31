@@ -1,25 +1,20 @@
-declare module Engine
-{
+declare module Engine {
     // Extends the IProject interface to include additional data
-    export interface IProject
-    {
+    export interface IProject {
         $plugins?: Array<IPlugin>;
     }
 
     // Extends the IPlugin interface to include additional data
-    export interface IPlugin
-    {
+    export interface IPlugin {
         $loaded?: boolean;
         $instance?: Animate.IPlugin;
     }
 }
-declare module Animate
-{
+declare module Animate {
     /**
     * A simple interface for any component
     */
-    export interface IComponent
-    {
+    export interface IComponent {
         element: JQuery;
         parent: IComponent;
         dispose(): void;
@@ -40,8 +35,7 @@ declare module Animate
     /**
 	* A simple interface for any compent that needs to act as a Docker parent.
 	*/
-    export interface IDockItem extends IComponent
-    {
+    export interface IDockItem extends IComponent {
 		/*This is called by a controlling Docker class. An image string needs to be returned
 		* which will act as a preview of the component that is being viewed or hidden.*/
         getPreviewImage(): string;
@@ -62,8 +56,7 @@ declare module Animate
     /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
 	*/
-    export interface IPlugin
-    {
+    export interface IPlugin {
 		/**
 		* This function is called by Animate to get an array of
 		* behvaiour definitions. These definitions describe what kind
@@ -115,8 +108,7 @@ declare module Animate
     /**
 	* A basic wrapper for a Portal interface
 	*/
-    export class IPortal
-    {
+    export class IPortal {
         name: string;
         type: number;
         custom: boolean;
@@ -126,8 +118,7 @@ declare module Animate
     /**
 	* A basic wrapper for a CanvasItem interface
 	*/
-    export interface ICanvasItem
-    {
+    export interface ICanvasItem {
         shallowId: number;
         type: number;
         left?: string;
@@ -137,8 +128,7 @@ declare module Animate
     /**
 	* A basic wrapper for a Link interface
 	*/
-    export interface ILinkItem extends ICanvasItem
-    {
+    export interface ILinkItem extends ICanvasItem {
         frameDelay: number;
         startPortal: string;
         endPortal: string;
@@ -149,8 +139,7 @@ declare module Animate
     /**
 	* A basic wrapper for a Behaviour interface
 	*/
-    export interface IBehaviour extends ICanvasItem
-    {
+    export interface IBehaviour extends ICanvasItem {
         alias: string;
         text: string;
         portals: Array<IPortal>
@@ -159,16 +148,14 @@ declare module Animate
     /**
     * A basic wrapper for a BehaviourPortal interface
     */
-    export interface IBehaviourPortal extends IBehaviour
-    {
+    export interface IBehaviourPortal extends IBehaviour {
         portal: IPortal;
     }
 
     /**
     * A basic wrapper for a BehaviourComment interface
     */
-    export interface IBehaviourComment extends IBehaviour
-    {
+    export interface IBehaviourComment extends IBehaviour {
         width: number;
         height: number;
     }
@@ -176,30 +163,26 @@ declare module Animate
     /**
 	* A basic wrapper for a BehaviourScript interface
 	*/
-    export interface IBehaviourScript extends IBehaviour
-    {
+    export interface IBehaviourScript extends IBehaviour {
         scriptId: string;
     }
 
     /**
 	* A basic wrapper for a BehaviourShortcut interface
 	*/
-    export interface IBehaviourShortcut extends IBehaviour
-    {
+    export interface IBehaviourShortcut extends IBehaviour {
         originalId: number;
     }
 
     /**
 	* A basic interface for a container object
 	*/
-    export interface IContainerToken
-    {
+    export interface IContainerToken {
         items: Array<ICanvasItem>;
         properties: any;
     }
 
-    export interface IPreviewFactory
-    {
+    export interface IPreviewFactory {
         /**
         * This function generates an html node that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
@@ -210,25 +193,21 @@ declare module Animate
         generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
     }
 
-    export interface ISettingsPage extends IComponent
-    {
+    export interface ISettingsPage extends IComponent {
         onShow(project: Project, user: User);
         name: string;
         onTab(): void;
     }
 }
-declare module Animate
-{
-	export interface PortalToken
-	{
+declare module Animate {
+	export interface PortalToken {
 		name: string;
 		type: string;
 		dataType: string;
 		value: any;
 	}
 
-	export interface LinkToken
-	{
+	export interface LinkToken {
 		id: string;
 		type: string;
 		startPortal: string;
@@ -238,8 +217,7 @@ declare module Animate
 		frameDelay: number;
 	}
 
-	export interface BehaviourToken
-	{
+	export interface BehaviourToken {
 		id: string;
 		name: string;
 		type: string;
@@ -258,8 +236,7 @@ declare module Animate
 		shallowId: number;
 	}
 
-	export interface ContainerToken
-	{
+	export interface ContainerToken	{
 		name: string;
 		id: any;
 		behaviours: Array<BehaviourToken>;
@@ -270,15 +247,13 @@ declare module Animate
 		plugins: {};
 	}
 
-	export interface GroupToken
-	{
+	export interface GroupToken {
 		name: string;
         id: string;
         items: Array<number>
 	}
 
-	export interface AssetToken
-	{
+	export interface AssetToken {
 		name: string;
 		id: number;
 		properties: { [name: string]: any };
@@ -286,8 +261,7 @@ declare module Animate
 		assets: Array<number>;
 	}
 
-	export interface ExportToken
-	{
+	export interface ExportToken {
 		assets: Array<AssetToken>;
 		groups: Array<GroupToken>;
 		containers: Array<ContainerToken>;
@@ -2594,82 +2568,6 @@ declare module Animate {
         * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
         */
         selected: boolean;
-    }
-}
-declare module Animate {
-    class LogType extends ENUM {
-        constructor(v: string);
-        static MESSAGE: LogType;
-        static WARNING: LogType;
-        static ERROR: LogType;
-    }
-    /**
-    * The Logger is a singleton class used to write message's to Animate's log window.
-    */
-    class Logger extends MenuList {
-        private static _singleton;
-        private context;
-        private mDocker;
-        private warningFlagger;
-        private mContextProxy;
-        constructor(parent: Component);
-        /**
-        * @type public mfunc onIconClick
-        * When we click the error warning
-        * @extends <Logger>
-        */
-        onIconClick(): void;
-        /**
-        * @type public mfunc getPreviewImage
-        * This is called by a controlling ScreenManager class. An image string needs to be returned
-        * which will act as a preview of the component that is being viewed or hidden.
-        * @extends <Logger>
-        * @returns <string>
-        */
-        getPreviewImage(): string;
-        /**
-        * This is called by a controlling Docker class when the component needs to be shown.
-        */
-        onShow(): void;
-        /**
-        * This is called by a controlling Docker class when the component needs to be hidden.
-        */
-        onHide(): void;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @returns {Docker}
-        */
-        getDocker(): Docker;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @param {Docker} val
-        */
-        setDocker(val: Docker): void;
-        /**
-        * Called when the context menu is about to open
-        */
-        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
-        /**
-        * Called when the context menu is about to open
-        */
-        onContext(e: any): void;
-        /**
-        * Adds an item to the Logger
-        * @param {string} val The text to show on the logger.
-        * @param {any} tag An optional tag to associate with the log.
-        * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
-        */
-        static logMessage(val: string, tag: any, type?: LogType): JQuery;
-        /**
-        * Clears all the log messages
-        */
-        clearItems(): void;
-        /**
-        * Gets the singleton instance.
-        * @param {Component} parent
-        * @returns {Logger}
-        */
-        static getSingleton(parent?: Component): Logger;
     }
 }
 declare module Animate {
@@ -6092,6 +5990,82 @@ declare module Animate {
         */
         static getSingleton(): BehaviourPicker;
         list: List;
+    }
+}
+declare module Animate {
+    class LogType extends ENUM {
+        constructor(v: string);
+        static MESSAGE: LogType;
+        static WARNING: LogType;
+        static ERROR: LogType;
+    }
+    /**
+    * The Logger is a singleton class used to write message's to Animate's log window.
+    */
+    class Logger extends MenuList {
+        private static _singleton;
+        private context;
+        private mDocker;
+        private warningFlagger;
+        private mContextProxy;
+        constructor(parent: Component);
+        /**
+        * @type public mfunc onIconClick
+        * When we click the error warning
+        * @extends <Logger>
+        */
+        onIconClick(): void;
+        /**
+        * @type public mfunc getPreviewImage
+        * This is called by a controlling ScreenManager class. An image string needs to be returned
+        * which will act as a preview of the component that is being viewed or hidden.
+        * @extends <Logger>
+        * @returns <string>
+        */
+        getPreviewImage(): string;
+        /**
+        * This is called by a controlling Docker class when the component needs to be shown.
+        */
+        onShow(): void;
+        /**
+        * This is called by a controlling Docker class when the component needs to be hidden.
+        */
+        onHide(): void;
+        /**
+        * Each IDock item needs to implement this so that we can keep track of where it moves.
+        * @returns {Docker}
+        */
+        getDocker(): Docker;
+        /**
+        * Each IDock item needs to implement this so that we can keep track of where it moves.
+        * @param {Docker} val
+        */
+        setDocker(val: Docker): void;
+        /**
+        * Called when the context menu is about to open
+        */
+        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
+        /**
+        * Called when the context menu is about to open
+        */
+        onContext(e: any): void;
+        /**
+        * Adds an item to the Logger
+        * @param {string} val The text to show on the logger.
+        * @param {any} tag An optional tag to associate with the log.
+        * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
+        */
+        static logMessage(val: string, tag: any, type?: LogType): JQuery;
+        /**
+        * Clears all the log messages
+        */
+        clearItems(): void;
+        /**
+        * Gets the singleton instance.
+        * @param {Component} parent
+        * @returns {Logger}
+        */
+        static getSingleton(parent?: Component): Logger;
     }
 }
 declare module Animate {

@@ -1,5 +1,4 @@
-module Animate
-{
+module Animate {
 
 	//export class ProjectAssetTypes extends ENUM
 	//{
@@ -30,8 +29,7 @@ module Animate
 	//	}
 	//}
 
-	export class ProjectEvents
-	{
+	export class ProjectEvents {
 		public value: string;
 		constructor(v: string) { this.value = v; }
 		toString() { return this.value; }
@@ -81,16 +79,14 @@ module Animate
 	/**
 	* A wrapper for project builds
 	*/
-	export class Build
-    {
+	export class Build {
         public entry: Engine.IBuild;
 
         /**
 	    * Creates an intance of the build
         * @param {Engine.IBuild} entry The entry token from the DB
 	    */
-        constructor(entry: Engine.IBuild)
-        {
+        constructor(entry: Engine.IBuild) {
             this.entry = entry;
         }
 
@@ -98,18 +94,14 @@ module Animate
 	    * Attempts to update the build with new data
         * @param {Engine.IBuild} token The update token data
 	    */
-        update(token: Engine.IBuild): Promise<boolean>
-        {
+        update(token: Engine.IBuild): Promise<boolean> {
             var entry = this.entry;
             var that = this;
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry.projectId}/builds/${that.entry._id}`, token).then(function (data)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry.projectId}/builds/${that.entry._id}`, token).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
-                    else
-                    {
+                    else {
                         for (var i in token)
                             if (entry.hasOwnProperty(i))
                                 entry[i] = token[i];
@@ -117,8 +109,7 @@ module Animate
 
                     return resolve(true);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -130,8 +121,7 @@ module Animate
 	* The project has functions which are useful for comunicating data to the server when
 	* loading and saving data in the scene.
 	*/
-	export class Project extends EventDispatcher
-    {
+	export class Project extends EventDispatcher {
         public entry: Engine.IProject;
 
 		//public _id: string;
@@ -159,8 +149,7 @@ module Animate
 		/**
 		* @param{string} id The database id of this project
 		*/
-        constructor()// id: string, name: string, build: Build )
-        {
+        constructor() {
             // Call super-class constructor
             super();
 
@@ -199,17 +188,14 @@ module Animate
 		* @param {string} id The ID of the resource
 		* @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
 		*/
-        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): { resource: T, type: ResourceType }
-        {
+        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): { resource: T, type: ResourceType } {
             var types = this._restPaths;
-            if (type)
-            {
+            if (type) {
                 for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[type].array, l = arr.length; i < l; i++)
                     if (arr[i].entry._id == id)
                         return { resource: <T>arr[i], type: type };
             }
-            else
-            {
+            else {
                 for (var t in types)
                     for (var i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[t].array, l = arr.length; i < l; i++)
                         if (arr[i].entry._id == id)
@@ -224,17 +210,14 @@ module Animate
 		* @param {string} id The shallow ID of the resource
 		* @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
 		*/
-        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T
-        {
+        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T {
             var types = this._restPaths;
-            if (type)
-            {
+            if (type) {
                 for (var i = 0, arr = types[type].array, l = arr.length; i < l; i++)
                     if (arr[i].entry.shallowId == id)
                         return <T>arr[i];
             }
-            else
-            {
+            else {
                 for (var t in types)
                     for (var i = 0, arr = types[t].array, l = arr.length; i < l; i++)
                         if (arr[i].entry.shallowId == id)
@@ -334,18 +317,14 @@ module Animate
         * @returns {Engine.IProject} The project token
         * @returns {Promise<UsersInterface.IResponse>}
 		*/
-        updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>
-        {
+        updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse> {
             var entry = this.entry;
             var that = this;
-            return new Promise<UsersInterface.IResponse>(function(resolve, reject)
-            {
-                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}`, token).then(function (data)
-                {
+            return new Promise<UsersInterface.IResponse>(function(resolve, reject) {
+                Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}`, token).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
-                    else
-                    {
+                    else {
                         for (var i in token)
                             if (entry.hasOwnProperty(i))
                                 entry[i] = token[i];
@@ -353,8 +332,7 @@ module Animate
 
                     return resolve(data);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -364,12 +342,10 @@ module Animate
 		* Loads a previously selected build, or creates one if none are selected
         * @returns {Promise<Build>}
 		*/
-        loadBuild(): Promise<Build>
-        {
+        loadBuild(): Promise<Build> {
             var that = this;
             var username = User.get.entry.username;
-            return new Promise<Build>(function (resolve, reject)
-            {
+            return new Promise<Build>(function (resolve, reject) {
                 var promise: Promise<any>;
 
                 // If the project has a build then load it - otherwise create a new one
@@ -378,16 +354,14 @@ module Animate
                 else
                     promise = Utils.post(`${DB.API}/users/${username}/projects/${that.entry._id}/builds?set-current=true`, null);
 
-                promise.then(function (data: ModepressAddons.IGetBuilds)
-                {
+                promise.then(function (data: ModepressAddons.IGetBuilds) {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     that.curBuild = new Build(data.data[0]);
                     return resolve(that.curBuild);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -399,33 +373,27 @@ module Animate
         * @param {ResourceType} type The type of resource to create
         * @returns {ProjectResource<T>}
 		*/
-        private createResourceInstance<T extends Engine.IResource>(entry: T, type?: ResourceType): ProjectResource<T>
-        {
+        private createResourceInstance<T extends Engine.IResource>(entry: T, type?: ResourceType): ProjectResource<T> {
             var resource: ProjectResource<any>;
 
-            if (type == ResourceType.ASSET)
-            {
+            if (type == ResourceType.ASSET) {
                 var aClass = PluginManager.getSingleton().getAssetClass((<Engine.IAsset>entry).className);
                 resource = new Asset(aClass, entry);
                 this._assets.push(<Asset>resource);
             }
-            else if (type == ResourceType.SCRIPT)
-            {
+            else if (type == ResourceType.SCRIPT) {
                 resource = new ScriptResource(<any>entry);
                 this._scripts.push(resource);
             }
-            else if (type == ResourceType.CONTAINER)
-            {
+            else if (type == ResourceType.CONTAINER) {
                 resource = new Container(entry);
                 this._containers.push(<Container>resource);
             }
-            else if (type == ResourceType.GROUP)
-            {
+            else if (type == ResourceType.GROUP) {
                 resource = new GroupArray(entry);
                 this._groups.push(<GroupArray>resource);
             }
-            else if (type == ResourceType.FILE)
-            {
+            else if (type == ResourceType.FILE) {
                 resource = new FileResource(entry);
                 this._files.push(resource);
             }
@@ -441,14 +409,12 @@ module Animate
 		* @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<Array<ProjectResource<any>>}
 		*/
-        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>
-        {
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>> {
             var that = this;
             var arr: Array<Promise<Modepress.IGetArrayResponse<Engine.IResource>>> = [];
             var paths = this._restPaths;
 
-            if (!type)
-            {
+            if (!type) {
                 // Send delete events for all existing resources
                 for (var t in paths)
                     for (var i = 0, pArr = paths[t].array, l = pArr.length; i < l; i++)
@@ -466,8 +432,7 @@ module Animate
                 arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.GROUP].url}`));
                 arr.push(Utils.get(`${DB.API}/users/${this.entry.user}/projects/${this.entry._id}/${paths[ResourceType.SCRIPT].url}`));
             }
-            else
-            {
+            else {
                 // Send delete events for all existing resources
                 for (var i = 0, pArr = paths[type].array, l = pArr.length; i < l; i++)
                     pArr[i].emit(new Event("deleted"));
@@ -476,10 +441,8 @@ module Animate
                 paths[type].array.splice(0, paths[type].array.length);
             }
 
-            return new Promise<Array<ProjectResource<Engine.IResource>>>(function (resolve, reject)
-            {
-                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>(arr).then(function (data)
-                {
+            return new Promise<Array<ProjectResource<Engine.IResource>>>(function (resolve, reject) {
+                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>(arr).then(function (data) {
                     // Check for any errors
                     for (var i = 0, l = data.length; i < l; i++)
                         if (data[i].error)
@@ -487,8 +450,7 @@ module Animate
 
                     var createdResources: Array<ProjectResource<any>> = [];
 
-                    if (!type)
-                    {
+                    if (!type) {
                         for (var i = 0, l = data[0].data.length; i < l; i++)
                             createdResources.push( that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE) );
                         for (var i = 0, l = data[1].data.length; i < l; i++)
@@ -500,8 +462,7 @@ module Animate
                         for (var i = 0, l = data[4].data.length; i < l; i++)
                             createdResources.push(that.createResourceInstance<Engine.IScript>(data[4].data[i], ResourceType.SCRIPT));
                     }
-                    else
-                    {
+                    else {
                         if (type == ResourceType.FILE)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
                                 createdResources.push(that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE));
@@ -521,8 +482,7 @@ module Animate
 
                     return resolve(createdResources);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -534,8 +494,7 @@ module Animate
         * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         * @returns {Promise<T | Error>}
         */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error>
-        {
+        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error> {
             var that = this;
             var paths = this._restPaths;
 
@@ -543,10 +502,8 @@ module Animate
             if (!r)
                 return Promise.reject<Error>(new Error("Could not find a resource with that ID"));
 
-            return new Promise<T>(function (resolve, reject)
-            {
-                Utils.get<Modepress.IGetArrayResponse<T>>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}/${paths[r.type].url}/${id}`).then(function (response)
-                {
+            return new Promise<T>(function (resolve, reject) {
+                Utils.get<Modepress.IGetArrayResponse<T>>(`${DB.API}/users/${that.entry.user}/projects/${that.entry._id}/${paths[r.type].url}/${id}`).then(function (response) {
                     if (response.error)
                         return reject(new Error(response.message));
 
@@ -561,8 +518,7 @@ module Animate
                     r.resource.saved = true;
                     return resolve(r.resource);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -575,8 +531,7 @@ module Animate
 		* @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse | Error>}
 		*/
-        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse | Error>
-        {
+        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse | Error> {
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
@@ -586,8 +541,7 @@ module Animate
             var resource: ProjectResource<Engine.IResource>;
 
             for (var i = 0, l = array.length; i < l; i++)
-                if (array[i].entry._id == id)
-                {
+                if (array[i].entry._id == id) {
                     resource = array[i];
                     break;
                 }
@@ -595,10 +549,8 @@ module Animate
             if (!resource)
                 return Promise.reject<Error>(new Error("No resource with that ID exists"));
 
-            return new Promise<UsersInterface.IResponse>(function (resolve, reject)
-            {
-                Utils.put<Modepress.IResponse>(url, data).then(function (response)
-                {
+            return new Promise<UsersInterface.IResponse>(function (resolve, reject) {
+                Utils.put<Modepress.IResponse>(url, data).then(function (response) {
                     if (response.error)
                         return reject(new Error(response.message));
 
@@ -609,8 +561,7 @@ module Animate
                     resource.emit(new Event("refreshed"));
                     return resolve(response);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -622,8 +573,7 @@ module Animate
         * @param {ResourceType} type [Optional] The type of resource we are saving
         * @returns {Promise<boolean>}
 		*/
-        saveResource(id: string, type?: ResourceType): Promise<boolean>
-        {
+        saveResource(id: string, type?: ResourceType): Promise<boolean> {
             var paths = this._restPaths;
             var that = this;
             var details = User.get.entry;
@@ -633,18 +583,15 @@ module Animate
             var resource: ProjectResource<Engine.IResource> = r.resource;
             resource.onSaving();
 
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Utils.put<Modepress.IResponse>(url, resource.entry).then(function (response) {
                     if (response.error)
                         return reject(new Error(`Could not save ${ResourceType[type].toLowerCase()} resource [${resource.entry._id}]: '${response.message}'`));
 
                     resource.saved = true;
                     return resolve(true);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -655,22 +602,18 @@ module Animate
         * @param {ResourceType} type The type of resource we are saving
         * @returns {Promise<boolean>}
 		*/
-        saveResources(type: ResourceType): Promise<boolean>
-        {
+        saveResources(type: ResourceType): Promise<boolean> {
             var paths = this._restPaths;
             var promises: Array<Promise<boolean>> = [];
 
             for (var i = 0, arr = paths[type].array, l = arr.length; i < l; i++)
                 promises.push(this.saveResource(arr[i].entry._id, type));
 
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Promise.all(promises).then(function (data)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Promise.all(promises).then(function (data) {
                     resolve(true);
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     reject(err);
                 });
             });
@@ -682,8 +625,7 @@ module Animate
         * @param {ResourceType} type The type of resource we are renaming
         * @returns {Promise<boolean | Error>}
 		*/
-        deleteResource(id: string, type: ResourceType): Promise<boolean | Error>
-        {
+        deleteResource(id: string, type: ResourceType): Promise<boolean | Error> {
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
@@ -693,8 +635,7 @@ module Animate
             var resource: ProjectResource<Engine.IResource>;
 
             for (var i = 0, l = array.length; i < l; i++)
-                if (array[i].entry._id == id)
-                {
+                if (array[i].entry._id == id) {
                     resource = array[i];
                     break;
                 }
@@ -702,10 +643,8 @@ module Animate
             if (!resource)
                 return Promise.reject<Error>(new Error("No resource with that ID exists"));
 
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Utils.delete<Modepress.IResponse>(url).then(function (response)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Utils.delete<Modepress.IResponse>(url).then(function (response) {
                     if (response.error)
                         return reject(new Error(response.message));
 
@@ -713,8 +652,7 @@ module Animate
                     resource.emit(new Event("deleted"));
                     return resolve(true);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -726,8 +664,7 @@ module Animate
         * @param {ResourceType} type [Optional] The type of resource to clone
         * @returns {Promise<ProjectResource<T>>}
         */
-        copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>
-        {
+        copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>> {
             var r = this.getResourceByID(id, type);
             var resource: ProjectResource<Engine.IResource> = r.resource;
 
@@ -744,30 +681,24 @@ module Animate
         * @param {Array<string>} ids The ids An array of resource Ids
         * @returns {Promise<boolean>}
 		*/
-        deleteResources(ids: Array<string>): Promise<boolean>
-        {
+        deleteResources(ids: Array<string>): Promise<boolean> {
             var promises: Array<Promise<boolean>> = [];
             var paths = this._restPaths;
 
             for (var t in paths)
                 for (var k = 0, arr = paths[t].array, kl = arr.length; k < kl; k++)
-                    for (var i = 0, l = ids.length; i < l; i++)
-                    {
-                        if (arr[k].entry._id == ids)
-                        {
+                    for (var i = 0, l = ids.length; i < l; i++) {
+                        if (arr[k].entry._id == ids) {
                             promises.push(this.deleteResource(arr[k].entry._id, <ResourceType>parseInt(t) ));
                             break;
                         }
                     }
 
-            return new Promise<boolean>(function(resolve, reject)
-            {
-                Promise.all(promises).then(function (data)
-                {
+            return new Promise<boolean>(function(resolve, reject) {
+                Promise.all(promises).then(function (data) {
                     resolve(true);
 
-                }).catch(function(err: Error)
-                {
+                }).catch(function(err: Error) {
                     reject(err);
                 });
             });
@@ -776,20 +707,16 @@ module Animate
         /**
 		* This function is used to all project resources
 		*/
-        saveAll()
-        {
+        saveAll() {
             var promises: Array<Promise<boolean>> = [];
             for (var i in this._restPaths)
                 promises.push(this.saveResources( <ResourceType>parseInt(i) ));
 
-            return new Promise<boolean>(function (resolve, reject)
-            {
-                Promise.all(promises).then(function (data)
-                {
+            return new Promise<boolean>(function (resolve, reject) {
+                Promise.all(promises).then(function (data) {
                     resolve(true);
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     reject(err);
                 });
             });
@@ -800,18 +727,15 @@ module Animate
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>>
-        {
+        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>> {
             var that = this;
             var details = User.get.entry;
             var projId = this.entry._id;
             var paths = this._restPaths;
             var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[type].url}`;
 
-            return new Promise<ProjectResource<T>>(function (resolve, reject)
-            {
-                Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data)
-                {
+            return new Promise<ProjectResource<T>>(function (resolve, reject) {
+                Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
@@ -827,8 +751,7 @@ module Animate
 
                     return resolve(resource);
 
-                }).catch(function (err: IAjaxError)
-                {
+                }).catch(function (err: IAjaxError) {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });

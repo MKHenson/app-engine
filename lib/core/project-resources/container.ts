@@ -1,18 +1,15 @@
-module Animate
-{
+module Animate {
 	/**
 	* Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
 	* essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
 	*/
-    export class Container extends ProjectResource<Engine.IContainer>
-	{
+    export class Container extends ProjectResource<Engine.IContainer> {
 		public canvas: Canvas;
 
 		/**
 		* {string} name The name of the container
 		*/
-        constructor(entry?: Engine.IContainer)
-		{
+        constructor(entry?: Engine.IContainer) {
 			// Call super-class constructor
             super(entry);
 
@@ -24,11 +21,9 @@ module Animate
         /**
         * This function is called just before the entry is saved to the database.
         */
-        onSaving(): any
-        {
+        onSaving(): any {
             // Make sure the container is fully serialized before saving if there is an open canvas
-            if (this.canvas)
-            {
+            if (this.canvas) {
                 var token: IContainerToken = this.canvas.tokenize(false);
                 this.entry.json = token;
             }
@@ -37,8 +32,7 @@ module Animate
         /**
          * Use this function to initialize the resource. This called just after the resource is created and its entry set.
          */
-        initialize()
-        {
+        initialize() {
             var containerToken: IContainerToken = this.entry.json;
             containerToken.items = containerToken.items || [];
             if (containerToken.properties)
@@ -48,8 +42,7 @@ module Animate
 		/**
 		* This will cleanup the behaviour.
 		*/
-		dispose()
-        {
+		dispose() {
             this.emit(new ContainerEvent(EventTypes.CONTAINER_DELETED, this));
 
 			//Call super

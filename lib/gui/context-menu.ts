@@ -1,7 +1,5 @@
-module Animate
-{
-	export class ContextMenuItem extends Component
-	{
+module Animate {
+	export class ContextMenuItem extends Component {
 		private _text: string;
 		private _imgURL: string;
 
@@ -10,8 +8,7 @@ module Animate
 		* @param {string} text The text of the item
 		* @param {string} imgURL An optional image URL
 		*/
-		constructor( text : string, imgURL : string, parent?: Component )
-		{
+		constructor( text : string, imgURL : string, parent?: Component ) {
             super( "<div class='context-item reg-gradient'>" + ( imgURL && imgURL != "" ? "<img src='"+ imgURL +"'/>" : "" ) + "<div class='text'></div></div>", parent );
 			this.text = text;
 			this.imageURL = imgURL;
@@ -20,8 +17,7 @@ module Animate
 		/** Gets the text of the item */
 		get text(): string { return this._text; }
 		/** Sets the text of the item */
-		set text( val: string )
-		{
+		set text( val: string ) {
 			this._text = val;
 			jQuery( ".text", this.element ).text( val );
 		}
@@ -29,15 +25,13 @@ module Animate
 		/** Gets the image src of the item */
 		get imageURL(): string { return this._imgURL; }
 		/** Sets the image src of the item */
-		set imageURL( val: string )
-		{
+		set imageURL( val: string ) {
 			this._imgURL = val;
 			jQuery( "img", this.element ).attr( "src", val );
 		}
 	}
 
-	export class ContextMenuEvents extends ENUM
-	{
+	export class ContextMenuEvents extends ENUM	{
 		constructor( v: string ) { super( v ); }
 
 		static ITEM_CLICKED: ContextMenuEvents = new ContextMenuEvents( "context_munu_item_clicked" );
@@ -48,8 +42,7 @@ module Animate
 	/**
 	* A ContextMenu is a popup window which displays a list of items that can be selected.
 	*/
-	export class ContextMenu extends Window
-	{
+	export class ContextMenu extends Window {
 		public static currentContext: ContextMenu;
 
 		private items: Array<ContextMenuItem>;
@@ -57,8 +50,7 @@ module Animate
 
 		/**
 		*/
-		constructor()
-		{
+		constructor() {
 			// Call super-class constructor
 			super( 100, 100 );
 
@@ -75,8 +67,7 @@ module Animate
 		/**
 		* Cleans up the context menu
 		*/
-		dispose()
-		{
+		dispose() {
 			this.items = null;
 			this.selectedItem = null;
 			Window.prototype.dispose.call( this );
@@ -90,8 +81,7 @@ module Animate
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-		show( parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false )
-		{
+		show( parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false ) {
 			var height = jQuery( window ).height();
 			var width = jQuery( window ).width();
 
@@ -109,10 +99,8 @@ module Animate
 			//Check if nothing is visible - if so then hide it.
 			var somethingVisible = false;
 			var i = this.items.length;
-			while ( i-- )
-			{
-				if ( this.items[i].element.is( ":visible" ) )
-				{
+			while ( i-- ) {
+				if ( this.items[i].element.is( ":visible" ) ) {
 					somethingVisible = true;
 					break;
 				}
@@ -128,8 +116,7 @@ module Animate
 		* @param {ContextMenuItem} val The item we are adding
 		* @returns {ContextMenuItem}
 		*/
-		addItem( val: ContextMenuItem ): ContextMenuItem
-		{
+		addItem( val: ContextMenuItem ): ContextMenuItem {
 			this.items.push( val );
 			this.content.addChild( val );
 			return val;
@@ -141,14 +128,11 @@ module Animate
 		* @param {ContextMenuItem} val The item we are removing
 		* @returns {ContextMenuItem}
 		*/
-		removeItem( val: ContextMenuItem ): ContextMenuItem
-		{
+		removeItem( val: ContextMenuItem ): ContextMenuItem {
 			var len = this.items.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				var v = this.items[i];
-				if ( v == val )
-				{
+				if ( v == val ) {
 					v = this.items[i];
 					this.items.splice( i, 1 );
 					this.content.removeChild( val );
@@ -163,11 +147,9 @@ module Animate
 		/**
 		* Checks if we selected an item - if so it closes the context and dispatches the ITEM_CLICKED event.
 		*/
-		onStageClick( e )
-		{
+		onStageClick( e ) {
 			var targ = jQuery( e.target );
-			if ( targ.is( jQuery( ".context-item" ) ) )
-			{
+			if ( targ.is( jQuery( ".context-item" ) ) ) {
 				var item: ContextMenuItem = <ContextMenuItem>targ.data( "component" );
 				this.onItemClicked( item, targ );
 				this.emit( new ContextMenuEvent( item, ContextMenuEvents.ITEM_CLICKED ) );
@@ -184,8 +166,7 @@ module Animate
 		* @param {ContextMenuItem} item The selected item
 		* @param {JQuery} jqueryItem The jquery item
 		*/
-		onItemClicked( item : ContextMenuItem, jqueryItem : JQuery )
-		{
+		onItemClicked( item : ContextMenuItem, jqueryItem : JQuery ) {
 
 		}
 
@@ -201,11 +182,9 @@ module Animate
 		* @param {string} val The text of the item we need to get
 		* @returns {ContextMenuItem}
 		*/
-		getItem( val: string ): ContextMenuItem
-		{
+		getItem( val: string ): ContextMenuItem {
 			var len = this.items.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				var v : string = this.items[i].text;
 				if ( v == val )
 					return this.items[i];
@@ -217,8 +196,7 @@ module Animate
 		/**
 		* Removes all items
 		*/
-		clear()
-		{
+		clear() {
 			while ( this.content.children.length > 0 )
 				this.content.children[0].dispose();
 

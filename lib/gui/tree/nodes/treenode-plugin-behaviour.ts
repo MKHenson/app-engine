@@ -1,14 +1,11 @@
-module Animate
-{
+module Animate {
 	/**
 	* This node represents a behaviour created by a plugin.
 	*/
-	export class TreeNodePluginBehaviour extends TreeNode
-	{
+	export class TreeNodePluginBehaviour extends TreeNode {
 		private _template: BehaviourDefinition;
 
-		constructor(template: BehaviourDefinition )
-		{
+		constructor(template: BehaviourDefinition ) {
 			// Call super-class constructor
 			super( template.behaviourName, "media/variable.png", false);
 
@@ -21,8 +18,7 @@ module Animate
 		/**
         * This will cleanup the component
         */
-		dispose()
-		{
+		dispose() {
 			this._template.dispose();
 			this.template = null;
 			this.canDelete = null;

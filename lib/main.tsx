@@ -6,10 +6,8 @@ var __newPlugin: Animate.IPlugin = null;
 * Goes through each of the plugins and returns the one with the matching ID
 * @param {string} id The ID of the plugin to fetch
 */
-function getPluginByID(id : string): Engine.IPlugin
-{
-    for (var pluginName in __plugins)
-    {
+function getPluginByID(id : string): Engine.IPlugin {
+    for (var pluginName in __plugins) {
         for (var i = 0, l = __plugins[pluginName].length; i < l; i++)
             if (__plugins[pluginName][i]._id == id)
                 return __plugins[pluginName][i];
@@ -22,10 +20,8 @@ function getPluginByID(id : string): Engine.IPlugin
 * Once the plugins are loaded from the DB
 * @param {Array<Engine.IPlugin>} plugins
 */
-function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
-{
-    for (var i = 0, l = plugins.length; i < l; i++)
-    {
+function onPluginsLoaded(plugins: Array<Engine.IPlugin>) {
+    for (var i = 0, l = plugins.length; i < l; i++) {
         if (!__plugins[plugins[i].name])
             __plugins[plugins[i].name] = [];
         else
@@ -38,8 +34,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
                 pluginArray.push(plugins[ii]);
 
         // Sort the plugins based on their versions
-        pluginArray = pluginArray.sort(function compare(a, b)
-        {
+        pluginArray = pluginArray.sort(function compare(a, b) {
             if (a === b)
                 return 0;
 
@@ -49,8 +44,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
             var len = Math.min(a_components.length, b_components.length);
 
             // loop while the components are equal
-            for (var i = 0; i < len; i++)
-            {
+            for (var i = 0; i < len; i++) {
                 // A bigger than B
                 if (parseInt(a_components[i]) > parseInt(b_components[i]))
                     return 1;
@@ -80,8 +74,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>)
 * Returns a formatted byte string
 * @returns {string}
 */
-function byteFilter(bytes, precision: number = 1) : string
-{
+function byteFilter(bytes, precision: number = 1) : string {
     if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
     var units = ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'],
         number = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -89,8 +82,7 @@ function byteFilter(bytes, precision: number = 1) : string
 }
 
 // Once the document is ready we begin
-jQuery(document).ready(function ()
-{
+jQuery(document).ready(function () {
     // Make sure we call ajax with credentials on
     jQuery.ajaxSetup({
         crossDomain: true,
@@ -105,16 +97,11 @@ jQuery(document).ready(function ()
     Animate.LoaderBase.showLoader();
 
     // Donwload the plugins available to this user
-    jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressAddons.IGetProjects)
-    {
+    jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressAddons.IGetProjects) {
         onPluginsLoaded(response.data);
-
-    }).fail(function (err: JQueryXHR)
-    {
+    }).fail(function (err: JQueryXHR)  {
         Animate.MessageBox.show(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, ["Ok"], null, null);
-
-    }).always(function ()
-    {
+    }).always(function () {
         Animate.LoaderBase.hideLoader();
     });
 });

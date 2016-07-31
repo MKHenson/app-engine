@@ -1,17 +1,14 @@
-﻿module Animate
-{
+﻿module Animate {
 	/**
 	* A base class for all project resources
 	*/
-    export class ProjectResource<T extends Engine.IResource> extends EventDispatcher
-    {
+    export class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
         public entry: T;
         private _saved: boolean;
         protected _properties: EditableSet;
         protected _options: { [s: string]: any; };
 
-        constructor(entry: T)
-        {
+        constructor(entry: T) {
             super();
 
             this.entry = entry;
@@ -25,8 +22,7 @@
         /**
         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
         */
-        initialize()
-        {
+        initialize() {
 
         }
 
@@ -39,16 +35,14 @@
         /**
         * Gets the properties of this resource
         */
-        get properties(): EditableSet
-        {
+        get properties(): EditableSet {
             return this._properties;
         }
 
         /**
         * Sets the properties of this resource
         */
-        set properties(val: EditableSet)
-        {
+        set properties(val: EditableSet) {
             this._properties = val;
             val.parent = this;
         }
@@ -57,8 +51,7 @@
         * Gets if this resource is saved
         * @returns {boolean}
         */
-        get saved(): boolean
-        {
+        get saved(): boolean {
             return this._saved
         }
 
@@ -66,16 +59,14 @@
         * Sets if this resource is saved
         * @param {boolean} val
         */
-        set saved(val: boolean)
-        {
+        set saved(val: boolean)  {
             this._saved = val;
             this.emit(new Event("modified"));
         }
 
 
 
-        dispose()
-        {
+        dispose() {
             super.dispose();
             this._properties.dispose();
             this._properties = null;

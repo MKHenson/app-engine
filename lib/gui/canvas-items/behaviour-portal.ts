@@ -1,12 +1,9 @@
-module Animate
-{
-	export class BehaviourPortal extends Behaviour
-	{
+module Animate {
+	export class BehaviourPortal extends Behaviour {
 		private _portalType: PortalType;
         private _property: Prop<any>;
 
-        constructor(parent: Component, property: Prop<any>, portalType: PortalType = PortalType.INPUT)
-		{
+        constructor(parent: Component, property: Prop<any>, portalType: PortalType = PortalType.INPUT) {
 			// Call super-class constructor
             super(parent, (property ? property.name : "Portal"));
 
@@ -16,8 +13,7 @@ module Animate
             this.element.addClass("behaviour-portal");
 
 
-            if (property)
-            {
+            if (property) {
                 if (this._portalType == PortalType.OUTPUT)
                     this.addPortal(PortalType.INPUT, property, true);
                 else if (this._portalType == PortalType.INPUT)
@@ -36,8 +32,7 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourPortal}
         */
-        tokenize(slim: boolean = false): IBehaviourPortal
-        {
+        tokenize(slim: boolean = false): IBehaviourPortal {
             var toRet = <IBehaviourPortal>super.tokenize(slim);
             toRet.portal = { name: this._property.name, custom: true, type: this._portalType, property: this._property.tokenize(slim) };
             toRet.type = CanvasItemType.BehaviourPortal;
@@ -48,8 +43,7 @@ module Animate
         * De-Tokenizes data from a JSON.
         * @param {IBehaviourPortal} data The data to import from
         */
-        deTokenize(data: IBehaviourPortal)
-        {
+        deTokenize(data: IBehaviourPortal) {
             super.deTokenize(data);
             this._portalType = data.portal.type;
             this.element.addClass(PortalType[this._portalType].toLowerCase());
@@ -60,8 +54,7 @@ module Animate
 		/**
         * This will cleanup the component.
         */
-		dispose()
-		{
+		dispose() {
 			this._portalType = null;
             this._property = null;
 

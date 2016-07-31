@@ -1,18 +1,15 @@
-﻿module Animate
-{
+﻿module Animate {
 	/**
 	* Abstract class downloading content by pages
 	*/
-    export class PageLoader
-    {
+    export class PageLoader {
         public updateFunc: (index: number, limit: number) => void;
         public index: number;
         public limit: number;
         public last: number;
         protected searchTerm: string;
 
-        constructor(updateFunction: (index: number, limit: number) => void )
-        {
+        constructor(updateFunction: (index: number, limit: number) => void ) {
             this.updateFunc = updateFunction;
             this.index = 0;
             this.limit = 10;
@@ -23,8 +20,7 @@
         /**
         * Calls the update function
         */
-        invalidate()
-        {
+        invalidate() {
             this.updateFunc(this.index, this.limit);
         }
 
@@ -32,8 +28,7 @@
         * Gets the current page number
         * @returns {number}
         */
-        getPageNum(): number
-        {
+        getPageNum(): number {
             return (this.index / this.limit) + 1;
         }
 
@@ -41,16 +36,14 @@
 		* Gets the total number of pages
         * @returns {number}
 		*/
-        getTotalPages()
-        {
+        getTotalPages() {
             return Math.ceil(this.last / this.limit);
         }
 
         /**
 		* Sets the page search back to index = 0
 		*/
-        goFirst()
-        {
+        goFirst() {
             this.index = 0;
             this.updateFunc(this.index, this.limit);
         }
@@ -58,8 +51,7 @@
         /**
 		* Gets the last set of users
 		*/
-        goLast()
-        {
+        goLast() {
             this.index = this.last - (this.last - this.limit) % this.limit;
             if (this.index < 0)
                 this.index = 0;
@@ -70,8 +62,7 @@
         /**
         * Sets the page search back to index = 0
         */
-        goNext()
-        {
+        goNext() {
             this.index += this.limit;
             this.updateFunc(this.index, this.limit);
         }
@@ -79,8 +70,7 @@
         /**
         * Sets the page search back to index = 0
         */
-        goPrev()
-        {
+        goPrev() {
             this.index -= this.limit;
             if (this.index < 0)
                 this.index = 0;

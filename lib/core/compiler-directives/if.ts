@@ -1,15 +1,12 @@
-﻿module Animate
-{
+﻿module Animate {
     /*
     * Directive for expanding HTML based on a boolean test
     * Eg usage en-if="ctrl.value"
     */
-    export class If implements IDirective
-    {
+    export class If implements IDirective {
         private _returnVal: Array<AppNode>;
 
-        constructor()
-        {
+        constructor() {
             this._returnVal = [];
         }
 
@@ -21,25 +18,21 @@
         * @param {InstanceNode} The current instance
         * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
         */
-        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>
-        {
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode> {
             var mustRebuild = false;
             var parsedExp = Compiler.parse(expression, ctrl, null, desc, instance.$ctxValues);
             this._returnVal.splice(0, this._returnVal.length);
 
             if (!instance.$clonedData)
                 mustRebuild = true;
-            else
-            {
+            else  {
                 var prevValue = instance.$clonedData;
                 if (Compiler.isEquivalent( prevValue, parsedExp ) == false )
                     mustRebuild = true;
             }
 
-            if (mustRebuild)
-            {
-                if (parsedExp)
-                {
+            if (mustRebuild) {
+                if (parsedExp) {
                     var clone: AppNode = <AppNode>Compiler.cloneNode(desc.$originalNode);
                     this._returnVal.push(clone);
                 }

@@ -1,11 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* A portal class for behaviours. There are 4 different types of portals -
 	* INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
 	*/
-	export class Portal extends Component
-	{
+	export class Portal extends Component {
 		private _links: Array<Link>;
 		private _customPortal: boolean;
         private _type: PortalType;
@@ -18,8 +16,7 @@ module Animate
 		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
 		* @param {Prop<any>} property The property associated with this portal
 		*/
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom: boolean = false)
-		{
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom: boolean = false) {
             // Call super-class constructor
             super(`<div class='portal ${PortalType[type].toLowerCase()}'></div>`, parent);
 
@@ -39,8 +36,7 @@ module Animate
 		* Edits the portal variables
 		* @param {Prop<any>} property The new value of the property
 		*/
-        edit(property: Prop<any>)
-        {
+        edit(property: Prop<any>) {
             var svgSize = 10;
             var svgSizeHalf = svgSize * 0.5;
             var svgBlockS = svgSize * 0.65;
@@ -58,8 +54,7 @@ module Animate
             else if (this._type == PortalType.PRODUCT)
                 this.element.append(`<svg height="${svgSize}" width="${svgSize}"><polygon points="0,0 ${svgSize},0 ${svgSize},${svgBlockS} ${svgSizeHalf},${svgSize} 0,${svgBlockS}" /></svg>`);
 
-            if (this._type == PortalType.PARAMETER)
-            {
+            if (this._type == PortalType.PARAMETER) {
                 this.behaviour.properties.removeVar(property.name);
                 this.behaviour.properties.addVar(property);
             }
@@ -74,12 +69,10 @@ module Animate
 		* This function will check if the source portal is an acceptable match with the current portal.
 		* @param source The source panel we are checking against
 		*/
-		checkPortalLink( source: Portal )
-		{
+		checkPortalLink( source: Portal ) {
 			if ( source.type == PortalType.OUTPUT && this.type == PortalType.INPUT )
 				return true;
-			else if ( source.type == PortalType.PRODUCT && this.type == PortalType.PARAMETER )
-            {
+			else if ( source.type == PortalType.PRODUCT && this.type == PortalType.PARAMETER ) {
                 if (this._property.type == null || this._property.type == PropertyType.OBJECT)
 					return true;
                 else if (this._property.type == this._property.type )
@@ -96,11 +89,9 @@ module Animate
 		/**
 		* This function will check if the source portal is an acceptable match with the current portal.
 		*/
-		dispose()
-		{
+		dispose() {
 			var len = this._links.length;
-			while ( len > 0 )
-			{
+			while ( len > 0 ) {
 				this._links[0].dispose();
 				len = this._links.length;
 			}
@@ -118,8 +109,7 @@ module Animate
 		* When the mouse is down on the portal.
 		* @param {object} e The jQuery event object
 		*/
-		onPortalDown( e )
-		{
+		onPortalDown( e ) {
 			var newLink = new Link( this.parent.parent.element.data( "component" ) );
 			newLink.start( this, e );
 		}
@@ -128,8 +118,7 @@ module Animate
 		* Adds a link to the portal.
 		* @param {Link} link The link we are adding
 		*/
-		addLink( link: Link )
-		{
+		addLink( link: Link ) {
 			if ( jQuery.inArray( link, this._links ) == -1 )
 				this._links.push( link );
 
@@ -144,8 +133,7 @@ module Animate
 		* Removes a link from the portal.
 		* @param {Link} link The link we are removing
 		*/
-		removeLink( link : Link ) : Link
-		{
+		removeLink( link : Link ) : Link {
 			if ( this._links.indexOf( link ) == -1 )
 				return link;
 
@@ -160,8 +148,7 @@ module Animate
 		/**
 		* Makes sure the links are positioned correctly
 		*/
-		updateAllLinks()
-		{
+		updateAllLinks() {
 			var links = this._links;
             var i = links.length;
 
@@ -173,8 +160,7 @@ module Animate
 		/**
 		* Returns this portal's position on the canvas.
 		*/
-		positionOnCanvas()
-		{
+		positionOnCanvas() {
 			// Get the total parent scrolling
 			var p : JQuery = this.parent.element;
 			var p_: JQuery = p;
@@ -182,8 +168,7 @@ module Animate
 			var startY = 0;
 			var sL = 0;
 			var sT = 0;
-			while ( p.length != 0 )
-			{
+			while ( p.length != 0 ) {
 				sL = p.scrollLeft();
 				sT = p.scrollTop();
 

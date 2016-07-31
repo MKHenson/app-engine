@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* Use this form to set the project meta and update build versions.
 	*/
-    export class BuildOptionsForm extends Window
-	{
+    export class BuildOptionsForm extends Window {
 		public static _singleton: BuildOptionsForm;
 
         private _projectElm: JQuery;
@@ -47,8 +45,7 @@ module Animate
 		//private _clickProxy: any;
 		private _settingPages: Array<ISettingsPage>;
 
-		constructor()
-		{
+		constructor() {
 			super(600, 500, true, true, "Settings");
 			BuildOptionsForm._singleton = this;
 
@@ -196,21 +193,17 @@ module Animate
         /**
         * Opens the file viewer and lets the user pick an image for their avatar
         */
-        pickAvatar()
-        {
+        pickAvatar() {
             var that = this;
             this.$loading = true;
             (<any>this).$errorMsgUserImg = "";
 
-            Animate.FileViewer.get.choose('img').then(function(file)
-            {
-                User.get.updateDetails({ image: (file ? file.url : null) }).then(function ()
-                {
+            Animate.FileViewer.get.choose('img').then(function(file) {
+                User.get.updateDetails({ image: (file ? file.url : null) }).then(function () {
                     that.$loading = false;
                     Compiler.digest(that._userElm, that, false);
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     (<any>that).$errorMsgUserImg = err.message;
                     that.$loading = false;
                     Compiler.digest(that._userElm, that, false);
@@ -222,22 +215,18 @@ module Animate
         /**
         * Opens the file viewer and lets the user pick an image for their project
         */
-        pickProjectPick()
-        {
+        pickProjectPick() {
             var that = this;
             this.$loading = true;
             var project = User.get.project;
             (<any>this).$errorMsgProjImg = "";
 
-            Animate.FileViewer.get.choose('img').then(function (file)
-            {
-                project.updateDetails({ image: (file ? file.url : null) }).then(function ()
-                {
+            Animate.FileViewer.get.choose('img').then(function (file) {
+                project.updateDetails({ image: (file ? file.url : null) }).then(function () {
                     that.$loading = false;
                     Compiler.digest(that._projectElm, that, false);
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     (<any>that).$errorMsgProjImg = err.message;
                     that.$loading = false;
                     Compiler.digest(that._projectElm, that, false);
@@ -248,15 +237,13 @@ module Animate
         /**
         * Attempts to update the project
         */
-        updateDetails(token: Engine.IPlugin)
-        {
+        updateDetails(token: Engine.IPlugin) {
             var that = this,
                 project = User.get.project;
             this.$loading = true;
             this.$errorMsg = "";
 
-            project.updateDetails(token).then(function ()
-            {
+            project.updateDetails(token).then(function () {
                 // Update the project object
                 for (var i in token)
                     project.entry[i] = token[i];
@@ -264,8 +251,7 @@ module Animate
                 that.$loading = false;
                 Compiler.digest(that._projectElm, that, false);
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 that.$errorMsg = err.message;
                 that.$loading = false;
                 Compiler.digest(that._projectElm, that, false);
@@ -277,17 +263,14 @@ module Animate
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
 		*/
-        reportError(form: NodeForm): boolean
-        {
+        reportError(form: NodeForm): boolean {
             if (!form.$error)
                 this.$errorMsg = "";
-            else
-            {
+            else {
                 var name = form.$errorInput;
                 name = name.charAt(0).toUpperCase() + name.slice(1);
 
-                switch (form.$errorExpression)
-                {
+                switch (form.$errorExpression) {
                     case "alpha-numeric":
                         this.$errorMsg = `${name} must only contain alphanumeric characters`;
                         break;
@@ -322,21 +305,18 @@ module Animate
 		* Updates the user bio information
 		* @param {string} bio The new bio data
 		*/
-        updateBio(bio:string)
-        {
+        updateBio(bio:string) {
             var that = this,
                 user = this.$user;
             this.$loading = true;
             this.$errorMsg = "";
 
-            user.updateDetails(<Engine.IUserMeta>{ bio : bio }).catch(function (err: Error)
-            {
+            user.updateDetails(<Engine.IUserMeta>{ bio : bio }).catch(function (err: Error) {
                 that.$errorMsg = err.message;
                 that.$loading = false;
                 Compiler.digest(that._userElm, that, false);
 
-            }).then(function ()
-            {
+            }).then(function () {
                 that.$loading = false;
                 Compiler.digest(that._userElm, that, false);
             });
@@ -347,8 +327,7 @@ module Animate
 		* @param {any} event
 		* @param {any} data
 		*/
-		onTab( response : TabEvents, event : TabEvent, sender? :EventDispatcher )
-		{
+		onTab( response : TabEvents, event : TabEvent, sender? :EventDispatcher ) {
 			var i = this._settingPages.length;
 			while ( i-- )
 				if ( this._settingPages[i].name == event.pair.text )
@@ -363,8 +342,7 @@ module Animate
 		* Use this function to add a new settings page to the settings menu
 		* @param {ISettingsPage} component The ISettingsPage component we're adding
 		*/
-		addSettingPage( component: ISettingsPage )
-		{
+		addSettingPage( component: ISettingsPage ) {
 			this._settingPages.push( component );
 			var tabPage: TabPair = this._tab.addTab( component.name, false );
 			tabPage.page.addChild( component );
@@ -600,8 +578,7 @@ module Animate
 		* Shows the build options form
 		* @returns {any}
 		*/
-		show()
-		{
+		show() {
 			OkCancelForm.prototype.show.call( this );
             this._tab.selectTab( this._tab.getTab( "Project" ) );
 
@@ -804,8 +781,7 @@ module Animate
 		* Gets the singleton instance.
 		* @returns {BuildOptionsForm}
 		*/
-		static getSingleton() : BuildOptionsForm
-		{
+		static getSingleton() : BuildOptionsForm {
 			if ( !BuildOptionsForm._singleton )
 				new BuildOptionsForm();
 

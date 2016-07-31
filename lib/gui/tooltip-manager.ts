@@ -1,15 +1,12 @@
-module Animate
-{
+module Animate {
 	/**
 	* A singleton class that manages displaying the tooltips of various components.
 	*/
-	export class TooltipManager
-	{
+	export class TooltipManager {
 		private static _singleton: TooltipManager;
 		private label: Label;
 
-		constructor()
-		{
+		constructor() {
 			if ( TooltipManager._singleton != null )
 				throw new Error( "The TooltipManager class is a singleton. You need to call the TooltipManager.getSingleton() function." );
 
@@ -25,8 +22,7 @@ module Animate
 		* @description Called when we hover over an element.
 		* @param {any} e The JQUery event object
 		*/
-		onMove = function ( e )
-		{
+		onMove = function ( e ) {
 			var comp : Component = jQuery( e.target ).data( "component" );
 			if ( !comp )
 				return;
@@ -36,8 +32,7 @@ module Animate
 			var tt = comp.tooltip;
 			var elm: JQuery = label.element;
 
-			if ( tt && tt != "" )
-			{
+			if ( tt && tt != "" ) {
 				label.text = tt;
 
 				var h: number = label.element.height();
@@ -56,8 +51,7 @@ module Animate
 		/**
 		* Gets the singleton instance
 		*/
-		public static create(): TooltipManager
-		{
+		public static create(): TooltipManager {
 			if ( TooltipManager._singleton === undefined )
 				TooltipManager._singleton = new TooltipManager();
 

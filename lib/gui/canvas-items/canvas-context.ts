@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This is the implementation of the context menu on the canvas.
 	*/
-	export class CanvasContext extends ContextMenu
-	{
+	export class CanvasContext extends ContextMenu {
 		private mCreateInput: ContextMenuItem;
 		private mCreateOutput: ContextMenuItem;
 		private mCreateParam: ContextMenuItem;
@@ -15,8 +13,7 @@ module Animate
 		private mCreateComment: ContextMenuItem;
 		private mDelEmpty: ContextMenuItem;
 
-		constructor()
-		{
+		constructor() {
 			// Call super-class constructor
 			super();
 
@@ -35,8 +32,7 @@ module Animate
 		/**
 		* Shows the window by adding it to a parent.
 		*/
-		showContext( x : number, y : number, item : Component )
-		{
+		showContext( x : number, y : number, item : Component ) {
 			this.mCreateInput.element.show();
 			this.mCreateOutput.element.show();
 			this.mCreateParam.element.show();
@@ -45,24 +41,21 @@ module Animate
 			this.mDelEmpty.element.hide();
 
 			//If there is nothing selected
-			if ( item == null )
-			{
+			if ( item == null ) {
 				this.mDel.element.hide();
 				this.mCreate.element.show();
 				this.mCreateComment.element.show();
 				this.mDelEmpty.element.show();
 			}
 			//If we're editing a Portal
-			else if ( item instanceof Portal )
-			{
+			else if ( item instanceof Portal ) {
 				this.mCreateInput.element.hide();
 				this.mCreateOutput.element.hide();
 				this.mCreateParam.element.hide();
 				this.mCreateProduct.element.hide();
 				this.mDel.element.hide();
 
-				if ( (<Portal> item).customPortal )
-				{
+				if ( (<Portal> item).customPortal ) {
 					this.mEditPortal.element.show();
 					this.mDel.element.show();
 					this.mCreate.element.hide();
@@ -72,8 +65,7 @@ module Animate
 					return;
 			}
 			//If something is selected
-			else if ( item instanceof Behaviour || item instanceof BehaviourPortal )
-			{
+			else if ( item instanceof Behaviour || item instanceof BehaviourPortal ) {
 				this.mDel.element.show();
 				this.mCreate.element.hide();
 				this.mCreateComment.element.hide();
@@ -83,11 +75,9 @@ module Animate
 				this.mCreateParam.element.hide();
 				this.mCreateProduct.element.hide();
 
-				if ( item instanceof BehaviourPortal == false )
-				{
+				if ( item instanceof BehaviourPortal == false ) {
 					var template = PluginManager.getSingleton().getTemplate((<BehaviourPortal>item).originalName );
-					if ( template )
-					{
+					if ( template ) {
 						if ( template.canBuildOutput( <Behaviour>item ) )
 							this.mCreateOutput.element.show();
 						if ( template.canBuildInput( <Behaviour>item ) )

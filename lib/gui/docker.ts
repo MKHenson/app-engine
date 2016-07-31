@@ -1,13 +1,10 @@
-/// <reference path="Logger.ts" />
-module Animate
-{
+module Animate {
 	/**
 	* A Docker is used in Animate so that we can divide up screen real estate. A box is added to a parent component
 	* which, when hovered or dragged, will enabled the user to move components around or explore hidden sections
 	* of the application.
 	*/
-	export class Docker extends Component
-	{
+	export class Docker extends Component {
 		private activeComponent: IDockItem;
 		private _activePreview: JQuery;
 		private rollout: JQuery;
@@ -19,8 +16,7 @@ module Animate
 		private clickPreview: any;
 		private dropProxy: any;
 
-		constructor( parent : Component )
-		{
+		constructor( parent : Component ) {
 			// Call super-class constructor
 			super( "<div class='screen-manager light-gradient shadow-small curve-small'></div>", parent );
 
@@ -44,19 +40,16 @@ module Animate
 		}
 
 		/** When we click on a preview.*/
-		onClick( e : any ) : void
-		{
+		onClick( e : any ) : void {
 			var comp: IDockItem = jQuery( e.target ).data( "component" );
-			if ( comp )
-			{
+			if ( comp )	{
 				this.removeComponent( comp );
 				this.addComponent( comp, true );
 			}
 		}
 
 		/** When we start draggin.*/
-		onStart( e: any ): void
-		{
+		onStart( e: any ): void {
 			var managers = jQuery( ".screen-manager" );
 			managers.removeClass( "light-gradient" );
 			managers.addClass( "drag-targets" );
@@ -64,8 +57,7 @@ module Animate
 		}
 
 		/** When we stop draggin.*/
-		onStop( e: any): void
-		{
+		onStop( e: any): void {
 			var managers = jQuery( ".screen-manager" );
 			managers.addClass( "light-gradient" );
 			managers.removeClass( "drag-targets" );
@@ -73,8 +65,7 @@ module Animate
 		}
 
 		/** Called when the mouse is over this element.*/
-		onEnter( e: any ): void
-		{
+		onEnter( e: any ): void {
 			if ( this.mComponents.length > 1 )
 				this.element.append( this.rollout );
 
@@ -86,19 +77,16 @@ module Animate
 		}
 
 		/** Called when the mouse leaves this element.*/
-		onOut( e: any ): void
-		{
+		onOut( e: any ): void {
 			this.rollout.stop();
 			this.rollout.fadeOut();
 		}
 
 		/**Called when a draggable object is dropped onto the canvas.*/
-		onObjectDropped( event: any, ui: any ): void
-		{
+		onObjectDropped( event: any, ui: any ): void {
 			var comp : Component = jQuery( ui.draggable ).data( "component" );
 			var manager = jQuery( ui.draggable ).data( "Docker" );
-			if ( comp && manager )
-			{
+			if ( comp && manager ) {
 				var parent = this.parent;
 
 				manager.removeComponent( comp );
@@ -111,14 +99,12 @@ module Animate
 		}
 
 		/** Call this function to update the manager.*/
-		update(): void
-		{
+		update(): void {
 			//Call super
 			Component.prototype.update.call( this, false );
 
 			var parent = this.parent.element;
-			if ( parent.length != 0 )
-			{
+			if ( parent.length != 0 ) {
 				var w = parent.width();
 				var h = parent.height();
 
@@ -127,25 +113,21 @@ module Animate
 		}
 
 		/** Gets the singleton instance. */
-		setActiveComponent( comp: IDockItem, attach : boolean = false ): void
-		{
-			if ( this.activeComponent )
-			{
+		setActiveComponent( comp: IDockItem, attach : boolean = false ): void {
+			if ( this.activeComponent ) {
 				var parent = this.activeComponent.parent;
 
 				if ( parent )
 					parent.removeChild( this.activeComponent );
 			}
-			if ( this._activePreview )
-			{
+			if ( this._activePreview ) {
 				this._activePreview.detach();
 				this.rollout.append( this._activePreview );
 			}
 			this.activeComponent = comp;
 			this._activePreview = comp.element.data( "preview" );
 
-			if ( attach )
-			{
+			if ( attach ) {
 				this.parent.addChild( comp );
 				comp.onShow();
 			}
@@ -154,8 +136,7 @@ module Animate
 		}
 
 		/** Removes an IDockItem from the manager */
-		removeComponent( comp : IDockItem, completeRemoval : boolean = false ): void
-		{
+		removeComponent( comp : IDockItem, completeRemoval : boolean = false ): void {
 			comp.setDocker( null );
 			var preview = comp.element.data( "preview" );
 			this.mComponents.splice( jQuery.inArray( comp, this.mComponents ), 1 );
@@ -180,8 +161,7 @@ module Animate
 		}
 
 		/** Adds a IDockItem to the manager */
-		addComponent( comp, attach ): void
-		{
+		addComponent( comp, attach ): void {
 			if ( jQuery.inArray( comp, this.mComponents ) != -1 )
 				return;
 
@@ -191,8 +171,7 @@ module Animate
 
 			//Create the preview jquery object
 			var toAdd = null;
-			if ( !comp.element.data( "preview" ) )
-			{
+			if ( !comp.element.data( "preview" ) ) {
 				toAdd = jQuery( "<div class='screen-manager-preview'><img src='" + comp.getPreviewImage() + "'></div>" );
 				toAdd.draggable( { start: this.startProxy, stop: this.stopProxy, opacity: 0.7, cursor: "move", helper: "clone", revert: "invalid", appendTo: "body", containment: "body", zIndex: 9999 });
 			}

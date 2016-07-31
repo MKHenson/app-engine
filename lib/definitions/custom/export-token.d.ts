@@ -1,15 +1,12 @@
-declare module Animate
-{
-	export interface PortalToken
-	{
+declare module Animate {
+	export interface PortalToken {
 		name: string;
 		type: string;
 		dataType: string;
 		value: any;
 	}
 
-	export interface LinkToken
-	{
+	export interface LinkToken {
 		id: string;
 		type: string;
 		startPortal: string;
@@ -19,8 +16,7 @@ declare module Animate
 		frameDelay: number;
 	}
 
-	export interface BehaviourToken
-	{
+	export interface BehaviourToken {
 		id: string;
 		name: string;
 		type: string;
@@ -39,8 +35,7 @@ declare module Animate
 		shallowId: number;
 	}
 
-	export interface ContainerToken
-	{
+	export interface ContainerToken	{
 		name: string;
 		id: any;
 		behaviours: Array<BehaviourToken>;
@@ -51,15 +46,13 @@ declare module Animate
 		plugins: {};
 	}
 
-	export interface GroupToken
-	{
+	export interface GroupToken {
 		name: string;
         id: string;
         items: Array<number>
 	}
 
-	export interface AssetToken
-	{
+	export interface AssetToken {
 		name: string;
 		id: number;
 		properties: { [name: string]: any };
@@ -67,8 +60,7 @@ declare module Animate
 		assets: Array<number>;
 	}
 
-	export interface ExportToken
-	{
+	export interface ExportToken {
 		assets: Array<AssetToken>;
 		groups: Array<GroupToken>;
 		containers: Array<ContainerToken>;

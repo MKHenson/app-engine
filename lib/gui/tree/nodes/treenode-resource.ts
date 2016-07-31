@@ -1,15 +1,12 @@
-module Animate
-{
+module Animate {
 	/**
 	* This node represents a project resource
 	*/
-    export class TreeNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNode
-    {
+    export class TreeNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNode {
         public resource: T;
         private _dropProxy: any;
 
-        constructor(resource: T, text: string, img: string, hasExpand: boolean)
-		{
+        constructor(resource: T, text: string, img: string, hasExpand: boolean) {
             // Call super-class constructor
             super(text, img, hasExpand);
 
@@ -29,40 +26,35 @@ module Animate
         /**
         * Called whenever the resource is re-downloaded
         */
-        protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
-        {
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher) {
             this.text = this.resource.entry.name;
         }
 
         /**
         * Called whenever the resource is modified
         */
-        protected onDeleted(type: string, event: Event, sender: EventDispatcher)
-        {
+        protected onDeleted(type: string, event: Event, sender: EventDispatcher) {
             this.dispose();
         }
 
         /**
 		* Called whenever the resource is modified
 		*/
-        protected onModified(type: string, event: Event, sender: EventDispatcher)
-        {
+        protected onModified(type: string, event: Event, sender: EventDispatcher) {
             this.modified = !this.resource.saved;
         }
 
 		/**
 		* Called when a draggable object is dropped onto the node
 		*/
-        protected onDropped(event, ui)
-		{
+        protected onDropped(event, ui) {
 			var comp : TreeNode = jQuery( ui.draggable ).data( "component" );
 		}
 
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-        {
+		dispose() {
             this.resource.on("refreshed", this.onRefreshed, this);
             this.resource.off("modified", this.onModified, this);
             this.resource.on("deleted", this.onDeleted, this);

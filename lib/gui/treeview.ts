@@ -1,16 +1,13 @@
-module Animate
-{
+module Animate {
 	/**
 	* This class is used to create tree view items.
 	*/
-	export class TreeView extends Component
-	{
+	export class TreeView extends Component {
 		private _selectedNode: TreeNode;
 		private fixDiv: JQuery;
 		private _selectedNodes: Array<TreeNode>;
 
-		constructor( parent : Component )
-		{
+		constructor( parent : Component ) {
 			// Call super-class constructor
 			super( "<div class='tree'></div>", parent );
 
@@ -26,16 +23,13 @@ module Animate
 		* When we click the view
 		* @param {any} e
 		*/
-		onClick( e : any )
-		{
-			if ( jQuery( e.target ).hasClass( "first-selectable" ) )
-			{
+		onClick( e : any ) {
+			if ( jQuery( e.target ).hasClass( "first-selectable" ) ) {
 				jQuery( ".tree-node-button", e.target ).trigger( "click" );
 				return;
 			}
 
-			if ( jQuery( e.target ).hasClass( "tree-node-button" ) )
-			{
+			if ( jQuery( e.target ).hasClass( "tree-node-button" ) ) {
 				var node : TreeNode = jQuery( e.target ).parent().parent().data( "component" );
 
 				if ( node.expanded )
@@ -47,33 +41,26 @@ module Animate
 			}
 
 			var comp = jQuery( e.target ).parent().data( "component" );
-			if ( comp != null && comp instanceof TreeNode )
-			{
+			if ( comp != null && comp instanceof TreeNode ) {
 				//CTRL KEY OPERATIONS
 				if ( e.ctrlKey )
 					this.selectNode( comp, false, e.ctrlKey );
 
 				//SHIFT KEY OPERATIONS
-				else if ( e.shiftKey )
-				{
-					if ( this._selectedNodes.length == 1 )
-					{
-						if ( comp.element.parent().data( "component" ) == this._selectedNodes[0].element.parent().data( "component" ) )
-						{
+				else if ( e.shiftKey ) {
+					if ( this._selectedNodes.length == 1 ) {
+						if ( comp.element.parent().data( "component" ) == this._selectedNodes[0].element.parent().data( "component" ) ) {
 							var parent = comp.element.parent();
                             var startSelecting = false;
                             var pNode: TreeNode  = parent.data("component");
 
-							for ( var i = 0; pNode.children.length; i++ )
-							{
-								if ( !startSelecting && pNode.children[i] == comp )
-								{
+							for ( var i = 0; pNode.children.length; i++ ) {
+								if ( !startSelecting && pNode.children[i] == comp ) {
 									this.selectNode( null );
 									return;
 								}
 
-								if ( startSelecting || pNode.children[i] == this._selectedNodes[0] )
-								{
+								if ( startSelecting || pNode.children[i] == this._selectedNodes[0] ) {
                                     startSelecting = true;
                                     this.selectNode(<TreeNode>pNode.children[i], false, true);
 
@@ -103,13 +90,11 @@ module Animate
 		* and expand all parent nodes
 		* @param {boolean} multiSelect If true then multiple nodes are selected
 		*/
-		selectNode( node: TreeNode, expandToNode : boolean = false, multiSelect : boolean = false )
-		{
+		selectNode( node: TreeNode, expandToNode : boolean = false, multiSelect : boolean = false ) {
 			if ( !this.enabled )
 				return;
 
-			if ( this._selectedNode && multiSelect == false )
-			{
+			if ( this._selectedNode && multiSelect == false ) {
 				var i = this._selectedNodes.length;
 				while ( i-- )
 					this._selectedNodes[i].selected = false;
@@ -120,17 +105,13 @@ module Animate
 
 			this._selectedNode = node;
 
-			if ( node )
-			{
-				if ( this._selectedNodes.indexOf( node ) == -1 )
-				{
-					if ( expandToNode )
-					{
+			if ( node ) {
+				if ( this._selectedNodes.indexOf( node ) == -1 ) {
+					if ( expandToNode )	{
 						//Make sure the tree node is expanded
 						var p: TreeNode = <TreeNode>node.parent;
 						var scroll = 0;
-						while ( p && p instanceof TreeNode )
-						{
+						while ( p && p instanceof TreeNode ) {
 							if ( !p.expanded )
 								p.expand();
 
@@ -153,8 +134,7 @@ module Animate
 		* @param {TreeNode} node The node to add
 		* @returns {TreeNode}
 		*/
-		addNode( node: TreeNode ) : TreeNode
-		{
+		addNode( node: TreeNode ) : TreeNode {
 			node.treeview = this;
 			node.element.addClass( "tree-node-top" );
             jQuery(".selectable", node.element).addClass("first-selectable");
@@ -175,11 +155,9 @@ module Animate
 		* This will clear and dispose of all the nodes
 		* @returns Array<TreeNode> The nodes of this tree
 		*/
-		clear()
-		{
+		clear() {
 			var children: Array<TreeNode> = <Array<TreeNode>>this.children;
-			while ( children.length > 0 )
-			{
+			while ( children.length > 0 ) {
 				if ( this._selectedNodes.indexOf( children[0] ) != -1 )
 					this._selectedNodes.splice( this._selectedNodes.indexOf( children[0] ), 1 );
 				children[0].dispose();
@@ -191,8 +169,7 @@ module Animate
 		* @param {TreeNode} node The node to remove
 		* @returns {TreeNode}
 		*/
-		removeNode( node ) : TreeNode
-		{
+		removeNode( node ) : TreeNode {
 			node.treeview = null;
 			var toRet = Component.prototype.removeChild.call( this, node );
 
@@ -212,8 +189,7 @@ module Animate
 		* @param {any} value The object we should be comparing against
 		* @returns {TreeNode}
 		*/
-		findNode( property : string, value : any ) : TreeNode
-		{
+		findNode( property : string, value : any ) : TreeNode {
 			var children: Array<TreeNode> = <Array<TreeNode>>this.children;
 			var len = children.length;
 			for ( var i = 0; i < len; i++ )

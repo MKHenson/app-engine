@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* The ListViewItem class is used in the ListView class. These represent the items you can select.
 	*/
-	export class ListViewItem
-	{
+	export class ListViewItem {
 		private _fields: Array<string>;
 		private _components: Array<Component>;
 		private _smallImg: string;
@@ -17,8 +15,7 @@ module Animate
 		* @param {string} smallImg The URL of an image to use that can represent the small image of this item when in Image mode of the list view
 		* @param {string} largeIMG The URL of an image to use that can represent the large image of this item when in Image mode of the list view
 		*/
-		constructor(fields:Array<string>, smallImg: string = "", largeIMG:string = "" )
-		{
+		constructor(fields:Array<string>, smallImg: string = "", largeIMG:string = "" ) {
 			this._fields = fields;
 			this._smallImg = smallImg;
 			this._largeIMG = largeIMG;
@@ -31,8 +28,7 @@ module Animate
 		/**
 		* This function clears the field's components
 		*/
-		clearComponents()
-		{
+		clearComponents() {
 			var i = this._components.length;
 			while (i--)
 				this._components[i].dispose();
@@ -43,8 +39,7 @@ module Animate
 		/**
 		* This function is used to cleanup the object before its removed from memory.
 		*/
-		dispose()
-		{
+		dispose() {
 			var i = this._components.length;
 			while (i--)
 				this._components[i].dispose();
@@ -63,8 +58,7 @@ module Animate
 		* @param {number} imgSize The size of the image
 		* @returns <Component>
 		*/
-		preview(text : string, imgSize : number )
-		{
+		preview(text : string, imgSize : number ) {
 			var toRet = new Component("<div class='list-view-preview' style='width:" + (imgSize) + "px; height:" + (imgSize + 30) + "px;'><div class='image' style='width:" + imgSize + "px; height:" + imgSize + "px;'><img src='" + this.largeIMG + "' /></div><div class='info'>" + text + "</div></div>", null);
 			this.components.push(toRet);
 
@@ -77,8 +71,7 @@ module Animate
 		* @param string content The text to show inside of the field
 		* @returns {Component}
 		*/
-		field(content: string): Component
-		{
+		field(content: string): Component {
 			var toRet = new Component("<div class='list-view-field unselectable'>" + content + "</div>", null);
 			this.components.push(toRet);
 

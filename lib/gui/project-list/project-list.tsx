@@ -1,5 +1,4 @@
-module Animate
-{
+module Animate {
     /**
      * Project List
      */

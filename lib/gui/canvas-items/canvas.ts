@@ -1,19 +1,15 @@
-module Animate
-{
-	class ShortCutHelper
-	{
+module Animate {
+	class ShortCutHelper {
 		public item: BehaviourShortcut;
 		public datum: any;
 
-		constructor( item: BehaviourShortcut, datum: any )
-		{
+		constructor( item: BehaviourShortcut, datum: any ) {
 			this.item = item;
 			this.datum = datum;
 		}
 	}
 
-	export class CanvasEvents extends ENUM
-	{
+	export class CanvasEvents extends ENUM {
 		constructor( v: string ) { super( v ); }
 
 		static MODIFIED: CanvasEvents = new CanvasEvents( "canvas_modified" );
@@ -24,8 +20,7 @@ module Animate
 	/**
 	* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
 	*/
-	export class Canvas extends Component
-	{
+	export class Canvas extends Component {
 		public static lastSelectedItem = null;
 		public static snapping: boolean = false;
         public name: string;
@@ -47,8 +42,7 @@ module Animate
 		* @param {Component} parent The parent component to add this canvas to
 		* @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
-		constructor( parent: Component, container: Container )
-		{
+		constructor( parent: Component, container: Container ) {
 			// Call super-class constructor
 			super( "<div class='canvas' tabindex='0'></div>", parent );
 
@@ -90,13 +84,11 @@ module Animate
 		 * @param e
 		 * @param ui
 		 */
-        onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent)
-		{
+        onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent) {
 			var target: Behaviour = <Behaviour>jQuery( e.currentTarget ).data( "component" );
 
 			// Shift key pressed - so lets create a shortcut
-			if ( e.shiftKey )
-			{
+			if ( e.shiftKey ) {
 				if ( !( target.canGhost ) )
 					return;
 
@@ -123,14 +115,12 @@ module Animate
 		/**
 		* When an item is finished being dragged
 		*/
-		onChildDropped( e, ui )
-		{
+		onChildDropped( e, ui ) {
 			var target: Behaviour = <Behaviour>ui.helper.data( "component" );
 			var left = parseFloat( target.element.css( "left" ).split( "px" )[0] );
 			var top = parseFloat( target.element.css( "top" ).split( "px" )[0] );
 
-			if ( Canvas.snapping )
-			{
+			if ( Canvas.snapping ) {
 				left = parseInt( left.toString() );
 				top = parseInt( top.toString() );
 
@@ -159,11 +149,9 @@ module Animate
 		* @param {any} event The jQuery UI event
 		* @param {any} ui The event object sent from jQuery UI
 		*/
-		onObjectDropped( event: any, ui: any )
-		{
+		onObjectDropped( event: any, ui: any ) {
 			var comp: Component = jQuery( ui.draggable ).data( "component" );
-			if ( comp instanceof TreeNode )
-			{
+			if ( comp instanceof TreeNode ) {
 				var p: JQuery = this.parent.element;
 				var offset = this.element.offset();
 				var scrollX = p.scrollLeft();
@@ -187,15 +175,13 @@ module Animate
 		* @param {number} x
 		* @param {number} y
 		*/
-		addAssetAtLocation( asset: Asset, x: number, y: number )
-		{
+		addAssetAtLocation( asset: Asset, x: number, y: number ) {
 			var node: BehaviourAsset = <BehaviourAsset>this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), x, y );
             node.asset = asset;
             node.parameters[0].property.setVal( asset );
 
 			// Add a reference to this canvas's scene assets
-			if ( asset )
-			{
+			if ( asset ) {
                 node.text = asset.entry.name;
                 node.alias = asset.entry.name;
 			}
@@ -206,8 +192,7 @@ module Animate
 		/**
 		* This function is used to cleanup the object before its removed from memory.
 		*/
-		dispose()
-		{
+		dispose() {
 			this.element.droppable("destroy");
 
 			PluginManager.getSingleton().off(EditorEvents.ASSET_EDITED, this.onAssetEdited, this);
@@ -239,14 +224,12 @@ module Animate
 		* This function will remove all references of an asset in the behaviour nodes
 		* @param {Asset} asset The asset reference
 		*/
-		removeAsset( asset: Asset )
-		{
+		removeAsset( asset: Asset ) {
 			var pManager: PluginManager = PluginManager.getSingleton();
 			var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._container );
             var project: Project = User.get.project;
 
-			for ( var i = 0, l = this.children.length; i < l; i++ )
-            {
+			for ( var i = 0, l = this.children.length; i < l; i++ ) {
                 var item = <Component>this.children[i];
 
 				// If it contains any assests - then we make sure they are removed from this canvas
@@ -255,8 +238,7 @@ module Animate
 
                 var behaviour = <Behaviour>item;
 
-                for (var ii = 0, il = behaviour.parameters.length; ii < il; ii++)
-                {
+                for (var ii = 0, il = behaviour.parameters.length; ii < il; ii++) {
                     var portal: Portal = behaviour.parameters[ii];
 
                     if (portal.property.type != PropertyType.ASSET && portal.property.type != PropertyType.ASSET_LIST)
@@ -267,21 +249,17 @@ module Animate
 
                     var a = portal.property.getVal();
 
-                    if (a instanceof Asset)
-                    {
-                        if (a == asset)
-                        {
+                    if (a instanceof Asset) {
+                        if (a == asset) {
                             portal.property.setVal(null);
 
                             if (behaviour instanceof BehaviourAsset)
                                 behaviour.asset = null;
                         }
                     }
-                    else if ((<Array<Asset>>a).length > 0)
-                    {
+                    else if ((<Array<Asset>>a).length > 0) {
                         var arrList = (<Array<Asset>>a);
-                        for (var a, al = arrList.length; a < al; a++)
-                        {
+                        for (var a, al = arrList.length; a < al; a++) {
                             if (arrList[a] == asset)
                                 portal.property.setVal(null);
                         }
@@ -296,8 +274,7 @@ module Animate
 		* Call this to remove an item from the canvas
 		* @param {Component} item The component we are removing from the canvas
 		*/
-        removeItem(item: Component)
-		{
+        removeItem(item: Component) {
 			var toRemove = [];
 			for ( var i = 0; i < this.children.length; i++ )
 				toRemove.push( this.children[i] );
@@ -308,8 +285,7 @@ module Animate
 					this.removeItem( toRemove[i] );
 
 			for ( var i = 0; i < toRemove.length; i++ )
-				if ( toRemove[i] == item )
-				{
+				if ( toRemove[i] == item ) {
 					// Notify of change
 					this.emit( new CanvasEvent( CanvasEvents.MODIFIED, this ) );
 
@@ -327,8 +303,7 @@ module Animate
 		/**
 		* Removes all selected items
 		*/
-		removeItems()
-		{
+		removeItems() {
 			// Remove all selected
 			var toRemove: Array<Component> = [];
 			var i = this.children.length;
@@ -345,16 +320,13 @@ module Animate
 		/**
 		* Called when the canvas context menu is closed and an item clicked.
 		*/
-		onContextSelect( e: ContextMenuEvents, event: ContextMenuEvent )
-        {
+		onContextSelect( e: ContextMenuEvents, event: ContextMenuEvent ) {
             var context: Component = this._contextNode;
             var that = this;
 
-			if ( event.item.text == "Delete" )
-			{
+			if ( event.item.text == "Delete" ) {
 				// Delete portal
-                if (context instanceof Portal)
-                {
+                if (context instanceof Portal) {
                     var behaviour: Behaviour = context.behaviour;
                     behaviour.removePortal(context);
 
@@ -369,8 +341,7 @@ module Animate
                 else
                     Toolbar.getSingleton().onDelete();
 			}
-			else if ( event.item.text == "Remove Empty Assets" )
-			{
+			else if ( event.item.text == "Remove Empty Assets" ) {
 				// Remove all selected
 				var toRemove = [];
                 for (var i = 0, l = this.children.length; i < l; i++)
@@ -382,10 +353,8 @@ module Animate
 							this.removeItem( toRemove[i] );
 			}
             // Edit an existing portal
-            else if (event.item.text == "Edit Portal" && context instanceof Portal)
-			{
-                PortalForm.getSingleton().editPortal(context.property, context.type, function (name): boolean
-                {
+            else if (event.item.text == "Edit Portal" && context instanceof Portal) {
+                PortalForm.getSingleton().editPortal(context.property, context.type, function (name): boolean {
                     // Make sure there are no duplicates
                     for (var i = 0, portals = context.behaviour.portals, l = portals.length; i < l; i++)
                         if (portals[i].property.name == name)
@@ -393,29 +362,25 @@ module Animate
 
                     return true;
 
-                }).then(function (data)
-                {
+                }).then(function (data) {
                     if (data.cancel)
                         return;
 
                     context.edit(data.prop);
                 });
 			}
-			else if ( event.item.text == "Create Behaviour" )
-			{
+			else if ( event.item.text == "Create Behaviour" ) {
 				var c = Application.getInstance().canvasContext;
 				BehaviourPicker.getSingleton().show( Application.getInstance(), c.element.offset().left, c.element.offset().top, false, true );
 			}
 			// Create a comment
-			else if ( event.item.text == "Create Comment" )
-			{
+			else if ( event.item.text == "Create Comment" ) {
 				var comment = new BehaviourComment( this, "Comment" );
 				comment.element.addClass( "scale-in-animation" );
 				comment.css( { left: this._x + "px", top: this._y + "px", width: "100px", height: "60px" });
 			}
 			else if ( event.item.text == "Create Input" || event.item.text == "Create Output"
-				|| event.item.text == "Create Parameter" || event.item.text == "Create Product" )
-			{
+				|| event.item.text == "Create Parameter" || event.item.text == "Create Product" ) {
 				// Define the type of portal
 				var type: PortalType = PortalType.INPUT;
 				if ( event.item.text == "Create Output" )
@@ -431,11 +396,9 @@ module Animate
                     //PortalForm.getSingleton().showForm(this, type, event.item.text);
 
 
-                PortalForm.getSingleton().editPortal(null, type, function (name): boolean
-                {
+                PortalForm.getSingleton().editPortal(null, type, function (name): boolean {
                     // Make sure there are no duplicates
-                    if (context instanceof Behaviour)
-                    {
+                    if (context instanceof Behaviour) {
                         for (var i = 0, portals = context.portals, l = portals.length; i < l; i++)
                             if (portals[i].property.name == name)
                                 return false;
@@ -448,15 +411,13 @@ module Animate
 
                     return true;
 
-                }).then(function (data)
-                {
+                }).then(function (data) {
                     if (data.cancel)
                         return;
 
                     if (context instanceof Behaviour)
                         context.addPortal(type, data.prop, true, true);
-                    else
-                    {
+                    else  {
                         var newNode: BehaviourPortal = new BehaviourPortal(that, data.prop, type);
                         newNode.css({ "left": that._x + "px", "top": that._y + "px", "position": "absolute" });
 
@@ -475,8 +436,7 @@ module Animate
 		/*
 		* Recurssively creates a list of assets used in this scene
 		*/
-		getAssetList( asset: Asset, assetMap: Array<number> )
-		{
+		getAssetList( asset: Asset, assetMap: Array<number> ) {
 			if ( !asset )
 				return;
 
@@ -489,8 +449,7 @@ module Animate
             for (var i = 0, l = properties.length; i < l; i++)
                 if (properties[i].type == PropertyType.ASSET)
                     this.getAssetList(properties[i].getVal(), assetMap);
-                else if (properties[i].type == PropertyType.ASSET_LIST)
-                {
+                else if (properties[i].type == PropertyType.ASSET_LIST) {
                     var aList = <Array<Asset>>properties[i].getVal();
                     for (var a = 0, al = aList.length; a < al; a++)
                         this.getAssetList(aList[a], assetMap);
@@ -498,8 +457,7 @@ module Animate
 		}
 
         // TODO: We need to actually figure out how to respond to asset edits - this is not currently called
-		onAssetEdited(e: ENUM, event: Event, sender? : EventDispatcher)
-		{
+		onAssetEdited(e: ENUM, event: Event, sender? : EventDispatcher) {
 			// Build the scene references in case some assets were added and not accounted for
 			this.buildSceneReferences();
 		}
@@ -507,24 +465,20 @@ module Animate
 		/*
 		* Creates the asset and group arrays associated with this container
 		*/
-		buildSceneReferences()
-		{
+		buildSceneReferences() {
             var curAssets: Array<number> = [];
             var curGroups: Array<number> = [];
 
 			var children = this.children;
             var project: Project = User.get.project;
 
-			for ( var i = 0; i < children.length; i++ )
-			{
-				if ( children[i] instanceof Behaviour )
-				{
+			for ( var i = 0; i < children.length; i++ ) {
+				if ( children[i] instanceof Behaviour ) {
 					var behaviour = <Behaviour>children[i];
 					var portals: Array<Portal> = behaviour.portals;
 
 					// Check all behaviours and their portals
-					for ( var ii = 0; ii < portals.length; ii++ )
-                    {
+					for ( var ii = 0; ii < portals.length; ii++ ) {
                         var val = portals[ii].property.getVal();
 
                         if (!val)
@@ -535,8 +489,7 @@ module Animate
                             this.getAssetList(val, curAssets );
                         else if (val instanceof GroupArray)
                             curGroups.push(val.entry._id);
-                        else if (val.constructor === Array )
-                        {
+                        else if (val.constructor === Array ) {
                             var aArray = <Array<Asset>>val;
                             for (var a, al = aArray.length; a < al; a++ )
                                 this.getAssetList(aArray[a], curAssets );
@@ -551,16 +504,14 @@ module Animate
 
 			// Notify of asset removals
 			for ( var i = 0, l = this._containerReferences.assets.length; i < l; i++ )
-				if ( curAssets.indexOf( this._containerReferences.assets[i] ) == -1 )
-                {
+				if ( curAssets.indexOf( this._containerReferences.assets[i] ) == -1 ) {
                     removeEvent.asset = project.getResourceByShallowID<Asset>(this._containerReferences.assets[i], ResourceType.ASSET);
 					pManager.emit( removeEvent );
 				}
 
 			// Notify of asset additions
 			for ( var i = 0, l = curAssets.length; i < l; i++ )
-				if ( this._containerReferences.assets.indexOf( curAssets[i] ) == -1 )
-                {
+				if ( this._containerReferences.assets.indexOf( curAssets[i] ) == -1 ) {
                     addEvent.asset = project.getResourceByShallowID<Asset>(curAssets[i], ResourceType.ASSET);
 					pManager.emit( addEvent );
 				}
@@ -572,8 +523,7 @@ module Animate
         /**
         * Whenever an item is edited
         */
-        onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher)
-        {
+        onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher) {
             if (this._loadingScene)
                 return;
 
@@ -639,18 +589,15 @@ module Animate
 		/**
 		* When we click ok on the portal form
 		*/
-		OnPortalConfirm( response: OkCancelFormEvents, e: OkCancelFormEvent )
-		{
+		OnPortalConfirm( response: OkCancelFormEvents, e: OkCancelFormEvent ) {
 			if ( this.element.is( ':visible' ) == false )
 				return;
 
-			if ( e.text == "Ok" )
-            {
+			if ( e.text == "Ok" ) {
                 var comp: Component = this._contextNode;
 
 				// If we are editing a portal
-                if (comp instanceof Portal )
-				{
+                if (comp instanceof Portal ) {
 
 					var portal: Portal = comp;
 					var oldName: string = portal.property.name;
@@ -679,8 +626,7 @@ module Animate
 
 					return;
 				}
-				else if ( comp instanceof Behaviour )
-				{
+				else if ( comp instanceof Behaviour ) {
 					// Create a portal on a Behaviour
                     var portal: Portal = comp.addPortal(PortalForm.getSingleton().portalType,
                         PortalForm.getSingleton().getProperty(), true, true);
@@ -689,8 +635,7 @@ module Animate
 						//PortalForm.getSingleton().parameterType, true
 						//);
 				}
-				else
-				{
+				else {
 					// Create a canvas portal
                     var newNode: BehaviourPortal = new BehaviourPortal(this, PortalForm.getSingleton().getProperty(), PortalForm.getSingleton().portalType);
 						//PortalForm.getSingleton().name,
@@ -712,8 +657,7 @@ module Animate
 		/**
 		* When the context is hidden we remove the event listeners.
 		*/
-		onContextHide( response: WindowEvents, e: WindowEvent )
-		{
+		onContextHide( response: WindowEvents, e: WindowEvent ) {
 			var context = Application.getInstance().canvasContext;
 			context.off( WindowEvents.HIDDEN, this.onContextHide, this );
 			context.off( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
@@ -723,8 +667,7 @@ module Animate
 		* Called when the context menu is about to open
 		* @param {any} e The jQuery event object
 		*/
-		onContext( e )
-		{
+		onContext( e ) {
 			if ( this.element.is( ':visible' ) == false )
 				return;
 
@@ -744,8 +687,7 @@ module Animate
 			this._contextNode = targ.data( "component" );
 
 			// If the canvas
-			if ( targetComp instanceof Canvas )
-			{
+			if ( targetComp instanceof Canvas ) {
 				this._contextNode = null;
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, null );
@@ -753,8 +695,7 @@ module Animate
 				context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 			}
 			// If a portal
-			else if ( targetComp instanceof Portal )
-			{
+			else if ( targetComp instanceof Portal ) {
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
@@ -762,13 +703,11 @@ module Animate
 
 			}
 			// If a link
-			else if ( targetComp instanceof Link )
-			{
+			else if ( targetComp instanceof Link ) {
 				e.preventDefault();
 				var link = targ.data( "component" );
 				var hit = link.hitTestPoint( e );
-				if ( hit )
-				{
+				if ( hit ) {
 					context.showContext( e.pageX, e.pageY, link );
 					context.on( WindowEvents.HIDDEN, this.onContextHide, this );
 					context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
@@ -776,8 +715,7 @@ module Animate
 			}
 
 			// If a portal node
-			else if ( targetComp instanceof BehaviourInstance || targetComp instanceof BehaviourAsset || targetComp instanceof BehaviourPortal )
-			{
+			else if ( targetComp instanceof BehaviourInstance || targetComp instanceof BehaviourAsset || targetComp instanceof BehaviourPortal ) {
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
@@ -786,8 +724,7 @@ module Animate
 			else if ( targetComp instanceof BehaviourComment )
 				e.preventDefault();
 			// If a behavior node (but not a portal node)
-			else if ( targetComp instanceof Behaviour )
-			{
+			else if ( targetComp instanceof Behaviour ) {
 				e.preventDefault();
 				context.showContext( e.pageX, e.pageY, this._contextNode );
 				context.on( WindowEvents.HIDDEN, this.onContextHide, this );
@@ -801,8 +738,7 @@ module Animate
 		/**
 		* When we have chosen a behaviour
 		*/
-		onBehaviourPicked( response: BehaviourPickerEvents, event: BehaviourPickerEvent )
-		{
+		onBehaviourPicked( response: BehaviourPickerEvents, event: BehaviourPickerEvent ) {
 			if ( this.element.is( ':visible' ) == false )
 				return;
 
@@ -813,12 +749,9 @@ module Animate
 			var template = PluginManager.getSingleton().getTemplate( event.behaviourName );
             var that = this;
 
-			if ( template )
-            {
-                if (template.behaviourName == "Script")
-                {
-                    RenameForm.get.renameObject({ name: "Script" }, null, ResourceType.SCRIPT).then(function (data)
-                    {
+			if ( template ) {
+                if (template.behaviourName == "Script") {
+                    RenameForm.get.renameObject({ name: "Script" }, null, ResourceType.SCRIPT).then(function (data) {
                         if (data.cancelled)
                             return;
 
@@ -833,8 +766,7 @@ module Animate
 		/**
 		* Iteratively goes through each container to check if its pointing to this behaviour
 		*/
-		private isCyclicDependency( container : Container, ref : string ) : boolean
-		{
+		private isCyclicDependency( container : Container, ref : string ) : boolean {
             var project = User.get.project;
             var thisContainer = this._container;
             var json: IContainerToken = null;
@@ -858,11 +790,9 @@ module Animate
 			// Go through each of the items to see if got any instance that might refer to this container
 			var items = json.items;
             for (var i = 0, l = items.length; i < l; i++)
-                if (items[i].type == CanvasItemType.BehaviourInstance)
-                {
+                if (items[i].type == CanvasItemType.BehaviourInstance) {
                     var childContainer = project.getResourceByShallowID<Container>(items[i].shallowId, ResourceType.CONTAINER);
-					if ( childContainer && this.isCyclicDependency( childContainer, ref ) )
-					{
+					if ( childContainer && this.isCyclicDependency( childContainer, ref ) ) {
                         ref = childContainer.entry.name;
 						return true;
 					}
@@ -881,16 +811,13 @@ module Animate
         * @param {string} name The name of the node
 		* @returns {Behaviour}
 		*/
-		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour
-		{
+		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour {
 			var toAdd: Behaviour = null;
 
-			if ( template.behaviourName == "Instance" )
-			{
+			if ( template.behaviourName == "Instance" ) {
 				var nameOfBehaviour: string = "";
 				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
-				if ( cyclic )
-				{
+				if ( cyclic ) {
                     MessageBox.show(`You have a cylic dependency with the behaviour '${nameOfBehaviour}'`, ["Ok"], null, null );
 					return null;
 				}
@@ -909,11 +836,9 @@ module Animate
 			var portalTemplates = template.portalsTemplates();
 
 			// Check for name duplicates
-			if ( portalTemplates )
-			{
+			if ( portalTemplates ) {
 				// Create each of the portals
-				for ( var i = 0; i < portalTemplates.length; i++ )
-				{
+				for ( var i = 0; i < portalTemplates.length; i++ ) {
                     var portal = toAdd.addPortal( portalTemplates[i].type, portalTemplates[i].property.clone(), false );
 					if ( toAdd instanceof BehaviourScript == false )
 						portal.customPortal = false;
@@ -940,8 +865,7 @@ module Animate
 		* Catch the key down events.
 		* @param {any} e The jQuery event object
 		*/
-		onKeyDown( e: any )
-		{
+		onKeyDown( e: any ) {
 			if ( this.element.is( ':visible' ) == false )
 				return;
 
@@ -951,20 +875,16 @@ module Animate
 			var focusObj = Application.getInstance().focusObj;
             var that = this;
 
-            if (focusObj != null )
-			{
+            if (focusObj != null ) {
 				//If F2 pressed
-				if ( e.keyCode == 113 )
-				{
+				if ( e.keyCode == 113 ) {
 					if ( focusObj instanceof BehaviourPortal )
                         return;
                     else if (focusObj instanceof BehaviourComment)
                         return focusObj.enterText();
-                    else if (focusObj instanceof Behaviour )
-                    {
+                    else if (focusObj instanceof Behaviour ) {
                         // Attempt to rename the behaviour
-                        RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token)
-                        {
+                        RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token) {
                             if (token.cancelled)
                                 return;
 
@@ -979,12 +899,10 @@ module Animate
 
                             //Check if there are any shortcuts and make sure they are renamed
                             var i = that.children.length;
-                            while (i--)
-                            {
+                            while (i--) {
                                 var shortcut = <BehaviourShortcut>that.children[i];
 
-                                if (shortcut instanceof BehaviourShortcut && shortcut.originalNode == toEdit)
-                                {
+                                if (shortcut instanceof BehaviourShortcut && shortcut.originalNode == toEdit) {
                                     shortcut.text = token.newName;
                                     shortcut.alias = token.newName;
                                 }
@@ -994,14 +912,12 @@ module Animate
 					}
 				}
 				//If C
-				else if ( e.keyCode == 67 )
-				{
+				else if ( e.keyCode == 67 ) {
 					if ( e.ctrlKey )
 						return;
 
 					//If a shortcut go to the original
-					if ( focusObj instanceof BehaviourShortcut )
-					{
+					if ( focusObj instanceof BehaviourShortcut ) {
 						this.selectItem( null );
 						focusObj.selected = false;
 						this.selectItem( focusObj.originalNode );
@@ -1010,8 +926,7 @@ module Animate
 					}
 				}
 				//If delete pressed
-				else if ( e.keyCode == 46 )
-				{
+				else if ( e.keyCode == 46 ) {
                     //Remove all selected
                     Toolbar.getSingleton().onDelete();
 				}
@@ -1023,22 +938,19 @@ module Animate
 		* When we double click the canvas we show the behaviour picker.
 		* @param {any} e The jQuery event object
 		*/
-		onDoubleClick( e: any )
-		{
+		onDoubleClick( e: any ) {
 			if ( jQuery( e.target ).is( "textarea" ) )
 				return;
 
 			var comp = jQuery( e.target ).data( "component" );
 
 			//If a comment edit it
-			if ( comp instanceof BehaviourComment )
-			{
+			if ( comp instanceof BehaviourComment ) {
 				comp.enterText();
 				return;
 			}
 			//If an instance, then open it
-			else if ( comp instanceof BehaviourInstance )
-			{
+			else if ( comp instanceof BehaviourInstance ) {
                 var tree: TreeViewScene = TreeViewScene.getSingleton();
                 var node: TreeNode = tree.findNode("resource", (<BehaviourInstance>comp).container);
 				tree.selectNode( node );
@@ -1046,8 +958,7 @@ module Animate
 				return;
 			}
 			//If an script node, then open it
-			else if ( comp instanceof BehaviourScript )
-			{
+			else if ( comp instanceof BehaviourScript ) {
 				comp.edit();
 				return;
 			}
@@ -1070,15 +981,12 @@ module Animate
 		* This is called to set the selected canvas item.
 		* @param {Component} comp The component to select
 		*/
-		selectItem( comp: Component )
-		{
-			if ( comp == null )
-			{
+		selectItem( comp: Component ) {
+			if ( comp == null ) {
 				// Remove all glows
 				var children = this.children;
 
-				for ( var i = 0, l = children.length; i < l; i++ )
-                {
+				for ( var i = 0, l = children.length; i < l; i++ ) {
                     children[i].element.removeClass("green-glow-strong").removeClass("short-active");
 					if ( children[i].selected )
 						children[i].selected = false;
@@ -1091,8 +999,7 @@ module Animate
 				return;
 			}
 
-			if ( comp.selected )
-			{
+			if ( comp.selected ) {
 				comp.element.removeClass( "green-glow-strong" );
 				comp.selected = false;
 				Canvas.lastSelectedItem = null;
@@ -1106,8 +1013,7 @@ module Animate
 			// Set the selected item
 			Canvas.lastSelectedItem = comp;
 
-			if ( comp instanceof Behaviour )
-			{
+			if ( comp instanceof Behaviour ) {
 				comp.element.removeClass( "scale-in-animation" );
 
 				// Hand the item to the editor
@@ -1136,16 +1042,14 @@ module Animate
 		* Called when we click down on the canvas
 		* @param {any} e The jQuery event object
 		*/
-		onMouseDown( e: any )
-		{
+		onMouseDown( e: any ) {
 			// Stops the text select when we drag
 			e.preventDefault();
 
 
 			// If we click the canvas - it counts as a deselect
 			var comp = jQuery( e.currentTarget ).data( "component" );
-			if ( comp instanceof Canvas && !e.ctrlKey )
-			{
+			if ( comp instanceof Canvas && !e.ctrlKey ) {
 				this.selectItem( null );
 				return;
 			}
@@ -1155,8 +1059,7 @@ module Animate
 		* Called when we click up on the canvas
 		* @param {any} e The jQuery event object
 		*/
-		onMouseUp( e: any )
-		{
+		onMouseUp( e: any ) {
 			var comp = jQuery( e.currentTarget ).data( "component" );
 
 			// Unselect all other items
@@ -1164,8 +1067,7 @@ module Animate
 				for ( var i = 0; i < this.children.length; i++ )
 					this.children[i].selected = false;
 
-			if ( comp instanceof Behaviour )
-			{
+			if ( comp instanceof Behaviour ) {
 				comp.element.removeClass( "scale-in-animation" );
 				this.selectItem( comp );
 				return;
@@ -1174,14 +1076,11 @@ module Animate
 			// Not a behaviour so lets see if its a link
 			// Make sure we actually hit a link
 			var len = this.children.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				comp = this.children[i];
-				if ( comp instanceof Link )
-				{
+				if ( comp instanceof Link ) {
 					var hit = comp.hitTestPoint( e );
-					if ( hit )
-					{
+					if ( hit ) {
 						this.selectItem( comp );
 						return;
 					}
@@ -1194,8 +1093,7 @@ module Animate
 		* This is called externally when the canvas has been selected. We use this
 		* function to remove any animated elements
 		*/
-		onSelected()
-		{
+		onSelected() {
 			var len = this.children.length;
 			for ( var i = 0; i < len; i++ )
 				this.children[i].element.removeClass( "scale-in-animation" );
@@ -1207,8 +1105,7 @@ module Animate
 		* @param {IComponent} child The child to add. Valid parameters are valid HTML code or other Components.
 		* @returns {IComponent} The child as a Component.
 		*/
-        addChild(child: IComponent): IComponent
-		{
+        addChild(child: IComponent): IComponent {
             // Call super
             var toRet = <Component>super.addChild(child);
             if (toRet instanceof Behaviour)
@@ -1227,8 +1124,7 @@ module Animate
 		* @param {IComponent} child The child to remove. Valid parameters are valid Components.
 		* @returns {IComponent} The child as a Component.
 		*/
-        removeChild(child: IComponent): IComponent
-        {
+        removeChild(child: IComponent): IComponent {
             if (toRet instanceof Behaviour || toRet instanceof Link)
                 toRet.off("edited", this.onItemEdited, this);
 
@@ -1246,8 +1142,7 @@ module Animate
 		/**
 		* Called when an item is moving
 		*/
-		onChildMoving( e, ui )
-		{
+		onChildMoving( e, ui ) {
             var target: Behaviour = jQuery( e.target ).data( "component" );
 
 			// Update the links
@@ -1262,8 +1157,7 @@ module Animate
 		* This function is called when animate is reading in saved data from the server.
 		* @param {any} data
 		*/
-		open( data: any )
-		{
+		open( data: any ) {
 
         }
 
@@ -1273,8 +1167,7 @@ module Animate
         * @param {Array<CanvasItem>} items The items
         * @returns {IContainerToken}
         */
-        tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken
-        {
+        tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken {
             var children = items || <Array<CanvasItem>>this.children;
             var toRet: IContainerToken = {
                 items: [],
@@ -1293,8 +1186,7 @@ module Animate
         * @param {Array<CanvasItem>} items The items
         * @returns {IContainerToken}
         */
-        deTokenize(data?: IContainerToken, clearItems: boolean = true)
-        {
+        deTokenize(data?: IContainerToken, clearItems: boolean = true) {
             data = data || this._container.entry.json;
 
             if (clearItems && data)
@@ -1309,11 +1201,9 @@ module Animate
             var oldIds: Array<number> = [];
 
             // Attempt to create and initialize each of the items
-            for (var i = 0, l = data.items.length; i < l; i++)
-            {
+            for (var i = 0, l = data.items.length; i < l; i++) {
                 var item = Utils.createItem(this, data.items[i]);
-                if (!item)
-                {
+                if (!item) {
                     Logger.logMessage(`Could not create canvas item`, null, LogType.ERROR);
                     continue;
                 }
@@ -1675,15 +1565,13 @@ module Animate
 		/**
 		* This function is called to make sure the canvas min width and min height variables are set
 		*/
-		checkDimensions()
-		{
+		checkDimensions() {
 			// Make sure that the canvas is sized correctly
 			var w = 0;
 			var h = 0;
 			var i = this.children.length;
 			var child: Component = null;
-			while ( i-- )
-			{
+			while ( i-- ) {
 				child = <Component>this.children[i];
 
 				var w2 = child.element.css( "left" );

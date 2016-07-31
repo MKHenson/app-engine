@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
     /**
 	* The main toolbar that sits at the top of the application
 	*/
-	export class Toolbar extends Component
-	{
+	export class Toolbar extends Component {
 		private static _singleton: Toolbar;
 
         private _mainElm: JQuery;
@@ -16,8 +14,7 @@ module Animate
         private _currentTab: Component;
         private _copyPasteToken: IContainerToken;
 
-		constructor( parent? : Component )
-        {
+		constructor( parent? : Component ) {
             super("<div class='toolbar'></div>", parent);
 			Toolbar._singleton = this;
 
@@ -49,8 +46,7 @@ module Animate
 		* This is called when an item on the canvas has been selected
 		* @param {Component} item
 		*/
-		itemSelected(item : Component)
-        {
+		itemSelected(item : Component) {
             if (item instanceof Behaviour || item instanceof Link)
                 this.$itemSelected = true;
 			else
@@ -62,8 +58,7 @@ module Animate
 		/**
 		* This is called when we have loaded and initialized a new project.
 		*/
-        newProject(project: Project)
-        {
+        newProject(project: Project) {
             this.$itemSelected = false;
             this._copyPasteToken = null;
             Compiler.digest(this._mainElm, this);
@@ -73,13 +68,10 @@ module Animate
 		* Called when we click one of the top toolbar tabs.
 		* @param {any} e
 		*/
-		onMajorTab( e )
-		{
+		onMajorTab( e ) {
 			var container = jQuery( e.target ).data( "container" );
-			if ( container != null && container != this._currentContainer )
-			{
-				this._currentContainer.element.slideUp( "fast", function ()
-				{
+			if ( container != null && container != this._currentContainer ) {
+				this._currentContainer.element.slideUp( "fast", function () {
 					jQuery( this ).hide();
 					jQuery( this ).css( { left: "0px", top: "0px" });
 
@@ -101,8 +93,7 @@ module Animate
         /**
         * Opens the splash window
         */
-        onHome()
-        {
+        onHome() {
             Splash.get.reset();
             Splash.get.show();
         }
@@ -110,8 +101,7 @@ module Animate
         /**
         * Opens the user privileges window
         */
-        onShowPrivileges()
-        {
+        onShowPrivileges() {
             Splash.get.reset();
             Splash.get.show();
         }
@@ -119,8 +109,7 @@ module Animate
         /**
         * Notifys the app that its about to launch a test run
         */
-        onRun()
-        {
+        onRun() {
             PluginManager.getSingleton().emit(new Event(EditorEvents.EDITOR_RUN, null));
             ImportExport.getSingleton().run();
         }
@@ -128,13 +117,11 @@ module Animate
         /**
         * When we click the paste button
         */
-        onPaste()
-        {
+        onPaste() {
             if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
                 return;
 
-            if (this._copyPasteToken)
-            {
+            if (this._copyPasteToken) {
                 var canvas = CanvasTab.getSingleton().currentCanvas;
                 canvas.deTokenize(this._copyPasteToken, false);
                 canvas.emit(new CanvasEvent(CanvasEvents.MODIFIED, canvas));
@@ -144,8 +131,7 @@ module Animate
         /**
         * When we click the copy button
         */
-        onDuplicate(cut: boolean = false)
-        {
+        onDuplicate(cut: boolean = false) {
             if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
                 return;
 
@@ -172,25 +158,21 @@ module Animate
         /**
         * Shows the rename form - and creates a new behaviour if valid
         */
-        newContainer()
-        {
+        newContainer() {
             var that = this;
 
             // Todo: This must be NewBehaviourForm
-            RenameForm.get.renameObject({ name: "" }, null, ResourceType.CONTAINER).then(function (token)
-            {
+            RenameForm.get.renameObject({ name: "" }, null, ResourceType.CONTAINER).then(function (token) {
                 if (token.cancelled)
                     return;
 
-                User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource)
-                {
+                User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource) {
                     // The container is created - so lets open it up
                     var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
                     jQuery(".content", tabPair.tabSelector.element).text(resource.entry.name);
                     tabPair.name = resource.entry.name;
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     RenameForm.get.$errorMsg = (err.message.indexOf("urred while creating the resource") == -1 ? err.message : `The name '${token.newName}' is taken, please use another`);
                     that.newContainer();
 
@@ -201,8 +183,7 @@ module Animate
         /**
         * When we click the delete button
         */
-        onDelete()
-        {
+        onDelete() {
             if (CanvasTab.getSingleton().currentCanvas instanceof Canvas == false)
                 return;
 
@@ -221,8 +202,7 @@ module Animate
 		* @param {boolean} text The text of the new tab
 		* @returns {Component} Returns the {Component} object representing the tab
 		*/
-		createTab( text : string, isSelected : boolean = false ) : Component
-		{
+		createTab( text : string, isSelected : boolean = false ) : Component {
             var topTab = this._topMenu.addChild("<div class='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>" + text + "</div>" );
 			var btmContainer: Component = <Component>this._bottomMenu.addChild( "<div class='tab-container'></div>" );
 
@@ -235,11 +215,9 @@ module Animate
 			return btmContainer;
         }
 
-        saveAll()
-        {
+        saveAll() {
             Animate.CanvasTab.getSingleton().saveAll();
-            Animate.User.get.project.saveAll().catch(function (err: Error)
-            {
+            Animate.User.get.project.saveAll().catch(function (err: Error) {
                 Logger.logMessage("Error while saving a resource: " + err.message, null, LogType.ERROR);
             });
         }
@@ -248,8 +226,7 @@ module Animate
 		* Called when the key is pushed down
 		* @param {any} event
 		*/
-		onKeyDown( event : any )
-		{
+		onKeyDown( event : any ) {
             if (event.data == 'Ctrl+s')
                 this.saveAll();
             else if (event.data == 'Ctrl+c')
@@ -266,14 +243,12 @@ module Animate
 		* Removes a tab by its name
 		* @param {string} text The name of the tab
 		*/
-		removeTab( text : string )
-		{
+		removeTab( text : string ) {
 			var children: Array<IComponent> = this._topMenu.children;
 			var i = children.length;
 
 			while ( i-- )
-				if ( children[i].element.text() == text )
-				{
+				if ( children[i].element.text() == text ) {
 					children[i].element.data( "container" ).dispose();
 					children[i].dispose();
 					return;
@@ -296,8 +271,7 @@ module Animate
 		* @param {Component} group The Component object representing the group
 		* @returns {ToolbarNumber}
 		*/
-        createGroupNumber(text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component = null ): ToolbarNumber
-		{
+        createGroupNumber(text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component = null ): ToolbarNumber {
 			var toRet: ToolbarNumber = new ToolbarNumber( group, text, defaultVal, min, max, delta );
 			group.addChild( <IComponent>toRet );
 			return toRet;
@@ -311,8 +285,7 @@ module Animate
 		* @param {boolean} isPushButton If true, the button will remain selected when clicked.
 		* @returns {Component} Returns the Component object representing the button
 		*/
-		createGroupButton( text: string, image: string = null, group: Component = null, isPushButton: boolean = false ): ToolBarButton
-		{
+		createGroupButton( text: string, image: string = null, group: Component = null, isPushButton: boolean = false ): ToolBarButton {
 			var toRet: ToolBarButton = new ToolBarButton( text, image, isPushButton, group )
 			group.addChild( <IComponent>toRet );
 			return toRet;
@@ -324,8 +297,7 @@ module Animate
 		* @param {Array<ToolbarItem>} items An array of items to list
 		* @returns {ToolbarDropDown} Returns the Component object representing the button
 		*/
-		createDropDownButton( parent: Component, items: Array<ToolbarItem> ): ToolbarDropDown
-		{
+		createDropDownButton( parent: Component, items: Array<ToolbarItem> ): ToolbarDropDown {
 			var toRet = new ToolbarDropDown( parent, items )
 			return toRet;
 		}
@@ -337,8 +309,7 @@ module Animate
 		* @param {string} color The hex colour as a string
 		* @returns {ToolbarColorPicker} Returns the ToolbarColorPicker object representing the button
 		*/
-		createColorButton( parent: Component, text: string, color: string ): ToolbarColorPicker
-		{
+		createColorButton( parent: Component, text: string, color: string ): ToolbarColorPicker {
 			var toRet = new ToolbarColorPicker( parent, text, color );
 			return toRet;
 		}
@@ -346,8 +317,7 @@ module Animate
 		/**
 		* Gets the singleton instance
 		*/
-		public static getSingleton(parent?: Component): Toolbar
-		{
+		public static getSingleton(parent?: Component): Toolbar {
 			if ( Toolbar._singleton === undefined )
 				Toolbar._singleton = new Toolbar( parent );
 

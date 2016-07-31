@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This is the base class for all tree node classes
 	*/
-    export class TreeNode extends Component implements IRenamable
-	{
+    export class TreeNode extends Component implements IRenamable {
 		protected mText: string;
 		private _expanded: boolean;
 		private hasExpandButton: boolean;
@@ -23,8 +21,7 @@ module Animate
 		* @param {string} img An optional image to use (image src text)
 		* @param {boolean} hasExpandButton A bool to tell the node if it should use the expand button
 		*/
-		constructor( text, img : string = null, hasExpandButton : boolean = true )
-		{
+		constructor( text, img : string = null, hasExpandButton : boolean = true ) {
 			if ( img != null && img != "" )
 				img = "<img src='" + img + "' />";
 			else
@@ -55,8 +52,7 @@ module Animate
 		* Gets if this tree node is in a modified state
 		* @returns {boolean}
 		*/
-        public get modified(): boolean
-        {
+        public get modified(): boolean {
             return this._modified;
         }
 
@@ -64,8 +60,7 @@ module Animate
 		* Sets if this tree node is in a modified state
 		* @param {boolean} val
 		*/
-        public set modified(val: boolean)
-        {
+        public set modified(val: boolean) {
             this._modified = val;
             if (val)
                 this._modifiedStar.insertBefore(jQuery(".text:first", this.element));
@@ -77,8 +72,7 @@ module Animate
 		* Gets if this tree node is busy with a loading operation
 		* @returns {boolean}
 		*/
-        public get loading(): boolean
-        {
+        public get loading(): boolean {
             return this._loading;
         }
 
@@ -86,8 +80,7 @@ module Animate
 		* Sets if this tree node is busy with a loading operation
 		* @param {boolean} val
 		*/
-        public set loading(val: boolean)
-        {
+        public set loading(val: boolean) {
             this._loading = val;
             if (val)
                 jQuery(".buffering:first", this.element).css("display", "inline-block");
@@ -98,12 +91,10 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose()
-        {
+		dispose() {
             this._modifiedStar.remove();
 
-			if ( this.treeview )
-			{
+			if ( this.treeview ) {
 				if ( this.treeview.selectedNodes.indexOf( this ) != -1 )
 					this.treeview.selectedNodes.splice( this.treeview.selectedNodes.indexOf( this ), 1 );
 
@@ -133,8 +124,7 @@ module Animate
 		* @param Array<TreeNode> array This is the array where data will be stored in. This can be left as null and one will be created
 		* @returns Array<TreeNode>
 		*/
-		getAllNodes( type : Function, array: Array<TreeNode> = null ): Array<TreeNode>
-		{
+		getAllNodes( type : Function, array: Array<TreeNode> = null ): Array<TreeNode> {
 			var toRet : Array<TreeNode> = null
 			if ( array )
 				toRet = array;
@@ -143,8 +133,7 @@ module Animate
 
 			var children: Array<TreeNode> = <Array<TreeNode>>this.children;
 			var len = children.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				children[i].getAllNodes( type, toRet )
 
 				if ( type == null )
@@ -159,8 +148,7 @@ module Animate
 		/**
 		* This function will expand this node and show its children.
 		*/
-		expand()
-		{
+		expand() {
 			if ( this.hasExpandButton == false )
 				return;
 
@@ -177,8 +165,7 @@ module Animate
 		/**
 		* This function will collapse this node and hide its children.
 		*/
-		collapse() : void
-		{
+		collapse() : void {
 			if ( this.hasExpandButton == false )
 				return;
 
@@ -199,15 +186,13 @@ module Animate
 		* @param {any} value The value of the property we are comparing.
 		* @returns {TreeNode}
 		*/
-		findNode( property : string, value : any ) : TreeNode
-		{
+		findNode( property : string, value : any ) : TreeNode {
 			if ( this[property] == value )
 				return this;
 
 			var children: Array<TreeNode> = <Array<TreeNode>>this.children;
 			var len : number = children.length;
-			for ( var i = 0; i < len; i++ )
-			{
+			for ( var i = 0; i < len; i++ ) {
 				if ( children[i] instanceof TreeNode == false )
 					continue;
 
@@ -220,12 +205,10 @@ module Animate
 		/**
 		* This will clear and dispose of all the nodes
 		*/
-		clear() : void
-		{
+		clear() : void {
 			var children: Array<TreeNode> = <Array<TreeNode>>this.children;
 
-			while ( children.length > 0 )
-			{
+			while ( children.length > 0 ) {
 				if ( children[0].treeview && children[0].treeview.selectedNodes.indexOf(children[0] ) != -1 )
 					children[0].treeview.selectedNodes.splice( children[0].treeview.selectedNodes.indexOf( children[0] ), 1 );
 
@@ -237,8 +220,7 @@ module Animate
 		* Set if the component is selected
 		* @param {boolean} val Pass a true or false value to select the component.
 		*/
-		set selected( val : boolean )
-		{
+		set selected( val : boolean ) {
 			//Check if setting the variable
 			if ( val )
 				jQuery( " > .selectable", this.element ).addClass( "selected" ).addClass("reg-gradient");
@@ -250,8 +232,7 @@ module Animate
 		* Get if the component is selected
 		* @returns {boolean} If the component is selected or not.
 		*/
-		get selected() : boolean
-		{
+		get selected() : boolean {
 			if ( this.element.hasClass( "selected" ) )
 				return true;
 			else
@@ -262,8 +243,7 @@ module Animate
 		* Sets the text of the node
 		* @param {string} val The text to set
 		*/
-		set text( val : string )
-		{
+		set text( val : string ) {
 			this.mText = val;
 			jQuery( ".text:first", this.element ).text( this.mText );
 		}
@@ -272,8 +252,7 @@ module Animate
 		* Gets the text of the node
 		* @returns {string} The text of the node
 		*/
-		get text(): string
-		{
+		get text(): string  {
 			return this.mText;
 		}
 
@@ -283,13 +262,11 @@ module Animate
 		* @param {boolean} collapse True if you want to make this node collapse while adding the new node
 		* @returns {TreeNode}
 		*/
-		addNode( node: TreeNode, collapse? : boolean ) : TreeNode
-		{
+		addNode( node: TreeNode, collapse? : boolean ) : TreeNode {
 			node.treeview = this.treeview;
 			var toRet = Component.prototype.addChild.call( this, node );
 
-            if (collapse !== undefined)
-            {
+            if (collapse !== undefined) {
                 if (collapse)
                     this.collapse();
                 else
@@ -323,8 +300,7 @@ module Animate
 		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
 		* @returns {IComponent} The {IComponent} we have removed
 		*/
-        removeChild(child: IComponent): IComponent
-        {
+        removeChild(child: IComponent): IComponent {
             var toRet = super.removeChild(child);
             if (this.nodes.length == 0)
                 jQuery(".tree-node-button", this.element).first().css("visibility", "hidden");
@@ -337,8 +313,7 @@ module Animate
 		* @param {TreeNode} node The node to remove
 		* @returns {TreeNode}
 		*/
-		removeNode( node: TreeNode ) : TreeNode
-        {
+		removeNode( node: TreeNode ) : TreeNode {
 			if ( this.treeview.selectedNodes.indexOf( node ) != -1 )
 				this.treeview.selectedNodes.splice( this.treeview.selectedNodes.indexOf( node ), 1 );
 

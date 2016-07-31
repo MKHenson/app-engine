@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This node represents a group asset. Goups are collections of objects - think of them as arrays.
 	*/
-    export class TreeNodeGroup extends TreeNodeResource<GroupArray>
-    {
+    export class TreeNodeGroup extends TreeNodeResource<GroupArray> {
         constructor(group: GroupArray)
 		{
             // Call super-class constructor
@@ -14,8 +12,7 @@ module Animate
             var project = User.get.project;
 
             //Add each of the node references
-            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++)
-            {
+            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++) {
                 var resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>(items[i]);
                 this.addNode(new TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
             }
@@ -24,8 +21,7 @@ module Animate
         /**
         * Called whenever the resource is re-downloaded
         */
-        protected onRefreshed(type: string, event: Event, sender: EventDispatcher)
-        {
+        protected onRefreshed(type: string, event: Event, sender: EventDispatcher) {
             super.onRefreshed(type, event, sender);
 
             //Remove all current nodes
@@ -36,8 +32,7 @@ module Animate
             var group = this.resource;
 
             //Add each of the node references
-            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++)
-            {
+            for (var i = 0, items = group.entry.items, l = items.length; i < l; i++) {
                 var resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>(items[i]);
                 this.addNode(new TreeNodeGroupInstance(resource.entry._id, resource.entry.name, group));
             }
@@ -46,8 +41,7 @@ module Animate
 		/**
 		* Called when a draggable object is dropped onto the canvas.
 		*/
-		protected onDropped( event, ui )
-		{
+		protected onDropped( event, ui ) {
 			var comp : TreeNode = jQuery( ui.draggable ).data( "component" );
 			if ( comp instanceof TreeNodeAssetInstance || comp instanceof TreeNodeGroup )
 			{

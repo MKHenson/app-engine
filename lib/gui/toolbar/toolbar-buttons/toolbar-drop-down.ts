@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* The interface for all layout objects.
 	*/
-	export class ToolbarItem extends Component
-	{
+	export class ToolbarItem extends Component {
 		public text: String;
 		public img: String;
 
@@ -12,8 +10,7 @@ module Animate
 		* @param {string} img The image path.
 		* @param {string} text The text to use in the item.
 		*/
-		constructor( img: string, text: string, parent?: Component )
-		{
+		constructor( img: string, text: string, parent?: Component ) {
             super("<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent );
 			this.img = img;
 			this.text = text;
@@ -25,8 +22,7 @@ module Animate
 	/**
 	*  A toolbar button for selection a list of options
 	*/
-	export class ToolbarDropDown extends Component
-	{
+	export class ToolbarDropDown extends Component {
 		public items: Array<ToolbarItem>;
 		private _popupContainer: Component;
 		private _selectedItem: ToolbarItem;
@@ -37,8 +33,7 @@ module Animate
 		* @param {Component} parent The parent of this toolbar
 		* @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:"./img1.png", text:"option 1"}, {img:"./img2.png", text:"option 2"}]
 		*/
-		constructor( parent: Component, items: Array<ToolbarItem> )
-		{
+		constructor( parent: Component, items: Array<ToolbarItem> ) {
             super( "<div class='toolbar-button-drop-down tooltip'></div>", parent );
 
 			this.items = items;
@@ -65,8 +60,7 @@ module Animate
 		* @param {ToolbarItem} item The item to add.
 		* @returns {Component}
 		*/
-		addItem( item: ToolbarItem )
-		{
+		addItem( item: ToolbarItem ) {
 			var comp = this._popupContainer.addChild( item );
 			this.items.push( item );
 			return comp;
@@ -78,13 +72,11 @@ module Animate
 		* @param {boolean} dispose Set this to true if you want delete the item
 		* @returns {Component} Returns the removed item component or null
 		*/
-		removeItem( val : any, dispose : boolean = true )
-		{
+		removeItem( val : any, dispose : boolean = true ) {
 			var i = this.items.length;
 			var items : Array<any> = this.items;
 			while ( i-- )
-				if ( items[i] == val || items[i].text == val || items[i].comp == val )
-				{
+				if ( items[i] == val || items[i].text == val || items[i].comp == val ) {
 					if ( dispose )
 						items[i].dispose()
 					else
@@ -101,12 +93,10 @@ module Animate
 		* Clears all the items
 		* @param {boolean} dispose Set this to true if you want to delete all the items from memory
 		*/
-		clear( dispose : boolean = true ) : void
-		{
+		clear( dispose : boolean = true ) : void {
 			var i = this.items.length;
 			var items : Array<any> = this.items;
-			while ( i-- )
-			{
+			while ( i-- ) {
 				if ( dispose )
 					items[i].dispose()
 				else
@@ -121,8 +111,7 @@ module Animate
 		* Sets the selected item
 		* @param {any} item
 		*/
-        set selectedItem( item : ToolbarItem )
-		{
+        set selectedItem( item : ToolbarItem ) {
 			if ( this._selectedItem === item )
 				return;
 
@@ -142,8 +131,7 @@ module Animate
 		* Gets the selected item
 		* @returns {ToolbarItem}
 		*/
-        get selectedItem(): ToolbarItem
-        {
+        get selectedItem(): ToolbarItem {
             return this._selectedItem;
         }
 
@@ -151,8 +139,7 @@ module Animate
 		* Called when the mouse is down on the DOM
 		* @param {any} e The jQuery event
 		*/
-		onStageUp( e: any )
-		{
+		onStageUp( e: any ) {
 			var body = jQuery( "body" );
 			body.off( "mousedown", this._stageDownProxy );
 
@@ -160,13 +147,10 @@ module Animate
             this._popupContainer.element.detach();
             this.element.removeClass("active");
 
-			if ( comp )
-			{
+			if ( comp ) {
 				var i = this.items.length;
-				while ( i-- )
-				{
-					if ( comp == this.items[i] )
-                    {
+				while ( i-- ) {
+					if ( comp == this.items[i] ) {
                         this.selectedItem = <ToolbarItem>comp;
 						return;
 					}
@@ -178,8 +162,7 @@ module Animate
 		* When we click the main button
 		* @param {any} e The jQuery event oject
 		*/
-		onClick( e : any )
-		{
+		onClick( e : any ) {
 			//var comp = jQuery( e.target ).data( "component" );
 			var offset = this.element.offset();
             this.element.addClass("active");
@@ -195,8 +178,7 @@ module Animate
 		/**
 		* Cleans up the component
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			var i = this.items.length;
 			while ( i-- )
 				this.items[i].dispose();

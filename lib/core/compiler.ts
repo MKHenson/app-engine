@@ -1,5 +1,4 @@
-﻿module Animate
-{
+﻿module Animate {
     export type CompiledEval = (ctrl, event, elm, contexts) => any;
 
     /*

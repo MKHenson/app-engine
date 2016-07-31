@@ -1,27 +1,22 @@
-﻿module Animate
-{
-	export class ListViewEvents extends ENUM
-	{
+﻿module Animate {
+	export class ListViewEvents extends ENUM {
 		constructor(v: string) { super(v); }
 
 		static ITEM_CLICKED: ListViewEvents = new ListViewEvents("list_view_item_clicked");
 		static ITEM_DOUBLE_CLICKED: ListViewEvents = new ListViewEvents("list_view_item_double_clicked");
 	}
 
-	export class ColumnItem
-	{
+	export class ColumnItem {
 		public text: string;
 		public image: string;
 
-		constructor(text : string, image:string = "")
-		{
+		constructor(text : string, image:string = "") {
 			this.text = text;
 			this.image = image;
 		}
 	}
 
-	export class ListViewType
-	{
+	export class ListViewType {
 		public value: string;
 		constructor(v: string) { this.value = v; }
 		toString() { return this.value; }
@@ -36,8 +31,7 @@
 	* The ListView class is used to display a series of {ListViewItem}s. Each item can
 	* organised by a series of columns
 	*/
-	export class ListView extends Component
-	{
+	export class ListView extends Component {
 		private _mode: ListViewType;
 		private _selectedItem: ListViewItem;
 		private _lists: Array<Component>;
@@ -57,8 +51,7 @@
 		private _upProxy: any;
 		private _moveProxy: any;
 
-		constructor(parent: Component)
-		{
+		constructor(parent: Component) {
 			// Call super-class constructor
 			super("<div class='list-view'></div>", parent);
 
@@ -99,13 +92,11 @@
 		* Toggle between the different modes
 		* @param {ListViewType} mode Either DETAILS or IMAGES mode
 		*/
-		set displayMode(mode: ListViewType)
-		{
+		set displayMode(mode: ListViewType) {
 			if (mode === undefined)
 				return;
 
-			for (var i = 0; i < this._items.length; i++)
-			{
+			for (var i = 0; i < this._items.length; i++) {
 				for (var ii = 0; ii < this._items[i].components.length; ii++)
 					this._items[i].components[ii].dispose();
 
@@ -120,8 +111,7 @@
 		/**
 		* @returns {ListViewType} Either ListViewType.DETAILS or ListViewType.IMAGES
 		*/
-		get displayMode(): ListViewType
-		{
+		get displayMode(): ListViewType {
 			return this._mode;
 		}
 
@@ -129,15 +119,12 @@
 		* Called when we hold down on this component
 		* @param {any} e The jQuery event object
 		*/
-		onDown(e : any)
-		{
+		onDown(e : any)	 {
 			var target : JQuery = jQuery(e.target);
-			if (target.hasClass("dragger"))
-			{
+			if (target.hasClass("dragger")) {
 				this._selectedColumn = target.parent().parent();
 
-				if (this._selectedColumn.length > 0)
-				{
+				if (this._selectedColumn.length > 0) {
 					e.preventDefault();
 					this.element.append(this._divider.element);
 					jQuery( document ).on( "mousemove", this._moveProxy);
@@ -157,8 +144,7 @@
 		* Called when we move over this componeny
 		* @param {any} e The jQuery event object
 		*/
-		onMove(e)
-		{
+		onMove(e) {
 			var position = this.element.offset();
 			var dividerSize = 5;
 
@@ -179,8 +165,7 @@
 		* Called when the mouse up event is fired
 		* @param {any} e The jQuery event object
 		*/
-		onUp(e)
-		{
+		onUp(e) {
 			var position = this._selectedColumn.offset();
 			//var dividerSize = 5;
 			var dist = e.clientX - position.left;
@@ -199,22 +184,18 @@
 			jQuery( document ).off( "mouseup", this._upProxy);
 		}
 
-		onDoubleClick(e)
-		{
+		onDoubleClick(e) {
 			var listViewItem = jQuery(e.target).data("item");
-			if (listViewItem)
-			{
+			if (listViewItem) {
 				//Select all components of the item we clicked on
 				var i = listViewItem.components.length;
-				while (i--)
-				{
+				while (i--)	{
 					var comp = listViewItem.components[i];
 					comp.element.removeClass("selected");
 				}
 
 				i = listViewItem.components.length;
-				while (i--)
-				{
+				while (i--) {
 					var comp = listViewItem.components[i];
 					comp.element.addClass("selected");
 				}
@@ -230,34 +211,27 @@
 		* Called when we click this component
 		* @param {any} e The jQuery event object
 		*/
-		onClick(e)
-		{
+		onClick(e) {
 			var comp : Component = jQuery(e.target).data("component");
 
 			//Check if we clicked a header
-			if (comp instanceof ListViewHeader)
-			{
+			if (comp instanceof ListViewHeader) {
 				var i = this._lists.length;
 				while (i--)
-					if (this._lists[i].children[0] == comp)
-					{
+					if (this._lists[i].children[0] == comp) {
 						this._sortableColumn = i;
 						this.updateItems();
 						return;
 					}
 			}
-			else
-			{
+			else {
 				//Check if we selected an item. If we did we need to make all the items on that row selected.
 				var listViewItem : ListViewItem = jQuery(e.target).data("item");
-				if (listViewItem)
-				{
-					if (!e.ctrlKey && jQuery(e.target).hasClass("selected"))
-					{
+				if (listViewItem) {
+					if (!e.ctrlKey && jQuery(e.target).hasClass("selected"))  {
 						//Select all components of the item we clicked on
 						i = listViewItem.components.length;
-						while (i--)
-						{
+						while (i--) {
 							var comp = listViewItem.components[i];
 							comp.element.removeClass("selected");
 						}
@@ -267,33 +241,27 @@
 					}
 
 					//Remove previous selection
-					if (this._multiSelect == false || !e.ctrlKey)
-					{
+					if (this._multiSelect == false || !e.ctrlKey) {
 						var selectedItems = jQuery(".selected", this.element);
-						selectedItems.each(function ()
-						{
+						selectedItems.each(function () {
 							jQuery(this).removeClass("selected");
 						});
 					}
 
 					//If the item is already selected, then unselect it
-					if (jQuery(e.target).hasClass("selected"))
-					{
+					if (jQuery(e.target).hasClass("selected")) {
 						//Select all components of the item we clicked on
 						i = listViewItem.components.length;
-						while (i--)
-						{
+						while (i--) {
 							var comp = listViewItem.components[i];
 							comp.element.removeClass("selected");
 							this.emit (new ListViewEvent(ListViewEvents.ITEM_CLICKED, null) );
 						}
 					}
-					else
-					{
+					else {
 						//Select all components of the item we clicked on
 						i = listViewItem.components.length;
-						while (i--)
-						{
+						while (i--) {
 							var comp = listViewItem.components[i];
 							comp.element.addClass("selected");
 						}
@@ -308,12 +276,10 @@
 		* Gets all the items that are selected
 		* @returns {Array<ListViewItem>}
 		*/
-		getSelectedItems(): Array<ListViewItem>
-		{
+		getSelectedItems(): Array<ListViewItem> {
 			var items: Array<ListViewItem>= [];
 			var selectedItems = jQuery(".selected", this.element);
-			selectedItems.each(function ()
-			{
+			selectedItems.each(function () {
 				var listViewItem = jQuery(this).data("item");
 				if (items.indexOf(listViewItem) == -1)
 					items.push(listViewItem);
@@ -325,13 +291,10 @@
 		/**
 		* Sets which items must be selected. If you specify null then no items will be selected.
 		*/
-		setSelectedItems(items)
-		{
-			if (items == null)
-			{
+		setSelectedItems(items) {
+			if (items == null) {
 				var selectedItems = jQuery(".selected", this.element);
-				selectedItems.each(function ()
-				{
+				selectedItems.each(function () {
 					jQuery(this).removeClass("selected");
 				});
 			}
@@ -340,8 +303,7 @@
 		/**
 		* This function is used to clean up the list
 		*/
-		dispose()
-		{
+		dispose() {
 			this._selectedColumn = null;
 
 			var i = this._lists.length;

@@ -1,18 +1,14 @@
-module Animate
-{
+module Animate {
 	/**
 	* Valid response codes for requests made to the Animate server
 	*/
-	export class AnimateLoaderResponses extends ENUM
-	{
+	export class AnimateLoaderResponses extends ENUM {
 		constructor( v: string ) { super( v ); }
 		static SUCCESS: AnimateLoaderResponses = new AnimateLoaderResponses( "success" );
 		static ERROR: AnimateLoaderResponses = new AnimateLoaderResponses( "error" );
 
-		public static fromString( val: string ): ENUM
-		{
-			switch ( val )
-			{
+		public static fromString( val: string ): ENUM {
+			switch ( val ) {
 				case AnimateLoaderResponses.ERROR.toString():
 					return AnimateLoaderResponses.ERROR;
 				case AnimateLoaderResponses.SUCCESS.toString():
@@ -26,14 +22,12 @@ module Animate
 	/**
 	* Events associated with requests made to the animate servers
 	*/
-	export class AnimateLoaderEvent extends Event
-	{
+	export class AnimateLoaderEvent extends Event {
 		message: string;
 		return_type: AnimateLoaderResponses;
 		data: any;
 
-		constructor( eventName: LoaderEvents, message: string, return_type: AnimateLoaderResponses, data?: any )
-		{
+		constructor( eventName: LoaderEvents, message: string, return_type: AnimateLoaderResponses, data?: any ) {
 			super( eventName, data );
 			this.message = message;
 			this.return_type = return_type;
@@ -44,16 +38,14 @@ module Animate
 	/**
 	* This class acts as an interface loader for the animate server.
 	*/
-	export class AnimateLoader extends LoaderBase
-	{
+	export class AnimateLoader extends LoaderBase {
 		private _curCall: any;
 
 		/**
 		* Creates an instance of the Loader
 		* @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
 		*/
-		constructor( domain? : string )
-		{
+		constructor( domain? : string ) {
 			// Call super-class constructor
 			super( domain );
 
@@ -67,8 +59,7 @@ module Animate
 		* @param {any} data The post variables to send off to the server
 		* @param {number} numTries The number of attempts allowed to make this load
 		*/
-		load( url: string, data: any, numTries : number = 3, type : string = "POST" )
-		{
+		load( url: string, data: any, numTries : number = 3, type : string = "POST" ) {
 			super.load( url, data, numTries );
 			LoaderBase.showLoader();
 
@@ -101,10 +92,8 @@ module Animate
 		* @param {string} textStatus
 		* @param {any} errorThrown
 		*/
-		onError( e, textStatus, errorThrown )
-		{
-			if ( this.numTries > 0 )
-			{
+		onError( e, textStatus, errorThrown ) {
+			if ( this.numTries > 0 ) {
 				if ( this.numTries > 0 )
 					this.numTries--;
 
@@ -127,8 +116,7 @@ module Animate
 					}
 				});
 			}
-			else
-			{
+			else {
 				LoaderBase.hideLoader();
 				this.emit( new AnimateLoaderEvent( LoaderEvents.FAILED, errorThrown.message, AnimateLoaderResponses.ERROR, null ) );
 				this.dispose();
@@ -141,8 +129,7 @@ module Animate
 		* @param {any} textStatus
 		* @param {any} jqXHR
 		*/
-		onData( data, textStatus, jqXHR )
-		{
+		onData( data, textStatus, jqXHR ) {
 			LoaderBase.hideLoader();
 
 			var e: AnimateLoaderEvent = null;
@@ -160,8 +147,7 @@ module Animate
 		/**
 		* Cleans up the object
 		*/
-		dispose()
-		{
+		dispose() {
 			//Call super
 			super.dispose();
 			this._curCall = null;

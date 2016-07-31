@@ -1,8 +1,6 @@
-module Animate
-{
+module Animate {
 	//This class holds the DB information.
-	export class DB
-    {
+	export class DB {
         public static USERS: string = "http://webinate.dev:8000";
         public static HOST: string = "http://hatchery.webinate.dev";
         public static API: string = "http://hatchery.webinate.dev/app-engine";

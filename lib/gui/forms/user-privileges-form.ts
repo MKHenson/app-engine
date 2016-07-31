@@ -1,7 +1,5 @@
-module Animate
-{
-	export class UserPrivilegesForm extends Window
-	{
+module Animate {
+	export class UserPrivilegesForm extends Window {
 		private static _singleton: UserPrivilegesForm;
 
 		private mSave: Button;
@@ -11,8 +9,7 @@ module Animate
 		private keyDownProxy: any;
 		private buttonProxy: any;
 
-		constructor()
-		{
+		constructor() {
             // Call super-class constructor
 			super( 450, 600, true, true, "User Privileges" );
 
@@ -56,20 +53,15 @@ module Animate
 		/**
 		* This function is called whenever we get a resonse from the server
 		*/
-		onServer(response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher)
-		{
-			if (response == LoaderEvents.COMPLETE)
-			{
-				if (event.return_type == AnimateLoaderResponses.SUCCESS)
-				{
+		onServer(response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher) {
+			if (response == LoaderEvents.COMPLETE)  {
+				if (event.return_type == AnimateLoaderResponses.SUCCESS) {
 					var loader: AnimateLoader = <AnimateLoader>sender;
 
-					if ( loader.url == "/project/get-user-privileges" )
-					{
+					if ( loader.url == "/project/get-user-privileges" ) {
 						var data: Array<{ userId: string; username: string; privilege: PrivilegeType; }> = event.tag;
 
-						for ( var i = 0, l = data.length; i < l; i++ )
-						{
+						for ( var i = 0, l = data.length; i < l; i++ ) {
 							var item = new ListViewItem(
 								[
 									data[i].username,
@@ -96,12 +88,10 @@ module Animate
 		/**
 		* Gets the viewer to search using the terms in the search inut
 		*/
-		searchItems()
-		{
+		searchItems() {
 			var items = this.mMenu.items;
 			var i = items.length;
-			while (i--)
-			{
+			while (i--) {
 				var ii = items[i].components.length;
 
 				var searchTerm = jQuery("input", this.search.element).val();
@@ -120,25 +110,21 @@ module Animate
 		* When we click a button on the form
 		* @param {any} e The jQuery event object
 		*/
-		onButtonClick(e)
-		{
+		onButtonClick(e) {
 			e.preventDefault();
 
 			//If Search
-			if (jQuery(e.target).is(jQuery("img", this.search.element)))
-			{
+			if (jQuery(e.target).is(jQuery("img", this.search.element))) {
 				this.searchItems();
 			}
-			else
-			{
+			else {
 				//Get all the updated users
 				var project = User.get.project;
 				var ids = [];
 				var access = [];
 
 				//Create a multidimension array and pass each of the user dependencies
-				for (var i = 0; i < this.mMenu.items.length; i++)
-				{
+				for (var i = 0; i < this.mMenu.items.length; i++) {
 					ids.push( this.mMenu.items[i].tag );
 					access.push( jQuery( this.mMenu.items[i].components[1].element.find( "select" ) ).val() );
 				}
@@ -154,8 +140,7 @@ module Animate
 		* When we hit a key on the search box
 		* @param {any} e The jQuery event
 		*/
-		onInputKey(e)
-		{
+		onInputKey(e) {
 			if (e.keyCode == 13)
 				this.searchItems();
 		}
@@ -163,8 +148,7 @@ module Animate
 		/**
 		* Shows the window by adding it to a Application route.
 		*/
-		show()
-		{
+		show() {
 			super.show( null, NaN, NaN, true);
 
 			var project = User.get.project;
@@ -180,8 +164,7 @@ module Animate
 		* Gets the singleton reference of this class.
 		* @returns {UserPrivilegesForm}
 		*/
-		static getSingleton() : UserPrivilegesForm
-		{
+		static getSingleton() : UserPrivilegesForm {
 			if (!UserPrivilegesForm._singleton)
 				new UserPrivilegesForm();
 

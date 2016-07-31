@@ -1,7 +1,5 @@
-module Animate
-{
-    export interface IVFormProps extends React.HTMLAttributes
-    {
+module Animate {
+    export interface IVFormProps extends React.HTMLAttributes {
         /** If true, prevents the form being automatically submitted */
         preventDefault?: boolean;
         /** A callback for when submit is called and there are no validation errors */
@@ -20,8 +18,7 @@ module Animate
      * the validated inputs. The name is taken from the name of the input name attribute and the
      * value from its value.
      */
-    export class VForm extends React.Component<IVFormProps, { error? : boolean, pristine?: boolean }>
-    {
+    export class VForm extends React.Component<IVFormProps, { error? : boolean, pristine?: boolean }> {
         public static defaultProps : IVFormProps = {
             preventDefault: true
         };
@@ -39,8 +36,7 @@ module Animate
         /**
          * Creates a new instance
          */
-        constructor(props: IVFormProps)
-        {
+        constructor(props: IVFormProps) {
             super();
             this._values = {};
             this._className = ( props.className ? props.className + ' v-form' : 'v-form' );
@@ -55,15 +51,13 @@ module Animate
          * This can be disabled with the preventDefault property.
          * @param {React.FormEvent} e
          */
-        onSubmit(e: React.FormEvent)
-        {
+        onSubmit(e: React.FormEvent) {
             if (this.props.preventDefault)
                 e.preventDefault();
 
             let error = false;
             for (let i in this.refs)
-                if ((this.refs[i] as VInput).state.error)
-                {
+                if ((this.refs[i] as VInput).state.error) {
                     (this.refs[i] as VInput).highlightError = true;
                     error = true;
                 }
@@ -86,8 +80,7 @@ module Animate
          * Called whenever any of the inputs fire a change event
          * @param {React.FormEvent} e
          */
-        onChange(e : React.FormEvent)
-        {
+        onChange(e : React.FormEvent) {
             let input = (e.target as HTMLInputElement);
             this._values[input.name] = { value: input.value, error : null };
         }
@@ -97,8 +90,7 @@ module Animate
          * @param {Error} e The error that occurred
          * @param {VInput} target The input that triggered the error
          */
-        onError(e : Error, target : VInput )
-        {
+        onError(e : Error, target : VInput ) {
             let pristine = this.state.pristine;
             if (!target.pristine)
                 pristine = false;
@@ -108,8 +100,7 @@ module Animate
 
             // Check if there was previously an error
             for (let i in this._values )
-                if (this._values[i].error)
-                {
+                if (this._values[i].error) {
                     wasError = true;
                     break;
                 }
@@ -133,8 +124,7 @@ module Animate
          * Gets if this form has not been touched by the user. False is returned if it has been,
          * @returns {boolean}
          */
-        get pristine() : boolean
-        {
+        get pristine() : boolean {
             return this.state.pristine;
         }
 
@@ -142,8 +132,7 @@ module Animate
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render(): JSX.Element
-        {
+        render(): JSX.Element {
             // Remove the custom properties
             let props : IVFormProps  = Object.assign({}, this.props);
             delete props.onSubmitted;
@@ -162,8 +151,7 @@ module Animate
             return <form
                 {...props}
                 className={className}
-                onSubmit={(e)=>{ this.onSubmit(e); }}>
-                {
+                onSubmit={(e)=>{ this.onSubmit(e); }}> {
                     React.Children.map( this.props.children, ( i : React.ReactElement<any>, index ) => {
                         if ( i.type == VInput )
                             return React.cloneElement( i, {
@@ -172,8 +160,7 @@ module Animate
                                 onValidationError : (e, input) => { this.onError( e, input ) },
                                 onValidationResolved : (input) => { this.onError( null, input ) }
                             } as Animate.IVInputProps )
-                        else if ( i.type == VCheckbox )
-                        {
+                        else if ( i.type == VCheckbox ) {
                             return React.cloneElement( i, {
                                 ref: index.toString(),
                                 onChange : (e)=>{ this.onChange( e ); }

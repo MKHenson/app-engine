@@ -1,12 +1,9 @@
-module Animate
-{
-    export class VCheckbox extends React.Component<React.HTMLAttributes, {checked?: boolean, className?: string }>
-    {
+module Animate {
+    export class VCheckbox extends React.Component<React.HTMLAttributes, {checked?: boolean, className?: string }> {
         /**
          * Creates an instance
          */
-        constructor(props: React.HTMLAttributes)
-        {
+        constructor(props: React.HTMLAttributes) {
             super();
             this.state = {
                 checked : props.checked || false,
@@ -18,8 +15,7 @@ module Animate
          * Called whenever the checkbox input changes
          * @param {React.FormEvent} e
          */
-        private onChange(e : React.FormEvent)
-        {
+        private onChange(e : React.FormEvent) {
             this.setState( {checked: (e.target as HTMLInputElement).checked } );
             if (this.props.onChange)
                 this.props.onChange(e)
@@ -29,8 +25,7 @@ module Animate
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render(): JSX.Element
-        {
+        render(): JSX.Element {
             let props : IVInputProps  = Object.assign({}, this.props);
             delete props.id;
             delete props.name;

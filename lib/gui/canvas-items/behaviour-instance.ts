@@ -1,14 +1,11 @@
-module Animate
-{
+module Animate {
 	/**
 	* A behaviour node that represents a Behaviour Container
 	*/
-	export class BehaviourInstance extends Behaviour
-	{
+	export class BehaviourInstance extends Behaviour {
 		private _container: Container;
 
-		constructor( parent : Component, container : Container )
-		{
+		constructor( parent : Component, container : Container ) {
             var text: string = (container.entry.name !== undefined ? container.entry.name : "Instance" );
 
 			// Call super-class constructor
@@ -71,8 +68,7 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourResource}
         */
-        tokenize(slim: boolean = false): IBehaviourShortcut
-        {
+        tokenize(slim: boolean = false): IBehaviourShortcut {
             var toRet = <IBehaviourShortcut>super.tokenize(slim);
             toRet.type = CanvasItemType.BehaviourInstance;
             return toRet;
@@ -82,16 +78,14 @@ module Animate
         * De-Tokenizes data from a JSON.
         * @param {IBehaviourResource} data The data to import from
         */
-        deTokenize(data: IBehaviourShortcut)
-        {
+        deTokenize(data: IBehaviourShortcut) {
             super.deTokenize(data);
         }
 
 		/**
 		* Called when a behaviour is disposed
 		*/
-        onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher)
-        {
+        onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher) {
             if (<Container>event.container == this._container)
             {
                 var canvas: Canvas = this._container.canvas;
@@ -103,13 +97,11 @@ module Animate
 		/**
 		* This is called when a Canvas reports a portal being added, removed or modified.
 		*/
-        onPortalChanged(type: string, event: PortalEvent, sender? : EventDispatcher )
-		{
+        onPortalChanged(type: string, event: PortalEvent, sender? : EventDispatcher ) {
 			var curParent: JQuery = this.element.parent();
             var portals = this.portals;
 
-            if (type == EventTypes.PORTAL_ADDED)
-			{
+            if (type == EventTypes.PORTAL_ADDED) {
 				var pType: PortalType = null;
 				if ( event.portal.type == PortalType.INPUT )
                     pType = PortalType.OUTPUT;
@@ -122,20 +114,16 @@ module Animate
 
                 this.addPortal(pType, event.portal.property.clone(), true);
 			}
-            else if (type == EventTypes.PORTAL_REMOVED )
-			{
+            else if (type == EventTypes.PORTAL_REMOVED ) {
                 for ( var i = 0, l = portals.length; i < l; i++)
-                    if (portals[i].property.name == event.oldName)
-					{
+                    if (portals[i].property.name == event.oldName) {
 						this.removePortal( portals[i], true );
 						break;
 					}
 			}
-            else if (type == EventTypes.PORTAL_EDITED )
-			{
+            else if (type == EventTypes.PORTAL_EDITED )	{
                 for (var i = 0, l = portals.length; i < l; i++)
-                    if (portals[i].property.name == event.oldName )
-					{
+                    if (portals[i].property.name == event.oldName ) {
                         var portal = portals[i];
                         portal.edit(event.portal.property.clone());
 						break;
@@ -151,8 +139,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child Components
 		*/
-		dispose()
-		{
+		dispose() {
 			//PluginManager.getSingleton().off( EditorEvents.PORTAL_ADDED, this.onPortalChanged, this );
 			//PluginManager.getSingleton().off( EditorEvents.PORTAL_REMOVED, this.onPortalChanged, this );
 			//PluginManager.getSingleton().off( EditorEvents.PORTAL_EDITED, this.onPortalChanged, this );
@@ -168,8 +155,7 @@ module Animate
 		* Gets the container this instance represents
         * @returns {Container}
 		*/
-        get container(): Container
-        {
+        get container(): Container {
             return this._container;
         }
 
@@ -177,15 +163,13 @@ module Animate
 		* Sets the container this instance represents
         * @param {Container} val
 		*/
-        set container(val: Container)
-        {
+        set container(val: Container) {
             // Remove all existing portals
             while (this.portals.length > 0)
                 this.removePortal(this.portals[0]);
 
             // Remove events
-            if (this._container)
-            {
+            if (this._container) {
                 this._container.off(EventTypes.PORTAL_ADDED, this.onPortalChanged, this);
                 this._container.off(EventTypes.PORTAL_REMOVED, this.onPortalChanged, this);
                 this._container.off(EventTypes.PORTAL_EDITED, this.onPortalChanged, this);
@@ -206,8 +190,7 @@ module Animate
             // reference, otherwise we use the json
             var children = this._container.canvas.children;
             for (var ci = 0, cl = children.length; ci < cl; ci++)
-                if (children[ci] instanceof BehaviourPortal)
-                {
+                if (children[ci] instanceof BehaviourPortal) {
                     var bPortal = <BehaviourPortal>children[ci];
                     var portals: Array<Portal> = bPortal.portals;
                     for (var pi = 0, l = portals.length; pi < l; pi++)

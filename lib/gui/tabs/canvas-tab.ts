@@ -1,7 +1,5 @@
-module Animate
-{
-	export class CanvasTabType extends ENUM
-	{
+module Animate {
+	export class CanvasTabType extends ENUM	{
 		constructor(v: string) { super(v); }
 
 		static CANVAS: CanvasTabType = new CanvasTabType("canvas");
@@ -14,8 +12,7 @@ module Animate
 	/**
 	* This is an implementation of the tab class that deals with the canvas
 	*/
-	export class CanvasTab extends Tab
-	{
+	export class CanvasTab extends Tab {
 		private static _singleton: CanvasTab;
 
 		private _currentCanvas: Canvas;
@@ -23,8 +20,7 @@ module Animate
 		private closingTabPair: TabPair;
 		private mDocker: Docker;
 
-		constructor( parent : Component )
-		{
+		constructor( parent : Component ) {
 			super( parent );
 
 			if ( CanvasTab._singleton != null )
@@ -49,8 +45,7 @@ module Animate
 		* which will act as a preview of the component that is being viewed or hidden.
 		* @return {string}
 		*/
-		getPreviewImage() : string
-		{
+		getPreviewImage() : string {
 			return "media/canvas.png";
 		}
 
@@ -74,8 +69,7 @@ module Animate
 		/**
 		* Called when sall all is returned from the DB
 		*/
-		saveAll()
-		{
+		saveAll() {
 			var i : number = this.tabs.length;
 			while ( i-- )
 				this.tabs[i].onSaveAll();
@@ -91,13 +85,10 @@ module Animate
 		* @param {TabPair} tabPair An object that contains both the page and label of the tab
 		* @returns {boolean} Returns false if the tab needs to be saved. Otherwise true.
 		*/
-		onTabPairClosing( tabPair : TabPair ) :boolean
-        {
-            if (tabPair instanceof CanvasTabPair)
-            {
+		onTabPairClosing( tabPair : TabPair ) :boolean {
+            if (tabPair instanceof CanvasTabPair) {
                 var canvas = tabPair.canvas;
-                if (!tabPair.forceClose && tabPair.modified && !canvas.container.disposed)
-                {
+                if (!tabPair.forceClose && tabPair.modified && !canvas.container.disposed) {
                     this.closingTabPair = tabPair;
                     MessageBox.show("Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this);
                     return false;
@@ -114,21 +105,17 @@ module Animate
 		* After being asked if we want to save changes to a container
 		* @param {string} choice The choice of the message box. It can be either Yes or No
 		*/
-		onMessage( choice : string )
-		{
+		onMessage( choice : string ) {
 			var canvas: Canvas = (<CanvasTabPair>this.closingTabPair).canvas;
             var that = this;
 
 			// Save the canvas
-			if ( choice == "Yes" )
-			{
-                User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function ()
-                {
+			if ( choice == "Yes" ) {
+                User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function () {
                     that.removeTab(this.closingTabPair, true);
 					that.closingTabPair = null;
 
-                }).catch(function(err: Error)
-                {
+                }).catch(function(err: Error) {
                     Logger.logMessage(err.message, null, LogType.ERROR);
                 });
 
@@ -136,8 +123,7 @@ module Animate
 				//User.get.project.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourSaved, this );
     //            User.get.project.saveBehaviours([canvas.container.entry._id] );
 			}
-			else
-            {
+			else {
                 (<CanvasTabPair>that.closingTabPair).forceClose = true;
                 //that._currentCanvas.container.saved = true;
                 that.removeTab(that.closingTabPair, true );
@@ -149,12 +135,10 @@ module Animate
 		* We use this function to remove any assets from the tabs
 		* @param {Asset} asset The asset we are removing
 		*/
-		removeAsset( asset : Asset )
-		{
+		removeAsset( asset : Asset ) {
 			var i = this.tabs.length;
 			while ( i-- )
-				if ( this.tabs[i].page.children.length > 0 )
-				{
+				if ( this.tabs[i].page.children.length > 0 ) {
                     var canvas: Canvas = <Canvas><Component>this.tabs[i].page.children[0];
 					if ( canvas instanceof Canvas )
 						canvas.removeAsset(asset);
@@ -192,11 +176,9 @@ module Animate
 		* @param {number} behaviourID The local id of the container
 		* @returns {Canvas} The returned tab's canvas or null
 		*/
-		getTabCanvas( behaviourID : string ) : Canvas
-		{
+		getTabCanvas( behaviourID : string ) : Canvas {
 			var tabs : Array<TabPair> = this.tabs;
-            for (var i = 0, l = tabs.length; i < l; i++)
-            {
+            for (var i = 0, l = tabs.length; i < l; i++) {
                 var t = tabs[i];
                 if (t instanceof CanvasTabPair)
                     if (t.canvas.container.entry._id == behaviourID)
@@ -210,20 +192,17 @@ module Animate
 		* When we click the tab
 		* @param {TabPair} tab The tab pair object which contains both the label and page components
 		*/
-		onTabSelected( tab : TabPair )
-		{
+		onTabSelected( tab : TabPair ) {
 			var pManager: PluginManager = PluginManager.getSingleton();
 			var project = User.get.project;
 
 			//Remove prev we need to notify the plugins of added or removed assets
-			if ( this._currentCanvas && !this._currentCanvas.disposed )
-			{
+			if ( this._currentCanvas && !this._currentCanvas.disposed )	{
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.container );
 
 				//Tell the plugins to remove the current assets
 				var references = this._currentCanvas.containerReferences;
-				for ( var i = 0, l = references.assets.length; i < l; i++ )
-                {
+				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
                     var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
@@ -235,8 +214,7 @@ module Animate
 			else
 				this._currentCanvas = null;
 
-			if ( this._currentCanvas != null && this._currentCanvas.element.data( "component" ) instanceof Canvas )
-			{
+			if ( this._currentCanvas != null && this._currentCanvas.element.data( "component" ) instanceof Canvas ) {
 				var canvas: Canvas = <Canvas>this._currentCanvas.element.data( "component" );
 				canvas.onSelected();
 
@@ -249,8 +227,7 @@ module Animate
 
 				// Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;
-				for ( var i = 0, l = references.assets.length; i < l; i++ )
-                {
+				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
                     var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
@@ -270,8 +247,7 @@ module Animate
 		* When we start a new project we load the welcome page.
         * @param {Project} project
 		*/
-        projectReady(project: Project)
-		{
+        projectReady(project: Project) {
 			var loader = new AnimateLoader();
 			loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
 			loader.on( LoaderEvents.FAILED, this.onNewsLoaded, this );
@@ -281,8 +257,7 @@ module Animate
 		/**
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
-		projectReset()
-		{
+		projectReset() {
 			this._currentCanvas = null;
 			this.welcomeTab = null;
 			this.clear();
@@ -291,12 +266,9 @@ module Animate
 		/**
 		* When the news has been loaded from webinate.
 		*/
-		onNewsLoaded( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )
-		{
-			if ( response == LoaderEvents.COMPLETE )
-			{
-				if ( event.return_type == AnimateLoaderResponses.SUCCESS )
-				{
+		onNewsLoaded( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher ) {
+			if ( response == LoaderEvents.COMPLETE ) {
+				if ( event.return_type == AnimateLoaderResponses.SUCCESS ) {
 					if ( this.welcomeTab )
 						this.removeTab( this.welcomeTab.name, true );
 
@@ -314,8 +286,7 @@ module Animate
 		* @param {Component} parent The parent component of this tab
 		* @returns {CanvasTab}
 		*/
-		static getSingleton( parent? : Component ) : CanvasTab
-		{
+		static getSingleton( parent? : Component ) : CanvasTab {
 			if ( !CanvasTab._singleton )
 				new CanvasTab( parent );
 
@@ -328,8 +299,7 @@ module Animate
 		* @param {string} newName The new name of the tab
 		* @returns {TabPair} Returns the tab pair
 		*/
-		renameTab( oldName :string, newName : string ) : TabPair
-		{
+		renameTab( oldName :string, newName : string ) : TabPair {
 			var toRet : TabPair = this.getTab( oldName );
 			toRet.tabSelector.element.text( newName );
 			(<CanvasTabPair>toRet).canvas.name = newName;
@@ -345,10 +315,8 @@ module Animate
 		*/
 		removeTab( val: string, dispose: boolean ): TabPair
 		removeTab( val: TabPair, dispose: boolean ): TabPair
-		removeTab( val: any, dispose: boolean ): TabPair
-        {
-            if (val instanceof CanvasTabPair)
-            {
+		removeTab( val: any, dispose: boolean ): TabPair {
+            if (val instanceof CanvasTabPair) {
 				var canvas = ( <CanvasTabPair>val ).canvas;
 				var pManager: PluginManager = PluginManager.getSingleton();
 				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
@@ -359,8 +327,7 @@ module Animate
 				//Tell the plugins to remove the current assets
 				var references = canvas.containerReferences;
 
-				for ( var i = 0, l = references.assets.length; i < l; i++ )
-                {
+				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
                     var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
 					contEvent.asset = asset;
 					pManager.emit( contEvent );
@@ -376,8 +343,7 @@ module Animate
 		/**
 		* When a canvas is modified we change the tab name, canvas name and un-save its tree node.
 		*/
-		onCanvasModified( response : CanvasEvents, event : CanvasEvent, sender? : EventDispatcher )
-		{
+		onCanvasModified( response : CanvasEvents, event : CanvasEvent, sender? : EventDispatcher ) {
             this._currentCanvas.container.saved = false;
 		}
 
@@ -401,12 +367,10 @@ module Animate
 		* @param {any} tabContent Data associated with the tab
 		* @returns {TabPair} The tab pair object
 		*/
-		addSpecialTab(text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent : any = null ) : TabPair
-		{
+		addSpecialTab(text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent : any = null ) : TabPair {
 			var pManager: PluginManager = PluginManager.getSingleton();
 			var toRet: TabPair = null;
-			if ( type == CanvasTabType.CANVAS )
-			{
+			if ( type == CanvasTabType.CANVAS ) {
 				toRet = super.addTab( new CanvasTabPair( new Canvas( null, tabContent ), text ), true );
 				var canvas: Canvas = (<CanvasTabPair>toRet).canvas;
                 tabContent.canvas = canvas;
@@ -423,28 +387,23 @@ module Animate
                 pManager.emit(new ContainerEvent(EventTypes.CONTAINER_CREATED, tabContent ) );
                 pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, tabContent ) );
 			}
-			else if ( type == CanvasTabType.BLANK )
-			{
+			else if ( type == CanvasTabType.BLANK )	{
 				toRet = super.addTab( text, true );
 			}
-			else
-			{
-				if ( type == CanvasTabType.HTML )
-				{
+			else {
+				if ( type == CanvasTabType.HTML ) {
 					if ( !HTMLTab.singleton )
 						toRet = super.addTab( new HTMLTab( "HTML" ), true );
 					else
 						toRet = this.selectTab( HTMLTab.singleton );
 				}
-				else if ( type == CanvasTabType.CSS )
-				{
+				else if ( type == CanvasTabType.CSS ) {
 					if ( !CSSTab.singleton )
 						toRet = super.addTab( new CSSTab( "CSS" ), true );
 					else
 						toRet = this.selectTab( CSSTab.singleton );
 				}
-				else if ( type == CanvasTabType.SCRIPT )
-				{
+				else if ( type == CanvasTabType.SCRIPT ) {
 					toRet = Tab.prototype.addTab.call( this, new ScriptTab( tabContent ) );
 				}
             }

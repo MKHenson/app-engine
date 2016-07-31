@@ -1,7 +1,5 @@
-module Animate
-{
-	export class SplitOrientation extends ENUM
-	{
+module Animate {
+	export class SplitOrientation extends ENUM {
 		constructor(v: string) { super(v); }
 
 		static VERTICAL: SplitOrientation = new SplitOrientation("vertical");
@@ -11,8 +9,7 @@ module Animate
 	/**
 	* A Component that holds 2 sub Components and a splitter to split between them.
 	*/
-	export class SplitPanel extends Component
-	{
+	export class SplitPanel extends Component {
 		private offsetLeft : number;
 		private offsetTop : number;
 		private mPercent : number;
@@ -35,8 +32,7 @@ module Animate
 		* @param {number} ratio The ratio of how far up or down, top or bottom the splitter will be. This is between 0 and 1.
 		* @param {number} dividerSize The size of the split divider.
 		*/
-		constructor( parent: Component, orientation: SplitOrientation = SplitOrientation.VERTICAL, ratio : number = 0.5, dividerSize : number = 6 )
-		{
+		constructor( parent: Component, orientation: SplitOrientation = SplitOrientation.VERTICAL, ratio : number = 0.5, dividerSize : number = 6 ) {
 			super( "<div class='split-panel' style='width:100px; height:100px;'></div>", parent );
 
 			this.offsetLeft = 0;
@@ -69,8 +65,7 @@ module Animate
 		* This function is called when the mouse is down on the divider
 		* @param {any} e The jQuery event object
 		*/
-		onDividerMouseDown( e )
-		{
+		onDividerMouseDown( e ) {
 			//reset orientation
 			this.orientation = this.orientation;
 
@@ -96,8 +91,7 @@ module Animate
 		* This function is called when the mouse is up from the body of stage.
 		* @param {any} e The jQuery event object
 		*/
-		onStageMouseUp( e ) : void
-		{
+		onStageMouseUp( e ) : void {
 			this.mPanelOverlay1.remove();
 			this.mPanelOverlay2.remove();
 
@@ -146,8 +140,7 @@ module Animate
 		/**
 		* Call this function to update the panel.
 		*/
-		update()
-		{
+		update() {
 			//Call super
 			super.update( false );
 
@@ -165,8 +158,7 @@ module Animate
 					children[i].update();
 
 			children = this.mPanel2.children;
-			if ( children.length > 0 )
-			{
+			if ( children.length > 0 ) {
 				for ( var i = 0; i < children.length; i++ )
 					children[i].update();
 			}
@@ -181,13 +173,11 @@ module Animate
 		* This function is called when the mouse is up from the body of stage.
 		* @param {any} e The jQuery event object
 		*/
-		onStageMouseMove( e )
-		{
+		onStageMouseMove( e ) {
 			var position = this.mDividerDragging.parent.element.offset();
 
 			//Remove the dragger.
-			if ( this.mOrientation == SplitOrientation.VERTICAL )
-			{
+			if ( this.mOrientation == SplitOrientation.VERTICAL ) {
 				var w = this.element.width();
 				var dist = e.clientX - position.left;
 
@@ -200,8 +190,7 @@ module Animate
 					left: dist + "px"
 				});
 			}
-			else
-			{
+			else {
 				var h = this.element.height();
 				var dist = e.clientY - position.top;
 
@@ -222,9 +211,7 @@ module Animate
 		/**
 		* Call this function to get the ratio of the panel. Values are from 0 to 1.
 		*/
-		get ratio() : number
-		{
-
+		get ratio() : number {
 			return this.mPercent;
 		}
 
@@ -232,8 +219,7 @@ module Animate
 		* Call this function to set the ratio of the panel. Values are from 0 to 1.
 		* @param {number} val The ratio from 0 to 1 of where the divider should be
 		*/
-		set ratio( val: number )
-		{
+		set ratio( val: number ) {
 			if ( val > 1 )
 				val = 1;
 			else if ( val < 0 )
@@ -250,57 +236,47 @@ module Animate
 		* Use this function to change the split panel from horizontal to vertcal orientation.
 		* @param val The orientation of the split. This can be either SplitPanel.VERTICAL or SplitPanel.HORIZONTAL
 		*/
-		set orientation( val: SplitOrientation )
-		{
-			if ( val == SplitOrientation.VERTICAL || val == SplitOrientation.HORIZONTAL )
-			{
+		set orientation( val: SplitOrientation ) {
+			if ( val == SplitOrientation.VERTICAL || val == SplitOrientation.HORIZONTAL ) {
 				this.mOrientation = val;
 
 				var w = this.element.width();
 				var h = this.element.height();
 
-				if ( val == SplitOrientation.VERTICAL )
-				{
-					this.mPanel1.element.css(
-						{
+				if ( val == SplitOrientation.VERTICAL ) {
+					this.mPanel1.element.css({
 							width: this.mPercent * w - this.mDividerSize * 0.5,
 							top: "0px",
 							left: "0px",
 							height: h + "px"
 						});
-					this.mDivider.element.css(
-						{
+					this.mDivider.element.css({
 							width: this.mDividerSize + "px",
 							left: this.mPanel1.element.width() + "px",
 							top: "0px",
 							height: h + "px"
 						});
-					this.mPanel2.element.css(
-						{
+					this.mPanel2.element.css({
 							width: ( 1 - this.mPercent ) * w - ( this.mDividerSize * 0.5 ),
 							left: ( ( this.mPercent * w ) + ( this.mDividerSize / 2 ) ) + "px",
 							top: "0px",
 							height: h + "px"
 						});
 				}
-				else
-				{
-					this.mPanel1.element.css(
-						{
+				else {
+					this.mPanel1.element.css({
 							height: this.mPercent * h - this.mDividerSize * 0.5,
 							left: "0px",
 							top: "0px",
 							width: w + "px"
 						});
-					this.mDivider.element.css(
-						{
+					this.mDivider.element.css({
 							height: this.mDividerSize + "px",
 							top: this.mPanel1.element.height() + "px",
 							left: "0px",
 							width: w + "px"
 						});
-					this.mPanel2.element.css(
-						{
+					this.mPanel2.element.css({
 							height: ( 1 - this.mPercent ) * h - ( this.mDividerSize * 0.5 ),
 							top: ( ( this.mPercent * h ) + ( this.mDividerSize / 2 ) ) + "px",
 							left: "px",
@@ -313,8 +289,7 @@ module Animate
 		/**
 		* gets the orientation of this split panel
 		*/
-		get orientation(): SplitOrientation
-		{
+		get orientation(): SplitOrientation {
 			return this.mOrientation;
 		}
 
@@ -341,8 +316,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose(): void
-		{
+		dispose(): void {
 			this.mOrientation = null;
 			this.mDivider.element.off( 'mousedown', this.mMouseDownProxy );
 			jQuery( "body" ).off( 'mouseup', this.mMouseUpProxy );

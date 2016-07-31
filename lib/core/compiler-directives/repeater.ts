@@ -1,15 +1,12 @@
-﻿module Animate
-{
+﻿module Animate {
     /*
     * Directive for expanding HTML from iterable objects
     * Eg usage en-repeate="array as value, index"
     */
-    export class Repeater implements IDirective
-    {
+    export class Repeater implements IDirective {
         private _returnVal: Array<AppNode>;
 
-        constructor()
-        {
+        constructor() {
             this._returnVal = [];
         }
 
@@ -21,8 +18,7 @@
         * @param {InstanceNode} The current instance
         * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
         */
-        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>
-        {
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode> {
             var e = expression.split("as");
             if (e.length < 1)
                 throw new Error("Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?");
@@ -37,16 +33,13 @@
             this._returnVal.splice(0, this._returnVal.length);
             var numItems: number = 0;
 
-            if (iterable)
-            {
+            if (iterable) {
                 if (!instance.$clonedData)
                     mustRebuild = true;
-                else
-                {
+                else {
                     var prevIterables = instance.$clonedData.items;
 
-                    for (var i in iterable)
-                    {
+                    for (var i in iterable) {
                         numItems++;
 
                         if (prevIterables[i] !== undefined && prevIterables[i] != iterable[i] )
@@ -60,12 +53,9 @@
             else
                 mustRebuild = true;
 
-            if (mustRebuild)
-            {
-                if (iterable)
-                {
-                    for (var t in iterable)
-                    {
+            if (mustRebuild) {
+                if (iterable) {
+                    for (var t in iterable) {
                         var clone: AppNode = <AppNode>Compiler.cloneNode(desc.$originalNode);
                         this._returnVal.push(clone);
 

@@ -1,7 +1,5 @@
-module Animate
-{
-	export class LogType extends ENUM
-	{
+module Animate {
+	export class LogType extends ENUM {
 		constructor(v: string) { super(v); }
 
 		static MESSAGE: LogType = new LogType("message");
@@ -12,16 +10,14 @@ module Animate
 	/**
 	* The Logger is a singleton class used to write message's to Animate's log window.
 	*/
-	export class Logger extends MenuList
-	{
+	export class Logger extends MenuList  {
 		private static _singleton : Logger;
 		private context: ContextMenu;
 		private mDocker: Docker;
 		private warningFlagger: JQuery;
 		private mContextProxy: any;
 
-		constructor( parent: Component )
-		{
+		constructor( parent: Component ) {
             // Call super-class constructor
 			super( parent );
 
@@ -51,8 +47,7 @@ module Animate
 		* When we click the error warning
 		* @extends <Logger>
 		*/
-		onIconClick()
-		{
+		onIconClick() {
 			this.mDocker.setActiveComponent( this, true );
 			this.warningFlagger.detach();
 		}
@@ -64,16 +59,14 @@ module Animate
 		* @extends <Logger>
 		* @returns <string>
 		*/
-		getPreviewImage() : string
-		{
+		getPreviewImage() : string {
 			return "media/logger.png";
 		}
 
 		/**
 		* This is called by a controlling Docker class when the component needs to be shown.
 		*/
-		onShow() : void
-		{
+		onShow() : void {
 			this.warningFlagger.detach();
 			this.element.data( "preview" ).removeClass( "fade-animation" );
 		}
@@ -98,10 +91,8 @@ module Animate
 		/**
 		* Called when the context menu is about to open
 		*/
-		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher )
-		{
-			if ( event.item.text == "Clear" )
-			{
+		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) {
+			if ( event.item.text == "Clear" ) {
 				//Unselect all other items
 				this.clearItems();
 			}
@@ -110,12 +101,10 @@ module Animate
 		/**
 		* Called when the context menu is about to open
 		*/
-		onContext( e : any )
-		{
+		onContext( e : any ) {
 			//Now hook the context events
 			var targ : JQuery = jQuery( e.target );
-			if ( targ.is( jQuery( ".menu-list-item" ) ) || targ.is( jQuery( ".menu-list" ) ) )
-			{
+			if ( targ.is( jQuery( ".menu-list-item" ) ) || targ.is( jQuery( ".menu-list" ) ) ) {
 				if ( targ.is( jQuery( ".menu-list-item" ) ) && targ.parent().data( "component" ) != this )
 					return;
 				else if ( targ.is( jQuery( ".menu-list" ) ) && targ.data( "component" ) != this )
@@ -132,8 +121,7 @@ module Animate
 		* @param {any} tag An optional tag to associate with the log.
 		* @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
 		*/
-		static logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE)
-        {
+		static logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE) {
             var logger = Logger.getSingleton();
 
 			var img = null;
@@ -145,8 +133,7 @@ module Animate
 				img = "media/warning-20.png";
 
 			//Add a border glow to the messages dock items
-            if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview )
-			{
+            if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview ) {
                 var offset = logger.mDocker.element.offset();
                 jQuery("body").append(logger.warningFlagger );
                 logger.warningFlagger.css({ left: offset.left, top: offset.top - logger.warningFlagger.height() });
@@ -162,8 +149,7 @@ module Animate
 		/**
 		* Clears all the log messages
 		*/
-		clearItems() : void
-		{
+		clearItems() : void {
 			this.warningFlagger.detach();
 			this.element.data( "preview" ).removeClass( "fade-animation" );
 
@@ -179,8 +165,7 @@ module Animate
 		* @param {Component} parent
 		* @returns {Logger}
 		*/
-		static getSingleton( parent? : Component ): Logger
-		{
+		static getSingleton( parent? : Component ): Logger {
 			if ( !Logger._singleton )
 				new Logger( parent );
 

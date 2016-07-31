@@ -1,23 +1,18 @@
-module Animate
-{
-	export class LoaderEvents extends ENUM
-	{
+module Animate {
+	export class LoaderEvents extends ENUM {
 		constructor( v: string ) { super( v ); }
 
 		static COMPLETE: LoaderEvents = new LoaderEvents("complete");
 		static FAILED: LoaderEvents = new LoaderEvents("failed");
 	}
 
-	export class ServerResponses extends ENUM
-	{
+	export class ServerResponses extends ENUM {
 		constructor(v: string) { super(v); }
 		static SUCCESS: ServerResponses = new ServerResponses("success");
 		static ERROR: ServerResponses = new ServerResponses( "error" );
 
-		public static fromString( val: string ): ENUM
-		{
-			switch ( val )
-			{
+		public static fromString( val: string ): ENUM {
+			switch ( val ) {
 				case ServerResponses.ERROR.toString():
 					return ServerResponses.ERROR;
 					break;
@@ -31,14 +26,12 @@ module Animate
 		}
 	}
 
-	export class AnimateServerEvent extends Event
-	{
+	export class AnimateServerEvent extends Event {
 		message: string;
 		return_type: ServerResponses;
 		data: any;
 
-		constructor(eventName: LoaderEvents, message: string, return_type: ServerResponses, data?:any )
-		{
+		constructor(eventName: LoaderEvents, message: string, return_type: ServerResponses, data?:any ) {
 			super(eventName, data);
 			this.message = message;
 			this.return_type = return_type;
@@ -49,8 +42,7 @@ module Animate
 	/**
 	* This class acts as an interface to our server. It also helps with displaying a mouse blocking loader.
 	*/
-	export class Loader extends EventDispatcher
-	{
+	export class Loader extends EventDispatcher {
 		private static loaderBackdrop: JQuery;
 		private static showCount: number = 0;
 
@@ -69,8 +61,7 @@ module Animate
 		* Creates an instance of the Loader
 		* @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
 		*/
-		constructor( domain? : string )
-		{
+		constructor( domain? : string ) {
 			// Call super-class constructor
 			super();
 
@@ -93,10 +84,8 @@ module Animate
 		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
 		* @returns {JQuery}
 		*/
-		static createLoaderModal() : JQuery
-		{
-			if ( !Loader.loaderBackdrop )
-			{
+		static createLoaderModal() : JQuery {
+			if ( !Loader.loaderBackdrop ) {
 				var str = "<div class='modal-backdrop dark-color'><div class='logo-container'>" +
 					"<div class='logo-1 animated-logo loader-cog-slow'><img src='media/logo-1.png'/></div>" +
 					"<div class='logo-2 animated-logo loader-cog'><img src='media/logo-2.png'/></div>" +
@@ -119,8 +108,7 @@ module Animate
 		* number of times as the showLoader function. I.e. if you call showLoader 5 times and call hideLoader 4 times, it will not hide
 		* the loader. If you call hideLoader one more time - it will.
 		*/
-		public static showLoader() : void
-		{
+		public static showLoader() : void {
 			if ( !Loader.loaderBackdrop )
 				Loader.createLoaderModal();
 
@@ -134,8 +122,7 @@ module Animate
 		/**
 		* see showLoader for information on the hideLoader
 		*/
-		public static hideLoader()
-		{
+		public static hideLoader() {
 			Loader.showCount--;
 
 			jQuery( ".loader-text", Loader.loaderBackdrop ).text( "LOADING: " + Loader.showCount + "%..." );
@@ -150,8 +137,7 @@ module Animate
 		* @param {any} postVars The object post variables
 		* @param {number} numTries The number of attempts allowed to make this load
 		*/
-		load( url: string, postVars: any, numTries : number = 3 )
-		{
+		load( url: string, postVars: any, numTries : number = 3 ) {
 			this.url = url;
 			this.postVars = postVars;
 			this.numTries = numTries;
@@ -160,8 +146,7 @@ module Animate
 			Application.getInstance().element.append( Loader.loaderBackdrop );
 
 			var getVars: string = "";
-			if ( this.getVariables )
-			{
+			if ( this.getVariables ) {
 				getVars = "?";
 				for ( var i in this.getVariables )
 					getVars += ( getVars.length != 1 ? "&" : "" ) + i + "=" + this.getVariables[i];
@@ -191,10 +176,8 @@ module Animate
 		* @param {string} textStatus
 		* @param {any} errorThrown
 		*/
-		onError( e, textStatus, errorThrown )
-		{
-			if ( this.numTries > 0 )
-			{
+		onError( e, textStatus, errorThrown ) {
+			if ( this.numTries > 0 ) {
 				if ( this.numTries > 0 )
 					this.numTries--;
 
@@ -236,8 +219,7 @@ module Animate
 		* @param {any} textStatus
 		* @param {any} jqXHR
 		*/
-		onData( data, textStatus, jqXHR )
-		{
+		onData( data, textStatus, jqXHR ) {
 			if ( Loader.showCount == 0 )
 				Loader.loaderBackdrop.remove();
 
@@ -262,8 +244,7 @@ module Animate
 		/**
 		* Cleans up the object
 		*/
-		dispose()
-		{
+		dispose() {
 			//Call super
 			super.dispose();
 

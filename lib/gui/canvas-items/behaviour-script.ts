@@ -1,17 +1,14 @@
-module Animate
-{
+module Animate {
 	/**
 	* A behaviour node that acts as a script. Users can create custom JS within the body. These nodes are connected to
 	* database entries and so need to be cleaned up properly when modified by the user.
 	*/
-	export class BehaviourScript extends Behaviour
-    {
+	export class BehaviourScript extends Behaviour {
         public scriptId: string;
         public scriptTab: ScriptTab;
         private _loading: JQuery;
 
-        constructor(parent: Component, scriptId: string, text: string, copied: boolean = false)
-		{
+        constructor(parent: Component, scriptId: string, text: string, copied: boolean = false) {
 			// Call super-class constructor
             super(parent, "Script");
 
@@ -38,14 +35,12 @@ module Animate
                 promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
 
 
-            promise.then(function (data: ScriptResource)
-            {
+            promise.then(function (data: ScriptResource) {
                 Logger.logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
                 that._loading.detach();
                 that.scriptId = data.entry._id;
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 Logger.logMessage(err.message, null, LogType.ERROR);
             });
 
@@ -86,8 +81,7 @@ module Animate
 		* Called when the behaviour is renamed
 		* @param <string> name The new name of the behaviour
 		*/
-		onRenamed( name )
-        {
+		onRenamed( name ) {
 			if ( this.scriptTab )
 				this.scriptTab.rename( name );
 		}
@@ -171,8 +165,7 @@ module Animate
 		/**
 		* This function will open a script tab
 		*/
-		edit()
-		{
+		edit() {
 			//if ( this.shallowId === 0 )
 			//	this.initializeDB();
 
@@ -195,8 +188,7 @@ module Animate
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
         * @returns {IBehaviourScript}
         */
-        tokenize(slim: boolean = false): IBehaviourScript
-        {
+        tokenize(slim: boolean = false): IBehaviourScript {
             var toRet = <IBehaviourScript>super.tokenize(slim);
             toRet.scriptId = this.scriptId;
             toRet.type = CanvasItemType.BehaviourScript;
@@ -207,8 +199,7 @@ module Animate
         * De-Tokenizes data from a JSON.
         * @param {IBehaviourScript} data The data to import from
         */
-        deTokenize(data: IBehaviourScript)
-        {
+        deTokenize(data: IBehaviourScript) {
             super.deTokenize(data);
             this.scriptId = this.scriptId;
         }
@@ -216,8 +207,7 @@ module Animate
 		/**
 		* Diposes and cleans up this component and all its child Components
 		*/
-		dispose()
-		{
+		dispose() {
 			this.scriptTab = null;
 
 			//Call super

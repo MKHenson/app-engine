@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* An implementation of the tree view for the scene.
 	*/
-	export class TreeViewScene extends TreeView
-	{
+	export class TreeViewScene extends TreeView  {
 		private static _singleton: TreeViewScene;
 
 		private _sceneNode: TreeNode;
@@ -25,8 +23,7 @@ module Animate
 		private _shortcutProxy: any;
         //private _resourceCreated: any;
 
-		constructor( parent? : Component )
-		{
+		constructor( parent? : Component ) {
 			super( parent );
 
 			if ( TreeViewScene._singleton != null )
@@ -82,8 +79,7 @@ module Animate
             RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
-		onShortcutClick( e )
-		{
+		onShortcutClick( e ) {
 			var comp = jQuery( e.currentTarget ).data( "component" );
 
 			var node : TreeNode = comp.element.parent().parent().parent().data( "component" );
@@ -96,8 +92,7 @@ module Animate
 				this.onContextSelect( ContextMenuEvents.ITEM_CLICKED, new ContextMenuEvent( this._contextCopy, ContextMenuEvents.ITEM_CLICKED ) );
 		}
 
-		onMouseMove( e )
-		{
+		onMouseMove( e ) {
 			if ( jQuery( e.target ).hasClass( "quick-button" ) )
 				return;
 
@@ -109,15 +104,12 @@ module Animate
 			this._quickAdd.element.detach();
 			this._quickCopy.element.detach();
 
-			if ( node && node instanceof TreeNode )
-			{
-				if ( node instanceof TreeNodeAssetInstance )
-				{
+			if ( node && node instanceof TreeNode ) {
+				if ( node instanceof TreeNodeAssetInstance ) {
 					jQuery( ".text:first", node.element ).append( this._quickCopy.element );
 					this._quickCopy.element.on( "click", this._shortcutProxy );
 				}
-				else if ( node instanceof TreeNodeAssetClass && !( <TreeNodeAssetClass>node ).assetClass.abstractClass )
-				{
+				else if ( node instanceof TreeNodeAssetClass && !( <TreeNodeAssetClass>node ).assetClass.abstractClass ) {
 					jQuery( ".text:first", node.element ).append( this._quickAdd.element );
 					this._quickAdd.element.on( "click", this._shortcutProxy );
 				}
@@ -127,8 +119,7 @@ module Animate
 		/**
 		* Called when the project is loaded and ready.
 		*/
-        projectReady(project: Project)
-        {
+        projectReady(project: Project)  {
             project.on("resource-created", this.onResourceCreated, this);
 
 			//Add all the asset nodes
@@ -137,8 +128,7 @@ module Animate
 
 			var len = assetTemplates.length;
 			for ( var i = 0; i < len; i++ )
-				for ( var ii = 0; ii < assetTemplates[i].classes.length; ii++ )
-				{
+				for ( var ii = 0; ii < assetTemplates[i].classes.length; ii++ ) {
 					assetClass = assetTemplates[i].classes[ii];
 					var toRet = new TreeNodeAssetClass( assetClass, this );
 					this._assetsNode.addNode( toRet );
@@ -163,8 +153,7 @@ module Animate
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>)
-        {
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
             var r = event.resource;
             if (r instanceof Asset)
                 this.addAssetInstance(r, false);
@@ -179,8 +168,7 @@ module Animate
 		/**
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
-        projectReset(project: Project)
-        {
+        projectReset(project: Project) {
             project.off("resource-created", this.onResourceCreated, this);
 
 			//if ( this._curProj )
@@ -206,19 +194,15 @@ module Animate
 		* Catch the key down events.
 		* @param e The event passed by jQuery
 		*/
-		onKeyDown( e )
-		{
-			if ( Application.getInstance().focusObj != null && Application.getInstance().focusObj instanceof TreeNode )
-			{
+		onKeyDown( e ) {
+			if ( Application.getInstance().focusObj != null && Application.getInstance().focusObj instanceof TreeNode ) {
 				//If F2 pressed
-				if ( jQuery( e.target ).is( "input" ) == false && e.keyCode == 113 )
-                {
+				if ( jQuery( e.target ).is( "input" ) == false && e.keyCode == 113 ) {
                     var promise: Promise<IRenameToken>;
                     var node = this.selectedNode;
 
 					//Unselect all other items
-                    if (node != null)
-                    {
+                    if (node != null) {
                         if (node instanceof TreeNodeGroup)
                             promise = RenameForm.get.renameObject(node.resource.entry, node.resource.entry._id, ResourceType.GROUP);
                         else if (node instanceof TreeNodeBehaviour)
@@ -226,12 +210,10 @@ module Animate
                         else if (node instanceof TreeNodeAssetInstance)
                             promise = RenameForm.get.renameObject(node.resource.entry, node.resource.entry._id, ResourceType.ASSET);
 
-                        if (promise)
-                        {
+                        if (promise) {
                             node.loading = true;
 
-                            promise.then(function(token)
-                            {
+                            promise.then(function(token) {
                                 if (token.cancelled)
                                     return;
 
@@ -251,13 +233,11 @@ module Animate
 		* Creates an asset node for the tree
 		* @param {Asset} asset The asset to associate with the node
 		*/
-		addAssetInstance( asset : Asset, collapse : boolean = true )
-		{
+		addAssetInstance( asset : Asset, collapse : boolean = true ) {
 			// Add all the asset nodes
             var classNode: TreeNodeAssetClass = <TreeNodeAssetClass>this.findNode("className", asset.entry.className )
 
-			if ( classNode != null )
-			{
+			if ( classNode != null ) {
 				var instanceNode: TreeNodeAssetInstance = new TreeNodeAssetInstance( classNode.assetClass, asset );
 				classNode.addNode( instanceNode, collapse );
 
@@ -316,8 +296,7 @@ module Animate
 		/**
 		* Called when we select a menu item.
 		*/
-		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher )
-        {
+		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) {
             var promise: Promise<any>;
             var project = User.get.project;
             var context = this._contextNode;
@@ -333,29 +312,24 @@ module Animate
                 return;
 
             // Hide the loading on complete
-            var resolveRequest = function (promise: Promise<any>, node: TreeNode)
-            {
-                promise.then(function ()
-                {
+            var resolveRequest = function (promise: Promise<any>, node: TreeNode) {
+                promise.then(function () {
                     node.loading = false;
 
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     node.loading = false;
                     Logger.logMessage(err.message, null, LogType.ERROR)
                 });
             };
 
-            switch (selection)
-            {
+            switch (selection) {
                 case "Delete":
                     this._quickAdd.element.off("click", this._shortcutProxy);
                     this._quickCopy.element.off("click", this._shortcutProxy);
                     this._quickAdd.element.detach();
                     this._quickCopy.element.detach();
 
-                    selectedNodes.forEach(function (val, index)
-                    {
+                    selectedNodes.forEach(function (val, index) {
                         val.loading = true;
                         if (val instanceof TreeNodeResource)
                             resolveRequest(project.deleteResources([(<ProjectResource<Engine.IResource>>val.resource).entry._id]), val);
@@ -365,8 +339,7 @@ module Animate
 
                     break;
                 case "Copy":
-                    if (context instanceof TreeNodeAssetInstance)
-                    {
+                    if (context instanceof TreeNodeAssetInstance) {
                         context.loading = true;
                         resolveRequest(project.copyResource(context.resource.entry._id, ResourceType.ASSET), context);
                     }
@@ -377,8 +350,7 @@ module Animate
 
                     break;
                 case "Save":
-                    selectedNodes.forEach(function (val, index)
-                    {
+                    selectedNodes.forEach(function (val, index) {
                         val.loading = true;
                         if (val instanceof TreeNodeResource)
                             resolveRequest(project.saveResource((<ProjectResource<Engine.IResource>>val.resource).entry._id), val);
@@ -387,12 +359,10 @@ module Animate
                     break;
                 case "Add Group":
                     context.loading = true;
-                    promise = project.createResource<Engine.IGroup>(ResourceType.GROUP, { name: "New Group" }).then(function ()
-                    {
+                    promise = project.createResource<Engine.IGroup>(ResourceType.GROUP, { name: "New Group" }).then(function () {
                         context.loading = false;
 
-                    }).catch(function (err: Error)
-                    {
+                    }).catch(function (err: Error) {
                         context.loading = false;
                         Logger.logMessage(err.message, null, LogType.ERROR);
                         })
@@ -400,17 +370,14 @@ module Animate
                     break;
                 case "Update":
 
-                    if (context == this._sceneNode || context == this._groupsNode)
-                    {
+                    if (context == this._sceneNode || context == this._groupsNode) {
                         context.loading = true;
                         var type: ResourceType = (context == this._sceneNode ? ResourceType.CONTAINER : ResourceType.GROUP);
                         var message = false;
                         for (var i = 0, l = context.nodes.length; i < l; i++)
-                            if (context.nodes[i].modified)
-                            {
+                            if (context.nodes[i].modified) {
                                 message = true;
-                                MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text)
-                                {
+                                MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text) {
                                     if (text == "Yes")
                                         resolveRequest( project.loadResources(ResourceType.CONTAINER), context);
                                     else
@@ -422,23 +389,18 @@ module Animate
                         if (!message)
                             resolveRequest(project.loadResources(ResourceType.CONTAINER), context);
                     }
-                    else if (context instanceof TreeNodeAssetClass)
-                    {
+                    else if (context instanceof TreeNodeAssetClass) {
                         // TODO: Make sure this works
                         var nodes = <Array<TreeNodeResource<ProjectResource<Engine.IResource>>>>context.getAllNodes(context.constructor);
-                        nodes.forEach(function (node, index)
-                        {
+                        nodes.forEach(function (node, index) {
                             node.loading = true;
                             resolveRequest(project.refreshResource(nodes[i].resource.entry._id), node);
                         });
                     }
-                    else if (context instanceof TreeNodeResource)
-                    {
+                    else if (context instanceof TreeNodeResource) {
                         context.loading = true;
-                        if (context.modified)
-                        {
-                            MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text)
-                            {
+                        if (context.modified)  {
+                            MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text) {
                                 if (text == "Yes")
                                     resolveRequest(project.refreshResource((<ProjectResource<Engine.IResource>>context.resource).entry._id), context);
                                 else
@@ -459,10 +421,8 @@ module Animate
 		* When we double click the tree
 		* @param <object> e The jQuery event object
 		*/
-		onDblClick( e )
-		{
-			if ( this.selectedNode instanceof TreeNodeBehaviour )
-			{
+		onDblClick( e ) {
+			if ( this.selectedNode instanceof TreeNodeBehaviour ) {
 				var tabPair = CanvasTab.getSingleton().getTab( this.selectedNode.text );
 
 				if ( tabPair == null )
@@ -470,8 +430,7 @@ module Animate
 
 				if ( tabPair )
 					CanvasTab.getSingleton().selectTab( tabPair );
-				else
-				{
+				else {
                     var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).resource );
 					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
                     canvas.deTokenize();
@@ -546,16 +505,14 @@ module Animate
 		/** When the rename form is about to proceed. We can cancel it by externally checking
 		* if against the data.object and data.name variables.
 		*/
-		onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher )
-		{
+		onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher ) {
 			//if (event.tag.object.type == "project" )
 			//	return;
 			var project = User.get.project;
             var len = project.containers.length;
             if (event.resourceType == ResourceType.CONTAINER)
 				for ( var i = 0; i < len; i++ )
-                    if (project.containers[i].entry.name == event.name )
-                    {
+                    if (project.containers[i].entry.name == event.name ) {
                         event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
 						return;
 					}
@@ -717,17 +674,13 @@ module Animate
 		* @param {string|Array<string>} classNames The class name of the asset, or an array of class names
 		* @returns Array<TreeNodeAssetInstance>
 		*/
-		getAssets(classNames: string|Array<string>): Array<TreeNodeAssetInstance>
-		{
+		getAssets(classNames: string|Array<string>): Array<TreeNodeAssetInstance> {
 			var i = this._assetsNode.children.length;
 			var toRet: Array<TreeNodeAssetInstance> = new Array();
-			while ( i-- )
-			{
-				if ( this._assetsNode.children[i] instanceof TreeNodeAssetClass )
-				{
+			while ( i-- ) {
+				if ( this._assetsNode.children[i] instanceof TreeNodeAssetClass ) {
 					var nodes: Array<TreeNodeAssetInstance> = (<TreeNodeAssetClass>this._assetsNode.children[i]).getInstances(classNames );
-					if ( nodes != null )
-					{
+					if ( nodes != null ) {
 						for ( var ii = 0; ii < nodes.length; ii++ )
 							toRet.push( nodes[ii] );
 					}
@@ -741,19 +694,15 @@ module Animate
 		* This function will get a list of asset classes.
 		* returns {Array<TreeNodeAssetClass>}
 		*/
-		getAssetClasses(): Array<AssetClass>
-		{
+		getAssetClasses(): Array<AssetClass> {
 			var len = this._assetsNode.children.length;
 			var toRet: Array<AssetClass> = new Array();
-			for ( var i = 0; i < len; i++ )
-			{
-				if ( this._assetsNode.children[i] instanceof TreeNodeAssetClass )
-				{
+			for ( var i = 0; i < len; i++ ) {
+				if ( this._assetsNode.children[i] instanceof TreeNodeAssetClass ) {
 					toRet.push( (<TreeNodeAssetClass>this._assetsNode.children[i]).assetClass );
 
 					var classes: Array<AssetClass> = ( <TreeNodeAssetClass>this._assetsNode.children[i] ).getClasses();
-					if ( classes != null )
-					{
+					if ( classes != null ) {
 						for ( var ii = 0; ii < classes.length; ii++ )
 							toRet.push( classes[ii] );
 					}
@@ -767,8 +716,7 @@ module Animate
 		* Called when the context menu is about to open.
 		* @param <jQuery> e The jQuery event object
 		*/
-		onContext( e )
-		{
+		onContext( e ) {
 			//Now hook the context events
 			var targ = jQuery( e.target ).parent();
 			if ( targ == null )
@@ -777,8 +725,7 @@ module Animate
             var component: Component = targ.data("component");
 
 			//If the canvas
-			if ( component instanceof TreeNode )
-			{
+			if ( component instanceof TreeNode ) {
 				//Show / hide delete context item
 				if ( component.canDelete )
 					this._contextDel.element.show();
@@ -828,14 +775,12 @@ module Animate
 		* and expand all parent nodes
 		* @param {boolean} multiSelect Do we allow nodes to be multiply selected
 		*/
-		selectNode( node: TreeNode, expandToNode: boolean = false, multiSelect: boolean = false )
-		{
+		selectNode( node: TreeNode, expandToNode: boolean = false, multiSelect: boolean = false ) {
 			if ( !this.enabled )
 				return;
 
 			var multipleNodesSelected = false;
-			if ( multiSelect )
-			{
+			if ( multiSelect ) {
 				var selectedNodes = [];
 				var i = this.selectedNodes.length;
 				while ( i-- )
@@ -843,13 +788,10 @@ module Animate
 				selectedNodes.push( node );
 
 				i = selectedNodes.length;
-				while ( i-- )
-				{
+				while ( i-- ) {
 					var ii = selectedNodes.length;
-					while ( ii-- )
-					{
-						if ( selectedNodes[i].constructor.name != selectedNodes[ii].constructor.name && selectedNodes[i] != selectedNodes[ii] )
-						{
+					while ( ii-- ) {
+						if ( selectedNodes[i].constructor.name != selectedNodes[ii].constructor.name && selectedNodes[i] != selectedNodes[ii] ) {
 							multipleNodesSelected = true;
 							break;
 						}
@@ -874,8 +816,7 @@ module Animate
 		* Gets the singleton instance.
 		* @returns <TreeViewScene> The singleton instance
 		*/
-		static getSingleton() : TreeViewScene
-		{
+		static getSingleton() : TreeViewScene {
 			if ( !TreeViewScene._singleton )
 				new TreeViewScene();
 
@@ -901,8 +842,7 @@ module Animate
 		* @param {BehaviourDefinition} template
 		* @returns {TreeNodePluginBehaviour}
 		*/
-		addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour
-		{
+		addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour {
 			var toRet = new TreeNodePluginBehaviour( template );
 			this._pluginBehaviours.addNode( toRet );
 			return toRet;
@@ -913,11 +853,9 @@ module Animate
 		* @param  {string} name The name if the plugin behaviour
 		* @returns {TreeNode}
 		*/
-		removePluginBehaviour( name : string, dispose : boolean = true ) : TreeNode
-		{
+		removePluginBehaviour( name : string, dispose : boolean = true ) : TreeNode {
 			var node : TreeNode = this._pluginBehaviours.findNode( "mText", name );
-			if ( node != null )
-			{
+			if ( node != null ) {
 				this._pluginBehaviours.removeNode( node );
 
 				if ( dispose )

@@ -1,5 +1,4 @@
-module Animate
-{
+module Animate {
 	//class EditorContainer
 	//{
 	//	public editor: JQuery;
@@ -17,13 +16,11 @@ module Animate
 	/**
 	* A simple interface for property grid editors
 	*/
-    export abstract class PropertyGridEditor
-	{
+    export abstract class PropertyGridEditor {
 		//private _grid: PropertyGrid;
 		//private mEditors: Array<EditorContainer>;
 
-		constructor( grid: PropertyGrid )
-		{
+		constructor( grid: PropertyGrid ) {
 			//this._grid = grid;
 			//this.mEditors = [];
         }
@@ -40,8 +37,7 @@ module Animate
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)
-		{
+        edit(prop: Prop<any>, container: Component) {
 			return null;
 		}
 
@@ -77,8 +73,7 @@ module Animate
 		//}
 
 		/* This function is called when the grid is cleaning up all the editors. */
-		cleanup()
-		{
+		cleanup() {
 			//var items: Array<EditorContainer> = this.mEditors;
 			//var i: number = items.length;
 

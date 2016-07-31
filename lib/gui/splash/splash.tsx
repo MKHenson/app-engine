@@ -1,15 +1,12 @@
-﻿module Animate
-{
-    export enum SplashMode
-    {
+﻿module Animate {
+    export enum SplashMode {
         WELCOME,
         LOGIN,
         NEW_PROJECT,
         OPENING
     }
 
-    export interface ISplash
-    {
+    export interface ISplash {
         mode? : SplashMode
         $loading?: boolean;
     }
@@ -17,8 +14,7 @@
     /**
     * The splash screen when starting the app
     */
-    export class Splash extends React.Component<any, ISplash >
-    {
+    export class Splash extends React.Component<any, ISplash > {
         private static _singleton: Splash;
         private _splashElm: JQuery;
         private _loginElm: JQuery;
@@ -43,8 +39,7 @@
         /**
         * Creates an instance of the splash screen
         */
-        constructor(app?: Application)
-        {
+        constructor(app?: Application) {
             super()
             this._app = app;
             this._captureInitialized = false;
@@ -83,8 +78,7 @@
             // jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
         }
 
-        render() : JSX.Element
-        {
+        render() : JSX.Element {
             var mainView : JSX.Element;
             if (this.state.mode == SplashMode.LOGIN)
                 mainView = <LoginWidget
@@ -111,17 +105,14 @@
         /*
         * Shows the splash screen
         */
-        show()
-        {
-            this.$user.authenticated().then( ( val ) =>
-            {
+        show() {
+            this.$user.authenticated().then( ( val ) => {
                 this.setState({
                     $loading: false,
                     mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
                 });
 
-            }).catch( (err: Error) =>
-            {
+            }).catch( (err: Error) =>  {
                 this.setState({
                     $loading: false,
                     mode: SplashMode.LOGIN
@@ -136,8 +127,7 @@
         /*
         * Gets the dimensions of the splash screen based on the active pane
         */
-        splashDimensions(): string
-        {
+        splashDimensions(): string {
             if (this.state.mode == SplashMode.LOGIN || this.state.mode == SplashMode.OPENING )
                 return "compact";
             else
@@ -149,16 +139,14 @@
         * @param {string} state The name of the state
         * @param {boolean} digest If true, the page will revalidate
         */
-        goState(state: string, digest: boolean = false)
-        {
+        goState(state: string, digest: boolean = false) {
             var that = this;
             that.$activePane = state;
             that.$errorMsg = "";
 
             if (state == "welcome")
                 this.fetchProjects(this.$pager.index, this.$pager.limit);
-            else if (state == "new-project")
-            {
+            else if (state == "new-project") {
                 this.$errorMsg = "Give your project a name and select the plugins you woud like to use";
                 this.$errorRed = false;
             }
@@ -171,20 +159,17 @@
         * Removes the selected project if confirmed by the user
         * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
         */
-        removeProject( messageBoxAnswer : string )
-        {
+        removeProject( messageBoxAnswer : string ) {
             if (messageBoxAnswer == "No")
                 return;
 
             var that = this;
-            this.$user.removeProject(this.$selectedProject._id).then(function ()
-            {
+            this.$user.removeProject(this.$selectedProject._id).then(function () {
                 that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
                 that.$selectedProject = null;
                 Animate.Compiler.digest(that._welcomeElm, that);
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 MessageBox.show(err.message);
             });
         }
@@ -193,8 +178,7 @@
         * Loads the selected project
         * @param {IProject} project The project to load
         */
-        openProject(project: Engine.IProject)
-        {
+        openProject(project: Engine.IProject) {
             var that = this;
             var numLoaded = 0;
             that.$loading = true;
@@ -207,14 +191,12 @@
 
             // Go through each plugin and load it
             for (var i = 0, l = project.$plugins.length; i < l; i++)
-                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).then(function ()
-                {
+                PluginManager.getSingleton().loadPlugin(project.$plugins[i]).then(function () {
                     Animate.Compiler.digest(that._splashElm, that, true);
 
                     // Check if all plugins are loaded
                     numLoaded++;
-                    if (numLoaded >= project.$plugins.length)
-                    {
+                    if (numLoaded >= project.$plugins.length) {
                         // Everything loaded - so prepare the plugins
                         for (var t = 0, tl = project.$plugins.length; t < tl; t++)
                             PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
@@ -222,8 +204,7 @@
                         // Load the scene in and get everything ready
                         that.loadScene();
                     }
-                }).catch(function (err: Error)
-                {
+                }).catch(function (err: Error) {
                     that.$errorMsg = err.message;
                     Animate.Compiler.digest(that._splashElm, that, true);
 
@@ -233,8 +214,7 @@
         /**
         * Attempts to load the project and setup the scene
         */
-        loadScene()
-        {
+        loadScene() {
             var that = this;
             var project = this.$user.project;
             project.entry = this.$selectedProject;
@@ -248,13 +228,11 @@
             Logger.logMessage(`Loading project '${that.$selectedProject.name}'...`, null, LogType.MESSAGE);
 
             // Attempts to load all the project resources
-            project.loadResources().then(function (resources)
-            {
+            project.loadResources().then(function (resources) {
                 Logger.logMessage(`Loaded [${resources.length}] resources`, null, LogType.MESSAGE);
                 return project.loadBuild();
 
-            }).then( function(build)
-            {
+            }).then( function(build) {
                 Logger.logMessage(`Loaded project build '${build.entry.name} - v${build.entry.version}'`, null, LogType.MESSAGE);
 
                 // Make sure the title tells us which project is open
@@ -267,8 +245,7 @@
                 that._splashElm.detach();
                 Application.bodyComponent.addChild(Application.getInstance());
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 that.$errorMsg = err.message;
                 Animate.Compiler.digest(that._splashElm, that, true);
             });
@@ -279,24 +256,21 @@
         * @param {number} index
         * @param {number} limit
         */
-        fetchProjects(index: number, limit: number)
-        {
+        fetchProjects(index: number, limit: number) {
             var that = this;
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedProject = null;
             Animate.Compiler.digest(that._splashElm, that);
 
-            that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects)
-            {
+            that.$user.getProjectList(that.$pager.index, that.$pager.limit).then(function (projects) {
                 that.$pager.last = projects.count || 1;
                 that.$projects = projects.data;
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that);
                 Animate.Compiler.digest(that._welcomeElm, that);
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 that.$errorMsg = err.message;
                 that.$loading = false;
                 Animate.Compiler.digest(that._splashElm, that);
@@ -308,8 +282,7 @@
         * Called when we select a project
         * @param {IProject} The project to select
         */
-        selectProject(project: Engine.IProject)
-        {
+        selectProject(project: Engine.IProject) {
             if (this.$selectedProject)
                 (this.$selectedProject as any).selected = false;
 
@@ -317,8 +290,7 @@
 
             if (this.$selectedProject != project)
                 this.$selectedProject = project;
-            else
-            {
+            else {
                 (this.$selectedProject as any).selected = false;
                 this.$selectedProject = null;
             }
@@ -328,15 +300,12 @@
         * Called when we select a project
         * @param {IPlugin} The plugin to select
         */
-        selectPlugin(plugin: Engine.IPlugin)
-        {
+        selectPlugin(plugin: Engine.IPlugin) {
             // If this plugin is not selected
-            if (this.$selectedPlugins.indexOf(plugin) == -1)
-            {
+            if (this.$selectedPlugins.indexOf(plugin) == -1) {
                 // Make sure if another version is selected, that its de-selected
                 for (var i = 0, l = this.$selectedPlugins.length; i < l; i++)
-                    if (this.$selectedPlugins[i].name == plugin.name)
-                    {
+                    if (this.$selectedPlugins[i].name == plugin.name) {
                         this.$selectedPlugins.splice(i, 1);
                         break;
                     }
@@ -357,13 +326,10 @@
         * Toggles if a plugin should show all its versions or not
         * @param {IPlugin} The plugin to toggle
         */
-        showVersions(plugin: Engine.IPlugin)
-        {
+        showVersions(plugin: Engine.IPlugin) {
             for (var n in this.$plugins)
-                for (var i = 0, l = this.$plugins[n].length; i < l; i++)
-                {
-                    if (this.$plugins[n][i].name == plugin.name)
-                    {
+                for (var i = 0, l = this.$plugins[n].length; i < l; i++) {
+                    if (this.$plugins[n][i].name == plugin.name) {
                         (this.$plugins[n][i] as any).$showVersions = !(this.$plugins[n][i] as any).$showVersions;
                     }
                 }
@@ -373,8 +339,7 @@
         * Checks if a plugin is selected
         * @param {IPlugin} The plugin to check
         */
-        isPluginSelected(plugin): boolean
-        {
+        isPluginSelected(plugin): boolean {
             if (this.$selectedPlugins.indexOf(plugin) != -1)
                 return true;
             else
@@ -384,8 +349,7 @@
         /*
         * Called by the app when everything needs to be reset
         */
-        reset()
-        {
+        reset() {
         }
 
         /**
@@ -394,17 +358,14 @@
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
         */
-        reportError(form: NodeForm): boolean
-        {
+        reportError(form: NodeForm): boolean {
             if (!form.$error)
                 this.$errorMsg = "";
-            else
-            {
+            else {
                 var name = form.$errorInput;
                 name = name.charAt(0).toUpperCase() + name.slice(1);
 
-                switch (form.$errorExpression)
-                {
+                switch (form.$errorExpression) {
                     case "alpha-numeric":
                         this.$errorMsg = `${name} must only contain alphanumeric characters`;
                         break;
@@ -432,8 +393,7 @@
             if (this.$activePane == "new-project" && this.$selectedPlugins.length == 0)
                 this.$errorMsg = "Please choose at least 1 plugin to work with";
 
-            if (this.$activePane == "register")
-            {
+            if (this.$activePane == "register") {
                 (this as any).$regCaptcha = jQuery("#recaptcha_response_field").val();
                 (this as any).$regChallenge = jQuery("#recaptcha_challenge_field").val();
 
@@ -441,13 +401,11 @@
                     this.$errorMsg = "Please enter the capture code";
             }
 
-            if (this.$errorMsg == "")
-            {
+            if (this.$errorMsg == "") {
                 this.$errorRed = false;
                 return false;
             }
-            else
-            {
+            else {
                 this.$errorRed = true;
                 return true;
             }
@@ -458,8 +416,7 @@
         * @param {EngineForm} The form to check.
         * @param {boolean} True if there is an error
         */
-        newProject(name: string, description: string, plugins: Array<Engine.IPlugin>)
-        {
+        newProject(name: string, description: string, plugins: Array<Engine.IPlugin>) {
             var that = this;
             that.$loading = true;
             that.$errorRed = false;
@@ -467,8 +424,7 @@
             Compiler.digest(this._splashElm, this, false);
             var ids = plugins.map<string>(function (value) { return value._id; });
 
-            this.$user.newProject(name, ids, description).then(function (data)
-            {
+            this.$user.newProject(name, ids, description).then(function (data) {
                 that.$loading = false;
                 that.$errorRed = false;
                 that.$errorMsg = "";
@@ -478,8 +434,7 @@
                 // Start Loading the plugins
                 that.openProject(that.$selectedProject);
 
-            }).catch(function (err: Error)
-            {
+            }).catch(function (err: Error) {
                 that.$errorRed = true;
                 that.$errorMsg = err.message;
                 that.$loading = false;
@@ -494,11 +449,9 @@
         /**
         * Attempts to resend the activation code
         */
-        logout()
-        {
+        logout() {
             this.setState({ $loading : true });
-            this.$user.logout().then( () =>
-            {
+            this.$user.logout().then( () => {
                 this.$loading = false;
                 this.$errorMsg = "";
 
@@ -524,8 +477,7 @@
         * Initializes the spash screen
         * @returns {Splash}
         */
-        static init(app: Application): Splash
-        {
+        static init(app: Application): Splash {
             Splash._singleton = new Splash(app);
             return Splash._singleton;
         }
@@ -534,8 +486,7 @@
         * Gets the singleton reference of this class.
         * @returns {Splash}
         */
-        static get get(): Splash
-        {
+        static get get(): Splash {
             return Splash._singleton;
         }
     }

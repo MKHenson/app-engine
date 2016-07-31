@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* A window to show a blocking window with a message to the user.
 	*/
-	export class MessageBox extends Window
-	{
+	export class MessageBox extends Window {
         private static _singleton: MessageBox;
 
         private $message: string;
@@ -13,8 +11,7 @@ module Animate
 		private _callback: ( text : string ) => void;
 		private _context: any;
 
-		constructor()
-		{
+		constructor() {
             super(400, 200, true, false, null);
 
             this.$message = "";
@@ -26,15 +23,14 @@ module Animate
 
 			//Hook events
 			jQuery( window ).on( 'resize', this.onResize.bind( this ) );
-		} 
+		}
 
 		/**
 		* Hide the window when ok is clicked.
 		* @param {any} e The jQuery event object
 		*/
-        onButtonClick(e: MouseEvent, button: string)
-		{
-			this.hide(); 
+        onButtonClick(e: MouseEvent, button: string) {
+			this.hide();
 			if ( this._callback )
                 this._callback.call(this._context ? this._context : this, button );
 		}
@@ -43,8 +39,7 @@ module Animate
 		* When the window resizes we make sure the component is centered
 		* @param {any} e The jQuery event object
 		*/
-		onResize( e )
-		{
+		onResize( e ) {
 			if ( this.visible )
                 this.center();
 		}
@@ -56,8 +51,7 @@ module Animate
 		* @param { ( text : string ) => void} callback A function to call when a button is clicked
 		* @param {any} context The function context (ie the caller object)
 		*/
-		public static show( caption: string, buttons?: Array<string>, callback?: ( text: string ) => void, context? : any )
-		{
+		public static show( caption: string, buttons?: Array<string>, callback?: ( text: string ) => void, context? : any ) {
             var box: MessageBox = MessageBox.getSingleton();
 
             //box.mCaption.text = caption;
@@ -80,8 +74,7 @@ module Animate
 		* Gets the message box singleton
 		* @returns {MessageBox}
 		*/
-		static getSingleton() : MessageBox
-		{
+		static getSingleton() : MessageBox {
             if (!MessageBox._singleton)
                 MessageBox._singleton = new MessageBox();
 

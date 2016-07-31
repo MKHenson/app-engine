@@ -1,14 +1,11 @@
-module Animate
-{
-	export class TypeConverter
-	{
+module Animate {
+	export class TypeConverter {
 		public plugin: IPlugin;
 		public typeA: string;
 		public typeB: string;
 		public conversionOptions: Array<string>;
 
-		constructor(typeA: string, typeB: string, conversionOptions: Array<string>, plugin :IPlugin )
-		{
+		constructor(typeA: string, typeB: string, conversionOptions: Array<string>, plugin :IPlugin ) {
 			this.typeA = typeA;
 			this.typeB = typeB;
 			this.conversionOptions = conversionOptions;
@@ -16,8 +13,7 @@ module Animate
 		}
 
 		/** Checks if this converter supports a conversion. */
-		canConvert(typeA, typeB)
-		{
+		canConvert(typeA, typeB) {
 			if (this.typeA == typeA && this.typeB == typeB)
 				return true;
 			else
@@ -25,8 +21,7 @@ module Animate
 		}
 
 		/** Cleans up the object. */
-		dispose()
-		{
+		dispose() {
 			this.typeA = null;
 			this.typeB = null;
 			this.conversionOptions = null;

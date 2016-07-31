@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* A simple {Component} that you can use to get user input by using the text function
 	*/
-	export class InputBox extends Component
-	{
+	export class InputBox extends Component	{
 		private _limit: number;
 		private _textfield: Component;
 
@@ -15,8 +13,7 @@ module Animate
 		* @param {boolean} isPassword True if this needs to be obscured for passwords
 		* @param {string} html
 		*/
-		constructor( parent: Component, text: string, isTextArea: boolean = false, isPassword: boolean = false, html: string = "<div class='input-box'></div>" )
-		{
+		constructor( parent: Component, text: string, isTextArea: boolean = false, isPassword: boolean = false, html: string = "<div class='input-box'></div>" ) {
 			// Call super-class constructor
 			super( html, parent );
 
@@ -36,8 +33,7 @@ module Animate
 		* set with the limitCharacters(val) function.
 		* @param {any} e
 		*/
-		onTextChange( e : any )
-		{
+		onTextChange( e : any ) {
 			var text = this._textfield.element.val();
 			if ( text.length > this._limit )
 				this._textfield.element.val( text.substring( 0, this._limit ) );
@@ -47,8 +43,7 @@ module Animate
 		* Use this function to set a limit on how many characters can be entered in this input
 		* @param {number} val The integer limit of characters
 		*/
-		set limitCharacters( val: number)
-		{
+		set limitCharacters( val: number) {
 			this._limit = val;
 			if ( isNaN( this._limit ) || this._limit == 0 || this._limit == null )
 				this._textfield.element.off();
@@ -60,24 +55,21 @@ module Animate
 		* Use this function to get a limit on how many characters can be entered in this input
 		* @returns {number} val The integer limit of characters
 		*/
-		get limitCharacters(): number
-		{
+		get limitCharacters(): number {
 			return this._limit;
 		}
 
 		/**
 		* @param {string} val
 		*/
-		set text( val : string )
-		{
+		set text( val : string ) {
 			this._textfield.element.val( val );
 		}
 
 		/**
 		* @returns {string}
 		*/
-		get text() : string
-		{
+		get text() : string {
 			return this._textfield.element.val();
 		}
 
@@ -86,8 +78,7 @@ module Animate
 		* @param {boolean} focusInView If set to true the input will be scrolled to as well as selected. This is not
 		* always desireable because the input  might be off screen on purpose.
 		*/
-		focus( focusInView : boolean = false ): void
-		{
+		focus( focusInView : boolean = false ): void {
 			if ( focusInView )
 				this._textfield.element.focus();
 
@@ -98,8 +89,7 @@ module Animate
 		/**
 		* This will cleanup the component.
 		*/
-		dispose() : void
-		{
+		dispose() : void {
 			this._textfield = null;
 
 			//Call super

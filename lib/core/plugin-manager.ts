@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* The plugin manager is used to load and manage external Animate plugins.
 	*/
-	export class PluginManager extends EventDispatcher
-	{
+	export class PluginManager extends EventDispatcher {
 		private static _singleton: PluginManager;
 
 		private _plugins: Array<Animate.IPlugin>;
@@ -15,8 +13,7 @@ module Animate
 		//private _dataTypes: Array<string>;
         private _previewVisualizers: Array<IPreviewFactory>;
 
-		constructor()
-		{
+		constructor() {
 			// Call super-class constructor
 			super();
 
@@ -103,21 +100,17 @@ module Animate
 		* @param {IPlugin} pluginDefinition The plugin to load
         * @returns {Promise<Engine.IPlugin>}
 		*/
-        loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>
-        {
+        loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin> {
             if (pluginDefinition.$loaded)
                 return Promise.resolve(null);
 
-            return new Promise<Engine.IPlugin>(function (resolve, reject)
-            {
+            return new Promise<Engine.IPlugin>(function (resolve, reject) {
                 var script = document.createElement('script');
-                script.onerror = function (ev)
-                {
+                script.onerror = function (ev) {
                     pluginDefinition.$loaded = false;
                     return reject(new Error(`Could not download plugin`));
                 }
-                script.onload = function (ev)
-                {
+                script.onload = function (ev) {
                     pluginDefinition.$loaded = true;
                     pluginDefinition.$instance = __newPlugin;
                     return resolve(pluginDefinition);
@@ -134,18 +127,15 @@ module Animate
 		* @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
 		* @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
 		*/
-		preparePlugin( pluginDefinition : Engine.IPlugin, createPluginReference : boolean = true )
-        {
+		preparePlugin( pluginDefinition : Engine.IPlugin, createPluginReference : boolean = true ) {
             var plugin: Animate.IPlugin = pluginDefinition.$instance;
 			this._plugins.push( plugin );
 
 			// Get behaviour definitions
 			var btemplates: Array<BehaviourDefinition> = plugin.getBehaviourDefinitions();
-			if ( btemplates )
-			{
+			if ( btemplates ) {
 				var len = btemplates.length;
-				for ( var i = 0; i < len; i++ )
-				{
+				for ( var i = 0; i < len; i++ ) {
 					this.behaviourTemplates.push( btemplates[i] );
 					BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
 					TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
@@ -154,8 +144,7 @@ module Animate
 
 			// Get converters
 			var converters: Array<TypeConverter> = plugin.getTypeConverters();
-			if ( converters )
-			{
+			if ( converters ) {
 				var i = converters.length;
 				while ( i-- )
 					this._converters.push( converters[i] );
@@ -163,8 +152,7 @@ module Animate
 
 			// Get asset templates
 			var atemplates :Array<AssetTemplate> = plugin.getAssetsTemplate();
-			if ( atemplates )
-			{
+			if ( atemplates ) {
 				var i = atemplates.length;
 				while ( i-- )
 					this._assetTemplates.push( atemplates[i] );
@@ -177,8 +165,7 @@ module Animate
 		* Call this function to unload a plugin
 		* @param {IPlugin} plugin The IPlugin object that is to be loaded
 		*/
-		unloadPlugin( plugin: IPlugin )
-		{
+		unloadPlugin( plugin: IPlugin ) {
 			// Get converters
 			var toRemove : Array<BehaviourDefinition> = new Array();
 			var i = this.behaviourTemplates.length;
@@ -218,15 +205,12 @@ module Animate
 		* @param {any} typeA The first type to check
 		* @param {any} typeB The second type to check
 		*/
-		getConverters( typeA: any, typeB: any)
-		{
+		getConverters( typeA: any, typeB: any) {
 			var toRet = null;
 
 			var i = this._converters.length;
-			while ( i-- )
-			{
-				if ( this._converters[i].canConvert( typeA, typeB ) )
-				{
+			while ( i-- ) {
+				if ( this._converters[i].canConvert( typeA, typeB ) ) {
 					if ( toRet == null )
 						toRet = [];
 
@@ -259,8 +243,7 @@ module Animate
 		* @param {boolean} panToNode When set to true, the treeview will bring the node into view
 		* @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
 		*/
-		selectAsset( asset: Asset, panToNode : boolean = true, multiSelect : boolean = false )
-		{
+		selectAsset( asset: Asset, panToNode : boolean = true, multiSelect : boolean = false ) {
 			Animate.TreeViewScene.getSingleton().selectNode(
                 Animate.TreeViewScene.getSingleton().findNode( "resource", asset ), panToNode, multiSelect );
 		}
@@ -346,13 +329,11 @@ module Animate
 		* @param {string} name The name of the asset class
 		* @param {AssetClass}
 		*/
-		getAssetClass( name: string ) : AssetClass
-		{
+		getAssetClass( name: string ) : AssetClass {
 			// Assign any of the options / missing variables for classes that are updated in code but not in the DB
 			var assetTemplates: Array<AssetTemplate> = this._assetTemplates;
 			var classFound: boolean = false;
-			for ( var i = 0, l = assetTemplates.length; i < l; i++ )
-			{
+			for ( var i = 0, l = assetTemplates.length; i < l; i++ ) {
 				var assetClass: AssetClass = assetTemplates[i].findClass( name );
 				if ( assetClass )
 					return assetClass;
@@ -404,8 +385,7 @@ module Animate
         /**
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
-        projectReset(project: Project)
-        {
+        projectReset(project: Project) {
             // Cleanup all the previous plugins
             for (var i = 0; i < this._plugins.length; i++)
                 this.unloadPlugin(this._plugins[i]);
@@ -417,8 +397,7 @@ module Animate
 		/**
 		* This function is called by Animate when everything has been loaded and the user is able to begin their session.
 		*/
-        projectReady(project: Project)
-		{
+        projectReady(project: Project) {
             this.emit(new Event(EditorEvents.EDITOR_READY, null));
 		}
 
@@ -429,12 +408,10 @@ module Animate
         * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
         * will continue looking for a factory than can preview the file
         */
-        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node
-        {
+        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node {
             var toRet;
             var factories = this._previewVisualizers;
-            for (var i = 0, l = factories.length; i < l; i++)
-            {
+            for (var i = 0, l = factories.length; i < l; i++) {
                 toRet = factories[i].generate(file, updatePreviewImg);
                 if (toRet)
                     return toRet;
@@ -477,8 +454,7 @@ module Animate
 		/**
 		* Gets the singleton instance.
 		*/
-		static getSingleton()
-		{
+		static getSingleton() {
 			if ( !PluginManager._singleton )
 				new PluginManager();
 

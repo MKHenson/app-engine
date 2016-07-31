@@ -1,7 +1,5 @@
-﻿module Animate
-{
-    export module EventTypes
-    {
+﻿module Animate {
+    export module EventTypes {
         export const PORTAL_ADDED: string = "portal-added";
         export const PORTAL_REMOVED: string = "portal-removed";
         export const PORTAL_EDITED: string = "edited";
@@ -17,15 +15,13 @@
     /**
 	* Defines which types of files to search through
 	*/
-    export enum FileSearchType
-    {
+    export enum FileSearchType  {
         Global,
         User,
         Project
     }
 
-    export enum PortalType
-    {
+    export enum PortalType {
         PARAMETER,
         PRODUCT,
         INPUT,
@@ -35,8 +31,7 @@
     /*
     * The payment type of the user
     */
-    export enum UserPlan
-    {
+    export enum UserPlan {
         Free = 1,
         Bronze,
         Silver,
@@ -45,8 +40,7 @@
         Custom
     }
 
-    export enum ResourceType
-    {
+    export enum ResourceType {
         GROUP = 1,
         ASSET,
         CONTAINER,
@@ -58,8 +52,7 @@
     /**
     * Describes the type of access users have to a project
     */
-    export enum PrivilegeType
-    {
+    export enum PrivilegeType {
         NONE = 0,
         READ,
         WRITE,
@@ -69,8 +62,7 @@
     /**
     * Describes the category of a project
     */
-    export enum Category
-    {
+    export enum Category {
         Other = 1,
         Artistic,
         Gaming,
@@ -83,8 +75,7 @@
     /**
     * Describes a property type
     */
-    export enum PropertyType
-    {
+    export enum PropertyType {
         ASSET,
         ASSET_LIST,
         NUMBER,
@@ -103,8 +94,7 @@
     /**
     * Describes the type of canvas item to create
     */
-    export enum CanvasItemType
-    {
+    export enum CanvasItemType {
         Link,
         Behaviour,
         BehaviourAsset,

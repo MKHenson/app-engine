@@ -1,10 +1,8 @@
-module Animate
-{
+module Animate {
 	/**
 	* This is an implementation of the tab class
 	*/
-	export class SceneTab extends Tab
-	{
+	export class SceneTab extends Tab {
 		private static _singleton: SceneTab;
 		private mDocker: Docker;
 		public assetPanel: Component;
@@ -12,8 +10,7 @@ module Animate
 		/**
 		* @param {Component} parent The parent of the button
 		*/
-		constructor( parent: Component )
-		{
+		constructor( parent: Component ) {
 			super( parent );
 
 			if ( SceneTab._singleton != null )
@@ -32,8 +29,7 @@ module Animate
 
 		/**This is called by a controlling ScreenManager class. An image string needs to be returned
 		* which will act as a preview of the component that is being viewed or hidden.*/
-		getPreviewImage()
-		{
+		getPreviewImage() {
 			return "media/world_48.png";
 		}
 
@@ -50,8 +46,7 @@ module Animate
 		onHide() { }
 
 		/** Gets the singleton instance. */
-		static getSingleton( parent? : Component ) : SceneTab
-		{
+		static getSingleton( parent? : Component ) : SceneTab {
 			if ( !SceneTab._singleton )
 				new SceneTab( parent );
 

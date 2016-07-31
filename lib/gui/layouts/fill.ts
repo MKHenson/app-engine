@@ -1,11 +1,9 @@
-module Animate
-{
+module Animate {
 	/**
 	* A simple fill layout. Fills a component to its parent width and height. Optional
 	* offsets can be used to tweak the fill.
 	*/
-	export class Fill implements ILayout
-	{
+	export class Fill implements ILayout {
 		public offsetX: number;
 		public offsetY: number;
 		public offsetWidth: number;
@@ -19,8 +17,7 @@ module Animate
 			offsetWidth: number = 0,
 			offsetHeight: number = 0,
 			resrtictHorizontal: boolean = false,
-			resrtictVertical: boolean = false )
-		{
+			resrtictVertical: boolean = false ) {
 			this.offsetX = offsetX;
 			this.offsetY = offsetY;
 			this.offsetWidth = offsetWidth;
@@ -33,13 +30,11 @@ module Animate
 		* Sets the component width and height to its parent.
 		* @param {Component} component The {Component} we are setting dimensions for.
 		*/
-		update( component : Component )
-		{
+		update( component : Component ) {
 			var e: JQuery = component.element;
 			var parent : JQuery = e.parent();
 
-			if (parent != null && parent.length != 0)
-			{
+			if (parent != null && parent.length != 0) {
 				var parentOverflow : string = parent.css("overflow");
 				parent.css("overflow", "hidden");
 
