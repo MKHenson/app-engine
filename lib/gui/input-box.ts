@@ -28,7 +28,7 @@ module Animate
 				this._textfield = <Component>this.addChild( "<input type='text' />" );
 
 			this.text = text;
-			return this._limit = null;
+			this._limit = null;
 		}
 
 		/**
