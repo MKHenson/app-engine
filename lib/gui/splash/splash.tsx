@@ -78,6 +78,10 @@
             // jQuery("#splash-view", this._splashElm).prepend(this._loadingProject);
         }
 
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render() : JSX.Element {
             var mainView : JSX.Element;
             if (this.state.mode == SplashMode.LOGIN)
@@ -85,6 +89,8 @@
                     onLogin={()=>{
                         this.setState({ mode : SplashMode.WELCOME });
                     }} />;
+            else if (this.state.mode == SplashMode.WELCOME)
+                mainView = <ProjectsOverview />;
 
             return <div id='splash' className={this.$theme}>
                 <div className="logo">
