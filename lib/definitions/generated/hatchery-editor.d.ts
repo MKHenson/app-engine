@@ -6190,6 +6190,86 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IPagerProps extends React.HTMLAttributes {
+        onUpdate?: (index: number, limit: number) => Promise<number>;
+        limit?: number;
+    }
+    interface IPagerState {
+        index?: number;
+        limit?: number;
+        last?: number;
+    }
+    /**
+     * A class for handling paged content. You can use the pager like you would a div element. The content
+     * of which will be displayed in a sub panel with a footer that allows the user to navigate between the content that's inserted.
+     * Use the IPagerProps events to hook for each of the navigation requests and fill the content accordingly.
+     */
+    class Pager extends React.Component<IPagerProps, IPagerState> {
+        static defaultProps: IPagerProps;
+        /**
+         * Creates an instance of the pager
+         */
+        constructor(props: IPagerProps);
+        /**
+         * When the component is mounted - load the projects
+         */
+        componentWillMount(): void;
+        /**
+        * Calls the update function
+        */
+        invalidate(): void;
+        /**
+        * Gets the current page number
+        * @returns {number}
+        */
+        getPageNum(): number;
+        /**
+        * Gets the total number of pages
+        * @returns {number}
+        */
+        getTotalPages(): number;
+        /**
+        * Sets the page search back to index = 0
+        */
+        goFirst(): void;
+        /**
+        * Gets the last set of users
+        */
+        goLast(): void;
+        /**
+        * Sets the page search back to index = 0
+        */
+        goNext(): void;
+        /**
+        * Sets the page search back to index = 0
+        */
+        goPrev(): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    /**
+     * Wraps an input box with HTML that makes it look like a search bar.
+     * Add a listener for the onChange event and it will be triggered either when the input
+     * changes, or the search button is pressed.
+     */
+    class SearchBox extends React.Component<React.HTMLAttributes, any> {
+        /**
+         * Creates an instance of the search box
+         */
+        constructor(props: React.HTMLAttributes);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     class VCheckbox extends React.Component<React.HTMLAttributes, {
         checked?: boolean;
         className?: string;
@@ -6363,11 +6443,36 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IInteractiveProject extends Engine.IProject {
+        selected?: boolean;
+    }
+    interface IProjectListProps extends React.HTMLAttributes {
+        onProjectSelected?: (project: IInteractiveProject) => void;
+        noProjectMessage?: string;
+    }
+    interface IProjectListState {
+        loading?: boolean;
+        selectedProject?: IInteractiveProject;
+        errorMsg?: string;
+        projects?: IInteractiveProject[];
+    }
     /**
-     * Project List
+     * A list that displays projects
      */
-    class ProjectList {
+    class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
+        static defaultProps: IProjectListProps;
+        private $user;
+        /**
+         * Creates a new instance
+         */
         constructor(props: any);
+        selectProject(project: IInteractiveProject): void;
+        fetchProjects(index: number, limit: number): Promise<number>;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
@@ -6512,6 +6617,10 @@ declare module Animate {
         * Creates an instance of the splash screen
         */
         constructor(app?: Application);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element;
         show(): void;
         splashDimensions(): string;
@@ -6555,6 +6664,30 @@ declare module Animate {
         * @returns {Splash}
         */
         static get: Splash;
+    }
+}
+declare module Animate {
+    interface IProjectsOverviewState {
+        loading?: boolean;
+        selectedProject?: IInteractiveProject;
+        errorMsg?: string;
+    }
+    /**
+     * A component for viewing projects, displaying their stats, removing, adding or opening them.
+     */
+    class ProjectsOverview extends React.Component<React.HTMLAttributes, IProjectsOverviewState> {
+        /**
+         * Creates an instance of the projects overview
+         */
+        constructor(props: React.HTMLAttributes);
+        removeProject(messageBoxAnswer: string): void;
+        openProject(project: IInteractiveProject): void;
+        newProject(): void;
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
