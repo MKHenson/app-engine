@@ -330,3 +330,11 @@ textarea{
     height:60px;
     width:100%;
 }
+
+input[type="text"], input[type="password"], textarea {
+    box-sizing: border-box;
+    border:1px solid transparent;
+    transition: border-color 1s;
+    padding:10px;
+    background: $input;
+}
