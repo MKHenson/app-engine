@@ -1,0 +1,17 @@
+.search-box {
+    display: inline-block;
+    input {
+        border: none;
+        transition: box-shadow 1s;
+        &:focus {
+            box-shadow: 0px 0px 0px 2px $ps-blue inset;
+        }
+    }
+    label {
+        margin: 0 0 0 5px;
+        cursor: pointer;
+        transition: color 0.15s;
+        &:hover { color: $ps-blue; }
+        &:active { color: $ps-blue-darker }
+    }
+}
