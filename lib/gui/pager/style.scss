@@ -1,0 +1,44 @@
+$pager-footer-height: 50px;
+
+.pager {
+    height:100%;
+
+    .content {
+        height: calc(100% - #{$pager-footer-height});
+        overflow: auto;
+        clear:both;
+    }
+
+    .navigation {
+        height: $pager-footer-height;
+        overflow: hidden;
+
+        > div {
+            width:33.333333333%;
+            box-sizing:border-box;
+            float:left;
+            padding: 10px;
+
+            &.back {
+                text-align: left;
+            }
+            &.index {
+                text-align: center;
+            }
+            &.next {
+                text-align: right;
+
+                a {
+                    margin:0 0 0 10px;
+                }
+            }
+            &.back a {
+                margin:0 10px 0 0;
+            }
+
+            a {
+                display:inline-block;
+            }
+        }
+    }
+}
