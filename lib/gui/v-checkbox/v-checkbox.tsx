@@ -53,7 +53,7 @@ module Animate {
                         this.onChange(e)
                     }}
                     id={(this.props.id ? this.props.id : null)}
-                    name="radio-group"
+                    name={(this.props.name ? this.props.name : null)}
                     type="checkbox"
                     checked={this.state.checked} value={this.state.checked} />
                 <label
@@ -64,6 +64,7 @@ module Animate {
                     }}
                     className="unselectable"
                     htmlFor={(this.props.id ? this.props.id : null)}>
+                    {this.props.children}
                     {this.props.label}
                 </label>
             </span>
