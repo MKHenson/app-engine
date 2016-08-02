@@ -18,8 +18,7 @@ module Animate {
 		constructor( domElement?: string ) {
 			super(domElement, null);
 
-            if (Application._singleton != null)
-				throw new Error("The Application class is a singleton. You need to call the Application.getSingleton() function.");
+            Utils.init();
 
             // Creates a common body element
             Application.bodyComponent = new Component("body");
