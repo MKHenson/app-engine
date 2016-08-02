@@ -13,6 +13,26 @@
     }
 
     /**
+     * An enum to describe the different types of validation
+     * */
+    export enum ValidationType {
+        /** The value must be a valid email format */
+        EMAIL = 1,
+        /** The value must be a number */
+        NUMBER = 2,
+        /** The value must only have alphanumeric characters */
+        ALPHANUMERIC = 4,
+        /** The value must not be empty */
+        NOT_EMPTY = 8,
+        /** The value cannot contain html */
+        NO_HTML = 16,
+        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
+        ALPHANUMERIC_PLUS = 32,
+        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
+        ALPHA_EMAIL = 64
+    }
+
+    /**
 	* Defines which types of files to search through
 	*/
     export enum FileSearchType  {
