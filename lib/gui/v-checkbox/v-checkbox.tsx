@@ -1,13 +1,14 @@
 module Animate {
-    export class VCheckbox extends React.Component<React.HTMLAttributes, {checked?: boolean, className?: string }> {
+    export class VCheckbox extends React.Component<React.HTMLAttributes, {checked?: boolean, className?: string; pristine? : boolean; }> {
         /**
          * Creates an instance
          */
         constructor(props: React.HTMLAttributes) {
-            super();
+            super(props);
             this.state = {
                 checked : props.checked || false,
-                className : "v-checkbox fa " + ( props.className || '' )
+                className : "v-checkbox fa " + ( props.className || '' ),
+                pristine: true
             }
         }
 
@@ -16,9 +17,20 @@ module Animate {
          * @param {React.FormEvent} e
          */
         private onChange(e : React.FormEvent) {
-            this.setState( {checked: (e.target as HTMLInputElement).checked } );
+            this.setState( {
+                checked: (e.target as HTMLInputElement).checked,
+                pristine: false
+            } );
             if (this.props.onChange)
                 this.props.onChange(e)
+        }
+
+        /**
+         * Gets if this input has not been touched by the user. False is returned if it has been
+         * @returns {boolean}
+         */
+        get pristine() : boolean {
+            return this.state.pristine;
         }
 
          /**
@@ -31,6 +43,10 @@ module Animate {
             delete props.name;
             delete props.checked;
             delete props.label;
+
+            var className = this.state.className;
+            if (!this.state.pristine)
+                className += ' dirty';
 
             return <span {...props} className={this.state.className}>
                 <input onChange={(e)=>{
