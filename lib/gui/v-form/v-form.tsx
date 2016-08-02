@@ -1,4 +1,7 @@
 module Animate {
+
+    export type VGeneric = VInput | VTextarea | VCheckbox;
+
     export interface IVFormProps extends React.HTMLAttributes {
         /** If true, prevents the form being automatically submitted */
         preventDefault?: boolean;
@@ -56,13 +59,21 @@ module Animate {
                 e.preventDefault();
 
             let error = false;
-            for (let i in this.refs)
-                if ((this.refs[i] as VInput).state.error) {
-                    (this.refs[i] as VInput).highlightError = true;
-                    error = true;
+            let textInput : VInput | VTextarea;
+
+            for (let i in this.refs) {
+
+                if ( this.refs[i] instanceof VInput || this.refs[i] instanceof VTextarea ) {
+                    textInput = this.refs[i] as VInput | VTextarea;
+
+                    if ( textInput.state.error) {
+                        textInput.highlightError = true;
+                        error = true;
+                    }
+                    else
+                        textInput.highlightError = false;
                 }
-                else
-                    (this.refs[i] as VInput).highlightError = false;
+            }
 
             this.setState({pristine : false, error : error });
 
@@ -88,9 +99,9 @@ module Animate {
         /**
          * Called if any of the validated inputs reported or resolved an error
          * @param {Error} e The error that occurred
-         * @param {VInput} target The input that triggered the error
+         * @param {VGeneric} target The input that triggered the error
          */
-        onError(e : Error, target : VInput ) {
+        onError(e : Error, target : VGeneric ) {
             let pristine = this.state.pristine;
             if (!target.pristine)
                 pristine = false;
@@ -106,7 +117,11 @@ module Animate {
                 }
 
             // Check there are any subsequent errors
-            this._values[target.props.name] = { value: target.state.value, error : ( e ? e.message : null ) };
+            if ( target instanceof VInput || target instanceof VTextarea )
+                this._values[target.props.name] = { value: target.state.value, error : ( e ? e.message : null ) };
+            else if (target instanceof VCheckbox)
+                this._values[target.props.name] = { value: target.state.checked, error : ( e ? e.message : null ) };
+
             for (let i in this._values )
                 if (this._values[i].error)
                     errors.push({ name : i, error: this._values[i].error });
@@ -154,6 +169,13 @@ module Animate {
                 onSubmit={(e)=>{ this.onSubmit(e); }}> {
                     React.Children.map( this.props.children, ( i : React.ReactElement<any>, index ) => {
                         if ( i.type == VInput )
+                            return React.cloneElement( i, {
+                                ref: index.toString(),
+                                onChange : (e)=>{ this.onChange( e ); },
+                                onValidationError : (e, input) => { this.onError( e, input ) },
+                                onValidationResolved : (input) => { this.onError( null, input ) }
+                            } as Animate.IVInputProps )
+                        else if ( i.type == VTextarea )
                             return React.cloneElement( i, {
                                 ref: index.toString(),
                                 onChange : (e)=>{ this.onChange( e ); },
