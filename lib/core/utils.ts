@@ -4,6 +4,55 @@
     export class Utils {
         private static _withCredentials: boolean = true;
         private static shallowIds: number = 0;
+        public static validators : { [type: number ] : { regex: RegExp, name : string, negate : boolean; message : string; } };
+
+        /**
+         * Initializes the utils static variables
+         */
+        static init() {
+            Utils.validators = {};
+            Utils.validators[ValidationType.ALPHANUMERIC] = { regex: /^[a-z0-9]+$/i, name: "alpha-numeric", negate: false, message: "Only alphanumeric characters accepted" };
+            Utils.validators[ValidationType.NOT_EMPTY] = { regex: /\S/, name: "non-empty", negate: false, message: "Cannot be empty" };
+            Utils.validators[ValidationType.ALPHANUMERIC_PLUS] = { regex: /^[a-zA-Z0-9_\-!]+$/, name: "alpha-numeric-plus", negate: false, message: "Only alphanumeric, '_', '-' and '!' characters accepted" };
+            Utils.validators[ValidationType.EMAIL] = { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: "email", negate: false, message: "Email format not accepted" };
+            Utils.validators[ValidationType.NO_HTML] = { regex: /(<([^>]+)>)/ig, name: "no-html", negate: true, message: "HTML is not allowed" };
+            Utils.validators[ValidationType.ALPHA_EMAIL] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: "email-plus", negate: false, message: "Only alphanumeric, '_', '-', '@' and '!' characters accepted" };
+        }
+
+        /**
+         * Checks a string to see if there is a validation error
+         * @param {string} val The string to check
+         * @param {ValidationType} validator The type of validations to check
+         */
+        static checkValidation(val: string, validator : ValidationType) {
+
+            var validators = Utils.validators;
+            var v : { regex: RegExp, name : string, negate : boolean; message : string; };
+
+            for ( let i in ValidationType ) {
+                if ( !isNaN(parseInt(i)) )
+                    continue;
+
+                if ( ( validator & ValidationType[i as string] ) & ValidationType[i as string] ) {
+                    v = validators[ ValidationType[i as string] ];
+                    let match = val.match( v.regex );
+
+                    if ( v.negate ) {
+                        if (match) {
+                            return v.message;
+                        }
+                    }
+
+                    if ( !v.negate ) {
+                        if (!match) {
+                            return v.message;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
 
         /**
         * Generates a new shallow Id - an id that is unique only to this local session
