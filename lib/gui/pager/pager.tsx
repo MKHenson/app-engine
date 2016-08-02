@@ -131,14 +131,10 @@ module Animate {
             const props : IPagerProps  = Object.assign({}, this.props);
             delete props.onUpdate;
             delete props.limit;
+            var navbar: JSX.Element;
 
-            return <div
-                {...props}
-                className={'pager ' + (this.props.className || '') }>
-                <div className="content">
-                    {this.props.children}
-                </div>
-                <div className="navigation background">
+            if (this.state.last != 1)
+                navbar = <div className="navigation background">
                     <div className="navigation-column back soft-text">
                         <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goFirst()}}>First {'<<'} </a>
                         <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goPrev()}}>Prev {'<'}</a>
@@ -151,6 +147,14 @@ module Animate {
                         <a style={{ display: ( this.state.index < this.state.last - this.state.limit ? '' : 'none' )  }} onClick={()=>{ this.goLast() }}>{'>>'} Last</a>
                     </div>
                 </div>
+
+            return <div
+                {...props}
+                className={'pager ' + (this.props.className || '') }>
+                <div className="content">
+                    {this.props.children}
+                </div>
+                {navbar}
             </div>
         }
     }
