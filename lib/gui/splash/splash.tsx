@@ -90,7 +90,20 @@
                         this.setState({ mode : SplashMode.WELCOME });
                     }} />;
             else if (this.state.mode == SplashMode.WELCOME)
-                mainView = <ProjectsOverview />;
+                mainView = <ProjectsOverview
+                        onCreateProject={() => {
+                            this.setState({ mode: SplashMode.NEW_PROJECT });
+                        }}
+                     />;
+            else if (this.state.mode == SplashMode.NEW_PROJECT)
+                mainView = <NewProject
+                        onCancel={() => {
+                            this.setState({ mode: SplashMode.WELCOME });
+                        }}
+                        onProjectCreated={(project) => {
+                            this.setState({ mode: SplashMode.OPENING });
+                        }}
+                    />;
 
             return <div id='splash' className={this.$theme}>
                 <div className="logo">
