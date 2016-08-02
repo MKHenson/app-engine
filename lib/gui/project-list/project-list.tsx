@@ -28,20 +28,32 @@ module Animate {
             noProjectMessage: "You have no projects"
         }
 
-        private $user: User;
+        private _user: User;
 
         /**
          * Creates a new instance
          */
         constructor(props) {
             super(props);
-            this.$user = User.get;
+            this._user = User.get;
             this.state = {
                 loading: false,
                 selectedProject: null,
                 errorMsg: null,
                 projects: []
             };
+        }
+
+        /**
+         * Removes a project from the list
+         * @param {IInteractiveProject} p The project to remove
+         */
+        removeProject(p: IInteractiveProject) {
+            var projects = this.state.projects;
+            if ( projects.indexOf(p) != -1 ) {
+                projects.splice( projects.indexOf( p ), 1 );
+                this.setState({projects: projects});
+            }
         }
 
         /*
@@ -82,7 +94,7 @@ module Animate {
             });
 
             return new Promise<number>( ( resolve, reject ) => {
-                this.$user.getProjectList( index, limit ).then( (projects) => {
+                this._user.getProjectList( index, limit ).then( (projects) => {
                     this.setState({
                         loading: false,
                         projects: projects.data
