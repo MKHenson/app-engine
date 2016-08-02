@@ -154,7 +154,7 @@
     "lib/gui/login-widget/register-form.tsx",
     "lib/gui/login-widget/login-widget.tsx",
     "lib/gui/splash/splash.tsx",
-    "lib/gui/splash/new-project.tsx",
+    "lib/gui/new-project/new-project.tsx",
     "lib/gui/splash/projects-overview.tsx",
     "lib/gui/application.tsx",
     "lib/main.tsx"

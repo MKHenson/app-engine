@@ -551,66 +551,10 @@ body {
 @import 'gui/v-checkbox/style.scss';
 @import 'gui/login-widget/style.scss';
 @import 'gui/project-list/style.scss';
+@import 'gui/new-project/style.scss';
 @import 'gui/splash/style.scss';
 
-/**
-*  SPLASH SCREEN - NEW PROJECT
-*  ===============================
-*/
-.new-project {
-    text-align:left;
-    padding:15px;
-}
-.new-project p {
-    margin-right:15px;
-}
-.new-project .double-column input, .new-project .double-column textarea {
-    width:100%;
-    padding: 10px;
-    margin-bottom:15px;
-}
-.new-project textarea {
-    min-height:300px;
-}
-.new-project .info {
-    float:left;
-    margin: 10px 0;
-}
-.new-project .info:first-letter {
-    text-transform: capitalize;
-}
-.new-project .header {
-    margin-bottom:10px;
-}
-.plugins {
-    overflow:auto;
-    max-height: 330px;
-}
-.plugin .checkbox {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    padding:0 10px;
-    box-sizing:border-box;
-}
-.plugin img {
-    width: 40px;
-    margin: 5px;
-}
-.new-project .buttons {
-    text-align:right;
-}
-.plugin-info {
-    overflow:auto;
-    min-height:370px;
-    padding:0px 10px 0 10px;
-    box-sizing:border-box;
-}
-.more {
-    float:right;
-    cursor:pointer;
-    margin: 3px 0 0 0;
-}
+
 
 /**
 *  SPLASH SCREEN - LOADING PROJECT

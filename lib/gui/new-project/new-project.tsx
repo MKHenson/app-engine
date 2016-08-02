@@ -125,28 +125,26 @@ module Animate {
 
                             return <div
                                 key={plugin._id}
-                                onMouseOver={()=> { this.setState({ $activePlugin : plugin }); }}
-                                className={ 'plugin unselectable' + ( this.state.$activePlugin == plugin ? ' background-view-light' : '' ) }>
+                                className={ 'plugin unselectable' + ( this.state.$activePlugin == plugin ? ' background-view-light' : '' ) }
+                                onMouseEnter={()=> {
+                                    this.setState({ $activePlugin : plugin });
+                                }}>
                                 <div
                                     className="more animate-all"
                                     style={{ display : ( pluginGrp.array.length > 1 && isLastItem ? '' : 'none' ) }}
                                     onClick={() => { this.showVersions(plugin); }}>
                                         <div className={plugin.$showVersions ? 'minus' : 'cross' }></div>
                                 </div>
-                                <div className="checkbox"
-                                    style={{display: ( plugin.$showVersions || isLastItem ? '' : 'none' ) }}>
-                                        <div className="tick-box" onClick={() => { this.selectPlugin(plugin); }}>
-                                            <div
-                                                className="tick"
-                                                style={{display: ( this.isPluginSelected(plugin) ? '' : 'none' )}} />
-                                        </div>
-                                    <img src={plugin.image} style={{display: ( isLastItem ? '' : 'none' ) }} />
-                                    {
-                                        ( isLastItem ?
-                                            <span>{`${pluginGrp.name} (${plugin.version})`}</span> :
-                                            <span> <span className="fa fa-caret-right" /> {plugin.version}</span> )
-                                    }
-                                </div>
+                                <VCheckbox
+                                    onChange={(e)=>{
+                                        this.selectPlugin(plugin);
+                                    }}
+                                    id={`cb-${plugin._id}`}
+                                    checked={this.isPluginSelected(plugin)}
+                                    style={{display: ( plugin.$showVersions || isLastItem ? '' : 'none' ) }}
+                                    label={( isLastItem ? `${pluginGrp.name} ${plugin.version}` : plugin.version )}>
+                                    {( isLastItem ? <img src={plugin.image} style={{display: ( isLastItem ? '' : 'none' ) }} /> : <span className="fa fa-caret-right" /> )}
+                                </VCheckbox>
                             </div>
                         })
                     }
@@ -205,7 +203,7 @@ module Animate {
                     onSubmitted={(e, json, form) => {
                         this.newProject(json);
                     }}>
-                    <div className="double-column" style={{width:'40%'}}>
+                    <div className="double-column form-info" style={{width:'40%'}}>
                         <p>
                             <VInput
                                 name="name"

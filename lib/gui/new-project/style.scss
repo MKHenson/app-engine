@@ -1,0 +1,70 @@
+.new-project {
+    text-align:left;
+    padding:15px;
+
+    .form-info:first-child {
+        input, textarea {
+            width:100%;
+            padding: 10px;
+            margin-bottom:15px;
+        }
+    }
+
+    p {
+        margin-right:15px;
+    }
+
+    textarea {
+        min-height:300px;
+    }
+    .info {
+        float:left;
+        margin: 10px 0;
+    }
+    .info:first-letter {
+        text-transform: capitalize;
+    }
+    .header {
+        margin-bottom:10px;
+    }
+}
+
+.plugins {
+    overflow:auto;
+    max-height: 330px;
+
+    .fa-caret-right { margin: 0 5px 0 0; }
+    .v-checkbox input + label:before {
+        background: $input-darker;
+        color: $input-darker;
+    }
+}
+
+.plugin {
+    .checkbox {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding:0 10px;
+        box-sizing:border-box;
+    }
+    img {
+        width: 20px;
+        margin: 5px;
+    }
+}
+
+.new-project .buttons {
+    text-align:right;
+}
+.plugin-info {
+    overflow:auto;
+    min-height:370px;
+    padding:0px 10px 0 10px;
+    box-sizing:border-box;
+}
+.more {
+    float:right;
+    cursor:pointer;
+    margin: 3px 0 0 0;
+}
