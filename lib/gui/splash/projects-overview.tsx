@@ -1,5 +1,11 @@
 module Animate {
 
+    export interface IProjectsOverviewProps extends React.HTMLAttributes {
+        onCreateProject?: () => void;
+        onOpenProject? :(project: Engine.IProject) => void;
+        onRemoveProject? :(project: Engine.IProject) => void;
+    }
+
     export interface IProjectsOverviewState {
         loading? : boolean;
         selectedProject?: IInteractiveProject;
@@ -9,13 +15,16 @@ module Animate {
     /**
      * A component for viewing projects, displaying their stats, removing, adding or opening them.
      */
-    export class ProjectsOverview extends React.Component<React.HTMLAttributes, IProjectsOverviewState> {
+    export class ProjectsOverview extends React.Component< IProjectsOverviewProps, IProjectsOverviewState> {
+        private _user : User;
+        private _list : ProjectList;
 
         /**
          * Creates an instance of the projects overview
          */
-        constructor(props: React.HTMLAttributes) {
+        constructor(props: IProjectsOverviewProps) {
             super(props);
+            this._user = User.get;
             this.state = {
                 loading: false,
                 selectedProject: null,
@@ -28,18 +37,14 @@ module Animate {
         * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
         */
         removeProject( messageBoxAnswer : string ) {
-            // if (messageBoxAnswer == "No")
-            //     return;
+            if (messageBoxAnswer == "No")
+                return;
 
-            // var that = this;
-            // this.$user.removeProject(this.$selectedProject._id).then(function () {
-            //     that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
-            //     that.$selectedProject = null;
-            //     Animate.Compiler.digest(that._welcomeElm, that);
-
-            // }).catch(function (err: Error) {
-            //     MessageBox.show(err.message);
-            // });
+            this._user.removeProject(this.state.selectedProject._id).then( () => {
+                this._list.removeProject( this.state.selectedProject );
+            }).catch(function (err: Error) {
+                MessageBox.show(err.message);
+            });
         }
 
         /*
@@ -79,10 +84,6 @@ module Animate {
             //     });
         }
 
-        newProject() {
-
-        }
-
          /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -92,7 +93,7 @@ module Animate {
             var project: Engine.IProject = (this.state.selectedProject ? this.state.selectedProject : null);
 
             // If we have a project
-            if (this.state.selectedProject)
+            if (this.state.selectedProject) {
                 projectInfo = <div className="fade-in project-details">
                     <div>
                         <h2>{project.name}</h2>
@@ -106,7 +107,7 @@ module Animate {
                     <div className="buttons">
                         <div className="button">
                             <a onClick={ () => {
-                                Animate.MessageBox.show('Are you sure you want to permanently remove the project `' + project.name + '`?',
+                                Animate.MessageBox.show(`Are you sure you want to permanently remove the project '${project.name}'?`,
                                     ['Yes Delete It', 'No'], this.removeProject, this);
                             }}>REMOVE</a>
                         </div>
@@ -118,15 +119,21 @@ module Animate {
                         </div>
                     </div>
                 </div>
+            }
 
             return <div className="projects-overview">
                 <ProjectList
+                    ref={(target)=>{ this._list = target; }}
+                    noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
                     className="projects-view background-view animate-all"
                     style={{width: (this.state.selectedProject ? '70%' : '') }}
                     onProjectSelected={(project) => {
                         this.setState({ selectedProject: project });
                     }}>
-                    <div className="button reg-gradient" onClick={()=>{ this.newProject()} }>
+                    <div className="button reg-gradient" onClick={()=>{
+                        if (this.props.onCreateProject)
+                            this.props.onCreateProject();
+                    }}>
                         <div className="cross"></div>New Appling
                     </div>
                 </ProjectList>
