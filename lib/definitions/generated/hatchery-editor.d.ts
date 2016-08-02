@@ -498,6 +498,25 @@ declare module Animate {
         const CONTAINER_CREATED: string;
     }
     /**
+     * An enum to describe the different types of validation
+     * */
+    enum ValidationType {
+        /** The value must be a valid email format */
+        EMAIL = 1,
+        /** The value must be a number */
+        NUMBER = 2,
+        /** The value must only have alphanumeric characters */
+        ALPHANUMERIC = 4,
+        /** The value must not be empty */
+        NOT_EMPTY = 8,
+        /** The value cannot contain html */
+        NO_HTML = 16,
+        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
+        ALPHANUMERIC_PLUS = 32,
+        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
+        ALPHA_EMAIL = 64,
+    }
+    /**
     * Defines which types of files to search through
     */
     enum FileSearchType {
@@ -1017,6 +1036,24 @@ declare module Animate {
     class Utils {
         private static _withCredentials;
         private static shallowIds;
+        static validators: {
+            [type: number]: {
+                regex: RegExp;
+                name: string;
+                negate: boolean;
+                message: string;
+            };
+        };
+        /**
+         * Initializes the utils static variables
+         */
+        static init(): void;
+        /**
+         * Checks a string to see if there is a validation error
+         * @param {string} val The string to check
+         * @param {ValidationType} validator The type of validations to check
+         */
+        static checkValidation(val: string, validator: ValidationType): string;
         /**
         * Generates a new shallow Id - an id that is unique only to this local session
         * @param {number} reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
@@ -6273,6 +6310,7 @@ declare module Animate {
     class VCheckbox extends React.Component<React.HTMLAttributes, {
         checked?: boolean;
         className?: string;
+        pristine?: boolean;
     }> {
         /**
          * Creates an instance
@@ -6284,6 +6322,11 @@ declare module Animate {
          */
         private onChange(e);
         /**
+         * Gets if this input has not been touched by the user. False is returned if it has been
+         * @returns {boolean}
+         */
+        pristine: boolean;
+        /**
         * Creates the component elements
         * @returns {JSX.Element}
         */
@@ -6291,25 +6334,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /**
-     * An enum to describe the different types of validation
-     * */
-    enum ValidationType {
-        /** The value must be a valid email format */
-        EMAIL = 1,
-        /** The value must be a number */
-        NUMBER = 2,
-        /** The value must only have alphanumeric characters */
-        ALPHANUMERIC = 4,
-        /** The value must not be empty */
-        NOT_EMPTY = 8,
-        /** The value cannot contain html */
-        NO_HTML = 16,
-        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
-        ALPHANUMERIC_PLUS = 32,
-        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
-        ALPHA_EMAIL = 64,
-    }
     interface IVInputProps extends React.HTMLAttributes {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
@@ -6342,7 +6366,6 @@ declare module Animate {
         highlightError?: boolean;
         className?: string;
     }> {
-        private static validators;
         private _pristine;
         /**
          * Creates a new instance
@@ -6380,6 +6403,76 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IVTextareaProps extends React.HTMLAttributes {
+        /**
+         * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
+         * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
+         * */
+        validator?: ValidationType;
+        value?: string;
+        /** The minimum number of characters allowed */
+        minCharacters?: number;
+        /** The maximum number of characters allowed */
+        maxCharacters?: number;
+        /** Called whenever the input fails a validation test */
+        onValidationError?: (e: Error, target: VTextarea) => void;
+        /** Called whenever the input passes a previously failed validation test*/
+        onValidationResolved?: (target: VTextarea) => void;
+        /**
+         * An optional error message to use to describe when a problem occurs. If for example you have validation against
+         * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
+         * provided, then that is used instead (for example 'Please specify a value for X')
+         */
+        errorMsg?: string;
+    }
+    /**
+     * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
+     * with the VForm.
+     */
+    class VTextarea extends React.Component<IVTextareaProps, {
+        error?: boolean;
+        value?: string;
+        highlightError?: boolean;
+        className?: string;
+    }> {
+        private _pristine;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: any);
+        /**
+         * Called when the component is about to be mounted.
+         */
+        componentWillMount(): void;
+        /**
+         * Sets the highlight error state. This state adds a 'highlight-error' class which
+         * can be used to bring attention to the component
+         */
+        highlightError: boolean;
+        /**
+         * Checks the string against all validators.
+         * @returns {string} An error string or null if there are no errors
+         */
+        getValidationErrorMsg(val: string): string;
+        /**
+         * Called whenever the value changes
+         * @param {React.FormEvent} e
+         */
+        private onChange(e);
+        /**
+         * Gets if this input has not been touched by the user. False is returned if it has been
+         * @returns {boolean}
+         */
+        pristine: boolean;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    type VGeneric = VInput | VTextarea | VCheckbox;
     interface IVFormProps extends React.HTMLAttributes {
         /** If true, prevents the form being automatically submitted */
         preventDefault?: boolean;
@@ -6427,9 +6520,9 @@ declare module Animate {
         /**
          * Called if any of the validated inputs reported or resolved an error
          * @param {Error} e The error that occurred
-         * @param {VInput} target The input that triggered the error
+         * @param {VGeneric} target The input that triggered the error
          */
-        onError(e: Error, target: VInput): void;
+        onError(e: Error, target: VGeneric): void;
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
          * @returns {boolean}
@@ -6443,6 +6536,9 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     *  Extends the project with a selected attribute
+     */
     interface IInteractiveProject extends Engine.IProject {
         selected?: boolean;
     }
@@ -6457,15 +6553,21 @@ declare module Animate {
         projects?: IInteractiveProject[];
     }
     /**
-     * A list that displays projects
+     * A list that displays projects. Listen for the onProjectSelected event
+     * to react to project selections.
      */
     class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps: IProjectListProps;
-        private $user;
+        private _user;
         /**
          * Creates a new instance
          */
         constructor(props: any);
+        /**
+         * Removes a project from the list
+         * @param {IInteractiveProject} p The project to remove
+         */
+        removeProject(p: IInteractiveProject): void;
         selectProject(project: IInteractiveProject): void;
         fetchProjects(index: number, limit: number): Promise<number>;
         /**
@@ -6667,6 +6769,56 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IPluginPlus extends Engine.IPlugin {
+        $showVersions?: boolean;
+    }
+    interface INewProjectProps {
+        onCancel: () => void;
+        onProjectCreated: (project: Engine.IProject) => void;
+    }
+    interface INewProjectState {
+        $plugins?: {
+            [name: string]: IPluginPlus[];
+        };
+        $selectedPlugins?: Array<Engine.IProject>;
+        $selectedPlugin?: IPluginPlus;
+        $activePlugin?: IPluginPlus;
+        $errorMsg?: string;
+        $error?: boolean;
+        $loading?: boolean;
+    }
+    /**
+     * A Component for creating a new project
+     */
+    class NewProject extends React.Component<INewProjectProps, INewProjectState> {
+        private _user;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: any);
+        selectPlugin(plugin: IPluginPlus): void;
+        isPluginSelected(plugin: any): boolean;
+        showVersions(plugin: Engine.IPlugin): void;
+        componentWillMount(): void;
+        flattenPluginsByName(): JSX.Element[];
+        /**
+         * Creates a new user project
+         * @param {any} json
+         */
+        newProject(json: any): void;
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IProjectsOverviewProps extends React.HTMLAttributes {
+        onCreateProject?: () => void;
+        onOpenProject?: (project: Engine.IProject) => void;
+        onRemoveProject?: (project: Engine.IProject) => void;
+    }
     interface IProjectsOverviewState {
         loading?: boolean;
         selectedProject?: IInteractiveProject;
@@ -6675,14 +6827,15 @@ declare module Animate {
     /**
      * A component for viewing projects, displaying their stats, removing, adding or opening them.
      */
-    class ProjectsOverview extends React.Component<React.HTMLAttributes, IProjectsOverviewState> {
+    class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
+        private _user;
+        private _list;
         /**
          * Creates an instance of the projects overview
          */
-        constructor(props: React.HTMLAttributes);
+        constructor(props: IProjectsOverviewProps);
         removeProject(messageBoxAnswer: string): void;
         openProject(project: IInteractiveProject): void;
-        newProject(): void;
         /**
         * Creates the component elements
         * @returns {JSX.Element}
