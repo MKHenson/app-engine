@@ -1,0 +1,9 @@
+textarea.v-textarea.bad-input.dirty {
+    background: $input-error !important;
+}
+
+textarea.v-textarea {
+    &.highlight-error {
+        border-color : $input-highlight;
+    }
+}
