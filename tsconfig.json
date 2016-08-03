@@ -145,6 +145,7 @@
     "lib/gui/toolbar/toolBar.ts",
     "lib/gui/pager/pager.tsx",
     "lib/gui/search-box/search-box.tsx",
+    "lib/gui/attention/attention.tsx",
     "lib/gui/v-checkbox/v-checkbox.tsx",
     "lib/gui/v-input/v-input.tsx",
     "lib/gui/v-textarea/v-textarea.tsx",

@@ -498,6 +498,14 @@ declare module Animate {
         const CONTAINER_CREATED: string;
     }
     /**
+     * The type of attention message to display
+     */
+    enum AttentionType {
+        WARNING = 0,
+        SUCCESS = 1,
+        ERROR = 2,
+    }
+    /**
      * An enum to describe the different types of validation
      * */
     enum ValidationType {
@@ -6307,6 +6315,42 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IAttentionProps extends React.HTMLAttributes {
+        mode?: AttentionType;
+        showIcon?: boolean;
+    }
+    /**
+     * A simple component for displaying a styled message to the user
+     */
+    class Attention extends React.Component<IAttentionProps, {
+        mode?: AttentionType;
+        className?: string;
+    }> {
+        static defaultProps: IAttentionProps;
+        /**
+         * Creates an a new intance
+         */
+        constructor(props: IAttentionProps);
+        componentDidMount(): void;
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IAttentionProps): void;
+        /**
+         * Gets the attention mode
+         */
+        /**
+         * Sets the attention mode
+         */
+        mode: AttentionType;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     interface IVCheckboxProps extends React.HTMLAttributes {
         onChecked?: (e: React.FormEvent, checked: boolean) => void;
     }
@@ -6324,6 +6368,9 @@ declare module Animate {
          * @param {React.FormEvent} e
          */
         private onChange(e);
+        /**
+         * Called when the props are updated
+         */
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been

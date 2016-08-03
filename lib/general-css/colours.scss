@@ -18,6 +18,12 @@ $ps-blue-darker: #4579ad;
 $input: #eee;
 $input-darker: #dcdcdc;
 $input-error : #F9DDDD;
+
 $input-highlight : #ff0000;
 $success: green;
-$error: #ff0000;
+$error: #ca5858;
+$warning: #da916d;
+
+$attention-warning: #fbefd8;
+$attention-success: #daf1d8;
+$attention-error: $input-error;

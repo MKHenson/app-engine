@@ -13,6 +13,15 @@
     }
 
     /**
+     * The type of attention message to display
+     */
+    export enum AttentionType {
+        WARNING,
+        SUCCESS,
+        ERROR
+    }
+
+    /**
      * An enum to describe the different types of validation
      * */
     export enum ValidationType {

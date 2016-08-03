@@ -1,0 +1,25 @@
+.attention {
+    padding: 10px;
+    text-align: center;
+    transition: all 1s;
+    opacity: 0;
+
+    &.enter{
+        opacity: 1;
+    }
+
+    &.warning {
+        background: $attention-warning;
+        color: $warning;
+    }
+
+    &.success {
+        background: $attention-success;
+        color: $success;
+    }
+
+    &.error {
+        background: $attention-error;
+        color: $error;
+    }
+}
