@@ -119,7 +119,7 @@ module Animate {
                 highlightError: (err && this.state.highlightError ? true : false)
             });
 
-            if (!err)
+            if (!err && this.props.onChange)
                 this.props.onChange(e);
         }
 

@@ -32,6 +32,9 @@ module Animate {
                 this.props.onChecked(e, (e.target as HTMLInputElement).checked);
         }
 
+        /**
+         * Called when the props are updated
+         */
         componentWillReceiveProps(nextProps: IVCheckboxProps) {
             this.setState({
                 className : ( "v-checkbox fa " + ( nextProps.className || '' ) ),

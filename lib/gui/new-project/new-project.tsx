@@ -57,7 +57,7 @@ module Animate {
             }).catch( (err: Error) => {
                 this.setState({
                     loading: true,
-                    error: false,
+                    error: true,
                     errorMsg: err.message
                 });
             });
@@ -108,8 +108,14 @@ module Animate {
                     </div>
                     <div className="fix"></div>
                     <div className="buttons">
-                        <span className={ 'info' + ( this.state.error ? 'error' : '' )}>{this.state.errorMsg}</span>
-                        <button className='button reg-gradient curve-small' onClick={() => { this.props.onCancel() }}>Back</button>
+                        {(
+                            this.state.errorMsg ?
+                                <Attention mode={( this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS )}>
+                                    {this.state.errorMsg}
+                                </Attention>
+                            : null
+                        )}
+                        <button className='button reg-gradient curve-small' onClick={(e) => { e.preventDefault(); this.props.onCancel() }}>Back</button>
                         <button type='submit' className={ 'button reg-gradient curve-small animate-all' + (this.state.loading ? ' disabled' : '' ) }>Next</button>
                     </div>
                 </VForm>
