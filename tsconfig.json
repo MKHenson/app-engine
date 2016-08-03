@@ -149,6 +149,7 @@
     "lib/gui/v-input/v-input.tsx",
     "lib/gui/v-textarea/v-textarea.tsx",
     "lib/gui/v-form/v-form.tsx",
+    "lib/gui/plugins-widget/plugins-widget.tsx",
     "lib/gui/project-list/project-list.tsx",
     "lib/gui/login-widget/login-form.tsx",
     "lib/gui/login-widget/register-form.tsx",

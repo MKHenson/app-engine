@@ -6307,7 +6307,10 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class VCheckbox extends React.Component<React.HTMLAttributes, {
+    interface IVCheckboxProps extends React.HTMLAttributes {
+        onChecked?: (e: React.FormEvent, checked: boolean) => void;
+    }
+    class VCheckbox extends React.Component<IVCheckboxProps, {
         checked?: boolean;
         className?: string;
         pristine?: boolean;
@@ -6315,12 +6318,13 @@ declare module Animate {
         /**
          * Creates an instance
          */
-        constructor(props: React.HTMLAttributes);
+        constructor(props: IVCheckboxProps);
         /**
          * Called whenever the checkbox input changes
          * @param {React.FormEvent} e
          */
         private onChange(e);
+        componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
@@ -6528,6 +6532,61 @@ declare module Animate {
          * @returns {boolean}
          */
         pristine: boolean;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    type PluginMap = {
+        [name: string]: IPluginPlus[];
+    };
+    interface IPluginPlus extends Engine.IPlugin {
+        expanded?: boolean;
+    }
+    interface IPluginsWidgetProps {
+        onChange(selectedPlugins: IPluginPlus[]): any;
+        onError(error: Error): any;
+    }
+    interface IPluginsWidgetState {
+        loading?: boolean;
+        plugins?: PluginMap;
+        selectedPlugin?: IPluginPlus;
+        activePlugin?: IPluginPlus;
+        selectedPlugins?: IPluginPlus[];
+    }
+    /**
+     * A class for displaying a list of available plugins that can be used with a project.
+     */
+    class PluginsWidget extends React.Component<IPluginsWidgetProps, IPluginsWidgetState> {
+        /**
+         * Creates an instance
+         */
+        constructor(props: IPluginsWidgetProps);
+        /**
+         * When the component is mounted, we download the latest plugins
+         */
+        componentWillMount(): void;
+        /**
+         * Gets the currently selected plugins
+         * @returns {IPluginPlus[]}
+         */
+        selectedPlugins: IPluginPlus[];
+        selectPlugin(plugin: IPluginPlus): void;
+        mustShowPluginTick(plugin: any, index: number): boolean;
+        showVersions(plugin: Engine.IPlugin): void;
+        /**
+         * Once the plugins are loaded from the DB
+         * @param {Array<Engine.IPlugin>} plugins
+         * @returns {PluginMap}
+         */
+        onPluginsLoaded(plugins: Array<Engine.IPlugin>): PluginMap;
+        /**
+         * Generates the React code for displaying the plugins
+         */
+        createPluginHierarchy(): JSX.Element[];
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6769,23 +6828,15 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface IPluginPlus extends Engine.IPlugin {
-        $showVersions?: boolean;
-    }
     interface INewProjectProps {
         onCancel: () => void;
         onProjectCreated: (project: Engine.IProject) => void;
     }
     interface INewProjectState {
-        $plugins?: {
-            [name: string]: IPluginPlus[];
-        };
-        $selectedPlugins?: Array<Engine.IProject>;
-        $selectedPlugin?: IPluginPlus;
-        $activePlugin?: IPluginPlus;
-        $errorMsg?: string;
-        $error?: boolean;
-        $loading?: boolean;
+        plugins?: IPluginPlus[];
+        errorMsg?: string;
+        error?: boolean;
+        loading?: boolean;
     }
     /**
      * A Component for creating a new project
@@ -6796,11 +6847,6 @@ declare module Animate {
          * Creates a new instance
          */
         constructor(props: any);
-        selectPlugin(plugin: IPluginPlus): void;
-        isPluginSelected(plugin: any): boolean;
-        showVersions(plugin: Engine.IPlugin): void;
-        componentWillMount(): void;
-        flattenPluginsByName(): JSX.Element[];
         /**
          * Creates a new user project
          * @param {any} json

@@ -1,0 +1,89 @@
+.plugins-widget {
+
+    .fa-cog {
+        display: none;
+        font-size: 30px;
+        color: $text-lightest;
+    }
+    &.loading .fa-cog {
+        display: inline-block;
+    }
+
+    h2 {
+        margin: 10px 0;
+    }
+
+    .no-other-versions, .secondary-plugin {
+        .more {
+            display: none;
+        }
+    }
+
+    .secondary-plugin {
+        padding: 0;
+        box-sizing: border-box;
+        display:none;
+
+        &.expanded {
+            padding: 0 0 0 10px;
+            display:block;
+        }
+
+        img {
+            display: none;
+        }
+    }
+
+    .plugins {
+        overflow:auto;
+        max-height: 330px;
+
+        .fa-caret-right {
+            margin: 0 5px 0 0;
+        }
+
+        .v-checkbox {
+            width: 90%;
+
+            input + label:before {
+                background: $input-darker;
+                color: $input-darker;
+            }
+
+            input:checked + label:before {
+                color: $text;
+            }
+        }
+
+        .not-directly-selected.v-checkbox input:checked + label:before {
+            color: $text-lightest;
+        }
+    }
+
+    .plugin {
+        img {
+            width: 20px;
+            margin: 5px;
+        }
+    }
+    .plugin-info {
+        overflow:auto;
+        min-height:370px;
+        padding:0px 10px 0 10px;
+        box-sizing:border-box;
+    }
+    .more {
+        float: right;
+        cursor: pointer;
+        margin: 5px 5px 0 0;
+        transition: color 0.5s;
+        color: $text-lighter;
+        &:hover {
+            color: $text-darker;
+        }
+        &:active {
+            color: $text-darkest;
+        }
+    }
+}
+
