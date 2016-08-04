@@ -1,4 +1,5 @@
 @import '../third-party/font-awesome/scss/font-awesome.scss';
+@import 'general-css/functions.scss';
 @import 'general-css/colours.scss';
 @import 'general-css/base.scss';
 @import 'general-css/jquery-ui-resizable.scss';
@@ -493,53 +494,6 @@ body {
     width:50%;
 }
 
-/**
-*  SPLASH SCREEN
-*  =============
-*/
-#splash {
-    width:100%;
-    height:100%;
-    background-size:100% 100%;
-    overflow:auto;
-    font-size:20px;
-}
-
-#splash .logo {
-    overflow: hidden;
-    text-align: center;
-    font-size: 70px;
-    position: relative;
-}
-#splash .logo h2 {
-    font-weight: 100;
-    margin: 15px 0 40px 0;
-}
-#splash-view {
-    overflow:auto;
-    text-align:center;
-    position:relative;
-    margin:0 auto;
-    min-width: 450px;
-}
-#splash-view.compact {
-    width:25%;
-}
-#splash-view.wide {
-    width:80%;
-    min-width: 910px;
-}
-#splash-loading-icon {
-    margin:0 10px 0 0;
-    height: 100px;
-}
-#splash .logout {
-    font-size: 20px;
-    position: absolute;
-    top: 0;
-    padding: 10px;
-    left: calc(100% - 100px);
-}
 /**
 *  SPLASH SCREEN - LOGIN + REGISTER
 *  ================================
@@ -1170,12 +1124,6 @@ a{
   background: -o-linear-gradient(right, #D8A2A2, #6F6C98); /* For Opera 11.1 to 12.0 */
   background: -moz-linear-gradient(right, #D8A2A2, #6F6C98); /* For Firefox 3.6 to 15 */
   background: linear-gradient(to right, #D8A2A2, #6F6C98); /* Standard syntax */
-}
-#splash.welcome-blue {
-    background-image:url("../media/aurora.png");
-}
-#splash.welcome-pink {
-    background-image:url("../media/aurora2.png");
 }
 .no-items {
     color: #BBC4D0;
