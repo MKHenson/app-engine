@@ -34,7 +34,7 @@ module Animate {
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
      * with the VForm.
      */
-    export class VInput extends React.Component<IVInputProps, { error? : boolean, value?: string, highlightError? : boolean, className? : string }> {
+    export class VInput extends React.Component<IVInputProps, { error? : string, value?: string, highlightError? : boolean }> {
 
         private _pristine: boolean;
 
@@ -46,9 +46,8 @@ module Animate {
             this._pristine = true;
             this.state = {
                 value : props.value || '',
-                error: false,
-                highlightError: false,
-                className:  ( props.className ? props.className + ' v-input' : 'v-input' )
+                error: null,
+                highlightError: false
             };
         }
 
@@ -59,11 +58,11 @@ module Animate {
             var err = this.getValidationErrorMsg( this.props.value );
 
              // Call the optional error callback
-            if ( err && this.props.onValidationError )
+            if ( err && !this._pristine && this.props.onValidationError )
                this.props.onValidationError( new Error(err), this );
 
             this.setState({
-                error: (err? true: false)
+                error: (err? err: null)
             });
         }
 
@@ -82,7 +81,6 @@ module Animate {
         getValidationErrorMsg(val : string): string {
             let validators = Utils.validators;
             let validator = null;
-            let error : boolean = false;
             let errorMsg: string = null;
 
             val = ( val !== undefined ? val : this.state.value );
@@ -92,7 +90,7 @@ module Animate {
             if (this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
                 errorMsg = `You have too many characters`;
 
-            if ( !error )
+            if ( !errorMsg )
                 errorMsg = Utils.checkValidation(val, this.props.validator)
 
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
@@ -115,7 +113,7 @@ module Animate {
 
             this.setState({
                 value: val,
-                error: (err? true : false),
+                error: (err? err : null),
                 highlightError: (err && this.state.highlightError ? true : false)
             });
 
@@ -145,7 +143,7 @@ module Animate {
             delete divProps.onValidationError;
             delete divProps.onValidationResolved;
 
-            var className = this.state.className;
+            var className = ( this.props.className ? this.props.className + ' v-input' : 'v-input' )
             if (this.state.error)
                 className += ' bad-input';
             if (this.state.highlightError)

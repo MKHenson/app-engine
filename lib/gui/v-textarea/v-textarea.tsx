@@ -34,7 +34,7 @@ module Animate {
      * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
      * with the VForm.
      */
-    export class VTextarea extends React.Component<IVTextareaProps, { error? : boolean, value?: string, highlightError? : boolean, className? : string }> {
+    export class VTextarea extends React.Component<IVTextareaProps, { error? : string, value?: string, highlightError? : boolean, className? : string }> {
         private _pristine: boolean;
 
         /**
@@ -45,7 +45,7 @@ module Animate {
             this._pristine = true;
             this.state = {
                 value : props.value || '',
-                error: false,
+                error: null,
                 highlightError: false,
                 className:  ( props.className ? props.className + ' v-textarea' : 'v-textarea' )
             };
@@ -58,11 +58,11 @@ module Animate {
             var err = this.getValidationErrorMsg( this.props.value );
 
              // Call the optional error callback
-            if ( err && this.props.onValidationError )
+            if ( err && !this._pristine && this.props.onValidationError )
                this.props.onValidationError( new Error(err), this );
 
             this.setState({
-                error: (err? true: false)
+                error: (err? err: null)
             });
         }
 
@@ -91,7 +91,7 @@ module Animate {
             if (this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
                 errorMsg = `You have too many characters`;
 
-            if ( !error )
+            if ( !errorMsg )
                 errorMsg = Utils.checkValidation(val, this.props.validator)
 
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
@@ -114,7 +114,7 @@ module Animate {
 
             this.setState({
                 value: val,
-                error: (err? true : false),
+                error: (err? err : null),
                 highlightError: (err && this.state.highlightError ? true : false)
             });
 

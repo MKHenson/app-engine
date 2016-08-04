@@ -6,7 +6,7 @@ module Animate {
         /** If true, prevents the form being automatically submitted */
         preventDefault?: boolean;
         /** A callback for when submit is called and there are no validation errors */
-        onSubmitted?: (e: React.FormEvent, json: any, form : VForm ) => void;
+        onSubmitted?: (json: any, form : VForm ) => void;
         /** A callback for when a validation error has occurred */
         onValidationError?: (e : { name:string, error: string }[], form: VForm) => void;
         /** A callback for when a previously invalid form is validated */
@@ -58,7 +58,15 @@ module Animate {
             if (this.props.preventDefault)
                 e.preventDefault();
 
+            this.initiateSubmit();
+        }
+
+        /**
+         * Goes through the validations and calls submit if everything passes
+         */
+        initiateSubmit() {
             let error = false;
+            let firstInputWithError: VInput | VTextarea;
             let textInput : VInput | VTextarea;
 
             for (let i in this.refs) {
@@ -66,7 +74,8 @@ module Animate {
                 if ( this.refs[i] instanceof VInput || this.refs[i] instanceof VTextarea ) {
                     textInput = this.refs[i] as VInput | VTextarea;
 
-                    if ( textInput.state.error) {
+                    if ( textInput.state.error ) {
+                        firstInputWithError = textInput;
                         textInput.highlightError = true;
                         error = true;
                     }
@@ -77,6 +86,9 @@ module Animate {
 
             this.setState({pristine : false, error : error });
 
+            if (firstInputWithError)
+                this.onError(new Error(firstInputWithError.state.error), firstInputWithError);
+
             if (error)
                 return;
 
@@ -84,7 +96,7 @@ module Animate {
             for ( let i in  this._values )
                 json[i] = this._values[i].value;
 
-            this.props.onSubmitted( e, json, this );
+            this.props.onSubmitted( json, this );
         }
 
         /**
