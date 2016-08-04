@@ -6323,26 +6323,17 @@ declare module Animate {
      * A simple component for displaying a styled message to the user
      */
     class Attention extends React.Component<IAttentionProps, {
-        mode?: AttentionType;
-        className?: string;
+        isClosed: boolean;
     }> {
         static defaultProps: IAttentionProps;
         /**
          * Creates an a new intance
          */
         constructor(props: IAttentionProps);
-        componentDidMount(): void;
         /**
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IAttentionProps): void;
-        /**
-         * Gets the attention mode
-         */
-        /**
-         * Sets the attention mode
-         */
-        mode: AttentionType;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6412,10 +6403,9 @@ declare module Animate {
      * with the VForm.
      */
     class VInput extends React.Component<IVInputProps, {
-        error?: boolean;
+        error?: string;
         value?: string;
         highlightError?: boolean;
-        className?: string;
     }> {
         private _pristine;
         /**
@@ -6481,7 +6471,7 @@ declare module Animate {
      * with the VForm.
      */
     class VTextarea extends React.Component<IVTextareaProps, {
-        error?: boolean;
+        error?: string;
         value?: string;
         highlightError?: boolean;
         className?: string;
@@ -6528,7 +6518,7 @@ declare module Animate {
         /** If true, prevents the form being automatically submitted */
         preventDefault?: boolean;
         /** A callback for when submit is called and there are no validation errors */
-        onSubmitted?: (e: React.FormEvent, json: any, form: VForm) => void;
+        onSubmitted?: (json: any, form: VForm) => void;
         /** A callback for when a validation error has occurred */
         onValidationError?: (e: {
             name: string;
@@ -6563,6 +6553,10 @@ declare module Animate {
          * @param {React.FormEvent} e
          */
         onSubmit(e: React.FormEvent): void;
+        /**
+         * Goes through the validations and calls submit if everything passes
+         */
+        initiateSubmit(): void;
         /**
          * Called whenever any of the inputs fire a change event
          * @param {React.FormEvent} e
