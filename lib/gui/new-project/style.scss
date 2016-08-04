@@ -2,7 +2,12 @@
     text-align:left;
     padding:15px;
 
-    .form-info:first-child {
+    .attention {
+        float: left;
+        width: calc(100% - 145px);
+    }
+
+    .form-info {
         input, textarea {
             width:100%;
             padding: 10px;
@@ -10,7 +15,7 @@
         }
     }
 
-    p {
+    form {
         margin-right:15px;
     }
 
@@ -33,5 +38,8 @@
 
     .buttons {
         text-align:right;
+    }
+    button {
+        margin: 0 0 0 5px;
     }
 }

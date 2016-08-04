@@ -27,8 +27,8 @@ module Animate {
 
             this.state = {
                 plugins : [],
-                errorMsg: null,
                 error: false,
+                errorMsg: "Please enter the project details and select any plugins you want to use",
                 loading: false
             }
         }
@@ -44,19 +44,18 @@ module Animate {
             this.setState({
                 loading: true,
                 error: false,
-                errorMsg: "Just a moment while we hatch your appling...",
+                errorMsg: null
             });
 
             this._user.newProject(json.name, ids, json.description).then( (data) => {
                 this.setState({
-                    loading: false,
-                    errorMsg:null,
+                    loading: false
                 });
 
                 this.props.onProjectCreated(data.data);
             }).catch( (err: Error) => {
                 this.setState({
-                    loading: true,
+                    loading: false,
                     error: true,
                     errorMsg: err.message
                 });
@@ -70,35 +69,36 @@ module Animate {
          */
         render() : JSX.Element {
             return <div id="splash-new-project" className='new-project fade-in'>
-                <VForm name="new-project"
-                    autoComplete="off"
-                    onValidationError={(errors, form)=> {
-                        this.setState({
-                            errorMsg: `${Utils.capitalize(errors[0].name)} : ${errors[0].error}`,
-                            error : true
-                            })
-                    }}
-                    onValidationsResolved={(form)=> {
-                        this.setState({ errorMsg: null })
-                    }}
-                    onSubmitted={(e, json, form) => {
-                        this.newProject(json);
-                    }}>
+
                     <div className="double-column form-info" style={{width:'40%'}}>
-                        <p>
-                            <VInput
-                                name="name"
-                                type="text"
-                                placeholder="Project Name"
-                                validator={ValidationType.ALPHANUMERIC_PLUS | ValidationType.NOT_EMPTY}
-                                />
-                        </p>
-                        <p>
-                            <VTextarea
-                                name="description"
-                                placeholder="Project Description"
-                                />
-                        </p>
+                        <VForm name="new-project"
+                            ref="newProjectForm"
+                            autoComplete="off"
+                            onValidationError={(errors, form)=> {
+                                this.setState({
+                                    errorMsg: `${Utils.capitalize(errors[0].name)} : ${errors[0].error}`,
+                                    error : true
+                                })
+                            }}
+                            onValidationsResolved={(form)=> {
+                                this.setState({ errorMsg: null })
+                            }}
+                            onSubmitted={( json, form) => {
+                                this.newProject(json);
+                            }}>
+
+                        <VInput
+                            name="name"
+                            type="text"
+                            placeholder="Project Name"
+                            validator={ValidationType.ALPHANUMERIC_PLUS | ValidationType.NOT_EMPTY}
+                            />
+
+                        <VTextarea
+                            name="description"
+                            placeholder="Project Description"
+                            />
+                        </VForm>
                     </div>
                     <div className="double-column" style={{width:'60%'}}>
                         <PluginsWidget
@@ -110,15 +110,29 @@ module Animate {
                     <div className="buttons">
                         {(
                             this.state.errorMsg ?
-                                <Attention mode={( this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS )}>
+                                <Attention
+                                    showIcon={this.state.error}
+                                    mode={( this.state.error ? AttentionType.ERROR : AttentionType.WARNING )}>
                                     {this.state.errorMsg}
                                 </Attention>
                             : null
                         )}
-                        <button className='button reg-gradient curve-small' onClick={(e) => { e.preventDefault(); this.props.onCancel() }}>Back</button>
-                        <button type='submit' className={ 'button reg-gradient curve-small animate-all' + (this.state.loading ? ' disabled' : '' ) }>Next</button>
+                        <button
+                            className='button reg-gradient curve-small'
+                            onClick={(e) => {
+                                e.preventDefault();
+                                this.props.onCancel()}}>
+                            Back
+                        </button>
+                        <button
+                            className={ 'button reg-gradient curve-small animate-all' + (this.state.loading ? ' disabled' : '' ) }
+                            onClick={()=>{
+                                (this.refs["newProjectForm"] as VForm).initiateSubmit();
+                            }}>
+                            Next <span className="fa fa-chevron-right"/>
+                        </button>
                     </div>
-                </VForm>
+
             </div>
         }
     }
