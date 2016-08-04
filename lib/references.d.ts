@@ -8,6 +8,8 @@
 /// <reference path="./definitions/required/modepress-api.d.ts" />
 /// <reference path="./definitions/required/app-engine.d.ts" />
 /// <reference path="./definitions/required/react/react.d.ts" />
+/// <reference path="./definitions/required/react/react-addons-transition-group.d.ts" />
+/// <reference path="./definitions/required/react/react-addons-css-transition-group.d.ts" />
 /// <reference path="./definitions/required/react/react-dom.d.ts" />
 /// <reference path="./definitions/required/react/react-global.d.ts" />
 

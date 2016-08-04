@@ -47,8 +47,8 @@ gulp.task('deploy-third-party', function() {
         './third-party/jquery-ui/ui/draggable.js',
         './third-party/jquery-ui/ui/droppable.js',
         './third-party/jquery-ui/ui/resizable.js',
-        './third-party/react/react-15.2.1.js',
-        './third-party/react/react-dom-15.2.1.js',
+        './third-party/react/react-with-addons.js',
+        './third-party/react/react-dom.js',
         './third-party/es6-promise/dist/es6-promise.js',
         './third-party/jscolor/*.*',
         './third-party/ace/src-noconflict/*.js',
@@ -254,8 +254,8 @@ gulp.task('install-third-parties', function () {
         downloadClient("https://github.com/jquery/jquery-mousewheel/tarball/3.1.13", './third-party/jquery-mousewheel'),
         downloadClient("https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo'),
 
-        downloadFile("https://fb.me/react-15.2.1.js", "./third-party/react/", "react-15.2.1.js"),
-        downloadFile("https://fb.me/react-dom-15.2.1.js", "./third-party/react/", "react-dom-15.2.1.js")
+        downloadFile("https://npmcdn.com/react@15.3.0/dist/react-with-addons.js", "./third-party/react/", "react-with-addons.js"),
+        downloadFile("https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js", "./third-party/react/", "react-dom.js")
     ]);
 });
 
