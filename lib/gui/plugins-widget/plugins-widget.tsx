@@ -254,7 +254,22 @@ module Animate {
          * @returns {JSX.Element}
          */
         render() : JSX.Element {
-            return <div className={"plugins-widget" + ( this.state.loading ? ' loading' : '' )}>
+
+            var previewContent: JSX.Element;
+
+            if (this.state.activePlugin) {
+                previewContent = <div className="plugin-info background-view-light"
+                    style={{display : ( this.state.activePlugin ? '' : 'none' ) }}>
+                        <h2>{(this.state.activePlugin ? this.state.activePlugin.name : '')}</h2>
+                        {(this.state.activePlugin ? this.state.activePlugin.description : '')}
+                    </div>
+            }
+
+
+            return <div className={
+                        "plugins-widget" + ( this.state.loading ? ' loading' : '' ) +
+                        ( !this.state.activePlugin ? ' no-plugin' : '' )
+                    }>
                 <div className="double-column">
                     <h2>Choose Plugins<i className="fa fa-cog fa-spin fa-3x fa-fw"></i></h2>
                     <div className="plugins">
@@ -262,10 +277,7 @@ module Animate {
                     </div>
                 </div>
                 <div className="double-column">
-                    <div className="plugin-info background-view-light" style={{display : ( this.state.activePlugin ? '' : 'none' ) }}>
-                        <h2>{(this.state.activePlugin ? this.state.activePlugin.name : '')}</h2>
-                        {(this.state.activePlugin ? this.state.activePlugin.description : '')}
-                    </div>
+                    {previewContent}
                 </div>
             </div>
         }
