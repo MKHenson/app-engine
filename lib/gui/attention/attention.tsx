@@ -8,7 +8,7 @@ module Animate {
     /**
      * A simple component for displaying a styled message to the user
      */
-    export class Attention extends React.Component< IAttentionProps, { mode?: AttentionType, className? : string }> {
+    export class Attention extends React.Component< IAttentionProps, {isClosed : boolean } > {
         static defaultProps : IAttentionProps = {
             mode: AttentionType.WARNING,
             showIcon: true
@@ -20,41 +20,16 @@ module Animate {
         constructor(props : IAttentionProps) {
             super(props);
             this.state = {
-                mode: props.mode,
-                className: ( props.className ? props.className +  ' attention' : ' attention')
+                isClosed: false
             };
-        }
-
-        componentDidMount() {
-            this.setState({className : ( this.props.className ? this.props.className +  ' attention enter' : ' attention enter')});
         }
 
         /**
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IAttentionProps) {
-
             this.setState({
-                mode : nextProps.mode,
-                className: ( nextProps.className ? nextProps.className +  ' attention enter' : ' attention enter')
-            });
-        }
-
-        /**
-         * Gets the attention mode
-         */
-        get mode() : AttentionType
-        {
-            return this.state.mode;
-        }
-
-        /**
-         * Sets the attention mode
-         */
-        set mode( val : AttentionType )
-        {
-            this.setState({
-                mode: val
+                isClosed: false
             });
         }
 
@@ -66,31 +41,53 @@ module Animate {
             let props : IAttentionProps = Object.assign({}, this.props);
             delete props.mode;
             delete props.showIcon;
+            delete props.className;
+
             let primaryClass : string;
             let icon : JSX.Element;
+            let className = ( props.className ? props.className +  ' attention' : 'attention')
 
-            if (this.state.mode == AttentionType.ERROR) {
-                primaryClass = ' error';
+            if (this.props.mode == AttentionType.ERROR) {
+                className += ' error';
                 if (this.props.showIcon)
-                    icon = <span className="fa fa-exclamation-triangle" />
+                    icon = <div className="icon"><span className="fa fa-exclamation-triangle" /></div>
             }
-            else if (this.state.mode == AttentionType.WARNING) {
-                primaryClass = ' warning';
+            else if (this.props.mode == AttentionType.WARNING) {
+                className += ' warning';
                 if (this.props.showIcon)
-                    icon = <span className="fa fa-exclamation-triangle" />
+                    icon = <div className="icon"><span className="fa fa-exclamation-circle" /></div>
             }
             else {
-                primaryClass = ' success';
+                className += ' success';
                 if (this.props.showIcon)
-                    icon = <span className="fa fa-check" />
+                    icon = <div className="icon"><span className="fa fa-check" /></div>
             }
 
-            return <div
-                {...props}
-                className={this.state.className + primaryClass}
+            var content : JSX.Element;
+            if ( !this.state.isClosed) {
+                content = <div key="attention"  {...props} className={className}>
+                    <span className="close fa fa-times" onClick={()=>{
+                            this.setState({isClosed: true});
+                        }} />
+                    {icon}
+                    <div className={'message' + (this.props.showIcon ? ' with-icon' : '')}>
+                        {this.props.children}
+                    </div>
+                    <div className="fix" />
+                </div>
+            }
+
+
+            return <React.addons.CSSTransitionGroup
+                transitionName="attention"
+                transitionAppear={true}
+                transitionEnterTimeout={500}
+                transitionLeaveTimeout={500}
+                transitionAppearTimeout={500}
             >
-                {icon} {this.props.children}
-            </div>
+                {content}
+            </React.addons.CSSTransitionGroup>
+
         }
     }
 }

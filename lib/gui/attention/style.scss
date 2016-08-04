@@ -1,25 +1,70 @@
 .attention {
-    padding: 10px;
-    text-align: center;
-    transition: all 1s;
-    opacity: 0;
+    text-align: left;
 
-    &.enter{
-        opacity: 1;
+    .icon, .message {
+        padding: 10px;
+        box-sizing: border-box;
+        color: inherit;
+        display: inline-block;
     }
 
+    .close {
+        float: right;
+        cursor: pointer;
+        margin: 10px 10px;
+        opacity: 0.6;
+        transition: opacity 1s;
+        &:hover {
+            opacity:1;
+        }
+    }
     &.warning {
         background: $attention-warning;
-        color: $warning;
+        color: shade( $attention-warning, 50 );
+        .icon {
+            background: shade( $attention-warning, 5 );
+        }
     }
 
     &.success {
         background: $attention-success;
-        color: $success;
+        color: shade( $attention-success, 50 );
+        .icon {
+            background: shade( $attention-success, 5 );
+        }
     }
 
     &.error {
         background: $attention-error;
-        color: $error;
+        color: shade( $attention-error, 50 );
+        .icon {
+            background: shade( $attention-error, 5 );
+        }
     }
 }
+
+.attention-enter {
+    opacity: 0.01;
+    &.attention-enter-active {
+    opacity: 1;
+        transition: opacity 500ms ease-in;
+    }
+}
+
+.attention-appear {
+    opacity: 0.01;
+    &.attention-appear-active {
+    opacity: 1;
+        transition: opacity 500ms ease-in;
+    }
+}
+
+
+.attention-leave {
+    opacity: 1;
+    &.attention-leave-active {
+        opacity: 0.01;
+        transition: opacity 500ms ease-in;
+    }
+}
+
