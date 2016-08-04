@@ -147,7 +147,7 @@ module Animate {
                     onValidationsResolved={(form)=> {
                         this.setState({ errorMsg: '' })
                     }}
-                    onSubmitted={(e, json, form) => {
+                    onSubmitted={( json, form) => {
                         this.login(json);
                     }}>
                     <VInput
