@@ -1,3 +1,5 @@
+/// <reference path="./definitions/required/es6-promise.d.ts" />
+/// <reference path="./definitions/custom/assign.d.ts" />
 /// <reference path="./definitions/required/jquery.d.ts" />
 /// <reference path="./definitions/required/jquery.scrollTo.d.ts" />
 /// <reference path="./definitions/required/jqueryui.d.ts" />
@@ -12,6 +14,7 @@
 /// <reference path="./definitions/required/react/react-addons-css-transition-group.d.ts" />
 /// <reference path="./definitions/required/react/react-dom.d.ts" />
 /// <reference path="./definitions/required/react/react-global.d.ts" />
+
 
 /// <reference path="./definitions/custom/ace.d.ts" />
 /// <reference path="./definitions/custom/jscolor.d.ts" />

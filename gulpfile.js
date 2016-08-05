@@ -55,13 +55,16 @@ gulp.task('deploy-third-party', function() {
         './third-party/ace/src-noconflict/snippets/javascript.js',
         './third-party/ace/src-noconflict/snippets/typescript.js',
         './third-party/ace/src-noconflict/snippets/html.js',
-        './third-party/ace/src-noconflict/snippets/json.js'
+        './third-party/ace/src-noconflict/snippets/json.js',
+        './polyfills/assign.js',
+        './polyfills/es6-promise.js'
     ], { base: "." } )
         .pipe(gulp.dest(outDir));
 
     var sourceNoAce = sources.pipe( filter( ['**/*.js', '!third-party/ace/**/*.js' ] ) );
     var sourceWithAce = gulp.src(['third-party/ace/src-noconflict/ace.js'], { base: "." } )
         .pipe( gulp.dest( outDir ) );
+
     var mergedStream = merge(sourceNoAce, sourceWithAce);
 
     // Add each of the third party files as a reference
