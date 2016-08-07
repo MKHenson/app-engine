@@ -258,13 +258,14 @@ module Animate {
 		* it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
+        * @param {string} search Optional search text
         * @return {Promise<ModepressAddons.IGetProjects>}
 		*/
-        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects> {
+        getProjectList(index: number, limit: number, search: string = ""): Promise<ModepressAddons.IGetProjects> {
             var that = this;
 
             return new Promise<ModepressAddons.IGetProjects>(function (resolve, reject) {
-                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}`).then(function (data) {
+                Utils.get<ModepressAddons.IGetProjects>(`${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}&search=${search}`).then(function (data) {
                     if (data.error)
                         return reject(new Error(data.message));
 
