@@ -87,15 +87,13 @@ module Animate {
                                 this.newProject(json);
                             }}>
 
-                        <VInput
-                            name="name"
+                        <VInput name="name"
                             type="text"
                             placeholder="Project Name"
-                            validator={ValidationType.ALPHANUMERIC_PLUS | ValidationType.NOT_EMPTY}
+                            validator={ValidationType.NO_HTML | ValidationType.NOT_EMPTY}
                             />
 
-                        <VTextarea
-                            name="description"
+                        <VTextarea name="description"
                             placeholder="Project Description"
                             />
                         </VForm>
