@@ -1,5 +1,10 @@
 .plugins-widget {
 
+    .fa-puzzle-piece {
+        margin: 0 10px 0 0;
+        color: $ps-blue;
+    }
+
     .double-column {
         transition: width 1s;
     }
@@ -86,9 +91,8 @@
         box-sizing:border-box;
     }
     .more {
-        float: right;
+        vertical-align: middle;
         cursor: pointer;
-        margin: 5px 5px 0 0;
         transition: color 0.5s;
         color: $text-lighter;
         &:hover {

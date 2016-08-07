@@ -227,10 +227,6 @@ module Animate {
                                 onMouseEnter={()=> {
                                     this.setState({ activePlugin : plugin });
                                 }}>
-                                <span
-                                    className={ 'more fa ' + (plugin.expanded ? 'fa-minus-circle' : 'fa-plus-circle')}
-                                    onClick={() => { this.showVersions(plugin); }}
-                                    />
                                 <VCheckbox
                                     className={ (
                                         showTick && !isSelected ? 'not-directly-selected' : '' )  }
@@ -242,6 +238,10 @@ module Animate {
                                     label={( isLatestPlugin ? `${pluginGrp.name} ${plugin.version}` : plugin.version )}>
                                     {( isLatestPlugin ? <img src={plugin.image} /> : <span className="fa fa-caret-right" /> )}
                                 </VCheckbox>
+                                <span
+                                    className={ 'more fa ' + (plugin.expanded ? 'fa-minus-circle' : 'fa-plus-circle')}
+                                    onClick={() => { this.showVersions(plugin); }}
+                                    />
                             </div>
                         })
                     }
@@ -271,7 +271,7 @@ module Animate {
                         ( !this.state.activePlugin ? ' no-plugin' : '' )
                     }>
                 <div className="double-column">
-                    <h2>Choose Plugins<i className="fa fa-cog fa-spin fa-3x fa-fw"></i></h2>
+                    <h2><i className="fa fa-puzzle-piece" aria-hidden="true"></i>Choose Plugins<i className="fa fa-cog fa-spin fa-3x fa-fw"></i></h2>
                     <div className="plugins">
                          {this.createPluginHierarchy()}
                     </div>
