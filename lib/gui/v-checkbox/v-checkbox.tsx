@@ -4,7 +4,7 @@ module Animate {
         onChecked?: (e : React.FormEvent, checked : boolean ) => void;
     }
 
-    export class VCheckbox extends React.Component<IVCheckboxProps, {checked?: boolean, className?: string; pristine? : boolean; }> {
+    export class VCheckbox extends React.Component<IVCheckboxProps, {checked?: boolean, pristine? : boolean; }> {
         /**
          * Creates an instance
          */
@@ -12,7 +12,6 @@ module Animate {
             super(props);
             this.state = {
                 checked : props.checked || false,
-                className : "v-checkbox fa " + ( props.className || '' ),
                 pristine: true
             }
         }
@@ -37,7 +36,6 @@ module Animate {
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps) {
             this.setState({
-                className : ( "v-checkbox fa " + ( nextProps.className || '' ) ),
                 checked: ( nextProps.checked !== undefined ? nextProps.checked : this.state.checked )
             });
         }
@@ -62,11 +60,11 @@ module Animate {
             delete props.label;
             delete props.onChecked;
 
-            var className = this.state.className;
+            var className = "v-checkbox fa " + ( this.props.className || '' );
             if (!this.state.pristine)
                 className += ' dirty';
 
-            return <span {...props} className={this.state.className}>
+            return <span {...props} className={className}>
                 <input onChange={(e)=>{
                         this.onChange(e)
                     }}
