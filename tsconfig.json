@@ -152,6 +152,7 @@
     "lib/gui/v-form/v-form.tsx",
     "lib/gui/plugins-widget/plugins-widget.tsx",
     "lib/gui/project-list/project-list.tsx",
+    "lib/gui/open-project/open-project.tsx",
     "lib/gui/login-widget/login-form.tsx",
     "lib/gui/login-widget/register-form.tsx",
     "lib/gui/login-widget/login-widget.tsx",

@@ -1,0 +1,37 @@
+#splash-loading-project {
+    h2 {
+        margin:20px auto;
+    }
+    .button {
+        width:100%;
+    }
+
+    .load-item {
+        margin:10px 20px;
+    }
+    .plugin-loading {
+        float:right;
+        font-size: 30px;
+    }
+}
+
+.loading-panel {
+    text-align:left;
+    overflow: auto;
+    max-height: 300px;
+
+    .plugin {
+        display:inline-block;
+        max-width:75%;
+        overflow:hidden;
+        white-space:nowrap;
+        vertical-align: middle;
+        text-overflow: ellipsis;
+
+        &:after {
+            content:" . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
+            color:#ccc;
+        }
+    }
+}
+

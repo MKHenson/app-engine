@@ -505,45 +505,12 @@ body {
 @import 'gui/v-textarea/style.scss';
 @import 'gui/v-checkbox/style.scss';
 @import 'gui/plugins-widget/style.scss';
+@import 'gui/open-project/style.scss';
 @import 'gui/login-widget/style.scss';
 @import 'gui/project-list/style.scss';
 @import 'gui/new-project/style.scss';
 @import 'gui/splash/style.scss';
 
-
-
-/**
-*  SPLASH SCREEN - LOADING PROJECT
-*  ===============================
-*/
-#splash-loading-project h2 {
-    margin:20px auto;
-}
-#splash-loading-project .button {
-    width:100%;
-}
-.loading-panel {
-    text-align:left;
-    overflow: auto;
-    max-height: 300px;
-}
-.loading-panel .plugin{
-    display:inline-block;
-    max-width:75%;
-    overflow:hidden;
-    white-space:nowrap;
-    vertical-align: middle;
-}
-.loading-panel .plugin:after {
-    content:" . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
-    color:#ccc;
-}
-.load-item {
-    margin:20px;
-}
-.plugin-loading {
-    float:right;
-}
 
 /**
 *  APPLICATION

@@ -9,6 +9,7 @@
     export interface ISplash {
         mode? : SplashMode
         $loading?: boolean;
+        project?: Engine.IProject;
     }
 
     /**
@@ -94,6 +95,12 @@
                         onCreateProject={() => {
                             this.setState({ mode: SplashMode.NEW_PROJECT });
                         }}
+                        onOpenProject={(project) => {
+                            this.setState({
+                                mode: SplashMode.OPENING,
+                                project: project
+                            });
+                        }}
                      />;
             else if (this.state.mode == SplashMode.NEW_PROJECT)
                 mainView = <NewProject
@@ -101,7 +108,17 @@
                             this.setState({ mode: SplashMode.WELCOME });
                         }}
                         onProjectCreated={(project) => {
-                            this.setState({ mode: SplashMode.OPENING });
+                            this.setState({
+                                mode: SplashMode.OPENING,
+                                project: project
+                            });
+                        }}
+                    />;
+            else if (this.state.mode == SplashMode.OPENING)
+                mainView = <OpenProject
+                        project={this.state.project}
+                        onCancel={() => {
+                            this.setState({ mode: SplashMode.WELCOME });
                         }}
                     />;
 

@@ -7,6 +7,7 @@ declare module Engine {
     // Extends the IPlugin interface to include additional data
     export interface IPlugin {
         $loaded?: boolean;
+        $error?: string;
         $instance?: Animate.IPlugin;
     }
 }
@@ -1892,9 +1893,10 @@ declare module Animate {
         * it will return null.
         * @param {number} index The index to  fetching projects for
         * @param {number} limit The limit of how many items to fetch
+        * @param {string} search Optional search text
         * @return {Promise<ModepressAddons.IGetProjects>}
         */
-        getProjectList(index: number, limit: number): Promise<ModepressAddons.IGetProjects>;
+        getProjectList(index: number, limit: number, search?: string): Promise<ModepressAddons.IGetProjects>;
         /**
         * Creates a new user projects
         * @param {string} name The name of the project
@@ -6297,16 +6299,25 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface ISearchBoxProps extends React.HTMLAttributes {
+        onSearch(e: React.FormEvent, searchText: string): any;
+    }
     /**
      * Wraps an input box with HTML that makes it look like a search bar.
      * Add a listener for the onChange event and it will be triggered either when the input
      * changes, or the search button is pressed.
      */
-    class SearchBox extends React.Component<React.HTMLAttributes, any> {
+    class SearchBox extends React.Component<ISearchBoxProps, {
+        value: string;
+    }> {
         /**
          * Creates an instance of the search box
          */
-        constructor(props: React.HTMLAttributes);
+        constructor(props: ISearchBoxProps);
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6344,12 +6355,13 @@ declare module Animate {
 declare module Animate {
     interface IVCheckboxProps extends React.HTMLAttributes {
         onChecked?: (e: React.FormEvent, checked: boolean) => void;
+        noInteractions?: boolean;
     }
     class VCheckbox extends React.Component<IVCheckboxProps, {
         checked?: boolean;
-        className?: string;
         pristine?: boolean;
     }> {
+        static defaultProps: IVCheckboxProps;
         /**
          * Creates an instance
          */
@@ -6548,6 +6560,10 @@ declare module Animate {
          */
         constructor(props: IVFormProps);
         /**
+         * Focus on the name element once its mounted
+         */
+        componentDidMount(): void;
+        /**
          * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
          * This can be disabled with the preventDefault property.
          * @param {React.FormEvent} e
@@ -6648,6 +6664,7 @@ declare module Animate {
     }
     interface IProjectListState {
         loading?: boolean;
+        searchText?: string;
         selectedProject?: IInteractiveProject;
         errorMsg?: string;
         projects?: IInteractiveProject[];
@@ -6670,6 +6687,29 @@ declare module Animate {
         removeProject(p: IInteractiveProject): void;
         selectProject(project: IInteractiveProject): void;
         fetchProjects(index: number, limit: number): Promise<number>;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IOpenProjectProps {
+        onCancel: () => void;
+        project: Engine.IProject;
+    }
+    interface IOpenProjectState {
+        $selectedProject?: Engine.IProject;
+        $errorMsg?: string;
+        $loading?: boolean;
+    }
+    class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IOpenProjectProps);
+        componentWillMount(): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6790,6 +6830,7 @@ declare module Animate {
     interface ISplash {
         mode?: SplashMode;
         $loading?: boolean;
+        project?: Engine.IProject;
     }
     /**
     * The splash screen when starting the app

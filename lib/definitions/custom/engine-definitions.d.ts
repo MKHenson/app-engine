@@ -7,6 +7,7 @@
     // Extends the IPlugin interface to include additional data
     export interface IPlugin {
         $loaded?: boolean;
+        $error?: string;
         $instance?: Animate.IPlugin;
     }
 }

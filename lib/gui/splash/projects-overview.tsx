@@ -129,6 +129,8 @@ module Animate {
                     style={{width: (this.state.selectedProject ? '70%' : '') }}
                     onProjectSelected={(project) => {
                         this.setState({ selectedProject: project });
+                        if (this.props.onOpenProject)
+                            this.props.onOpenProject(project);
                     }}>
                     <div className="button reg-gradient" onClick={()=>{
                         if (this.props.onCreateProject)
