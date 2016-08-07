@@ -2,9 +2,14 @@ module Animate {
 
     export interface IVCheckboxProps extends React.HTMLAttributes {
         onChecked?: (e : React.FormEvent, checked : boolean ) => void;
+        noInteractions?: boolean;
     }
 
     export class VCheckbox extends React.Component<IVCheckboxProps, {checked?: boolean, pristine? : boolean; }> {
+        static defaultProps : IVCheckboxProps = {
+            noInteractions : false
+        }
+
         /**
          * Creates an instance
          */
@@ -60,7 +65,7 @@ module Animate {
             delete props.label;
             delete props.onChecked;
 
-            var className = "v-checkbox fa " + ( this.props.className || '' );
+            var className = "v-checkbox fa " + ( this.props.className || '' ) + ( this.props.noInteractions ? ' no-interaction' : '' );
             if (!this.state.pristine)
                 className += ' dirty';
 
@@ -73,7 +78,10 @@ module Animate {
                     type="checkbox"
                     checked={this.state.checked} value={this.state.checked} />
                 <label
-                    onClick={(e)=>{
+                    onClick={(e)=> {
+                        if (this.props.noInteractions)
+                            return;
+
                         if ( !this.props.id ) {
                             this.setState({ checked: !this.state.checked });
                             if ( this.props.onChange)
