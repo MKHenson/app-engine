@@ -14,6 +14,7 @@ module Animate {
 
     export interface IProjectListState {
         loading? : boolean;
+        searchText?: string;
         selectedProject?: IInteractiveProject;
         errorMsg? : string;
         projects? : IInteractiveProject[];
@@ -40,7 +41,8 @@ module Animate {
                 loading: false,
                 selectedProject: null,
                 errorMsg: null,
-                projects: []
+                projects: [],
+                searchText: ""
             };
         }
 
@@ -94,7 +96,7 @@ module Animate {
             });
 
             return new Promise<number>( ( resolve, reject ) => {
-                this._user.getProjectList( index, limit ).then( (projects) => {
+                this._user.getProjectList( index, limit, this.state.searchText ).then( (projects) => {
                     this.setState({
                         loading: false,
                         projects: projects.data
@@ -123,10 +125,14 @@ module Animate {
             return <div {...props} className={'project-list ' + (props.className || '')}>
                 <div className="projects-toolbar background">
                     {this.props.children}
-                    <SearchBox placeholder="Keywords" />
+                    <SearchBox placeholder="Keywords" onSearch={(e, text) => {
+                        this.state.searchText = text;
+                        (this.refs["pager"] as Pager).invalidate();
+                    }} />
+                    {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null }
                 </div>
                 <div className="projects-container">
-                    <Pager onUpdate={this.fetchProjects.bind(this)} limit={2}>
+                    <Pager onUpdate={this.fetchProjects.bind(this)} limit={6} ref="pager">
                         <div className="project-items">
                             <div className="error bad-input" style={{ display: (this.state.errorMsg ? 'block' : '' ) }}>
                                 {this.state.errorMsg || ''}
