@@ -107,7 +107,7 @@
 
             return <div id='splash' className={this.$theme}>
                 <div className="logo">
-                    {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}>Logout</a></div> : null )}
+                    {( this.$user.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null )}
                     <h2>
                         <img id="splash-loading-icon" style={( !this.$loading ? {display:'none'} : null )} className="loading" src='media/loading-white.gif' />Hatchery
                     </h2>
