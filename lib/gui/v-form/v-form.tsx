@@ -50,6 +50,16 @@ module Animate {
         }
 
         /**
+         * Focus on the name element once its mounted
+         */
+        componentDidMount() {
+            for (let i in this.refs) {
+                if ( this.refs[i] instanceof VInput || this.refs[i] instanceof VTextarea )
+                    return (ReactDOM.findDOMNode(this.refs[i]) as HTMLInputElement | HTMLTextAreaElement).focus();
+            }
+        }
+
+        /**
          * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
          * This can be disabled with the preventDefault property.
          * @param {React.FormEvent} e
