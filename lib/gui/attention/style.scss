@@ -1,3 +1,5 @@
+$attention-icon-ratio: 20%;
+
 .attention {
     text-align: left;
 
@@ -6,6 +8,14 @@
         box-sizing: border-box;
         color: inherit;
         display: inline-block;
+        height: 100%;
+    }
+
+    &.with-icon.message {
+        width: 100% - $attention-icon-ratio;
+    }
+    &.with-icon.icon {
+        width: $attention-icon-ratio;
     }
 
     .close {

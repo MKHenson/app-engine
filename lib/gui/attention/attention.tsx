@@ -63,6 +63,9 @@ module Animate {
                     icon = <div className="icon"><span className="fa fa-check" /></div>
             }
 
+            if ( this.props.showIcon )
+                className += ' with-icon';
+
             var content : JSX.Element;
             if ( !this.state.isClosed) {
                 content = <div key="attention"  {...props} className={className}>
@@ -70,7 +73,7 @@ module Animate {
                             this.setState({isClosed: true});
                         }} />
                     {icon}
-                    <div className={'message' + (this.props.showIcon ? ' with-icon' : '')}>
+                    <div className={'message'}>
                         {this.props.children}
                     </div>
                     <div className="fix" />
