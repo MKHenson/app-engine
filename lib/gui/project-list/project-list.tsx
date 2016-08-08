@@ -9,6 +9,7 @@ module Animate {
 
     export interface IProjectListProps extends React.HTMLAttributes {
         onProjectSelected?: (project : IInteractiveProject) => void;
+        onProjectDClicked?: (project : IInteractiveProject) => void;
         noProjectMessage?: string;
     }
 
@@ -21,8 +22,7 @@ module Animate {
     }
 
     /**
-     * A list that displays projects. Listen for the onProjectSelected event
-     * to react to project selections.
+     * A list that displays projects
      */
     export class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps : IProjectListProps = {
@@ -62,7 +62,7 @@ module Animate {
          * Called when we select a project
          * @param {IInteractiveProject} project The project to select
          */
-        selectProject(project: IInteractiveProject) {
+        selectProject(project: IInteractiveProject, doubleClick : boolean ) {
             if ( this.state.selectedProject )
                 this.state.selectedProject.selected = false;
 
@@ -79,8 +79,12 @@ module Animate {
                 this.setState({ selectedProject : selectedProject });
             }
 
-            if ( this.props.onProjectSelected )
+            if ( this.props.onProjectSelected ) {
                 this.props.onProjectSelected(selectedProject);
+
+                if (doubleClick)
+                    this.props.onProjectDClicked(selectedProject);
+            }
         }
 
         /*
@@ -121,6 +125,7 @@ module Animate {
             const props : IProjectListProps  = Object.assign({}, this.props);
             delete props.noProjectMessage;
             delete props.onProjectSelected;
+            delete props.onProjectDClicked;
 
             return <div {...props} className={'project-list ' + (props.className || '')}>
                 <div className="projects-toolbar background">
@@ -141,8 +146,11 @@ module Animate {
                                 return <div
                                     key={p._id}
                                     className="project-item img-preview unselectable"
+                                    onDoubleClick={()=>{
+                                        this.selectProject(p, true)
+                                    }}
                                     onClick={()=>{
-                                            this.selectProject(p)
+                                            this.selectProject(p, false)
                                         }}>
                                         <div className="preview-child">
                                             <div className="background-tiles inner ng-scope">
