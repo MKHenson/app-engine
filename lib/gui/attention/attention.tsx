@@ -69,14 +69,13 @@ module Animate {
             var content : JSX.Element;
             if ( !this.state.isClosed) {
                 content = <div key="attention"  {...props} className={className}>
-                    <span className="close fa fa-times" onClick={()=>{
-                            this.setState({isClosed: true});
-                        }} />
                     {icon}
                     <div className={'message'}>
                         {this.props.children}
                     </div>
-                    <div className="fix" />
+                    <span className="close fa fa-times" onClick={()=>{
+                        this.setState({isClosed: true});
+                    }} />
                 </div>
             }
 
