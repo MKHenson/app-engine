@@ -6660,6 +6660,7 @@ declare module Animate {
     }
     interface IProjectListProps extends React.HTMLAttributes {
         onProjectSelected?: (project: IInteractiveProject) => void;
+        onProjectDClicked?: (project: IInteractiveProject) => void;
         noProjectMessage?: string;
     }
     interface IProjectListState {
@@ -6670,8 +6671,7 @@ declare module Animate {
         projects?: IInteractiveProject[];
     }
     /**
-     * A list that displays projects. Listen for the onProjectSelected event
-     * to react to project selections.
+     * A list that displays projects
      */
     class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps: IProjectListProps;
@@ -6685,7 +6685,7 @@ declare module Animate {
          * @param {IInteractiveProject} p The project to remove
          */
         removeProject(p: IInteractiveProject): void;
-        selectProject(project: IInteractiveProject): void;
+        selectProject(project: IInteractiveProject, doubleClick: boolean): void;
         fetchProjects(index: number, limit: number): Promise<number>;
         /**
          * Creates the component elements
@@ -6697,11 +6697,13 @@ declare module Animate {
 declare module Animate {
     interface IOpenProjectProps {
         onCancel: () => void;
+        onComplete: () => void;
         project: Engine.IProject;
     }
     interface IOpenProjectState {
         $selectedProject?: Engine.IProject;
         $errorMsg?: string;
+        $error?: boolean;
         $loading?: boolean;
     }
     class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
@@ -6709,6 +6711,10 @@ declare module Animate {
          * Creates a new instance
          */
         constructor(props: IOpenProjectProps);
+        /**
+        * Attempts to load the project and setup the scene
+        */
+        loadScene(): void;
         componentWillMount(): void;
         /**
          * Creates the component elements
@@ -6827,7 +6833,10 @@ declare module Animate {
         NEW_PROJECT = 2,
         OPENING = 3,
     }
-    interface ISplash {
+    interface ISplashProps {
+        onClose: () => void;
+    }
+    interface ISplashStats {
         mode?: SplashMode;
         $loading?: boolean;
         project?: Engine.IProject;
@@ -6835,7 +6844,7 @@ declare module Animate {
     /**
     * The splash screen when starting the app
     */
-    class Splash extends React.Component<any, ISplash> {
+    class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton;
         private _splashElm;
         private _loginElm;
@@ -6859,7 +6868,7 @@ declare module Animate {
         /**
         * Creates an instance of the splash screen
         */
-        constructor(app?: Application);
+        constructor(props: ISplashProps);
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6897,11 +6906,6 @@ declare module Animate {
         * Attempts to resend the activation code
         */
         logout(): void;
-        /**
-        * Initializes the spash screen
-        * @returns {Splash}
-        */
-        static init(app: Application): Splash;
         /**
         * Gets the singleton reference of this class.
         * @returns {Splash}
@@ -6943,9 +6947,8 @@ declare module Animate {
 }
 declare module Animate {
     interface IProjectsOverviewProps extends React.HTMLAttributes {
-        onCreateProject?: () => void;
-        onOpenProject?: (project: Engine.IProject) => void;
-        onRemoveProject?: (project: Engine.IProject) => void;
+        onCreateProject: () => void;
+        onOpenProject: (project: Engine.IProject) => void;
     }
     interface IProjectsOverviewState {
         loading?: boolean;
