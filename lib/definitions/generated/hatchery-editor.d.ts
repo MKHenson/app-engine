@@ -6329,6 +6329,7 @@ declare module Animate {
     interface IAttentionProps extends React.HTMLAttributes {
         mode?: AttentionType;
         showIcon?: boolean;
+        allowClose?: boolean;
     }
     /**
      * A simple component for displaying a styled message to the user

@@ -3,6 +3,7 @@ module Animate {
     export interface IAttentionProps extends React.HTMLAttributes {
         mode?: AttentionType;
         showIcon?: boolean;
+        allowClose?: boolean;
     }
 
     /**
@@ -11,7 +12,8 @@ module Animate {
     export class Attention extends React.Component< IAttentionProps, {isClosed : boolean } > {
         static defaultProps : IAttentionProps = {
             mode: AttentionType.WARNING,
-            showIcon: true
+            showIcon: true,
+            allowClose: true
         }
 
         /**
@@ -73,9 +75,13 @@ module Animate {
                     <div className={'message'}>
                         {this.props.children}
                     </div>
-                    <span className="close fa fa-times" onClick={()=>{
-                        this.setState({isClosed: true});
-                    }} />
+                    {
+                        (this.props.allowClose ?
+                            <span className="close fa fa-times" onClick={()=>{
+                                this.setState({isClosed: true});
+                            }} /> : null )
+                    }
+
                 </div>
             }
 

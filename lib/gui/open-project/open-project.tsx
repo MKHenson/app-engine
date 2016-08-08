@@ -176,6 +176,7 @@ module Animate {
                     {loadingPanel}
                     { this.state.$errorMsg ?
                         <div className="summary-message"><Attention
+                            allowClose={false}
                             mode={(this.state.$error ? AttentionType.ERROR : AttentionType.SUCCESS )}
                             className="error">{this.state.$errorMsg}
                         </Attention></div> : null }
