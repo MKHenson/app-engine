@@ -517,15 +517,6 @@
         }
 
         /**
-        * Initializes the spash screen
-        * @returns {Splash}
-        */
-        static init(app: Application): Splash {
-            Splash._singleton = new Splash(app);
-            return Splash._singleton;
-        }
-
-        /**
         * Gets the singleton reference of this class.
         * @returns {Splash}
         */

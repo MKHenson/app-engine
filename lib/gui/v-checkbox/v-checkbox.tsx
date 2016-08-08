@@ -64,6 +64,7 @@ module Animate {
             delete props.checked;
             delete props.label;
             delete props.onChecked;
+            delete props.noInteractions;
 
             var className = "v-checkbox fa " + ( this.props.className || '' ) + ( this.props.noInteractions ? ' no-interaction' : '' );
             if (!this.state.pristine)
