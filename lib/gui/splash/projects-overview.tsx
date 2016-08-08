@@ -1,9 +1,8 @@
 module Animate {
 
     export interface IProjectsOverviewProps extends React.HTMLAttributes {
-        onCreateProject?: () => void;
-        onOpenProject? :(project: Engine.IProject) => void;
-        onRemoveProject? :(project: Engine.IProject) => void;
+        onCreateProject: () => void;
+        onOpenProject :(project: Engine.IProject) => void;
     }
 
     export interface IProjectsOverviewState {
@@ -113,7 +112,7 @@ module Animate {
                         </div>
                         <div className="button green animate-all"
                             onClick={() => {
-                                this.openProject(this.state.selectedProject)
+                                this.props.onOpenProject(this.state.selectedProject);
                             }}>
                             OPEN <span className="fa fa-chevron-right" />
                         </div>
@@ -127,10 +126,11 @@ module Animate {
                     noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
                     className="projects-view background-view animate-all"
                     style={{width: (this.state.selectedProject ? '70%' : '') }}
+                    onProjectDClicked={()=>{
+                        this.props.onOpenProject(project);
+                    }}
                     onProjectSelected={(project) => {
                         this.setState({ selectedProject: project });
-                        if (this.props.onOpenProject)
-                            this.props.onOpenProject(project);
                     }}>
                     <div className="button reg-gradient" onClick={()=>{
                         if (this.props.onCreateProject)
