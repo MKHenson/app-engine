@@ -6,7 +6,11 @@
         OPENING
     }
 
-    export interface ISplash {
+    export interface ISplashProps {
+        onClose : () => void;
+    }
+
+    export interface ISplashStats {
         mode? : SplashMode
         $loading?: boolean;
         project?: Engine.IProject;
@@ -15,7 +19,7 @@
     /**
     * The splash screen when starting the app
     */
-    export class Splash extends React.Component<any, ISplash > {
+    export class Splash extends React.Component<ISplashProps, ISplashStats > {
         private static _singleton: Splash;
         private _splashElm: JQuery;
         private _loginElm: JQuery;
@@ -40,9 +44,9 @@
         /**
         * Creates an instance of the splash screen
         */
-        constructor(app?: Application) {
-            super()
-            this._app = app;
+        constructor(props: ISplashProps) {
+            super(props)
+            //this._app = app;
             this._captureInitialized = false;
             this._splashElm = jQuery("#splash").remove().clone();
             this._loginElm = jQuery("#log-reg").remove().clone();
@@ -60,7 +64,7 @@
             this.$selectedPlugins = [];
             this.$selectedProject = null;
             this.$pager = new PageLoader(this.fetchProjects.bind(this));
-            var t = SplashMode.LOGIN;
+            let t = SplashMode.LOGIN;
             // Create a random theme for the splash screen
             if (Math.random() < 0.4)
                 this.$theme = "welcome-blue";
@@ -84,7 +88,7 @@
          * @returns {JSX.Element}
          */
         render() : JSX.Element {
-            var mainView : JSX.Element;
+            let mainView : JSX.Element;
             if (this.state.mode == SplashMode.LOGIN)
                 mainView = <LoginWidget
                     onLogin={()=>{
@@ -117,6 +121,9 @@
             else if (this.state.mode == SplashMode.OPENING)
                 mainView = <OpenProject
                         project={this.state.project}
+                        onComplete={()=>{
+                            this.loadScene();
+                        }}
                         onCancel={() => {
                             this.setState({ mode: SplashMode.WELCOME });
                         }}
@@ -176,7 +183,7 @@
         * @param {boolean} digest If true, the page will revalidate
         */
         goState(state: string, digest: boolean = false) {
-            var that = this;
+            let that = this;
             that.$activePane = state;
             that.$errorMsg = "";
 
@@ -199,7 +206,7 @@
             if (messageBoxAnswer == "No")
                 return;
 
-            var that = this;
+            let that = this;
             this.$user.removeProject(this.$selectedProject._id).then(function () {
                 that.$projects.splice(that.$projects.indexOf(that.$selectedProject), 1);
                 that.$selectedProject = null;
@@ -215,8 +222,8 @@
         * @param {IProject} project The project to load
         */
         openProject(project: Engine.IProject) {
-            var that = this;
-            var numLoaded = 0;
+            let that = this;
+            let numLoaded = 0;
             that.$loading = true;
 
             //Notif of the reset
@@ -226,7 +233,7 @@
             that.goState("loading-project", true);
 
             // Go through each plugin and load it
-            for (var i = 0, l = project.$plugins.length; i < l; i++)
+            for (let i = 0, l = project.$plugins.length; i < l; i++)
                 PluginManager.getSingleton().loadPlugin(project.$plugins[i]).then(function () {
                     Animate.Compiler.digest(that._splashElm, that, true);
 
@@ -234,7 +241,7 @@
                     numLoaded++;
                     if (numLoaded >= project.$plugins.length) {
                         // Everything loaded - so prepare the plugins
-                        for (var t = 0, tl = project.$plugins.length; t < tl; t++)
+                        for (let t = 0, tl = project.$plugins.length; t < tl; t++)
                             PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
 
                         // Load the scene in and get everything ready
@@ -251,8 +258,8 @@
         * Attempts to load the project and setup the scene
         */
         loadScene() {
-            var that = this;
-            var project = this.$user.project;
+            let that = this;
+            let project = this.$user.project;
             project.entry = this.$selectedProject;
 
             // Notify of new project
@@ -293,7 +300,7 @@
         * @param {number} limit
         */
         fetchProjects(index: number, limit: number) {
-            var that = this;
+            let that = this;
             that.$loading = true;
             that.$errorMsg = "";
             that.$selectedProject = null;
@@ -340,7 +347,7 @@
             // If this plugin is not selected
             if (this.$selectedPlugins.indexOf(plugin) == -1) {
                 // Make sure if another version is selected, that its de-selected
-                for (var i = 0, l = this.$selectedPlugins.length; i < l; i++)
+                for (let i = 0, l = this.$selectedPlugins.length; i < l; i++)
                     if (this.$selectedPlugins[i].name == plugin.name) {
                         this.$selectedPlugins.splice(i, 1);
                         break;
@@ -363,8 +370,8 @@
         * @param {IPlugin} The plugin to toggle
         */
         showVersions(plugin: Engine.IPlugin) {
-            for (var n in this.$plugins)
-                for (var i = 0, l = this.$plugins[n].length; i < l; i++) {
+            for (let n in this.$plugins)
+                for (let i = 0, l = this.$plugins[n].length; i < l; i++) {
                     if (this.$plugins[n][i].name == plugin.name) {
                         (this.$plugins[n][i] as any).$showVersions = !(this.$plugins[n][i] as any).$showVersions;
                     }
@@ -398,7 +405,7 @@
             if (!form.$error)
                 this.$errorMsg = "";
             else {
-                var name = form.$errorInput;
+                let name = form.$errorInput;
                 name = name.charAt(0).toUpperCase() + name.slice(1);
 
                 switch (form.$errorExpression) {
@@ -453,12 +460,12 @@
         * @param {boolean} True if there is an error
         */
         newProject(name: string, description: string, plugins: Array<Engine.IPlugin>) {
-            var that = this;
+            let that = this;
             that.$loading = true;
             that.$errorRed = false;
             that.$errorMsg = "Just a moment while we hatch your appling...";
             Compiler.digest(this._splashElm, this, false);
-            var ids = plugins.map<string>(function (value) { return value._id; });
+            let ids = plugins.map<string>(function (value) { return value._id; });
 
             this.$user.newProject(name, ids, description).then(function (data) {
                 that.$loading = false;
