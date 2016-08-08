@@ -126,7 +126,8 @@ module Animate {
                     noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
                     className="projects-view background-view animate-all"
                     style={{width: (this.state.selectedProject ? '70%' : '') }}
-                    onProjectDClicked={()=>{
+                    onProjectDClicked={(project)=>{
+                        this.setState({ selectedProject: project });
                         this.props.onOpenProject(project);
                     }}
                     onProjectSelected={(project) => {
