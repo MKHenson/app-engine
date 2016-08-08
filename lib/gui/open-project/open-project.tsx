@@ -127,7 +127,7 @@ module Animate {
                         });
                     }
                 }).catch( (err: Error) => {
-                    plugin.$error = err.message;
+                    plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
                     this.setState({
                         $error: true,
                         $errorMsg: "Could not load all of the plugins"
@@ -149,13 +149,13 @@ module Animate {
 
                             let pluginElm : JSX.Element;
                             if (!plugin.$error) {
-                                pluginElm = <div>
+                                pluginElm = <div className="plugin-item">
                                     <VCheckbox checked={plugin.$loaded} noInteractions={true} label="" />
+                                    <span className="plugin">{plugin.name}</span>
                                     {( !plugin.$loaded ?
                                         <i className="fa fa-cog fa-spin fa-3x fa-fw light plugin-loading"></i> :
                                         <div className="success plugin-loading">Complete</div>
                                     )}
-                                    <div className="plugin">{plugin.name}</div>
                                 </div>
                             }
                             else {
@@ -177,7 +177,7 @@ module Animate {
                     { this.state.$errorMsg ?
                         <div className="summary-message"><Attention
                             mode={(this.state.$error ? AttentionType.ERROR : AttentionType.SUCCESS )}
-                            className="error">An error has occurred: {this.state.$errorMsg}
+                            className="error">{this.state.$errorMsg}
                         </Attention></div> : null }
 
                 </div>

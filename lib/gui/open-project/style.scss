@@ -10,7 +10,7 @@
         margin:10px 20px;
     }
     .plugin-loading {
-        float:right;
+        vertical-align: middle;
         font-size: 30px;
     }
 
@@ -23,19 +23,24 @@
     text-align:left;
     overflow: auto;
     max-height: 300px;
+    margin: 0 0 10px 0;
+
+    .plugin-item {
+        display: table;
+        width: 100%;
+
+        .v-checkbox {
+            width: 40px;
+        }
+
+        .v-checkbox, .plugin, .fa-cog, .success {
+            display: table-cell;
+        }
+    }
 
     .plugin {
-        display:inline-block;
-        max-width:75%;
-        overflow:hidden;
-        white-space:nowrap;
-        vertical-align: middle;
-        text-overflow: ellipsis;
-
-        &:after {
-            content:" . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ";
-            color:#ccc;
-        }
+        padding: 0 0 5px 0;
+        border-bottom: 2px dashed $input;
     }
 }
 
