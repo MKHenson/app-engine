@@ -108,11 +108,15 @@ module Animate {
                 var script = document.createElement('script');
                 script.onerror = function (ev) {
                     pluginDefinition.$loaded = false;
-                    return reject(new Error(`Could not download plugin`));
+                    return reject(new Error(`'${pluginDefinition.name}' could not be downloaded`));
                 }
                 script.onload = function (ev) {
+					if (!__newPlugin)
+						return reject(new Error(`'${pluginDefinition.name}' could not be downloaded or __newPlugin not set`));
+
                     pluginDefinition.$loaded = true;
                     pluginDefinition.$instance = __newPlugin;
+					__newPlugin = null;
                     return resolve(pluginDefinition);
                 }
 
