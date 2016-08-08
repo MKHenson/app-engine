@@ -76,7 +76,9 @@ module Animate {
 			jQuery( window ).on( 'resize', this._resizeProxy );
 			jQuery( document ).on( 'mousedown', this._downProxy );
 
-			var splash = ReactDOM.render( <Animate.Splash />, this.element[0] ) as Animate.Splash;
+			var splash = ReactDOM.render( <Animate.Splash onClose={()=>{
+
+			}} />, this.element[0] ) as Animate.Splash;
 
 			// Show Splash screen
 			splash.show();
