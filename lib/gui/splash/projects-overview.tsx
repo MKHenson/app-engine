@@ -46,43 +46,6 @@ module Animate {
             });
         }
 
-        /*
-        * Loads the selected project
-        * @param {IProject} project The project to load
-        */
-        openProject(project: IInteractiveProject) {
-            // var that = this;
-            // var numLoaded = 0;
-            // that.$loading = true;
-
-            // //Notif of the reset
-            // Application.getInstance().projectReset();
-
-            // // Start Loading the plugins
-            // that.goState("loading-project", true);
-
-            // // Go through each plugin and load it
-            // for (var i = 0, l = project.$plugins.length; i < l; i++)
-            //     PluginManager.getSingleton().loadPlugin(project.$plugins[i]).then(function () {
-            //         Animate.Compiler.digest(that._splashElm, that, true);
-
-            //         // Check if all plugins are loaded
-            //         numLoaded++;
-            //         if (numLoaded >= project.$plugins.length) {
-            //             // Everything loaded - so prepare the plugins
-            //             for (var t = 0, tl = project.$plugins.length; t < tl; t++)
-            //                 PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
-
-            //             // Load the scene in and get everything ready
-            //             that.loadScene();
-            //         }
-            //     }).catch(function (err: Error) {
-            //         that.$errorMsg = err.message;
-            //         Animate.Compiler.digest(that._splashElm, that, true);
-
-            //     });
-        }
-
          /**
          * Creates the component elements
          * @returns {JSX.Element}
