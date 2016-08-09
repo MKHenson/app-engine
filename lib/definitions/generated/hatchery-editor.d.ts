@@ -6402,6 +6402,11 @@ declare module Animate {
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
+         * Gets the current checked state of the input
+         * @returns {boolean}
+         */
+        checked: boolean;
+        /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
          */
@@ -6450,6 +6455,11 @@ declare module Animate {
          * Creates a new instance
          */
         constructor(props: any);
+        /**
+         * Gets the current value of the input
+         * @returns {string}
+         */
+        value: string;
         /**
          * Called when the component is about to be mounted.
          */
@@ -6523,6 +6533,11 @@ declare module Animate {
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void;
+        /**
+         * Gets the current value of the input
+         * @returns {string}
+         */
+        value: string;
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
@@ -6767,6 +6782,10 @@ declare module Animate {
          * Creates a new instance
          */
         constructor();
+        /**
+         * When the component is mounted we check if the user is logged in
+         */
+        componentWillMount(): void;
         loginError(err: Error): void;
         loginSuccess(data: UsersInterface.IResponse): void;
         /**
