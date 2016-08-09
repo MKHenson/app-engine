@@ -92,7 +92,8 @@ module Animate {
 				manager.removeComponent( comp );
 				this.addComponent( comp, true );
 
-				Application.getInstance().update();
+				// Application.getInstance().update();
+				throw new Error("Not implemented");
 
 				//this.onEnter(null);
 			}

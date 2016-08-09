@@ -371,7 +371,11 @@ module Animate {
 			}
 			else if ( event.item.text == "Create Behaviour" ) {
 				var c = Application.getInstance().canvasContext;
-				BehaviourPicker.getSingleton().show( Application.getInstance(), c.element.offset().left, c.element.offset().top, false, true );
+				BehaviourPicker.getSingleton().show( null, c.element.offset().left, c.element.offset().top, false, true );
+
+				var throwError = true;
+				if (throwError)
+					throw new Error("Not implemented");
 			}
 			// Create a comment
 			else if ( event.item.text == "Create Comment" ) {
@@ -973,7 +977,7 @@ module Animate {
 
 			this._x = mouse.x + scrollX;
 			this._y = mouse.y + scrollY;
-			BehaviourPicker.getSingleton().show( Application.getInstance(), e.pageX, e.pageY, false, true );
+			BehaviourPicker.getSingleton().show( null, e.pageX, e.pageY, false, true );
 			e.preventDefault();
 		}
 

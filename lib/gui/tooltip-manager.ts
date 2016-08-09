@@ -7,12 +7,14 @@ module Animate {
 		private label: Label;
 
 		constructor() {
-			if ( TooltipManager._singleton != null )
-				throw new Error( "The TooltipManager class is a singleton. You need to call the TooltipManager.getSingleton() function." );
-
 			TooltipManager._singleton = this;
 
-			this.label = new Label( "tooltip", Application.getInstance(), "<div class='label tooltip shadow-small'></div>" );
+			this.label = new Label( "tooltip", null,  "<div class='label tooltip shadow-small'></div>" );
+
+			// var throwError = true;
+			// if (throwError)
+			// 	throw new Error("Not implemented");
+
 			this.label.element.hide();
 
 			jQuery( "body" ).on( "mousemove", this.onMove.bind(this) );

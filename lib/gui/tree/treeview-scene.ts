@@ -764,7 +764,11 @@ module Animate {
 
 				this._contextNode = component;
 				e.preventDefault();
-				this._contextMenu.show( Application.getInstance(), e.pageX, e.pageY, false, true );
+				this._contextMenu.show( null, e.pageX, e.pageY, false, true );
+
+				var throwError = true;
+				if (throwError)
+					throw new Error("Not implemented");
 			}
 		}
 

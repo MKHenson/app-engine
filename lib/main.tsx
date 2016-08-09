@@ -67,7 +67,7 @@ function onPluginsLoaded(plugins: Array<Engine.IPlugin>) {
     }
 
     // Create the application element
-    var app = new Animate.Application("#application");
+    ReactDOM.render( <Animate.Application />, document.getElementById('main') );
 }
 
 /**

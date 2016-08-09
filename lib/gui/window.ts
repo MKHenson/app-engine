@@ -123,7 +123,11 @@ module Animate {
 		*/
 		show( parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false ) {
 			this._isVisible = true;
-			parent = (parent === undefined || parent == null ? Application.getInstance() : parent );
+
+			// TODO: was previously added to Application.getInstance() now NULL
+			parent = (parent === undefined || parent == null ? null : parent );
+			if (!parent)
+				throw new Error("Not implemented");
 
 			if ( isModal ) {
 				parent.element.append( this._modalBackdrop );

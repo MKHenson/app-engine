@@ -89,7 +89,7 @@ module Animate {
 				ContextMenu.currentContext.hide();
 
 			ContextMenu.currentContext = this;
-			Window.prototype.show.call( this, parent, x, y, isModal, isPopup );
+			super.show( parent, x, y, isModal, isPopup );
 
 			if ( x + this.element.width() > width )
 				this.element.css( "left", width - this.element.width() );

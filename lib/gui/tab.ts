@@ -121,7 +121,10 @@ module Animate {
 
 				e.preventDefault();
 
-				Tab.contextMenu.show( Application.getInstance(), e.pageX, e.pageY, false, true );
+				Tab.contextMenu.show( null, e.pageX, e.pageY, false, true );
+				var throwError = true;
+				if (throwError)
+					throw new Error("Not implemented");
 				return false;
 
 			}

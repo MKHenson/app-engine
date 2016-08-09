@@ -1,8 +1,13 @@
 module Animate {
+
+	export interface IApplicationState {
+		showSplash?: boolean;
+	}
+
 	/**
 	* The main GUI component of the application.
 	*/
-	export class Application extends Component {
+	export class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
         private static _singleton: Application;
         public static bodyComponent: Component;
 		private _focusObj: Component;
@@ -15,8 +20,10 @@ module Animate {
 		private _dockerrightbottom: Docker;
 		private _canvasContext: CanvasContext;
 
-		constructor( domElement?: string ) {
-			super(domElement, null);
+		constructor( props: React.HTMLAttributes ) {
+			super(props);
+
+			Application._singleton = this;
 
             Utils.init();
 
@@ -31,57 +38,81 @@ module Animate {
             TooltipManager.create();
             User.get;
 
-			this._resizeProxy = this.onWindowResized.bind( this );
-			this._downProxy = this.onMouseDown.bind( this );
+			// this._resizeProxy = this.onWindowResized.bind( this );
+			// this._downProxy = this.onMouseDown.bind( this );
 
 			//var comp = jQuery( document.activeElement ).data( "component" );
 
-			//Create each of the main components for the application.
-			var stage: Component = new Component( "#stage" );
-			var toolbar: Toolbar = Toolbar.getSingleton( new Component( "#toolbar" ) );
+			// //Create each of the main components for the application.
+			// var stage: Component = new Component( "#stage" );
+			// var toolbar: Toolbar = Toolbar.getSingleton( new Component( "#toolbar" ) );
 
-			this.addChild( toolbar );
-			this.addChild( stage );
+			// this.addChild( toolbar );
+			// this.addChild( stage );
 
-			//Create each of the main split panels
-			var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
-			mainSplit.element.css( { width: "100%", height: "100%" });
+			// //Create each of the main split panels
+			// var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
+			// mainSplit.element.css( { width: "100%", height: "100%" });
 
-			var leftSplit : SplitPanel = new SplitPanel( mainSplit.left, SplitOrientation.HORIZONTAL, 0.85 );
-			var rightSplit : SplitPanel = new SplitPanel( mainSplit.right, SplitOrientation.HORIZONTAL, 0.5 );
-			leftSplit.element.css( { width: "100%", height: "100%" });
-			rightSplit.element.css( { width: "100%", height: "100%" });
-			var grid: PropertyGrid = new PropertyGrid( rightSplit.top );
+			// var leftSplit : SplitPanel = new SplitPanel( mainSplit.left, SplitOrientation.HORIZONTAL, 0.85 );
+			// var rightSplit : SplitPanel = new SplitPanel( mainSplit.right, SplitOrientation.HORIZONTAL, 0.5 );
+			// leftSplit.element.css( { width: "100%", height: "100%" });
+			// rightSplit.element.css( { width: "100%", height: "100%" });
+			// var grid: PropertyGrid = new PropertyGrid( rightSplit.top );
 
-			var scenetab = SceneTab.getSingleton( rightSplit.bottom );
-			var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
-			Logger.getSingleton( leftSplit.bottom );
+			// var scenetab = SceneTab.getSingleton( rightSplit.bottom );
+			// var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
+			Logger.getSingleton( null );
             Logger.logMessage( "let's get animated!", null, LogType.MESSAGE );
 
-			//now set up the dockers
-			this._dockerlefttop = new Docker( leftSplit.top );
-			this._dockerlefttop.addComponent( canvastab, false );
-            this._dockerleftbottom = new Docker(leftSplit.bottom);
-            this._dockerleftbottom.addComponent(Logger.getSingleton(), false);
-			this._dockerrightbottom = new Docker( rightSplit.bottom );
-			this._dockerrightbottom.addComponent( scenetab, false );
-			this._dockerrighttop = new Docker( rightSplit.top );
-			this._dockerrighttop.addComponent( grid, false );
+			// //now set up the dockers
+			// this._dockerlefttop = new Docker( leftSplit.top );
+			// this._dockerlefttop.addComponent( canvastab, false );
+            // this._dockerleftbottom = new Docker(leftSplit.bottom);
+            // this._dockerleftbottom.addComponent(Logger.getSingleton(), false);
+			// this._dockerrightbottom = new Docker( rightSplit.bottom );
+			// this._dockerrightbottom.addComponent( scenetab, false );
+			// this._dockerrighttop = new Docker( rightSplit.top );
+			// this._dockerrighttop.addComponent( grid, false );
 
 
 
-			this.update();
+			// this.update();
 
-			//Hook the resize event
-			jQuery( window ).on( 'resize', this._resizeProxy );
-			jQuery( document ).on( 'mousedown', this._downProxy );
+			// //Hook the resize event
+			// jQuery( window ).on( 'resize', this._resizeProxy );
+			// jQuery( document ).on( 'mousedown', this._downProxy );
 
-			var splash = ReactDOM.render( <Animate.Splash onClose={()=>{
 
-			}} />, this.element[0] ) as Animate.Splash;
 
 			// Show Splash screen
-			splash.show();
+			// splash.show();
+			this.state = {
+				showSplash: true
+			}
+		}
+
+		/**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render() : JSX.Element {
+
+			var mainView: JSX.Element;
+
+			if (this.state.showSplash) {
+				mainView = <Animate.Splash onClose={()=>{
+
+				}} />
+			}
+			else {
+				mainView = <div id="application">
+				<div id="toolbar"></div>
+				<div id="stage"></div>
+			</div>
+			}
+
+			return mainView;
 		}
 
 		/**
@@ -114,31 +145,31 @@ module Animate {
 			}
 		}
 
-		/**
-		* Updates the dimensions of the application
-		* @param {object} val The jQuery event object
-		*/
-		onWindowResized( val ) : void {
-            // Do not update everything if the event is from JQ UI
-            if (val && $(val.target).hasClass('ui-resizable'))
-                return;
+		// /**
+		// * Updates the dimensions of the application
+		// * @param {object} val The jQuery event object
+		// */
+		// onWindowResized( val ) : void {
+        //     // Do not update everything if the event is from JQ UI
+        //     if (val && $(val.target).hasClass('ui-resizable'))
+        //         return;
 
-			super.update();
-		}
+		// 	super.update();
+		// }
 
-		/**
-		* This will cleanup the component.
-		*/
-		dispose() {
-			jQuery( window ).off( 'resize', this._resizeProxy );
-			jQuery( document ).off( 'mousedown', this._downProxy );
+		// /**
+		// * This will cleanup the component.
+		// */
+		// dispose() {
+		// 	jQuery( window ).off( 'resize', this._resizeProxy );
+		// 	jQuery( document ).off( 'mousedown', this._downProxy );
 
-			this._resizeProxy = null;
-			this._downProxy = null;
+		// 	this._resizeProxy = null;
+		// 	this._downProxy = null;
 
-			//Call super
-			super.dispose();
-		}
+		// 	//Call super
+		// 	super.dispose();
+		// }
 
 		/**
 		*  This is called when a project is unloaded and we need to reset the GUI.
@@ -163,97 +194,12 @@ module Animate {
             PluginManager.getSingleton().projectReset(user.project);
 		}
 
-		///**
-		//* This is called when a project is created. This is used
-		//* so we can orgaise all the elements that need to be populated.
-		//*/
-		//projectReady()
-		//{
-  //          var project: Project = User.get.project;
-		//	//project.on( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
-		//	//project.loadBehaviours();
-
-  //          // load each of the different resources
-  //          var project: Project = User.get.project;
-  //          project.loadResources()
-  //          project.off(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
-  //          project.on(ProjectEvents.SAVED_ALL, this.onSaveAll, this);
-  //          //Create the page title
-  //          document.title = 'Animate: p' + project.entry._id + " - " + project.entry.name;
-  //          Toolbar.getSingleton().newProject(project);
-  //          CanvasTab.getSingleton().projectReady(project);
-  //          TreeViewScene.getSingleton().projectReady(project);
-  //          PluginManager.getSingleton().projectReady(project);
-		//}
-
-		///**
-		//* This is called when a project has loaded all its behaviours.
-		//*/
-  //      onBehavioursLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-  //      {
-  //          var that = this;
-  //          var project: Project = User.get.project;
-		//	project.off( ProjectEvents.BEHAVIOURS_LOADED, this.onBehavioursLoaded, this );
-
-  //          //project.on( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-  //          project.loadFiles().then(function ()
-  //          {
-  //              that.onFilesLoaded(null, null, null);
-  //          });
-		//}
-
-		///**
-		//* This is called when a project has loaded all its assets.
-		//*/
-  //      onAssetsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		//{
-  //          var project: Project = User.get.project;
-		//	project.off( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
-
-		//	project.on( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
-		//	project.loadGroups();
-		//}
-
-		///**
-		//* This is called when a project has loaded all its files.
-		//*/
-  //      onFilesLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		//{
-  //          var project: Project = User.get.project;
-		//	//project.off( ProjectEvents.FILES_LOADED, this.onFilesLoaded, this );
-
-		//	project.on( ProjectEvents.ASSETS_LOADED, this.onAssetsLoaded, this );
-		//	project.loadAssets();
-		//}
-
-		///**
-		//* This is called when a project has loaded all its groups.
-		//*/
-  //      onGroupsLoaded(response: ProjectEvents, event: ProjectEvent, sender?: EventDispatcher): void
-		//{
-  //          var project = User.get.project;
-		//	project.off( ProjectEvents.GROUPS_LOADED, this.onGroupsLoaded, this );
-
-		//	project.off( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
-		//	project.on( ProjectEvents.SAVED_ALL, this.onSaveAll, this );
-
-  //          PluginManager.getSingleton().projectReady(project);
-		//}
-
-		///**
-		//* When the project data is all saved to the DB
-		//*/
-		//onSaveAll( event, data ) : void
-		//{
-		//	CanvasTab.getSingleton().saveAll();
-		//}
-
 		/**
 		* Gets the singleton instance
 		*/
 		public static getInstance( domElement? : string ): Application {
-            if (Application._singleton === undefined)
-				Application._singleton = new Application(domElement);
+            // if (Application._singleton === undefined)
+			// 	Application._singleton = new Application(domElement);
 
 			return Application._singleton;
 		}

@@ -111,7 +111,9 @@ module Animate {
 					return;
 
 				e.preventDefault();
-				this.context.show( Application.getInstance(), e.pageX,  e.pageY, false, true );
+
+				this.context.show( null, e.pageX,  e.pageY, false, true );
+				throw new Error("Not implemented");
 			}
 		}
 
@@ -122,42 +124,42 @@ module Animate {
 		* @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
 		*/
 		static logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE) {
-            var logger = Logger.getSingleton();
+            // var logger = Logger.getSingleton();
 
-			var img = null;
-			if ( type == LogType.MESSAGE )
-				img = "media/tick.png";
-			else if ( type == LogType.ERROR )
-				img = "media/cross.png";
-			else
-				img = "media/warning-20.png";
+			// var img = null;
+			// if ( type == LogType.MESSAGE )
+			// 	img = "media/tick.png";
+			// else if ( type == LogType.ERROR )
+			// 	img = "media/cross.png";
+			// else
+			// 	img = "media/warning-20.png";
 
-			//Add a border glow to the messages dock items
-            if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview ) {
-                var offset = logger.mDocker.element.offset();
-                jQuery("body").append(logger.warningFlagger );
-                logger.warningFlagger.css({ left: offset.left, top: offset.top - logger.warningFlagger.height() });
+			// //Add a border glow to the messages dock items
+            // if (type != LogType.MESSAGE && logger.element.data("preview") != logger.mDocker.activePreview ) {
+            //     var offset = logger.mDocker.element.offset();
+            //     jQuery("body").append(logger.warningFlagger );
+            //     logger.warningFlagger.css({ left: offset.left, top: offset.top - logger.warningFlagger.height() });
 
-                logger.element.data( "preview" ).addClass( "fade-animation" );
-            }
-            val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() } ${new Date(Date.now()).toLocaleTimeString()}</span>` + val;
-            var toAdd = logger.addItem( img, val, true );
-			toAdd.data( "tag", tag );
-			return toAdd;
+            //     logger.element.data( "preview" ).addClass( "fade-animation" );
+            // }
+            // val = `<span class='date'>${new Date(Date.now()).toLocaleDateString() } ${new Date(Date.now()).toLocaleTimeString()}</span>` + val;
+            // var toAdd = logger.addItem( img, val, true );
+			// toAdd.data( "tag", tag );
+			// return toAdd;
 		}
 
 		/**
 		* Clears all the log messages
 		*/
 		clearItems() : void {
-			this.warningFlagger.detach();
-			this.element.data( "preview" ).removeClass( "fade-animation" );
+			// this.warningFlagger.detach();
+			// this.element.data( "preview" ).removeClass( "fade-animation" );
 
-			var len = this.items.length;
-			for ( var i = 0; i < len; i++ )
-				this.items[i].data( "tag", null );
+			// var len = this.items.length;
+			// for ( var i = 0; i < len; i++ )
+			// 	this.items[i].data( "tag", null );
 
-			super.clearItems();
+			// super.clearItems();
 		}
 
 		/**
