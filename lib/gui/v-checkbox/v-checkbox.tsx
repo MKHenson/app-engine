@@ -1,7 +1,7 @@
 module Animate {
 
     export interface IVCheckboxProps extends React.HTMLAttributes {
-        onChecked?: (e : React.FormEvent, checked : boolean ) => void;
+        onChecked?: (e : React.FormEvent, checked : boolean, input : HTMLInputElement ) => void;
         noInteractions?: boolean;
     }
 
@@ -25,15 +25,17 @@ module Animate {
          * Called whenever the checkbox input changes
          * @param {React.FormEvent} e
          */
-        private onChange(e : React.FormEvent) {
+        onChange(e : React.FormEvent) {
+            let input = e.target as HTMLInputElement;
+
             this.setState( {
-                checked: (e.target as HTMLInputElement).checked,
+                checked: input.checked,
                 pristine: false
             } );
             if (this.props.onChange)
                 this.props.onChange(e);
             if (this.props.onChecked)
-                this.props.onChecked(e, (e.target as HTMLInputElement).checked);
+                this.props.onChecked(e, input.checked, input);
         }
 
         /**
@@ -77,6 +79,7 @@ module Animate {
                     id={(this.props.id ? this.props.id : null)}
                     name={(this.props.name ? this.props.name : null)}
                     type="checkbox"
+                    ref="check"
                     checked={this.state.checked} value={this.state.checked} />
                 <label
                     onClick={(e)=> {
@@ -84,11 +87,14 @@ module Animate {
                             return;
 
                         if ( !this.props.id ) {
-                            this.setState({ checked: !this.state.checked });
+                            let checked = !this.state.checked;
+                            this.setState({ checked: checked });
                             if ( this.props.onChange)
                                 this.props.onChange(e);
-                            if (this.props.onChecked)
-                                this.props.onChecked(e, (e.target as HTMLInputElement).checked);
+                            if (this.props.onChecked) {
+                                let input = this.refs['check'] as HTMLInputElement;
+                                this.props.onChecked(e, checked, input);
+                            }
                         }
                     }}
                     className="unselectable"

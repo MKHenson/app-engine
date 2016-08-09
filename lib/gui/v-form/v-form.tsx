@@ -207,8 +207,10 @@ module Animate {
                         else if ( i.type == VCheckbox ) {
                             return React.cloneElement( i, {
                                 ref: index.toString(),
-                                onChange : (e)=>{ this.onChange( e ); }
-                            } as React.HTMLAttributes )
+                                onChecked : (e, checked, input)=>{
+                                    this._values[input.name] = { value: checked, error : null };
+                                }
+                            } as IVCheckboxProps )
                         }
                         else
                             return i;
