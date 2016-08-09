@@ -1792,12 +1792,6 @@ input, select{ color:#666; }
     -o-transition: all 0.5s ease-in-out;
     transition: all 0.5s ease-in-out;
 }
-.animate-slow {
-    -webkit-transition: all 1s ease-in-out;
-    -moz-transition: all 15s ease-in-out;
-    -o-transition: all 1s ease-in-out;
-    transition: all 1s ease-in-out;
-}
 @keyframes framesShadowFocus
 {
     0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}

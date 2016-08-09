@@ -42,12 +42,13 @@
     }
 }
 
-#splash-view{
+#splash-view {
     overflow:auto;
     text-align:center;
     position:relative;
     margin:0 auto;
     min-width: 450px;
+    transition: width 0.5s, height 0.5s;
 
     &.compact {
         width:25%;
