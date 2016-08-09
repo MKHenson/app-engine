@@ -6102,7 +6102,7 @@ declare module Animate {
         * @param {any} tag An optional tag to associate with the log.
         * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
         */
-        static logMessage(val: string, tag: any, type?: LogType): JQuery;
+        static logMessage(val: string, tag: any, type?: LogType): void;
         /**
         * Clears all the log messages
         */
@@ -6113,6 +6113,31 @@ declare module Animate {
         * @returns {Logger}
         */
         static getSingleton(parent?: Component): Logger;
+    }
+}
+declare module Animate {
+    interface ITooltipProps {
+        tooltip: JSX.Element;
+    }
+    interface ITooltipState {
+        showTooltip: boolean;
+    }
+    /**
+     * Creates a new tooltip react Component. The content of this Component
+     * is wrapped in a div which listens for mouse enter and leave events.
+     * When entered the tooltip property is displayed.
+     */
+    class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
+        private static _tooltip;
+        constructor(props: ITooltipProps);
+        onMouseEnter(e: React.MouseEvent): void;
+        onMouseleave(e: React.MouseEvent): void;
+        onMouseMove(e: React.MouseEvent): void;
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
@@ -6355,7 +6380,7 @@ declare module Animate {
 }
 declare module Animate {
     interface IVCheckboxProps extends React.HTMLAttributes {
-        onChecked?: (e: React.FormEvent, checked: boolean) => void;
+        onChecked?: (e: React.FormEvent, checked: boolean, input: HTMLInputElement) => void;
         noInteractions?: boolean;
     }
     class VCheckbox extends React.Component<IVCheckboxProps, {
@@ -6371,7 +6396,7 @@ declare module Animate {
          * Called whenever the checkbox input changes
          * @param {React.FormEvent} e
          */
-        private onChange(e);
+        onChange(e: React.FormEvent): void;
         /**
          * Called when the props are updated
          */
@@ -6702,10 +6727,10 @@ declare module Animate {
         project: Engine.IProject;
     }
     interface IOpenProjectState {
-        $selectedProject?: Engine.IProject;
-        $errorMsg?: string;
-        $error?: boolean;
-        $loading?: boolean;
+        selectedProject?: Engine.IProject;
+        message?: string;
+        mode?: AttentionType;
+        loading?: boolean;
     }
     class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
         /**
@@ -6839,33 +6864,15 @@ declare module Animate {
     }
     interface ISplashStats {
         mode?: SplashMode;
-        $loading?: boolean;
+        loading?: boolean;
         project?: Engine.IProject;
+        theme?: string;
     }
     /**
     * The splash screen when starting the app
     */
     class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton;
-        private _splashElm;
-        private _loginElm;
-        private _welcomeElm;
-        private _newProject;
-        private _loadingProject;
-        private _app;
-        private _captureInitialized;
-        private $user;
-        private $theme;
-        private $activePane;
-        private $errorMsg;
-        private $errorRed;
-        private $loading;
-        private $projects;
-        private $plugins;
-        private $selectedPlugins;
-        private $selectedProject;
-        private $selectedPlugin;
-        private $pager;
         /**
         * Creates an instance of the splash screen
         */
@@ -6877,32 +6884,7 @@ declare module Animate {
         render(): JSX.Element;
         show(): void;
         splashDimensions(): string;
-        goState(state: string, digest?: boolean): void;
-        removeProject(messageBoxAnswer: string): void;
-        openProject(project: Engine.IProject): void;
-        /**
-        * Attempts to load the project and setup the scene
-        */
-        loadScene(): void;
-        fetchProjects(index: number, limit: number): void;
-        selectProject(project: Engine.IProject): void;
-        selectPlugin(plugin: Engine.IPlugin): void;
-        showVersions(plugin: Engine.IPlugin): void;
-        isPluginSelected(plugin: any): boolean;
         reset(): void;
-        /**
-        * Given a form element, we look at if it has an error and based on the expression. If there is we set
-        * the login error message
-        * @param {EngineForm} The form to check.
-        * @param {boolean} True if there is an error
-        */
-        reportError(form: NodeForm): boolean;
-        /**
-        * Creates a new user project
-        * @param {EngineForm} The form to check.
-        * @param {boolean} True if there is an error
-        */
-        newProject(name: string, description: string, plugins: Array<Engine.IPlugin>): void;
         /**
         * Attempts to resend the activation code
         */
@@ -6967,7 +6949,6 @@ declare module Animate {
          */
         constructor(props: IProjectsOverviewProps);
         removeProject(messageBoxAnswer: string): void;
-        openProject(project: IInteractiveProject): void;
         /**
         * Creates the component elements
         * @returns {JSX.Element}
@@ -6976,10 +6957,13 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IApplicationState {
+        showSplash?: boolean;
+    }
     /**
     * The main GUI component of the application.
     */
-    class Application extends Component {
+    class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
         private static _singleton;
         static bodyComponent: Component;
         private _focusObj;
@@ -6990,7 +6974,12 @@ declare module Animate {
         private _dockerrighttop;
         private _dockerrightbottom;
         private _canvasContext;
-        constructor(domElement?: string);
+        constructor(props: React.HTMLAttributes);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
         /**
         * Deals with the focus changes
         * @param {object} e The jQuery event object
@@ -7001,15 +6990,6 @@ declare module Animate {
         * @param {Component} comp The component to focus on.
         */
         setFocus(comp: Component): void;
-        /**
-        * Updates the dimensions of the application
-        * @param {object} val The jQuery event object
-        */
-        onWindowResized(val: any): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
         /**
         *  This is called when a project is unloaded and we need to reset the GUI.
         */
