@@ -1,0 +1,12 @@
+.tooltip {
+    position: absolute;
+    padding: 10px;
+
+    &.enter {
+        opacity: 0.01;
+        &.active {
+            opacity: 1;
+            transition: opacity 500ms ease-in;
+        }
+    }
+}

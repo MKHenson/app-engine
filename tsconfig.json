@@ -142,6 +142,7 @@
     "lib/gui/forms/user-privileges-form.ts",
     "lib/gui/forms/behaviour-picker.ts",
     "lib/gui/logger.ts",
+    "lib/gui/tooltip/tooltip.tsx",
     "lib/gui/toolbar/toolBar.ts",
     "lib/gui/pager/pager.tsx",
     "lib/gui/search-box/search-box.tsx",
