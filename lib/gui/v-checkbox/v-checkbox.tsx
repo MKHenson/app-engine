@@ -43,9 +43,15 @@ module Animate {
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps) {
             this.setState({
-                checked: ( nextProps.checked !== undefined ? nextProps.checked : this.state.checked )
+                checked: ( nextProps.checked !== this.props.checked ? nextProps.checked : this.state.checked )
             });
         }
+
+        /**
+         * Gets the current checked state of the input
+         * @returns {boolean}
+         */
+        get checked() : boolean { return this.state.checked; }
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
