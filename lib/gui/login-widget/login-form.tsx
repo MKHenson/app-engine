@@ -29,6 +29,34 @@ module Animate {
             };
         }
 
+        /**
+         * When the component is mounted we check if the user is logged in
+         */
+        componentWillMount() {
+
+            if ( this.props.onLoadingChange )
+                this.props.onLoadingChange(true);
+
+            this.state = {
+                loading: true,
+                error : false
+            };
+
+            User.get.authenticated().then((loggedIn) => {
+
+                if ( this.props.onLoadingChange )
+                    this.props.onLoadingChange(false);
+
+                this.setState({
+                    loading: false
+                });
+
+                if (this._user.isLoggedIn)
+                    this.props.onLogin();
+
+            }).catch(this.loginError.bind(this));
+        }
+
         /*
         * General error handler
         */
