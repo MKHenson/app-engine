@@ -67,6 +67,12 @@ module Animate {
         }
 
         /**
+         * Gets the current value of the input
+         * @returns {string}
+         */
+        get value() : string { return this.state.value; }
+
+        /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
          */

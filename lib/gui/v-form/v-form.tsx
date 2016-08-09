@@ -53,9 +53,30 @@ module Animate {
          * Focus on the name element once its mounted
          */
         componentDidMount() {
+            let firstInputHasFocus = false;
+
             for (let i in this.refs) {
-                if ( this.refs[i] instanceof VInput || this.refs[i] instanceof VTextarea )
-                    return (ReactDOM.findDOMNode(this.refs[i]) as HTMLInputElement | HTMLTextAreaElement).focus();
+                if ( this.refs[i] instanceof VInput || this.refs[i] instanceof VTextarea ) {
+                    let component = this.refs[i] as HTMLInputElement | HTMLTextAreaElement;
+                    let domNode = ReactDOM.findDOMNode(component) as HTMLInputElement | HTMLTextAreaElement;
+
+                    // Focus first element
+                    if (!firstInputHasFocus) {
+                        firstInputHasFocus = true;
+                        domNode.focus();
+                    }
+
+                    // Set the initial values for inputs and text areas
+                    this._values[domNode.name] = { value: component.value, error : null };
+                }
+                else if ( this.refs[i] instanceof VCheckbox ) {
+
+                    let component = this.refs[i] as VCheckbox;
+                    let domNode = ReactDOM.findDOMNode(this.refs[i]) as HTMLInputElement;
+
+                    // Set the initial values of checkbox
+                    this._values[component.props.name] = { value: component.checked, error : null };
+                }
             }
         }
 

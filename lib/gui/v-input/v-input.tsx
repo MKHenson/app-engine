@@ -52,6 +52,12 @@ module Animate {
         }
 
         /**
+         * Gets the current value of the input
+         * @returns {string}
+         */
+        get value() : string { return this.state.value; }
+
+        /**
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void {
