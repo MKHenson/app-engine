@@ -7,10 +7,10 @@ module Animate {
     }
 
     export interface IOpenProjectState {
-        $selectedProject?: Engine.IProject;
-        $errorMsg?: string;
-        $error?: boolean;
-        $loading?: boolean;
+        selectedProject?: Engine.IProject;
+        message?: string;
+        mode?: AttentionType;
+        loading?: boolean;
     }
 
     export class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
@@ -21,10 +21,10 @@ module Animate {
         constructor(props: IOpenProjectProps) {
             super(props);
             this.state = {
-                $error: false,
-                $loading: true,
-                $errorMsg: null,
-                $selectedProject: props.project
+                mode: AttentionType.SUCCESS,
+                loading: true,
+                message: null,
+                selectedProject: props.project
             }
         }
 
@@ -33,7 +33,7 @@ module Animate {
         */
         loadScene() {
             let project = User.get.project;
-            project.entry = this.state.$selectedProject;
+            project.entry = this.state.selectedProject;
 
             // Notify of new project
             Toolbar.getSingleton().newProject(project);
@@ -41,12 +41,12 @@ module Animate {
             TreeViewScene.getSingleton().projectReady(project);
             PluginManager.getSingleton().projectReady(project);
 
-            let message = `Loading project '${this.state.$selectedProject.name}'...`
+            let message = `Loading project '${this.state.selectedProject.name}'...`
 
             this.setState({
-                $error: false,
-                $loading: true,
-                $errorMsg: message
+                mode: AttentionType.SUCCESS,
+                loading: true,
+                message: message
             });
 
             Logger.logMessage(message, null, LogType.MESSAGE);
@@ -55,7 +55,7 @@ module Animate {
             project.loadResources().then( (resources) => {
                 message = `Loaded [${resources.length}] resources`;
                 this.setState({
-                    $errorMsg: message
+                    message: message
                 });
 
                 Logger.logMessage( message, null, LogType.MESSAGE);
@@ -65,8 +65,8 @@ module Animate {
 
                 message = `Loaded project build '${build.entry.name} - v${build.entry.version}'`;
                 this.setState({
-                    $loading : false,
-                    $errorMsg: message
+                    loading : false,
+                    message: message
                 });
 
                 Logger.logMessage( message, null, LogType.MESSAGE);
@@ -75,15 +75,15 @@ module Animate {
                 document.title = `Hatchery: ${project.entry.name} ${project.entry._id}`;
 
                 // Log
-                Logger.logMessage(`Project '${this.state.$selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
+                Logger.logMessage(`Project '${this.state.selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
 
                 // Everything done
                 this.props.onComplete();
 
             }).catch( (err: Error) => {
                 this.setState({
-                    $error: true,
-                    $errorMsg: err.message
+                    mode: AttentionType.ERROR,
+                    message: err.message
                 });
             });
         }
@@ -94,10 +94,10 @@ module Animate {
         componentWillMount() {
 
             let numLoaded = 0;
-            let project : Engine.IProject = this.state.$selectedProject;
+            let project : Engine.IProject = this.state.selectedProject;
             this.setState({
-                $error: false,
-                $loading: true
+                mode: AttentionType.SUCCESS,
+                loading: true
             });
 
             // Notify the reset
@@ -116,21 +116,21 @@ module Animate {
                             PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
 
                         this.setState({
-                            $loading: false
+                            loading: false
                         });
 
                         this.loadScene();
                     }
                     else {
                         this.setState({
-                            $loading: false
+                            loading: false
                         });
                     }
                 }).catch( (err: Error) => {
                     plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
                     this.setState({
-                        $error: true,
-                        $errorMsg: "Could not load all of the plugins"
+                        mode: AttentionType.ERROR,
+                        message: "Could not load all of the plugins"
                     });
                 });
             });
@@ -142,10 +142,10 @@ module Animate {
          */
         render() : JSX.Element {
             let loadingPanel : JSX.Element;
-            if (this.state.$selectedProject) {
+            if (this.state.selectedProject) {
                 loadingPanel = <div className="loading-panel">
                     {
-                        this.state.$selectedProject.$plugins.map((plugin, index) => {
+                        this.state.selectedProject.$plugins.map((plugin, index) => {
 
                             let pluginElm : JSX.Element;
                             if (!plugin.$error) {
@@ -172,13 +172,13 @@ module Animate {
 
             return <div id="splash-loading-project" className='loading-project fade-in background'>
                 <div>
-                    { this.state.$selectedProject ? <h2>Loading '{this.state.$selectedProject.name}'</h2> : <h2>Project Loading</h2> }
+                    { this.state.selectedProject ? <h2>Loading '{this.state.selectedProject.name}'</h2> : <h2>Project Loading</h2> }
                     {loadingPanel}
-                    { this.state.$errorMsg ?
+                    { this.state.message ?
                         <div className="summary-message"><Attention
                             allowClose={false}
-                            mode={(this.state.$error ? AttentionType.ERROR : AttentionType.SUCCESS )}
-                            className="error">{this.state.$errorMsg}
+                            mode={this.state.mode}
+                            className="error">{this.state.message}
                         </Attention></div> : null }
 
                 </div>

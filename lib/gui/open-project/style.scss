@@ -9,9 +9,12 @@
     .load-item {
         margin:10px 20px;
     }
-    .plugin-loading {
-        vertical-align: middle;
+    .fa-cog{
         font-size: 30px;
+    }
+    .plugin-loading, .fa-cog {
+        vertical-align: middle;
+        width: 50px;
     }
 
     .summary-message .attention {
