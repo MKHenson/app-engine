@@ -23,11 +23,6 @@
 
     form {
         position: relative;
-
-        &.dirty .show-msg{
-            max-height:150px;
-            padding: 10px;
-        }
     }
 
     input[type="text"], input[type="password"] {
@@ -42,7 +37,6 @@
         border:none;
         width: 100%;
         height: 80px;
-        margin: 10px 0 0 0;
         line-height:60px;
     }
 

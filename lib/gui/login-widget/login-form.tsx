@@ -202,13 +202,6 @@ module Animate {
                         onClick={(e) => this.resetPassword()}>
                         Forgot
                     </a>
-                    <div
-                        className={
-                            ( this.state.error ? 'error ' : 'success ' ) +
-                            ( this.state.errorMsg != '' ? 'show-msg ' : '' ) +
-                            'label login-msg fade-in animate-slow'}>
-                        {this.state.errorMsg}
-                    </div>
                     <VCheckbox
                         label="Remember me"
                         checked={true}
@@ -221,6 +214,14 @@ module Animate {
                         Resend Activation Email
                     </a>
                     <br />
+                    <div>
+                        {( this.state.errorMsg != '' ?
+                                <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS}>
+                                    {this.state.errorMsg}
+                                </Attention>
+                                : null
+                        )}
+                    </div>
                     <div className="double-column">
                         <button
                             type="button"

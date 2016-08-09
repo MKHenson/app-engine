@@ -123,14 +123,15 @@ module Animate {
                         name="password"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
-                    <div
-                        className={
-                            ( this.state.error ? 'error ' : 'success ' ) +
-                            ( this.state.errorMsg != '' ? 'show-msg ' : '' ) +
-                            'label login-msg fade-in animate-slow'}>
-                            {this.state.errorMsg}
-                    </div>
                     <div id='animate-captcha' ref={(e) => { this.mountCaptcha(e) }}></div>
+                    <div>
+                        {( this.state.errorMsg != '' ?
+                            <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS}>
+                                {this.state.errorMsg}
+                            </Attention>
+                            : null
+                        )}
+                    </div>
                     <div className="double-column">
                         <button
                             type="button"
