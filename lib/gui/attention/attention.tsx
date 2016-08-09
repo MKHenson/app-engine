@@ -44,6 +44,7 @@ module Animate {
             delete props.mode;
             delete props.showIcon;
             delete props.className;
+            delete props.allowClose;
 
             let primaryClass : string;
             let icon : JSX.Element;
