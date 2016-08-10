@@ -36,10 +36,13 @@ module Animate {
             project.entry = this.state.selectedProject;
 
             // Notify of new project
+            // TODO: ALL NEEDS TO BE UPDATED
+            // ==========================================
             // Toolbar.getSingleton().newProject(project);
-            CanvasTab.getSingleton().projectReady(project);
-            TreeViewScene.getSingleton().projectReady(project);
-            PluginManager.getSingleton().projectReady(project);
+            // CanvasTab.getSingleton().projectReady(project);
+            // TreeViewScene.getSingleton().projectReady(project);
+            // PluginManager.getSingleton().projectReady(project);
+            // ==========================================
 
             let message = `Loading project '${this.state.selectedProject.name}'...`
 
