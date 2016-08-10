@@ -101,13 +101,13 @@ module Animate {
 			var mainView: JSX.Element;
 
 			if (this.state.showSplash) {
-				mainView = <Animate.Splash onClose={()=>{
-
-				}} />
+				mainView = <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } />
 			}
 			else {
 				mainView = <div id="application">
-				<div id="toolbar"></div>
+				<div id="toolbar">
+					<Toolbar />
+				</div>
 				<div id="stage"></div>
 			</div>
 			}
