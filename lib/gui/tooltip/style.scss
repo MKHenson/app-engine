@@ -2,19 +2,32 @@
     position: absolute;
     padding: 10px;
     opacity: 0;
-    background: $tooltip;
-    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
+    background: $tooltip-bg;
+    color: $tooltip-color;
+    z-index: 1;
 
-    // Creates the arrow
-    &::after {
+    // Creates the arrow for top tooltips
+    &.top::after {
         content: "";
         position: absolute;
         top: 100%;
-        left: 10%;
+        left: 10px;
         margin-left: -5px;
         border-width: 5px;
         border-style: solid;
-        border-color: $tooltip transparent transparent transparent;
+        border-color: $tooltip-bg transparent transparent transparent;
+    }
+
+    // Creates the arrow for bottom tooltips
+    &.bottom::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 10px;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: transparent transparent $tooltip-bg transparent;
     }
 
     // Animates the tooltip's opacity
@@ -22,7 +35,7 @@
         opacity: 0.01;
         &.active {
             opacity: 1;
-            transition: opacity 300ms ease-in;
+            transition: opacity 250ms ease-in;
         }
     }
 }

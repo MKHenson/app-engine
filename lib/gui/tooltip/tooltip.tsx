@@ -1,7 +1,15 @@
 module Animate {
 
+    export enum TooltipPosition {
+        TOP,
+        BOTTOM
+    }
+
     export interface ITooltipProps {
-        tooltip: JSX.Element | string;
+        tooltip?: JSX.Element | string;
+        position?: TooltipPosition;
+        offset?: number;
+        disabled?: boolean;
     }
 
     export interface ITooltipState {
@@ -14,7 +22,14 @@ module Animate {
      * When entered the tooltip property is displayed.
      */
     export class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
+
         private static _tooltip: HTMLElement;
+        static defaultProps: ITooltipProps = {
+            tooltip: 'Tooltip',
+            position: TooltipPosition.TOP,
+            offset: 10,
+            disabled: false
+        };
 
         /**
          * Creates an instance
@@ -35,6 +50,9 @@ module Animate {
          * When the mouse enters over the element we add the tooltip to the body
          */
         onMouseEnter(e: React.MouseEvent) {
+            if (this.props.disabled)
+                return;
+
             let tooltipParent = Tooltip._tooltip;
             let target : HTMLElement = e.target as HTMLElement;
             let jsx : JSX.Element = ( typeof(this.props.tooltip) == "string" ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
@@ -45,23 +63,38 @@ module Animate {
             document.body.appendChild( tooltipParent );
             ReactDOM.render( jsx, tooltipParent );
 
-            let offset = 20;
+            let offset = this.props.offset;
             let h: number = tooltipParent.offsetHeight;
             let w: number = tooltipParent.offsetWidth;
             let bounds = target.getBoundingClientRect();
-            let x = ( bounds.left + w * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + w * 0.5 );
-            let y = ( bounds.top - h - offset < 0 ? 0 : bounds.top - h - offset );
+            let className = "tooltip";
+            let x;
+            let y;
+
+            if (this.props.position == TooltipPosition.TOP) {
+                className += " top";
+                x = ( bounds.left + bounds.width * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + bounds.width * 0.5 );
+                y = ( bounds.top - h - offset < 0 ? 0 : bounds.top - h - offset );
+            }
+            else {
+                className += " bottom";
+                x = ( bounds.left + bounds.width * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + bounds.width * 0.5 );
+                y = ( bounds.bottom + offset > document.body.offsetHeight ? document.body.offsetHeight - h : bounds.bottom + offset );
+                y += 5;
+            }
+
+            tooltipParent.className = className;
+
 
             // Position the tooltip just above the element
             tooltipParent.style.left = x + "px";
             tooltipParent.style.top = y + "px";
 
             // Add CSS classes for animation
-            tooltipParent.className = "tooltip";
             setTimeout( function() {
-                tooltipParent.className = "tooltip enter";
-                 setTimeout( function() {
-                    tooltipParent.className = "tooltip enter active";
+                tooltipParent.className = className + " enter";
+                setTimeout( function() {
+                    tooltipParent.className = className + " enter active";
                 }, 20);
             }, 20);
         }
