@@ -1,7 +1,3 @@
-
-#toolbar-main {
-    padding-top:5px;
-}
 .toolbar {
     height: 85px;
     position: relative;
@@ -10,19 +6,13 @@
 }
 .tool-bar-group {
     display: inline-block;
-    margin: 0 0 0 5px;
+    margin: 5px 0 0 5px;
     position: relative;
     border-radius: 5px;
     overflow: hidden;
 }
 .toolbar-button-drop-down {
     display: inline-block;
-}
-.tool-icon-upper {
-    pointer-events: none;
-    text-align: center;
-    font-size: 10px;
-    margin: 0 3px;
 }
 .toolbar-color {
     width: 45px;

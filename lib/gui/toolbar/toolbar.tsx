@@ -62,47 +62,42 @@ module Animate {
 				</div>
 				<div className='tool-bar-bottom'>
 					<div className='tab-container'>
-						<div id='toolbar-main'>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => { this.onHome() }} label="Home" imgUrl="media/animate-home.png" />
-								<ToolbarButton onChange={(e) => { this.saveAll() }} label="Save" imgUrl="media/save.png" />
-							</div>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => { this.onDuplicate() }} label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
-								<ToolbarButton onChange={(e) => { this.onDuplicate() }} label="Cut" imgUrl="media/cut.png"  disabled={!this.$itemSelected} />
-								<ToolbarButton onChange={(e) => { this.onPaste() }} label="Paste" imgUrl="media/paste.png"  disabled={!this._copyPasteToken} />
-								<ToolbarButton onChange={(e) => { this.onDelete() }} label="Delete" imgUrl="media/delete.png"  disabled={!this.$itemSelected} />
-							</div>
-
-
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Animate.Canvas.snapping}
-									onChange={(e) => {
-										Animate.Canvas.snapping = !Animate.Canvas.snapping }}
-									/>
-							</div>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => {
-									this.onRun() }} label="Run" imgUrl="media/play.png"  />
-								<ToolbarButton onChange={(e) => {
-									Animate.BuildOptionsForm.getSingleton().show() }} label="Settings" imgUrl="media/build.png" />
-								<ToolbarButton onChange={(e) => {
-									Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML ) }} label="HTML" imgUrl="media/html.png" />
-								<ToolbarButton onChange={(e) => {
-									Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS ) }} label="CSS" imgUrl="media/css.png" />
-							</div>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => { this.newContainer() }} label="New Behaviour" imgUrl="media/add-behaviour.png" />
-							</div>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => {
-									Animate.UserPrivilegesForm.getSingleton().show() }} label="Privileges" imgUrl="media/privaledges.png" />
-							</div>
-							<div className="tool-bar-group background-view-light">
-								<ToolbarButton onChange={(e) => {
-									Animate.FileViewer.get.show() }} label="File Manager" imgUrl="media/plug-detailed.png" />
-							</div>
-							<div className="fix"></div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => { this.onHome() }} label="Home" imgUrl="media/animate-home.png" />
+							<ToolbarButton onChange={(e) => { this.saveAll() }} label="Save" imgUrl="media/save.png" />
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => { this.onDuplicate() }} label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
+							<ToolbarButton onChange={(e) => { this.onDuplicate() }} label="Cut" imgUrl="media/cut.png"  disabled={!this.$itemSelected} />
+							<ToolbarButton onChange={(e) => { this.onPaste() }} label="Paste" imgUrl="media/paste.png"  disabled={!this._copyPasteToken} />
+							<ToolbarButton onChange={(e) => { this.onDelete() }} label="Delete" imgUrl="media/delete.png"  disabled={!this.$itemSelected} />
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Animate.Canvas.snapping}
+								onChange={(e) => {
+									Animate.Canvas.snapping = !Animate.Canvas.snapping }}
+								/>
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => {
+								this.onRun() }} label="Run" imgUrl="media/play.png"  />
+							<ToolbarButton onChange={(e) => {
+								Animate.BuildOptionsForm.getSingleton().show() }} label="Settings" imgUrl="media/build.png" />
+							<ToolbarButton onChange={(e) => {
+								Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML ) }} label="HTML" imgUrl="media/html.png" />
+							<ToolbarButton onChange={(e) => {
+								Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS ) }} label="CSS" imgUrl="media/css.png" />
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => { this.newContainer() }} label="New Behaviour" imgUrl="media/add-behaviour.png" />
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => {
+								Animate.UserPrivilegesForm.getSingleton().show() }} label="Privileges" imgUrl="media/privaledges.png" />
+						</div>
+						<div className="tool-bar-group background-view-light">
+							<ToolbarButton onChange={(e) => {
+								Animate.FileViewer.get.show() }} label="File Manager" imgUrl="media/plug-detailed.png" />
 						</div>
 					</div>
 				</div>

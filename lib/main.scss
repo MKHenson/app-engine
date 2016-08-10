@@ -1010,7 +1010,7 @@ a{
     background:#D2DBE8;
 }
 .background-view-light {
-    background:#eee;
+    background: $background-secondary;
 }
 .tooltip-text-bg {
     background: #607DA0;
@@ -1061,7 +1061,7 @@ a:active, a:hover {
 .button.gray:active {
   background: #bbbbbb;
 }
-.reg-gradient, .toolbar-button.selected {
+.reg-gradient {
     background: #5EA4EA;
     color: #FFF !important;
 }
@@ -1124,9 +1124,7 @@ a:active, a:hover {
     background:#88CF0E;
     color:white;
 }
-.toolbar-button:hover {
-    background:#fff;
-}
+
 .green-glow {
     -webkit-box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
     box-shadow: 0px 0px 7px 5px rgba(0, 255, 0, 0.7);
