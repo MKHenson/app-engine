@@ -66,11 +66,12 @@ module Animate {
          */
         render(): JSX.Element {
 
-			let children = (this.props.children as React.ReactElement<ITabPaneProps>[]);
+			let children = React.Children.toArray(this.props.children) as React.ReactElement<ITabPaneProps>[];
 
-			return <div className='tab background-view'>
-				<div className='tabs-div'>
+			return <div className='tab'>
+				<div className='tabs-div background-view'>
 					{
+
 						children.map( ( pane, index ) => {
 							return <div key={'tab-' + index}
 									className={'tab-selector animate-fast background-dark' +
