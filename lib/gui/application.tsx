@@ -109,14 +109,6 @@ module Animate {
 					<Toolbar />
 				</div>
 				<div id="stage">
-					<Tab>
-						<TabPane label="One">
-							<h2>One!</h2>
-						</TabPane>
-						<TabPane label="Two">
-							<h2>Two!</h2>
-						</TabPane>
-					</Tab>
 				</div>
 			</div>
 			}

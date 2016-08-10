@@ -57,11 +57,9 @@ module Animate {
          */
         render(): JSX.Element {
 			return <div className='toolbar'>
-				<div className='tool-bar-top background-haze'>
-					<div className='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>Home</div>
-				</div>
-				<div className='tool-bar-bottom'>
-					<div className='tab-container'>
+				<Tab>
+					<TabPane label="Home">
+
 						<div className="tool-bar-group background-view-light">
 							<ToolbarButton onChange={(e) => { this.onHome() }} label="Home" imgUrl="media/animate-home.png" />
 							<ToolbarButton onChange={(e) => { this.saveAll() }} label="Save" imgUrl="media/save.png" />
@@ -99,12 +97,10 @@ module Animate {
 							<ToolbarButton onChange={(e) => {
 								Animate.FileViewer.get.show() }} label="File Manager" imgUrl="media/plug-detailed.png" />
 						</div>
-					</div>
-				</div>
+					</TabPane>
+				</Tab>
 			</div>
 		}
-
-
 
 		/**
 		* This is called when an item on the canvas has been selected

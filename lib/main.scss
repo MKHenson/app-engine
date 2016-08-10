@@ -909,12 +909,6 @@ Please only put css rules in here for generalized modules.
 a{
     color: #4182C3;
 }
-.background-haze {
-  background: -webkit-linear-gradient(left, #D8A2A2 , #6F6C98); /* For Safari 5.1 to 6.0 */
-  background: -o-linear-gradient(right, #D8A2A2, #6F6C98); /* For Opera 11.1 to 12.0 */
-  background: -moz-linear-gradient(right, #D8A2A2, #6F6C98); /* For Firefox 3.6 to 15 */
-  background: linear-gradient(to right, #D8A2A2, #6F6C98); /* Standard syntax */
-}
 .no-items {
     color: #BBC4D0;
     text-shadow: 1px 1px #FFFFFF;
@@ -1149,24 +1143,6 @@ a:active, a:hover {
     background: #E83A3A !important;
     color:white !important;
     box-shadow: inset 0px 0px 0px 2px #E83A3A, inset 0px 0px 0px 3px #fff;
-}
-
-/**
-======================================================
- TODO: Specific colors that need to be generalized!
-======================================================
-**/
-.toolbar-tab {
-    background-color: #5988BD;
-}
-.toolbar-tab-selected, .tab-selected {
-    background-color: #FFF !important;
-}
-.toolbar-tab:hover {
-    background-color: #44464D;
-}
-.toolbar-tab-selected:hover {
-    background-color: #FFF;
 }
 /**
 ======================================================
