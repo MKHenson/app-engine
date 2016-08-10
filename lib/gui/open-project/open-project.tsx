@@ -36,7 +36,7 @@ module Animate {
             project.entry = this.state.selectedProject;
 
             // Notify of new project
-            Toolbar.getSingleton().newProject(project);
+            // Toolbar.getSingleton().newProject(project);
             CanvasTab.getSingleton().projectReady(project);
             TreeViewScene.getSingleton().projectReady(project);
             PluginManager.getSingleton().projectReady(project);

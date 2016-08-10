@@ -1,0 +1,24 @@
+.toolbar-button .icon, .toolbar-button img {
+    width: 40px;
+    height: 40px;
+}
+.toolbar-button .icon{
+    margin: 0 3px;
+}
+.toolbar-button.selected .icon {
+   background-position: 0 -40px;
+}
+.toolbar-button {
+    display: inline-block;
+    cursor: pointer;
+    padding: 4px 0 4px 0;
+}
+.toolbar-button .tool-icon-upper img {
+    margin: 0 8px 0 8px;
+}
+.toolbar-button img {
+    pointer-events: none;
+    text-align: center;
+    font-size: 10px;
+    margin: 0 3px;
+}

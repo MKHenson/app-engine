@@ -5359,26 +5359,42 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /** A very simple class to represent tool bar buttons */
-    class ToolBarButton extends Component {
-        private _radioMode;
-        private _pushButton;
-        private _proxyDown;
-        constructor(text: string, image: string, pushButton?: boolean, parent?: Component);
-        /** Cleans up the button */
-        dispose(): void;
+    interface IToolbarButtonProps {
+        onChange: (val: boolean) => void;
+        pushButton?: boolean;
+        selected?: boolean;
+        label: string;
+        imgUrl?: string;
+        disabled?: boolean;
+    }
+    interface IToolbarButtonState {
+        selected: boolean;
+    }
+    /**
+     * A very simple wrapper for a toolbar button
+     */
+    class ToolbarButton extends React.Component<IToolbarButtonProps, IToolbarButtonState> {
+        static defaultProps: IToolbarButtonProps;
+        constructor(props: IToolbarButtonProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+        /**
+        * Called when the props are updated
+        */
+        componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         onClick(e: any): void;
         /**
-        * Get if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
+         * Get if the component is selected
+         * @return {boolean}
+         */
         /**
-        * Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
+         * Set if the component is selected
+         * @param {boolean}
+         */
         selected: boolean;
-        /**
-        * If true, the button will act like a radio button. It will deselect any other ToolBarButtons in its parent when its selected.
-        */
-        radioMode: boolean;
     }
 }
 declare module Animate {
@@ -6116,8 +6132,15 @@ declare module Animate {
     }
 }
 declare module Animate {
+    enum TooltipPosition {
+        TOP = 0,
+        BOTTOM = 1,
+    }
     interface ITooltipProps {
-        tooltip: JSX.Element | string;
+        tooltip?: JSX.Element | string;
+        position?: TooltipPosition;
+        offset?: number;
+        disabled?: boolean;
     }
     interface ITooltipState {
         showTooltip: boolean;
@@ -6129,6 +6152,7 @@ declare module Animate {
      */
     class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
         private static _tooltip;
+        static defaultProps: ITooltipProps;
         /**
          * Creates an instance
          */
@@ -6153,20 +6177,23 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IToolbarProps {
+    }
+    interface IToolbarState {
+    }
     /**
     * The main toolbar that sits at the top of the application
     */
-    class Toolbar extends Component {
+    class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
         private static _singleton;
-        private _mainElm;
         private $itemSelected;
-        private _topMenu;
-        private _bottomMenu;
-        private _tabHomeContainer;
-        private _currentContainer;
-        private _currentTab;
         private _copyPasteToken;
-        constructor(parent?: Component);
+        constructor(props?: IToolbarProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
         /**
         * This is called when an item on the canvas has been selected
         * @param {Component} item
@@ -6176,11 +6203,6 @@ declare module Animate {
         * This is called when we have loaded and initialized a new project.
         */
         newProject(project: Project): void;
-        /**
-        * Called when we click one of the top toolbar tabs.
-        * @param {any} e
-        */
-        onMajorTab(e: any): void;
         /**
         * Opens the splash window
         */
@@ -6221,7 +6243,7 @@ declare module Animate {
         * Called when the key is pushed down
         * @param {any} event
         */
-        onKeyDown(event: any): boolean;
+        onKeyDown(event: any): void;
         /**
         * Removes a tab by its name
         * @param {string} text The name of the tab
@@ -6251,7 +6273,7 @@ declare module Animate {
         * @param {boolean} isPushButton If true, the button will remain selected when clicked.
         * @returns {Component} Returns the Component object representing the button
         */
-        createGroupButton(text: string, image?: string, group?: Component, isPushButton?: boolean): ToolBarButton;
+        createGroupButton(text: string, image?: string, group?: Component, isPushButton?: boolean): ToolbarButton;
         /**
         * Use this function to create a group button for the toolbar
         * @param {Component} parent The parent that will contain the drop down
