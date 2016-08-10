@@ -1,7 +1,7 @@
 module Animate {
 
     export interface ITooltipProps {
-        tooltip: JSX.Element;
+        tooltip: JSX.Element | string;
     }
 
     export interface ITooltipState {
@@ -16,6 +16,9 @@ module Animate {
     export class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
         private static _tooltip: HTMLElement;
 
+        /**
+         * Creates an instance
+         */
         constructor(props: ITooltipProps) {
             super(props);
             if (!Tooltip._tooltip) {
@@ -28,52 +31,60 @@ module Animate {
             };
         }
 
+        /**
+         * When the mouse enters over the element we add the tooltip to the body
+         */
         onMouseEnter(e: React.MouseEvent) {
             let tooltipParent = Tooltip._tooltip;
             let target : HTMLElement = e.target as HTMLElement;
+            let jsx : JSX.Element = ( typeof(this.props.tooltip) == "string" ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
+
             this.setState({ showTooltip: true });
+
+            // Add the tooltip to the dom
             document.body.appendChild( tooltipParent );
-            ReactDOM.render( this.props.tooltip, tooltipParent );
+            ReactDOM.render( jsx, tooltipParent );
 
-
-
-            let h: number = tooltipParent.offsetHeight;
             let offset = 20;
+            let h: number = tooltipParent.offsetHeight;
             let w: number = tooltipParent.offsetWidth;
-            let y = ( e.clientY - h - offset < 0 ? 0 :e.clientY - h - offset * 2 );
-            let x = ( e.clientX + w + offset < document.body.offsetWidth ? e.clientX + offset : document.body.offsetWidth - w );
+            let bounds = target.getBoundingClientRect();
+            let x = ( bounds.left + w * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + w * 0.5 );
+            let y = ( bounds.top - h - offset < 0 ? 0 : bounds.top - h - offset );
 
-            x = ( target.offsetLeft < 0 ? 0 : target.offsetLeft );
-            y = ( target.offsetTop - h - offset < 0 ? 0 : target.offsetTop - h - offset * 2 );
-
+            // Position the tooltip just above the element
             tooltipParent.style.left = x + "px";
             tooltipParent.style.top = y + "px";
 
-
+            // Add CSS classes for animation
+            tooltipParent.className = "tooltip";
+            setTimeout( function() {
+                tooltipParent.className = "tooltip enter";
+                 setTimeout( function() {
+                    tooltipParent.className = "tooltip enter active";
+                }, 20);
+            }, 20);
         }
 
+        /**
+         * When the element is unmounted we remove the tooltip if its added
+         */
+        componentWillUnmount() {
+            this.onMouseleave(null);
+        }
+
+        /**
+         * When the mouse leaves we remove the tooltip
+         */
         onMouseleave(e: React.MouseEvent) {
             var tooltipParent = Tooltip._tooltip;
 
             if (!document.body.contains(tooltipParent))
                 return;
 
-
             this.setState({ showTooltip: false });
             document.body.removeChild( tooltipParent );
             ReactDOM.unmountComponentAtNode( tooltipParent );
-        }
-
-        onMouseMove(e: React.MouseEvent) {
-            // let tooltipParent = Tooltip._tooltip;
-            // let target : HTMLElement = e.target as HTMLElement;
-            // let h: number = tooltipParent.offsetHeight;
-            // let offset = 20;
-            // let w: number = tooltipParent.offsetWidth;
-            // let y = ( e.clientY - h - offset < 0 ? 0 :e.clientY - h - offset * 2 );
-            // let x = ( e.clientX + w + offset < document.body.offsetWidth ? e.clientX + offset : document.body.offsetWidth - w );
-            // tooltipParent.style.left = x + "px";
-            // tooltipParent.style.top = y + "px";
         }
 
          /**
@@ -99,7 +110,6 @@ module Animate {
             }
 
             return <span
-                onMouseMove={(e)=>{ this.onMouseMove(e) }}
                 onMouseEnter={(e)=> this.onMouseEnter(e) }
                 onMouseLeave={(e)=> this.onMouseleave(e) }
             >

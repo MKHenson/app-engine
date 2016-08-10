@@ -1,12 +1,28 @@
 .tooltip {
     position: absolute;
     padding: 10px;
+    opacity: 0;
+    background: $tooltip;
+    box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.3);
 
+    // Creates the arrow
+    &::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 10%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: $tooltip transparent transparent transparent;
+    }
+
+    // Animates the tooltip's opacity
     &.enter {
         opacity: 0.01;
         &.active {
             opacity: 1;
-            transition: opacity 500ms ease-in;
+            transition: opacity 300ms ease-in;
         }
     }
 }
