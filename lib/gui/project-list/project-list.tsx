@@ -142,24 +142,25 @@ module Animate {
                             <div className="error bad-input" style={{ display: (this.state.errorMsg ? 'block' : '' ) }}>
                                 {this.state.errorMsg || ''}
                             </div>
-                            {this.state.projects.map(( p, index )=>{
-                                return <div
-                                    key={p._id}
-                                    className="project-item img-preview unselectable"
-                                    onDoubleClick={()=>{
-                                        this.selectProject(p, true)
-                                    }}
-                                    onClick={()=>{
-                                            this.selectProject(p, false)
-                                        }}>
-                                        <div className="preview-child">
-                                            <div className="background-tiles inner ng-scope">
-                                                <img className="vert-align" src={( p.image && p.image != '' ? p.image : './media/appling.png' )} />
-                                                <div className="div-center"></div>
+                            {
+                                this.state.projects.map(( p, index )=>{
+                                    return <div
+                                        key={p._id}
+                                        className="project-item img-preview unselectable"
+                                        onDoubleClick={()=>{
+                                            this.selectProject(p, true)
+                                        }}
+                                        onClick={()=>{
+                                                this.selectProject(p, false)
+                                            }}>
+                                            <div className="preview-child">
+                                                <div className="background-tiles inner ng-scope">
+                                                    <img className="vert-align" src={( p.image && p.image != '' ? p.image : './media/appling.png' )} />
+                                                    <div className="div-center"></div>
+                                                </div>
                                             </div>
+                                            <div className={ 'item-name' + (p.selected ? ' reg-gradient' : '') }><span className="fa fa-file"/>{p.name}</div>
                                         </div>
-                                        <div className={ 'item-name' + (p.selected ? ' reg-gradient' : '') }><span className="fa fa-file"/>{p.name}</div>
-                                    </div>
                             })}
                             <div className="no-items unselectable" style={{ display: (this.state.projects.length ? 'none' : '')}}>
                                 {this.props.noProjectMessage}

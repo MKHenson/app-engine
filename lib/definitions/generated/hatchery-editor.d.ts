@@ -6117,7 +6117,7 @@ declare module Animate {
 }
 declare module Animate {
     interface ITooltipProps {
-        tooltip: JSX.Element;
+        tooltip: JSX.Element | string;
     }
     interface ITooltipState {
         showTooltip: boolean;
@@ -6129,10 +6129,22 @@ declare module Animate {
      */
     class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
         private static _tooltip;
+        /**
+         * Creates an instance
+         */
         constructor(props: ITooltipProps);
+        /**
+         * When the mouse enters over the element we add the tooltip to the body
+         */
         onMouseEnter(e: React.MouseEvent): void;
+        /**
+         * When the element is unmounted we remove the tooltip if its added
+         */
+        componentWillUnmount(): void;
+        /**
+         * When the mouse leaves we remove the tooltip
+         */
         onMouseleave(e: React.MouseEvent): void;
-        onMouseMove(e: React.MouseEvent): void;
         /**
         * Creates the component elements
         * @returns {JSX.Element}

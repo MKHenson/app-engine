@@ -100,7 +100,7 @@ module Animate {
                         if (this.props.onCreateProject)
                             this.props.onCreateProject();
                     }}>
-                        <div className="cross"></div>New Appling
+                        <i className="fa fa-plus" aria-hidden="true"></i> New Appling
                     </div>
                 </ProjectList>
                 <div className="project-info background animate-all" style={{ width: (this.state.selectedProject ? '30%' : ''), left : (this.state.selectedProject ? '70%' : '') }}>
