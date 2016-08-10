@@ -108,7 +108,16 @@ module Animate {
 				<div id="toolbar">
 					<Toolbar />
 				</div>
-				<div id="stage"></div>
+				<div id="stage">
+					<Tab>
+						<TabPane label="One">
+							<h2>One!</h2>
+						</TabPane>
+						<TabPane label="Two">
+							<h2>Two!</h2>
+						</TabPane>
+					</Tab>
+				</div>
 			</div>
 			}
 
@@ -180,7 +189,7 @@ module Animate {
 			PropertyGrid.getSingleton().projectReset();
 			Logger.getSingleton().clearItems();
             TreeViewScene.getSingleton().projectReset(user.project);
-            CanvasTab.getSingleton().projectReset();
+            //CanvasTab.getSingleton().projectReset();
 
 
 			//Must be called after reset
