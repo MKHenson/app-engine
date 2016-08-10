@@ -2969,17 +2969,32 @@ declare module Animate {
         static SELECTED: TabEvents;
         static REMOVED: TabEvents;
     }
+    interface ITabProps {
+    }
+    interface ITabState {
+        selectedIndex: number;
+    }
     /**
-    * The Tab component will create a series of selectable tabs which open specific tab pages.
-    */
-    class Tab extends Component {
+     * A Tab Component for organising pages of content into separate labelled tabs/folders
+     */
+    class Tab extends React.Component<ITabProps, ITabState> {
         static contextMenu: ContextMenu;
         private _tabSelectorsDiv;
         private _pagesDiv;
         private _tabPairs;
         private _selectedPair;
         private _dropButton;
-        constructor(parent: Component);
+        element: JQuery;
+        on: (a, b, c) => void;
+        /**
+         * Creates a new instance of the tab
+         */
+        constructor(props: ITabProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
         /**
         * When we click the tab
         * @param {TabPair} tab The tab pair object containing both the label and page <Comonent>s
@@ -3004,7 +3019,7 @@ declare module Animate {
         * When we click the tab
         * @param {any} e
         */
-        onClick(e: any): boolean;
+        onClick(e: any): void;
         /**
         * When we update the tab - we move the dop button to the right of its extremities.
         */
@@ -3040,6 +3055,25 @@ declare module Animate {
         removeTab(val: string, dispose: boolean): any;
         removeTab(val: TabPair, dispose: boolean): any;
         tabs: Array<TabPair>;
+    }
+}
+declare module Animate {
+    interface ITabPaneProps {
+        label: string;
+    }
+    /**
+     * A single page/pane/folder pair for use in a Tab
+     */
+    class TabPane extends React.Component<ITabPaneProps, any> {
+        /**
+         * Creates a new pane instance
+         */
+        constructor(props: ITabPaneProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
