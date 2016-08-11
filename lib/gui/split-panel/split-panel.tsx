@@ -14,6 +14,7 @@ module Animate {
 	}
 
 	export interface ISplitPanelState {
+		ratio?: number;
 		mPercent?: number;
 		dragging?: boolean;
 	}
@@ -78,79 +79,77 @@ module Animate {
 			this.mMouseMoveProxy = this.onStageMouseMove.bind( this );
 			this.state = {
 				mPercent: props.ratio,
-				dragging: false
+				dragging: false,
+				ratio: props.ratio
 			};
 		}
+
+		/**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: ISplitPanelProps) {
+            this.setState({
+                ratio: ( nextProps.ratio !== this.props.ratio ? nextProps.ratio : this.state.ratio )
+            });
+        }
 
 		/**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-
-			let draggedPanel : JSX.Element;
 			let orientation = this.props.orientation;
+			let panel1Style;
+			let panel2Style;
+			let dividerStyle;
+			let dividerSize = this.props.dividerSize;
+			let dividerSizeHalf = dividerSize * 0.5;
+			let ratio = this.state.ratio;
 
-			if (this.state.dragging) {
-				draggedPanel = <div className='split-panel-divider-dragging'
-					style={{width: this.props.dividerSize + 'px'}} />
+			// Calculate ratios etc...
+			if ( orientation == SplitOrientation.VERTICAL ) {
+				panel1Style = {
+						width: `calc(${ratio * 100}% - ${dividerSizeHalf}px)`,
+						height: '100%'
+					};
+				dividerStyle = {
+						width: dividerSize + 'px',
+						height: '100%'
+					};
+				panel2Style = {
+						width: `calc(${( 1 - ratio ) * 100}% - ${dividerSizeHalf}px)`,
+						height: '100%'
+					};
+			}
+			else {
+				panel1Style = {
+						height: `calc(${ratio * 100}% - ${dividerSizeHalf}px)`,
+						width: '100%'
+					};
+				dividerStyle = {
+						height: dividerSize + 'px',
+						width: '100%'
+					};
+				panel2Style = {
+						height: `calc(${ (1 - ratio) * 100}% - ${dividerSizeHalf}px)`,
+						width: '100%'
+					};
 			}
 
-			// // Calculate ratios etc...
-			// var w = this.element.width();
-			// var h = this.element.height();
-
-			// if ( val == SplitOrientation.VERTICAL ) {
-			// 	this.mPanel1.element.css({
-			// 			width: this.mPercent * w - this.mDividerSize * 0.5,
-			// 			top: "0px",
-			// 			left: "0px",
-			// 			height: h + "px"
-			// 		});
-			// 	this.mDivider.element.css({
-			// 			width: this.mDividerSize + "px",
-			// 			left: this.mPanel1.element.width() + "px",
-			// 			top: "0px",
-			// 			height: h + "px"
-			// 		});
-			// 	this.mPanel2.element.css({
-			// 			width: ( 1 - this.mPercent ) * w - ( this.mDividerSize * 0.5 ),
-			// 			left: ( ( this.mPercent * w ) + ( this.mDividerSize / 2 ) ) + "px",
-			// 			top: "0px",
-			// 			height: h + "px"
-			// 		});
-			// }
-			// else {
-			// 	this.mPanel1.element.css({
-			// 			height: this.mPercent * h - this.mDividerSize * 0.5,
-			// 			left: "0px",
-			// 			top: "0px",
-			// 			width: w + "px"
-			// 		});
-			// 	this.mDivider.element.css({
-			// 			height: this.mDividerSize + "px",
-			// 			top: this.mPanel1.element.height() + "px",
-			// 			left: "0px",
-			// 			width: w + "px"
-			// 		});
-			// 	this.mPanel2.element.css({
-			// 			height: ( 1 - this.mPercent ) * h - ( this.mDividerSize * 0.5 ),
-			// 			top: ( ( this.mPercent * h ) + ( this.mDividerSize / 2 ) ) + "px",
-			// 			left: "px",
-			// 			width: w + "px"
-			// 		});
-			// }
-
-			return <div className='split-panel' style='width:100px; height:100px;'>
-				<div className='panel1'>
+			return <div className={'split-panel ' + (orientation == SplitOrientation.VERTICAL ? 'vertical' : 'horizontal')} >
+				<div className='panel1' style={panel1Style}>
 					{ this.state.dragging ? <div className='panel-input'></div> : null }
 					{ this.props.left }
 				</div>
-				<div onMouseDown={(e)=>{ this.onDividerMouseDown(e) }}
-					className='split-panel-divider background-dark'
-					style={{width: this.props.dividerSize + 'px'}} />
-				{draggedPanel}
-				<div className='panel2'>
+				<div ref="divider" onMouseDown={(e)=>{ this.onDividerMouseDown(e) }}
+					style={dividerStyle}
+					className='split-panel-divider background-dark' />
+				<div
+					ref="scrubber"
+					className='split-panel-divider-dragging'
+					style={{ display: (!this.state.dragging ? 'none' : '')
+				}}/>
+				<div className='panel2' style={panel2Style}>
 					{ this.state.dragging ? <div className='panel-input'></div> : null }
 					{ this.props.right }
 				</div>
@@ -166,6 +165,16 @@ module Animate {
 
 			e.preventDefault();
 			this.setState({dragging: true});
+			let ratio = this.state.ratio;
+			let orientation = this.props.orientation;
+			let divider = this.refs['divider'] as HTMLElement;
+			let scrubber = this.refs['scrubber'] as HTMLElement;
+			let dividerSizeHalf = this.props.dividerSize * 0.5;
+
+			scrubber.style.height = ( orientation == SplitOrientation.VERTICAL ? '100%' : this.props.dividerSize + 'px' );
+			scrubber.style.width = ( orientation == SplitOrientation.VERTICAL ? this.props.dividerSize + 'px' : '100%' )	;
+			scrubber.style.left = ( orientation == SplitOrientation.VERTICAL ? `calc(${ratio * 100}% - ${dividerSizeHalf}px)` : `0` );
+			scrubber.style.top = ( orientation == SplitOrientation.VERTICAL ? `0`: `calc(${ratio * 100}% - ${dividerSizeHalf}px)` );
 
 			document.body.addEventListener('mouseup', this.mMouseUpProxy);
 			document.body.addEventListener('mousemove', this.mMouseMoveProxy);
@@ -195,30 +204,31 @@ module Animate {
 		* @param {any} e The jQuery event object
 		*/
 		onStageMouseUp( e ) : void {
-			this.mPanelOverlay1.remove();
-			this.mPanelOverlay2.remove();
 
 			document.body.removeEventListener('mouseup', this.mMouseUpProxy);
 			document.body.removeEventListener('mousemove', this.mMouseMoveProxy);
+			this.setState({dragging: false});
 
 			//Remove the dragger.
 			// this.removeChild( this.mDividerDragging );
 			// //jQuery("body").disableSelection( false );
+			let orientation = this.props.orientation;
+			let scrubber = this.refs['scrubber'] as HTMLElement;
 
 
-			// //Get the new ratio
-			// var left = parseFloat( this.mDividerDragging.element.css( "left" ).split( "px" )[0] );
-			// var top = parseFloat( this.mDividerDragging.element.css( "top" ).split( "px" )[0] );
-			// var w = this.element.width();
-			// var h = this.element.height();
-			// var ratio = 0;
+			//Get the new ratio
+			var left = parseFloat( scrubber.style.left.split( "px" )[0] );
+			var top = parseFloat( scrubber.style.top.split( "px" )[0] );
+			var w = scrubber.parentElement.clientWidth;
+			var h = scrubber.parentElement.clientHeight;
+			var ratio = 0;
 
-			// if ( this.mOrientation == SplitOrientation.VERTICAL )
-			// 	ratio = left / w;
-			// else
-			// 	ratio = top / h;
+			if ( orientation == SplitOrientation.VERTICAL )
+				ratio = left / w;
+			else
+				ratio = top / h;
 
-			// this.ratio = ratio;
+			this.setState({ ratio : ratio });
 
 			// var prevOverdlow1 = this.mPanel1.element.css( "overflow" );
 			// var prevOverdlow2 = this.mPanel2.element.css( "overflow" );
@@ -273,7 +283,13 @@ module Animate {
 		* This function is called when the mouse is up from the body of stage.
 		* @param {any} e The jQuery event object
 		*/
-		onStageMouseMove( e ) {
+		onStageMouseMove( e : MouseEvent ) {
+			let orientation = this.props.orientation;
+			let scrubber = this.refs['scrubber'] as HTMLElement;
+
+			scrubber.style.left = ( orientation == SplitOrientation.VERTICAL ? `${ e.clientX - scrubber.parentElement.offsetLeft }px` : `0` );
+			scrubber.style.top = ( orientation == SplitOrientation.HORIZONTAL ? `${e.clientY - scrubber.parentElement.offsetTop}px` : `0` );
+
 			// var position = this.mDividerDragging.parent.element.offset();
 
 			// //Remove the dragger.

@@ -109,6 +109,13 @@ module Animate {
 					<Toolbar />
 				</div>
 				<div id="stage">
+					<SplitPanel left={<h2>This is a left Panel!</h2>} right={
+							<SplitPanel
+								ratio={0.7}
+								orientation={SplitOrientation.HORIZONTAL}
+								left={<h2>This is a top Panel!</h2>}
+							 	right={<h2>This is a bottom Panel!</h2>} />
+						} />
 				</div>
 			</div>
 			}

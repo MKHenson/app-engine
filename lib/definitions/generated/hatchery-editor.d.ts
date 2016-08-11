@@ -2670,6 +2670,7 @@ declare module Animate {
         dividerSize?: number;
     }
     interface ISplitPanelState {
+        ratio?: number;
         mPercent?: number;
         dragging?: boolean;
     }
@@ -2697,6 +2698,10 @@ declare module Animate {
         */
         constructor(props: ISplitPanelProps);
         /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: ISplitPanelProps): void;
+        /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
@@ -2715,7 +2720,7 @@ declare module Animate {
         * This function is called when the mouse is up from the body of stage.
         * @param {any} e The jQuery event object
         */
-        onStageMouseMove(e: any): void;
+        onStageMouseMove(e: MouseEvent): void;
         /**
          * Call this function to get the ratio of the panel. Values are from 0 to 1.
          * @returns {number}

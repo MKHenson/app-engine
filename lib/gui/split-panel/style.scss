@@ -1,34 +1,35 @@
 .split-panel {
     position:relative;
+    width: 100%;
+    height: 100%;
 
     .panel-input {
-        position:absolute;
         width:100%;
         height:100%;
         z-index:98;
+        position: absolute;
     }
-    .divider, .split-panel-divider {
-        position:absolute;
+    .split-panel-divider {
         cursor:pointer;
     }
-    .divider, .split-panel-divider-dragging {
-        background-color: rgba( 102, 165, 237, 0.5 );
+    .split-panel-divider-dragging {
         position:absolute;
+        background-color: rgba( 102, 165, 237, 0.5 );
         cursor:pointer;
     }
     .panel1 {
-        position:absolute;
-        left:0px;
-        top:0px;
         overflow:auto;
     }
     .panel2 {
-        position:absolute;
-        left:0px;
-        top:0px;
         overflow:auto;
     }
     .split-holder {
         width: 100%;
+    }
+
+    &.vertical {
+        .split-panel-divider, .panel1, .panel2 {
+            float: left;
+        }
     }
 }
