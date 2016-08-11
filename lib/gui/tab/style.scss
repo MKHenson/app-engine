@@ -1,83 +1,99 @@
-.tab-selector .text {
-    pointer-events: none;
-    padding: 0 10px;
-    display: inline-block;
-}
-.tabs-drop-button
-{
-    cursor:pointer;
-    float:right;
-    height:100%;
-    width:14px;
-    text-align:center;
-}
-.tab-close {
-    cursor: pointer;
-    z-index: 1;
-}
 .tab {
     width:100%;
     height:100%;
-}
-.tabs-div {
-    width: 100%;
-    height: 25px;
-    position: relative;
-    overflow: hidden;
-}
-.tab-selector {
-    cursor: pointer;
-    float: left;
-    height: 20px;
-    margin: 5px 1px 0 0;
-    position: relative;
-    padding: 0 0 0 5px;
-    overflow: hidden;
-}
-.tab-page {
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    position: relative;
-}
-.tab-selected {
-    position: relative;
-    -webkit-border-radius: 0px 0px 0px 0px !important;
-    border-radius: 0px 0px 0px 0px !important;
-}
-.tab-close {
-    display: inline-block;
-    padding: 0 7px;
-    text-align: center;
-    height: 100%;
-}
-.tab-selector {
-    -webkit-border-radius: 0px 5px 0px 0px;
-    border-radius: 0px 5px 0px 0px;
-}
-.tab-selected {
-    height: 25px !important;
-    margin: 0 !important;
-    line-height: 25px;
-    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
-    padding: 0 0 0 20px;
-}
-.tab-selector.tab-selected .text {
-    padding: 0 20px 0 0;
-}
-.tab-selector img {
-    height: 16px;
-    margin: 0 5px 0 0;
-}
-.tab-close .text {
-    pointer-events: none;
-}
-.tab-selector .text, .tab-selector .modified {
-    color: #fff;
-}
-.tab-selector.tab-selected .text, .tab-selector.tab-selected .modified {
-    color: #467ABB;
-}
-.tab-selected {
-    background-color: #FFF !important;
+
+    .tab-drop-button
+    {
+        cursor:pointer;
+        float:right;
+        height:100%;
+        width:14px;
+        text-align:center;
+        color: #aaa;
+        padding: 2px 2px 0 2px;
+        transform: color 0.5s;
+        background-color: rgba(0,0,0,0.1);
+
+        &:hover {
+            background-color: rgba(0,0,0,0.3);
+            color:#fff;
+        }
+    }
+
+    .tab-close {
+        cursor: pointer;
+        z-index: 1;
+        background-color: rgba(0,0,0,0.1);
+        display: inline-block;
+        padding: 0 7px;
+
+        &:hover {
+            background-color: rgba(0,0,0,0.3);
+            color:#fff;
+        }
+    }
+    .tab-panes {
+        position:relative;
+    }
+    .tab-labels {
+        width: 100%;
+        height: 25px;
+        position: relative;
+        overflow: hidden;
+        background:$background-workspace;
+    }
+    .tab-pane {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        position: relative;
+        background: $background-primary
+    }
+    .selected {
+        position: relative;
+        border-radius: 0px 0px 0px 0px !important;
+        height: 25px !important;
+        margin: 0 !important;
+        line-height: 25px;
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.4);
+        padding: 0 0 0 20px;
+    }
+    .tab-label {
+        cursor: pointer;
+        float: left;
+        height: 20px;
+        margin: 5px 1px 0 0;
+        position: relative;
+        padding: 0 0 0 5px;
+        overflow: hidden;
+        background: $background-dark;
+        color: $ps-color;
+        transition: all 0.25s ease-in-out;
+        border-radius: 0px 5px 0px 0px;
+
+        .text {
+            pointer-events: none;
+            padding: 0 10px;
+            display: inline-block;
+        }
+
+        img {
+            height: 16px;
+            margin: 0 5px 0 0;
+        }
+
+        &.selected .text {
+            padding: 0 20px 0 0;
+        }
+    }
+
+    .tab-label .text, .tab-label .modified {
+        color: #fff;
+    }
+    .tab-label.selected .text, .tab-label.selected .modified {
+        color: #467ABB;
+    }
+    .selected {
+        background-color: #FFF !important;
+    }
 }
