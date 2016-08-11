@@ -67,7 +67,7 @@
     "lib/gui/tooltip-manager.ts",
     "lib/gui/component.ts",
     "lib/gui/docker.ts",
-    "lib/gui/split-panel.ts",
+    "lib/gui/split-panel/split-panel.tsx",
     "lib/gui/window.ts",
     "lib/gui/context-menu.ts",
     "lib/gui/treeview.ts",
