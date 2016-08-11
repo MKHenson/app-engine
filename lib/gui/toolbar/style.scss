@@ -10,6 +10,7 @@
     position: relative;
     border-radius: 5px;
     overflow: hidden;
+    background:$background-secondary;
 }
 .toolbar-button-drop-down {
     display: inline-block;
@@ -33,6 +34,6 @@
 .number-holder, .scrolling-number {
     pointer-events: all;
 }
-.toolbar .tabs-div {
+.toolbar .tab-labels {
   background: $haze-gradient;
 }

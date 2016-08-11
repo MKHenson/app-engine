@@ -87,7 +87,7 @@ module Animate {
                 <ProjectList
                     ref={(target)=>{ this._list = target; }}
                     noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
-                    className="projects-view background-view animate-all"
+                    className="projects-view animate-all"
                     style={{width: (this.state.selectedProject ? '70%' : '') }}
                     onProjectDClicked={(project)=>{
                         this.setState({ selectedProject: project });
