@@ -26,8 +26,9 @@ module Animate {
                 that.loading(false);
                 that.modified = false;
 
-                if (that._close)
-                    CanvasTab.getSingleton().removeTab(that, true);
+                // TODO: Commented out due to update to TSX
+                // if (that._close)
+                //     CanvasTab.getSingleton().removeTab(that, true);
 
             }).catch(function (err: Error) {
                 that.loading(false);

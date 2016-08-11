@@ -47,147 +47,150 @@ module Animate {
 
 		constructor() {
 			super(600, 500, true, true, "Settings");
+
+			// TODO: Update to TSX
+
 			BuildOptionsForm._singleton = this;
 
-			this.element.addClass( "build-options-form" );
-			//this.okCancelContent.element.css( { height: "500px" });
+			// this.element.addClass( "build-options-form" );
+			// //this.okCancelContent.element.css( { height: "500px" });
 
-            this._tab = new Tab(this.content);
-            var tabPage = this._tab.addTab("Project", false).page;
+            // this._tab = new Tab(this.content);
+            // var tabPage = this._tab.addTab("Project", false).page;
 
-            this._projectElm = jQuery("#options-project").remove().clone();
-            this._buildElm = jQuery("#options-build").remove().clone();
-            this._userElm = jQuery("#options-user").remove().clone();
+            // this._projectElm = jQuery("#options-project").remove().clone();
+            // this._buildElm = jQuery("#options-build").remove().clone();
+            // this._userElm = jQuery("#options-user").remove().clone();
 
-            tabPage.element.append(this._projectElm);
-
-
-            this.$user = User.get;
-            this.$project = null;
-            this.$errorMsg = "";
-            this.$errorMsgImg = "";
-            this.$loading = false;
-            this.$projectToken = { tags: [] };
-            this.$loadingPercent = "";
-
-            // Compile the HTML
-            Compiler.build(this._projectElm, this, false);
-
-			//var projectGroup = new Group( "Project Options", tabPage );
-			//var imgGroup = new Group( "Image", tabPage );
-			//this._projectTab = tabPage;
-
-            tabPage = this._tab.addTab("Build Options", false).page;
-            tabPage.element.append(this._buildElm);
-
-			//var buildGroup = new Group( "Build", null );
-			//var notesGroup = new Group( "Properties", null );
-
-			//Project fields
-			//this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
-			//this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
-			//this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
-			//(<Label>this._description.val).textfield.element.css( { height: "180px" });
+            // tabPage.element.append(this._projectElm);
 
 
-			//var combo : ComboBox = new ComboBox();
-			//combo.addItem( "Private" );
-			//combo.addItem( "Public" );
-			//this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
-			//info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
-			//info.element.addClass( "info" );
+            // this.$user = User.get;
+            // this.$project = null;
+            // this.$errorMsg = "";
+            // this.$errorMsgImg = "";
+            // this.$loading = false;
+            // this.$projectToken = { tags: [] };
+            // this.$loadingPercent = "";
 
-			//combo = new ComboBox();
-			//combo.addItem( "Other" );
-			//combo.addItem( "Artistic" );
-			//combo.addItem( "Gaming" );
-			//combo.addItem( "Informative" );
-			//combo.addItem( "Musical" );
-			//combo.addItem( "Fun" );
-			//combo.addItem( "Technical" );
-			//this._category = new LabelVal( projectGroup.content, "Category", combo );
-			//info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
-			//info.element.addClass( "info" );
+            // // Compile the HTML
+            // Compiler.build(this._projectElm, this, false);
 
-			//this._saveProject = new Button( "Save", projectGroup.content );
-			//this._saveProject.css( { width: "85px" });
+			// //var projectGroup = new Group( "Project Options", tabPage );
+			// //var imgGroup = new Group( "Image", tabPage );
+			// //this._projectTab = tabPage;
 
-			//Image
-			//this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
-			//var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
-			//info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
-			//info.element.addClass( "info" );
+            // tabPage = this._tab.addTab("Build Options", false).page;
+            // tabPage.element.append(this._buildElm);
 
-			//this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button tooltip'><div><img src='media/add-asset.png' /></div><div class='tooltip-text'>Add</div></div></div>" );
-			//imgGroup.content.addChild( "<div class='fix'></div>" );
+			// //var buildGroup = new Group( "Build", null );
+			// //var notesGroup = new Group( "Properties", null );
 
-			//Build options
-			//this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-			//this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-			//this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
-
-			//buildGroup.content.element.append( "<div class='fix'></div>" );
-			//var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
-			//info.element.addClass( "info" );
+			// //Project fields
+			// //this._name = new LabelVal( projectGroup.content, "Name", new InputBox( null, "" ) );
+			// //this._tags = new LabelVal( projectGroup.content, "Tags", new InputBox( null, "" ) );
+			// //this._description = new LabelVal( projectGroup.content, "Description", new InputBox( null, "", true ) );
+			// //(<Label>this._description.val).textfield.element.css( { height: "180px" });
 
 
-			//this._selectBuild = new Button( "Select Build", buildGroup.content );
-			//this._selectBuild.css( { width: "85px" });
-			//this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-			//this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
-			//this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			// //var combo : ComboBox = new ComboBox();
+			// //combo.addItem( "Private" );
+			// //combo.addItem( "Public" );
+			// //this._projVisibility = new LabelVal( projectGroup.content, "Visibility", combo );
+			// //info = new Label( "If public, your project will be searchable on the Webinate gallery.", projectGroup.content );
+			// //info.element.addClass( "info" );
 
-			//Notes
-			//this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
-			//(<Label>this._notes.val).textfield.element.css( { height: "80px" });
-			//info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
-			//info.element.addClass( "info" );
+			// //combo = new ComboBox();
+			// //combo.addItem( "Other" );
+			// //combo.addItem( "Artistic" );
+			// //combo.addItem( "Gaming" );
+			// //combo.addItem( "Informative" );
+			// //combo.addItem( "Musical" );
+			// //combo.addItem( "Fun" );
+			// //combo.addItem( "Technical" );
+			// //this._category = new LabelVal( projectGroup.content, "Category", combo );
+			// //info = new Label( "Optionally provide a project category. The default is 'Other'", projectGroup.content );
+			// //info.element.addClass( "info" );
 
-			//var combo = new ComboBox();
-			///combo.addItem( "Private" );
-			////combo.addItem( "Public" );
-			//this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
-			//info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
-			//info.element.addClass( "info" );
+			// //this._saveProject = new Button( "Save", projectGroup.content );
+			// //this._saveProject.css( { width: "85px" });
 
-			//this._saveBuild = new Button( "Save", notesGroup.content );
-			//this._saveBuild.css( { width: "85px" });
+			// //Image
+			// //this._imgPreview = <Component>imgGroup.content.addChild( "<div class='preview'></div>" );
+			// //var imgData : Component = <Component>imgGroup.content.addChild( "<div class='img-data'></div>" );
+			// //info = new Label( "Upload an image for the project; this image will show up in the Animate gallery for others to see. <br/><br/><span class='nb'>Your application must have an image in order to be shown in the gallery.</span></br><br/>Your project image should be either a .png, .jpg or .jpeg image that is 200 by 200 pixels.", imgData );
+			// //info.element.addClass( "info" );
 
-			//this._warning = new Label( "", this.content );
-			//this._warning.element.addClass( "server-message" );
+			// //this._addButton = <Component>imgData.addChild( "<div class='tool-bar-group'><div class='toolbar-button tooltip'><div><img src='media/add-asset.png' /></div><div class='tooltip-text'>Add</div></div></div>" );
+			// //imgGroup.content.addChild( "<div class='fix'></div>" );
 
-			//Create the proxies
-			//this._renameProxy = jQuery.proxy( this.onRenamed, this );
-			//this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
-			//this._submitProxy = jQuery.proxy( this.onSubmit, this );
-			//this._progressProxy = jQuery.proxy( this.onProgress, this );
-			//this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
-			//this._errorProxy = jQuery.proxy( this.onError, this );
-			//this._clickProxy = jQuery.proxy( this.onClick, this );
+			// //Build options
+			// //this._buildVerMaj = new LabelVal( buildGroup.content, "Major Version: ", new InputBox( null, "1" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+			// //this._buildVerMid = new LabelVal( buildGroup.content, "Mid Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
+			// //this._buildVerMin = new LabelVal( buildGroup.content, "Minor Version: ", new InputBox( null, "0" ), { width: "50px", "float": "left", "margin": "0 0 10px 10px" });
 
-			//this._saveProject.element.on( "click", this._clickProxy );
-			//this._selectBuild.element.on( "click", this._clickProxy );
-			//this._saveBuild.element.on( "click", this._clickProxy );
+			// //buildGroup.content.element.append( "<div class='fix'></div>" );
+			// //var info = new Label( "When you build a project it saves the data according to its version number. This helps you differenciate your builds and release incremental versions. You can switch between the different builds by specifying which version to use. Use the above fields to select, or if its not present create, a particular build.", buildGroup.content);
+			// //info.element.addClass( "info" );
 
-			this._settingPages = [];
 
-            this._tab.on(TabEvents.SELECTED, this.onTab, this);
+			// //this._selectBuild = new Button( "Select Build", buildGroup.content );
+			// //this._selectBuild.css( { width: "85px" });
+			// //this._buildVerMaj.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			// //this._buildVerMid.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
+			// //this._buildVerMin.element.css( { "width": "auto", "float": "left", "margin": "0 0 0 5px" });
 
-            //this.addSettingPage(new UserPreferences("User Options"));
-            tabPage = this._tab.addTab("User Options", false).page;
-            tabPage.element.append(this._userElm);
+			// //Notes
+			// //this._notes = new LabelVal( notesGroup.content, "Notes", new InputBox( null, "Some notes", true ) );
+			// //(<Label>this._notes.val).textfield.element.css( { height: "80px" });
+			// //info = new Label("Use the above pad to store some build notes for the selected build.", notesGroup.content );
+			// //info.element.addClass( "info" );
 
-            // Make the form resizable
-            var that = this;
-            this.element.resizable(<JQueryUI.ResizableOptions>{
-                minHeight: 50,
-                minWidth: 50,
-                helper: "ui-resizable-helper",
-                stop: function ()
-                {
-                    that.update();
-                }
-            });
+			// //var combo = new ComboBox();
+			// ///combo.addItem( "Private" );
+			// ////combo.addItem( "Public" );
+			// //this._visibility = new LabelVal( notesGroup.content, "Visibility", combo );
+			// //info = new Label( "by default all builds are public. If you want to make your project private, then please upgrade your account.", notesGroup.content );
+			// //info.element.addClass( "info" );
+
+			// //this._saveBuild = new Button( "Save", notesGroup.content );
+			// //this._saveBuild.css( { width: "85px" });
+
+			// //this._warning = new Label( "", this.content );
+			// //this._warning.element.addClass( "server-message" );
+
+			// //Create the proxies
+			// //this._renameProxy = jQuery.proxy( this.onRenamed, this );
+			// //this._buildProxy = jQuery.proxy( this.onBuildResponse, this );
+			// //this._submitProxy = jQuery.proxy( this.onSubmit, this );
+			// //this._progressProxy = jQuery.proxy( this.onProgress, this );
+			// //this._completeProxy = jQuery.proxy( this.onUploadComplete, this );
+			// //this._errorProxy = jQuery.proxy( this.onError, this );
+			// //this._clickProxy = jQuery.proxy( this.onClick, this );
+
+			// //this._saveProject.element.on( "click", this._clickProxy );
+			// //this._selectBuild.element.on( "click", this._clickProxy );
+			// //this._saveBuild.element.on( "click", this._clickProxy );
+
+			// this._settingPages = [];
+
+            // this._tab.on(TabEvents.SELECTED, this.onTab, this);
+
+            // //this.addSettingPage(new UserPreferences("User Options"));
+            // tabPage = this._tab.addTab("User Options", false).page;
+            // tabPage.element.append(this._userElm);
+
+            // // Make the form resizable
+            // var that = this;
+            // this.element.resizable(<JQueryUI.ResizableOptions>{
+            //     minHeight: 50,
+            //     minWidth: 50,
+            //     helper: "ui-resizable-helper",
+            //     stop: function ()
+            //     {
+            //         that.update();
+            //     }
+            // });
         }
 
         /**
@@ -322,30 +325,41 @@ module Animate {
             });
         }
 
-		/**
-		* Called when we click on the settings tab
-		* @param {any} event
-		* @param {any} data
-		*/
-		onTab( response : TabEvents, event : TabEvent, sender? :EventDispatcher ) {
-			var i = this._settingPages.length;
-			while ( i-- )
-				if ( this._settingPages[i].name == event.pair.text )
-                    this._settingPages[i].onTab();
+		// TODO: Potentially remove from TSX upgrade
+			// =========================================
 
-            Compiler.digest(this._projectElm, this, false);
-            Compiler.digest(this._buildElm, this, false);
-            Compiler.digest(this._userElm, this, false);
-		}
+		// /**
+		// * Called when we click on the settings tab
+		// * @param {any} event
+		// * @param {any} data
+		// */
+		// onTab( response : TabEvents, event : TabEvent, sender? :EventDispatcher ) {
+
+
+		// 	var i = this._settingPages.length;
+		// 	while ( i-- )
+		// 		if ( this._settingPages[i].name == event.pair.text )
+        //             this._settingPages[i].onTab();
+
+        //     Compiler.digest(this._projectElm, this, false);
+        //     Compiler.digest(this._buildElm, this, false);
+        //     Compiler.digest(this._userElm, this, false);
+
+		// }
+
+		// =============================================
 
 		/**
 		* Use this function to add a new settings page to the settings menu
 		* @param {ISettingsPage} component The ISettingsPage component we're adding
 		*/
 		addSettingPage( component: ISettingsPage ) {
-			this._settingPages.push( component );
-			var tabPage: TabPair = this._tab.addTab( component.name, false );
-			tabPage.page.addChild( component );
+
+			// TODO: Update required from upgrade to TSX
+
+			// this._settingPages.push( component );
+			// var tabPage: TabPair = this._tab.addTab( component.name, false );
+			// tabPage.page.addChild( component );
 		}
 
 		///**
@@ -580,7 +594,7 @@ module Animate {
 		*/
 		show() {
 			OkCancelForm.prototype.show.call( this );
-            this._tab.selectTab( this._tab.getTab( "Project" ) );
+            this._tab.selectByLabel('Project');
 
 			var user = User.get;
             var project = user.project;

@@ -423,20 +423,25 @@ module Animate {
 		*/
 		onDblClick( e ) {
 			if ( this.selectedNode instanceof TreeNodeBehaviour ) {
-				var tabPair = CanvasTab.getSingleton().getTab( this.selectedNode.text );
+				var tabPair = CanvasTab.getSingleton().getPaneByLabel( this.selectedNode.text );
 
 				if ( tabPair == null )
-					tabPair = CanvasTab.getSingleton().getTab( "*" + this.selectedNode.text );
+					tabPair = CanvasTab.getSingleton().getPaneByLabel( "*" + this.selectedNode.text );
 
-				if ( tabPair )
-					CanvasTab.getSingleton().selectTab( tabPair );
-				else {
-                    var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).resource );
-					var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
-                    canvas.deTokenize();
-					canvas.checkDimensions();
-					CanvasTab.getSingleton().selectTab( tabPair );
-				}
+				// TODO: Update required from upgrade to TSX
+				// =========================================
+
+				// if ( tabPair )
+				// 	CanvasTab.getSingleton().selectTab( tabPair );
+				// else {
+                //     var tabPair: TabPair = CanvasTab.getSingleton().addSpecialTab(this.selectedNode.text, CanvasTabType.CANVAS, (<TreeNodeBehaviour>this.selectedNode).resource );
+				// 	var canvas : Canvas = (<CanvasTabPair>tabPair).canvas;
+                //     canvas.deTokenize();
+				// 	canvas.checkDimensions();
+				// 	CanvasTab.getSingleton().selectTab( tabPair );
+				// }
+
+				// =========================================
 			}
 		}
 

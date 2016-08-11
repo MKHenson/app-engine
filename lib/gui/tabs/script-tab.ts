@@ -205,8 +205,10 @@ module Animate {
 			}
 			else {
 				this.save();
-				if ( this.close )
-					CanvasTab.getSingleton().removeTab( this, true );
+
+				// TODO: Commented out due to update to TSX
+				// if ( this.close )
+				// 	CanvasTab.getSingleton().removeTab( this, true );
 			}
 		}
 
@@ -303,7 +305,9 @@ module Animate {
 				else {
 					tab.close = true;
 					tab.saved = true;
-					CanvasTab.getSingleton().removeTab( tab, true );
+
+					// TODO: Commented out due to update to TSX
+					// CanvasTab.getSingleton().removeTab( tab, true );
 				}
 			};
 
@@ -357,8 +361,9 @@ module Animate {
 					jQuery( ".text", tab.tabSelector.element ).text( tab.name );
 					tab.saved = true;
 
-					if ( tab.close )
-						CanvasTab.getSingleton().removeTab( tab, true );
+					// TODO: Commented out due to update to TSX
+					// if ( tab.close )
+					// 	CanvasTab.getSingleton().removeTab( tab, true );
 				}
 			};
 

@@ -27,7 +27,8 @@ module Animate {
         */
         onContainerDeleted(type: string, event: Event, sender: EventDispatcher) {
             this.forceClose = true;
-            this.tab.removeTab(this, true);
+            // TODO: This was changed in upgrade to TSX
+            // this.tab.removeTab(this, true);
             this.forceClose = false;
         }
 

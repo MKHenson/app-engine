@@ -21,23 +21,25 @@ module Animate {
 		private mDocker: Docker;
 
 		constructor( parent : Component ) {
-			super( parent );
 
-			if ( CanvasTab._singleton != null )
-				throw new Error( "The CanvasTab class is a singleton. You need to call the CanvasTab.getSingleton() function." );
+			//Upgrade to TSX
+			super( null )//parent );
 
-			CanvasTab._singleton = this;
+			// if ( CanvasTab._singleton != null )
+			// 	throw new Error( "The CanvasTab class is a singleton. You need to call the CanvasTab.getSingleton() function." );
 
-			this.element.css( { width: "100%", height: "100%" });
+			// CanvasTab._singleton = this;
 
-			this._currentCanvas = null;
+			// this.element.css( { width: "100%", height: "100%" });
 
-			this.welcomeTab = null;
-			this.closingTabPair = null;
-			this.mDocker = null;
+			// this._currentCanvas = null;
 
-			//Add the main tab
-			//BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
+			// this.welcomeTab = null;
+			// this.closingTabPair = null;
+			// this.mDocker = null;
+
+			// //Add the main tab
+			// //BehaviourManager.getSingleton().on( BehaviourManagerEvents.CONTAINER_SAVED, this.removeTabConfirmed, this );
 		}
 
 		/**
@@ -70,9 +72,12 @@ module Animate {
 		* Called when sall all is returned from the DB
 		*/
 		saveAll() {
-			var i : number = this.tabs.length;
-			while ( i-- )
-				this.tabs[i].onSaveAll();
+			// TODO: This no longer makes sense in TSX
+			//=========================================
+			// var i : number = this.tabs.length;
+			// while ( i-- )
+			// 	this.tabs[i].onSaveAll();
+			// =========================================
 		}
 
 		/**
@@ -112,7 +117,8 @@ module Animate {
 			// Save the canvas
 			if ( choice == "Yes" ) {
                 User.get.project.saveResource(canvas.container.entry._id, ResourceType.CONTAINER).then(function () {
-                    that.removeTab(this.closingTabPair, true);
+                    // TODO: Commented out due to update to TSX
+					// that.removeTab(this.closingTabPair, true);
 					that.closingTabPair = null;
 
                 }).catch(function(err: Error) {
@@ -126,7 +132,9 @@ module Animate {
 			else {
                 (<CanvasTabPair>that.closingTabPair).forceClose = true;
                 //that._currentCanvas.container.saved = true;
-                that.removeTab(that.closingTabPair, true );
+
+				// TODO: Commented out due to update to TSX
+                // that.removeTab(that.closingTabPair, true );
 				that.closingTabPair = null;
 			}
 		}
@@ -136,13 +144,19 @@ module Animate {
 		* @param {Asset} asset The asset we are removing
 		*/
 		removeAsset( asset : Asset ) {
-			var i = this.tabs.length;
-			while ( i-- )
-				if ( this.tabs[i].page.children.length > 0 ) {
-                    var canvas: Canvas = <Canvas><Component>this.tabs[i].page.children[0];
-					if ( canvas instanceof Canvas )
-						canvas.removeAsset(asset);
-				}
+
+			// TODO: This no longer makes sense in TSX
+			//=========================================
+
+			// var i = this.tabs.length;
+			// while ( i-- )
+			// 	if ( this.tabs[i].page.children.length > 0 ) {
+            //         var canvas: Canvas = <Canvas><Component>this.tabs[i].page.children[0];
+			// 		if ( canvas instanceof Canvas )
+			// 			canvas.removeAsset(asset);
+			// 	}
+
+			// =======================================
 		}
 
 		///**
@@ -177,70 +191,82 @@ module Animate {
 		* @returns {Canvas} The returned tab's canvas or null
 		*/
 		getTabCanvas( behaviourID : string ) : Canvas {
-			var tabs : Array<TabPair> = this.tabs;
-            for (var i = 0, l = tabs.length; i < l; i++) {
-                var t = tabs[i];
-                if (t instanceof CanvasTabPair)
-                    if (t.canvas.container.entry._id == behaviourID)
-                        return t.canvas;
-            }
+
+			// TODO: This no longer makes sense in TSX
+			//=========================================
+
+			// var tabs : Array<TabPair> = this.tabs;
+            // for (var i = 0, l = tabs.length; i < l; i++) {
+            //     var t = tabs[i];
+            //     if (t instanceof CanvasTabPair)
+            //         if (t.canvas.container.entry._id == behaviourID)
+            //             return t.canvas;
+            // }
+
+			// ==================================
 
 			return null;
 		}
 
 		/**
-		* When we click the tab
-		* @param {TabPair} tab The tab pair object which contains both the label and page components
-		*/
-		onTabSelected( tab : TabPair ) {
-			var pManager: PluginManager = PluginManager.getSingleton();
-			var project = User.get.project;
+		 * When we select a tab
+		 * @param {number} index The index of the selected tab
+		 * @param {ITabPaneProps} props props of the selected tab
+		 */
+		onTabSelected( index : number, props: ITabPaneProps ) {
 
-			//Remove prev we need to notify the plugins of added or removed assets
-			if ( this._currentCanvas && !this._currentCanvas.disposed )	{
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.container );
+			// TODO: Needs refactoring from TSX upgrade
 
-				//Tell the plugins to remove the current assets
-				var references = this._currentCanvas.containerReferences;
-				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
-                    var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
-					contEvent.asset = asset;
-					pManager.emit( contEvent );
-				}
-			}
+			// var pManager: PluginManager = PluginManager.getSingleton();
+			// var project = User.get.project;
 
-            if (tab.page.children[0] instanceof Canvas)
-                this._currentCanvas = <Canvas><Component>tab.page.children[0];
-			else
-				this._currentCanvas = null;
+			// //Remove prev we need to notify the plugins of added or removed assets
+			// if ( this._currentCanvas && !this._currentCanvas.disposed )	{
+			// 	var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, this._currentCanvas.container );
 
-			if ( this._currentCanvas != null && this._currentCanvas.element.data( "component" ) instanceof Canvas ) {
-				var canvas: Canvas = <Canvas>this._currentCanvas.element.data( "component" );
-				canvas.onSelected();
+			// 	//Tell the plugins to remove the current assets
+			// 	var references = this._currentCanvas.containerReferences;
+			// 	for ( var i = 0, l = references.assets.length; i < l; i++ ) {
+            //         var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
+			// 		contEvent.asset = asset;
+			// 		pManager.emit( contEvent );
+			// 	}
+			// }
 
-				var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "resource", canvas.container );
-				if ( node )
-					TreeViewScene.getSingleton().selectNode( node );
+            // if (tab.page.children[0] instanceof Canvas)
+            //     this._currentCanvas = <Canvas><Component>tab.page.children[0];
+			// else
+			// 	this._currentCanvas = null;
 
-				// Now we need to notify the plugins of added assets
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._currentCanvas.container );
+			// if ( this._currentCanvas != null && this._currentCanvas.element.data( "component" ) instanceof Canvas ) {
+			// 	var canvas: Canvas = <Canvas>this._currentCanvas.element.data( "component" );
+			// 	canvas.onSelected();
 
-				// Tell the plugins to remove the current assets
-				var references = canvas.containerReferences;
-				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
-                    var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
-					contEvent.asset = asset;
-					pManager.emit( contEvent );
-				}
+			// 	var node : TreeNode = TreeViewScene.getSingleton().sceneNode.findNode( "resource", canvas.container );
+			// 	if ( node )
+			// 		TreeViewScene.getSingleton().selectNode( node );
 
-				// We tell the plugins we've selected a behaviour container
-                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, canvas.container ) );
-			}
-			else
-				// We tell the plugins we've selected a behaviour container
-                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, null ) );
+			// 	// Now we need to notify the plugins of added assets
+			// 	var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_ADDED_TO_CONTAINER, null, this._currentCanvas.container );
 
-			Tab.prototype.onTabSelected.call( this, tab );
+			// 	// Tell the plugins to remove the current assets
+			// 	var references = canvas.containerReferences;
+			// 	for ( var i = 0, l = references.assets.length; i < l; i++ ) {
+            //         var asset: Asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
+			// 		contEvent.asset = asset;
+			// 		pManager.emit( contEvent );
+			// 	}
+
+			// 	// We tell the plugins we've selected a behaviour container
+            //     pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, canvas.container ) );
+			// }
+			// else
+			// 	// We tell the plugins we've selected a behaviour container
+            //     pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, null ) );
+
+			// Tab.prototype.onTabSelected.call( this, tab );
+
+			super.onTabSelected(index, props);
 		}
 
 		/**
@@ -269,8 +295,10 @@ module Animate {
 		onNewsLoaded( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher ) {
 			if ( response == LoaderEvents.COMPLETE ) {
 				if ( event.return_type == AnimateLoaderResponses.SUCCESS ) {
-					if ( this.welcomeTab )
-						this.removeTab( this.welcomeTab.name, true );
+
+					// TODO: Commented out due to update to TSX
+					// if ( this.welcomeTab )
+					// 	this.removeTab( this.welcomeTab.name, true );
 
 					this.welcomeTab = this.addSpecialTab( "Welcome to Animate!", CanvasTabType.BLANK );
 
@@ -300,44 +328,52 @@ module Animate {
 		* @returns {TabPair} Returns the tab pair
 		*/
 		renameTab( oldName :string, newName : string ) : TabPair {
-			var toRet : TabPair = this.getTab( oldName );
-			toRet.tabSelector.element.text( newName );
-			(<CanvasTabPair>toRet).canvas.name = newName;
-			return toRet;
+
+			// TODO: Update required from upgrade to TSX
+			// =========================================
+			// var toRet : TabPair = this.getTab( oldName );
+			// toRet.tabSelector.element.text( newName );
+			// (<CanvasTabPair>toRet).canvas.name = newName;
+			// return toRet;
+			// ===========================================
+			return null;
 		}
 
 
-		/**
-		* Removes an item from the tab
-		* @param val The label text of the tab
-		* @param {boolean} dispose Set this to true to clean up the tab
-		* @returns {TabPair} The tab pair containing both the label and page <Component>s
-		*/
-		removeTab( val: string, dispose: boolean ): TabPair
-		removeTab( val: TabPair, dispose: boolean ): TabPair
-		removeTab( val: any, dispose: boolean ): TabPair {
-            if (val instanceof CanvasTabPair) {
-				var canvas = ( <CanvasTabPair>val ).canvas;
-				var pManager: PluginManager = PluginManager.getSingleton();
-				var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
+		// /**
+		// * Removes an item from the tab
+		// * @param val The label text of the tab
+		// * @param {boolean} dispose Set this to true to clean up the tab
+		// * @returns {TabPair} The tab pair containing both the label and page <Component>s
+		// */
+		// removeTab( val: string, dispose: boolean ): TabPair
+		// removeTab( val: TabPair, dispose: boolean ): TabPair
+		// removeTab( val: any, dispose: boolean ): TabPair {
+		removeTab( index: number, prop: ITabPaneProps ) {
 
-				//Remove prev we need to notify the plugins of added or removed assets
-                var project = User.get.project;
+			// TODO: Updated since change to TSX
+            // if (val instanceof CanvasTabPair) {
+			// 	var canvas = ( <CanvasTabPair>val ).canvas;
+			// 	var pManager: PluginManager = PluginManager.getSingleton();
+			// 	var contEvent: AssetContainerEvent = new AssetContainerEvent( EditorEvents.ASSET_REMOVED_FROM_CONTAINER, null, canvas.container );
 
-				//Tell the plugins to remove the current assets
-				var references = canvas.containerReferences;
+			// 	//Remove prev we need to notify the plugins of added or removed assets
+            //     var project = User.get.project;
 
-				for ( var i = 0, l = references.assets.length; i < l; i++ ) {
-                    var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
-					contEvent.asset = asset;
-					pManager.emit( contEvent );
-				}
+			// 	//Tell the plugins to remove the current assets
+			// 	var references = canvas.containerReferences;
 
-				canvas.container.canvas = null;
-				canvas.off(CanvasEvents.MODIFIED, this.onCanvasModified, this );
-			}
+			// 	for ( var i = 0, l = references.assets.length; i < l; i++ ) {
+            //         var asset = project.getResourceByShallowID<Asset>(references.assets[i], ResourceType.ASSET);
+			// 		contEvent.asset = asset;
+			// 		pManager.emit( contEvent );
+			// 	}
 
-			return super.removeTab( val, dispose );
+			// 	canvas.container.canvas = null;
+			// 	canvas.off(CanvasEvents.MODIFIED, this.onCanvasModified, this );
+			// }
+
+			// return super.removeTab( val, dispose );
 		}
 
 		/**
@@ -368,47 +404,51 @@ module Animate {
 		* @returns {TabPair} The tab pair object
 		*/
 		addSpecialTab(text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent : any = null ) : TabPair {
-			var pManager: PluginManager = PluginManager.getSingleton();
-			var toRet: TabPair = null;
-			if ( type == CanvasTabType.CANVAS ) {
-				toRet = super.addTab( new CanvasTabPair( new Canvas( null, tabContent ), text ), true );
-				var canvas: Canvas = (<CanvasTabPair>toRet).canvas;
-                tabContent.canvas = canvas;
-                toRet.page.addChild(<Component>canvas);
+			// TODO: Update required from upgrade to TSX
 
-                canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this);
+			// var pManager: PluginManager = PluginManager.getSingleton();
+			// var toRet: TabPair = null;
+			// if ( type == CanvasTabType.CANVAS ) {
+			// 	toRet = super.addTab( new CanvasTabPair( new Canvas( null, tabContent ), text ), true );
+			// 	var canvas: Canvas = (<CanvasTabPair>toRet).canvas;
+            //     tabContent.canvas = canvas;
+            //     toRet.page.addChild(<Component>canvas);
 
-                // Check if its saved or not
-                toRet.modified = !canvas.container.saved;
+            //     canvas.on(CanvasEvents.MODIFIED, this.onCanvasModified, this);
 
-				this._currentCanvas = canvas;
-				(<Behaviour>canvas.children[0]).updateDimensions();
+            //     // Check if its saved or not
+            //     toRet.modified = !canvas.container.saved;
 
-                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_CREATED, tabContent ) );
-                pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, tabContent ) );
-			}
-			else if ( type == CanvasTabType.BLANK )	{
-				toRet = super.addTab( text, true );
-			}
-			else {
-				if ( type == CanvasTabType.HTML ) {
-					if ( !HTMLTab.singleton )
-						toRet = super.addTab( new HTMLTab( "HTML" ), true );
-					else
-						toRet = this.selectTab( HTMLTab.singleton );
-				}
-				else if ( type == CanvasTabType.CSS ) {
-					if ( !CSSTab.singleton )
-						toRet = super.addTab( new CSSTab( "CSS" ), true );
-					else
-						toRet = this.selectTab( CSSTab.singleton );
-				}
-				else if ( type == CanvasTabType.SCRIPT ) {
-					toRet = Tab.prototype.addTab.call( this, new ScriptTab( tabContent ) );
-				}
-            }
+			// 	this._currentCanvas = canvas;
+			// 	(<Behaviour>canvas.children[0]).updateDimensions();
 
-            return toRet;
+            //     pManager.emit(new ContainerEvent(EventTypes.CONTAINER_CREATED, tabContent ) );
+            //     pManager.emit(new ContainerEvent(EventTypes.CONTAINER_SELECTED, tabContent ) );
+			// }
+			// else if ( type == CanvasTabType.BLANK )	{
+			// 	toRet = super.addTab( text, true );
+			// }
+			// else {
+			// 	if ( type == CanvasTabType.HTML ) {
+			// 		if ( !HTMLTab.singleton )
+			// 			toRet = super.addTab( new HTMLTab( "HTML" ), true );
+			// 		else
+			// 			toRet = this.selectTab( HTMLTab.singleton );
+			// 	}
+			// 	else if ( type == CanvasTabType.CSS ) {
+			// 		if ( !CSSTab.singleton )
+			// 			toRet = super.addTab( new CSSTab( "CSS" ), true );
+			// 		else
+			// 			toRet = this.selectTab( CSSTab.singleton );
+			// 	}
+			// 	else if ( type == CanvasTabType.SCRIPT ) {
+			// 		toRet = Tab.prototype.addTab.call( this, new ScriptTab( tabContent ) );
+			// 	}
+            // }
+
+            // return toRet;
+
+			return null;
 		}
 
 		get currentCanvas(): Canvas { return this._currentCanvas; }

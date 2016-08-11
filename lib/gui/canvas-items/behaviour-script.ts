@@ -169,10 +169,13 @@ module Animate {
 			//if ( this.shallowId === 0 )
 			//	this.initializeDB();
 
-            if (this.scriptTab)
-                CanvasTab.getSingleton().selectTab(this.scriptTab);
-            else
-                this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab("", CanvasTabType.SCRIPT, this);
+			// TODO: Update required from upgrade to TSX
+			// =========================================
+            // if (this.scriptTab)
+            //     CanvasTab.getSingleton().selectTab(this.scriptTab);
+            // else
+            //     this.scriptTab = <ScriptTab>CanvasTab.getSingleton().addSpecialTab("", CanvasTabType.SCRIPT, this);
+			//========================================
 
 			//var tabName : string = this.id + " - " + this.alias;
 			//if ( CanvasTab.getSingleton().getTab( tabName ) )

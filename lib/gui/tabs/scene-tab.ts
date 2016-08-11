@@ -11,20 +11,21 @@ module Animate {
 		* @param {Component} parent The parent of the button
 		*/
 		constructor( parent: Component ) {
-			super( parent );
+			// TODO: Upgrade to new TSX
+			super(null)// parent );
 
-			if ( SceneTab._singleton != null )
-				throw new Error( "The SceneTab class is a singleton. You need to call the SceneTab.get() function." );
+			// if ( SceneTab._singleton != null )
+			// 	throw new Error( "The SceneTab class is a singleton. You need to call the SceneTab.get() function." );
 
-			SceneTab._singleton = this;
+			// SceneTab._singleton = this;
 
-			this.element.css( { width: "100%", height: "100%" });
-			this.mDocker = null;
+			// this.element.css( { width: "100%", height: "100%" });
+			// this.mDocker = null;
 
-			//Add the main tabs
-			this.assetPanel = <Component>this.addTab( "Assets", false ).page;
+			// //Add the main tabs
+			// this.assetPanel = <Component>this.addTab( "Assets", false ).page;
 
-			new TreeViewScene( this.assetPanel );
+			// new TreeViewScene( this.assetPanel );
 		}
 
 		/**This is called by a controlling ScreenManager class. An image string needs to be returned

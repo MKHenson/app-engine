@@ -38,7 +38,9 @@
             }
             else {
                 this.modified = false;
-                CanvasTab.getSingleton().removeTab(this, true);
+
+                // TODO: Commented out due to update to TSX
+                // CanvasTab.getSingleton().removeTab(this, true);
             }
         }
 
