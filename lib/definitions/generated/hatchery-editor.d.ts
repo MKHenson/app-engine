@@ -2658,17 +2658,26 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class SplitOrientation extends ENUM {
-        constructor(v: string);
-        static VERTICAL: SplitOrientation;
-        static HORIZONTAL: SplitOrientation;
+    enum SplitOrientation {
+        VERTICAL = 0,
+        HORIZONTAL = 1,
+    }
+    interface ISplitPanelProps {
+        left: JSX.Element;
+        right: JSX.Element;
+        orientation?: SplitOrientation;
+        ratio?: number;
+        dividerSize?: number;
+    }
+    interface ISplitPanelState {
+        mPercent?: number;
+        dragging?: boolean;
     }
     /**
     * A Component that holds 2 sub Components and a splitter to split between them.
     */
-    class SplitPanel extends Component {
-        private offsetLeft;
-        private offsetTop;
+    class SplitPanel extends React.Component<ISplitPanelProps, ISplitPanelState> {
+        static defaultProps: ISplitPanelProps;
         private mPercent;
         private mDividerSize;
         private mPanel1;
@@ -2678,7 +2687,6 @@ declare module Animate {
         private mOrientation;
         private mPanelOverlay1;
         private mPanelOverlay2;
-        private mMouseDownProxy;
         private mMouseUpProxy;
         private mMouseMoveProxy;
         /**
@@ -2687,42 +2695,36 @@ declare module Animate {
         * @param {number} ratio The ratio of how far up or down, top or bottom the splitter will be. This is between 0 and 1.
         * @param {number} dividerSize The size of the split divider.
         */
-        constructor(parent: Component, orientation?: SplitOrientation, ratio?: number, dividerSize?: number);
+        constructor(props: ISplitPanelProps);
         /**
-        * This function is called when the mouse is down on the divider
-        * @param {any} e The jQuery event object
-        */
-        onDividerMouseDown(e: any): void;
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+        /**
+         * This function is called when the mouse is down on the divider
+         * @param {React.MouseEvent} e
+         */
+        onDividerMouseDown(e: React.MouseEvent): void;
         /**
         * This function is called when the mouse is up from the body of stage.
         * @param {any} e The jQuery event object
         */
         onStageMouseUp(e: any): void;
         /**
-        * Call this function to update the panel.
-        */
-        update(): void;
-        /**
         * This function is called when the mouse is up from the body of stage.
         * @param {any} e The jQuery event object
         */
-        onStageMouseMove(e: any): boolean;
+        onStageMouseMove(e: any): void;
         /**
-        * Call this function to get the ratio of the panel. Values are from 0 to 1.
-        */
+         * Call this function to get the ratio of the panel. Values are from 0 to 1.
+         * @returns {number}
+         */
         /**
-        * Call this function to set the ratio of the panel. Values are from 0 to 1.
-        * @param {number} val The ratio from 0 to 1 of where the divider should be
-        */
+         * Call this function to set the ratio of the panel. Values are from 0 to 1.
+         * @param {number} val The ratio from 0 to 1 of where the divider should be
+         */
         ratio: number;
-        /**
-        * gets the orientation of this split panel
-        */
-        /**
-        * Use this function to change the split panel from horizontal to vertcal orientation.
-        * @param val The orientation of the split. This can be either SplitPanel.VERTICAL or SplitPanel.HORIZONTAL
-        */
-        orientation: SplitOrientation;
         /**
         * Gets the top panel.
         */
@@ -2739,10 +2741,6 @@ declare module Animate {
         * Gets the right panel.
         */
         right: Component;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
     }
 }
 declare module Animate {
@@ -2964,12 +2962,8 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class TabEvents extends ENUM {
-        constructor(v: string);
-        static SELECTED: TabEvents;
-        static REMOVED: TabEvents;
-    }
     interface ITabProps {
+        panes: React.ReactElement<ITabPaneProps>[];
     }
     interface ITabState {
         selectedIndex: number;
@@ -2979,92 +2973,95 @@ declare module Animate {
      */
     class Tab extends React.Component<ITabProps, ITabState> {
         static contextMenu: ContextMenu;
-        private _tabSelectorsDiv;
-        private _pagesDiv;
-        private _tabPairs;
-        private _selectedPair;
-        private _dropButton;
-        element: JQuery;
-        on: (a, b, c) => void;
+        private _panes;
         /**
          * Creates a new instance of the tab
          */
         constructor(props: ITabProps);
+        /**
+         * When the props are reset we remove all the existing panes and create the new ones
+         */
+        componentWillReceiveProps(nextProps: ITabProps): void;
+        /**
+         * Removes a pane from from the tab
+         * @param {number} index The index of the selected tab
+         * @param {ITabPaneProps} props props of the selected tab
+         */
+        removePane(index: number, prop: ITabPaneProps): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
-        * When we click the tab
-        * @param {TabPair} tab The tab pair object containing both the label and page <Comonent>s
-        */
-        onTabSelected(tab: TabPair): void;
+         * When we select a tab
+         * @param {number} index The index of the selected tab
+         * @param {ITabPaneProps} props props of the selected tab
+         */
+        onTabSelected(index: number, props: ITabPaneProps): void;
         /**
-        * @description When the context menu is clicked.
-        */
+         * Called when we click an item on the context menu
+         * @param {ContextMenuEvents} response
+         * @param {ContextMenuEvent} event
+         */
         onContext(response: ContextMenuEvents, event: ContextMenuEvent): void;
         /**
-        * Get the tab to select a tab page
-        * @param {TabPair} tab
-        */
-        selectTab(tab: TabPair): TabPair;
+         * Select a panel by index
+         * @param {number} index
+         */
+        selectByIndex(index: number): ITabPaneProps;
         /**
-        * Called just before a tab is closed. If you return false it will cancel the operation.
-        * @param {TabPair} tabPair
-        * @returns {boolean}
-        */
-        onTabPairClosing(tabPair: TabPair): boolean;
+         * Select a panel by its label
+         * @param {string} label
+         */
+        selectByLabel(label: string): ITabPaneProps;
         /**
-        * When we click the tab
-        * @param {any} e
-        */
-        onClick(e: any): void;
+         * Select a panel by its property object
+         * @param {ITabPaneProps} props
+         */
+        selectByProps(props: ITabPaneProps): ITabPaneProps;
         /**
-        * When we update the tab - we move the dop button to the right of its extremities.
-        */
-        update(): void;
+         * Shows the context menu
+         */
+        showContext(e: React.MouseEvent): void;
         /**
-        * Adds an item to the tab
-        * @param {string} val The label text of the tab or a {TabPair} object
-        * @param {boolean} canClose
-        * @returns {TabPair} The tab pair containing both the label and page <Component>s
-        */
-        addTab(val: string, canClose: boolean): TabPair;
-        addTab(val: TabPair, canClose: boolean): TabPair;
+         * Adds a dynamic pane to the tab
+         */
+        addTab(pane: React.ReactElement<ITabPaneProps>): void;
         /**
-        * Gets a tab pair by name.
-        * @param {string} val The label text of the tab
-        * @returns {TabPair} The tab pair containing both the label and page {Component}s
-        */
-        getTab(val: string): TabPair;
+         * Gets a tab's' props by its label
+         * @param {string} val The label text of the tab
+         * @returns {TabPair} The tab pair containing both the label and page {Component}s
+         */
+        getPaneByLabel(label: string): ITabPaneProps;
         /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
+         * Called when the component is unmounted
+         */
+        componentwillunmount(): void;
         /**
-        * Removes all items from the tab. This will call dispose on all components.
-        */
+         * Removes all panes from the tab
+         */
         clear(): void;
         /**
-        * Removes an item from the tab
-        * @param val The label text of the tab
-        * @param {boolean} dispose Set this to true to clean up the tab
-        * @returns {TabPair} The tab pair containing both the label and page <Component>s
-        */
-        removeTab(val: string, dispose: boolean): any;
-        removeTab(val: TabPair, dispose: boolean): any;
-        tabs: Array<TabPair>;
+         * Gets an array of all the tab props
+         * @returns {ITabPaneProps[]}
+         */
+        panes: ITabPaneProps[];
     }
 }
 declare module Animate {
     interface ITabPaneProps {
         label: string;
+        showCloseButton?: boolean;
+        onDispose?: (paneIndex: number, prop: ITabPaneProps) => void;
+        canSelect?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
+        canClose?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
     }
     /**
      * A single page/pane/folder pair for use in a Tab
      */
     class TabPane extends React.Component<ITabPaneProps, any> {
+        static defaultProps: ITabPaneProps;
         /**
          * Creates a new pane instance
          */
@@ -5067,10 +5064,11 @@ declare module Animate {
         */
         getTabCanvas(behaviourID: string): Canvas;
         /**
-        * When we click the tab
-        * @param {TabPair} tab The tab pair object which contains both the label and page components
-        */
-        onTabSelected(tab: TabPair): void;
+         * When we select a tab
+         * @param {number} index The index of the selected tab
+         * @param {ITabPaneProps} props props of the selected tab
+         */
+        onTabSelected(index: number, props: ITabPaneProps): void;
         /**
         * When we start a new project we load the welcome page.
         * @param {Project} project
@@ -5097,14 +5095,7 @@ declare module Animate {
         * @returns {TabPair} Returns the tab pair
         */
         renameTab(oldName: string, newName: string): TabPair;
-        /**
-        * Removes an item from the tab
-        * @param val The label text of the tab
-        * @param {boolean} dispose Set this to true to clean up the tab
-        * @returns {TabPair} The tab pair containing both the label and page <Component>s
-        */
-        removeTab(val: string, dispose: boolean): TabPair;
-        removeTab(val: TabPair, dispose: boolean): TabPair;
+        removeTab(index: number, prop: ITabPaneProps): void;
         /**
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
         */
@@ -5687,12 +5678,6 @@ declare module Animate {
         * @param {string} bio The new bio data
         */
         updateBio(bio: string): void;
-        /**
-        * Called when we click on the settings tab
-        * @param {any} event
-        * @param {any} data
-        */
-        onTab(response: TabEvents, event: TabEvent, sender?: EventDispatcher): void;
         /**
         * Use this function to add a new settings page to the settings menu
         * @param {ISettingsPage} component The ISettingsPage component we're adding

@@ -1,0 +1,34 @@
+.split-panel {
+    position:relative;
+
+    .panel-input {
+        position:absolute;
+        width:100%;
+        height:100%;
+        z-index:98;
+    }
+    .divider, .split-panel-divider {
+        position:absolute;
+        cursor:pointer;
+    }
+    .divider, .split-panel-divider-dragging {
+        background-color: rgba( 102, 165, 237, 0.5 );
+        position:absolute;
+        cursor:pointer;
+    }
+    .panel1 {
+        position:absolute;
+        left:0px;
+        top:0px;
+        overflow:auto;
+    }
+    .panel2 {
+        position:absolute;
+        left:0px;
+        top:0px;
+        overflow:auto;
+    }
+    .split-holder {
+        width: 100%;
+    }
+}
