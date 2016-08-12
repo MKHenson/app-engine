@@ -59,7 +59,7 @@ module Animate {
 			return <div className='toolbar'>
 				<Tab
 					panes={[
-					<TabPane label="Home">
+					<TabPane label="Home" showCloseButton={false}>
 						<div className="tool-bar-group">
 							<ToolbarButton onChange={(e) => { this.onHome() }} label="Home" imgUrl="media/animate-home.png" />
 							<ToolbarButton onChange={(e) => { this.saveAll() }} label="Save" imgUrl="media/save.png" />
