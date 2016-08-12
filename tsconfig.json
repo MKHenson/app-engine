@@ -142,7 +142,7 @@
     "lib/gui/forms/rename-form/rename-form.ts",
     "lib/gui/forms/user-privileges-form.ts",
     "lib/gui/forms/behaviour-picker.ts",
-    "lib/gui/logger.ts",
+    "lib/gui/logger/logger.tsx",
     "lib/gui/tooltip/tooltip.tsx",
     "lib/gui/toolbar/toolBar.tsx",
     "lib/gui/pager/pager.tsx",
