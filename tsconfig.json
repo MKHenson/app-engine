@@ -85,7 +85,7 @@
     "lib/gui/listview.ts",
     "lib/gui/list.ts",
     "lib/gui/combo-box.ts",
-    "lib/gui/menu-list.ts",
+    "lib/gui/list/list.ts",
     "lib/gui/user-preferences.ts",
     "lib/gui/plugin-browser.ts",
     "lib/gui/project-loader.ts",
