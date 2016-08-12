@@ -5,8 +5,11 @@ module Animate {
     export class PortalForm extends Window {
 		private static _singleton: PortalForm;
 
-		private _typeCombo: ComboBox;
-		private _assetClassCombo: ComboBox;
+        // TODO: This must be refactored from updates to TSX
+		// ==================================================
+		// private _typeCombo: ComboBox;
+		// private _assetClassCombo: ComboBox;
+        // ================================================
 		//private _assetType: LabelVal;
 		//private _name: LabelVal;
 		//private _type: LabelVal;
@@ -33,8 +36,11 @@ module Animate {
             this.element.addClass("portal-form");
             this.element.css("height", "");
 
-			this._typeCombo = new ComboBox();
-            this._assetClassCombo = new ComboBox();
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// this._typeCombo = new ComboBox();
+            // this._assetClassCombo = new ComboBox();
+            // =================================================
             this.$name = "";
             this.$class = "";
             this.$errorMsg = "";
@@ -51,75 +57,90 @@ module Animate {
 
 			//this._warning = new Label( "Please enter a behaviour name.", this.okCancelContent );
 
-            this._typeCombo.on(ListEvents.ITEM_SELECTED, this.onTypeSelect.bind(this));
-            this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent(ListEvents.ITEM_SELECTED, PropertyType.ASSET.toString()));
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+            // this._typeCombo.on(ListEvents.ITEM_SELECTED, this.onTypeSelect.bind(this));
+            // this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent(ListEvents.ITEM_SELECTED, PropertyType.ASSET.toString()));
+            // =====================================================
+
 
             // Fetch & compile the HTML
             this._formElm = jQuery("#portal-editor").remove().clone();
             this.content.element.append(this._formElm);
             Compiler.build(this._formElm, this, false);
 
-            jQuery("#portal-types", this._formElm).append(this._typeCombo.element);
-            jQuery("#asset-classes", this._formElm).append(this._assetClassCombo.element);
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+            // jQuery("#portal-types", this._formElm).append(this._typeCombo.element);
+            // jQuery("#asset-classes", this._formElm).append(this._assetClassCombo.element);
+            //=====================================================
         }
 
         /**
         * Generates all the available classes to select for asset property types
         */
         generateClasses() {
-            // Clear cobos
-            this._assetClassCombo.clearItems();
-            this._typeCombo.clearItems();
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
 
-            this._typeCombo.addItem("Select Property Type");
-            this._assetClassCombo.addItem("Select Asset Class");
-            this._assetClassCombo.addItem("All");
+            // // Clear cobos
+            // this._assetClassCombo.clearItems();
+            // this._typeCombo.clearItems();
 
-            // Get and sort all asset classes
-            var classes: Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
+            // this._typeCombo.addItem("Select Property Type");
+            // this._assetClassCombo.addItem("Select Asset Class");
+            // this._assetClassCombo.addItem("All");
 
-            classes = classes.sort(function (a: AssetClass, b: AssetClass) {
-                var textA = a.name.toUpperCase();
-                var textB = b.name.toUpperCase();
-                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-            });
+            // // Get and sort all asset classes
+            // var classes: Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
 
-            // Add each class to the combo
-            for (var i = 0; i < classes.length; i++)
-                this._assetClassCombo.addItem(classes[i].name);
+            // classes = classes.sort(function (a: AssetClass, b: AssetClass) {
+            //     var textA = a.name.toUpperCase();
+            //     var textB = b.name.toUpperCase();
+            //     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+            // });
 
-            // Add the different portal types
-            for (var p in PropertyType)
-                if (isNaN(parseFloat(p)))
-                    this._typeCombo.addItem(p);
+            // // Add each class to the combo
+            // for (var i = 0; i < classes.length; i++)
+            //     this._assetClassCombo.addItem(classes[i].name);
+
+            // // Add the different portal types
+            // for (var p in PropertyType)
+            //     if (isNaN(parseFloat(p)))
+            //         this._typeCombo.addItem(p);
+
+            // ==============================================
         }
 
-		/**
-        * When the type combo is selected
-        */
-		onTypeSelect(responce: ListEvents, event: ListEvent ) {
-            if (event.item == Animate.PropertyType[Animate.PropertyType.ASSET] ) {
-    //            // Get and sort all asset classes
-				//this._assetClassCombo.clearItems();
-				//var classes : Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
+        // TODO: This must be refactored from updates to TSX
+		// ==================================================
+	// 	/**
+    //     * When the type combo is selected
+    //     */
+	// 	onTypeSelect(responce: ListEvents, event: ListEvent ) {
+    //         if (event.item == Animate.PropertyType[Animate.PropertyType.ASSET] ) {
+    // //            // Get and sort all asset classes
+	// 			//this._assetClassCombo.clearItems();
+	// 			//var classes : Array<AssetClass> = TreeViewScene.getSingleton().getAssetClasses();
 
-				//classes = classes.sort( function ( a: AssetClass, b: AssetClass)
-				//{
-				//	var textA = a.name.toUpperCase();
-				//	var textB = b.name.toUpperCase();
-				//	return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
-				//});
+	// 			//classes = classes.sort( function ( a: AssetClass, b: AssetClass)
+	// 			//{
+	// 			//	var textA = a.name.toUpperCase();
+	// 			//	var textB = b.name.toUpperCase();
+	// 			//	return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
+	// 			//});
 
-    //            // Add each class to the combo
-				//for ( var i = 0; i < classes.length; i++ )
-				//	this._assetClassCombo.addItem( classes[i].name );
+    // //            // Add each class to the combo
+	// 			//for ( var i = 0; i < classes.length; i++ )
+	// 			//	this._assetClassCombo.addItem( classes[i].name );
 
-                this._assetClassCombo.element.show();
-                this._assetClassCombo.element.fadeIn( "fast" );
-			}
-			else
-                this._assetClassCombo.element.hide();
-		}
+    //             this._assetClassCombo.element.show();
+    //             this._assetClassCombo.element.fadeIn( "fast" );
+	// 		}
+	// 		else
+    //             this._assetClassCombo.element.hide();
+	// 	}
+        // ==============================================================
 
         /**
 		* Creates a new property from the data chosen
@@ -154,9 +175,12 @@ module Animate {
             this.$name = (property ? property.name : "");
 			//this._item = item;
 
-            this._typeCombo.selectedIndex = 0;
-            this._assetClassCombo.selectedIndex = 0;
-            this._nameVerifier = nameVerifier;
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+            // this._typeCombo.selectedIndex = 0;
+            // this._assetClassCombo.selectedIndex = 0;
+            // this._nameVerifier = nameVerifier;
+            // ====================================================
 
 			//this._warning.textfield.element.css( "color", "" );
 			//this._warning.text = "";
@@ -173,22 +197,25 @@ module Animate {
 			//(<Label>this._name.val).textfield.element.removeClass( "red-border" );
 			//( <ComboBox>this._type.val).selectBox.element.removeClass( "red-border" );
 
-			if ( type == PortalType.OUTPUT || type == PortalType.INPUT ) {
-				//this._type.element.hide();
-                //this._assetType.element.hide();
-                this._typeCombo.element.hide();
-                this._assetClassCombo.element.hide();
-				this._value = true;
-			}
-			else {
-				//this._type.element.show();
-                this._typeCombo.element.show();
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// if ( type == PortalType.OUTPUT || type == PortalType.INPUT ) {
+			// 	//this._type.element.hide();
+            //     //this._assetType.element.hide();
+            //     this._typeCombo.element.hide();
+            //     this._assetClassCombo.element.hide();
+			// 	this._value = true;
+			// }
+			// else {
+			// 	//this._type.element.show();
+            //     this._typeCombo.element.show();
 
-                //if (item instanceof Portal)
-                //    this._typeCombo.selectedItem = ((<Portal>item).property.type).toString();
+            //     //if (item instanceof Portal)
+            //     //    this._typeCombo.selectedItem = ((<Portal>item).property.type).toString();
 
-                this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent(ListEvents.ITEM_SELECTED, this._typeCombo.selectedItem ) );
-			}
+            //     this.onTypeSelect(ListEvents.ITEM_SELECTED, new ListEvent(ListEvents.ITEM_SELECTED, this._typeCombo.selectedItem ) );
+			// }
+            // ======================================================
 
 			//if ( item instanceof Portal )
 			//	this.headerText = caption;
@@ -255,15 +282,19 @@ module Animate {
                 return Compiler.digest(this._formElm, this);
             }
 
-            if (this._typeCombo.selectedIndex == 0 && (this._portalType == PortalType.PARAMETER || this._portalType == PortalType.PRODUCT) ) {
-                this.$errorMsg = "Please select a valid property type";
-                return Compiler.digest(this._formElm, this);
-            }
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+            // if (this._typeCombo.selectedIndex == 0 && (this._portalType == PortalType.PARAMETER || this._portalType == PortalType.PRODUCT) ) {
+            //     this.$errorMsg = "Please select a valid property type";
+            //     return Compiler.digest(this._formElm, this);
+            // }
 
-            if (this._typeCombo.selectedItem == PropertyType[PropertyType.ASSET] && this._assetClassCombo.selectedIndex == 0) {
-                this.$errorMsg = "Please select a valid asset sub-class";
-                return Compiler.digest(this._formElm, this);
-            }
+            // if (this._typeCombo.selectedItem == PropertyType[PropertyType.ASSET] && this._assetClassCombo.selectedIndex == 0) {
+            //     this.$errorMsg = "Please select a valid asset sub-class";
+            //     return Compiler.digest(this._formElm, this);
+            // }
+            // =================================================
+
 
 				////Check if the portal name already exists in the item if its a behaviour
 				//if ( this._item instanceof Behaviour || this._item instanceof Portal )
@@ -321,17 +352,21 @@ module Animate {
 				//}
             //}
 
-            if (this._portalType == PortalType.INPUT || this._portalType == PortalType.OUTPUT)
-                this._newProperty = new PropBool(this.$name, false);
-            else
-                this._newProperty = Utils.createProperty(this.$name, PropertyType[this._typeCombo.selectedItem]);
 
-            if (this._newProperty instanceof PropAsset && this._newProperty.type == PropertyType.ASSET) {
-                if (this._assetClassCombo.selectedIndex < 2)
-                    (<PropAsset>this._newProperty).classNames = [];
-                else
-                    (<PropAsset>this._newProperty).classNames = [this._assetClassCombo.selectedItem];
-            }
+            // TODO: This must be refactored from updates to TSX
+			// ==================================================
+            // if (this._portalType == PortalType.INPUT || this._portalType == PortalType.OUTPUT)
+            //     this._newProperty = new PropBool(this.$name, false);
+            // else
+            //     this._newProperty = Utils.createProperty(this.$name, PropertyType[this._typeCombo.selectedItem]);
+
+            // if (this._newProperty instanceof PropAsset && this._newProperty.type == PropertyType.ASSET) {
+            //     if (this._assetClassCombo.selectedIndex < 2)
+            //         (<PropAsset>this._newProperty).classNames = [];
+            //     else
+            //         (<PropAsset>this._newProperty).classNames = [this._assetClassCombo.selectedItem];
+            // }
+            // ====================================================
 
             if (!this._nameVerifier(this.$name)) {
                 this.$errorMsg = `The name ${this.$name} is already in use, please choose another`;

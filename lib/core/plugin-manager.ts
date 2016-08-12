@@ -45,8 +45,11 @@ module Animate {
             this.behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
 
 			this._loadedPlugins = [];
-			BehaviourPicker.getSingleton().list.addItem( "Asset" );
-            BehaviourPicker.getSingleton().list.addItem("Script");
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// BehaviourPicker.getSingleton().list.addItem( "Asset" );
+            // BehaviourPicker.getSingleton().list.addItem("Script");
+			// ==================================================
             this._previewVisualizers = [new ImageVisualizer()];
         }
 
@@ -138,12 +141,16 @@ module Animate {
 			// Get behaviour definitions
 			var btemplates: Array<BehaviourDefinition> = plugin.getBehaviourDefinitions();
 			if ( btemplates ) {
-				var len = btemplates.length;
-				for ( var i = 0; i < len; i++ ) {
-					this.behaviourTemplates.push( btemplates[i] );
-					BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
-					TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
-				}
+
+				// TODO: This must be refactored from updates to TSX
+				// ==================================================
+				// var len = btemplates.length;
+				// for ( var i = 0; i < len; i++ ) {
+				// 	this.behaviourTemplates.push( btemplates[i] );
+				// 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
+				// 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
+				// }
+				// ===================================================
 			}
 
 			// Get converters
@@ -179,13 +186,16 @@ module Animate {
 
 			// Get behaviour definitions
 			var i = toRemove.length;
-			while ( i-- )
-			{
-				BehaviourPicker.getSingleton().list.removeItem( toRemove[i].behaviourName );
-				TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// while ( i-- )
+			// {
+			// 	BehaviourPicker.getSingleton().list.removeItem( toRemove[i].behaviourName );
+			// 	TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
 
-				this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
-			}
+			// 	this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
+			// }
+			// ==================================================
 
 			// Get converters
 			var toRemove2 : Array<TypeConverter> = [];

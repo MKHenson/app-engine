@@ -24,13 +24,19 @@ module Animate {
 			this.element.addClass( "behaviour-picker" );
 
             this._input = new InputBox(this.content, "Behaviour Name");
-            this._list = new List(this.content );
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+             // this._list = new List(this.content );
+			// ==================================================
 			this._X = 0;
 			this._Y = 0;
 
 			//Hook listeners
-			this._list.selectBox.element.on( "click", this.onListClick.bind( this ) );
-			this._list.selectBox.element.on( "dblclick", this.onListDClick.bind( this ) );
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// this._list.selectBox.element.on( "click", this.onListClick.bind( this ) );
+			// this._list.selectBox.element.on( "dblclick", this.onListDClick.bind( this ) );
+			// ==================================================
 			this._input.textfield.element.on( "keyup", this.onKeyDown.bind( this ) );
 		}
 
@@ -43,7 +49,11 @@ module Animate {
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
 		show( parent: Component = null, x: number = 0, y: number = 0, isModal: boolean = false, isPopup: boolean = false ) {
-			this._list.sort();
+
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// this._list.sort();
+			// ==================================================
 
 			if ( y + this.element.height() > jQuery( "body" ).height() )
 				y = jQuery( "body" ).height() - this.element.height();
@@ -61,7 +71,10 @@ module Animate {
 		* @returns {any}
 		*/
 		onListClick( e ) {
-			this._input.text = this._list.selectedItem;
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			//this._input.text = this._list.selectedItem;
+			//===================================================
 		}
 
 		/**
@@ -70,7 +83,10 @@ module Animate {
 		* @returns {any}
 		*/
 		onListDClick( e ) {
-			this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
+			//=================================
 			this.hide();
 		}
 
@@ -85,47 +101,58 @@ module Animate {
 			if ( e.keyCode == 38 || e.keyCode == 40 ) {
 				e.preventDefault();
 
-				//Get the selected item and move it up and down
-				var selected = this._list.selectedIndex;
-				if ( selected != -1 ) {
-					var items: number = this._list.numItems();
-					//If up
-					if ( e.keyCode == 38 ) {
-						if ( selected - 1 < 0 )
-							this._list.selectedIndex = items - 1;
-						else
-							this._list.selectedIndex = selected - 1;
-					}
-					//If down
-					else {
-						if ( selected + 1 < items )
-							this._list.selectedIndex = selected + 1;
-						else
-							this._list.selectedIndex = 0;
-					}
+				// TODO: This must be refactored from updates to TSX
+				// ==================================================
 
-					this._input.text = this._list.selectedItem;
-				}
+				// //Get the selected item and move it up and down
+				// var selected = this._list.selectedIndex;
+				// if ( selected != -1 ) {
+				// 	var items: number = this._list.numItems();
+				// 	//If up
+				// 	if ( e.keyCode == 38 ) {
+				// 		if ( selected - 1 < 0 )
+				// 			this._list.selectedIndex = items - 1;
+				// 		else
+				// 			this._list.selectedIndex = selected - 1;
+				// 	}
+				// 	//If down
+				// 	else {
+				// 		if ( selected + 1 < items )
+				// 			this._list.selectedIndex = selected + 1;
+				// 		else
+				// 			this._list.selectedIndex = 0;
+				// 	}
+
+				// 	this._input.text = this._list.selectedItem;
+				// }
+
+				// =======================================================
 
 				return;
 			}
 
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
 			//If enter is pressed we select the current item
-			if ( e.keyCode == 13 ) {
-				this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
-				this.hide();
-			}
+			// if ( e.keyCode == 13 ) {
+			// 	this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
+			// 	this.hide();
+			// }
+			// ===================================================
 
-			var len = this._list.items.length;
-			for ( var i = 0; i < len; i++ ) {
-				var v1 = this._list.items[i].text().toLowerCase();
-				var v2 = this._input.text.toLowerCase();
-				if ( v1.indexOf( v2 ) != -1 )
-				{
-					this._list.selectedItem = this._list.items[i].text();
-					return;
-				}
-			}
+			// TODO: This must be refactored from updates to TSX
+			// ==================================================
+			// var len = this._list.items.length;
+			// for ( var i = 0; i < len; i++ ) {
+			// 	var v1 = this._list.items[i].text().toLowerCase();
+			// 	var v2 = this._input.text.toLowerCase();
+			// 	if ( v1.indexOf( v2 ) != -1 )
+			// 	{
+			// 		this._list.selectedItem = this._list.items[i].text();
+			// 		return;
+			// 	}
+			// }
+			// =====================================================
 		}
 
 		/**
