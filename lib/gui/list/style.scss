@@ -1,0 +1,28 @@
+.list {
+    .list-item {
+        cursor: pointer;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        border-bottom: 1px solid $background-secondary;
+
+        &.selected {
+            background: $background-dark;
+            color: $ps-color;
+        }
+
+        &:hover {
+            background:$background-secondary;
+        }
+
+        &.selected:hover {
+            background: $background-dark;
+        }
+    }
+
+    img {
+        margin-right: 10px;
+        margin:5px;
+        pointer-events: none;
+    }
+}

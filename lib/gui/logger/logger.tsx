@@ -85,13 +85,20 @@ module Animate {
 		static logMessage( val: string, tag: any, type: LogType = LogType.MESSAGE) {
             let logger = Logger.getSingleton();
 			let icon: JSX.Element;
+			let iconClass : string;
 
-			if ( type == LogType.MESSAGE )
-				icon = <i className="fa fa-check" aria-hidden="true"></i>;
-			else if ( type == LogType.ERROR )
-				icon = <i className="fa fa-exclamation-circle" aria-hidden="true"></i>;
-			else
-				icon = <i className="fa fa-exclamation-triangle" aria-hidden="true"></i>;
+			if ( type == LogType.MESSAGE ) {
+				icon = <span className="success"><i className="fa fa-check" aria-hidden="true"></i></span>;
+				iconClass = 'success';
+			}
+			else if ( type == LogType.ERROR ) {
+				icon = <span className="error"><i className="fa fa-exclamation-circle" aria-hidden="true"></i></span>;
+				iconClass = 'error';
+			}
+			else {
+				icon = <span className="warning"><i className="fa fa-exclamation-triangle" aria-hidden="true"></i></span>;
+				iconClass = 'warning';
+			}
 
 			let prefix = <span>
 				{icon}<span className='date'>{new Date(Date.now()).toLocaleDateString()} {new Date(Date.now()).toLocaleTimeString()}</span>

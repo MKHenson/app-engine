@@ -1,0 +1,25 @@
+.logger {
+    .warning, .success, .error {
+        padding: 0 6px;
+        margin: 0 5px 0 0;
+    }
+
+    .warning {
+        background: $attention-warning;
+        color: shade( $attention-warning, 50 );
+    }
+
+    .success {
+        background: $attention-success;
+        color: shade( $attention-success, 50 );
+    }
+
+    .error {
+        background: $attention-error;
+        color: shade( $attention-error, 50 );
+    }
+
+    span.date {
+        margin: 0 35px 0 0;
+    }
+}
