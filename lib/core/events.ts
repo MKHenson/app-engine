@@ -430,15 +430,15 @@
         }
     }
 
-    export class ListEvent extends Event {
-        public item: string;
+    // export class ListEvent extends Event {
+    //     public item: string;
 
-        constructor(eventName: ListEvents, item: string) {
-            super(eventName, item);
+    //     constructor(eventName: ListEvents, item: string) {
+    //         super(eventName, item);
 
-            this.item = item;
-        }
-    }
+    //         this.item = item;
+    //     }
+    // }
 
     /**
 	* A simple project event. Always related to a project resource (null if not)

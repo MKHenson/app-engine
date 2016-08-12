@@ -950,10 +950,6 @@ declare module Animate {
         item: ListViewItem;
         constructor(eventType: ListViewEvents, item: ListViewItem);
     }
-    class ListEvent extends Event {
-        item: string;
-        constructor(eventName: ListEvents, item: string);
-    }
     /**
     * A simple project event. Always related to a project resource (null if not)
     */
@@ -2663,15 +2659,17 @@ declare module Animate {
         HORIZONTAL = 1,
     }
     interface ISplitPanelProps {
-        left: JSX.Element;
-        right: JSX.Element;
+        left?: JSX.Element;
+        right?: JSX.Element;
+        top?: JSX.Element;
+        bottom?: JSX.Element;
         orientation?: SplitOrientation;
         ratio?: number;
         dividerSize?: number;
+        onRatioChanged?: (ratio: number) => void;
     }
     interface ISplitPanelState {
         ratio?: number;
-        mPercent?: number;
         dragging?: boolean;
     }
     /**
@@ -2679,23 +2677,11 @@ declare module Animate {
     */
     class SplitPanel extends React.Component<ISplitPanelProps, ISplitPanelState> {
         static defaultProps: ISplitPanelProps;
-        private mPercent;
-        private mDividerSize;
-        private mPanel1;
-        private mPanel2;
-        private mDivider;
-        private mDividerDragging;
-        private mOrientation;
-        private mPanelOverlay1;
-        private mPanelOverlay2;
         private mMouseUpProxy;
         private mMouseMoveProxy;
         /**
-        * @param {Component} parent The parent to which this component is attached
-        * @param {SplitOrientation} orientation The orientation of the slitter. It can be either SplitOrientation.VERTICAL or SplitOrientation.HORIZONTAL
-        * @param {number} ratio The ratio of how far up or down, top or bottom the splitter will be. This is between 0 and 1.
-        * @param {number} dividerSize The size of the split divider.
-        */
+         * Creates a new instance
+         */
         constructor(props: ISplitPanelProps);
         /**
          * Called when the props are updated
@@ -2707,19 +2693,19 @@ declare module Animate {
          */
         render(): JSX.Element;
         /**
-         * This function is called when the mouse is down on the divider
-         * @param {React.MouseEvent} e
-         */
+          * This function is called when the mouse is down on the divider
+          * @param {React.MouseEvent} e
+          */
         onDividerMouseDown(e: React.MouseEvent): void;
         /**
-        * This function is called when the mouse is up from the body of stage.
-        * @param {any} e The jQuery event object
-        */
-        onStageMouseUp(e: any): void;
+         * Recalculate the ratios on mouse up
+         * @param {MouseEvent} e
+         */
+        onStageMouseUp(e: MouseEvent): void;
         /**
-        * This function is called when the mouse is up from the body of stage.
-        * @param {any} e The jQuery event object
-        */
+         * This function is called when the mouse is up from the body of stage.
+         * @param {any} e The jQuery event object
+         */
         onStageMouseMove(e: MouseEvent): void;
         /**
          * Call this function to get the ratio of the panel. Values are from 0 to 1.
@@ -2730,22 +2716,6 @@ declare module Animate {
          * @param {number} val The ratio from 0 to 1 of where the divider should be
          */
         ratio: number;
-        /**
-        * Gets the top panel.
-        */
-        top: Component;
-        /**
-        * Gets the bottom panel.
-        */
-        bottom: Component;
-        /**
-        * Gets the left panel.
-        */
-        left: Component;
-        /**
-        * Gets the right panel.
-        */
-        right: Component;
     }
 }
 declare module Animate {
@@ -3489,127 +3459,62 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class ListEvents extends ENUM {
-        constructor(v: string);
-        static ITEM_SELECTED: ListEvents;
+    interface IListItem {
+        label: string;
+        icon?: string;
+        prefix?: JSX.Element;
+    }
+    interface IListProps {
+        items?: IListItem[];
+        onSelected?: (item: IListItem) => void;
+    }
+    interface IListState {
+        selected: IListItem;
     }
     /**
-    * Use this class to create a select list.
-    */
-    class List extends Component {
-        selectBox: Component;
-        private selectProxy;
-        items: Array<JQuery>;
-        /**
-        * @param {Component} parent The parent component of this list
-        * @param {string} html An optional set of HTML to use. The default is <div class='list-box'></div>
-        * @param {string} selectHTML
-        * @param {boolean} isDropDown
-        */
-        constructor(parent: Component, html?: string, selectHTML?: string, isDropDown?: boolean);
-        /**
-        * Called when a selection is made
-        * @param <object> val Called when we make a selection
-        */
-        onSelection(val: any): void;
-        /**
-        * Adds an item to the list
-        * @param {string} val The text of the item
-        * @returns {JQuery} The jQuery object created
-        */
-        addItem(val: string): JQuery;
-        /**
-        * Sorts  the  list alphabetically
-        */
-        sort(): void;
-        /**
-        * Removes an item from the list
-        * @param <object> val The text of the item to remove
-        * @returns <object> The jQuery object
-        */
-        removeItem(val: any): JQuery;
-        /**
-        * Gets the number of list items
-        * @returns {number} The number of items
-        */
-        numItems(): number;
-        /**
-        * Gets thee selected item from the list.
-        * @returns {JQuery} The selected jQuery object
-        */
-        /**
-        * Sets thee selected item from the list.
-        * @param {string} val The text of the item
-        */
-        selectedItem: string;
-        /**
-        * Gets the selected item index from the list by its
-        * index.
-        * @returns {number} The selected index or -1 if nothing was found.
-        */
-        /**
-        * Sets the selected item index from the list by its index.
-        * @param {number} val The text of the item
-        */
-        selectedIndex: number;
-        /**
-        * Gets item from the list by its value
-        * @param {string} val The text of the item
-        * @returns {JQuery} The jQuery object
-        */
-        getItem(val: string): JQuery;
-        /**
-        * Removes all items
-        */
-        clearItems(): void;
-        /**
-        * Diposes and cleans up this component and all its child <Component>s
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * Use this class to create a drop down box of items.
-    */
-    class ComboBox extends List {
-        constructor(parent?: Component);
-    }
-}
-declare module Animate {
-    class MenuListEvents extends ENUM {
-        constructor(v: string);
-        static ITEM_CLICKED: MenuListEvents;
-    }
-    /**
-    * A specially designed type of list
-    */
-    class MenuList extends Component {
+     * A list of items, with optional tooltips & icons
+     */
+    class List extends React.Component<IListProps, IListState> {
         private _items;
-        private selectedItem;
-        constructor(parent: Component);
+        private _prevItems;
         /**
-        * Adds an HTML item
-        * @returns {string} img The URL of the image
-        * @returns {string} val The text of the item
-        * @returns {boolean} prepend True if you want to prepend as opposed to append
-        */
-        addItem(img: string, val: string, prepend?: boolean): JQuery;
+         * Creates an instance
+         */
+        constructor(props: IListProps);
         /**
-        * Removes an  item from this list
-        * @param {JQuery} item The jQuery object we are removing
-        */
-        removeItem(item: JQuery): void;
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IListProps): void;
         /**
-        * Clears all the items added to this list
-        */
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+        /**
+         * Called whenever a list item is selected
+         */
+        onItemSelected(e: React.MouseEvent, item: IListItem): void;
+        /**
+         * Add an item to the list
+         * @param {IListItem} item
+         * @returns {IListItem}
+         */
+        addItem(item: IListItem): IListItem;
+        /**
+         * Removes an item from the list
+         * @param {IListItem} item
+         * @param {IListItem}
+         */
+        removeItem(item: IListItem): IListItem;
+        /**
+         * Clears all the items added to this list
+         */
         clearItems(): void;
         /**
-        * Checks if we selected an item - if so it closes the context and dispatches the ITEM_CLICKED event.
-        * @param {any} e The jQuery event object
-        */
-        onClick(e: any): void;
-        items: Array<JQuery>;
+         * Gets the list items
+         * @returns {IListItem[]}
+         */
+        items: IListItem[];
     }
 }
 declare module Animate {
@@ -5880,8 +5785,6 @@ declare module Animate {
     */
     class PortalForm extends Window {
         private static _singleton;
-        private _typeCombo;
-        private _assetClassCombo;
         private _portalType;
         private _value;
         private _fromOk;
@@ -5896,10 +5799,6 @@ declare module Animate {
         * Generates all the available classes to select for asset property types
         */
         generateClasses(): void;
-        /**
-        * When the type combo is selected
-        */
-        onTypeSelect(responce: ListEvents, event: ListEvent): void;
         /**
         * Creates a new property from the data chosen
         * @param {Prop<any>}
@@ -6080,54 +5979,30 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class LogType extends ENUM {
-        constructor(v: string);
-        static MESSAGE: LogType;
-        static WARNING: LogType;
-        static ERROR: LogType;
+    enum LogType {
+        MESSAGE = 0,
+        WARNING = 1,
+        ERROR = 2,
     }
     /**
     * The Logger is a singleton class used to write message's to Animate's log window.
     */
-    class Logger extends MenuList {
+    class Logger extends List {
         private static _singleton;
-        private context;
-        private mDocker;
-        private warningFlagger;
+        private _context;
         private mContextProxy;
-        constructor(parent: Component);
+        constructor(props: IListProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
         /**
         * @type public mfunc onIconClick
         * When we click the error warning
         * @extends <Logger>
         */
         onIconClick(): void;
-        /**
-        * @type public mfunc getPreviewImage
-        * This is called by a controlling ScreenManager class. An image string needs to be returned
-        * which will act as a preview of the component that is being viewed or hidden.
-        * @extends <Logger>
-        * @returns <string>
-        */
-        getPreviewImage(): string;
-        /**
-        * This is called by a controlling Docker class when the component needs to be shown.
-        */
-        onShow(): void;
-        /**
-        * This is called by a controlling Docker class when the component needs to be hidden.
-        */
-        onHide(): void;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @returns {Docker}
-        */
-        getDocker(): Docker;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @param {Docker} val
-        */
-        setDocker(val: Docker): void;
         /**
         * Called when the context menu is about to open
         */
@@ -6137,21 +6012,21 @@ declare module Animate {
         */
         onContext(e: any): void;
         /**
-        * Adds an item to the Logger
-        * @param {string} val The text to show on the logger.
-        * @param {any} tag An optional tag to associate with the log.
-        * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
-        */
-        static logMessage(val: string, tag: any, type?: LogType): void;
+         * Logs a message to the logger
+         * @param {string} val The text to show on the logger.
+         * @param {any} tag An optional tag to associate with the log.
+         * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
+         */
+        static logMessage(val: string, tag: any, type?: LogType): IListItem;
         /**
-        * Clears all the log messages
-        */
+         * Clears all the log messages
+         */
         clearItems(): void;
         /**
-        * Gets the singleton instance.
-        * @param {Component} parent
-        * @returns {Logger}
-        */
+         * Gets logger global instance
+         * @param {Component} parent
+         * @returns {Logger}
+         */
         static getSingleton(parent?: Component): Logger;
     }
 }
@@ -7052,6 +6927,7 @@ declare module Animate {
         private _dockerrightbottom;
         private _canvasContext;
         constructor(props: React.HTMLAttributes);
+        componentDidMount(): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}

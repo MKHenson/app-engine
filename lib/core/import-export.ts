@@ -414,7 +414,7 @@ module Animate {
 			if ( response == LoaderEvents.COMPLETE ) {
 				if ( event.return_type == AnimateLoaderResponses.SUCCESS ) {
 					if ( loader.url == "/export/compile" ) {
-						Logger.getSingleton().clearItems();
+						Logger.getSingleton().clear();
 						var now: Date = new Date();
 						Logger.logMessage( "Build complete at " + new Date( Date.now() ).toDateString(), null, LogType.MESSAGE );
 						Logger.logMessage( "External link: " + event.tag.liveLink, null, LogType.MESSAGE );
