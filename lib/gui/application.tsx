@@ -62,8 +62,6 @@ module Animate {
 
 			// var scenetab = SceneTab.getSingleton( rightSplit.bottom );
 			// var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
-			Logger.getSingleton( null );
-            Logger.logMessage( "let's get animated!", null, LogType.MESSAGE );
 
 			// //now set up the dockers
 			// this._dockerlefttop = new Docker( leftSplit.top );
@@ -92,19 +90,19 @@ module Animate {
 			}
 		}
 
+		componentDidMount() {
+			Logger.logMessage("Welcome to the Hatchery!", null, LogType.MESSAGE);
+		}
+
 		/**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render() : JSX.Element {
 
-			var mainView: JSX.Element;
-
-			if (this.state.showSplash) {
-				mainView = <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } />
-			}
-			else {
-				mainView = <div id="application">
+			return <div id="application">
+				{(this.state.showSplash ? <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } /> : null)}
+				<div id="main-view" style={{display: this.state.showSplash ? 'none' : '' }}>
 					<div id="toolbar">
 						<Toolbar />
 					</div>
@@ -114,7 +112,7 @@ module Animate {
 									ratio={0.8}
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<h2>Canvas Goes here</h2>}
-									bottom={<h2>Logger Goes here</h2>} />
+									bottom={<Logger />} />
 							} right={
 								<SplitPanel
 									ratio={0.6}
@@ -124,9 +122,7 @@ module Animate {
 							} />
 					</div>
 				</div>
-			}
-
-			return mainView;
+			</div>
 		}
 
 		/**
@@ -192,7 +188,7 @@ module Animate {
             var user = User.get;
 
 			PropertyGrid.getSingleton().projectReset();
-			Logger.getSingleton().clearItems();
+			Logger.getSingleton().clear();
             TreeViewScene.getSingleton().projectReset(user.project);
             //CanvasTab.getSingleton().projectReset();
 
