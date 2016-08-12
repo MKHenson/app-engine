@@ -2801,6 +2801,45 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IReactWindowProps {
+        open: boolean;
+        title: string;
+        modal?: boolean;
+        popup?: boolean;
+        controlBox?: boolean;
+    }
+    interface IReactWindowState {
+        open: boolean;
+        centered?: boolean;
+    }
+    class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
+        static defaultProps: IReactWindowProps;
+        private static _windowView;
+        /**
+         * Creates an instance of the react window
+         */
+        constructor(props: IReactWindowProps);
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
+        show(x: number, y: number): void;
+        hide(): void;
+    }
+}
+declare module Animate {
+    class WindowManager extends React.Component<any, any> {
+        private _window;
+        constructor(props: any);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     class ContextMenuItem extends Component {
         private _text;
         private _imgURL;
@@ -3509,7 +3548,7 @@ declare module Animate {
         /**
          * Clears all the items added to this list
          */
-        clearItems(): void;
+        clear(): void;
         /**
          * Gets the list items
          * @returns {IListItem[]}
@@ -5985,8 +6024,8 @@ declare module Animate {
         ERROR = 2,
     }
     /**
-    * The Logger is a singleton class used to write message's to Animate's log window.
-    */
+     * The Logger is a singleton class used to write message's to Animate's log window.
+     */
     class Logger extends List {
         private static _singleton;
         private _context;
@@ -5998,16 +6037,6 @@ declare module Animate {
          */
         render(): JSX.Element;
         /**
-        * @type public mfunc onIconClick
-        * When we click the error warning
-        * @extends <Logger>
-        */
-        onIconClick(): void;
-        /**
-        * Called when the context menu is about to open
-        */
-        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
-        /**
         * Called when the context menu is about to open
         */
         onContext(e: any): void;
@@ -6018,10 +6047,6 @@ declare module Animate {
          * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
          */
         static logMessage(val: string, tag: any, type?: LogType): IListItem;
-        /**
-         * Clears all the log messages
-         */
-        clearItems(): void;
         /**
          * Gets logger global instance
          * @param {Component} parent
