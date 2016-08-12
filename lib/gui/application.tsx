@@ -105,19 +105,25 @@ module Animate {
 			}
 			else {
 				mainView = <div id="application">
-				<div id="toolbar">
-					<Toolbar />
-				</div>
-				<div id="stage">
-					<SplitPanel left={<h2>This is a left Panel!</h2>} right={
+					<div id="toolbar">
+						<Toolbar />
+					</div>
+					<div id="stage">
+						<SplitPanel ratio={0.7} left={
 							<SplitPanel
-								ratio={0.7}
-								orientation={SplitOrientation.HORIZONTAL}
-								left={<h2>This is a top Panel!</h2>}
-							 	right={<h2>This is a bottom Panel!</h2>} />
-						} />
+									ratio={0.8}
+									orientation={SplitOrientation.HORIZONTAL}
+									top={<h2>Canvas Goes here</h2>}
+									bottom={<h2>Logger Goes here</h2>} />
+							} right={
+								<SplitPanel
+									ratio={0.6}
+									orientation={SplitOrientation.HORIZONTAL}
+									top={<h2>Property editor goes here</h2>}
+									bottom={<h2>Treeview goes here</h2>} />
+							} />
+					</div>
 				</div>
-			</div>
 			}
 
 			return mainView;
