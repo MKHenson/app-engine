@@ -86,52 +86,6 @@ Please only put css rules in here for layout related requirements.
 }
 
 /**
-*  WINDOW
-*/
-.modal-backdrop {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    z-index: 9998;
-    width: 100%;
-    height: 100%;
-}
-.window {
-    position: absolute;
-    z-index: 9998;
-}
-.window-content {
-    position:relative;
-    overflow:auto;
-    height:calc(100% - 30px);
-    width:100%;
-}
-.window-content.no-control {
-    height:100%;
-}
-.window-control-box {
-    height: 30px;
-    cursor: pointer;
-}
-.window-control-box .close-but {
-    margin: 0;
-    padding:0 10px;
-    line-height: 30px;
-}
-.window-header {
-    float: left;
-    margin: 5px 0 0 5px;
-    font-size: 20px;
-    line-height: 20px;
-}
-.close-but {
-    float: right;
-    font-size: 16px;
-    margin-left: 10px;
-    cursor: pointer;
-}
-
-/**
 *  LIST VIEW
 */
 .list-view {
@@ -401,6 +355,7 @@ body {
 @import 'gui/list/style.scss';
 @import 'gui/logger/style.scss';
 @import 'gui/tab/style.scss';
+@import 'gui/context-menu/style.scss';
 @import 'gui/split-panel/style.scss';
 @import 'gui/tooltip/style.scss';
 @import 'gui/attention/style.scss';
@@ -996,9 +951,6 @@ a:active, a:hover {
 .dark-color {
     background-color: #292E38;
 }
-.dark-modal {
-    background-color: rgba(0,0,0,0.3);
-}
 .black-tint {
     background-color: rgba(0,0,0,0.1);
 }
@@ -1288,10 +1240,7 @@ a:active, a:hover {
 iframe{ z-index:0; }
 
 
-.window .window-content .top { background:#fff; overflow:auto; margin:5px; height: 530px; }
-.window .window-content .bottom .button { float:right; margin-right:5px; }
-.window .window-content .top .list-view { min-height:530px;}
-.window .info .textfield { text-align:left; font-style:italic; color: #999; }
+
 
 .canvas{ width:100%; height:100%; background-image:url(../media/grid.png); }
 
@@ -1513,7 +1462,7 @@ input, select{ color:#666; }
 .curve-small { -moz-border-radius:5px; -webkit-border-radius:5px; border-radius:5px; }
 .curve-med { -moz-border-radius:10px; -webkit-border-radius:10px; border-radius:10px; }
 .shadow-big { -webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); }
-.shadow-med { -webkit-box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5); box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5); }
+
 .shadow-huge { -webkit-box-shadow: 0 0 40px 5px rgba(0, 0, 0, 0.7); box-shadow: 0 0 40px 5px rgba(0, 0, 0, 0.7); }
 .shadow-small { -webkit-box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.2); box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.2); }
 .shadow-small-inset{ -webkit-box-shadow: inset 0px 1px 6px 0px rgba(0, 0, 0, 0.2); box-shadow: inset 0px 1px 6px 0px rgba(0, 0, 0, 0.2); }
@@ -1523,42 +1472,12 @@ input, select{ color:#666; }
 
 /** ANIMATIONS
 ============================================*/
-.anim-shadow-focus{
-    animation: framesShadowFocus 0.3s linear 0s;
-    -moz-animation: framesShadowFocus 0.3s linear 0s;
-    -webkit-animation: framesShadowFocus 0.3s linear 0s;
-}
+
 .animate-all {
     -webkit-transition: all 0.5s ease-in-out;
     -moz-transition: all 0.5s ease-in-out;
     -o-transition: all 0.5s ease-in-out;
     transition: all 0.5s ease-in-out;
-}
-@keyframes framesShadowFocus
-{
-    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-}
-
-@-moz-keyframes framesShadowFocus /* Firefox */
-{
-    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-}
-
-@-webkit-keyframes framesShadowFocus /* Safari and Chrome */
-{
-    0%   {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    25%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    50%  {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
-    75%  {-webkit-box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5); box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.5);}
-    100% {-webkit-box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5); box-shadow: 0 0 30px 5px rgba(0, 0, 0, 0.5);}
 }
 
 .fade-in {

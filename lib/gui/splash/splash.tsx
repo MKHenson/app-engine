@@ -88,7 +88,7 @@
                 </div>
                 <div
                     id="splash-view"
-                    className={ this.splashDimensions() + ' background curve-small shadow-med fade-in' }>
+                    className={ this.splashDimensions() + ' background curve-small fade-in' }>
                         {mainView}
                 </div>
             </div>

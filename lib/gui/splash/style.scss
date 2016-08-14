@@ -49,6 +49,7 @@
     margin:0 auto;
     min-width: 450px;
     transition: width 0.5s, height 0.5s;
+    box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
 
     &.compact {
         width:25%;
