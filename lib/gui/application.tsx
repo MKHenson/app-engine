@@ -121,7 +121,6 @@ module Animate {
 									bottom={<h2>Treeview goes here</h2>} />
 							} />
 					</div>
-					<WindowManager />
 				</div>
 			</div>
 		}
