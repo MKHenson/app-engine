@@ -2673,8 +2673,8 @@ declare module Animate {
         dragging?: boolean;
     }
     /**
-    * A Component that holds 2 sub Components and a splitter to split between them.
-    */
+     * A Component that holds 2 sub Components and a splitter to split between them.
+     */
     class SplitPanel extends React.Component<ISplitPanelProps, ISplitPanelState> {
         static defaultProps: ISplitPanelProps;
         private mMouseUpProxy;
@@ -2802,41 +2802,61 @@ declare module Animate {
 }
 declare module Animate {
     interface IReactWindowProps {
-        open: boolean;
-        title: string;
+        autoCenter?: boolean;
+        title?: string;
         modal?: boolean;
         popup?: boolean;
         controlBox?: boolean;
+        _id?: number;
+        _closing?: () => void;
     }
     interface IReactWindowState {
-        open: boolean;
         centered?: boolean;
     }
     class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
+        private static _openWindows;
+        private static _windows;
         static defaultProps: IReactWindowProps;
-        private static _windowView;
+        private _mouseMoveProxy;
+        private _mouseUpProxy;
+        private _mouseDeltaX;
+        private _mouseDeltaY;
         /**
          * Creates an instance of the react window
          */
         constructor(props: IReactWindowProps);
+        static show(windowType: React.ComponentClass<IReactWindowProps>, props?: IReactWindowProps): number;
+        static hide(id: number): void;
+        onHeaderDown(e: React.MouseEvent): void;
+        onMouseMove(e: MouseEvent): void;
+        onMouseUp(e: MouseEvent): void;
+        componentDidMount(): void;
+        onModalClick(): void;
+        onClose(): void;
         /**
-        * Creates the component elements
-        * @returns {JSX.Element}
-        */
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
         render(): JSX.Element;
-        show(x: number, y: number): void;
-        hide(): void;
     }
 }
 declare module Animate {
     class WindowManager extends React.Component<any, any> {
-        private _window;
+        static _singleton: WindowManager;
+        private _windows;
+        /**
+         * Creates an instance of the window manager
+         */
         constructor(props: any);
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
+        /**
+         * Gets the window manager singleton
+         */
+        get(): WindowManager;
     }
 }
 declare module Animate {
