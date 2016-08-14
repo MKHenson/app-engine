@@ -22,8 +22,8 @@ module Animate {
 	}
 
 	/**
-	* A Component that holds 2 sub Components and a splitter to split between them.
-	*/
+	 * A Component that holds 2 sub Components and a splitter to split between them.
+	 */
 	export class SplitPanel extends React.Component<ISplitPanelProps, ISplitPanelState> {
 
 		static defaultProps : ISplitPanelProps = {
