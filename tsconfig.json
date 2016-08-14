@@ -69,6 +69,8 @@
     "lib/gui/docker.ts",
     "lib/gui/split-panel/split-panel.tsx",
     "lib/gui/window.ts",
+    "lib/gui/window/react-window.tsx",
+    "lib/gui/window-manager/window-manager.tsx",
     "lib/gui/context-menu.ts",
     "lib/gui/treeview.ts",
     "lib/gui/tab/tab.tsx",

@@ -396,6 +396,8 @@ body {
     width:50%;
 }
 
+@import 'gui/window-manager/style.scss';
+@import 'gui/window/style.scss';
 @import 'gui/list/style.scss';
 @import 'gui/logger/style.scss';
 @import 'gui/tab/style.scss';

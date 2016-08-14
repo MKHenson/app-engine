@@ -2801,6 +2801,45 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IReactWindowProps {
+        open: boolean;
+        title: string;
+        modal?: boolean;
+        popup?: boolean;
+        controlBox?: boolean;
+    }
+    interface IReactWindowState {
+        open: boolean;
+        centered?: boolean;
+    }
+    class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
+        static defaultProps: IReactWindowProps;
+        private static _windowView;
+        /**
+         * Creates an instance of the react window
+         */
+        constructor(props: IReactWindowProps);
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
+        show(x: number, y: number): void;
+        hide(): void;
+    }
+}
+declare module Animate {
+    class WindowManager extends React.Component<any, any> {
+        private _window;
+        constructor(props: any);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     class ContextMenuItem extends Component {
         private _text;
         private _imgURL;
