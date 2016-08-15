@@ -1,0 +1,25 @@
+.message-box {
+    .message {
+        text-align:center;
+        margin:10px;
+        background: $background-primary;
+    }
+
+    .buttons {
+        text-align:center;
+    }
+    .button {
+        margin:5px;
+    }
+
+    .attention .icon {
+        font-size: 30px;
+        padding: 0 20px;
+    }
+}
+.window.message-box {
+    padding: 0;
+    left: 50%;
+    width:auto;
+    height:auto;
+}

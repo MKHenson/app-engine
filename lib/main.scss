@@ -153,26 +153,6 @@ Please only put css rules in here for layout related requirements.
     margin: 5px 0 0 0;
     min-width: 160px;
 }
-
-/**
-*  MESSAGE BOX
-*/
-.message-box .message {
-    text-align:center;
-    margin:10px;
-}
-.window.message-box {
-    padding: 15px;
-    left: 50%;
-    width:auto;
-    height:auto;
-}
-.message-box .buttons {
-    text-align:center;
-}
-.message-box .button {
-    margin:5px;
-}
 /**
 * EDIT ICON
 */
