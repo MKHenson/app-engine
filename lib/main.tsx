@@ -100,7 +100,7 @@ jQuery(document).ready(function () {
     jQuery.getJSON(`${Animate.DB.API}/plugins`).done(function (response: ModepressAddons.IGetProjects) {
         onPluginsLoaded(response.data);
     }).fail(function (err: JQueryXHR)  {
-        Animate.MessageBox.show(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`, ["Ok"], null, null);
+        document.write(`An error occurred while connecting to the server. ${err.status}: ${err.responseText}`);
     }).always(function () {
         Animate.LoaderBase.hideLoader();
     });
