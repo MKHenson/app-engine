@@ -1,4 +1,8 @@
 module Animate {
+
+	/**
+	 * Describes the type of log message
+	 */
 	export enum LogType {
 		MESSAGE,
 		WARNING,
@@ -10,24 +14,14 @@ module Animate {
 	 */
 	export class Logger extends List  {
 		private static _singleton : Logger;
-		private _context: ContextMenu;
-		private mContextProxy: any;
 
+		/**
+		 * Creates an instance of the logger
+		 */
 		constructor( props: IListProps ) {
 			super( props );
 
 			Logger._singleton = this;
-
-			this._context = new ContextMenu();
-            this._context.addItem(new ContextMenuItem("Clear", "media/cross.png" ) );
-
-			//Add listeners
-			this.mContextProxy =  this.onContext.bind( this );
-			jQuery( document ).on( "contextmenu", this.mContextProxy );
-			// TODO: Needs to be implemented when context menu is implemented in TSX
-			//=========================================================
-			// this._context.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
-			// ==========================================================
 		}
 
 		/**
@@ -35,46 +29,19 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-			return <div className="logger">
+			return <div onContextMenu={(e) => {
+					e.preventDefault();
+					ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : [{
+						label: 'Clear',
+						prefix:  <i className="fa fa-times" aria-hidden="true"></i>,
+						onSelect: (item) => { this.clear(); }
+					}] });
+				}}
+				className="logger"
+			>
 				{super.render()}
 			</div>
 		}
-
-		// TODO: Needs to be implemented when context menu is implemented in TSX
-		//=========================================================
-		// /**
-		// * Called when the context menu is about to open
-		// */
-		// onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) {
-		// 	if ( event.item.text == "Clear" ) {
-		// 		//Unselect all other items
-		// 		this.clear();
-		// 	}
-		// }
-		//=========================================================
-
-
-		// TODO: Needs to be implemented when context menu is implemented in TSX
-		//=========================================================
-		/**
-		* Called when the context menu is about to open
-		*/
-		onContext( e : any ) {
-			// //Now hook the context events
-			// var targ : JQuery = jQuery( e.target );
-			// if ( targ.is( jQuery( ".menu-list-item" ) ) || targ.is( jQuery( ".menu-list" ) ) ) {
-			// 	if ( targ.is( jQuery( ".menu-list-item" ) ) && targ.parent().data( "component" ) != this )
-			// 		return;
-			// 	else if ( targ.is( jQuery( ".menu-list" ) ) && targ.data( "component" ) != this )
-			// 		return;
-
-			// 	e.preventDefault();
-
-			// 	this._context.show( null, e.pageX,  e.pageY, false, true );
-			// 	throw new Error("Not implemented");
-			// }
-		}
-		//=========================================================
 
 		/**
 		 * Logs a message to the logger
