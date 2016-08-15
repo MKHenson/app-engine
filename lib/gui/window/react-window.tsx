@@ -67,6 +67,7 @@ module Animate {
             ReactWindow._openWindows = id;
 
             props._closing = () => {
+                ReactWindow._windows[id].window.remove();
                 ReactDOM.unmountComponentAtNode( ReactWindow._windows[id].window );
                 ReactWindow._windows[id] = null;
             };
@@ -156,6 +157,9 @@ module Animate {
          * Called when the window is to be removed
          */
         componentWillUnmount() {
+            window.removeEventListener('mouseup', this._mouseUpProxy);
+            document.body.removeEventListener('mousemove', this._mouseMoveProxy);
+
             if ( this.props.canResize ) {
                  let elm = ReactDOM.findDOMNode( this.refs['window'] );
                 jQuery(elm).resizable('destroy');
