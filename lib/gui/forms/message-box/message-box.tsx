@@ -1,84 +1,65 @@
 module Animate {
+
+	export interface IMessageBoxProps extends IReactWindowProps {
+        message?:string;
+		onChange?: (button : string) => void;
+		buttons?: string[];
+		type?: AttentionType;
+    }
+
 	/**
-	* A window to show a blocking window with a message to the user.
-	*/
-	export class MessageBox extends Window {
-        private static _singleton: MessageBox;
-
-        private $message: string;
-        private $buttons: Array<string>;
-        private _handle: JQuery;
-		private _callback: ( text : string ) => void;
-		private _context: any;
-
-		constructor() {
-            super(400, 200, true, false, null);
-
-            this.$message = "";
-            this.$buttons = [];
-            this._handle = Compiler.build(jQuery("#en-message-box").remove(), this);
-            this.content.element.append(this._handle);
-            this.element.addClass("message-box");
-            this.element.css({ "width": "", "height":"" });
-
-			//Hook events
-			jQuery( window ).on( 'resize', this.onResize.bind( this ) );
+	 * A window to show a blocking window with a message to the user.
+	 */
+	export class MessageBox extends ReactWindow<IMessageBoxProps> {
+		static defaultProps: IMessageBoxProps = {
+			buttons: ['Ok'],
+			className: 'message-box',
+			canResize: false,
+			autoCenter: true,
+			modal: true,
+			type: AttentionType.ERROR
 		}
 
 		/**
-		* Hide the window when ok is clicked.
-		* @param {any} e The jQuery event object
-		*/
-        onButtonClick(e: MouseEvent, button: string) {
-			this.hide();
-			if ( this._callback )
-                this._callback.call(this._context ? this._context : this, button );
+		 * Creates a new instance of the message box
+		 */
+		constructor(props : IMessageBoxProps) {
+            super(props);
 		}
 
 		/**
-		* When the window resizes we make sure the component is centered
-		* @param {any} e The jQuery event object
-		*/
-		onResize( e ) {
-			if ( this.visible )
-                this.center();
-		}
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent() : React.ReactNode {
+            return <div id="en-message-box">
+				<Attention allowClose={false} mode={this.props.type}>
+					<p>{this.props.message}</p>
+					<div className="buttons">
+						{
+							this.props && this.props.buttons.map((button, index)=> {
+								return <div key={'button-' + index}
+									className="button reg-gradient curve-small"
+									onClick={(e)=>{ this.onButtonClick(e, button) }}>
+									{button}
+								</div>
+							})
+						}
+
+					</div>
+				</Attention>
+			</div>
+        }
 
 		/**
-		* Static function to show the message box
-		* @param {string} caption The caption of the window
-		* @param {Array<string>} buttons An array of strings which act as the forms buttons
-		* @param { ( text : string ) => void} callback A function to call when a button is clicked
-		* @param {any} context The function context (ie the caller object)
-		*/
-		public static show( caption: string, buttons?: Array<string>, callback?: ( text: string ) => void, context? : any ) {
-            var box: MessageBox = MessageBox.getSingleton();
+		 * Hide the window when ok is clicked.
+		 * @param {any} e The jQuery event object
+		 */
+        onButtonClick(e: React.MouseEvent, button: string) {
+			if ( this.props.onChange )
+				this.props.onChange(button);
 
-            //box.mCaption.text = caption;
-            box._callback = callback;
-            box._context = context;
-
-            //If no buttons specified - then add one
-            if ( !buttons )
-                buttons = ["Ok"];
-
-            box.$message = caption;
-            box.$buttons = buttons;
-            Compiler.digest(box._handle, box);
-
-            //Center and show the box
-            box.show(Application.bodyComponent, NaN, NaN, true);
-		}
-
-		/**
-		* Gets the message box singleton
-		* @returns {MessageBox}
-		*/
-		static getSingleton() : MessageBox {
-            if (!MessageBox._singleton)
-                MessageBox._singleton = new MessageBox();
-
-			return MessageBox._singleton;
+			this.props._closing();
 		}
 	}
 }
