@@ -8,12 +8,6 @@
     background-color: rgba(0,0,0,0.3);
 }
 
-.anim-shadow-focus{
-    animation: framesShadowFocus 0.5s linear 0s;
-    -moz-animation: framesShadowFocus 0.5s linear 0s;
-    -webkit-animation: framesShadowFocus 0.5s linear 0s;
-}
-
 @include keyframes(framesShadowFocus) {
     0%   { box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.2); }
     25%  { box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.2); }
@@ -30,55 +24,51 @@
     top: calc(50% - 200px );
     left: calc(50% - 300px );
     box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
-}
-.window-content {
-    position:relative;
-    overflow:auto;
-    height:calc(100% - 30px);
-    width:100%;
-}
-.window-content.no-control {
-    height:100%;
-}
-.window-control-box {
-    height: 30px;
-    cursor: pointer;
-    background: $haze-gradient;
-}
-.window-control-box .close-but {
-    margin: 0;
-    padding:0 10px;
-    line-height: 30px;
-}
-.window-header {
-    float: left;
-    margin: 5px 0 0 5px;
-    font-size: 20px;
-    line-height: 20px;
+    background: $background-primary;
 
-}
-.close-but {
-    float: right;
-    font-size: 16px;
-    margin-left: 10px;
-    cursor: pointer;
-}
+    &.anim-shadow-focus {
+        animation: framesShadowFocus 0.5s linear 0s;
+        -moz-animation: framesShadowFocus 0.5s linear 0s;
+        -webkit-animation: framesShadowFocus 0.5s linear 0s;
+    }
 
-.window .window-content .top {
-    background:#fff;
-    overflow:auto;
-    margin:5px;
-    height: 530px;
-}
-.window .window-content .bottom .button {
-    float:right;
-    margin-right:5px;
-}
-.window .window-content .top .list-view {
-    min-height:530px;
-}
-.window .info .textfield {
-    text-align:left;
-    font-style:italic;
-    color: #999;
+    .window-content {
+        position:relative;
+        overflow:auto;
+        height:calc(100% - 30px);
+        width:100%;
+
+        &.no-control {
+            height:100%;
+        }
+    }
+    .window-control-box {
+        height: 30px;
+        cursor: pointer;
+        background: $haze-gradient;
+    }
+
+    .close-but {
+        margin: 0;
+        padding:0 10px;
+        line-height: 30px;
+        float: right;
+        font-size: 16px;
+        margin-left: 10px;
+        cursor: pointer;
+
+        background-color: rgba(0,0,0,0.1);
+        &:hover {
+            background-color: rgba(0,0,0,0.3);
+            color:#fff;
+        }
+    }
+
+    .window-header {
+        padding: 2px 0 0 2px;
+        font-size: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
