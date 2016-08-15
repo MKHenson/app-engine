@@ -1,6 +1,6 @@
 module Animate {
 
-	export interface IOptionsProject extends IReactWindowProps {
+	export interface IOptionsProjectProps extends IReactWindowProps {
     }
 
     export interface IOptionsProjectState {
@@ -12,14 +12,14 @@ module Animate {
 	/**
 	 * A component for editing the project properties
 	 */
-	export class OptionsProject extends React.Component<IOptionsUser, IOptionsProjectState> {
-		static defaultProps: IOptionsProject = {
+	export class OptionsProject extends React.Component<IOptionsProjectProps, IOptionsProjectState> {
+		static defaultProps: IOptionsProjectProps = {
 		}
 
         /**
          * Creates a new instance
          */
-        constructor( props : IOptionsProject) {
+        constructor( props : IOptionsProjectProps) {
             super(props);
             this.state = {
                 errorMsg: null,

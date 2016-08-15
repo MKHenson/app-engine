@@ -5695,17 +5695,19 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface IOptionsBuild extends IReactWindowProps {
+    interface IOptionsBuildState {
+    }
+    interface IOptionsBuildProps extends IReactWindowProps {
     }
     /**
      * A component for editing the build properties
      */
-    class OptionsBuild extends React.Component<IOptionsUser, any> {
-        static defaultProps: IOptionsBuild;
+    class OptionsBuild extends React.Component<IOptionsBuildProps, any> {
+        static defaultProps: IOptionsBuildProps;
         /**
          * Creates a new instance
          */
-        constructor(props: IOptionsBuild);
+        constructor(props: IOptionsBuildProps);
         /**
          * Draws the options JSX
          * @returns {JSX.Element}
@@ -5714,17 +5716,21 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface IOptionsUser {
+    interface IOptionsUserProps {
+    }
+    interface IOptionsUserStats {
+        loadingPercent: number;
+        errorMsgUserImg: string;
     }
     /**
      * A component for editing the user properties
      */
-    class OptionsUser extends React.Component<IOptionsUser, any> {
-        static defaultProps: IOptionsUser;
+    class OptionsUser extends React.Component<IOptionsUserProps, any> {
+        static defaultProps: IOptionsUserProps;
         /**
          * Creates a new instance
          */
-        constructor(props: IOptionsUser);
+        constructor(props: IOptionsUserProps);
         /**
          * Draws the options JSX
          * @returns {JSX.Element}
@@ -5733,7 +5739,7 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface IOptionsProject extends IReactWindowProps {
+    interface IOptionsProjectProps extends IReactWindowProps {
     }
     interface IOptionsProjectState {
         errorMsg: string;
@@ -5743,12 +5749,12 @@ declare module Animate {
     /**
      * A component for editing the project properties
      */
-    class OptionsProject extends React.Component<IOptionsUser, IOptionsProjectState> {
-        static defaultProps: IOptionsProject;
+    class OptionsProject extends React.Component<IOptionsProjectProps, IOptionsProjectState> {
+        static defaultProps: IOptionsProjectProps;
         /**
          * Creates a new instance
          */
-        constructor(props: IOptionsProject);
+        constructor(props: IOptionsProjectProps);
         /**
          * Draws the options JSX
          * @returns {JSX.Element}

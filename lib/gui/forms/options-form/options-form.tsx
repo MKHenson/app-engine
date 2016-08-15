@@ -12,7 +12,8 @@ module Animate {
             canResize: true,
             autoCenter: true,
             title: 'Options Form',
-            modal: true
+            modal: true,
+            className: 'build-options-form'
 		}
 
         /**
