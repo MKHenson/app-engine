@@ -426,7 +426,8 @@ module Animate {
 					}
 				}
 				else {
-					MessageBox.show(event.message, Array<string>("Ok"), null, null );
+					// TODO: This should be a pure function - no gui calls allowed
+					// MessageBox.show(event.message, Array<string>("Ok"), null, null );
 					//this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
 				}
 			}

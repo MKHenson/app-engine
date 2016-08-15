@@ -95,7 +95,12 @@ module Animate {
                 var canvas = tabPair.canvas;
                 if (!tabPair.forceClose && tabPair.modified && !canvas.container.disposed) {
                     this.closingTabPair = tabPair;
-                    MessageBox.show("Do you want to save this node before you close it?", ["Yes", "No"], this.onMessage, this);
+
+					ReactWindow.show(MessageBox, {
+						message : "Do you want to save this node before you close it?",
+						buttons: ["Yes", "No"],
+						onChange: (button) => { this.onMessage(button) }
+					} as IMessageBoxProps);
                     return false;
                 }
                 else

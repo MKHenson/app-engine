@@ -822,7 +822,7 @@ module Animate {
 				var nameOfBehaviour: string = "";
 				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
 				if ( cyclic ) {
-                    MessageBox.show(`You have a cylic dependency with the behaviour '${nameOfBehaviour}'`, ["Ok"], null, null );
+					ReactWindow.show(MessageBox, { message : `You have a cylic dependency with the behaviour '${nameOfBehaviour}'` } as IMessageBoxProps);
 					return null;
 				}
 				toAdd = new BehaviourInstance( this, container );

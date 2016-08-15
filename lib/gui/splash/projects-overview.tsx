@@ -42,7 +42,7 @@ module Animate {
             this._user.removeProject(this.state.selectedProject._id).then( () => {
                 this._list.removeProject( this.state.selectedProject );
             }).catch(function (err: Error) {
-                MessageBox.show(err.message);
+                ReactWindow.show(MessageBox, { message : err.message } as IMessageBoxProps);
             });
         }
 
@@ -69,8 +69,11 @@ module Animate {
                     <div className="buttons">
                         <div className="button">
                             <a onClick={ () => {
-                                Animate.MessageBox.show(`Are you sure you want to permanently remove the project '${project.name}'?`,
-                                    ['Yes Delete It', 'No'], this.removeProject, this);
+                                ReactWindow.show(MessageBox, {
+                                    message : `Are you sure you want to permanently remove the project '${project.name}'?`,
+                                    buttons: ["Yes", "No"],
+                                    onChange: (button) => { this.removeProject(button) }
+                                } as IMessageBoxProps);
                             }}>REMOVE</a>
                         </div>
                         <div className="button green animate-all"

@@ -377,12 +377,16 @@ module Animate {
                         for (var i = 0, l = context.nodes.length; i < l; i++)
                             if (context.nodes[i].modified) {
                                 message = true;
-                                MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text) {
-                                    if (text == "Yes")
-                                        resolveRequest( project.loadResources(ResourceType.CONTAINER), context);
-                                    else
-                                        context.loading = true;
-                                });
+								ReactWindow.show(MessageBox, {
+									message :"You have unsaved work are you sure you want to refresh?",
+									buttons: ["Yes", "No"],
+									onChange: function(button) {
+										if (button == "Yes")
+											resolveRequest( project.loadResources(ResourceType.CONTAINER), context);
+										else
+											context.loading = true;
+									}
+								} as IMessageBoxProps);
                                 break;
                             }
 
@@ -400,12 +404,16 @@ module Animate {
                     else if (context instanceof TreeNodeResource) {
                         context.loading = true;
                         if (context.modified)  {
-                            MessageBox.show("You have unsaved work are you sure you want to refresh?", ["Yes", "No"], function (text) {
-                                if (text == "Yes")
-                                    resolveRequest(project.refreshResource((<ProjectResource<Engine.IResource>>context.resource).entry._id), context);
-                                else
-                                    context.loading = false;
-                            });
+							ReactWindow.show(MessageBox, {
+									message :"You have unsaved work are you sure you want to refresh?",
+									buttons: ["Yes", "No"],
+									onChange: function(button) {
+										if (button == "Yes")
+											resolveRequest(project.refreshResource((<ProjectResource<Engine.IResource>>context.resource).entry._id), context);
+										else
+											context.loading = false;
+									}
+								} as IMessageBoxProps);
                             break;
                         }
                         else

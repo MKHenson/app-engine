@@ -1703,7 +1703,8 @@ module Animate {
 				}
 				else
 				{
-					MessageBox.show(event.message, Array<string>("Ok"), null, null );
+					// TODO: This should be removed
+					// MessageBox.show(event.message, Array<string>("Ok"), null, null );
 					//this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, data ) );
 				}
 			}

@@ -81,7 +81,7 @@ module Animate {
 								this.onRun() }} label="Run" imgUrl="media/play.png"  />
 							<ToolbarButton onChange={(e) => {
 								//Animate.BuildOptionsForm.getSingleton().show()
-								ReactWindow.show(ReactWindow, {title: "Hello", controlBox: false})
+								ReactWindow.show(MessageBox, { type: AttentionType.ERROR, message : "This is a test" } as IMessageBoxProps);
 							}} label="Settings" imgUrl="media/build.png" />
 							<ToolbarButton onChange={(e) => {
 								Animate.CanvasTab.getSingleton().addSpecialTab('HTML', Animate.CanvasTabType.HTML ) }} label="HTML" imgUrl="media/html.png" />

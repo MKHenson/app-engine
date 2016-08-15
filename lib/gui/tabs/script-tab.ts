@@ -296,25 +296,26 @@ module Animate {
 		onRemove( data ) {
 			var tab = this;
 
-			// When we get a user response from the message box.
-			var onMessage = function ( val: string ) {
-				if ( val == "Yes" ) {
-					tab.close = true;
-					tab.save();
-				}
-				else {
-					tab.close = true;
-					tab.saved = true;
-
-					// TODO: Commented out due to update to TSX
-					// CanvasTab.getSingleton().removeTab( tab, true );
-				}
-			};
-
 			// If not saved ask the user.
 			if ( !this.saved ) {
 				data.cancel = true;
-				MessageBox.show( "Script not saved, would you like to save it now?", ["Yes", "No"], onMessage, this );
+				ReactWindow.show(MessageBox, {
+					message :"You have unsaved work are you sure you want to refresh?",
+					buttons: ["Yes", "No"],
+					onChange: (button) => {
+						if ( button == "Yes" ) {
+							tab.close = true;
+							tab.save();
+						}
+						else {
+							tab.close = true;
+							tab.saved = true;
+
+							// TODO: Commented out due to update to TSX
+							// CanvasTab.getSingleton().removeTab( tab, true );
+						}
+					}
+				} as IMessageBoxProps);
 				return;
 			}
 
@@ -353,7 +354,7 @@ module Animate {
 			var onSave = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?:EventDispatcher ) {
 				if ( response == LoaderEvents.COMPLETE ) {
 					if (event.return_type == AnimateLoaderResponses.ERROR ) {
-						MessageBox.show("There was an error saving the script: '" + event.message + "'", Array<string>("Ok"), null, null );
+						ReactWindow.show(MessageBox, { message : "There was an error saving the script: '" + event.message + "'" } as IMessageBoxProps);
 						return;
 					}
 

@@ -2808,6 +2808,7 @@ declare module Animate {
         popup?: boolean;
         controlBox?: boolean;
         canResize?: boolean;
+        className?: string;
         _id?: number;
         _closing?: () => void;
     }
@@ -2818,10 +2819,11 @@ declare module Animate {
      * The base class for all windows in the application. Most windows will be derived from this class.
      * You can display/hide the window by using the static Window.show and Window.hide methods.
      */
-    class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
+    class ReactWindow<T extends IReactWindowProps> extends React.Component<T, IReactWindowState> {
         private static _openWindows;
         private static _windows;
         static defaultProps: IReactWindowProps;
+        private _resizeProxy;
         private _mouseMoveProxy;
         private _mouseUpProxy;
         private _mouseDeltaX;
@@ -2829,7 +2831,7 @@ declare module Animate {
         /**
          * Creates an instance of the react window
          */
-        constructor(props: IReactWindowProps);
+        constructor(props: T);
         /**
          * Shows a React window component to the user
          * @param {React.ComponentClass<IReactWindowProps>} windowType The Class of Window to render.
@@ -2845,6 +2847,10 @@ declare module Animate {
          * When the user clicks the the header bar we initiate its dragging
          */
         onHeaderDown(e: React.MouseEvent): void;
+        /**
+         * Called when the window is resized
+         */
+        onResize(e: any): void;
         /**
          * When the mouse moves and we are dragging the header bar we move the window
          */
@@ -2869,6 +2875,11 @@ declare module Animate {
          * When we click the close button
          */
         onClose(): void;
+        /**
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent(): React.ReactNode;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -2896,7 +2907,8 @@ declare module Animate {
         activeItems: IReactContextMenuItem[];
     }
     /**
-     * A React component for showing a context menu
+     * A React component for showing a context menu.
+     * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
      */
     class ReactContextMenu extends React.Component<IReactContextMenuProps, IReactContextMenuState> {
         private static _menuCount;
@@ -2910,8 +2922,11 @@ declare module Animate {
         /**
          * When we click on a menu item
          */
-        onMouseDown(e: React.MouseEvent, item: IReactContextMenuItem): void;
-        drawMenuItems(item: IReactContextMenuItem, level: number, index: number): JSX.Element;
+        private onMouseDown(e, item);
+        /**
+         * Draws each of the submenu items
+         */
+        private drawMenuItems(item, level, index);
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -2920,7 +2935,7 @@ declare module Animate {
         /**
          * When the mouse is up we remove the dragging event listeners
          */
-        onMouseUp(e: MouseEvent): void;
+        private onMouseUp(e);
         /**
          * When the component is mounted
          */
@@ -5884,40 +5899,31 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IMessageBoxProps extends IReactWindowProps {
+        message?: string;
+        onChange?: (button: string) => void;
+        buttons?: string[];
+        type?: AttentionType;
+    }
     /**
-    * A window to show a blocking window with a message to the user.
-    */
-    class MessageBox extends Window {
-        private static _singleton;
-        private $message;
-        private $buttons;
-        private _handle;
-        private _callback;
-        private _context;
-        constructor();
+     * A window to show a blocking window with a message to the user.
+     */
+    class MessageBox extends ReactWindow<IMessageBoxProps> {
+        static defaultProps: IMessageBoxProps;
         /**
-        * Hide the window when ok is clicked.
-        * @param {any} e The jQuery event object
-        */
-        onButtonClick(e: MouseEvent, button: string): void;
+         * Creates a new instance of the message box
+         */
+        constructor(props: IMessageBoxProps);
         /**
-        * When the window resizes we make sure the component is centered
-        * @param {any} e The jQuery event object
-        */
-        onResize(e: any): void;
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent(): React.ReactNode;
         /**
-        * Static function to show the message box
-        * @param {string} caption The caption of the window
-        * @param {Array<string>} buttons An array of strings which act as the forms buttons
-        * @param { ( text : string ) => void} callback A function to call when a button is clicked
-        * @param {any} context The function context (ie the caller object)
-        */
-        static show(caption: string, buttons?: Array<string>, callback?: (text: string) => void, context?: any): void;
-        /**
-        * Gets the message box singleton
-        * @returns {MessageBox}
-        */
-        static getSingleton(): MessageBox;
+         * Hide the window when ok is clicked.
+         * @param {any} e The jQuery event object
+         */
+        onButtonClick(e: React.MouseEvent, button: string): void;
     }
 }
 declare module Animate {

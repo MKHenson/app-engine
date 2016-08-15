@@ -70,7 +70,12 @@
         onRemove(event: TabEvent) {
             if (this.modified) {
                 event.cancel = true;
-                MessageBox.show("Document not saved, would you like to save it now?", ["Yes", "No"], this._proxyMessageBox, this);
+
+                ReactWindow.show(MessageBox, {
+                    message : "Document not saved, would you like to save it now?",
+                    buttons: ["Yes", "No"],
+                    onChange: (button) => { this.onMessage(button) }
+                } as IMessageBoxProps);
                 return;
             }
 

@@ -81,7 +81,7 @@ module Animate {
 					}
 				}
 				else if (event.message)
-					MessageBox.show( event.message, ["Ok"], null, null );
+					ReactWindow.show(MessageBox, { message : event.message } as IMessageBoxProps);
 			}
 		}
 
