@@ -5695,6 +5695,81 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IOptionsBuild extends IReactWindowProps {
+    }
+    /**
+     * A component for editing the build properties
+     */
+    class OptionsBuild extends React.Component<IOptionsUser, any> {
+        static defaultProps: IOptionsBuild;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IOptionsBuild);
+        /**
+         * Draws the options JSX
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IOptionsUser {
+    }
+    /**
+     * A component for editing the user properties
+     */
+    class OptionsUser extends React.Component<IOptionsUser, any> {
+        static defaultProps: IOptionsUser;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IOptionsUser);
+        /**
+         * Draws the options JSX
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IOptionsProject extends IReactWindowProps {
+    }
+    /**
+     * A component for editing the project properties
+     */
+    class OptionsProject extends React.Component<IOptionsUser, any> {
+        static defaultProps: IOptionsProject;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IOptionsProject);
+        /**
+         * Draws the options JSX
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IOptionsForm extends IReactWindowProps {
+    }
+    /**
+     * A form for editing various project/user options
+     */
+    class OptionsForm extends ReactWindow<IOptionsForm> {
+        static defaultProps: IOptionsForm;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IOptionsForm);
+        /**
+         * Gets the content JSX for the window.
+         */
+        getContent(): React.ReactNode;
+    }
+}
+declare module Animate {
     /**
     * Use this form to set the project meta and update build versions.
     */
