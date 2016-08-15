@@ -2807,12 +2807,17 @@ declare module Animate {
         modal?: boolean;
         popup?: boolean;
         controlBox?: boolean;
+        canResize?: boolean;
         _id?: number;
         _closing?: () => void;
     }
     interface IReactWindowState {
         centered?: boolean;
     }
+    /**
+     * The base class for all windows in the application. Most windows will be derived from this class.
+     * You can display/hide the window by using the static Window.show and Window.hide methods.
+     */
     class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
         private static _openWindows;
         private static _windows;
@@ -2825,13 +2830,44 @@ declare module Animate {
          * Creates an instance of the react window
          */
         constructor(props: IReactWindowProps);
+        /**
+         * Shows a React window component to the user
+         * @param {React.ComponentClass<IReactWindowProps>} windowType The Class of Window to render.
+         * @param {IReactWindowProps} props The properties to use for the window component
+         */
         static show(windowType: React.ComponentClass<IReactWindowProps>, props?: IReactWindowProps): number;
+        /**
+         * Hides/Removes a window component by id
+         * @param {number} id
+         */
         static hide(id: number): void;
+        /**
+         * When the user clicks the the header bar we initiate its dragging
+         */
         onHeaderDown(e: React.MouseEvent): void;
+        /**
+         * When the mouse moves and we are dragging the header bar we move the window
+         */
         onMouseMove(e: MouseEvent): void;
+        /**
+         * When the mouse is up we remove the dragging event listeners
+         */
         onMouseUp(e: MouseEvent): void;
+        /**
+         * When the component is mounted
+         */
         componentDidMount(): void;
+        /**
+         * Called when the window is to be removed
+         */
+        componentWillUnmount(): void;
+        /**
+         * When we click the modal we highlight the window
+         */
         onModalClick(): void;
+        /**
+         * When we click the close button
+         */
         onClose(): void;
         /**
          * Creates the component elements
@@ -2841,22 +2877,68 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class WindowManager extends React.Component<any, any> {
-        static _singleton: WindowManager;
-        private _windows;
+    interface IReactContextMenuItem {
+        onSelect?: (item: IReactContextMenuItem) => void;
+        tag?: any;
+        label: string;
+        prefix?: JSX.Element;
+        image?: string;
+        items?: IReactContextMenuItem[];
+    }
+    interface IReactContextMenuProps {
+        x: number;
+        y: number;
+        className?: string;
+        items?: IReactContextMenuItem[];
+        _closing?: () => void;
+    }
+    interface IReactContextMenuState {
+        activeItems: IReactContextMenuItem[];
+    }
+    /**
+     * A React component for showing a context menu
+     */
+    class ReactContextMenu extends React.Component<IReactContextMenuProps, IReactContextMenuState> {
+        private static _menuCount;
+        private static _menus;
+        static defaultProps: IReactContextMenuProps;
+        private _mouseUpProxy;
         /**
-         * Creates an instance of the window manager
+         * Creates a context menu instance
          */
-        constructor(props: any);
+        constructor(props: IReactContextMenuProps);
+        /**
+         * When we click on a menu item
+         */
+        onMouseDown(e: React.MouseEvent, item: IReactContextMenuItem): void;
+        drawMenuItems(item: IReactContextMenuItem, level: number, index: number): JSX.Element;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
-         * Gets the window manager singleton
+         * When the mouse is up we remove the dragging event listeners
          */
-        get(): WindowManager;
+        onMouseUp(e: MouseEvent): void;
+        /**
+         * When the component is mounted
+         */
+        componentDidMount(): void;
+        /**
+         * Called when the component is to be removed
+         */
+        componentWillUnmount(): void;
+        /**
+         * Shows a React context menu component to the user
+         * @param {IReactContextMenuProps} props The properties to use for the context menu component
+         */
+        static show(props: IReactContextMenuProps): number;
+        /**
+         * Hides/Removes a context menu component by id
+         * @param {number} id
+         */
+        static hide(id: number): void;
     }
 }
 declare module Animate {
@@ -6038,6 +6120,9 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     * Describes the type of log message
+     */
     enum LogType {
         MESSAGE = 0,
         WARNING = 1,
@@ -6048,18 +6133,15 @@ declare module Animate {
      */
     class Logger extends List {
         private static _singleton;
-        private _context;
-        private mContextProxy;
+        /**
+         * Creates an instance of the logger
+         */
         constructor(props: IListProps);
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
-        /**
-        * Called when the context menu is about to open
-        */
-        onContext(e: any): void;
         /**
          * Logs a message to the logger
          * @param {string} val The text to show on the logger.
