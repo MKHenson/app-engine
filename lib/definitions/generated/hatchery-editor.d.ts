@@ -5735,10 +5735,15 @@ declare module Animate {
 declare module Animate {
     interface IOptionsProject extends IReactWindowProps {
     }
+    interface IOptionsProjectState {
+        errorMsg: string;
+        errorMsgProjImg: string;
+        loadingPercent: number;
+    }
     /**
      * A component for editing the project properties
      */
-    class OptionsProject extends React.Component<IOptionsUser, any> {
+    class OptionsProject extends React.Component<IOptionsUser, IOptionsProjectState> {
         static defaultProps: IOptionsProject;
         /**
          * Creates a new instance
