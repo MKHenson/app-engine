@@ -350,7 +350,6 @@ body {
     width:50%;
 }
 
-@import 'gui/window-manager/style.scss';
 @import 'gui/window/style.scss';
 @import 'gui/list/style.scss';
 @import 'gui/logger/style.scss';
@@ -950,13 +949,6 @@ a:active, a:hover {
 }
 .dark-color {
     background-color: #292E38;
-}
-.black-tint {
-    background-color: rgba(0,0,0,0.1);
-}
-.black-tint:hover {
-    background-color: rgba(0,0,0,0.3);
-    color:#fff;
 }
 .light-modal {
     background-color: rgba(255,255,255,0.7);
