@@ -139,7 +139,7 @@
     "lib/gui/forms/ok-cancel-form.ts",
     "lib/gui/forms/options-form/build-options-form.ts",
     "lib/gui/forms/file-viewer/file-viewer.ts",
-    "lib/gui/forms/message-box/message-box.ts",
+    "lib/gui/forms/message-box/message-box.tsx",
     "lib/gui/forms/portal-form/portal-form.ts",
     "lib/gui/forms/rename-form/rename-form.ts",
     "lib/gui/forms/user-privileges-form.ts",
