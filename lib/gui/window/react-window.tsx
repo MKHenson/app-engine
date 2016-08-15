@@ -7,6 +7,7 @@ module Animate {
         popup?: boolean;
         controlBox? : boolean;
         canResize? : boolean;
+        className?: string;
         _id?: number;
         _closing?: () => void;
     }
@@ -19,7 +20,7 @@ module Animate {
      * The base class for all windows in the application. Most windows will be derived from this class.
      * You can display/hide the window by using the static Window.show and Window.hide methods.
      */
-    export class ReactWindow extends React.Component<IReactWindowProps, IReactWindowState> {
+    export class ReactWindow<T extends IReactWindowProps> extends React.Component<T, IReactWindowState> {
         private static _openWindows: number = 0;
         private static _windows : { [id: number]: {
             window : HTMLElement,
@@ -35,6 +36,7 @@ module Animate {
             canResize: true
         };
 
+        private _resizeProxy: any;
         private _mouseMoveProxy: any;
         private _mouseUpProxy: any;
         private _mouseDeltaX: number;
@@ -43,9 +45,10 @@ module Animate {
         /**
          * Creates an instance of the react window
          */
-        constructor(props: IReactWindowProps) {
+        constructor(props: T) {
             super(props);
 
+            this._resizeProxy = this.onResize.bind(this);
             this._mouseMoveProxy = this.onMouseMove.bind(this);
             this._mouseUpProxy = this.onMouseUp.bind(this);
             this._mouseDeltaX = 0;
@@ -98,7 +101,7 @@ module Animate {
          */
         onHeaderDown(e: React.MouseEvent) {
             e.preventDefault();
-            let w = this.refs['window'] as ReactWindow;
+            let w = this.refs['window'] as ReactWindow<T>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let bounds = elm.getBoundingClientRect();
 
@@ -110,10 +113,24 @@ module Animate {
         }
 
         /**
+         * Called when the window is resized
+         */
+        onResize(e) {
+
+            // When the component is mounted, check if it needs to be centered
+            if ( this.props.autoCenter ) {
+                let w = this.refs['window'] as ReactWindow<T>;
+                let elm = ReactDOM.findDOMNode(w) as HTMLElement;
+                elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
+                elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
+            }
+        }
+
+        /**
          * When the mouse moves and we are dragging the header bar we move the window
          */
         onMouseMove(e: MouseEvent) {
-            let w = this.refs['window'] as ReactWindow;
+            let w = this.refs['window'] as ReactWindow<T>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let x = e.pageX -  this._mouseDeltaX;
             let y = e.pageY -  this._mouseDeltaY;
@@ -134,9 +151,11 @@ module Animate {
          */
         componentDidMount() {
 
+            window.addEventListener('resize', this._resizeProxy);
+
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
-                let w = this.refs['window'] as ReactWindow;
+                let w = this.refs['window'] as ReactWindow<T>;
                 let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
                 elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
@@ -157,6 +176,7 @@ module Animate {
          * Called when the window is to be removed
          */
         componentWillUnmount() {
+            window.removeEventListener('resize', this._resizeProxy);
             window.removeEventListener('mouseup', this._mouseUpProxy);
             document.body.removeEventListener('mousemove', this._mouseMoveProxy);
 
@@ -171,9 +191,11 @@ module Animate {
          */
         onModalClick() {
             let elm = ReactDOM.findDOMNode(this.refs['window']) as HTMLElement;
-            elm.className = 'window';
-            setTimeout(function(){
-                elm.className = 'window anim-shadow-focus';
+            let className = 'window' + ( this.props.className ? ' ' + this.props.className : '' );
+
+            elm.className = className;
+            setTimeout(function() {
+                elm.className = className + ' anim-shadow-focus';
             }, 30);
         }
 
@@ -182,6 +204,14 @@ module Animate {
          */
         onClose() {
             this.props._closing();
+        }
+
+        /**
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent() : React.ReactNode {
+            return this.props.children;
         }
 
         /**
@@ -202,10 +232,10 @@ module Animate {
             }
             return <div>
                 {(this.props.modal ? <div className='modal-backdrop' onClick={()=>{ this.onModalClick(); }}></div> : null)}
-                <div className='window' ref="window">
+                <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' )} ref="window">
                     {controlBox}
                     <div className={'window-content' + (!this.props.controlBox ? ' no-control' : '')}>
-                        {this.props.children}
+                        {this.getContent()}
                     </div>
                 </div>
             </div>;
