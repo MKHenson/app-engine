@@ -1,16 +1,29 @@
 module Animate {
 
-    export type VGeneric = VInput | VTextarea | VCheckbox;
+    export type ValidationError = {name:string, error: string};
+
+    export type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
 
     export interface IVFormProps extends React.HTMLAttributes {
-        /** If true, prevents the form being automatically submitted */
+        /**
+         * If true, prevents the form being automatically submitted
+         */
         preventDefault?: boolean;
-        /** A callback for when submit is called and there are no validation errors */
-        onSubmitted?: (json: any, form : VForm ) => void;
-        /** A callback for when a validation error has occurred */
-        onValidationError?: (e : { name:string, error: string }[], form: VForm) => void;
-        /** A callback for when a previously invalid form is validated */
-        onValidationsResolved?: (form: VForm) => void;
+
+        /**
+         * A callback for when submit is called and there are no validation errors
+         */
+        onSubmitted: (json: any, form : VForm ) => void;
+
+        /**
+         * A callback for when a validation error has occurred
+         */
+        onValidationError: (e : ValidationError[], form: VForm) => void;
+
+        /**
+         * A callback for when a previously invalid form is validated
+         */
+        onValidationsResolved: (form: VForm) => void;
     }
 
     /**
@@ -23,7 +36,10 @@ module Animate {
      */
     export class VForm extends React.Component<IVFormProps, { error? : boolean, pristine?: boolean }> {
         public static defaultProps : IVFormProps = {
-            preventDefault: true
+            preventDefault: true,
+            onValidationError: null,
+            onValidationsResolved: null,
+            onSubmitted: null
         };
 
         private _proxyInputProblem: any;
@@ -77,6 +93,14 @@ module Animate {
                     // Set the initial values of checkbox
                     this._values[component.props.name] = { value: component.checked, error : null };
                 }
+                else if ( this.refs[i] instanceof VSelect ) {
+
+                    let component = this.refs[i] as VSelect;
+                    let domNode = ReactDOM.findDOMNode(this.refs[i]) as HTMLSelectElement;
+
+                    // Set the initial values of checkbox
+                    this._values[component.props.name] = { value: (component.value ? component.value.value : null), error : null };
+                }
             }
         }
 
@@ -97,8 +121,9 @@ module Animate {
          */
         initiateSubmit() {
             let error = false;
-            let firstInputWithError: VInput | VTextarea;
+            let firstInputWithError: VInput | VTextarea | VSelect;
             let textInput : VInput | VTextarea;
+            let select: VSelect;
 
             for (let i in this.refs) {
 
@@ -112,6 +137,17 @@ module Animate {
                     }
                     else
                         textInput.highlightError = false;
+                }
+                else if ( this.refs[i] instanceof VSelect ) {
+                    select = this.refs[i] as VSelect;
+
+                    if ( select.state.error ) {
+                        firstInputWithError = select;
+                        select.highlightError = true;
+                        error = true;
+                    }
+                    else
+                        select.highlightError = false;
                 }
             }
 
@@ -164,6 +200,8 @@ module Animate {
                 this._values[target.props.name] = { value: target.state.value, error : ( e ? e.message : null ) };
             else if (target instanceof VCheckbox)
                 this._values[target.props.name] = { value: target.state.checked, error : ( e ? e.message : null ) };
+            else if (target instanceof VSelect)
+                this._values[target.props.name] = { value: ( target.state.selected ? target.state.selected.value : null ), error : ( e ? e.message : null ) };
 
             for (let i in this._values )
                 if (this._values[i].error)
@@ -211,6 +249,9 @@ module Animate {
                 className={className}
                 onSubmit={(e)=>{ this.onSubmit(e); }}> {
                     React.Children.map( this.props.children, ( i : React.ReactElement<any>, index ) => {
+                        if (!i)
+                            return null;
+
                         if ( i.type == VInput )
                             return React.cloneElement( i, {
                                 ref: index.toString(),
@@ -232,6 +273,14 @@ module Animate {
                                     this._values[input.name] = { value: checked, error : null };
                                 }
                             } as IVCheckboxProps )
+                        }
+                        else if ( i.type == VSelect ) {
+                            return React.cloneElement( i, {
+                                ref: index.toString(),
+                                onOptionSelected : (option, element)=>{
+                                    this._values[element.name] = { value: (option ? option.value : null), error : null };
+                                }
+                            } as IVSelectProps )
                         }
                         else
                             return i;

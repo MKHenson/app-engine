@@ -25,27 +25,6 @@ Please only put css rules in here for layout related requirements.
     box-sizing: border-box;
     line-height:normal;
 }
-
-.dropdown {
-    border: 0px solid #ccc;
-    border-radius: 3px;
-    overflow: hidden;
-    background: #F0F0F0 url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat 95% 50%;
-}
-
-.dropdown select {
-    padding: 5px 8px;
-    width: 100%;
-    border: none;
-    box-shadow: none;
-    background: transparent;
-    background-image: none;
-    -webkit-appearance: none;
-}
-
-.dropdown select:focus {
-    outline: none;
-}
 .tick-outer {
     margin:0 10px 0 0;
 }
@@ -329,6 +308,7 @@ body {
 @import 'gui/v-input/style.scss';
 @import 'gui/v-textarea/style.scss';
 @import 'gui/v-checkbox/style.scss';
+@import 'gui/v-select/style.scss';
 @import 'gui/toolbar/toolbar-button/style.scss';
 @import 'gui/toolbar/style.scss';
 @import 'gui/plugins-widget/style.scss';
@@ -379,89 +359,7 @@ body {
 
 
 
-/**
-*  OPTIONS WINDOW
-*  =========================
-*/
-.field-option {
-    margin:10px 0px 20px 0px;
-}
-.field-option .label {
-    font-weight: bold;
-    margin: 0 0 5px 5px;
-}
-.field-option .dropdown {
-    line-height: 26px;
-}
-.field-option input, .field-option textarea {
-    display:block;
-    padding:10px;
-    width:100%;
-}
-.build-options-form .button{
-    min-width:150px;
-    padding: 10px 15px;
-}
 
-/**
-*  OPTIONS WINDOW - PROJECT
-*  =========================
-*/
-#options-project .cross {
-    width:30px;
-    height:30px;
-    margin: 0 10px;
-}
-#options-project .img-preview {
-    position:relative;
-    overflow:hidden;
-    width: 200px;
-    height: 200px;
-    float: left;
-    margin-right:10px;
-}
-#upload-projet-img {
-    cursor:pointer;
-}
-#options-project .error {
-    margin: 10px 0;
-    font-weight: bold;
-}
-
-/**
-*  OPTIONS WINDOW - BUILD
-*  =========================
-*/
-#options-build .build-version input {
-    margin: 5px;
-    width: 25%;
-    vertical-align: middle;
-    display: inline-block;
-}
-
-/**
-*  OPTIONS WINDOW - USER
-*  =========================
-*/
-#options-user .img-preview {
-    position:relative;
-    overflow:hidden;
-    width: 200px;
-    height: 200px;
-    float: left;
-    margin-right:10px;
-}
-#options-user .error {
-    margin: 10px 0 0 0;
-    font-weight: bold;
-}
-#options-user .soft-text {
-    font-weight: normal;
-    float:right;
-}
-#options-user .field-option {
-    margin:10px 0px;
-}
 
 /**
 *  RENAME FORM &  PORTAL EDITOR FORM

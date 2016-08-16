@@ -4,21 +4,29 @@ module Animate {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
          * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
-         * */
+         */
         validator?: ValidationType;
 
         value?: string;
 
-        /** The minimum number of characters allowed */
+        /**
+         * The minimum number of characters allowed
+         */
         minCharacters?: number;
 
-        /** The maximum number of characters allowed */
+        /**
+         * The maximum number of characters allowed
+         */
         maxCharacters?: number;
 
-        /** Called whenever the input fails a validation test */
+        /**
+         * Called whenever the input fails a validation test
+         */
         onValidationError?: (e: Error, target: VInput) => void;
 
-        /** Called whenever the input passes a previously failed validation test*/
+        /**
+         * Called whenever the input passes a previously failed validation test
+         */
         onValidationResolved?: (target: VInput) => void;
 
         /**
