@@ -286,7 +286,7 @@ function downloadFile(url, dest, name) {
  */
 gulp.task('install-definitions', function () {
      return Promise.all([
-            downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/master/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "app-engine.d.ts"),
+            downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "app-engine.d.ts"),
             downloadFile("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
             downloadFile("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
          ]);

@@ -1682,7 +1682,7 @@ declare module Animate {
     * loading and saving data in the scene.
     */
     class Project extends EventDispatcher {
-        entry: Engine.IProject;
+        private _entry;
         saved: boolean;
         curBuild: Build;
         private _containers;
@@ -1695,6 +1695,15 @@ declare module Animate {
         * @param{string} id The database id of this project
         */
         constructor();
+        /**
+         * Gets the DB entry associated with this project
+         * @returns {Engine.IProject}
+         */
+        /**
+         * Sets the DB entry associated with this project
+         * @param {Engine.IProject}
+         */
+        entry: Engine.IProject;
         /**
         * Gets a resource by its ID
         * @param {string} id The ID of the resource
@@ -5741,9 +5750,11 @@ declare module Animate {
     interface IOptionsProjectProps extends IReactWindowProps {
     }
     interface IOptionsProjectState {
-        errorMsg: string;
-        errorMsgProjImg: string;
-        loadingPercent: number;
+        errorMsg?: string;
+        loading?: boolean;
+        error?: boolean;
+        errorMsgProjImg?: string;
+        loadingPercent?: number;
     }
     /**
      * A component for editing the project properties
@@ -5754,6 +5765,11 @@ declare module Animate {
          * Creates a new instance
          */
         constructor(props: IOptionsProjectProps);
+        /**
+         * Attempts to update the project
+         * @param {any} project details
+         */
+        updateDetails(json: any): void;
         /**
          * Draws the options JSX
          * @returns {JSX.Element}
@@ -6530,6 +6546,96 @@ declare module Animate {
     }
 }
 declare module Animate {
+    type SelectValue = {
+        label: string;
+        value: string | number;
+        selected: boolean;
+    };
+    interface IVSelectProps extends React.HTMLAttributes {
+        /**
+         * Called whenever an option is selected
+         * @param {SelectValue} option
+         * @param {HTMLSelectElement} element
+         */
+        onOptionSelected?: (option: SelectValue, element: HTMLSelectElement) => void;
+        /**
+         * An array of options to use with the select
+         */
+        options?: SelectValue[];
+        /**
+         * If true, then an empty option will be added
+         */
+        createEmptyOption?: boolean;
+        /**
+         * If true, then validation will pass when nothing is selected
+         */
+        allowEmptySelection?: boolean;
+        /**
+         * Called whenever the input fails a validation test
+         */
+        onValidationError?: (e: Error, target: VSelect) => void;
+        /**
+         * Called whenever the input passes a previously failed validation test
+         */
+        onValidationResolved?: (target: VSelect) => void;
+        /**
+         * An optional error message to use to describe when a problem occurs. If for example you have validation against
+         * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
+         * provided, then that is used instead (for example 'Please specify a value for X')
+         */
+        errorMsg?: string;
+    }
+    /**
+     * A verified select box is an one that can optionally have its value verified. The select must be used in conjunction
+     * with the VForm.
+     */
+    class VSelect extends React.Component<IVSelectProps, {
+        error?: string;
+        selected?: SelectValue;
+        highlightError?: boolean;
+    }> {
+        private _pristine;
+        /**
+         * Creates a new instance
+         */
+        constructor(props: IVSelectProps);
+        /**
+         * Gets the current selected option
+         * @returns {SelectValue}
+         */
+        value: SelectValue;
+        /**
+         * Called when the component is about to be mounted.
+         */
+        componentWillMount(): void;
+        /**
+         * Sets the highlight error state. This state adds a 'highlight-error' class which
+         * can be used to bring attention to the component
+         */
+        highlightError: boolean;
+        /**
+         * Checks the selected option
+         * @returns {string} An error string or null if there are no errors
+         */
+        validate(val: string | number): string;
+        /**
+         * Called whenever the value changes
+         * @param {React.FormEvent} e
+         */
+        private onChange(e);
+        /**
+         * Gets if this input has not been touched by the user. False is returned if it has been
+         * @returns {boolean}
+         */
+        pristine: boolean;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     interface IVCheckboxProps extends React.HTMLAttributes {
         onChecked?: (e: React.FormEvent, checked: boolean, input: HTMLInputElement) => void;
         noInteractions?: boolean;
@@ -6574,16 +6680,24 @@ declare module Animate {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
          * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
-         * */
+         */
         validator?: ValidationType;
         value?: string;
-        /** The minimum number of characters allowed */
+        /**
+         * The minimum number of characters allowed
+         */
         minCharacters?: number;
-        /** The maximum number of characters allowed */
+        /**
+         * The maximum number of characters allowed
+         */
         maxCharacters?: number;
-        /** Called whenever the input fails a validation test */
+        /**
+         * Called whenever the input fails a validation test
+         */
         onValidationError?: (e: Error, target: VInput) => void;
-        /** Called whenever the input passes a previously failed validation test*/
+        /**
+         * Called whenever the input passes a previously failed validation test
+         */
         onValidationResolved?: (target: VInput) => void;
         /**
          * An optional error message to use to describe when a problem occurs. If for example you have validation against
@@ -6647,16 +6761,24 @@ declare module Animate {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
          * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
-         * */
+         */
         validator?: ValidationType;
         value?: string;
-        /** The minimum number of characters allowed */
+        /**
+         * The minimum number of characters allowed
+         */
         minCharacters?: number;
-        /** The maximum number of characters allowed */
+        /**
+         * The maximum number of characters allowed
+         */
         maxCharacters?: number;
-        /** Called whenever the input fails a validation test */
+        /**
+         * Called whenever the input fails a validation test
+         */
         onValidationError?: (e: Error, target: VTextarea) => void;
-        /** Called whenever the input passes a previously failed validation test*/
+        /**
+         * Called whenever the input passes a previously failed validation test
+         */
         onValidationResolved?: (target: VTextarea) => void;
         /**
          * An optional error message to use to describe when a problem occurs. If for example you have validation against
@@ -6717,19 +6839,28 @@ declare module Animate {
     }
 }
 declare module Animate {
-    type VGeneric = VInput | VTextarea | VCheckbox;
+    type ValidationError = {
+        name: string;
+        error: string;
+    };
+    type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
     interface IVFormProps extends React.HTMLAttributes {
-        /** If true, prevents the form being automatically submitted */
+        /**
+         * If true, prevents the form being automatically submitted
+         */
         preventDefault?: boolean;
-        /** A callback for when submit is called and there are no validation errors */
-        onSubmitted?: (json: any, form: VForm) => void;
-        /** A callback for when a validation error has occurred */
-        onValidationError?: (e: {
-            name: string;
-            error: string;
-        }[], form: VForm) => void;
-        /** A callback for when a previously invalid form is validated */
-        onValidationsResolved?: (form: VForm) => void;
+        /**
+         * A callback for when submit is called and there are no validation errors
+         */
+        onSubmitted: (json: any, form: VForm) => void;
+        /**
+         * A callback for when a validation error has occurred
+         */
+        onValidationError: (e: ValidationError[], form: VForm) => void;
+        /**
+         * A callback for when a previously invalid form is validated
+         */
+        onValidationsResolved: (form: VForm) => void;
     }
     /**
      * A validated form is one which checks its children inputs for validation errors
