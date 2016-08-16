@@ -293,6 +293,8 @@ body {
     width:50%;
 }
 
+@import 'gui/image-preview/style.scss';
+@import 'gui/image-uploader/style.scss';
 @import 'gui/group/style.scss';
 @import 'gui/forms/options-form/style.scss';
 @import 'gui/window/style.scss';
@@ -1105,7 +1107,7 @@ iframe{ z-index:0; }
 
 
 
-.img-data .info .nb{ font-weight:bold; color:#000; }
+
 
 
 

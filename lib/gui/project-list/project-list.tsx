@@ -144,23 +144,19 @@ module Animate {
                             </div>
                             {
                                 this.state.projects.map(( p, index )=>{
-                                    return <div
-                                        key={p._id}
-                                        className="project-item img-preview unselectable"
+                                    return <ImagePreview key={p._id}
+                                        className="project-item"
+                                        selected={p.selected}
+                                        src={p.image}
+                                        label={p.name}
+                                        labelIcon={<span className="fa fa-file"/>}
                                         onDoubleClick={()=>{
                                             this.selectProject(p, true)
                                         }}
                                         onClick={()=>{
-                                                this.selectProject(p, false)
-                                            }}>
-                                            <div className="preview-child">
-                                                <div className="background-tiles inner ng-scope">
-                                                    <img className="vert-align" src={( p.image && p.image != '' ? p.image : './media/appling.png' )} />
-                                                    <div className="div-center"></div>
-                                                </div>
-                                            </div>
-                                            <div className={ 'item-name' + (p.selected ? ' reg-gradient' : '') }><span className="fa fa-file"/>{p.name}</div>
-                                        </div>
+                                            this.selectProject(p, false)
+                                        }}
+                                    />
                             })}
                             <div className="no-items unselectable" style={{ display: (this.state.projects.length ? 'none' : '')}}>
                                 {this.props.noProjectMessage}

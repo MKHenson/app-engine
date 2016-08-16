@@ -7,8 +7,6 @@ module Animate {
         infoServerMsg?: string;
         loading?: boolean;
         error?: boolean;
-        imageUploadErrMsg?: string;
-        loadingPercent?: number;
     }
 
 	/**
@@ -26,9 +24,7 @@ module Animate {
             this.state = {
                 loading: false,
                 error: false,
-                infoServerMsg: null,
-                loadingPercent: 0,
-                imageUploadErrMsg: null
+                infoServerMsg: null
             };
         }
 
@@ -117,23 +113,14 @@ module Animate {
                     </VForm>
                 </Group>
                 <Group label="Image">
-                    <div className="img-preview unselectable">
-                        <div className="preview-child">
-                            <div className="background-tiles inner ng-scope">
-                                <img className="vert-align" en-src="ctrl.$project && (ctrl.$project.entry.image || './media/appling.png')" />
-                                <div className="div-center"></div>
-                            </div>
-                        </div>
-                        <div className="item-name reg-gradient" id="upload-projet-img" en-click="ctrl.pickProjectPick()"><div className="cross"></div>Upload Image {this.state.loadingPercent}</div>
-                    </div>
                     <div className="img-data">
                         <div className="info">
                             Upload an image for the project; this image will show up in the Animate gallery for others to see.
                             <br/><br/><span className="nb">Your application must have an image in order to be shown in the gallery.</span><br/><br/>
                             Your project image should be either a .png or .jpg image that is 200 by 200 pixels.
-                            {( this.state.imageUploadErrMsg ? <Attention mode={AttentionType.ERROR}>{this.state.imageUploadErrMsg}</Attention> : null)}
                         </div>
                     </div>
+                    <ImageUploader label="Upload Image" src={project.image} />
                     <div className="fix"></div>
                 </Group>
             </div>
