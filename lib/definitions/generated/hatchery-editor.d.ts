@@ -3370,26 +3370,6 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * A small holder div that emulates C# style grids. Use the content variable instead of the group directly
-    */
-    class Group extends Component {
-        private heading;
-        content: Component;
-        constructor(text: any, parent: any);
-        /**
-        * Gets or sets the label text
-        * @param {string} val The text for this label
-        * @returns {string} The text for this label
-        */
-        text(val: any): JQuery;
-        /**
-        * This will cleanup the <Group>.
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
     * A wrapper class for checkboxes
     */
     class Checkbox extends Component {
@@ -5175,6 +5155,25 @@ declare module Animate {
         */
         addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair;
         currentCanvas: Canvas;
+    }
+}
+declare module Animate {
+    interface IGroupProps extends React.HTMLAttributes {
+        label: string;
+    }
+    /**
+     * A simple wrapper for a group Component
+     */
+    class Group extends React.Component<IGroupProps, any> {
+        /**
+         * Creates an instance of the group
+         */
+        constructor(props: IGroupProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {

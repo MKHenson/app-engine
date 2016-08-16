@@ -1,0 +1,16 @@
+.group {
+    position: relative;
+    margin: 20px 10px 10px 10px;
+    padding: 10px;
+    border: 1px solid $border-primary;
+    background: $background-primary;
+
+    .group-header {
+        background: inherit;
+        position: absolute;
+        top: -15px;
+        padding: 3px 10px 0 10px;
+        left: 8px;
+        font-weight: bold;
+    }
+}

@@ -79,7 +79,7 @@
     "lib/gui/label.ts",
     "lib/gui/button.ts",
     "lib/gui/input-box.ts",
-    "lib/gui/group.ts",
+
     "lib/gui/checkbox.ts",
     "lib/gui/label-val.ts",
     "lib/gui/listview-item.ts",
@@ -120,6 +120,7 @@
     "lib/gui/tabs/script-tab.ts",
     "lib/gui/tabs/scene-tab.ts",
     "lib/gui/tabs/canvas-tab.ts",
+    "lib/gui/group/group.tsx",
     "lib/gui/property-grid-group.ts",
     "lib/gui/property-editors/pg-textbox.ts",
     "lib/gui/property-editors/pg-number.ts",

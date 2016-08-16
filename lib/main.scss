@@ -163,22 +163,6 @@ Please only put css rules in here for layout related requirements.
 }
 
 /**
-* GROUP
-*/
-.group {
-    position: relative;
-    margin: 20px 10px 10px 10px;
-    padding: 10px;
-}
-.group-header {
-    position: absolute;
-    top: -15px;
-    padding: 3px 10px 0 10px;
-    left: 8px;
-    font-weight: bold;
-}
-
-/**
 * Context Menu
 */
 .context-item img {
@@ -330,6 +314,7 @@ body {
     width:50%;
 }
 
+@import 'gui/group/style.scss';
 @import 'gui/forms/options-form/style.scss';
 @import 'gui/window/style.scss';
 @import 'gui/list/style.scss';
@@ -960,9 +945,7 @@ a:active, a:hover {
     color:#aaa;
 }
 
-.group {
-    border: 1px solid #ddd;
-}
+
 .window-header {
     color: #fff;
 }
