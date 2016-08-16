@@ -5485,6 +5485,7 @@ declare module Animate {
 }
 declare module Animate {
     interface IImageUploaderProps {
+        onImage?: (file: Engine.IFile) => void;
         src: string;
         label: string;
         onError?: (e: Error) => void;
@@ -5785,18 +5786,28 @@ declare module Animate {
     interface IOptionsUserProps {
     }
     interface IOptionsUserStats {
-        loadingPercent: number;
-        errorMsgUserImg: string;
+        bioUpdateErr?: string;
+        imageUploadErr?: string;
+        loading?: boolean;
     }
     /**
      * A component for editing the user properties
      */
-    class OptionsUser extends React.Component<IOptionsUserProps, any> {
+    class OptionsUser extends React.Component<IOptionsUserProps, IOptionsUserStats> {
         static defaultProps: IOptionsUserProps;
         /**
          * Creates a new instance
          */
         constructor(props: IOptionsUserProps);
+        /**
+         * Updates the user bio information
+         * @param {string} bio The new bio data
+         */
+        updateBio(bio: string): void;
+        /**
+         * Sets the user's avatar image
+         */
+        setAvatarUrl(file: any): void;
         /**
          * Draws the options JSX
          * @returns {JSX.Element}
@@ -5809,6 +5820,7 @@ declare module Animate {
     }
     interface IOptionsProjectState {
         infoServerMsg?: string;
+        imageUploadErr?: string;
         loading?: boolean;
         error?: boolean;
     }
@@ -5821,6 +5833,11 @@ declare module Animate {
          * Creates a new instance
          */
         constructor(props: IOptionsProjectProps);
+        /**
+         * Sets the project image url
+         * @param {Engine.IFile} file
+         */
+        setProjectImageUrl(file: Engine.IFile): void;
         /**
          * Attempts to update the project
          * @param {any} project details
