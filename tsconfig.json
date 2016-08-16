@@ -133,6 +133,8 @@
     "lib/gui/property-editors/pg-asset-list.ts",
     "lib/gui/property-editors/pg-color-picker.ts",
     "lib/gui/property-grid.ts",
+    "lib/gui/image-preview/image-preview.tsx",
+    "lib/gui/image-uploader/image-uploader.tsx",
     "lib/gui/toolbar/toolbar-button/toolbar-button.tsx",
     "lib/gui/toolbar/toolbar-buttons/toolbar-number.ts",
     "lib/gui/toolbar/toolbar-buttons/toolbar-color-picker.ts",
