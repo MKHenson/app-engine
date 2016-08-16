@@ -5458,6 +5458,64 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IImagePreviewProps extends React.HTMLAttributes {
+        src: string;
+        defaultSrc?: string;
+        label: string;
+        labelIcon?: React.ReactDOM;
+        className?: string;
+        selected?: boolean;
+        onLabelClick?: (e: React.MouseEvent) => void;
+    }
+    /**
+     * Shows an image in a against transparent backdrop that is vertically centered and scaled into its container
+     */
+    class ImagePreview extends React.Component<IImagePreviewProps, any> {
+        static defaultProps: IImagePreviewProps;
+        /**
+         * Creates an instance
+         */
+        constructor(props: IImagePreviewProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface IImageUploaderProps {
+        src: string;
+        label: string;
+        onError?: (e: Error) => void;
+    }
+    interface IImageUploaderState {
+        src: string;
+    }
+    /**
+     * A small utility class for uploading and previewing an image
+     */
+    class ImageUploader extends React.Component<IImageUploaderProps, IImageUploaderState> {
+        /**
+         * Creates an instance
+         */
+        constructor(props: IImageUploaderProps);
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IImageUploaderProps): void;
+        /**
+         * Opens the file viewer and lets the user pick an image for their project
+         */
+        pickProjectPick(): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     interface IToolbarButtonProps {
         onChange: (val: boolean) => void;
         pushButton?: boolean;
@@ -5750,11 +5808,9 @@ declare module Animate {
     interface IOptionsProjectProps extends IReactWindowProps {
     }
     interface IOptionsProjectState {
-        errorMsg?: string;
+        infoServerMsg?: string;
         loading?: boolean;
         error?: boolean;
-        errorMsgProjImg?: string;
-        loadingPercent?: number;
     }
     /**
      * A component for editing the project properties
