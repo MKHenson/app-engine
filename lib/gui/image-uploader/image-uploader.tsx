@@ -1,6 +1,7 @@
 module Animate {
 
     export interface IImageUploaderProps {
+        onImage?: (file: Engine.IFile) => void;
         src: string;
         label: string;
         onError? : (e: Error) => void;
@@ -42,6 +43,9 @@ module Animate {
                 this.setState({
                     src: (file ? file.url : null)
                 });
+
+                if (this.props.onImage)
+                    this.props.onImage(file);
             });
         }
 
