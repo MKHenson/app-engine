@@ -135,14 +135,14 @@ module Animate {
 
             if (this.state.last != 1)
                 navbar = <div className="navigation background">
-                    <div className="navigation-column back soft-text">
+                    <div className="navigation-column back">
                         <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goFirst()}}>First {'<<'} </a>
                         <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goPrev()}}>Prev {'<'}</a>
                     </div>
-                    <div className="navigation-column index soft-text">
+                    <div className="navigation-column index">
                         {this.getPageNum()} of {this.getTotalPages()}
                     </div>
-                    <div className="navigation-column next soft-text">
+                    <div className="navigation-column next">
                         <a style={{ display: ( this.state.index + this.state.limit < this.state.last ? '' : 'none' )  }} onClick={()=>{ this.goNext() }}>{'>'} Next</a>
                         <a style={{ display: ( this.state.index < this.state.last - this.state.limit ? '' : 'none' )  }} onClick={()=>{ this.goLast() }}>{'>>'} Last</a>
                     </div>
