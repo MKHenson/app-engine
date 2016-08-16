@@ -5,6 +5,7 @@ module Animate {
 
     export interface IOptionsProjectState {
         infoServerMsg?: string;
+        imageUploadErr?: string;
         loading?: boolean;
         error?: boolean;
     }
@@ -24,8 +25,34 @@ module Animate {
             this.state = {
                 loading: false,
                 error: false,
-                infoServerMsg: null
+                infoServerMsg: null,
+                imageUploadErr: null
             };
+        }
+
+        /**
+         * Sets the project image url
+         * @param {Engine.IFile} file
+         */
+        setProjectImageUrl(file: Engine.IFile) {
+
+            var project = User.get.project;
+            this.setState({
+                loading: true,
+                imageUploadErr: null
+            });
+
+            project.updateDetails({ image: (file ? file.url : null) }).then( () => {
+                this.setState({
+                    loading: false
+                });
+
+            }).catch( (err: Error) => {
+                this.setState({
+                    loading: false,
+                    imageUploadErr: err.message
+                });
+            });
         }
 
         /**
@@ -119,8 +146,9 @@ module Animate {
                             <br/><br/><span className="nb">Your application must have an image in order to be shown in the gallery.</span><br/><br/>
                             Your project image should be either a .png or .jpg image that is 200 by 200 pixels.
                         </div>
+                        {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null )}
                     </div>
-                    <ImageUploader label="Upload Image" src={project.image} />
+                    <ImageUploader label="Upload Image" src={project.image} onImage={(f) => {this.setProjectImageUrl(f); }} />
                     <div className="fix"></div>
                 </Group>
             </div>
