@@ -4,9 +4,11 @@ module Animate {
     }
 
     export interface IOptionsProjectState {
-        errorMsg: string;
-        errorMsgProjImg: string;
-        loadingPercent: number;
+        infoServerMsg?: string;
+        loading?: boolean;
+        error?: boolean;
+        imageUploadErrMsg?: string;
+        loadingPercent?: number;
     }
 
 	/**
@@ -22,10 +24,42 @@ module Animate {
         constructor( props : IOptionsProjectProps) {
             super(props);
             this.state = {
-                errorMsg: null,
+                loading: false,
+                error: false,
+                infoServerMsg: null,
                 loadingPercent: 0,
-                errorMsgProjImg: null
+                imageUploadErrMsg: null
             };
+        }
+
+        /**
+         * Attempts to update the project
+         * @param {any} project details
+         */
+        updateDetails(json: any) {
+            this.setState({
+                loading: true,
+                infoServerMsg: null,
+                error: false
+            });
+
+            let project = User.get.project;
+
+            // Turn the tags into an array
+            json.tags = json.tags.split(',');
+
+            project.updateDetails(json).then( () => {
+                this.setState({
+                    loading: false,
+                    infoServerMsg: "Project details updated"
+                });
+            }).catch( (err: Error) => {
+                this.setState({
+                    loading: false,
+                    error: true,
+                    infoServerMsg: err.message
+                });
+            });
         }
 
         /**
@@ -33,47 +67,54 @@ module Animate {
          * @returns {JSX.Element}
          */
         render() : JSX.Element {
+            let project = User.get.project.entry;
+            let loadingSymbol : JSX.Element;
+
+            if (this.state.loading)
+                loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
+
             return <div id='options-project'>
                 <Group label="Details">
-                    <form en-auto-clear en-change="ctrl.reportError(elm)" en-submit="!ctrl.reportError(elm) && ctrl.updateDetails(ctrl.$projectToken)">
-                        <div className="field-option">
-                            <input name="name" className="background-view-light" type="text" en-className="{ 'bad-input' : elm.$error }" placeholder="Project Name" en-model="ctrl.$projectToken.name" en-validate="non-empty|no-html" />
-                        </div>
-                        <div className="field-option">
-                            <input name="tags" className="background-view-light" type="text" placeholder="Keywords" en-model="ctrl.$projectToken.tags" en-transform="ctrl.$projectToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" />
-                        </div>
-                        <div className="field-option">
-                            <textarea name="description" className="background-view-light" style={{height: "180px"}} en-className="{error : elm.$error}" placeholder="Project Description" en-model="ctrl.$projectToken.description"></textarea>
-                        </div>
-                        <div className="field-option">
-                            <div className="label">Visibility</div>
-                            <div className="dropdown">
-                                <select name="visibility" en-model="ctrl.$projectToken.public" en-transform="(elm.value == '0' ? false : true )">
-                                    <option value="0" en-selected="!ctrl.$projectToken.public">Private</option>
-                                    <option value="1" en-selected="ctrl.$projectToken.public">Public</option>
-                                </select>
-                            </div>
-                            <div className="info soft-text">If public, your project will be searchable on the Webinate gallery.</div>
-                        </div>
+                    <VForm
+                            onValidationError={(e)=>{ this.setState({ infoServerMsg: `${Utils.capitalize(e[0].name)} : ${e[0].error}`, error : true }) }}
+                            onValidationsResolved={(form)=> { this.setState({ infoServerMsg: '' }) }}
+                            onSubmitted={( json, form) => { this.updateDetails(json); }}>
 
-                        <div className="field-option">
-                            <div className="label">Category</div>
-                            <div className="dropdown">
-                                <select name="category" en-model="ctrl.$projectToken.category" en-transform="parseInt(elm.value)">
-                                    <option value="1" en-selected="ctrl.$projectToken.category == 1">Other</option>
-                                    <option value="2" en-selected="ctrl.$projectToken.category == 2">Artistic</option>
-                                    <option value="3" en-selected="ctrl.$projectToken.category == 3">Gaming</option>
-                                    <option value="4" en-selected="ctrl.$projectToken.category == 4">Informative</option>
-                                    <option value="5" en-selected="ctrl.$projectToken.category == 5">Musical</option>
-                                    <option value="6" en-selected="ctrl.$projectToken.category == 6">Technical</option>
-                                    <option value="7" en-selected="ctrl.$projectToken.category == 7">Promotional</option>
-                                </select>
-                            </div>
-                            <div className="info soft-text">Optionally provide a project category. The default is 'Other'</div>
-                        </div>
-                        <div className="error" en-show="ctrl.$errorMsg != ''">{this.state.errorMsg}</div>
-                        <input type="submit" className="button reg-gradient curve-small" en-className="{ disabled : ctrl.$loading }" value="Update Project Details" /><img en-show="ctrl.$loading" src="./media/loading-blue.gif" />
-                    </form>
+                        <h4>Project Name:</h4>
+                        <VInput value={project.name} name="name" type="text" placeholder="My Project" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />
+
+                        <h4>Tags:</h4>
+                        <VInput value={project.tags.join(', ')} name="tags" type="text" placeholder="Keywords to describe the project"/>
+
+                        <h4>Description:</h4>
+                        <VTextarea value={project.description} name="description" placeholder="A project description"></VTextarea>
+
+                        <h4>Visibility:</h4>
+                        <VCheckbox name="public" label='Public' checked={project.public} />
+                        <p className="info"><i>If public, your project will be searchable on the Webinate gallery.</i></p>
+
+                        <h4>Category:</h4>
+                        <VSelect name="category" allowEmptySelection={false} options={[
+                            {label: 'Other', value: 1, selected: project.category == 1 },
+                            {label: 'Artistic', value: 2, selected: project.category == 2 },
+                            {label: 'Gaming', value: 3, selected: project.category == 3 },
+                            {label: 'Informative', value: 4, selected: project.category == 4 },
+                            {label: 'Musical', value: 5, selected: project.category == 5 },
+                            {label: 'Technical', value: 6, selected: project.category == 6 },
+                            {label: 'Promotional', value: 7, selected: project.category == 7 },
+                        ]}/>
+                        <p className="info"><i>Optionally provide a project category. The default is 'Other'</i></p>
+
+                        {( this.state.infoServerMsg ?
+                            <Attention mode={this.state.error? AttentionType.ERROR : AttentionType.SUCCESS} allowClose={false}>{this.state.infoServerMsg}</Attention> : null )}
+
+                        <div className="fix" />
+                        <button type="submit" className="button reg-gradient curve-small" disabled={this.state.loading}>
+                            Update Project Details <i className="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+                        {loadingSymbol}
+                        <div className="fix" />
+                    </VForm>
                 </Group>
                 <Group label="Image">
                     <div className="img-preview unselectable">
@@ -90,7 +131,7 @@ module Animate {
                             Upload an image for the project; this image will show up in the Animate gallery for others to see.
                             <br/><br/><span className="nb">Your application must have an image in order to be shown in the gallery.</span><br/><br/>
                             Your project image should be either a .png or .jpg image that is 200 by 200 pixels.
-                            <div className="error" en-show="ctrl.$errorMsgProjImg && ctrl.$errorMsgProjImg != ''">{this.state.errorMsgProjImg}</div>
+                            {( this.state.imageUploadErrMsg ? <Attention mode={AttentionType.ERROR}>{this.state.imageUploadErrMsg}</Attention> : null)}
                         </div>
                     </div>
                     <div className="fix"></div>
