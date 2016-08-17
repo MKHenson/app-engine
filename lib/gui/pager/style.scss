@@ -4,9 +4,13 @@ $pager-footer-height: 50px;
     height:100%;
 
     .content {
-        height: calc(100% - #{$pager-footer-height});
+        height: 100%;
         overflow: auto;
         clear:both;
+    }
+
+    &.with-navigator .content {
+        height: calc(100% - #{$pager-footer-height});
     }
 
     .navigation {

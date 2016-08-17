@@ -1,7 +1,7 @@
 module Animate {
 
     export interface IPagerProps extends React.HTMLAttributes {
-        onUpdate?: (index: number, limit: number) => Promise<number>;
+        onUpdate: (index: number, limit: number) => Promise<number>;
         limit? : number;
     }
 
@@ -18,7 +18,8 @@ module Animate {
      */
     export class Pager extends React.Component<IPagerProps, IPagerState>{
         static defaultProps : IPagerProps = {
-            limit : 10
+            limit : 10,
+            onUpdate: null
         };
 
         /**
@@ -131,26 +132,29 @@ module Animate {
             const props : IPagerProps  = Object.assign({}, this.props);
             delete props.onUpdate;
             delete props.limit;
-            var navbar: JSX.Element;
+            let navbar: JSX.Element;
+            let needsNavigation = this.state.last == 1 || this.state.last == 0 ? false : true;
 
-            if (this.state.last != 1)
-                navbar = <div className="navigation background">
-                    <div className="navigation-column back">
-                        <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goFirst()}}>First {'<<'} </a>
-                        <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goPrev()}}>Prev {'<'}</a>
+            if (needsNavigation)
+                navbar = (
+                    <div className="navigation background">
+                        <div className="navigation-column back">
+                            <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goFirst()}}>First {'<<'} </a>
+                            <a style={{ display: ( this.state.index ? '' : 'none' )  }} onClick={()=>{this.goPrev()}}>Prev {'<'}</a>
+                        </div>
+                        <div className="navigation-column index">
+                            {this.getPageNum()} of {this.getTotalPages()}
+                        </div>
+                        <div className="navigation-column next">
+                            <a style={{ display: ( this.state.index + this.state.limit < this.state.last ? '' : 'none' )  }} onClick={()=>{ this.goNext() }}>{'>'} Next</a>
+                            <a style={{ display: ( this.state.index < this.state.last - this.state.limit ? '' : 'none' )  }} onClick={()=>{ this.goLast() }}>{'>>'} Last</a>
+                        </div>
                     </div>
-                    <div className="navigation-column index">
-                        {this.getPageNum()} of {this.getTotalPages()}
-                    </div>
-                    <div className="navigation-column next">
-                        <a style={{ display: ( this.state.index + this.state.limit < this.state.last ? '' : 'none' )  }} onClick={()=>{ this.goNext() }}>{'>'} Next</a>
-                        <a style={{ display: ( this.state.index < this.state.last - this.state.limit ? '' : 'none' )  }} onClick={()=>{ this.goLast() }}>{'>>'} Last</a>
-                    </div>
-                </div>
+                )
 
             return <div
                 {...props}
-                className={'pager ' + (this.props.className || '') }>
+                className={'pager ' + (needsNavigation ? ' with-navigator' : '') + (this.props.className || '') }>
                 <div className="content">
                     {this.props.children}
                 </div>
