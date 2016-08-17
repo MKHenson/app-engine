@@ -161,7 +161,7 @@
         upload(form: FormData, url: string, identifier: string, parentFile?: string) {
             if (!url) {
                 var details = User.get.entry;
-                url = `${DB.USERS}/media/upload/${details.username}-bucket${(parentFile ? "/" + parentFile : "")}`;
+                url = `${DB.USERS}/buckets/${details.username}-bucket/upload` + (parentFile ? "/" + parentFile : "");
             }
 
             var that = this;
@@ -187,7 +187,11 @@
                     loaded += that._downloads[i].loaded;
                 }
 
-                that.percent = Math.floor(loaded / total * 1000) / 10;
+                if (total == 0)
+                    that.percent = 100;
+                else
+                    that.percent = Math.floor(loaded / total * 1000) / 10;
+
                 cb(that.percent);
             }
 
@@ -229,8 +233,12 @@
                     // Re-calc percentages
                     calcProgress();
 
-                    if (xhr.status !== 200)
+                    if (xhr.status !== 200) {
                         errorMsg = "XHR returned response code : " + xhr.status;
+
+                        if (that._downloads.length == 0 && comp)
+                            comp(new Error(errorMsg), null);
+                    }
                     else {
                         var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
 
