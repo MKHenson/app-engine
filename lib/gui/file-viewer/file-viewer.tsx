@@ -1,232 +1,378 @@
 module Animate {
+
+    export interface IViewerFile extends Engine.IFile {
+        selected?: boolean;
+    }
+
+    export interface IFileViewerProps {
+        multiSelect: boolean;
+        extensions: Array<string>;
+        onFileSelected? : (file: Engine.IFile) => void;
+    }
+
+    export interface IFileViewerState {
+        selectedEntity?: IViewerFile;
+
+        $search?: string;
+        $errorMsg?: string;
+        $loading?: boolean;
+        $confirmDelete?: boolean;
+        $editMode?: boolean;
+        $onlyFavourites?: boolean;
+        _cancelled?: boolean;
+        highlightDropZone?: boolean;
+    }
+
 	/**
-	* This form is used to load and select assets.
-	*/
-    export class FileViewer extends Window {
-        private static _singleton: FileViewer;
+	 * A component for viewing the files and folders of the user's asset directory
+	 */
+    export class FileViewer extends React.Component<IFileViewerProps, IFileViewerState> {
 
-        // New variables
-        private _browserElm: JQuery;
+        static defaultProps : IFileViewerProps = {
+            multiSelect: true,
+            extensions: []
+        }
+
         private _searchType: FileSearchType;
-        private _shiftkey: boolean;
-        private _cancelled: boolean;
+        private $fileToken: IViewerFile;
 
-        private $pager: PageLoader;
-        private $selectedFile: Engine.IFile;
-        private $loading: boolean;
-        private $errorMsg: string;
-        private $search: string;
-        private $entries: Array<Engine.IFile>;
-        private $folders: Array<string>;
-        private $confirmDelete: boolean;
-        private $newFolder: boolean;
-        private $editMode: boolean;
-        private $fileToken: Engine.IFile;
+        private $entries: Array<IViewerFile>;
         private $uploader: FileUploader;
-        private $onlyFavourites: boolean;
 
-        public extensions: Array<string>;
         public selectedEntities: Array<UsersInterface.IFileEntry>;
-        public selectedEntity: Engine.IFile;
-        public selectedFolder: string;
-        public multiSelect: boolean;
-
 
         /**
-        * Creates an instance of the file uploader form
-        */
-        constructor() {
-            // Call super-class constructor
-            super(1000, 600, true, true, "Asset Browser");
+         * Creates an instance of the file viewer
+         */
+        constructor(props : IFileViewerProps) {
+            super(props);
 
-            FileViewer._singleton = this;
             var that = this;
-
-            this.element.attr("id", "file-viewer-window");
-
-            this._browserElm = jQuery("#file-viewer").remove().clone();
-            this.content.element.append(this._browserElm);
-            this.$newFolder = false;
-            this.$selectedFile = null;
-            this.$errorMsg = "";
-            this.$confirmDelete = false;
-            this._cancelled = true;
-            this.$pager = new PageLoader(this.updateContent.bind(this));
-            this.$pager.limit = 15;
             this.selectedEntities = [];
-            this.selectedEntity = null;
-            this.selectedFolder = null;
-            this.$search = "";
-            this.$onlyFavourites = false;
             this.$entries = [];
-            this.$folders = [];
-            this.extensions = [];
-            this.multiSelect = true;
-            this._shiftkey = false;
-            this.$editMode = false;
             this._searchType = FileSearchType.User;
             this.$fileToken = { tags: [] };
 
             // Create the file uploader
             this.$uploader = new FileUploader(
-                function (loaded: number) {
-                    Compiler.digest(that._browserElm, that);
-                },
-                function (err: Error) {
+                (loaded: number) => { },
+                (err: Error) => {
                     if (err) {
-                        that.$errorMsg = err.message;
-                        Compiler.digest(that._browserElm, that);
+                        this.setState({ $errorMsg : err.message });
                     }
                     else
-                        that.$pager.invalidate();
+                        (this.refs["pager"] as Pager).invalidate();
                 }
             );
 
-            // Build the element with the compiler
-            Compiler.build(this._browserElm, this);
-
-            // Creates the filter options drop down
-            var searchOptions: ToolbarDropDown = new ToolbarDropDown(null, [
-                new ToolbarItem("media/assets-user.png", "Filter by My Files"),
-                new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
-                new ToolbarItem("media/assets-global.png", "Filter by Global Files")
-            ]);
-
-            // Add the drop down to dom
-            jQuery("#file-search-mode", this._browserElm).append(searchOptions.element);
-            $(document).on('keyup keydown', function (e) { that._shiftkey = e.shiftKey });
-
-            // Set the mode when they are clicked
-            searchOptions.on("clicked", function (e: EventType, event: Event, sender: ToolbarDropDown) {
-                if (sender.selectedItem.text == "Filter by Project Files")
-                    that.selectMode(FileSearchType.Project);
-                else if (sender.selectedItem.text == "Filter by My Files")
-                    that.selectMode(FileSearchType.User);
-                else
-                    that.selectMode(FileSearchType.Global);
-            });
-
-            // Make the form resizable
-            this.element.resizable(<JQueryUI.ResizableOptions>{
-                minHeight: 50,
-                minWidth: 50,
-                helper: "ui-resizable-helper"
-            });
-
-            jQuery(".file-items", this.element).on('dragexit', this.onDragLeave.bind(this));
-            jQuery(".file-items", this.element).on('dragleave', this.onDragLeave.bind(this));
-            jQuery(".file-items", this.element).on('dragover', this.onDragOver.bind(this));
-            jQuery(".file-items", this.element).on('drop', this.onDrop.bind(this));
+            this.state = {
+                _cancelled: false,
+                selectedEntity : null,
+                $errorMsg: null,
+                $loading: false,
+                $confirmDelete: false,
+                $search: "",
+                $onlyFavourites: false,
+                $editMode: false,
+                highlightDropZone: false
+            }
         }
 
         /**
-        * Returns a URL of a file preview image
-        * @returns {string}
-        */
-        getThumbnail(file: Engine.IFile): string {
-            if (file.previewUrl)
-                return file.previewUrl;
+         * When the scope changes we update the viewable contents
+         * @param {SelectValue} option
+         */
+        onScopeChange( option : SelectValue ) {
+            if (option.label == "Filter by Project Files")
+                this.selectMode(FileSearchType.Project);
+            else if (option.label == "Filter by My Files")
+                this.selectMode(FileSearchType.User);
             else
-                return "./media/appling.png";
+                this.selectMode(FileSearchType.Global);
+        }
+
+        getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element {
+            if (!editMode) {
+                return (
+                    <div className="file-stats">
+                        <div className="preview-loader reg-gradient"></div>
+                        <div id="file-preview" en-init="ctrl.getPreview(ctrl.$selectedFile)"></div>
+                        <div><span className="info">Owner: </span><span className="detail"><b>{selectedFile.user}</b></span></div>
+                        <div><span className="info">Created On: </span><span className="detail">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span></div>
+                        <div className="info-divider background-view-light"></div>
+                        <div><input className="background-view-light" en-value="ctrl.$selectedFile.url" /></div>
+                        <div><span className="info">URL: </span><span className="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></div>
+                        <div><span className="info">Size: </span><span className="detail">{byteFilter(selectedFile.size)}</span></div>
+                        <div><span className="info">Extension: </span><span className="detail">{selectedFile.extension}</span></div>
+                        <div><span className="info">Tags:</span><span className="detail">{selectedFile.tags.join(', ')}</span></div>
+                        <div><span className="info">Global: </span><span className="detail">{selectedFile.global}</span></div>
+                        <div><span className="info">Favourite: </span><span className="detail">{selectedFile.favourite}</span></div>
+                        <div><span className="info">Last Modified On: </span><span className="detail">{new Date(selectedFile.lastModified).toLocaleDateString()} {new Date(selectedFile.lastModified).toLocaleTimeString()}</span></div>
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div className="file-stats">
+                        <div className="info-divider background-view-light"></div>
+                        <div>
+                            <span className="info">Name:</span><span className="detail"><input id="file-name" className="background-view-light" en-model="ctrl.$fileToken.name" /></span>
+                        </div>
+                        <div>
+                            <span className="info">Tags: </span>
+                            <span className="detail">
+                                <input className="background-view-light" id="file-tags" en-model="ctrl.$fileToken.tags" en-transform="ctrl.$fileToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" />
+                            </span>
+                        </div>
+                        <div>
+                            <span className="info">Global</span>
+                            <VCheckbox onChecked={(e)=> {
+                                    this.$fileToken.global = !this.$fileToken.global;
+                                }}
+                                label={(this.$fileToken.global ? 'YES' : 'NO')}
+                                checked={this.$fileToken.global} />
+                        </div>
+                        <div>
+                            <span className="info">Favourite</span>
+                            <VCheckbox onChecked={(e)=> {
+                                    this.$fileToken.favourite = !this.$fileToken.favourite;
+                                }}
+                                label={(this.$fileToken.favourite ? 'YES' : 'NO')}
+                                checked={this.$fileToken.favourite} />
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        renderPanelButtons(editMode : boolean) : JSX.Element {
+            if (editMode) {
+                return (
+                    <div className="buttons ">
+                        <div className="button">
+                            <a className="red-highlight" onClick={(e) => { this.setState({ $editMode : false })}}>CANCEL</a>
+                        </div>
+                        <div className="button reg-gradient animate-all" onClick={ (e) => this.updateFile(this.$fileToken)}>
+                            UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                );
+            }
+            else {
+                return (
+                    <div className="buttons ">
+                        <div className="button" >
+                            <i className="red-highlight" onClick={(e) => {
+                                ReactWindow.show(MessageBox, {
+                                    message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
+                                    buttons: ['Yes Delete It', 'No'],
+                                    onChange: (button) => {
+                                        if ('No')
+                                            return;
+                                        this.removeEntities();
+                                    }
+                                } as IMessageBoxProps )
+                            }}>
+                                REMOVE
+                            </i>
+                        </div>
+
+                        <div className="button green animate-all" onClick={(e)=>{
+                            if (this.props.onFileSelected)
+                                this.props.onFileSelected(this.state.selectedEntity);
+
+                        }}>
+                            OPEN <i className="fa fa-check" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                );
+            }
+        }
+
+        renderAttention( ): JSX.Element {
+            if (!this.state.$errorMsg)
+                return null;
+            else
+                return (
+                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.$errorMsg ? 'opened' : '' )}>
+                        { this.state.$errorMsg }
+                        {( this.state.$confirmDelete ? (
+                            <div>
+                                <div className="button red" onClick={(e) => { this.removeEntities() }}>Yes</div>
+                                <div className="button red" onClick={(e) => {
+                                    this.setState({ $errorMsg : null, $confirmDelete : false });
+                                }}>No</div>
+                            </div>
+                        ): null )}
+                    </Attention>
+                );
+        }
+
+         /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element {
+
+            let selectedFile = this.state.selectedEntity;
+
+            // TODO: This needs to be a toolbar drop
+            // =========================================
+            // let scopeOptions = [{
+            //     new ToolbarItem("media/assets-user.png", "Filter by My Files"),
+            //     new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
+            //     new ToolbarItem("media/assets-global.png", "Filter by Global Files")
+            // }];
+            // =========================================
+
+            return (
+            <div className={"file-viewer" + (selectedFile ? ' file-selected' : '')} >
+                <div className="toolbar">
+                    <button className="button reg-gradient" onClick={(e) => {
+                            e.preventDefault();
+                            jQuery('#upload-new-file').trigger('click')
+                        }}
+                        disabled={this.state.$loading}>
+                        <i className="fa fa-plus" aria-hidden="true"></i> Add File
+                    </button>
+
+                    <div className="tool-bar-group">
+                        <ToolbarButton onChange={(e) => {
+                            this.setState({ $onlyFavourites : !this.state.$onlyFavourites });
+                            (this.refs['pager'] as Pager).invalidate()
+                        }} label="Favourite" imgUrl="media/star.png" />
+                    </div>
+
+                    <div className="tool-bar-group">
+                        <VSelect onOptionSelected={(e) => {this.onScopeChange(e) }} options={[
+                            { label: 'Filter by My File', value: 0 },
+                            { label: 'Filter by Project Files', value: 1 },
+                            { label: 'Filter by Global Files', value: 2 }
+                        ]} />
+                    </div>
+
+                    <div className={"tool-bar-group" + ( this.selectedEntities.length == 0 ? ' disabled' : '' )}>
+                        <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" imgUrl="remove-asset.png" />
+                    </div>
+
+                    <SearchBox onSearch={( e, term ) => {
+                        this.setState({ $search : term });
+                        ( this.refs["pager"] as Pager ).invalidate();
+                    }}/>
+
+                    <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
+
+                    <div className="fix"></div>
+                </div>
+                <div className="files-view background-view animate-all">
+                    <Pager ref="pager" onUpdate={(index, limit) => { return this.updateContent(index, limit) }}>
+                        <div className={'file-items' + (this.state.highlightDropZone? ' drag-here': '')}
+                            onDragExit={(e) => this.onDragLeave(e)}
+                            onDragLeave={(e) => this.onDragLeave(e)}
+                            onDragOver={(e) => this.onDragOver(e)}
+                            onDrop={(e) => this.onDrop(e)}
+                        >
+                            <div id="uploader-progress" className="progress-outer" style={{ display: ( this.$uploader.numDownloads > 0 ? '' : 'none' ) }}>
+                                <span className="reg-gradient animate-all" style={{width: this.$uploader.percent + '%'}}>{this.$uploader.percent}% [{this.$uploader.numDownloads}]</span>
+                            </div>
+                            { this.renderAttention() }
+                            <div>
+                                {
+                                    this.$entries.map((file, index) => {
+                                        return <ImagePreview src={file.previewUrl}
+                                            key={'file-' + index}
+                                            label={file.name}
+                                            selected={file.selected}
+                                            labelIcon={(file.favourite ? <i className="fa fa-star" aria-hidden="true"></i> : null )}
+                                            onClick={(e) => {this.selectEntity(e, file)}}
+                                            className='file-item' />
+                                    })
+                                }
+                            </div>
+                            {( this.$entries.length == 0 ? <div className="no-items unselectable">No files uploaded</div> : null)}
+                        </div>
+                    </Pager>
+                </div>
+                <div className={"file-info background animate-all" + (selectedFile ? ' open' : '')}>
+                    {( selectedFile ? (
+                        <div className="fade-in" style={{height: "100%"}}>
+                            <div className="file-details">
+                                <div en-show="!ctrl.$editMode" className="button" onClick={() => { this.setState({ $editMode : !this.state.$editMode }); }}><a><span className="edit-icon">✎</span>Edit</a></div>
+                                <h2>{selectedFile.name}</h2>
+                                {this.getFileDetails(selectedFile, this.state.$editMode)}
+                                <div className="fix"></div>
+                            </div>
+                            {this.renderPanelButtons( this.state.$editMode )}
+                        </div>
+                    ) : null )}
+                </div>
+            </div>)
         }
 
         /**
-        * Specifies the type of file search
-        */
+         * Specifies the type of file search
+         */
         selectMode(type: FileSearchType) {
             this._searchType = type;
-            this.$pager.invalidate();
+            (this.refs["pager"] as Pager).invalidate();
         }
 
         /**
-        * Attempts to open a folder
-        */
-        openFolder(folder: string) {
-            this.$pager.index = 0;
-            this.selectedFolder = folder;
-            this.$confirmDelete = false;
-            this.$newFolder = false;
-            this.$errorMsg = "";
-            this.$search = "";
-            this.$pager.invalidate();
-        }
-
-        /**
-        * Creates a new folder
-        */
-        newFolder() {
-            var that = this;
-            var details = User.get.entry;
-            var folderName: string = $("#new-folder-name").val();
-            var mediaURL = DB.USERS + "/media";
-
-            // Empty names not allowed
-            if (folderName.trim() == "") {
-                that.$errorMsg = "Please specify a valid folder name";
-                return Animate.Compiler.digest(that._browserElm, that);
-            }
-
-            that.$errorMsg = "";
-            that.$loading = true;
-
-            jQuery.post(`${mediaURL}/create-bucket/${details.username}/${folderName}`, null).then(function (token: UsersInterface.IResponse) {
-                if (token.error)
-                    that.$errorMsg = token.message;
-                else {
-                    $("#new-folder-name").val("");
-                    that.$newFolder = false;
-                    that.$pager.invalidate();
-                }
-
-                that.$loading = false;
-                Animate.Compiler.digest(that._browserElm, that);
-            });
-        }
-
-        /**
-        * Shows / Hides the delete buttons
-        */
+         * Shows / Hides the delete buttons
+         */
         confirmDelete() {
-            this.$confirmDelete = !this.$confirmDelete;
-            if (this.$confirmDelete) {
-                //var fileType = (this.selectedFolder ? "file" : "folder");
-                var fileType = "file";
-                this.$errorMsg = `Are you sure you want to delete ${(this.selectedEntities.length > 1 ? `these [${this.selectedEntities.length}]` : "the ") } ${fileType}${(this.selectedEntities.length > 1 ? "s" : " '" + this.selectedEntities[0].name + "'") }`;
+            let confirmDelete = !this.state.$confirmDelete;
+            this.setState({
+                $confirmDelete : confirmDelete,
+                $errorMsg : null
+            });
+
+            if (confirmDelete) {
+                let ents = this.selectedEntities;
+                let fileType = "file";
+                let numSelected = ents.length;
+                let multiple = ents.length > 1 ? true : false;
+
+                this.setState({
+                    $errorMsg : `Are you sure you want to delete ${(multiple ? `these [${numSelected}]` : "the ") } ${fileType}${(multiple ? "s" : " '" + ents[0].name + "'")}`
+                });
             }
-            else
-                this.$errorMsg = "";
         }
 
         /**
         * Called in the HTML once a file is clicked and we need to get a preview of it
         * @param {IFile} file The file to preview
         */
-        getPreview(file: Engine.IFile) {
-            var preview = <HTMLDivElement>this._browserElm[0].querySelector("#file-preview");
-            var child = PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
-            var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
+        getPreview(file: IViewerFile) {
+            // var preview = this._browserElm[0].querySelector("#file-preview") as HTMLDivElement;
+            // var child = PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
+            // var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
 
-            if (curChild && child != curChild)
-                preview.removeChild(preview.childNodes[0]);
+            // if (curChild && child != curChild)
+            //     preview.removeChild(preview.childNodes[0]);
 
-            if (child && curChild != child)
-                preview.appendChild(child);
+            // if (child && curChild != child)
+            //     preview.appendChild(child);
         }
 
         /**
-        * Sets the selected status of a file or folder
-        */
-        selectEntity(entity) {
-            this.$errorMsg = "";
-            this.$confirmDelete = false;
+         * Sets the selected status of a file or folder
+         * @param {React.MouseEvent} e
+         * @param {IViewerFile} entity
+         */
+        selectEntity(e : React.MouseEvent, entity : IViewerFile) {
+            this.setState({
+                $confirmDelete : false,
+                $errorMsg : null
+            });
 
             entity.selected = !entity.selected;
             var ents = this.selectedEntities;
 
             if (entity.selected) {
-                if (this.multiSelect && this._shiftkey == false) {
+                if (this.props.multiSelect && e.shiftKey == false) {
                     for (var i = 0, l = ents.length; i < l; i++)
-                        (<any>ents[i]).selected = false;
+                        (ents[i] as any).selected = false;
 
                     ents.splice(0, ents.length);
                 }
@@ -236,405 +382,318 @@ module Animate {
             else
                 ents.splice(ents.indexOf(entity), 1);
 
-            if (ents.length == 0)
-                this.selectedEntity = null;
-            else
-                this.selectedEntity = ents[ents.length - 1];
+            let selected = null;
+            if (ents.length != 0)
+                selected = ents[ents.length - 1];
 
-            // Set the selected file
-            //if (this.selectedFolder)
-            //{
-            var f = this.$selectedFile = <Engine.IFile>this.selectedEntity;
-            if (f)
-                this.$fileToken = { name: f.name, tags: f.tags.slice(), favourite: f.favourite, global: f.global, _id: f._id };
-            ///}
-            //else
-            //    this.$selectedFile = null;
+            this.$fileToken = { name: selected.name, tags: selected.tags.slice(), favourite: selected.favourite, global: selected.global, _id: selected._id }
+            this.setState({
+                selectedEntity : selected
+            });
         }
 
         /**
-		* Removes the window and modal from the DOM.
-		*/
-        hide() {
-            this.emit(new FileViewerEvent("selected", (this._cancelled ? null : this.selectedEntity)));
-            super.hide();
-            this.extensions.splice(0, this.extensions.length);
-        }
-
-        /**
-        * Called whenever we select a file
-        */
-        fileChosen(file: Engine.IFile) {
-            this._cancelled = false;
-            this.hide();
-            this._cancelled = true;
-        }
-
-        /**
-        * Removes the selected entities
-        */
+         * Removes the selected entities
+         */
         removeEntities() {
-            var that = this;
-            that.$errorMsg = "";
-            that.$editMode = false;
-            that.$loading = true;
-            var mediaURL = DB.USERS + "/media";
-            //var command = (this.selectedFolder ? "remove-files" : "remove-buckets");
-            var command = "remove-files";
-            var entities = "";
+            this.setState({
+                $errorMsg: null,
+                $editMode: false,
+                $loading: true
+            });
 
-            //if (this.selectedFolder)
-            for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-                entities += (<UsersInterface.IFileEntry>this.selectedEntities[i]).identifier + ",";
-            //else
-            //    for (var i = 0, l = this.selectedEntities.length; i < l; i++)
-            //        entities += (<UsersInterface.IBucketEntry>this.selectedEntities[i]).name + ",";
+            let mediaURL = DB.USERS + "/media";
+            let entIds = "";
 
-            entities = (entities.length > 0 ? entities.substr(0, entities.length - 1) : "");
-            Utils.delete(`${mediaURL}/${command}/${entities}`).then(function (token: UsersInterface.IResponse) {
+            for (let ent of this.selectedEntities )
+                entIds += (ent as UsersInterface.IFileEntry).identifier + ",";
+
+            // Make sure the string is formatted correctly
+            entIds = (entIds.length > 0 ? entIds.substr( 0, entIds.length - 1 ) : "");
+
+            Utils.delete(`${mediaURL}/remove-files/${entIds}`).then( (token: UsersInterface.IResponse) => {
+
                 if (token.error)
-                    that.$errorMsg = token.message;
-                that.$loading = false;
-                that.$confirmDelete = false;
-                that.$pager.invalidate();
+                     this.setState({$errorMsg : token.message});
+
+                this.setState({
+                    $confirmDelete: false,
+                    $loading: false
+                });
+
+                (this.refs["pager"] as Pager).invalidate();
+
+            }).catch((e: Error)=> {
+                this.setState({
+                    $errorMsg : e.message,
+                    $loading: false
+                });
             });
         }
 
         /*
-        * Fetches a list of user buckets and files
-        * @param {number} index
-        * @param {number} limit
-        */
-        updateContent(index: number, limit: number) {
-            var that = this;
-            var details = User.get.entry;
-            var project = User.get.project;
-            var command = "";
-            that.$loading = true;
-            that.$errorMsg = "";
-            that.$selectedFile = null;
+         * Fetches a list of user buckets and files
+         * @param {number} index
+         * @param {number} limit
+         * @returns {Promise<number>}
+         */
+        updateContent(index: number, limit: number) : Promise<number> {
+            let details = User.get.entry;
+            let project = User.get.project;
+            let command = '';
+
+            this.setState({
+                $errorMsg: null,
+                selectedEntity : null,
+                $loading: true
+            });
+
             this.selectedEntities.splice(0, this.selectedEntities.length);
-            this.selectedEntity = null;
 
-            Animate.Compiler.digest(that._browserElm, that);
-
-            //if (this.selectedFolder)
-            //{
             if (this._searchType == FileSearchType.Project)
-                command = `${DB.API}/users/${details.username}/projects/${project.entry._id}/files?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
+                command = `${DB.API}/users/${details.username}/projects/${project.entry._id}/files?index=${index}&limit=${limit}&favourite=${this.state.$onlyFavourites}&search=${this.state.$search}&bucket=${details.username}-bucket`
             else
-                command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&favourite=${this.$onlyFavourites}&search=${that.$search}&bucket=${details.username}-bucket`
-            //}
-            //else
-            //    command = `${DB.USERS}/media/get-buckets/${details.username}/?index=${index}&limit=${limit}&search=${that.$search}`
+                command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&favourite=${this.state.$onlyFavourites}&search=${this.state.$search}&bucket=${details.username}-bucket`
 
-            jQuery.getJSON(command).then(function (token: UsersInterface.IGetFiles) {
-                if (token.error) {
-                    that.$errorMsg = token.message;
-                    that.$entries = [];
-                    that.$pager.last = 1;
-                }
-                else {
-                    that.$entries = token.data;
-                    that.$entries = that.filterByExtensions();
-                    that.$pager.last = token.count;
-                }
+            return new Promise( (resolve, reject) => {
+                jQuery.getJSON(command).then( (token: UsersInterface.IGetFiles) => {
+                    let limit = 1;
+                    if (token.error) {
+                        this.setState({ $errorMsg : token.message});
+                        this.$entries = [];
+                        limit = 1;
+                    }
+                    else {
+                        this.$entries = token.data;
+                        this.$entries = this.filterByExtensions( this.$entries );
+                        limit = token.count;
+                    }
 
-                that.$loading = false;
-                return Animate.Compiler.digest(that._browserElm, that);
+                    this.setState({ $loading : false });
+                    resolve(limit);
+                });
             });
         }
 
-		/**
-		* Called when we are dragging over the item
-		*/
-        onDragOver(e) {
-            if (this.visible) {
-                var items = e.originalEvent.dataTransfer.items;
-                if (items.length > 0) {
-                    if (!jQuery(".file-items", this.element).hasClass("drag-here"))
-                        jQuery(".file-items", this.element).addClass("drag-here");
-                }
-                else if (jQuery(".file-items", this.element).hasClass("drag-here"))
-                    jQuery(".file-items", this.element).removeClass("drag-here");
+        /**
+         * Whenever the file input changes we check the file is valid and then attempt to upload it
+         */
+        onFileChange(e : React.FormEvent) {
 
+            // Get the input
+            let input = e.target as HTMLInputElement;
+
+            // Make sure the file types are allowed
+            if (!this.checkIfAllowed(input.files)) {
+
+                this.setState({ $errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
+
+                // Reset the value
+                input.value = "";
+                return false;
             }
 
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-		/**
-		* Called when we are no longer dragging items.
-		*/
-        onDragLeave(e) {
-            if (this.visible) {
-                if (jQuery(".file-items", this.element).hasClass("drag-here"))
-                    jQuery(".file-items", this.element).removeClass("drag-here");
+            // Upload each file
+            for (let i = 0; i < input.files.length; i++) {
+                let file = input.files[i];
+                this.$uploader.uploadFile(file, { browsable: true });
             }
+
+            // Reset the value
+            input.value = "";
         }
 
         /**
-        * Checks if a file list has approved extensions
-        * @return {boolean}
-        */
+         * Checks if a file list is one of the approved props extensions
+         * @return {boolean}
+         */
         checkIfAllowed(files: FileList): boolean {
-            var extensions = this.extensions;
+            var extensions = this.props.extensions;
+
+            if (extensions.length == 0)
+                return true;
 
             // Approve all extensions unless otherwise stated
-            if (extensions.length > 0) {
-                for (var f = 0, fl = files.length; f < fl; f++) {
-                    var split = files[f].name.split("."),
-                        ext = split[split.length - 1].toLowerCase(),
-                        extFound = false;
+            for (let  f = 0, fl = files.length; f < fl; f++) {
+                let split = files[f].name.split("."),
+                    ext = split[split.length - 1].toLowerCase(),
+                    extFound = false;
 
-                    for (var i = 0, l = extensions.length; i < l; i++)
-                        if (extensions[i] == ext) {
-                            extFound = true;
-                            break;
-                        }
+                for ( let extension of extensions )
+                    if (extension == ext) {
+                        extFound = true;
+                        break;
+                    }
 
-                    if (!extFound)
-                        return false;
-                }
+                if (!extFound)
+                    return false;
             }
 
             return true;
         }
 
         /**
-		* Makes sure we only view the file types specified in the exension array
-		*/
-        filterByExtensions(): Array<Engine.IFile> {
-            var extensions = this.extensions,
-                files = this.$entries,
+		 * Makes sure we only view the file types specified in the props exensions array
+         * @param {IViewerFile[]} files The file array we are filtering
+         * @returns {IViewerFile[]}
+		 */
+        filterByExtensions(files : IViewerFile[]): IViewerFile[] {
+            let extensions = this.props.extensions,
                 ext = "",
                 hasExtension = false;
 
             if (extensions.length == 0)
-                return this.$entries;
+                return files;
 
-            var filtered = [];
+            let filtered = [];
 
 
-            for (var i = 0, l = files.length; i < l; i++) {
-                ext = files[i].extension.split(/\\|\//).pop().trim();
+            for ( let file of files ) {
+                ext = file.extension.split(/\\|\//).pop().trim();
                 hasExtension = false;
 
-                for (var ii = 0, li = extensions.length; ii < li; ii++) {
-                    if (ext == extensions[ii]) {
+                for ( let extension of extensions ) {
+                    if ( ext == extension ) {
                         hasExtension = true;
                         break;
                     }
                 }
 
-                if (hasExtension)
-                    filtered.push(files[i]);
+                if ( hasExtension )
+                    filtered.push( file );
             }
 
             return filtered;
         }
 
+        /**
+		 * Called when we are dragging assets over the file items div
+		 */
+        onDragOver(e: React.DragEvent) {
+
+            var items = e.dataTransfer.items;
+            if (items.length > 0)
+                this.setState({ highlightDropZone: true });
+            else
+                this.setState({ highlightDropZone: false });
+
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
 		/**
-		* Called when we are no longer dragging items.
-		*/
-        onDrop(e: JQueryEventObject) {
-            var details = User.get.entry;
+		 * Called when we are no longer dragging items.
+		 */
+        onDragLeave(e: React.DragEvent) {
+            this.setState({ highlightDropZone: false });
+        }
 
-            if (this.visible) {
-                if (jQuery(".file-items", this.element).hasClass("drag-here"))
-                    jQuery(".file-items", this.element).removeClass("drag-here");
+		/**
+		 * Called when we drop an asset on the file items div.
+         * Checks if the file is allow, and if so, it uploads the file
+		 */
+        onDrop( e: React.DragEvent ) {
 
-                e.preventDefault();
-                e.stopPropagation();
+            e.preventDefault();
+            e.stopPropagation();
 
-                var files = (<DragEvent>e.originalEvent).dataTransfer.files;
-                if (files.length > 0) {
-                    // Make sure the file types are allowed
-                    if (!this.checkIfAllowed(files)) {
-                        this.$errorMsg = `Only ${this.extensions.join(', ') } file types are allowed`;
-                        Compiler.digest(this._browserElm, this);
-                        return false;
-                    }
+            let files = e.dataTransfer.files;
+            let details = User.get.entry;
+            this.setState({ highlightDropZone: false });
 
-                    // Now upload each file
-                    for (var i: number = 0, l = files.length; i < l; i++)
-                        this.$uploader.uploadFile(files[i], { browsable: true });
+            if ( files.length > 0 ) {
 
-                    return false;
-                }
+                // Make sure the file types are allowed
+                if (!this.checkIfAllowed(files))
+                    return this.setState({ $errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
+
+                // Now upload each file
+                for (var i: number = 0, l = files.length; i < l; i++)
+                    this.$uploader.uploadFile(files[i], { browsable: true });
+
+                return;
             }
         }
 
         /**
 		* Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {Engine.IFile} file The target file we are setting the preview for
+        * @param {IViewerFile} file The target file we are setting the preview for
         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
 		*/
-        uploadPreview(file: Engine.IFile, preview: HTMLCanvasElement | HTMLImageElement) {
-            var that = FileViewer._singleton;
-            var details = User.get.entry;
-            var loaderDiv = jQuery(".preview-loader", that._browserElm);
-            loaderDiv.css({ "width": "0%", "height": "1px" });
+        uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement) {
+            // var that = this;
+            // var details = User.get.entry;
+            // var loaderDiv = jQuery(".preview-loader", that._browserElm);
+            // loaderDiv.css({ "width": "0%", "height": "1px" });
 
-            // Create the uploader
-            var fu = new FileUploader(function (p) {
-                // Update the loading bar
-                loaderDiv.css({ "width": p + "%", "height": "1px"} );
+            // // Create the uploader
+            // var fu = new FileUploader(function (p) {
+            //     // Update the loading bar
+            //     loaderDiv.css({ "width": p + "%", "height": "1px"} );
 
-            }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>) {
-                // Remove loading bar
-                loaderDiv.css({ "width": "", "height" : "" });
-                if (err) {
-                    Logger.logMessage(err.message, null, LogType.ERROR);
-                    return;
-                }
-                else {
-                    // Associate the uploaded preview with the file
-                    Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, <Engine.IFile>{ previewUrl: tokens[1].url }).then(function (token: UsersInterface.IResponse) {
-                        if (token.error)
-                            Logger.logMessage(err.message, null, LogType.ERROR);
+            // }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>) {
+            //     // Remove loading bar
+            //     loaderDiv.css({ "width": "", "height" : "" });
+            //     if (err) {
+            //         Logger.logMessage(err.message, null, LogType.ERROR);
+            //         return;
+            //     }
+            //     else {
+            //         // Associate the uploaded preview with the file
+            //         Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, { previewUrl: tokens[1].url } as IViewerFile).then(function (token: UsersInterface.IResponse) {
+            //             if (token.error)
+            //                 Logger.logMessage(err.message, null, LogType.ERROR);
 
-                        file.previewUrl = tokens[1].url;
+            //             file.previewUrl = tokens[1].url;
 
-                    }).catch(function (err: IAjaxError) {
-                        Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
+            //         }).catch(function (err: IAjaxError) {
+            //             Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
+            //         });
+            //     }
+            // });
+
+            // // Starts the upload process
+            // fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
+        }
+
+        /**
+		 * Attempts to update the selected file
+         * @param {IFile} token The file token to update with
+		 */
+        updateFile( token: Engine.IFile ) {
+            let details = User.get.entry;
+
+            this.setState({
+                $loading : true,
+                $errorMsg : null,
+                $confirmDelete : false
+            });
+
+            Utils.put<UsersInterface.IResponse>(`${DB.API}/user/${details.username}/files/${token._id}`, token).then((response) => {
+
+                if (response.error) {
+                    return this.setState({
+                        $loading : false,
+                        $errorMsg : response.message
                     });
                 }
-            });
-
-            // Starts the upload process
-            fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
-        }
-
-        /**
-		* Shows the window by adding it to a parent.
-		* @param {Component} parent The parent Component we are adding this window to
-		* @param {number} x The x coordinate of the window
-		* @param {number} y The y coordinate of the window
-		* @param {boolean} isModal Does this window block all other user operations?
-		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-		*/
-        show(parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false) {
-            super.show(null, undefined, undefined, true);
-
-            this.$errorMsg = "";
-            this.$confirmDelete = false;
-            this.$loading = false;
-            this.$newFolder = false;
-            this.selectedEntity = null;
-            var that = this,
-                details = User.get.entry,
-                extensions = this.extensions,
-                apiUrl = "";
-
-            // Call update and redraw the elements
-            this.$pager.invalidate();
-
-            var onChanged = function () {
-                var input = <HTMLInputElement>this;
-
-                //if (that.selectedFolder)
-                //  apiUrl = `${DB.USERS}/media/upload/${details.username}-bucket`;
-                //else
-                //    return;
-
-                // Make sure the file types are allowed
-                if (!that.checkIfAllowed(input.files)) {
-                    that.$errorMsg = `Only ${that.extensions.join(', ') } file types are allowed`;
-                    Compiler.digest(that._browserElm, that);
-
-                    // Reset the value
-                    (<HTMLInputElement>this).value = "";
-
-                    return false;
-                }
-
-                // Upload each file
-                for (var i = 0; i < input.files.length; i++) {
-                    var file = input.files[i];
-                    that.$uploader.uploadFile(file, { browsable: true });
-                }
-
-                // Reset the value
-                (<HTMLInputElement>this).value = "";
-            }
-
-            var elm = document.getElementById('upload-new-file');
-
-            // If we already added a function handler - then remove it
-            if ((<any>elm)._func)
-                elm.removeEventListener('change', (<any>elm)._func, false);
-
-            elm.addEventListener('change', onChanged, false);
-            (<any>elm)._func = onChanged;
-        }
-
-		/**
-		* Use this function to show the file viewer and listen for when the user has selected a file
-		*/
-        choose(extensions: string | Array<string>): JQueryPromise<Engine.IFile> {
-            // Show the form
-            this.show();
-
-            var d = jQuery.Deferred<Engine.IFile>(),
-                that = this
-            if (extensions == "img")
-                this.extensions = ['jpg', 'jpeg', 'png', 'gif'];
-            else
-                this.extensions = <Array<string>>extensions;
-
-            // When the file is chosen - return
-            var fileChosen = function(type, event: FileViewerEvent, sender) {
-                that.off("selected", fileChosen);
-                d.resolve(event.file);
-            }
-
-            this.on("selected", fileChosen);
-            return d.promise();
-        }
-
-        /**
-		* Attempts to update the selected file
-        * @param {IFile} token The file token to update with
-		*/
-        updateFile(token: Engine.IFile) {
-            var that = this,
-                details = User.get.entry;
-
-            that.$loading = true;
-            that.$errorMsg = "";
-            that.$confirmDelete = false;
-            Compiler.digest(that._browserElm, that);
-
-            Utils.put(`${DB.API}/user/${details.username}/files/${token._id}`, token).then(function (response: UsersInterface.IResponse) {
-                that.$loading = false;
-                if (response.error)
-                    that.$errorMsg = response.message;
                 else {
-                    that.$editMode = false;
                     for (var i in token)
-                        if (that.$selectedFile.hasOwnProperty(i))
-                            that.$selectedFile[i] = token[i];
+                        if (this.state.selectedEntity.hasOwnProperty(i))
+                            this.state.selectedEntity[i] = token[i];
+
+                    this.setState({
+                        $editMode : false,
+                        $loading : false
+                    });
                 }
 
-                Compiler.digest(that._browserElm, that);
-
-            }).catch(function (err: IAjaxError) {
-                that.$errorMsg = `An error occurred while connecting to the server. ${err.status}: ${err.message}`;
-                Compiler.digest(that._browserElm, that);
+            }).catch( (err: IAjaxError) => {
+                this.setState({
+                    $errorMsg : `An error occurred while connecting to the server. ${err.status}: ${err.message}`,
+                    $loading : false
+                });
             });
         }
-
-		/**
-        * Gets the singleton instance.
-        * @returns {FileViewer}
-        */
-		static get get(): FileViewer {
-			if ( !FileViewer._singleton )
-				new FileViewer();
-
-			return FileViewer._singleton;
-		}
 	}
 }
