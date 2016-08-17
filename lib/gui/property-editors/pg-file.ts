@@ -35,29 +35,44 @@ module Animate {
             var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><div class='prop-file'><div class='file-name'>${(fileResource ? fileResource.entry.name : "")}</div><div class='file-button reg-gradient'>...</div><div class='file-button-image'><img src='media/download-file.png'/></div></div></div><div class='fix'></div>`);
 			var that = this;
 
-			// Functions to deal with user interactions with JQuery
-            var onFileChosen = function(response: string, event: FileViewerEvent ) {
-                FileViewer.get.off( "cancelled", onFileChosen );
-                FileViewer.get.off( "change", onFileChosen );
+            // TODO: Verify that this file picker works
+            // =====================================================================
+			// // Functions to deal with user interactions with JQuery
+            // var onFileChosen = function( file: Engine.IFile ) {
+            //     FileViewer.get.off( "cancelled", onFileChosen );
+            //     FileViewer.get.off( "change", onFileChosen );
 
-                if (response == "cancelled" )
-					return;
+            //     if (response == "cancelled" )
+			// 		return;
 
-                var file: Engine.IFile = event.file;
-                jQuery(".file-name", editor).text((file ? file.name : ""));
+            //     var file: Engine.IFile = event.file;
+            //     jQuery(".file-name", editor).text((file ? file.name : ""));
 
-                fileResource.entry = file;
-                p.setVal(fileResource);
+            //     fileResource.entry = file;
+            //     p.setVal(fileResource);
+			// };
+
+            var mouseUp = function (e: JQueryEventObject) {
+
+                ReactWindow.show( FileDialogue, {
+                    extensions: fileExtensions,
+                    onFileSelected: function(file) {
+
+                        jQuery(".file-name", editor).text((file ? file.name : ""));
+                        fileResource.entry = file;
+                        p.setVal(fileResource);
+                    }
+                 } as IFileDialogueProps );
+
+				// // Remove any previous references
+                // FileViewer.get.off("cancelled", onFileChosen );
+                // FileViewer.get.off("change", onFileChosen );
+                // FileViewer.get.on("change", onFileChosen );
+                // FileViewer.get.on("cancelled", onFileChosen);
+                // FileViewer.get.choose(fileExtensions);
 			};
 
-            var mouseUp = function (e: JQueryEventObject  ) {
-				// Remove any previous references
-                FileViewer.get.off("cancelled", onFileChosen );
-                FileViewer.get.off("change", onFileChosen );
-                FileViewer.get.on("change", onFileChosen );
-                FileViewer.get.on("cancelled", onFileChosen);
-                FileViewer.get.choose(fileExtensions);
-			};
+            // =====================================================================
 
 			// Add listeners
 			editor.on( "mouseup", mouseUp );

@@ -197,44 +197,47 @@ module Animate {
         * Opens the file viewer and lets the user pick an image for their avatar
         */
         pickAvatar() {
-            var that = this;
             this.$loading = true;
             (<any>this).$errorMsgUserImg = "";
 
-            Animate.FileViewer.get.choose('img').then(function(file) {
-                User.get.updateDetails({ image: (file ? file.url : null) }).then(function () {
-                    that.$loading = false;
-                    Compiler.digest(that._userElm, that, false);
+			ReactWindow.show( FileDialogue, {
+				extensions: ['jpg', 'png', 'jpeg', 'gif'],
+				onFileSelected: (file) => {
+					User.get.updateDetails({ image: (file ? file.url : null) }).then( () => {
+						// this.setState({
+						// 	$loading : false
+						// });
 
-                }).catch(function (err: Error) {
-                    (<any>that).$errorMsgUserImg = err.message;
-                    that.$loading = false;
-                    Compiler.digest(that._userElm, that, false);
-
-                });
-            });
+					}).catch(function (err: Error) {
+						// this.setState({
+						// 	$loading : false,
+						// 	errorMsgUserImg: err.message
+						// });
+					});
+				}
+		 	} as IFileDialogueProps);
         }
 
         /**
         * Opens the file viewer and lets the user pick an image for their project
         */
         pickProjectPick() {
-            var that = this;
-            this.$loading = true;
-            var project = User.get.project;
-            (<any>this).$errorMsgProjImg = "";
+            // var that = this;
+            // this.$loading = true;
+            // var project = User.get.project;
+            // (<any>this).$errorMsgProjImg = "";
 
-            Animate.FileViewer.get.choose('img').then(function (file) {
-                project.updateDetails({ image: (file ? file.url : null) }).then(function () {
-                    that.$loading = false;
-                    Compiler.digest(that._projectElm, that, false);
+            // Animate.FileViewer.get.choose('img').then(function (file) {
+            //     project.updateDetails({ image: (file ? file.url : null) }).then(function () {
+            //         that.$loading = false;
+            //         Compiler.digest(that._projectElm, that, false);
 
-                }).catch(function (err: Error) {
-                    (<any>that).$errorMsgProjImg = err.message;
-                    that.$loading = false;
-                    Compiler.digest(that._projectElm, that, false);
-                });
-            });
+            //     }).catch(function (err: Error) {
+            //         (<any>that).$errorMsgProjImg = err.message;
+            //         that.$loading = false;
+            //         Compiler.digest(that._projectElm, that, false);
+            //     });
+            // });
         }
 
         /**

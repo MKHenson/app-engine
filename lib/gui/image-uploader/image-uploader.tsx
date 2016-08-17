@@ -39,14 +39,18 @@ module Animate {
          * Opens the file viewer and lets the user pick an image for their project
          */
         pickProjectPick() {
-            Animate.FileViewer.get.choose('img').then(function (file) {
-                this.setState({
-                    src: (file ? file.url : null)
-                });
 
-                if (this.props.onImage)
-                    this.props.onImage(file);
-            });
+            ReactWindow.show( FileDialogue, {
+				extensions: ['jpg', 'png', 'jpeg', 'gif'],
+				onFileSelected: (file) => {
+                    this.setState({
+                        src: (file ? file.url : null)
+                    });
+
+                    if (this.props.onImage)
+                        this.props.onImage(file);
+				}
+		 	} as IFileDialogueProps);
         }
 
         /**
