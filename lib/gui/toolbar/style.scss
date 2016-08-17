@@ -5,9 +5,8 @@
     z-index: 1;
 }
 .tool-bar-group {
-    display: inline-block;
+    float: left;
     margin: 5px 0 0 5px;
-    position: relative;
     border-radius: 5px;
     overflow: hidden;
     background:$background-secondary;
@@ -29,7 +28,7 @@
     left: 0px;
     top: 0px;
     position: absolute;
-    z-index: 9999;
+    z-index: 1;
 }
 .number-holder, .scrolling-number {
     pointer-events: all;

@@ -14,7 +14,7 @@
 .ui-resizable-handle {
     position: absolute;
     font-size: 0.1px;
-    z-index: 99999;
+    z-index: 2;
     display: block;
 }
 .ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
@@ -81,6 +81,6 @@
 }
 .ui-resizable-helper {
     border: 2px dotted #62629E;
-    z-index:99999 !important;
+    z-index:2 !important;
     background:rgba(0,0,0,0.2);
 }

@@ -147,7 +147,7 @@ module Animate {
 			this.input.css( {
 				position: "absolute", left: this.element.offset().left + "px",
 				top: this.element.offset().top + "px", width: this.element.outerWidth() + "px",
-                height: this.element.outerHeight() + "px", "z-index": 9999
+                height: this.element.outerHeight() + "px", "z-index": 2
 			});
 
 			this.element.hide();
