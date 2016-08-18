@@ -38,11 +38,9 @@ module Animate {
 					<div className="buttons">
 						{
 							this.props && this.props.buttons.map((button, index)=> {
-								return <div key={'button-' + index}
-									className="button reg-gradient curve-small"
-									onClick={(e)=>{ this.onButtonClick(e, button) }}>
+								return <ButtonPrimary key={'button-' + index} onClick={(e)=>{ this.onButtonClick(e, button) }}>
 									{button}
-								</div>
+								</ButtonPrimary>
 							})
 						}
 

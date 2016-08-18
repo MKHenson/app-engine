@@ -67,21 +67,18 @@ module Animate {
                         <p>{project.description}</p>
                     </div>
                     <div className="buttons">
-                        <div className="button">
-                            <a onClick={ () => {
-                                ReactWindow.show(MessageBox, {
-                                    message : `Are you sure you want to permanently remove the project '${project.name}'?`,
-                                    buttons: ["Yes", "No"],
-                                    onChange: (button) => { this.removeProject(button) }
-                                } as IMessageBoxProps);
-                            }}>REMOVE</a>
-                        </div>
-                        <div className="button green animate-all"
-                            onClick={() => {
-                                this.props.onOpenProject(this.state.selectedProject);
-                            }}>
+                        <ButtonLink onClick={(e) => {
+                            ReactWindow.show(MessageBox, {
+                                message : `Are you sure you want to permanently remove the project '${project.name}'?`,
+                                buttons: ["Yes", "No"],
+                                onChange: (button) => { this.removeProject(button) }
+                            } as IMessageBoxProps);
+                        }}>
+                            REMOVE
+                        </ButtonLink>
+                        <ButtonSuccess onClick={() => { this.props.onOpenProject(this.state.selectedProject); }}>
                             OPEN <span className="fa fa-chevron-right" />
-                        </div>
+                        </ButtonSuccess>
                     </div>
                 </div>
             }
@@ -99,12 +96,12 @@ module Animate {
                     onProjectSelected={(project) => {
                         this.setState({ selectedProject: project });
                     }}>
-                    <div className="button reg-gradient" onClick={()=>{
-                        if (this.props.onCreateProject)
-                            this.props.onCreateProject();
-                    }}>
+                    <ButtonPrimary onClick={()=>{
+                            if (this.props.onCreateProject)
+                                this.props.onCreateProject();
+                        }}>
                         <i className="fa fa-plus" aria-hidden="true"></i> New Appling
-                    </div>
+                    </ButtonPrimary>
                 </ProjectList>
                 <div className="project-info background animate-all" style={{ width: (this.state.selectedProject ? '30%' : ''), left : (this.state.selectedProject ? '70%' : '') }}>
                     {projectInfo}

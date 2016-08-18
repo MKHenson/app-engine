@@ -149,41 +149,38 @@ module Animate {
             if (editMode) {
                 return (
                     <div className="buttons ">
-                        <div className="button">
-                            <a className="red-highlight" onClick={(e) => { this.setState({ $editMode : false })}}>CANCEL</a>
-                        </div>
-                        <div className="button reg-gradient animate-all" onClick={ (e) => this.updateFile(this.$fileToken)}>
+                        <ButtonLink onClick={(e) => { this.setState({ $editMode : false })}}>
+                            CANCEL
+                        </ButtonLink>
+                        <ButtonPrimary onClick={ (e) => this.updateFile(this.$fileToken)}>
                             UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
-                        </div>
+                        </ButtonPrimary>
                     </div>
                 );
             }
             else {
                 return (
                     <div className="buttons ">
-                        <div className="button" >
-                            <i className="red-highlight" onClick={(e) => {
-                                ReactWindow.show(MessageBox, {
-                                    message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
-                                    buttons: ['Yes Delete It', 'No'],
-                                    onChange: (button) => {
-                                        if ('No')
-                                            return;
-                                        this.removeEntities();
-                                    }
-                                } as IMessageBoxProps )
-                            }}>
-                                REMOVE
-                            </i>
-                        </div>
-
-                        <div className="button green animate-all" onClick={(e)=>{
-                            if (this.props.onFileSelected)
-                                this.props.onFileSelected(this.state.selectedEntity);
-
+                        <ButtonLink onClick={(e) => {
+                            ReactWindow.show(MessageBox, {
+                                message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
+                                buttons: ['Yes Delete It', 'No'],
+                                onChange: (button) => {
+                                    if ('No')
+                                        return;
+                                    this.removeEntities();
+                                }
+                            } as IMessageBoxProps )
                         }}>
+                            REMOVE
+                        </ButtonLink>
+
+                        <ButtonSuccess onClick={(e)=>{
+                            if (this.props.onFileSelected)
+                                this.props.onFileSelected(this.state.selectedEntity); }
+                        }>
                             OPEN <i className="fa fa-check" aria-hidden="true"></i>
-                        </div>
+                        </ButtonSuccess>
                     </div>
                 );
             }
@@ -236,13 +233,11 @@ module Animate {
             return (
             <div className={"file-viewer" + (selectedFile ? ' file-selected' : '')} >
                 <div className="toolbar">
-                    <button className="button reg-gradient" onClick={(e) => {
-                            e.preventDefault();
-                            jQuery('#upload-new-file').trigger('click')
-                        }}
+                    <ButtonPrimary
+                        onClick={(e) => {jQuery('#upload-new-file').trigger('click') }}
                         disabled={state.$loading}>
                         <i className="fa fa-plus" aria-hidden="true"></i> Add File
-                    </button>
+                    </ButtonPrimary>
 
                     <div className="tool-bar-group">
                         <ToolbarButton onChange={(e) => {

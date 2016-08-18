@@ -87,14 +87,14 @@
     color:inherit;
     font-weight:bold;
 }
-.error-inner .button:first-child {
+.error-inner button:first-child {
     margin-left:15px;
 }
 .new-folder-ctnr input {
     padding:10px;
     margin:10px 0;
 }
-.new-folder-ctnr .button {
+.new-folder-ctnr button {
     margin-left:5px;
 }
 .folder, .file {
@@ -159,7 +159,7 @@
     width:100%;
     padding: 2px 5px;
 }
-.file-details .button {
+.file-details button {
     padding:0;
     float:right;
     margin: 0 0 0 25px;
@@ -170,7 +170,7 @@
     text-align:right;
     position:relative;
 }
-.file-info .buttons .button {
+.file-info .buttons button {
     float:left;
     width:50%;
     line-height: 36px;
@@ -181,7 +181,7 @@
     width:40%;
     left:60%;
 }
-.file-info.open .button {
+.file-info.open button {
     top:0px;
 }
 

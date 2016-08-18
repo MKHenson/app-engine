@@ -115,20 +115,12 @@ module Animate {
                                 </Attention>
                             : null
                         )}
-                        <button
-                            className='button reg-gradient curve-small'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                this.props.onCancel()}}>
+                        <ButtonPrimary onClick={(e) => { this.props.onCancel()}}>
                             Back
-                        </button>
-                        <button
-                            className={ 'button reg-gradient curve-small animate-all' + (this.state.loading ? ' disabled' : '' ) }
-                            onClick={()=>{
-                                (this.refs["newProjectForm"] as VForm).initiateSubmit();
-                            }}>
+                        </ButtonPrimary>
+                        <ButtonPrimary disabled={this.state.loading}  onClick={()=>{  (this.refs["newProjectForm"] as VForm).initiateSubmit(); }}>
                             Next <span className="fa fa-chevron-right"/>
-                        </button>
+                        </ButtonPrimary>
                     </div>
 
             </div>

@@ -5458,6 +5458,60 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     * Describes the button style
+     */
+    enum ButtonType {
+        PRIMARY = 0,
+        ERROR = 1,
+        SUCCESS = 2,
+        RED_LINK = 3,
+    }
+    interface IButtonProps extends React.HTMLAttributes {
+        preventDefault?: boolean;
+        buttonType?: ButtonType;
+    }
+    /**
+     * A base class for all buttons
+     */
+    class ReactButton extends React.Component<IButtonProps, any> {
+        static defaultProps: IButtonProps;
+        /**
+         * Creates an instance
+         */
+        constructor(props: IButtonProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+    /**
+     * A wrapper for the base button class to style it as a primary button
+     */
+    class ButtonPrimary extends ReactButton {
+        static defaultProps: IButtonProps;
+    }
+    /**
+     * A wrapper for the base button class to style it as a success button
+     */
+    class ButtonSuccess extends ReactButton {
+        static defaultProps: IButtonProps;
+    }
+    /**
+     * A wrapper for the base button class to style it as an error button
+     */
+    class ButtonError extends ReactButton {
+        static defaultProps: IButtonProps;
+    }
+    /**
+     * A wrapper for the base button class to style it as a red link button
+     */
+    class ButtonLink extends ReactButton {
+        static defaultProps: IButtonProps;
+    }
+}
+declare module Animate {
     interface IImagePreviewProps extends React.HTMLAttributes {
         src: string;
         defaultSrc?: string;
@@ -5523,6 +5577,7 @@ declare module Animate {
         selected?: boolean;
         label: string;
         imgUrl?: string;
+        prefix?: JSX.Element;
         disabled?: boolean;
     }
     interface IToolbarButtonState {
@@ -5987,6 +6042,10 @@ declare module Animate {
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element;
         renderPanelButtons(editMode: boolean): JSX.Element;
         renderAttention(): JSX.Element;
+        /**
+         * Forces the pager to update its contents
+         */
+        invalidate(): void;
         /**
         * Creates the component elements
         * @returns {JSX.Element}

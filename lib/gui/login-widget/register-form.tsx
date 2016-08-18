@@ -133,20 +133,14 @@ module Animate {
                         )}
                     </div>
                     <div className="double-column">
-                        <button
-                            type="button"
-                            disabled={this.state.loading}
-                            className="button reg-gradient en-register animate-all"
-                            onClick={(e) => this.props.switchMode()}>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={(e) => this.props.switchMode()}>
                             <span className='fa-chevron-left fa' /> Login
-                        </button>
+                        </ButtonPrimary>
                     </div>
                     <div className="double-column">
-                        <button type='submit'
-                            disabled={this.state.loading}
-                            className="button reg-gradient en-register animate-all">
+                        <ButtonPrimary type='submit' preventDefault={false} disabled={this.state.loading}>
                             Register
-                        </button>
+                        </ButtonPrimary>
                     </div>
                 </VForm>
             </div>

@@ -44,7 +44,8 @@ module Animate {
                         builds by specifying which version to use. Use the above fields to select,
                         or if its not present create, a particular build.
                     </div>
-                    <div className="button reg-gradient curve-small">Select Build</div>
+                    <ButtonPrimary>Select Build</ButtonPrimary>
+                    <div className="fix" />
                 </Group>
                 <Group label="Properties">
                     <div className="field-option">
@@ -62,7 +63,8 @@ module Animate {
                         </div>
                         <div className="info soft-text">By default all builds are public. If you want to make your project private, then please upgrade your account.</div>
                     </div>
-                    <div className="button reg-gradient curve-small">Update Build Properties</div>
+                    <ButtonPrimary>Update Build Properties</ButtonPrimary>
+                    <div className="fix" />
                 </Group>
             </div>
         }

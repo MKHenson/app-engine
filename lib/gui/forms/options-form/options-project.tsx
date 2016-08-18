@@ -132,9 +132,9 @@ module Animate {
                             <Attention mode={this.state.error? AttentionType.ERROR : AttentionType.SUCCESS} allowClose={false}>{this.state.infoServerMsg}</Attention> : null )}
 
                         <div className="fix" />
-                        <button type="submit" className="button reg-gradient curve-small" disabled={this.state.loading}>
+                        <ButtonPrimary preventDefault={false} type="submit" disabled={this.state.loading}>
                             Update Project Details <i className="fa fa-pencil" aria-hidden="true"></i>
-                        </button>
+                        </ButtonPrimary>
                         {loadingSymbol}
                         <div className="fix" />
                     </VForm>
