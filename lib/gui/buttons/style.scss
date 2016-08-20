@@ -1,0 +1,44 @@
+button {
+    cursor: pointer;
+    text-align: center;
+    padding: 10px;
+    display: inline-block;
+    border: none;
+    position: relative;
+    box-sizing: border-box;
+    line-height: normal;
+    transition: background 0.5s;
+
+
+    &.red-link {
+        background: none;
+        color: $ps-blue;
+
+        &:hover {
+            color: $ps-error;
+            .wrapper {
+                border-bottom: 1px solid #ccc;
+            }
+        }
+    }
+    &.primary {
+        color: $ps-color;
+        background: $ps-blue;
+        &:hover { background: shade( $ps-blue, 10 ); }
+        &:active { background: shade( $ps-blue, 20 ); }
+    }
+
+    &.success {
+        color: $ps-color;
+        background: $ps-success;
+        &:hover { background: shade( $ps-success, 10 ); }
+        &:active { background: shade( $ps-success, 20 ); }
+    }
+
+    &.error {
+        color: $ps-color;
+        background: $ps-error;
+        &:hover { background: shade( $ps-error, 10 ); }
+        &:active { background: shade( $ps-error, 20 ); }
+    }
+}

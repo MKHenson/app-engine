@@ -223,18 +223,14 @@ module Animate {
                         )}
                     </div>
                     <div className="double-column">
-                        <button
-                            type="button"
-                            disabled={this.state.loading}
-                            className=" button reg-gradient en-register animate-all"
-                            onClick={(e) => this.props.switchMode() }>
+                        <ButtonPrimary  type="button" disabled={this.state.loading} onClick={(e) => this.props.switchMode() }>
                             Register <span className='fa fa-user' />
-                        </button>
+                        </ButtonPrimary>
                     </div>
                     <div className="double-column">
-                        <button type='submit' disabled={this.state.loading} className=" button reg-gradient en-login animate-all">
-                        Login <span className='fa fa-sign-in' />
-                        </button>
+                        <ButtonPrimary type='submit' preventDefault={false} disabled={this.state.loading}>
+                            Login <span className='fa fa-sign-in' />
+                        </ButtonPrimary>
                     </div>
                 </VForm>
             </div>

@@ -6,6 +6,7 @@ module Animate {
 		selected?: boolean;
 		label: string;
 		imgUrl?: string;
+		prefix?: JSX.Element;
 		disabled?: boolean;
 	}
 
@@ -46,7 +47,8 @@ module Animate {
 				<div
 					className={className}
 					onClick={(e)=>this.onClick(e)}>
-					<img src={this.props.imgUrl} />
+					{( this.props.prefix ? this.props.prefix : null )}
+					{( this.props.imgUrl ? <img src={this.props.imgUrl} /> : null )}
 				</div>
 			</Tooltip>
 		}

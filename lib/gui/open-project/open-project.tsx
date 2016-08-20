@@ -185,10 +185,9 @@ module Animate {
                         </Attention></div> : null }
 
                 </div>
-                <button className="button reg-gradient animate-all" onClick={(e)=>{
-                    e.preventDefault();
-                    this.props.onCancel();
-                }}><i className="fa fa-chevron-left" aria-hidden="true"></i> Back</button>
+                <ButtonPrimary onClick={(e)=>{  this.props.onCancel(); }}>
+                    <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
+                </ButtonPrimary>
             </div>
         }
     }

@@ -61,7 +61,7 @@ module Animate {
                         this.setState({ $errorMsg : err.message });
                     }
                     else
-                        (this.refs["pager"] as Pager).invalidate();
+                        this.invalidate();
                 }
             );
 
@@ -149,41 +149,38 @@ module Animate {
             if (editMode) {
                 return (
                     <div className="buttons ">
-                        <div className="button">
-                            <a className="red-highlight" onClick={(e) => { this.setState({ $editMode : false })}}>CANCEL</a>
-                        </div>
-                        <div className="button reg-gradient animate-all" onClick={ (e) => this.updateFile(this.$fileToken)}>
+                        <ButtonLink onClick={(e) => { this.setState({ $editMode : false })}}>
+                            CANCEL
+                        </ButtonLink>
+                        <ButtonPrimary onClick={ (e) => this.updateFile(this.$fileToken)}>
                             UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
-                        </div>
+                        </ButtonPrimary>
                     </div>
                 );
             }
             else {
                 return (
                     <div className="buttons ">
-                        <div className="button" >
-                            <i className="red-highlight" onClick={(e) => {
-                                ReactWindow.show(MessageBox, {
-                                    message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
-                                    buttons: ['Yes Delete It', 'No'],
-                                    onChange: (button) => {
-                                        if ('No')
-                                            return;
-                                        this.removeEntities();
-                                    }
-                                } as IMessageBoxProps )
-                            }}>
-                                REMOVE
-                            </i>
-                        </div>
-
-                        <div className="button green animate-all" onClick={(e)=>{
-                            if (this.props.onFileSelected)
-                                this.props.onFileSelected(this.state.selectedEntity);
-
+                        <ButtonLink onClick={(e) => {
+                            ReactWindow.show(MessageBox, {
+                                message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
+                                buttons: ['Yes Delete It', 'No'],
+                                onChange: (button) => {
+                                    if ('No')
+                                        return;
+                                    this.removeEntities();
+                                }
+                            } as IMessageBoxProps )
                         }}>
+                            REMOVE
+                        </ButtonLink>
+
+                        <ButtonSuccess onClick={(e)=>{
+                            if (this.props.onFileSelected)
+                                this.props.onFileSelected(this.state.selectedEntity); }
+                        }>
                             OPEN <i className="fa fa-check" aria-hidden="true"></i>
-                        </div>
+                        </ButtonSuccess>
                     </div>
                 );
             }
@@ -208,6 +205,13 @@ module Animate {
                 );
         }
 
+        /**
+         * Forces the pager to update its contents
+         */
+        invalidate() {
+            (this.refs['pager'] as Pager).invalidate();
+        }
+
          /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -215,6 +219,7 @@ module Animate {
         render(): JSX.Element {
 
             let selectedFile = this.state.selectedEntity;
+            let state = this.state;
 
             // TODO: This needs to be a toolbar drop
             // =========================================
@@ -228,19 +233,17 @@ module Animate {
             return (
             <div className={"file-viewer" + (selectedFile ? ' file-selected' : '')} >
                 <div className="toolbar">
-                    <button className="button reg-gradient" onClick={(e) => {
-                            e.preventDefault();
-                            jQuery('#upload-new-file').trigger('click')
-                        }}
-                        disabled={this.state.$loading}>
+                    <ButtonPrimary
+                        onClick={(e) => {jQuery('#upload-new-file').trigger('click') }}
+                        disabled={state.$loading}>
                         <i className="fa fa-plus" aria-hidden="true"></i> Add File
-                    </button>
+                    </ButtonPrimary>
 
                     <div className="tool-bar-group">
                         <ToolbarButton onChange={(e) => {
-                            this.setState({ $onlyFavourites : !this.state.$onlyFavourites });
-                            (this.refs['pager'] as Pager).invalidate()
-                        }} label="Favourite" imgUrl="media/star.png" />
+                            this.setState({ $onlyFavourites : !state.$onlyFavourites });
+                            this.invalidate();
+                        }} label="Favourite" prefix={<i className="fa fa-star" aria-hidden="true" />} />
                     </div>
 
                     <div className="tool-bar-group">
@@ -252,12 +255,12 @@ module Animate {
                     </div>
 
                     <div className={"tool-bar-group" + ( this.selectedEntities.length == 0 ? ' disabled' : '' )}>
-                        <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" imgUrl="remove-asset.png" />
+                        <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
                     </div>
 
                     <SearchBox onSearch={( e, term ) => {
                         this.setState({ $search : term });
-                        ( this.refs["pager"] as Pager ).invalidate();
+                        this.invalidate();
                     }}/>
 
                     <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
@@ -266,7 +269,7 @@ module Animate {
                 </div>
                 <div className="files-view background-view animate-all">
                     <Pager ref="pager" onUpdate={(index, limit) => { return this.updateContent(index, limit) }}>
-                        <div className={'file-items' + (this.state.highlightDropZone? ' drag-here': '')}
+                        <div className={'file-items' + (state.highlightDropZone? ' drag-here': '')}
                             onDragExit={(e) => this.onDragLeave(e)}
                             onDragLeave={(e) => this.onDragLeave(e)}
                             onDragOver={(e) => this.onDragOver(e)}
@@ -297,12 +300,12 @@ module Animate {
                     {( selectedFile ? (
                         <div className="fade-in" style={{height: "100%"}}>
                             <div className="file-details">
-                                <div en-show="!ctrl.$editMode" className="button" onClick={() => { this.setState({ $editMode : !this.state.$editMode }); }}><a><span className="edit-icon">✎</span>Edit</a></div>
+                                <div en-show="!ctrl.$editMode" className="button" onClick={() => { this.setState({ $editMode : !state.$editMode }); }}><a><span className="edit-icon">✎</span>Edit</a></div>
                                 <h2>{selectedFile.name}</h2>
-                                {this.getFileDetails(selectedFile, this.state.$editMode)}
+                                {this.getFileDetails(selectedFile, state.$editMode)}
                                 <div className="fix"></div>
                             </div>
-                            {this.renderPanelButtons( this.state.$editMode )}
+                            {this.renderPanelButtons( state.$editMode )}
                         </div>
                     ) : null )}
                 </div>
@@ -314,7 +317,7 @@ module Animate {
          */
         selectMode(type: FileSearchType) {
             this._searchType = type;
-            (this.refs["pager"] as Pager).invalidate();
+            this.invalidate();
         }
 
         /**
@@ -383,10 +386,13 @@ module Animate {
                 ents.splice(ents.indexOf(entity), 1);
 
             let selected = null;
-            if (ents.length != 0)
+            if (ents.length != 0) {
                 selected = ents[ents.length - 1];
+                this.$fileToken = { name: selected.name, tags: selected.tags.slice(), favourite: selected.favourite, global: selected.global, _id: selected._id }
+            }
+            else
+                this.$fileToken = { tags: [] };
 
-            this.$fileToken = { name: selected.name, tags: selected.tags.slice(), favourite: selected.favourite, global: selected.global, _id: selected._id }
             this.setState({
                 selectedEntity : selected
             });
@@ -421,7 +427,7 @@ module Animate {
                     $loading: false
                 });
 
-                (this.refs["pager"] as Pager).invalidate();
+                this.invalidate();
 
             }).catch((e: Error)=> {
                 this.setState({

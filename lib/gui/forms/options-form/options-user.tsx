@@ -117,12 +117,9 @@ module Animate {
 
                     {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
 
-                    <button className="button reg-gradient curve-small" disabled={this.state.loading} onClick={(e) => {
-                        e.preventDefault();
-                        this.updateBio( jQuery('#meta-bio').val() );
-                    }}>
+                    <ButtonPrimary disabled={this.state.loading} onClick={(e) => {this.updateBio( jQuery('#meta-bio').val() );}}>
                         Update Information
-                    </button>
+                    </ButtonPrimary>
 
                     {loadingSymbol}
                     <div className="fix" />
