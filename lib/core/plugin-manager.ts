@@ -416,16 +416,15 @@ module Animate {
 		}
 
 		/**
-        * This function generates an html node that is used to preview a file
+        * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
-        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
-        * @returns {Node} A node is returned if an internal IPreviewFactory is able to create a preview
+        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node {
+        displayPreview(file: Engine.IFile): JSX.Element {
             var toRet;
             var factories = this._previewVisualizers;
             for (var i = 0, l = factories.length; i < l; i++) {
-                toRet = factories[i].generate(file, updatePreviewImg);
+                toRet = factories[i].generate(file);
                 if (toRet)
                     return toRet;
             }

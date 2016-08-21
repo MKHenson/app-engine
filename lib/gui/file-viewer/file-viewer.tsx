@@ -89,15 +89,14 @@ module Animate {
         }
 
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element {
-            let preview : JSX.Element;
-            let image : Node = PluginManager.getSingleton().displayPreview(selectedFile, this.uploadPreview.bind(this));
+            let preview = PluginManager.getSingleton().displayPreview(selectedFile);
 
             if (!editMode) {
                 return (
                     <div className="file-stats">
                         {( this.state.previewUploadPercent != 0 ?
                             <div className="preview-loader reg-gradient" style={{ width : this.state.previewUploadPercent + "px" }} /> : null )}
-                        <div id="file-preview">{image}</div>
+                        {preview}
                         <div><span className="info">Owner: </span><span className="detail"><b>{selectedFile.user}</b></span></div>
                         <div><span className="info">Created On: </span><span className="detail">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span></div>
                         <div className="info-divider background-view-light"></div>

@@ -185,13 +185,11 @@ declare module Animate {
 
     export interface IPreviewFactory {
         /**
-        * This function generates an html node that is used to preview a file
+        * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
-        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
-        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
-        * will continue looking for a factory than can preview the file
+        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
+        generate(file: Engine.IFile): JSX.Element;
     }
 
     export interface ISettingsPage extends IComponent {
@@ -1188,12 +1186,11 @@ declare module Animate {
         */
         projectReady(project: Project): void;
         /**
-        * This function generates an html node that is used to preview a file
+        * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
-        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
-        * @returns {Node} A node is returned if an internal IPreviewFactory is able to create a preview
+        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
+        displayPreview(file: Engine.IFile): JSX.Element;
         assetTemplates: Array<AssetTemplate>;
         loadedPlugins: Array<IPlugin>;
         /**
@@ -1999,13 +1996,11 @@ declare module Animate {
         private _maxPreviewSize;
         constructor();
         /**
-        * This function generates an html node that is used to preview a file
+        * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
-        * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
-        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
-        * will continue looking for a factory than can preview the file
+        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
+        generate(file: Engine.IFile): JSX.Element;
     }
 }
 declare module Animate {
