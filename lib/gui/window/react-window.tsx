@@ -122,7 +122,7 @@ module Animate {
                 let w = this.refs['window'] as ReactWindow<T>;
                 let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
-                elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
+                elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 )) + 'px';
             }
         }
 
