@@ -12,11 +12,10 @@ module Animate {
 
     export interface IFileViewerState {
         selectedEntity?: IViewerFile;
-
+        previewUploadPercent? : number;
         $search?: string;
         $errorMsg?: string;
         $loading?: boolean;
-        $confirmDelete?: boolean;
         $editMode?: boolean;
         $onlyFavourites?: boolean;
         _cancelled?: boolean;
@@ -54,28 +53,26 @@ module Animate {
             this.$fileToken = { tags: [] };
 
             // Create the file uploader
-            this.$uploader = new FileUploader(
-                (loaded: number) => { },
-                (err: Error) => {
-                    if (err) {
-                        this.setState({ $errorMsg : err.message });
-                    }
-                    else
-                        this.invalidate();
-                }
-            );
+            this.$uploader = new FileUploader(this.onFileUploaded.bind(this));
 
             this.state = {
                 _cancelled: false,
                 selectedEntity : null,
                 $errorMsg: null,
                 $loading: false,
-                $confirmDelete: false,
                 $search: "",
                 $onlyFavourites: false,
                 $editMode: false,
-                highlightDropZone: false
+                highlightDropZone: false,
+                previewUploadPercent: 0
             }
+        }
+
+        onFileUploaded(err: Error) {
+            if (err)
+                this.setState({ $errorMsg : err.message });
+            else
+                this.invalidate();
         }
 
         /**
@@ -92,11 +89,15 @@ module Animate {
         }
 
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element {
+            let preview : JSX.Element;
+            let image : Node = PluginManager.getSingleton().displayPreview(selectedFile, this.uploadPreview.bind(this));
+
             if (!editMode) {
                 return (
                     <div className="file-stats">
-                        <div className="preview-loader reg-gradient"></div>
-                        <div id="file-preview" en-init="ctrl.getPreview(ctrl.$selectedFile)"></div>
+                        {( this.state.previewUploadPercent != 0 ?
+                            <div className="preview-loader reg-gradient" style={{ width : this.state.previewUploadPercent + "px" }} /> : null )}
+                        <div id="file-preview">{image}</div>
                         <div><span className="info">Owner: </span><span className="detail"><b>{selectedFile.user}</b></span></div>
                         <div><span className="info">Created On: </span><span className="detail">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span></div>
                         <div className="info-divider background-view-light"></div>
@@ -145,6 +146,31 @@ module Animate {
             }
         }
 
+        /**
+         * Shows a message box that the user must confirm or deny if the selected files must be removed
+         */
+        confirmDelete() {
+            let ents = this.selectedEntities;
+            let numSelected = ents.length;
+            let multiple = ents.length > 1 ? true : false;
+            let msg : string;
+
+            if (multiple)
+                msg = `Are you sure you want to delete these [${numSelected}] files?`
+            else
+                msg = `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`
+
+            ReactWindow.show(MessageBox, {
+                message: msg,
+                buttons: ['Yes Delete It', 'No'],
+                onChange: (button) => {
+                    if ('No')
+                        return;
+                    this.removeEntities();
+                }
+            } as IMessageBoxProps )
+        }
+
         renderPanelButtons(editMode : boolean) : JSX.Element {
             if (editMode) {
                 return (
@@ -161,17 +187,7 @@ module Animate {
             else {
                 return (
                     <div className="buttons ">
-                        <ButtonLink onClick={(e) => {
-                            ReactWindow.show(MessageBox, {
-                                message: `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`,
-                                buttons: ['Yes Delete It', 'No'],
-                                onChange: (button) => {
-                                    if ('No')
-                                        return;
-                                    this.removeEntities();
-                                }
-                            } as IMessageBoxProps )
-                        }}>
+                        <ButtonLink onClick={(e) => { this.confirmDelete() }}>
                             REMOVE
                         </ButtonLink>
 
@@ -184,25 +200,6 @@ module Animate {
                     </div>
                 );
             }
-        }
-
-        renderAttention( ): JSX.Element {
-            if (!this.state.$errorMsg)
-                return null;
-            else
-                return (
-                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.$errorMsg ? 'opened' : '' )}>
-                        { this.state.$errorMsg }
-                        {( this.state.$confirmDelete ? (
-                            <div>
-                                <div className="button red" onClick={(e) => { this.removeEntities() }}>Yes</div>
-                                <div className="button red" onClick={(e) => {
-                                    this.setState({ $errorMsg : null, $confirmDelete : false });
-                                }}>No</div>
-                            </div>
-                        ): null )}
-                    </Attention>
-                );
         }
 
         /**
@@ -220,6 +217,15 @@ module Animate {
 
             let selectedFile = this.state.selectedEntity;
             let state = this.state;
+            let errMsg : JSX.Element;
+
+            if ( this.state.$errorMsg ) {
+                errMsg = (
+                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.$errorMsg ? 'opened' : '' )}>
+                        { this.state.$errorMsg }
+                    </Attention>
+                )
+            }
 
             // TODO: This needs to be a toolbar drop
             // =========================================
@@ -236,7 +242,7 @@ module Animate {
                     <ButtonPrimary
                         onClick={(e) => {jQuery('#upload-new-file').trigger('click') }}
                         disabled={state.$loading}>
-                        <i className="fa fa-plus" aria-hidden="true"></i> Add File
+                        <i className="fa fa-plus" aria-hidden="true"></i> ADD FILE
                     </ButtonPrimary>
 
                     <div className="tool-bar-group">
@@ -259,12 +265,13 @@ module Animate {
                     </div>
 
                     <SearchBox onSearch={( e, term ) => {
+                        if (term == state.$search)
+                            return;
                         this.setState({ $search : term });
                         this.invalidate();
                     }}/>
 
                     <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
-
                     <div className="fix"></div>
                 </div>
                 <div className="files-view background-view animate-all">
@@ -278,7 +285,7 @@ module Animate {
                             <div id="uploader-progress" className="progress-outer" style={{ display: ( this.$uploader.numDownloads > 0 ? '' : 'none' ) }}>
                                 <span className="reg-gradient animate-all" style={{width: this.$uploader.percent + '%'}}>{this.$uploader.percent}% [{this.$uploader.numDownloads}]</span>
                             </div>
-                            { this.renderAttention() }
+                            {errMsg}
                             <div>
                                 {
                                     this.$entries.map((file, index) => {
@@ -300,7 +307,11 @@ module Animate {
                     {( selectedFile ? (
                         <div className="fade-in" style={{height: "100%"}}>
                             <div className="file-details">
-                                <div en-show="!ctrl.$editMode" className="button" onClick={() => { this.setState({ $editMode : !state.$editMode }); }}><a><span className="edit-icon">✎</span>Edit</a></div>
+                                <ButtonLink style={{display: (!state.$editMode ? '' : 'none')}}
+                                    onClick={() => { this.setState({ $editMode : !state.$editMode }); }
+                                }>
+                                    <span className="edit-icon">✎</span>
+                                </ButtonLink>
                                 <h2>{selectedFile.name}</h2>
                                 {this.getFileDetails(selectedFile, state.$editMode)}
                                 <div className="fix"></div>
@@ -318,28 +329,6 @@ module Animate {
         selectMode(type: FileSearchType) {
             this._searchType = type;
             this.invalidate();
-        }
-
-        /**
-         * Shows / Hides the delete buttons
-         */
-        confirmDelete() {
-            let confirmDelete = !this.state.$confirmDelete;
-            this.setState({
-                $confirmDelete : confirmDelete,
-                $errorMsg : null
-            });
-
-            if (confirmDelete) {
-                let ents = this.selectedEntities;
-                let fileType = "file";
-                let numSelected = ents.length;
-                let multiple = ents.length > 1 ? true : false;
-
-                this.setState({
-                    $errorMsg : `Are you sure you want to delete ${(multiple ? `these [${numSelected}]` : "the ") } ${fileType}${(multiple ? "s" : " '" + ents[0].name + "'")}`
-                });
-            }
         }
 
         /**
@@ -365,7 +354,6 @@ module Animate {
          */
         selectEntity(e : React.MouseEvent, entity : IViewerFile) {
             this.setState({
-                $confirmDelete : false,
                 $errorMsg : null
             });
 
@@ -373,7 +361,7 @@ module Animate {
             var ents = this.selectedEntities;
 
             if (entity.selected) {
-                if (this.props.multiSelect && e.shiftKey == false) {
+                if ( !this.props.multiSelect || ( this.props.multiSelect && e.shiftKey == false)) {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (ents[i] as any).selected = false;
 
@@ -423,7 +411,6 @@ module Animate {
                      this.setState({$errorMsg : token.message});
 
                 this.setState({
-                    $confirmDelete: false,
                     $loading: false
                 });
 
@@ -627,36 +614,34 @@ module Animate {
         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
 		*/
         uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement) {
-            // var that = this;
-            // var details = User.get.entry;
-            // var loaderDiv = jQuery(".preview-loader", that._browserElm);
-            // loaderDiv.css({ "width": "0%", "height": "1px" });
+
+            // let details = User.get.entry;
+
+            // this.setState({ previewUploadPercent : 0 });
 
             // // Create the uploader
-            // var fu = new FileUploader(function (p) {
-            //     // Update the loading bar
-            //     loaderDiv.css({ "width": p + "%", "height": "1px"} );
+            // var fu = new FileUploader( (err: Error, tokens: Array<UsersInterface.IUploadToken>) => {
 
-            // }, function (err: Error, tokens: Array<UsersInterface.IUploadToken>) {
-            //     // Remove loading bar
-            //     loaderDiv.css({ "width": "", "height" : "" });
-            //     if (err) {
-            //         Logger.logMessage(err.message, null, LogType.ERROR);
-            //         return;
-            //     }
-            //     else {
-            //         // Associate the uploaded preview with the file
-            //         Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, { previewUrl: tokens[1].url } as IViewerFile).then(function (token: UsersInterface.IResponse) {
-            //             if (token.error)
-            //                 Logger.logMessage(err.message, null, LogType.ERROR);
+            //             this.setState({ previewUploadPercent : null });
+            //             if (err)
+            //                 return this.setState({ $errorMsg : err.message });
 
-            //             file.previewUrl = tokens[1].url;
+            //             // Associate the uploaded preview with the file
+            //             Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, { previewUrl: tokens[1].url } as IViewerFile).then( (token: UsersInterface.IResponse) => {
 
-            //         }).catch(function (err: IAjaxError) {
-            //             Logger.logMessage(`An error occurred while connecting to the server. ${err.status}: ${err.message}`, null, LogType.ERROR);
-            //         });
-            //     }
-            // });
+            //                 if (token.error)
+            //                     return this.setState({ $errorMsg : token.message });
+
+            //                 file.previewUrl = tokens[1].url;
+
+            //             }).catch( (err: IAjaxError) => {
+            //                 this.setState({ $errorMsg : `An error occurred while connecting to the server. ${err.status}: ${err.message}` });
+            //             });
+            //         },
+            //         (p) => {
+            //             this.setState({ previewUploadPercent : p })
+            //         }
+            //     );
 
             // // Starts the upload process
             // fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
@@ -671,8 +656,7 @@ module Animate {
 
             this.setState({
                 $loading : true,
-                $errorMsg : null,
-                $confirmDelete : false
+                $errorMsg : null
             });
 
             Utils.put<UsersInterface.IResponse>(`${DB.API}/user/${details.username}/files/${token._id}`, token).then((response) => {

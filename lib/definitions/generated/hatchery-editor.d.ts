@@ -1191,8 +1191,7 @@ declare module Animate {
         * This function generates an html node that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
         * @param {(file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void} updatePreviewImg A function we can use to update the file's preview image
-        * @returns {Node} If a node is returned, the factory is responsible for showing the preview. The node will be added to the DOM. If null is returned then the engine
-        * will continue looking for a factory than can preview the file
+        * @returns {Node} A node is returned if an internal IPreviewFactory is able to create a preview
         */
         displayPreview(file: Engine.IFile, updatePreviewImg: (file: Engine.IFile, image: HTMLCanvasElement | HTMLImageElement) => void): Node;
         assetTemplates: Array<AssetTemplate>;
@@ -2018,7 +2017,7 @@ declare module Animate {
         percent: number;
         private _onProg;
         private _onComplete;
-        constructor(onProg?: ProgressCallback, onComp?: CompleteCallback);
+        constructor(onComp?: CompleteCallback, onProg?: ProgressCallback);
         numDownloads: number;
         uploadFile(file: File, meta?: any, parentFile?: string): void;
         upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string): void;
@@ -6011,10 +6010,10 @@ declare module Animate {
     }
     interface IFileViewerState {
         selectedEntity?: IViewerFile;
+        previewUploadPercent?: number;
         $search?: string;
         $errorMsg?: string;
         $loading?: boolean;
-        $confirmDelete?: boolean;
         $editMode?: boolean;
         $onlyFavourites?: boolean;
         _cancelled?: boolean;
@@ -6034,14 +6033,18 @@ declare module Animate {
          * Creates an instance of the file viewer
          */
         constructor(props: IFileViewerProps);
+        onFileUploaded(err: Error): void;
         /**
          * When the scope changes we update the viewable contents
          * @param {SelectValue} option
          */
         onScopeChange(option: SelectValue): void;
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element;
+        /**
+         * Shows a message box that the user must confirm or deny if the selected files must be removed
+         */
+        confirmDelete(): void;
         renderPanelButtons(editMode: boolean): JSX.Element;
-        renderAttention(): JSX.Element;
         /**
          * Forces the pager to update its contents
          */
@@ -6055,10 +6058,6 @@ declare module Animate {
          * Specifies the type of file search
          */
         selectMode(type: FileSearchType): void;
-        /**
-         * Shows / Hides the delete buttons
-         */
-        confirmDelete(): void;
         /**
         * Called in the HTML once a file is clicked and we need to get a preview of it
         * @param {IFile} file The file to preview
@@ -6631,6 +6630,10 @@ declare module Animate {
 declare module Animate {
     interface ISearchBoxProps extends React.HTMLAttributes {
         onSearch(e: React.FormEvent, searchText: string): any;
+        /**
+         * Only call onSearch when the input loses focus
+         */
+        triggerOnBlur?: boolean;
     }
     /**
      * Wraps an input box with HTML that makes it look like a search bar.
@@ -6640,6 +6643,7 @@ declare module Animate {
     class SearchBox extends React.Component<ISearchBoxProps, {
         value: string;
     }> {
+        static defaultProps: ISearchBoxProps;
         /**
          * Creates an instance of the search box
          */
@@ -6648,6 +6652,14 @@ declare module Animate {
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
+        /**
+         * Called whenever the input changes
+         */
+        onChange(e: React.FormEvent): void;
+        /**
+         * Called whenever the input loses focus
+         */
+        onBlur(e: React.FormEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
