@@ -52,91 +52,49 @@
         left:0;
         visibility: hidden;
     }
-}
-.file-search {
-    display:inline-block;
-    margin: 0px 5px;
-    vertical-align: middle;
+
+    .search-box {
+        margin: 5px 0 0 5px;
+    }
+
+    .file-items {
+        overflow:auto;
+    }
+
+    .file-item {
+        width: 200px;
+        height: 200px;
+        float: left;
+        margin: 10px;
+        cursor: pointer;
+    }
+
+    .file-details {
+        padding: 15px;
+        height: calc(100% - 60px);
+        overflow: auto;
+        box-sizing: border-box;
+    }
+
+    .buttons {
+        height: 60px;
+        button {
+            float:left;
+            width:50%;
+            line-height: 36px;
+            height:100%;
+        }
+    }
+
+    .preview-loader {
+        height:1px;
+        width:0;
+        margin:0;
+    }
 }
 
-.file-search img {
-    vertical-align:middle;
-    cursor:pointer;
-    margin:0 0 0 5px;
-}
 
 
-.file-items {
-    overflow:auto;
-}
-.file-item {
-    width: 200px;
-    height: 200px;
-    overflow: hidden;
-    float: left;
-    margin: 10px;
-    cursor: pointer;
-    border: 2px solid transparent;
-}
-.files-footer {
-    height:39px;
-}
-
-.new-folder-inner, .error-inner {
-    padding:15px;
-    color:inherit;
-    font-weight:bold;
-}
-.error-inner button:first-child {
-    margin-left:15px;
-}
-.new-folder-ctnr input {
-    padding:10px;
-    margin:10px 0;
-}
-.new-folder-ctnr button {
-    margin-left:5px;
-}
-.folder, .file {
-    float:left;
-    margin:10px;
-    cursor:pointer;
-    line-height: 30px;
-}
-.folder{
-    padding:10px;
-}
-.file {
-    width:150px;
-    height:150px;
-    overflow: hidden;
-}
-.folders, .files {
-    margin: 15px;
-}
-.folder .icon {
-    width:32px;
-    height:32px;
-    float:left;
-    background-position:top left;
-    margin:0 5px 0 0;
-}
-.folder div {
-    color:inherit;
-}
-.folder.selected .icon {
-    background-position: 0 -32px;
-}
-.folder, .file-preview {
-    background: #fff;
-    box-shadow: 0 1px 1px 0 rgba(0,0,0,.2);
-}
-.file-details {
-    padding: 15px;
-    height: calc(100% - 56px);
-    overflow: auto;
-    box-sizing: border-box;
-}
 .file-stats > div {
     clear:both;
     margin: 0 0 10px 0;
@@ -144,11 +102,7 @@
 .file-details .img-preview {
     margin: 0 0 10px 0;
 }
-.preview-loader {
-    height:0;
-    width:0;
-    margin:0 !important;
-}
+
 .file-details p {
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -156,7 +110,6 @@
     margin: 0 0 5px 0;
 }
 .file-details input {
-    width:100%;
     padding: 2px 5px;
 }
 .file-details button {
@@ -164,27 +117,6 @@
     float:right;
     margin: 0 0 0 25px;
 }
-
-
-.file-info .buttons {
-    text-align:right;
-    position:relative;
-}
-.file-info .buttons button {
-    float:left;
-    width:50%;
-    line-height: 36px;
-    position:relative;
-    top:58px;
-}
-.file-info.open {
-    width:40%;
-    left:60%;
-}
-.file-info.open button {
-    top:0px;
-}
-
 .info-divider {
     height:1px;
     margin:15px 0;

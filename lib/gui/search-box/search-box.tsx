@@ -1,6 +1,13 @@
 module Animate {
+
     export interface ISearchBoxProps extends React.HTMLAttributes {
+
         onSearch(e: React.FormEvent, searchText: string);
+
+        /**
+         * Only call onSearch when the input loses focus
+         */
+        triggerOnBlur?: boolean;
     }
 
     /**
@@ -9,6 +16,10 @@ module Animate {
      * changes, or the search button is pressed.
      */
     export class SearchBox extends React.Component<ISearchBoxProps, { value: string }> {
+        static defaultProps : ISearchBoxProps = {
+            onSearch: null,
+            triggerOnBlur: true
+        };
 
         /**
          * Creates an instance of the search box
@@ -28,6 +39,35 @@ module Animate {
         }
 
         /**
+         * Called whenever the input changes
+         */
+        onChange(e: React.FormEvent) {
+            if (this.props.triggerOnBlur)
+                return;
+
+            let text = (e.target as HTMLInputElement).value as string ;
+            this.setState({
+                value : text
+            });
+
+            if (this.props.onSearch)
+                this.props.onSearch(e, text);
+        }
+
+        /**
+         * Called whenever the input loses focus
+         */
+        onBlur(e: React.FormEvent) {
+            let text = (e.target as HTMLInputElement).value as string ;
+            this.setState({
+                value : text
+            });
+
+            if (this.props.onSearch)
+                this.props.onSearch(e, text);
+        }
+
+        /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
@@ -41,15 +81,12 @@ module Animate {
 
             return <div {...props} className={'search-box ' + (props.className ? props.className : '' )}>
                 <input
-                    onChange={(e) => {
-                        let text = (e.target as HTMLInputElement).value as string ;
-                        this.setState({
-                            value : text
-                        });
-
-                        if (this.props.onSearch)
-                            this.props.onSearch(e, text);
+                    onKeyUp={(e) => {
+                        if (e.keyCode == 13 && this.props.onSearch)
+                            this.props.onSearch(e, this.state.value);
                     }}
+                    onBlur={(e) => this.onBlur(e) }
+                    onChange={(e) => this.onChange(e) }
                     type="text"
                     id={this.props.id}
                     placeholder={this.props.placeholder}

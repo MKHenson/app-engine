@@ -14,11 +14,11 @@
         private _onComplete: CompleteCallback;
 
         /*
-        * Creates an instance of the class
-        * @param {ProgressCallback} onProg Called when progress is made in the upload
-        * @param {CompleteCallback} onComp Called when all uploads are complete
-        */
-        constructor(onProg?: ProgressCallback, onComp?: CompleteCallback ) {
+         * Creates an instance of the class
+         * @param {CompleteCallback} onComp Called when all uploads are complete
+         * @param {ProgressCallback} onProg Called when progress is made in the upload
+         */
+        constructor(onComp?: CompleteCallback, onProg?: ProgressCallback) {
             this.percent = 0;
             this._dCount = 0;
             this._onProg = onProg;
@@ -52,13 +52,13 @@
             this.upload(formData, null, file.name, parentFile);
         }
 
-       /*
-       * Uploads an image or canvas as a png or jpeg
-       * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
-       * @param {string} name The name to give it
-       * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
-       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
-       */
+        /*
+         * Uploads an image or canvas as a png or jpeg
+         * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
+         * @param {string} name The name to give it
+         * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
+         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+         */
         upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string)  {
             var canvas: HTMLCanvasElement;
 
