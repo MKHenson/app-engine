@@ -190,6 +190,13 @@ declare module Animate {
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
         generate(file: Engine.IFile): JSX.Element;
+
+         /**
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {
@@ -617,6 +624,7 @@ declare module Animate {
     }
     type EventType = ENUM | string;
     type EventCallback = (type: EventType, event: Event, sender?: EventDispatcher) => void;
+    type TypedCallback<T> = (type: T, event: Event, sender?: EventDispatcher) => void;
     /**
     * Internal class only used internally by the {EventDispatcher}
     */
@@ -652,11 +660,11 @@ declare module Animate {
         /**
         * Adds a new listener to the dispatcher class.
         */
-        on(type: EventType, func: EventCallback, context?: any): void;
+        on<T>(type: T, func: TypedCallback<T>, context?: any): any;
         /**
         * Adds a new listener to the dispatcher class.
         */
-        off(type: EventType, func: EventCallback, context?: any): void;
+        off<T>(type: T, func: TypedCallback<T>, context?: any): any;
         /**
         * Sends a message to all listeners based on the eventType provided.
         * @param {String} The trigger message
@@ -1186,6 +1194,12 @@ declare module Animate {
         */
         projectReady(project: Project): void;
         /**
+        * Creates a thumbnail preview of the file
+        * @param {Engine.IFile} file
+        * @returns {Promise<HTMLCanvasElement>}
+        */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        /**
         * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
@@ -1452,6 +1466,7 @@ declare module Animate {
 declare module Animate {
     class DB {
         static USERS: string;
+        static USERS_SOCKET: string;
         static HOST: string;
         static API: string;
         static PLAN_FREE: string;
@@ -1949,6 +1964,44 @@ declare module Animate {
     }
 }
 declare module Animate {
+    type SocketEvents = 'error' | UsersInterface.SocketTokens.ClientInstructionType;
+    /**
+     * A singleton class that deals with comminication between the client frontend
+     * and the socket backends.
+     */
+    class SocketManager extends EventDispatcher {
+        private static _singleton;
+        private _usersSocket;
+        /**
+         * Creates the singleton
+         */
+        constructor();
+        /**
+         * Attempts to reconnect when the socket loses its connection
+         */
+        private _reConnect(e);
+        /**
+         * Called whenever we get a message from the users socket API
+         * @param {MessageEvent} e
+         */
+        onMessage(e: MessageEvent): void;
+        /**
+         * Called whenever an error occurs
+         * @param {Error} e
+         */
+        onError(e: Error): void;
+        /**
+         * Attempts to connect to the user's socket api
+         */
+        connect(): void;
+        /**
+         * Gets the singleton
+         * @returns {SocketManager}
+         */
+        static get: SocketManager;
+    }
+}
+declare module Animate {
     /**
     * Abstract class downloading content by pages
     */
@@ -1996,10 +2049,16 @@ declare module Animate {
         private _maxPreviewSize;
         constructor();
         /**
-        * This function generates a React Element that is used to preview a file
-        * @param {Engine.IFile} file The file we are looking to preview
-        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
-        */
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        /**
+         * This function generates a React Element that is used to preview a file
+         * @param {Engine.IFile} file The file we are looking to preview
+         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         */
         generate(file: Engine.IFile): JSX.Element;
     }
 }
@@ -2014,11 +2073,11 @@ declare module Animate {
         private _onComplete;
         constructor(onComp?: CompleteCallback, onProg?: ProgressCallback);
         numDownloads: number;
-        uploadFile(file: File, meta?: any, parentFile?: string): void;
+        uploadFile(files: File[], meta?: any, parentFile?: string): void;
         upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string): void;
         uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
         uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string): void;
-        upload(form: FormData, url: string, identifier: string, parentFile?: string): void;
+        upload(form: FormData, url: string, parentFile?: string): void;
     }
 }
 declare module Animate {
@@ -6013,6 +6072,7 @@ declare module Animate {
         $onlyFavourites?: boolean;
         _cancelled?: boolean;
         highlightDropZone?: boolean;
+        percent?: number;
     }
     /**
      * A component for viewing the files and folders of the user's asset directory
@@ -6023,12 +6083,15 @@ declare module Animate {
         private $fileToken;
         private $entries;
         private $uploader;
+        private _isMounted;
+        private _numPreviewsToLoad;
+        private _numPreviewsLoaded;
         selectedEntities: Array<UsersInterface.IFileEntry>;
         /**
          * Creates an instance of the file viewer
          */
         constructor(props: IFileViewerProps);
-        onFileUploaded(err: Error): void;
+        onFileUploaded(err: Error, files: UsersInterface.IUploadToken[]): void;
         /**
          * When the scope changes we update the viewable contents
          * @param {SelectValue} option
@@ -6079,6 +6142,10 @@ declare module Animate {
          */
         checkIfAllowed(files: FileList): boolean;
         /**
+         * Perform any cleanup if neccessary
+         */
+        componentWillUnmount(): void;
+        /**
          * Makes sure we only view the file types specified in the props exensions array
          * @param {IViewerFile[]} files The file array we are filtering
          * @returns {IViewerFile[]}
@@ -6098,10 +6165,10 @@ declare module Animate {
          */
         onDrop(e: React.DragEvent): void;
         /**
-        * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {IViewerFile} file The target file we are setting the preview for
-        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
-        */
+         * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
+         * @param {IViewerFile} file The target file we are setting the preview for
+         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+         */
         uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement): void;
         /**
          * Attempts to update the selected file
@@ -6381,6 +6448,21 @@ declare module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
+        /**
+         * Logs an error message
+         * @param {string} msg
+         */
+        static error(msg: string): void;
+        /**
+         * Logs a warning message
+         * @param {string} msg
+         */
+        static warn(msg: string): void;
+        /**
+         * Logs a success message
+         * @param {string} msg
+         */
+        static success(msg: string): void;
         /**
          * Logs a message to the logger
          * @param {string} val The text to show on the logger.
