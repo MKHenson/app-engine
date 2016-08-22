@@ -54,11 +54,33 @@
     }
 
     .search-box {
-        margin: 5px 0 0 5px;
+        margin: 8px 8px 0 5px;
+        float: right;
     }
 
     .file-items {
         overflow:auto;
+        width: 100%;
+        height: 100%;
+        border: 2px solid transparent;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    .loading {
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        color: $ps-blue;
+        text-align: center;
+        font-size: 25px;
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        i {
+            margin: 80px 0 0 0;
+        }
     }
 
     .file-item {
@@ -90,6 +112,24 @@
         height:1px;
         width:0;
         margin:0;
+    }
+
+    .progress {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        background: $ps-success;
+        color: shade($ps-success, 60);
+        transition: width 1s;
+        text-align: center;
+        font-size: 12px;
+        box-shadow: 2px 2px 1px rgba(0,0,0, 0.3) inset;
+    }
+
+    .drag-here {
+        transition: border 0.5s, background 0.5s;
+        background:#accae8;
+        border: 2px dashed #5ea4ea;
     }
 }
 

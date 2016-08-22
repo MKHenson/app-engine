@@ -38,6 +38,9 @@ module Animate {
 
         private $entries: Array<IViewerFile>;
         private $uploader: FileUploader;
+        private _isMounted: boolean;
+        private _numPreviewsToLoad: number;
+        private _numPreviewsLoaded : number;
 
         public selectedEntities: Array<UsersInterface.IFileEntry>;
 
@@ -52,6 +55,10 @@ module Animate {
             this.$entries = [];
             this._searchType = FileSearchType.User;
             this.$fileToken = { tags: [] };
+            this._isMounted = true;
+
+            this._numPreviewsToLoad = 0;
+            this._numPreviewsLoaded = 0;
 
             // Create the file uploader
             this.$uploader = new FileUploader(this.onFileUploaded.bind(this), (e) => { this.setState({ percent : e }) });
@@ -70,7 +77,10 @@ module Animate {
             }
         }
 
-        onFileUploaded(err: Error) {
+        onFileUploaded(err: Error, files : UsersInterface.IUploadToken[]) {
+            if ( !this._isMounted )
+                return;
+
             if (err)
                 this.setState({ $errorMsg : err.message });
 
@@ -118,7 +128,10 @@ module Animate {
                     <div className="file-stats">
                         <div className="info-divider background-view-light"></div>
                         <div>
-                            <span className="info">Name:</span><span className="detail"><input id="file-name" className="background-view-light" en-model="ctrl.$fileToken.name" /></span>
+                            <span className="info">Name:</span>
+                            <span className="detail">
+                                <input id="file-name" className="background-view-light" en-model="ctrl.$fileToken.name" />
+                            </span>
                         </div>
                         <div>
                             <span className="info">Tags: </span>
@@ -219,6 +232,10 @@ module Animate {
             let selectedFile = this.state.selectedEntity;
             let state = this.state;
             let errMsg : JSX.Element;
+            let loadingSymbol : JSX.Element;
+
+            if (this.state.$loading)
+                loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
 
             if ( this.state.$errorMsg ) {
                 errMsg = (
@@ -265,7 +282,7 @@ module Animate {
                         <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
                     </div>
 
-                    <SearchBox onSearch={( e, term ) => {  this.setState({ $search : term }); this.invalidate(); }}/>
+                    <SearchBox disabled={state.$loading} onSearch={( e, term ) => {  this.setState({ $search : term }); this.invalidate(); }}/>
 
                     <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
                     <div className="fix"></div>
@@ -300,6 +317,7 @@ module Animate {
                             </div>
                             {( this.$entries.length == 0 ? <div className="no-items unselectable">No files uploaded</div> : null)}
                         </div>
+                        {( state.$loading ? <div className='loading'>{loadingSymbol}</div> : null )}
                     </Pager>
                 </div>
                 <div className={"file-info background animate-all" + (selectedFile ? ' open' : '')}>
@@ -459,7 +477,27 @@ module Animate {
                         limit = token.count;
                     }
 
-                    this.setState({ $loading : false });
+                    let previewsMustLoad = false;
+
+                    // Attempt to upload a preview of the uploaded files that do not have a preview url
+                    this.$entries.forEach( (file) => {
+                        if (file.previewUrl)
+                            return;
+
+                        this._numPreviewsToLoad++;
+
+                        // Check if we have a thumbnail generator
+                        var p = PluginManager.getSingleton().thumbnail(file);
+                        if (p) {
+
+                            previewsMustLoad = true;
+                            p.then((canvas) => {
+                                this.uploadPreview(file, canvas);
+                            });
+                        }
+                    })
+
+                    this.setState({ $loading : previewsMustLoad });
                     resolve(limit);
                 });
             });
@@ -522,6 +560,13 @@ module Animate {
             }
 
             return true;
+        }
+
+        /**
+         * Perform any cleanup if neccessary
+         */
+        componentWillUnmount() {
+            this._isMounted = false;
         }
 
         /**
@@ -613,42 +658,45 @@ module Animate {
         }
 
         /**
-		* Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-        * @param {IViewerFile} file The target file we are setting the preview for
-        * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
-		*/
+		 * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
+         * @param {IViewerFile} file The target file we are setting the preview for
+         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+		 */
         uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement) {
 
-            // let details = User.get.entry;
+            let details = User.get.entry;
 
-            // this.setState({ previewUploadPercent : 0 });
+            // Create the uploader
+            var fu = new FileUploader( (err: Error, tokens: Array<UsersInterface.IUploadToken>) => {
 
-            // // Create the uploader
-            // var fu = new FileUploader( (err: Error, tokens: Array<UsersInterface.IUploadToken>) => {
+                    this._numPreviewsToLoad--;
+                    if (this._numPreviewsLoaded == 0)
+                        this.setState({ $loading: false });
 
-            //             this.setState({ previewUploadPercent : null });
-            //             if (err)
-            //                 return this.setState({ $errorMsg : err.message });
+                    if (err)
+                        return this.setState({ $errorMsg : err.message });
 
-            //             // Associate the uploaded preview with the file
-            //             Utils.put(`${DB.API}/user/${details.username}/files/${file._id}`, { previewUrl: tokens[1].url } as IViewerFile).then( (token: UsersInterface.IResponse) => {
+                    // Associate the uploaded preview with the file
+                    Utils.put(`${DB.API}/users/${details.username}/files/${file._id}`, { previewUrl: tokens[0].url } as IViewerFile).then( (token: UsersInterface.IResponse) => {
 
-            //                 if (token.error)
-            //                     return this.setState({ $errorMsg : token.message });
+                        if (token.error)
+                            return this.setState({ $errorMsg : token.message });
 
-            //                 file.previewUrl = tokens[1].url;
+                        file.previewUrl = tokens[0].url;
+                        if ( !this._isMounted )
+                            return;
 
-            //             }).catch( (err: IAjaxError) => {
-            //                 this.setState({ $errorMsg : `An error occurred while connecting to the server. ${err.status}: ${err.message}` });
-            //             });
-            //         },
-            //         (p) => {
-            //             this.setState({ previewUploadPercent : p })
-            //         }
-            //     );
+                        this.invalidate();
 
-            // // Starts the upload process
-            // fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
+                    }).catch( (err: IAjaxError) => {
+                        if ( !this._isMounted )
+                            this.setState({ $errorMsg : 'Could not upload preview' });
+                    });
+                }
+            );
+
+            // Starts the upload process
+            fu.upload2DElement(preview, file.name + "-preview", { browsable: false }, file.identifier);
         }
 
         /**
