@@ -131,6 +131,27 @@
         background:#accae8;
         border: 2px dashed #5ea4ea;
     }
+
+    .file-stats .table {
+        display: table;
+        width: 100%;
+        .tr { display: table-row; }
+        .td {
+            display: table-cell;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            &:last-child {
+                text-align: right;
+            }
+        }
+    }
+
+    .info-divider {
+        height:1px;
+        background: $border-primary;
+        margin: 10px 0;
+    }
 }
 
 
@@ -157,10 +178,7 @@
     float:right;
     margin: 0 0 0 25px;
 }
-.info-divider {
-    height:1px;
-    margin:15px 0;
-}
+
 .file-details .detail {
     float: right;
 }

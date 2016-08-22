@@ -6117,11 +6117,6 @@ declare module Animate {
          */
         selectMode(type: FileSearchType): void;
         /**
-        * Called in the HTML once a file is clicked and we need to get a preview of it
-        * @param {IFile} file The file to preview
-        */
-        getPreview(file: IViewerFile): void;
-        /**
          * Sets the selected status of a file or folder
          * @param {React.MouseEvent} e
          * @param {IViewerFile} entity

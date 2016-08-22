@@ -109,17 +109,52 @@ module Animate {
                         {( this.state.previewUploadPercent != 0 ?
                             <div className="preview-loader reg-gradient" style={{ width : this.state.previewUploadPercent + "px" }} /> : null )}
                         {preview}
-                        <div><span className="info">Owner: </span><span className="detail"><b>{selectedFile.user}</b></span></div>
-                        <div><span className="info">Created On: </span><span className="detail">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span></div>
-                        <div className="info-divider background-view-light"></div>
-                        <div><input className="background-view-light" en-value="ctrl.$selectedFile.url" /></div>
-                        <div><span className="info">URL: </span><span className="detail"><a en-href="ctrl.$selectedFile.url" target="_blank" href="">Open Raw File</a></span></div>
-                        <div><span className="info">Size: </span><span className="detail">{byteFilter(selectedFile.size)}</span></div>
-                        <div><span className="info">Extension: </span><span className="detail">{selectedFile.extension}</span></div>
-                        <div><span className="info">Tags:</span><span className="detail">{selectedFile.tags.join(', ')}</span></div>
-                        <div><span className="info">Global: </span><span className="detail">{selectedFile.global}</span></div>
-                        <div><span className="info">Favourite: </span><span className="detail">{selectedFile.favourite}</span></div>
-                        <div><span className="info">Last Modified On: </span><span className="detail">{new Date(selectedFile.lastModified).toLocaleDateString()} {new Date(selectedFile.lastModified).toLocaleTimeString()}</span></div>
+                        <div className="table">
+                            <div className="tr">
+                                <span className="td">Owner:</span>
+                                <span className="td">{selectedFile.user}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Created On:</span>
+                                <span className="td">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td"><div className="info-divider background-view-light" /></span>
+                                <span className="td"><div className="info-divider background-view-light" /></span>
+                            </div>
+                            <div className="tr">
+                                <span className="td"></span>
+                                <span className="td"><a href={selectedFile.url} target="_blank">Open in Window</a></span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Url:</span>
+                                <span className="td"><input value={selectedFile.url} /></span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Size:</span>
+                                <span className="td">{byteFilter(selectedFile.size)}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Extension:</span>
+                                <span className="td">{selectedFile.extension}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Tags:</span>
+                                <span className="td">{selectedFile.tags.join(', ')}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Global:</span>
+                                <span className="td">{selectedFile.global.toString()}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Favourite:</span>
+                                <span className="td">{selectedFile.favourite.toString()}</span>
+                            </div>
+                            <div className="tr">
+                                <span className="td">Last Modified On:</span>
+                                <span className="td">{new Date(selectedFile.lastModified).toLocaleDateString()} {new Date(selectedFile.lastModified).toLocaleTimeString()}</span>
+                            </div>
+                        </div>
                     </div>
                 );
             }
@@ -346,22 +381,6 @@ module Animate {
         selectMode(type: FileSearchType) {
             this._searchType = type;
             this.invalidate();
-        }
-
-        /**
-        * Called in the HTML once a file is clicked and we need to get a preview of it
-        * @param {IFile} file The file to preview
-        */
-        getPreview(file: IViewerFile) {
-            // var preview = this._browserElm[0].querySelector("#file-preview") as HTMLDivElement;
-            // var child = PluginManager.getSingleton().displayPreview(file, this.uploadPreview);
-            // var curChild = (preview.childNodes.length > 0 ? preview.childNodes[0] : null);
-
-            // if (curChild && child != curChild)
-            //     preview.removeChild(preview.childNodes[0]);
-
-            // if (child && curChild != child)
-            //     preview.appendChild(child);
         }
 
         /**

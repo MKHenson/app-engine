@@ -66,7 +66,7 @@
          */
         generate(file: Engine.IFile): JSX.Element {
             if (file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif" || file.extension == "image/bmp" || file.extension == "image/jpg") {
-                return React.createElement(ImagePreview, { src : file.previewUrl || file.url } as IImagePreviewProps);
+                return React.createElement(ImagePreview, { src : file.url } as IImagePreviewProps);
             }
 
             return null;
