@@ -42,6 +42,9 @@ module Animate {
          * Called whenever the input changes
          */
         onChange(e: React.FormEvent) {
+            if (this.props.disabled)
+                return;
+
             if (this.props.triggerOnBlur)
                 return;
 
@@ -58,6 +61,9 @@ module Animate {
          * Called whenever the input loses focus
          */
         onBlur(e: React.FormEvent) {
+            if (this.props.disabled)
+                return;
+
             let text = (e.target as HTMLInputElement).value as string ;
             this.setState({
                 value : text
@@ -80,7 +86,9 @@ module Animate {
             delete props.triggerOnBlur;
             delete props.onSearch;
 
-            return <div {...props} className={'search-box ' + (props.className ? props.className : '' )}>
+            return <div {...props} className={'search-box ' +
+                    (props.className ? props.className : '' ) +
+                    (props.disabled ? ' disabled' : '' ) }>
                 <input
                     onKeyUp={(e) => {
                         if (e.keyCode == 13 && this.props.onSearch)
@@ -95,6 +103,9 @@ module Animate {
                 />
                 <label
                     onClick={(e)=>{
+                        if (this.props.disabled)
+                            return;
+
                         if (this.props.onSearch)
                             this.props.onSearch(e, this.state.value || '');
                     }}
