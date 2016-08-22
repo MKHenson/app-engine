@@ -38,6 +38,7 @@ module Animate {
         render(): JSX.Element {
             const props : IButtonProps  = Object.assign({}, this.props);
             delete props.preventDefault;
+            delete props.buttonType;
             let className = this.props.className || '';
             let createWrapper = false;
 
@@ -54,7 +55,7 @@ module Animate {
 
             return (
                 <button {...props} className={className}
-                    onclick={ (e) => {
+                    onClick={ (e) => {
                         if (this.props.preventDefault)
                             e.preventDefault();
 

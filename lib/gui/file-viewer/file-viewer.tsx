@@ -20,6 +20,7 @@ module Animate {
         $onlyFavourites?: boolean;
         _cancelled?: boolean;
         highlightDropZone?: boolean;
+        percent?: number;
     }
 
 	/**
@@ -53,7 +54,7 @@ module Animate {
             this.$fileToken = { tags: [] };
 
             // Create the file uploader
-            this.$uploader = new FileUploader(this.onFileUploaded.bind(this));
+            this.$uploader = new FileUploader(this.onFileUploaded.bind(this), (e) => { this.setState({ percent : e }) });
 
             this.state = {
                 _cancelled: false,
@@ -64,15 +65,16 @@ module Animate {
                 $onlyFavourites: false,
                 $editMode: false,
                 highlightDropZone: false,
-                previewUploadPercent: 0
+                previewUploadPercent: 0,
+                percent: 0
             }
         }
 
         onFileUploaded(err: Error) {
             if (err)
                 this.setState({ $errorMsg : err.message });
-            else
-                this.invalidate();
+
+            this.invalidate();
         }
 
         /**
@@ -163,7 +165,7 @@ module Animate {
                 message: msg,
                 buttons: ['Yes Delete It', 'No'],
                 onChange: (button) => {
-                    if ('No')
+                    if ( button == 'No')
                         return;
                     this.removeEntities();
                 }
@@ -263,12 +265,7 @@ module Animate {
                         <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
                     </div>
 
-                    <SearchBox onSearch={( e, term ) => {
-                        if (term == state.$search)
-                            return;
-                        this.setState({ $search : term });
-                        this.invalidate();
-                    }}/>
+                    <SearchBox onSearch={( e, term ) => {  this.setState({ $search : term }); this.invalidate(); }}/>
 
                     <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
                     <div className="fix"></div>
@@ -281,8 +278,11 @@ module Animate {
                             onDragOver={(e) => this.onDragOver(e)}
                             onDrop={(e) => this.onDrop(e)}
                         >
-                            <div id="uploader-progress" className="progress-outer" style={{ display: ( this.$uploader.numDownloads > 0 ? '' : 'none' ) }}>
-                                <span className="reg-gradient animate-all" style={{width: this.$uploader.percent + '%'}}>{this.$uploader.percent}% [{this.$uploader.numDownloads}]</span>
+                            <div className="progress" style={{
+                                display: ( this.$uploader.numDownloads > 0 ? '' : 'none' ),
+                                width: this.$uploader.percent + '%'
+                            }}>
+                                {this.$uploader.percent}% [{this.$uploader.numDownloads}]
                             </div>
                             {errMsg}
                             <div>
@@ -395,7 +395,6 @@ module Animate {
                 $loading: true
             });
 
-            let mediaURL = DB.USERS + "/media";
             let entIds = "";
 
             for (let ent of this.selectedEntities )
@@ -404,7 +403,7 @@ module Animate {
             // Make sure the string is formatted correctly
             entIds = (entIds.length > 0 ? entIds.substr( 0, entIds.length - 1 ) : "");
 
-            Utils.delete(`${mediaURL}/remove-files/${entIds}`).then( (token: UsersInterface.IResponse) => {
+            Utils.delete(`${DB.USERS}/files/${entIds}`).then( (token: UsersInterface.IResponse) => {
 
                 if (token.error)
                      this.setState({$errorMsg : token.message});
@@ -435,7 +434,6 @@ module Animate {
             let command = '';
 
             this.setState({
-                $errorMsg: null,
                 selectedEntity : null,
                 $loading: true
             });
@@ -486,10 +484,12 @@ module Animate {
             }
 
             // Upload each file
+            let files: File[] = [];
             for (let i = 0; i < input.files.length; i++) {
-                let file = input.files[i];
-                this.$uploader.uploadFile(file, { browsable: true });
+                files.push( input.files[i] );
             }
+
+            this.$uploader.uploadFile(files, { browsable: true });
 
             // Reset the value
             input.value = "";
@@ -599,9 +599,14 @@ module Animate {
                 if (!this.checkIfAllowed(files))
                     return this.setState({ $errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
 
+                // Upload each file
+                let filesToUpload: File[] = [];
+                for (let i = 0; i < files.length; i++) {
+                    filesToUpload.push( files[i] );
+                }
+
                 // Now upload each file
-                for (var i: number = 0, l = files.length; i < l; i++)
-                    this.$uploader.uploadFile(files[i], { browsable: true });
+                this.$uploader.uploadFile(filesToUpload, { browsable: true });
 
                 return;
             }
