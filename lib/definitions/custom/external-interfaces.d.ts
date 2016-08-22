@@ -177,6 +177,13 @@
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
         generate(file: Engine.IFile): JSX.Element;
+
+         /**
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {

@@ -7,52 +7,66 @@
         }
 
         /**
-        * This function generates a React Element that is used to preview a file
-        * @param {Engine.IFile} file The file we are looking to preview
-        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
-        */
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement> {
+
+            if (file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif" || file.extension == "image/bmp" || file.extension == "image/jpg") {
+                return new Promise<HTMLCanvasElement>( (resolve, reject) => {
+                    var size = this._maxPreviewSize;
+
+
+                    // If no preview exists, lets create one
+                    if (!file.previewUrl || file.previewUrl.toString().trim() == "") {
+                        var k = document.createDocumentFragment();
+                        var img = document.createElement('img');
+                        k.appendChild(img);
+                        img.crossOrigin = "Anonymous";
+                        img.src = file.url;
+                        img.onload = function(e) {
+                            // Resize the image
+                            var canvas = document.createElement('canvas'),
+                                width = img.naturalWidth,
+                                height = img.naturalHeight;
+
+                            if (width > height) {
+                                if (width > size) {
+                                    height *= size / width;
+                                    width = size;
+                                }
+                            }
+                            else {
+                                if (height > size) {
+                                    width *= size / height;
+                                    height = size;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                            canvas.toDataURL("image/png");
+
+                            // Once the image is loaded - we upload a preview of the image
+                            resolve(canvas);
+                        };
+                    }
+                });
+            }
+
+            return null;
+        }
+
+        /**
+         * This function generates a React Element that is used to preview a file
+         * @param {Engine.IFile} file The file we are looking to preview
+         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         */
         generate(file: Engine.IFile): JSX.Element {
             if (file.extension == "image/jpeg" || file.extension == "image/png" || file.extension == "image/gif" || file.extension == "image/bmp" || file.extension == "image/jpg") {
-                return React.createElement(ImagePreview, { src : file.url } as IImagePreviewProps);
-
-                // var size = this._maxPreviewSize;
-                // var k = document.createDocumentFragment();
-                // var d = <HTMLDivElement>k.appendChild(document.createElement("div"));
-                // d.innerHTML = `<div class="img-preview"><div class="preview-child background-tiles"><div class="inner"><img class="vert-align" src="${file.url}" /><div class="div-center"></div></div></div></div>`;
-
-                // // If no preview exists, lets create one
-                // if (!file.previewUrl || file.previewUrl.toString().trim() == "") {
-                //     var img = <HTMLImageElement>d.querySelector("img");
-                //     img.crossOrigin = "Anonymous";
-                //     img.onload = function(e) {
-                //         // Resize the image
-                //         var canvas = document.createElement('canvas'),
-                //             width = img.naturalWidth,
-                //             height = img.naturalHeight;
-
-                //         if (width > height) {
-                //             if (width > size) {
-                //                 height *= size / width;
-                //                 width = size;
-                //             }
-                //         }
-                //         else {
-                //             if (height > size) {
-                //                 width *= size / height;
-                //                 height = size;
-                //             }
-                //         }
-
-                //         canvas.width = width;
-                //         canvas.height = height;
-                //         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-
-                //         // Once the image is loaded - we upload a preview of the image
-                //         updatePreviewImg(file, canvas);
-                //     };
-                // }
-
-                // return k.firstChild;
+                return React.createElement(ImagePreview, { src : file.previewUrl || file.url } as IImagePreviewProps);
             }
 
             return null;

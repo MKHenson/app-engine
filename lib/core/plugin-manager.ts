@@ -415,6 +415,24 @@ module Animate {
             this.emit(new Event(EditorEvents.EDITOR_READY, null));
 		}
 
+		 /**
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
+        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement> {
+			var toRet;
+            var factories = this._previewVisualizers;
+            for (var i = 0, l = factories.length; i < l; i++) {
+                toRet = factories[i].thumbnail(file);
+                if (toRet)
+                    return toRet;
+            }
+
+            return null;
+		}
+
+
 		/**
         * This function generates a React Element that is used to preview a file
         * @param {Engine.IFile} file The file we are looking to preview
