@@ -51,7 +51,7 @@ module Animate {
             });
 
             if (this.props.onSearch)
-                this.props.onSearch(e, text);
+                this.props.onSearch(e, text || '');
         }
 
         /**
@@ -64,7 +64,7 @@ module Animate {
             });
 
             if (this.props.onSearch)
-                this.props.onSearch(e, text);
+                this.props.onSearch(e, text || '');
         }
 
         /**
@@ -77,13 +77,14 @@ module Animate {
             delete props.id;
             delete props.name;
             delete props.placeholder;
+            delete props.triggerOnBlur;
             delete props.onSearch;
 
             return <div {...props} className={'search-box ' + (props.className ? props.className : '' )}>
                 <input
                     onKeyUp={(e) => {
                         if (e.keyCode == 13 && this.props.onSearch)
-                            this.props.onSearch(e, this.state.value);
+                            this.props.onSearch(e, this.state.value || '');
                     }}
                     onBlur={(e) => this.onBlur(e) }
                     onChange={(e) => this.onChange(e) }
@@ -95,7 +96,7 @@ module Animate {
                 <label
                     onClick={(e)=>{
                         if (this.props.onSearch)
-                            this.props.onSearch(e, this.state.value);
+                            this.props.onSearch(e, this.state.value || '');
                     }}
                     htmlFor={this.props.id || undefined}><span className="fa fa-search" /></label>
             </div>
