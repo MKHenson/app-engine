@@ -44,6 +44,30 @@ module Animate {
 		}
 
 		/**
+		 * Logs an error message
+		 * @param {string} msg
+		 */
+		static error( msg: string ) {
+			Logger.logMessage(msg, null, LogType.ERROR);
+		}
+
+		/**
+		 * Logs a warning message
+		 * @param {string} msg
+		 */
+		static warn( msg: string ) {
+			Logger.logMessage(msg, null, LogType.WARNING);
+		}
+
+		/**
+		 * Logs a success message
+		 * @param {string} msg
+		 */
+		static success( msg: string ) {
+			Logger.logMessage(msg, null, LogType.MESSAGE);
+		}
+
+		/**
 		 * Logs a message to the logger
 		 * @param {string} val The text to show on the logger.
 		 * @param {any} tag An optional tag to associate with the log.
