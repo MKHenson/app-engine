@@ -15,6 +15,7 @@ module Animate {
 
     export type EventType = ENUM | string;
     export type EventCallback = (type: EventType, event: Event, sender?: EventDispatcher) => void;
+	export type TypedCallback<T> = (type: T, event: Event, sender?: EventDispatcher) => void;
 
 	/**
 	* Internal class only used internally by the {EventDispatcher}
@@ -71,6 +72,7 @@ module Animate {
         /**
         * Adds a new listener to the dispatcher class.
         */
+		on<T>(type: T, func: TypedCallback<T>, context?: any)
         on(type: EventType, func: EventCallback, context?: any) {
 			if ( !func )
 				throw new Error("You cannot have an undefined function.");
@@ -81,6 +83,7 @@ module Animate {
         /**
         * Adds a new listener to the dispatcher class.
         */
+		off<T>(type: T, func: TypedCallback<T>, context?: any )
         off(type: EventType, func: EventCallback, context?: any ) {
             var listeners: Array<EventListener> = this.listeners;
 
