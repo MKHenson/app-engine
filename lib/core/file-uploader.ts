@@ -36,20 +36,22 @@
 
        /*
        * Uploads a file to the users storage api
-       * @param {File} file The file we are uploading
+       * @param {File[]} files An array of files to upload
        * @param {string} url The URL to use
        * @param {any} meta [Optional] Any additional meta to be associated with the upload
        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
-        uploadFile(file: File, meta?: any, parentFile?: string) {
+        uploadFile(files: File[], meta?: any, parentFile?: string) {
             var formData = new FormData();
 
             // Attaching meta
             if (meta)
                 formData.append('meta', JSON.stringify(meta));
 
-            formData.append(file.name, file);
-            this.upload(formData, null, file.name, parentFile);
+            for (let file of files)
+                formData.append(file.name, file);
+
+            this.upload(formData, null, parentFile);
         }
 
         /*
@@ -111,7 +113,7 @@
                 formData.append('meta', JSON.stringify(meta));
 
             formData.append( name, blob );
-            this.upload(formData, null, name, parentFile);
+            this.upload(formData, null, parentFile);
         }
 
         /*
@@ -129,7 +131,7 @@
                 formData.append('meta', JSON.stringify(meta));
 
             formData.append(name, new Blob([array], { type: "application/octet-stream" }));
-            return this.upload(formData, null, name, parentFile);
+            return this.upload(formData, null, parentFile);
         }
 
         /*
@@ -148,17 +150,16 @@
 
             // Attaching text
             formData.append(name, new Blob([text], { type: "text/plain" }));
-            return this.upload(formData, null, name, parentFile);
+            return this.upload(formData, null, parentFile);
         }
 
         /*
         * Uploads a file to the users storage api
         * @param {FormData} file The file we are uploading
         * @param {string} url The URL to use
-        * @param {string} identifier Helps identify the upload
         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        upload(form: FormData, url: string, identifier: string, parentFile?: string) {
+        upload(form: FormData, url: string, parentFile?: string) {
             if (!url) {
                 var details = User.get.entry;
                 url = `${DB.USERS}/buckets/${details.username}-bucket/upload` + (parentFile ? "/" + parentFile : "");
@@ -203,7 +204,7 @@
                         break;
                     }
 
-                errorMsg = `An error occurred while uploading the file '${identifier}' : `;
+                errorMsg = `An error occurred while uploading your files : `;
                 calcProgress();
             };
 
@@ -243,7 +244,10 @@
                         var data: UsersInterface.IUploadResponse = JSON.parse(xhr.responseText);
 
                         if (data.error) {
-                            errorMsg = data.message;
+                            errorMsg = 'The following files were not uploaded: ';
+                            for ( let token of data.tokens)
+                                errorMsg += (token.error ? `${token.errorMsg} \r\n` : '');
+
                             comp(new Error(errorMsg), null);
                         }
                         else {
