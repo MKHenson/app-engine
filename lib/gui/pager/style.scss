@@ -7,6 +7,7 @@ $pager-footer-height: 50px;
         height: 100%;
         overflow: auto;
         clear:both;
+        position: relative;
     }
 
     &.with-navigator .content {
