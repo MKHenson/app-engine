@@ -53,7 +53,7 @@ module Animate {
             let nextSrc = nextProps.src || nextProps.defaultSrc;
             let curSrc = this.props.src || this.props.defaultSrc;
             if ( nextSrc != curSrc ) {
-                this._imgLoader.src = nextProps.src;
+                this._imgLoader.src = nextSrc;
                 this.setState({ loading : true });
             }
         }
