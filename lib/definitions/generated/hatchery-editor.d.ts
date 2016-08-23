@@ -5573,16 +5573,30 @@ declare module Animate {
         className?: string;
         selected?: boolean;
         onLabelClick?: (e: React.MouseEvent) => void;
+        showLoadingIcon?: boolean;
     }
     /**
      * Shows an image in a against transparent backdrop that is vertically centered and scaled into its container
      */
-    class ImagePreview extends React.Component<IImagePreviewProps, any> {
+    class ImagePreview extends React.Component<IImagePreviewProps, {
+        loading: boolean;
+    }> {
         static defaultProps: IImagePreviewProps;
+        private _imgLoader;
+        private _mounted;
         /**
          * Creates an instance
          */
         constructor(props: IImagePreviewProps);
+        componentWillUnmount(): void;
+        /**
+         * When the preview is added we start the loading process
+         */
+        componentDidMount(): void;
+        /**
+         * If the src or default props change, we reload the new image
+         */
+        componentWillReceiveProps(nextProps: IImagePreviewProps): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6056,23 +6070,23 @@ declare module Animate {
 declare module Animate {
     interface IViewerFile extends Engine.IFile {
         selected?: boolean;
+        loadingPreview?: boolean;
     }
     interface IFileViewerProps {
         multiSelect: boolean;
         extensions: Array<string>;
-        onFileSelected?: (file: Engine.IFile) => void;
+        onFilesSelected?: (files: Engine.IFile[]) => void;
+        onClose?: () => void;
+        readOnly?: boolean;
     }
     interface IFileViewerState {
         selectedEntity?: IViewerFile;
-        previewUploadPercent?: number;
-        $search?: string;
-        $errorMsg?: string;
-        $loading?: boolean;
-        $editMode?: boolean;
-        $onlyFavourites?: boolean;
-        _cancelled?: boolean;
+        errorMsg?: string;
+        loading?: boolean;
+        editMode?: boolean;
         highlightDropZone?: boolean;
         percent?: number;
+        fileToken?: IViewerFile;
     }
     /**
      * A component for viewing the files and folders of the user's asset directory
@@ -6080,13 +6094,13 @@ declare module Animate {
     class FileViewer extends React.Component<IFileViewerProps, IFileViewerState> {
         static defaultProps: IFileViewerProps;
         private _searchType;
-        private $fileToken;
-        private $entries;
-        private $uploader;
+        private _entries;
+        private _uploader;
         private _isMounted;
-        private _numPreviewsToLoad;
-        private _numPreviewsLoaded;
-        selectedEntities: Array<UsersInterface.IFileEntry>;
+        private _search;
+        private _onlyFavourites;
+        private _onlyGlobal;
+        private _selectedEntities;
         /**
          * Creates an instance of the file viewer
          */
@@ -6176,7 +6190,8 @@ declare module Animate {
     interface IFileDialogueProps extends IReactWindowProps {
         extensions?: string[];
         multiselect?: boolean;
-        onFileSelected?: (file: Engine.IFile) => void;
+        readOnly?: boolean;
+        onFilesSelected?: (file: Engine.IFile[]) => void;
     }
     /**
      * A form uploading and selecting files
@@ -6927,6 +6942,10 @@ declare module Animate {
          * provided, then that is used instead (for example 'Please specify a value for X')
          */
         errorMsg?: string;
+        /**
+         * If true, then the input will select everything when clicked
+         */
+        selectOnClick?: boolean;
     }
     /**
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
@@ -6937,6 +6956,7 @@ declare module Animate {
         value?: string;
         highlightError?: boolean;
     }> {
+        static defaultProps: IVInputProps;
         private _pristine;
         /**
          * Creates a new instance
@@ -6951,6 +6971,10 @@ declare module Animate {
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void;
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
@@ -7028,6 +7052,10 @@ declare module Animate {
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void;
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Gets the current value of the input
          * @returns {string}
