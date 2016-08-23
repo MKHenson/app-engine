@@ -1,0 +1,61 @@
+.tree-node {
+    margin-left: 25px;
+    cursor: pointer;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.tree-node .buffering {
+    display: none;
+    height: 12px;
+}
+.buffering img {
+    height: 100%;
+}
+.tree-node .buffering .white {
+    display:none;
+}
+.tree-node .selected .buffering .white {
+    display:block;
+}
+.tree-node .selected .buffering .gray {
+    display:none;
+}
+
+.tree-node .selectable {
+    pointer-events: all !important;
+    display: inline-block;
+}
+.tree-node img {
+    pointer-events: none;
+    margin-right: 3px;
+}
+.tree-node .text {
+    pointer-events: none;
+    margin-right: 15px;
+}
+.tree-node .text {
+    color: inherit;
+}
+.tree-node-button {
+    width: 15px;
+    height: 15px;
+    padding-left: 5px;
+    display: inline-block;
+}
+.tree-node-top {
+    margin-left: 0px !important;
+}
+.tree-node-top > .first-selectable {
+    margin: 5px;
+}
+.tree-node-topp:first-child {
+    margin: 0 -5px 0 5px;
+}
+.first-selectable {
+    display: block !important;
+    margin: 10px 5px 0px 5px;
+    padding: 6px 3px;
+    border-radius: 5px;
+    pointer-events: all !important;
+}
