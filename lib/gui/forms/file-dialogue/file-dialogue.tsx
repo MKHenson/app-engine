@@ -3,7 +3,8 @@ module Animate {
 	export interface IFileDialogueProps extends IReactWindowProps {
         extensions?: string[],
         multiselect? : boolean;
-        onFileSelected?: (file : Engine.IFile) => void;
+        readOnly?: boolean;
+        onFilesSelected?: (file : Engine.IFile[]) => void;
     }
 
 	/**
@@ -18,8 +19,9 @@ module Animate {
             modal: true,
             className: 'file-viewer-window',
             extensions: [],
-            onFileSelected : null,
-            multiselect: false
+            onFilesSelected : null,
+            multiselect: false,
+            readOnly: false
 		}
 
         /**
@@ -34,11 +36,15 @@ module Animate {
          */
         getContent() : React.ReactNode {
             return <FileViewer
+                readOnly={this.props.readOnly}
                 multiSelect={this.props.multiselect}
                 extensions={this.props.extensions}
-                onFileSelected={(f) => {
-                    if (this.props.onFileSelected)
-                        this.props.onFileSelected(f);
+                onClose={() => { this.onClose() }}
+                onFilesSelected={(f) => {
+                    if (this.props.onFilesSelected)
+                        this.props.onFilesSelected(f);
+
+                    this.onClose();
                 }}
             />
         }

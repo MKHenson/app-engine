@@ -8,7 +8,7 @@ module Animate {
     export interface IFileViewerProps {
         multiSelect: boolean;
         extensions: Array<string>;
-        onFileSelected? : (file: Engine.IFile) => void;
+        onFilesSelected? : (files: Engine.IFile[]) => void;
         onClose? : () => void;
         readOnly?: boolean;
     }
@@ -257,8 +257,8 @@ module Animate {
                             }> CLOSE </ButtonPrimary>
                             :
                             <ButtonSuccess onClick={(e)=>{
-                                if (this.props.onFileSelected)
-                                    this.props.onFileSelected(this.state.selectedEntity); }
+                                if (this.props.onFilesSelected)
+                                    this.props.onFilesSelected(this._selectedEntities); }
                             }>OPEN <i className="fa fa-check" aria-hidden="true"></i></ButtonSuccess>
                         )}
                     </div>
