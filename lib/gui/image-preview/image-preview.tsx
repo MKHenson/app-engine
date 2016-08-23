@@ -25,17 +25,24 @@ module Animate {
         }
 
         private _imgLoader: HTMLImageElement;
-
+        private _mounted: boolean;
         /**
          * Creates an instance
          */
         constructor(props: IImagePreviewProps) {
             super(props);
+            this._mounted = true;
             this.state = { loading : false };
             this._imgLoader = new Image();
             this._imgLoader.onload = () => {
+                if (!this._mounted)
+                    return;
                 this.setState({ loading : false });
             }
+        }
+
+        componentWillUnmount() {
+            this._mounted = false;
         }
 
         /**
