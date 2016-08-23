@@ -2,25 +2,25 @@ module Animate {
 
     export interface IViewerFile extends Engine.IFile {
         selected?: boolean;
+        loadingPreview? : boolean;
     }
 
     export interface IFileViewerProps {
         multiSelect: boolean;
         extensions: Array<string>;
         onFileSelected? : (file: Engine.IFile) => void;
+        onClose? : () => void;
+        readOnly?: boolean;
     }
 
     export interface IFileViewerState {
         selectedEntity?: IViewerFile;
-        previewUploadPercent? : number;
-        $search?: string;
-        $errorMsg?: string;
-        $loading?: boolean;
-        $editMode?: boolean;
-        $onlyFavourites?: boolean;
-        _cancelled?: boolean;
+        errorMsg?: string;
+        loading?: boolean;
+        editMode?: boolean;
         highlightDropZone?: boolean;
         percent?: number;
+        fileToken?: IViewerFile
     }
 
 	/**
@@ -30,19 +30,18 @@ module Animate {
 
         static defaultProps : IFileViewerProps = {
             multiSelect: true,
-            extensions: []
+            extensions: [],
+            readOnly: false
         }
 
         private _searchType: FileSearchType;
-        private $fileToken: IViewerFile;
-
-        private $entries: Array<IViewerFile>;
-        private $uploader: FileUploader;
+        private _entries: Array<IViewerFile>;
+        private _uploader: FileUploader;
         private _isMounted: boolean;
-        private _numPreviewsToLoad: number;
-        private _numPreviewsLoaded : number;
-
-        public selectedEntities: Array<UsersInterface.IFileEntry>;
+        private _search: string;
+        private _onlyFavourites: boolean;
+        private _onlyGlobal: boolean;
+        private _selectedEntities: Array<UsersInterface.IFileEntry>;
 
         /**
          * Creates an instance of the file viewer
@@ -51,29 +50,25 @@ module Animate {
             super(props);
 
             var that = this;
-            this.selectedEntities = [];
-            this.$entries = [];
+            this._selectedEntities = [];
+            this._entries = [];
             this._searchType = FileSearchType.User;
-            this.$fileToken = { tags: [] };
+            this._search = '';
+            this._onlyFavourites = false;
+            this._onlyGlobal = false;
             this._isMounted = true;
 
-            this._numPreviewsToLoad = 0;
-            this._numPreviewsLoaded = 0;
-
             // Create the file uploader
-            this.$uploader = new FileUploader(this.onFileUploaded.bind(this), (e) => { this.setState({ percent : e }) });
+            this._uploader = new FileUploader(this.onFileUploaded.bind(this), (e) => { this.setState({ percent : e }) });
 
             this.state = {
-                _cancelled: false,
                 selectedEntity : null,
-                $errorMsg: null,
-                $loading: false,
-                $search: "",
-                $onlyFavourites: false,
-                $editMode: false,
+                errorMsg: null,
+                loading: false,
+                editMode: false,
                 highlightDropZone: false,
-                previewUploadPercent: 0,
-                percent: 0
+                percent: 0,
+                fileToken: { tags: [] }
             }
         }
 
@@ -82,7 +77,7 @@ module Animate {
                 return;
 
             if (err)
-                this.setState({ $errorMsg : err.message });
+                this.setState({ errorMsg : err.message });
 
             this.invalidate();
         }
@@ -92,30 +87,27 @@ module Animate {
          * @param {SelectValue} option
          */
         onScopeChange( option : SelectValue ) {
-            if (option.label == "Filter by Project Files")
+            if (option.label == "Only project files")
                 this.selectMode(FileSearchType.Project);
-            else if (option.label == "Filter by My Files")
-                this.selectMode(FileSearchType.User);
             else
-                this.selectMode(FileSearchType.Global);
+                this.selectMode(FileSearchType.User);
         }
 
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element {
             let preview = PluginManager.getSingleton().displayPreview(selectedFile);
+            let fileToken = this.state.fileToken;
 
             if (!editMode) {
                 return (
                     <div className="file-stats">
-                        {( this.state.previewUploadPercent != 0 ?
-                            <div className="preview-loader reg-gradient" style={{ width : this.state.previewUploadPercent + "px" }} /> : null )}
                         {preview}
                         <div className="table">
                             <div className="tr">
-                                <span className="td">Owner:</span>
+                                <span className="td"><i className="fa fa-user" aria-hidden="true" /> Owner:</span>
                                 <span className="td">{selectedFile.user}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Created On:</span>
+                                <span className="td"><i className="fa fa-calendar" aria-hidden="true"/> Created On:</span>
                                 <span className="td">{new Date(selectedFile.createdOn).toLocaleDateString()} {new Date(selectedFile.createdOn).toLocaleTimeString()}</span>
                             </div>
                             <div className="tr">
@@ -127,31 +119,31 @@ module Animate {
                                 <span className="td"><a href={selectedFile.url} target="_blank">Open in Window</a></span>
                             </div>
                             <div className="tr">
-                                <span className="td">Url:</span>
-                                <span className="td"><input value={selectedFile.url} /></span>
+                                <span className="td"><i className="fa fa-code" aria-hidden="true"/> Url:</span>
+                                <span className="td"><VInput type="text" value={selectedFile.url} readOnly={true} /></span>
                             </div>
                             <div className="tr">
-                                <span className="td">Size:</span>
+                                <span className="td"><i className="fa fa-file-o" aria-hidden="true"/> Size:</span>
                                 <span className="td">{byteFilter(selectedFile.size)}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Extension:</span>
+                                <span className="td"><i className="fa fa-ellipsis-h" aria-hidden="true"/> Extension:</span>
                                 <span className="td">{selectedFile.extension}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Tags:</span>
-                                <span className="td">{selectedFile.tags.join(', ')}</span>
+                                <span className="td"><i className="fa fa-tags" aria-hidden="true"/> Tags:</span>
+                                <span className="td">{selectedFile.tags.join(', ') || '-'}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Global:</span>
+                                <span className="td"><i className="fa fa-globe" aria-hidden="true"/> Global:</span>
                                 <span className="td">{selectedFile.global.toString()}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Favourite:</span>
+                                <span className="td"><i className="fa fa-star" aria-hidden="true"/> Favourite:</span>
                                 <span className="td">{selectedFile.favourite.toString()}</span>
                             </div>
                             <div className="tr">
-                                <span className="td">Last Modified On:</span>
+                                <span className="td"><i className="fa fa-calendar" aria-hidden="true"/> Last Modified On:</span>
                                 <span className="td">{new Date(selectedFile.lastModified).toLocaleDateString()} {new Date(selectedFile.lastModified).toLocaleTimeString()}</span>
                             </div>
                         </div>
@@ -162,33 +154,51 @@ module Animate {
                 return (
                     <div className="file-stats">
                         <div className="info-divider background-view-light"></div>
-                        <div>
-                            <span className="info">Name:</span>
-                            <span className="detail">
-                                <input id="file-name" className="background-view-light" en-model="ctrl.$fileToken.name" />
-                            </span>
-                        </div>
-                        <div>
-                            <span className="info">Tags: </span>
-                            <span className="detail">
-                                <input className="background-view-light" id="file-tags" en-model="ctrl.$fileToken.tags" en-transform="ctrl.$fileToken.tags.replace(/(\s*,\s*)+/g, ',').trim().split(',')" />
-                            </span>
-                        </div>
-                        <div>
-                            <span className="info">Global</span>
-                            <VCheckbox onChecked={(e)=> {
-                                    this.$fileToken.global = !this.$fileToken.global;
-                                }}
-                                label={(this.$fileToken.global ? 'YES' : 'NO')}
-                                checked={this.$fileToken.global} />
-                        </div>
-                        <div>
-                            <span className="info">Favourite</span>
-                            <VCheckbox onChecked={(e)=> {
-                                    this.$fileToken.favourite = !this.$fileToken.favourite;
-                                }}
-                                label={(this.$fileToken.favourite ? 'YES' : 'NO')}
-                                checked={this.$fileToken.favourite} />
+                        <div className="table">
+                            <div className="tr">
+                                <span className="td"><i className="fa fa-file-o" aria-hidden="true"/> Name:</span>
+                                <span className="td">
+                                    <VInput type="text" value={fileToken.name} onChange={(e) => {
+                                        fileToken.name = (e.target as HTMLInputElement).value;
+                                        this.setState({ fileToken : fileToken });
+                                    }} />
+                                </span>
+                            </div>
+                            <div className="tr">
+                                <span className="td"><i className="fa fa-tags" aria-hidden="true"/> Tags:</span>
+                                <span className="td">
+                                    <VInput type="text" value={fileToken.tags.join(',')}
+                                        onChange={(e) => {
+                                            fileToken.tags = (e.target as HTMLInputElement).value.trim().split(',');
+                                            for (let t = 0, l = fileToken.tags.length; t < l; t++)
+                                                fileToken.tags[t] = fileToken.tags[t].trim();
+
+                                            this.setState({ fileToken : fileToken });
+                                        }}/>
+                                </span>
+                            </div>
+                            <div className="tr">
+                                <span className="td"><i className="fa fa-globe" aria-hidden="true"/> Global:</span>
+                                <span className="td">
+                                    <VCheckbox onChecked={(e)=> {
+                                            fileToken.global = !fileToken.global;
+                                            this.setState({ fileToken : fileToken });
+                                        }}
+                                        label={(fileToken.global ? 'YES' : 'NO')}
+                                        checked={fileToken.global} />
+                                </span>
+                            </div>
+                            <div className="tr">
+                                <span className="td"><i className="fa fa-star" aria-hidden="true"/> Favourite:</span>
+                                <span className="td">
+                                    <VCheckbox onChecked={(e)=> {
+                                            fileToken.favourite = !fileToken.favourite;
+                                            this.setState({ fileToken : fileToken });
+                                        }}
+                                        label={(fileToken.favourite ? 'YES' : 'NO')}
+                                        checked={fileToken.favourite} />
+                                </span>
+                            </div>
                         </div>
                     </div>
                 );
@@ -199,7 +209,7 @@ module Animate {
          * Shows a message box that the user must confirm or deny if the selected files must be removed
          */
         confirmDelete() {
-            let ents = this.selectedEntities;
+            let ents = this._selectedEntities;
             let numSelected = ents.length;
             let multiple = ents.length > 1 ? true : false;
             let msg : string;
@@ -224,10 +234,10 @@ module Animate {
             if (editMode) {
                 return (
                     <div className="buttons ">
-                        <ButtonLink onClick={(e) => { this.setState({ $editMode : false })}}>
+                        <ButtonLink onClick={(e) => { this.setState({ editMode : false })}}>
                             CANCEL
                         </ButtonLink>
-                        <ButtonPrimary onClick={ (e) => this.updateFile(this.$fileToken)}>
+                        <ButtonPrimary onClick={ (e) => this.updateFile(this.state.fileToken)}>
                             UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
                         </ButtonPrimary>
                     </div>
@@ -240,12 +250,17 @@ module Animate {
                             REMOVE
                         </ButtonLink>
 
-                        <ButtonSuccess onClick={(e)=>{
-                            if (this.props.onFileSelected)
-                                this.props.onFileSelected(this.state.selectedEntity); }
-                        }>
-                            OPEN <i className="fa fa-check" aria-hidden="true"></i>
-                        </ButtonSuccess>
+                        {(this.props.readOnly ?
+                            <ButtonPrimary onClick={(e)=>{
+                                if (this.props.onClose)
+                                    this.props.onClose(); }
+                            }> CLOSE </ButtonPrimary>
+                            :
+                            <ButtonSuccess onClick={(e)=>{
+                                if (this.props.onFileSelected)
+                                    this.props.onFileSelected(this.state.selectedEntity); }
+                            }>OPEN <i className="fa fa-check" aria-hidden="true"></i></ButtonSuccess>
+                        )}
                     </div>
                 );
             }
@@ -269,55 +284,49 @@ module Animate {
             let errMsg : JSX.Element;
             let loadingSymbol : JSX.Element;
 
-            if (this.state.$loading)
+            if (this.state.loading)
                 loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
 
-            if ( this.state.$errorMsg ) {
+            if ( this.state.errorMsg ) {
                 errMsg = (
-                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.$errorMsg ? 'opened' : '' )}>
-                        { this.state.$errorMsg }
+                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.errorMsg ? 'opened' : '' )}>
+                        { this.state.errorMsg }
                     </Attention>
                 )
             }
-
-            // TODO: This needs to be a toolbar drop
-            // =========================================
-            // let scopeOptions = [{
-            //     new ToolbarItem("media/assets-user.png", "Filter by My Files"),
-            //     new ToolbarItem("media/assets-project.png", "Filter by Project Files"),
-            //     new ToolbarItem("media/assets-global.png", "Filter by Global Files")
-            // }];
-            // =========================================
 
             return (
             <div className={"file-viewer" + (selectedFile ? ' file-selected' : '')} >
                 <div className="toolbar">
                     <ButtonPrimary
                         onClick={(e) => {jQuery('#upload-new-file').trigger('click') }}
-                        disabled={state.$loading}>
+                        disabled={state.loading}>
                         <i className="fa fa-plus" aria-hidden="true"></i> ADD FILE
                     </ButtonPrimary>
 
                     <div className="tool-bar-group">
-                        <ToolbarButton onChange={(e) => {
-                            this.setState({ $onlyFavourites : !state.$onlyFavourites });
+                        <ToolbarButton pushButton={true} selected={this._onlyFavourites} onChange={(e) => {
+                            this._onlyFavourites = !this._onlyFavourites;
                             this.invalidate();
-                        }} label="Favourite" prefix={<i className="fa fa-star" aria-hidden="true" />} />
+                        }} label="Filter by Favourites" prefix={<i className="fa fa-star" aria-hidden="true" />} />
+                        <ToolbarButton pushButton={true} selected={this._onlyGlobal} onChange={(e) => {
+                            this._onlyGlobal = !this._onlyGlobal;
+                            this.invalidate();
+                        }} label="Filter by Global files" prefix={<i className="fa fa-globe" aria-hidden="true" />} />
                     </div>
 
                     <div className="tool-bar-group">
                         <VSelect onOptionSelected={(e) => {this.onScopeChange(e) }} options={[
-                            { label: 'Filter by My File', value: 0 },
-                            { label: 'Filter by Project Files', value: 1 },
-                            { label: 'Filter by Global Files', value: 2 }
+                            { label: 'All files', value: 0 },
+                            { label: 'Only project files', value: 1 }
                         ]} />
                     </div>
 
-                    <div className={"tool-bar-group" + ( this.selectedEntities.length == 0 ? ' disabled' : '' )}>
+                    <div className={"tool-bar-group" + ( this._selectedEntities.length == 0 ? ' disabled' : '' )}>
                         <ToolbarButton onChange={(e) => { this.confirmDelete() }} label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
                     </div>
 
-                    <SearchBox disabled={state.$loading} onSearch={( e, term ) => {  this.setState({ $search : term }); this.invalidate(); }}/>
+                    <SearchBox disabled={state.loading} onSearch={( e, term ) => {  this._search = term; this.invalidate(); }}/>
 
                     <input type="file" id="upload-new-file" multiple="multiple" onChange={(e) => {this.onFileChange(e)}} />
                     <div className="fix"></div>
@@ -331,16 +340,18 @@ module Animate {
                             onDrop={(e) => this.onDrop(e)}
                         >
                             <div className="progress" style={{
-                                display: ( this.$uploader.numDownloads > 0 ? '' : 'none' ),
-                                width: this.$uploader.percent + '%'
+                                display: ( this._uploader.numDownloads > 0 ? '' : 'none' ),
+                                width: this._uploader.percent + '%'
                             }}>
-                                {this.$uploader.percent}% [{this.$uploader.numDownloads}]
+                                {this._uploader.percent}% [{this._uploader.numDownloads}]
                             </div>
                             {errMsg}
                             <div>
                                 {
-                                    this.$entries.map((file, index) => {
-                                        return <ImagePreview src={file.previewUrl}
+                                    this._entries.map((file, index) => {
+                                        return <ImagePreview
+                                            showLoadingIcon={file.loadingPreview}
+                                            src={file.previewUrl}
                                             key={'file-' + index}
                                             label={file.name}
                                             selected={file.selected}
@@ -350,25 +361,25 @@ module Animate {
                                     })
                                 }
                             </div>
-                            {( this.$entries.length == 0 ? <div className="no-items unselectable">No files uploaded</div> : null)}
+                            {( this._entries.length == 0 ? <div className="no-items unselectable">No files uploaded</div> : null)}
                         </div>
-                        {( state.$loading ? <div className='loading'>{loadingSymbol}</div> : null )}
+                        {( state.loading ? <div className='loading'>{loadingSymbol}</div> : null )}
                     </Pager>
                 </div>
                 <div className={"file-info background animate-all" + (selectedFile ? ' open' : '')}>
                     {( selectedFile ? (
                         <div className="fade-in" style={{height: "100%"}}>
                             <div className="file-details">
-                                <ButtonLink style={{display: (!state.$editMode ? '' : 'none')}}
-                                    onClick={() => { this.setState({ $editMode : !state.$editMode }); }
+                                <ButtonLink className="edit" style={{display: (!state.editMode ? '' : 'none')}}
+                                    onClick={() => { this.setState({ editMode : !state.editMode }); }
                                 }>
                                     <span className="edit-icon">✎</span>
                                 </ButtonLink>
                                 <h2>{selectedFile.name}</h2>
-                                {this.getFileDetails(selectedFile, state.$editMode)}
+                                {this.getFileDetails(selectedFile, state.editMode)}
                                 <div className="fix"></div>
                             </div>
-                            {this.renderPanelButtons( state.$editMode )}
+                            {this.renderPanelButtons( state.editMode )}
                         </div>
                     ) : null )}
                 </div>
@@ -390,11 +401,11 @@ module Animate {
          */
         selectEntity(e : React.MouseEvent, entity : IViewerFile) {
             this.setState({
-                $errorMsg : null
+                errorMsg : null
             });
 
             entity.selected = !entity.selected;
-            var ents = this.selectedEntities;
+            var ents = this._selectedEntities;
 
             if (entity.selected) {
                 if ( !this.props.multiSelect || ( this.props.multiSelect && e.shiftKey == false)) {
@@ -412,10 +423,10 @@ module Animate {
             let selected = null;
             if (ents.length != 0) {
                 selected = ents[ents.length - 1];
-                this.$fileToken = { name: selected.name, tags: selected.tags.slice(), favourite: selected.favourite, global: selected.global, _id: selected._id }
+                this.setState({ fileToken : { name: selected.name, tags: selected.tags.slice(), favourite: selected.favourite, global: selected.global, _id: selected._id }});
             }
             else
-                this.$fileToken = { tags: [] };
+                this.setState({ fileToken : { tags: [] } });
 
             this.setState({
                 selectedEntity : selected
@@ -427,14 +438,14 @@ module Animate {
          */
         removeEntities() {
             this.setState({
-                $errorMsg: null,
-                $editMode: false,
-                $loading: true
+                errorMsg: null,
+                editMode: false,
+                loading: true
             });
 
             let entIds = "";
 
-            for (let ent of this.selectedEntities )
+            for (let ent of this._selectedEntities )
                 entIds += (ent as UsersInterface.IFileEntry).identifier + ",";
 
             // Make sure the string is formatted correctly
@@ -443,18 +454,18 @@ module Animate {
             Utils.delete(`${DB.USERS}/files/${entIds}`).then( (token: UsersInterface.IResponse) => {
 
                 if (token.error)
-                     this.setState({$errorMsg : token.message});
+                     this.setState({errorMsg : token.message});
 
                 this.setState({
-                    $loading: false
+                    loading: false
                 });
 
                 this.invalidate();
 
             }).catch((e: Error)=> {
                 this.setState({
-                    $errorMsg : e.message,
-                    $loading: false
+                    errorMsg : e.message,
+                    loading: false
                 });
             });
         }
@@ -472,51 +483,46 @@ module Animate {
 
             this.setState({
                 selectedEntity : null,
-                $loading: true
+                loading: true
             });
 
-            this.selectedEntities.splice(0, this.selectedEntities.length);
+            this._selectedEntities.splice(0, this._selectedEntities.length);
 
             if (this._searchType == FileSearchType.Project)
-                command = `${DB.API}/users/${details.username}/projects/${project.entry._id}/files?index=${index}&limit=${limit}&favourite=${this.state.$onlyFavourites}&search=${this.state.$search}&bucket=${details.username}-bucket`
+                command = `${DB.API}/users/${details.username}/projects/${project.entry._id}/files?index=${index}&limit=${limit}&global=${this._onlyGlobal}&favourite=${this._onlyFavourites}&search=${this._search}&bucket=${details.username}-bucket`
             else
-                command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&favourite=${this.state.$onlyFavourites}&search=${this.state.$search}&bucket=${details.username}-bucket`
+                command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&global=${this._onlyGlobal}&favourite=${this._onlyFavourites}&search=${this._search}&bucket=${details.username}-bucket`
 
             return new Promise( (resolve, reject) => {
                 jQuery.getJSON(command).then( (token: UsersInterface.IGetFiles) => {
                     let limit = 1;
                     if (token.error) {
-                        this.setState({ $errorMsg : token.message});
-                        this.$entries = [];
+                        this.setState({ errorMsg : token.message});
+                        this._entries = [];
                         limit = 1;
                     }
                     else {
-                        this.$entries = token.data;
-                        this.$entries = this.filterByExtensions( this.$entries );
+                        this._entries = token.data;
+                        this._entries = this.filterByExtensions( this._entries );
                         limit = token.count;
                     }
 
-                    let previewsMustLoad = false;
-
                     // Attempt to upload a preview of the uploaded files that do not have a preview url
-                    this.$entries.forEach( (file) => {
+                    this._entries.forEach( (file) => {
                         if (file.previewUrl)
                             return;
-
-                        this._numPreviewsToLoad++;
 
                         // Check if we have a thumbnail generator
                         var p = PluginManager.getSingleton().thumbnail(file);
                         if (p) {
-
-                            previewsMustLoad = true;
+                            file.loadingPreview = true;
                             p.then((canvas) => {
                                 this.uploadPreview(file, canvas);
                             });
                         }
                     })
 
-                    this.setState({ $loading : previewsMustLoad });
+                    this.setState({ loading : false });
                     resolve(limit);
                 });
             });
@@ -533,7 +539,7 @@ module Animate {
             // Make sure the file types are allowed
             if (!this.checkIfAllowed(input.files)) {
 
-                this.setState({ $errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
+                this.setState({ errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
 
                 // Reset the value
                 input.value = "";
@@ -546,7 +552,7 @@ module Animate {
                 files.push( input.files[i] );
             }
 
-            this.$uploader.uploadFile(files, { browsable: true });
+            this._uploader.uploadFile(files, { browsable: true });
 
             // Reset the value
             input.value = "";
@@ -661,7 +667,7 @@ module Animate {
 
                 // Make sure the file types are allowed
                 if (!this.checkIfAllowed(files))
-                    return this.setState({ $errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
+                    return this.setState({ errorMsg : `Only ${this.props.extensions.join(', ') } file types are allowed` });
 
                 // Upload each file
                 let filesToUpload: File[] = [];
@@ -670,7 +676,7 @@ module Animate {
                 }
 
                 // Now upload each file
-                this.$uploader.uploadFile(filesToUpload, { browsable: true });
+                this._uploader.uploadFile(filesToUpload, { browsable: true });
 
                 return;
             }
@@ -687,29 +693,30 @@ module Animate {
 
             // Create the uploader
             var fu = new FileUploader( (err: Error, tokens: Array<UsersInterface.IUploadToken>) => {
+                    if (err) {
+                         if ( !this._isMounted )
+                            return;
 
-                    this._numPreviewsToLoad--;
-                    if (this._numPreviewsLoaded == 0)
-                        this.setState({ $loading: false });
-
-                    if (err)
-                        return this.setState({ $errorMsg : err.message });
+                        return this.setState({ errorMsg : err.message });
+                    }
 
                     // Associate the uploaded preview with the file
                     Utils.put(`${DB.API}/users/${details.username}/files/${file._id}`, { previewUrl: tokens[0].url } as IViewerFile).then( (token: UsersInterface.IResponse) => {
 
                         if (token.error)
-                            return this.setState({ $errorMsg : token.message });
+                            return this.setState({ errorMsg : token.message });
 
                         file.previewUrl = tokens[0].url;
+                        file.loadingPreview = false;
+
                         if ( !this._isMounted )
                             return;
 
-                        this.invalidate();
+                        this.forceUpdate();
 
                     }).catch( (err: IAjaxError) => {
                         if ( !this._isMounted )
-                            this.setState({ $errorMsg : 'Could not upload preview' });
+                            this.setState({ errorMsg : 'Could not upload preview' });
                     });
                 }
             );
@@ -726,16 +733,16 @@ module Animate {
             let details = User.get.entry;
 
             this.setState({
-                $loading : true,
-                $errorMsg : null
+                loading : true,
+                errorMsg : null
             });
 
-            Utils.put<UsersInterface.IResponse>(`${DB.API}/user/${details.username}/files/${token._id}`, token).then((response) => {
+            Utils.put<UsersInterface.IResponse>(`${DB.API}/users/${details.username}/files/${token._id}`, token).then((response) => {
 
                 if (response.error) {
                     return this.setState({
-                        $loading : false,
-                        $errorMsg : response.message
+                        loading : false,
+                        errorMsg : response.message
                     });
                 }
                 else {
@@ -744,15 +751,15 @@ module Animate {
                             this.state.selectedEntity[i] = token[i];
 
                     this.setState({
-                        $editMode : false,
-                        $loading : false
+                        editMode : false,
+                        loading : false
                     });
                 }
 
             }).catch( (err: IAjaxError) => {
                 this.setState({
-                    $errorMsg : `An error occurred while connecting to the server. ${err.status}: ${err.message}`,
-                    $loading : false
+                    errorMsg : `An error occurred while connecting to the server. ${err.status}: ${err.message}`,
+                    loading : false
                 });
             });
         }

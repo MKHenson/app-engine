@@ -84,8 +84,8 @@
     }
 
     .file-item {
-        width: 200px;
-        height: 200px;
+        width: 150px;
+        height: 150px;
         float: left;
         margin: 10px;
         cursor: pointer;
@@ -141,6 +141,9 @@
             text-overflow: ellipsis;
             overflow: hidden;
             white-space: nowrap;
+            i {
+                margin : 0 2px 0 0;
+            }
             &:last-child {
                 text-align: right;
             }
@@ -152,46 +155,18 @@
         background: $border-primary;
         margin: 10px 0;
     }
-}
 
+    .file-details input {
+        padding: 5px 10px;
+        margin: 2px 0;
+    }
 
+    .edit {
+        float:right;
+        padding: 0;
+    }
 
-.file-stats > div {
-    clear:both;
-    margin: 0 0 10px 0;
-}
-.file-details .img-preview {
-    margin: 0 0 10px 0;
-}
-
-.file-details p {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    margin: 0 0 5px 0;
-}
-.file-details input {
-    padding: 2px 5px;
-}
-.file-details button {
-    padding:0;
-    float:right;
-    margin: 0 0 0 25px;
-}
-
-.file-details .detail {
-    float: right;
-}
-.file-details .img-preview .preview-child {
-    box-shadow: none;
-}
-.img-favourite {
-    background-image: url("../media/star-15px.png");
-    width:15px;
-    height:15px;
-    display:inline-block;
-    margin:0 4px 0 0;
-}
-.f-selected.img-favourite {
-    background-position: 0 -15px;
+    .dropdown {
+        height: 48px;
+    }
 }
