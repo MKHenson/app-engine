@@ -17,15 +17,11 @@ module Animate {
         _closing? : () => void;
     }
 
-    export interface IReactContextMenuState {
-        activeItems: IReactContextMenuItem[];
-    }
-
     /**
      * A React component for showing a context menu.
      * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
      */
-    export class ReactContextMenu extends React.Component<IReactContextMenuProps, IReactContextMenuState> {
+    export class ReactContextMenu extends React.Component<IReactContextMenuProps, any> {
         private static _menuCount: number = 0;
         private static _menus : { [id: number]: {
             menu : HTMLElement,
@@ -47,9 +43,6 @@ module Animate {
             super(props);
 
             this._mouseUpProxy = this.onMouseUp.bind(this);
-            this.state = {
-                activeItems : []
-            }
         }
 
         /**
