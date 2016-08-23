@@ -95,7 +95,7 @@ module Animate {
 								Animate.UserPrivilegesForm.getSingleton().show() }} label="Privileges" imgUrl="media/privaledges.png" />
 						</div>
 						<div className="tool-bar-group">
-							<ToolbarButton onChange={(e) => { ReactWindow.show( FileDialogue, { multiselect: true } as IFileDialogueProps); }} label="File Manager" imgUrl="media/plug-detailed.png" />
+							<ToolbarButton onChange={(e) => { ReactWindow.show( FileDialogue, { multiselect: true, readOnly: true } as IFileDialogueProps); }} label="File Manager" imgUrl="media/plug-detailed.png" />
 						</div>
 					</TabPane>
 					]}
