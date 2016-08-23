@@ -35,6 +35,11 @@ module Animate {
          * provided, then that is used instead (for example 'Please specify a value for X')
          */
         errorMsg?: string;
+
+        /**
+         * If true, then the input will select everything when clicked
+         */
+        selectOnClick?: boolean;
     }
 
 
@@ -43,7 +48,9 @@ module Animate {
      * with the VForm.
      */
     export class VInput extends React.Component<IVInputProps, { error? : string, value?: string, highlightError? : boolean }> {
-
+        static defaultProps : IVInputProps = {
+            selectOnClick: true
+        }
         private _pristine: boolean;
 
         /**
@@ -77,6 +84,15 @@ module Animate {
 
             this.setState({
                 error: (err? err: null)
+            });
+        }
+
+        /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IVCheckboxProps) {
+            this.setState({
+                value: ( nextProps.value as string !== this.props.value ? nextProps.value as string : this.state.value )
             });
         }
 
@@ -156,6 +172,7 @@ module Animate {
             delete divProps.errorMsg;
             delete divProps.onValidationError;
             delete divProps.onValidationResolved;
+            delete divProps.selectOnClick;
 
             var className = ( this.props.className ? this.props.className + ' v-input' : 'v-input' )
             if (this.state.error)
@@ -169,6 +186,8 @@ module Animate {
                 {...divProps}
                 onFocus={(e) => {
                     this._pristine = false;
+                    if (this.props.selectOnClick)
+                        (e.target as HTMLInputElement).setSelectionRange(0, (e.target as HTMLInputElement).value.length);
                 }}
                 className={className}
                 value={this.state.value}

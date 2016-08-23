@@ -57,8 +57,8 @@ module Animate {
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps) {
-			if ( nextProps.selected !== this.props.selected )
-				this.selected = nextProps.selected;
+			if ( nextProps.selected !== this.state.selected )
+				this.setState({  selected: nextProps.selected });
         }
 
 		onClick( e ) {
@@ -80,7 +80,7 @@ module Animate {
 				this.props.onChange(val);
 
 			this.setState({
-				selected: !this.state.selected
+				selected: val
 			});
 		}
 

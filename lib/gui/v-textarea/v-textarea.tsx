@@ -75,6 +75,15 @@ module Animate {
         }
 
         /**
+         * Called when the props are updated
+         */
+        componentWillReceiveProps(nextProps: IVCheckboxProps) {
+            this.setState({
+                value: ( nextProps.value as string !== this.props.value ? nextProps.value as string : this.state.value )
+            });
+        }
+
+        /**
          * Gets the current value of the input
          * @returns {string}
          */
