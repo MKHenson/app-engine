@@ -4,6 +4,7 @@ module Animate {
         label: string;
         onClick? : (e: React.MouseEvent) => void;
         // nodes?: React.ReactElement<IReactTreeNodeProps>[];
+        children?: IReactTreeNodeProps[];
     }
 
     export interface IReactTreeNodeState {

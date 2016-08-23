@@ -3152,25 +3152,27 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface ITreeNodeView extends IReactTreeNodeProps {
-        children?: ITreeNodeView[];
-    }
     class NodeData {
         props: IReactTreeNodeProps;
         nodes: NodeData[];
+        parent: NodeData;
         treeview: ReactTreeView;
         constructor(props: IReactTreeNodeProps, children?: NodeData[]);
         setTreeview(treeview: ReactTreeView): void;
         addNode(node: NodeData): NodeData;
         removeNode(node: NodeData): void;
-        render(): ITreeNodeView;
+        /**
+         * Creates the parent treeview state object. The treeview will use this object as its propTree
+         * state variable and render each property with a corresponding tree node component
+         */
+        createPropTree(): IReactTreeNodeProps;
     }
     interface IReactTreeViewProps {
         nodes: NodeData;
         multiSelect?: boolean;
     }
     interface IReactTreeViewState {
-        nodes: ITreeNodeView;
+        propTree: IReactTreeNodeProps;
     }
     /**
      * This class is used to create tree view items.
@@ -3180,7 +3182,7 @@ declare module Animate {
         constructor(props: IReactTreeViewProps);
         invalidate(): void;
         onNodeSelected(node: ReactTreeNode): void;
-        renderNodeView(view: ITreeNodeView, level: number, index: number): JSX.Element;
+        renderNodeView(view: IReactTreeNodeProps, level: number, index: number): JSX.Element;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3194,6 +3196,7 @@ declare module Animate {
     interface IReactTreeNodeProps {
         label: string;
         onClick?: (e: React.MouseEvent) => void;
+        children?: IReactTreeNodeProps[];
     }
     interface IReactTreeNodeState {
         expanded?: boolean;

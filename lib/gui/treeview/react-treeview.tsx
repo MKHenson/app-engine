@@ -1,13 +1,11 @@
 module Animate {
 
-    export interface ITreeNodeView extends IReactTreeNodeProps {
-        children?: ITreeNodeView[];
-    }
-
     export class NodeData {
         public props: IReactTreeNodeProps;
         public nodes: NodeData[];
+        public parent: NodeData;
         public treeview: ReactTreeView;
+        private _component: ReactTreeNode;
 
         constructor(props: IReactTreeNodeProps, children? : NodeData[]) {
             this.treeview = null;
@@ -23,6 +21,7 @@ module Animate {
 
         addNode(node: NodeData) : NodeData{
             this.nodes.push(node);
+            node.parent = this;
             this.treeview = this.treeview;
 
             if (this.treeview)
@@ -34,14 +33,20 @@ module Animate {
         removeNode(node: NodeData) {
             this.nodes.splice(this.nodes.indexOf(node), 1);
             node.treeview = null;
+            node.parent = null;
+            node._component = null;
             if (this.treeview)
                 this.treeview.invalidate();
         }
 
-        render(): ITreeNodeView {
-            let props = Object.assign({}, this.props);
-            props.children = this.nodes.map(function(i){
-                return i.render();
+        /**
+         * Creates the parent treeview state object. The treeview will use this object as its propTree
+         * state variable and render each property with a corresponding tree node component
+         */
+        createPropTree(): IReactTreeNodeProps {
+            let props = this.props;
+            props.children = this.nodes.map(function(i) {
+                return i.createPropTree();
             });
 
             return props;
@@ -49,12 +54,12 @@ module Animate {
     }
 
     export interface IReactTreeViewProps {
-        nodes: NodeData;
+        nodes: NodeData[];
         multiSelect?: boolean;
     }
 
     export interface IReactTreeViewState {
-        nodes: ITreeNodeView;
+        propTree: IReactTreeNodeProps[];
     }
 
 	/**
@@ -62,20 +67,37 @@ module Animate {
 	 */
 	export class ReactTreeView extends React.Component<IReactTreeViewProps, IReactTreeViewState> {
 
-        private _nodes : NodeData;
+        private _nodes : NodeData[];
         //private _selectedNodes : ReactTreeNode[];
 
         constructor(props: IReactTreeViewProps) {
             super(props);
-            this._nodes = props.nodes || new NodeData(null);
-            this._nodes.setTreeview(this);
+            this._nodes = props.nodes || [new NodeData(null)];
+            let rootNodes : IReactTreeNodeProps[] = [];
+
+            // Set the treeview
+            for (let node of this._nodes) {
+                node.setTreeview(this);
+                rootNodes.push( node.createPropTree() );
+            }
+
+            // Set the initial state
             this.state = {
-                nodes : this._nodes.render()
+                propTree : rootNodes
             };
         }
 
+        /**
+         * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
+         */
         invalidate() {
-            this.setState({ nodes: this._nodes.render() })
+            let rootNodes : IReactTreeNodeProps[] = [];
+
+            // Set the treeview
+            for (let node of this._nodes)
+                rootNodes.push( node.createPropTree() );
+
+            this.setState({ propTree: rootNodes })
         }
 
         onNodeSelected(node: ReactTreeNode) {
@@ -94,13 +116,9 @@ module Animate {
 			// }
         }
 
-        renderNodeView(view : ITreeNodeView, level: number, index : number) : JSX.Element {
-
-            const nodeProps : IVInputProps  = Object.assign({}, view);
-            delete nodeProps.children;
-
-            return <ReactTreeNode {...nodeProps} key={'node-' + level + '-' + index}>
-                { view.children && view.children.map( (n, index) => { return this.renderNodeView(n, level + 1, index) })}
+        renderNodeProp(props : IReactTreeNodeProps, level: number, index : number) : JSX.Element {
+            return <ReactTreeNode {...props} key={'node-' + level + '-' + index}>
+                { props.children && props.children.map( (n, index) => { return this.renderNodeProp(n, level + 1, index) })}
             </ReactTreeNode>
         }
 
@@ -110,16 +128,16 @@ module Animate {
          */
         render(): JSX.Element {
             return <div className="treeview">
-                {this.renderNodeView(this.state.nodes, 0, 0)}
+                { this.state.propTree.map((node, index) => { this.renderNodeProp(node, 0, index) })}
             </div>
         }
 
-        addNode(node: NodeData) {
-            this._nodes.addNode(node);
-        }
-
-        removeNode(node: NodeData) {
-            this._nodes.removeNode(node);
+        /**
+         * Gets the root nodes of this treeview
+         * @returns {NodeData[]}
+         */
+        get() : NodeData[] {
+            return this._nodes;
         }
     }
 }
