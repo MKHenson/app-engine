@@ -42,16 +42,16 @@ module Animate {
          * Called whenever the input changes
          */
         onChange(e: React.FormEvent) {
+            let text = (e.target as HTMLInputElement).value as string ;
+            this.setState({
+                value : text
+            });
+
             if (this.props.disabled)
                 return;
 
             if (this.props.triggerOnBlur)
                 return;
-
-            let text = (e.target as HTMLInputElement).value as string ;
-            this.setState({
-                value : text
-            });
 
             if (this.props.onSearch)
                 this.props.onSearch(e, text || '');
@@ -61,13 +61,14 @@ module Animate {
          * Called whenever the input loses focus
          */
         onBlur(e: React.FormEvent) {
-            if (this.props.disabled)
-                return;
 
             let text = (e.target as HTMLInputElement).value as string ;
             this.setState({
                 value : text
             });
+
+            if (this.props.disabled)
+                return;
 
             if (this.props.onSearch)
                 this.props.onSearch(e, text || '');
