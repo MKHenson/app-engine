@@ -2965,14 +2965,11 @@ declare module Animate {
         items?: IReactContextMenuItem[];
         _closing?: () => void;
     }
-    interface IReactContextMenuState {
-        activeItems: IReactContextMenuItem[];
-    }
     /**
      * A React component for showing a context menu.
      * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
      */
-    class ReactContextMenu extends React.Component<IReactContextMenuProps, IReactContextMenuState> {
+    class ReactContextMenu extends React.Component<IReactContextMenuProps, any> {
         private static _menuCount;
         private static _menus;
         static defaultProps: IReactContextMenuProps;
@@ -3152,6 +3149,66 @@ declare module Animate {
         findNode(property: string, value: any): TreeNode;
         selectedNode: TreeNode;
         selectedNodes: Array<TreeNode>;
+    }
+}
+declare module Animate {
+    interface ITreeNodeView extends IReactTreeNodeProps {
+        children?: ITreeNodeView[];
+    }
+    class NodeData {
+        props: IReactTreeNodeProps;
+        nodes: NodeData[];
+        treeview: ReactTreeView;
+        constructor(props: IReactTreeNodeProps, children?: NodeData[]);
+        setTreeview(treeview: ReactTreeView): void;
+        addNode(node: NodeData): NodeData;
+        removeNode(node: NodeData): void;
+        render(): ITreeNodeView;
+    }
+    interface IReactTreeViewProps {
+        nodes: NodeData;
+        multiSelect?: boolean;
+    }
+    interface IReactTreeViewState {
+        nodes: ITreeNodeView;
+    }
+    /**
+     * This class is used to create tree view items.
+     */
+    class ReactTreeView extends React.Component<IReactTreeViewProps, IReactTreeViewState> {
+        private _nodes;
+        constructor(props: IReactTreeViewProps);
+        invalidate(): void;
+        onNodeSelected(node: ReactTreeNode): void;
+        renderNodeView(view: ITreeNodeView, level: number, index: number): JSX.Element;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+        addNode(node: NodeData): void;
+        removeNode(node: NodeData): void;
+    }
+}
+declare module Animate {
+    interface IReactTreeNodeProps {
+        label: string;
+        onClick?: (e: React.MouseEvent) => void;
+    }
+    interface IReactTreeNodeState {
+        expanded?: boolean;
+        selected?: boolean;
+    }
+    /**
+     * This class is used to create tree view items.
+     */
+    class ReactTreeNode extends React.Component<IReactTreeNodeProps, IReactTreeNodeState> {
+        constructor(props: IReactTreeNodeProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {

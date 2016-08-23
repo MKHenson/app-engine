@@ -59,3 +59,13 @@
     border-radius: 5px;
     pointer-events: all !important;
 }
+
+.treeview {
+    .expanded > .child-nodes {
+        display: block;
+    }
+    .child-nodes {
+        margin: 0 0 0 15px;
+        display: none;
+    }
+}

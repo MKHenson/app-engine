@@ -100,6 +100,11 @@ module Animate {
          */
         render() : JSX.Element {
 
+			let treeData = new NodeData({label: "Root"});
+			let node = treeData.addNode(new NodeData({label: "Child 1"}));
+			treeData.addNode(new NodeData({label: "Child 2"}));
+			node.addNode(new NodeData({label: "Sub Child 1"}));
+
 			return <div id="application">
 				{(this.state.showSplash ? <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } /> : null)}
 				<div id="main-view" style={{display: this.state.showSplash ? 'none' : '' }}>
@@ -118,7 +123,9 @@ module Animate {
 									ratio={0.6}
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<h2>Property editor goes here</h2>}
-									bottom={<h2>Treeview goes here</h2>} />
+									bottom={
+										<ReactTreeView nodes={treeData} />
+									} />
 							} />
 					</div>
 				</div>
