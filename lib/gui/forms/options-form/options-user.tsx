@@ -78,6 +78,7 @@ module Animate {
          */
         render() : JSX.Element {
             let user = User.get.entry;
+            let meta = User.get.meta;
             let loadingSymbol : JSX.Element;
 
             if (this.state.loading)
@@ -103,7 +104,7 @@ module Animate {
                     </div>
                 </Group>
                 <Group label="Avatar">
-                    <ImageUploader label="Upload Image" src={user.meta ? user.meta.image : null} onImage={(f) => {this.setAvatarUrl(f); }} />
+                    <ImageUploader label="Upload Image" src={meta ? meta.image : null} onImage={(f) => {this.setAvatarUrl(f); }} />
                     <div className="img-data">
                         <div className="info">Your avatar is the image others see you as. Use the upload button to change your profile picture.</div>
                         {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null )}
@@ -112,12 +113,12 @@ module Animate {
                 </Group>
                 <Group label="User Information">
                     <h3>Bio</h3>
-                    <textarea id="meta-bio" className="background-view-light">{user.meta ? user.meta.bio : null}</textarea>
+                    <VTextarea ref="bio" className="background-view-light" value={meta ? meta.bio : null} />
                     <div className="info">Use the above pad to write about yourself. This will show up on Webinate next to your projects.</div>
 
                     {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
 
-                    <ButtonPrimary disabled={this.state.loading} onClick={(e) => {this.updateBio( jQuery('#meta-bio').val() );}}>
+                    <ButtonPrimary disabled={this.state.loading} onClick={(e) => {this.updateBio( (this.refs["bio"] as VTextarea).value );}}>
                         Update Information
                     </ButtonPrimary>
 
