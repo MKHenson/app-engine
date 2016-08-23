@@ -42,13 +42,14 @@ module Animate {
 
             ReactWindow.show( FileDialogue, {
 				extensions: ['jpg', 'png', 'jpeg', 'gif'],
-				onFileSelected: (file) => {
+                multiselect: false,
+				onFilesSelected: (files) => {
                     this.setState({
-                        src: (file ? file.url : null)
+                        src: (files ? files[0].url : null)
                     });
 
                     if (this.props.onImage)
-                        this.props.onImage(file);
+                        this.props.onImage(files[0]);
 				}
 		 	} as IFileDialogueProps);
         }
