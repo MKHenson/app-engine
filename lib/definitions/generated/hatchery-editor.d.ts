@@ -3152,51 +3152,58 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class NodeData {
-        props: IReactTreeNodeProps;
-        nodes: NodeData[];
-        parent: NodeData;
-        treeview: ReactTreeView;
-        constructor(props: IReactTreeNodeProps, children?: NodeData[]);
-        setTreeview(treeview: ReactTreeView): void;
-        addNode(node: NodeData): NodeData;
-        removeNode(node: NodeData): void;
-        /**
-         * Creates the parent treeview state object. The treeview will use this object as its propTree
-         * state variable and render each property with a corresponding tree node component
-         */
-        createPropTree(): IReactTreeNodeProps;
-    }
     interface IReactTreeViewProps {
-        nodes: NodeData;
+        nodes: TreeViewNode[];
         multiSelect?: boolean;
     }
     interface IReactTreeViewState {
-        propTree: IReactTreeNodeProps;
     }
     /**
      * This class is used to create tree view items.
      */
     class ReactTreeView extends React.Component<IReactTreeViewProps, IReactTreeViewState> {
+        static defaultProps: IReactTreeViewProps;
         private _nodes;
+        private _selectedNodes;
+        /**
+         * Creates a new instance of the treenode
+         */
         constructor(props: IReactTreeViewProps);
+        /**
+         * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
+         */
         invalidate(): void;
-        onNodeSelected(node: ReactTreeNode): void;
-        renderNodeView(view: IReactTreeNodeProps, level: number, index: number): JSX.Element;
+        /**
+         * Cleans up the component
+         */
+        componentWillUnmount(): void;
+        /**
+         * Called whenever a node is selectable and clicked.
+         * @param {ReactTreeNode} node
+         * @param {React.MouseEvent} e
+         */
+        onNodeSelected(node: TreeNodeComponent, e: React.MouseEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
-        addNode(node: NodeData): void;
-        removeNode(node: NodeData): void;
+        /**
+         * Gets the root nodes of this treeview
+         * @returns {TreeViewNode[]}
+         */
+        get(): TreeViewNode[];
     }
 }
 declare module Animate {
     interface IReactTreeNodeProps {
+        expanded?: boolean;
         label: string;
+        tree: ReactTreeView;
+        selectable?: boolean;
+        selected?: boolean;
+        icon?: JSX.Element;
         onClick?: (e: React.MouseEvent) => void;
-        children?: IReactTreeNodeProps[];
     }
     interface IReactTreeNodeState {
         expanded?: boolean;
@@ -3205,13 +3212,75 @@ declare module Animate {
     /**
      * This class is used to create tree view items.
      */
-    class ReactTreeNode extends React.Component<IReactTreeNodeProps, IReactTreeNodeState> {
+    class TreeNodeComponent extends React.Component<IReactTreeNodeProps, IReactTreeNodeState> {
+        static defaultProps: IReactTreeNodeProps;
+        /**
+         * Creates an instance
+         */
         constructor(props: IReactTreeNodeProps);
+        /**
+         * Check for updates in the props & update state accordingly
+         */
+        componentWillReceiveProps(nextProps: IReactTreeNodeProps): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
+    }
+}
+declare module Animate {
+    class TreeViewNode {
+        private _icon;
+        private _label;
+        private _selected;
+        private _nodes;
+        private _parent;
+        private _treeview;
+        /**
+         * Creates an instance of the node
+         */
+        constructor(label: string, icon?: JSX.Element, children?: TreeViewNode[]);
+        /**
+         * Gets or sets the label of the node
+         * @param {string} val
+         * @returns {string}
+         */
+        label(val?: string): string;
+        /**
+         * Gets or sets if the node is selected
+         * @param {string} val
+         * @returns {string}
+         */
+        selected(val?: boolean): boolean;
+        /**
+         * Gets or sets the icon of the node
+         * @param {JSX.Element} val
+         * @returns {JSX.Element}
+         */
+        icon(val?: JSX.Element): JSX.Element;
+        private invalidate();
+        /**
+         * Sets the treeview associated with this node and its children
+         * @param {ReactTreeView} treeview
+         */
+        setTreeview(treeview: ReactTreeView): void;
+        /**
+         * Adds a child node
+         * @param {TreeViewNode} node
+         * @returns {TreeViewNode}
+         */
+        addNode(node: TreeViewNode): TreeViewNode;
+        /**
+         * Removes a child node
+         * @param {TreeViewNode} node
+         */
+        removeNode(node: TreeViewNode): void;
+        /**
+         * Creates the parent treeview state object. The treeview will use this object as its propTree
+         * state variable and render each property with a corresponding tree node component
+         */
+        render(level: number, index: number): JSX.Element;
     }
 }
 declare module Animate {

@@ -61,11 +61,35 @@
 }
 
 .treeview {
+    .fa {
+        margin: 0 5px 0 0;
+    }
+    .expand-button {
+        margin: 0 5px;
+        cursor: pointer;
+    }
     .expanded > .child-nodes {
         display: block;
     }
     .child-nodes {
         margin: 0 0 0 15px;
         display: none;
+    }
+    .node-header {
+        display: inline-block;
+        white-space: nowrap;
+    }
+    .selected {
+        background: $ps-blue;
+        color: $ps-color;
+    }
+    .label {
+        padding: 2px 4px;
+        border-radius: 1px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    .selectable .label {
+        cursor: pointer;
     }
 }
