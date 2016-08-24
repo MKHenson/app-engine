@@ -108,7 +108,7 @@
     "lib/gui/canvas-items/canvas.ts",
     "lib/gui/canvas-items/link.ts",
     "lib/gui/canvas-items/canvas-context.ts",
-    "lib/gui/tree/treeview-scene.ts",
+    "lib/gui/tree/treeview-scene.tsx",
     "lib/gui/tree/nodes/treenode.ts",
     "lib/gui/tree/nodes/treeNode-resource.ts",
     "lib/gui/tree/nodes/treeNode-asset-class.ts",

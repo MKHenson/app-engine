@@ -4593,10 +4593,12 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface ITreeViewSceneProps {
+    }
     /**
     * An implementation of the tree view for the scene.
     */
-    class TreeViewScene extends TreeView {
+    class TreeViewScene extends React.Component<ITreeViewSceneProps, any> {
         private static _singleton;
         private _sceneNode;
         private _assetsNode;
@@ -4613,7 +4615,20 @@ declare module Animate {
         private _quickAdd;
         private _contextNode;
         private _shortcutProxy;
-        constructor(parent?: Component);
+        constructor(props?: ITreeViewSceneProps);
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
+        render(): JSX.Element;
+        /**
+        * This will recursively look through each of the nodes to find a node with
+        * the specified name.
+        * @param {string} property The name property we are evaluating
+        * @param {any} value The object we should be comparing against
+        * @returns {TreeNode}
+        */
+        findNode(property: string, value: any): TreeNode;
         onShortcutClick(e: any): void;
         onMouseMove(e: any): void;
         /**
@@ -4639,7 +4654,7 @@ declare module Animate {
         * Creates an asset node for the tree
         * @param {Asset} asset The asset to associate with the node
         */
-        addAssetInstance(asset: Asset, collapse?: boolean): boolean;
+        addAssetInstance(asset: Asset, collapse?: boolean): void;
         /**
         * Called when we select a menu item.
         */

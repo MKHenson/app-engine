@@ -100,15 +100,15 @@ module Animate {
          */
         render() : JSX.Element {
 
-			let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
-			let node = treeData.addNode(new TreeViewNode("Child 1"));
-			treeData.addNode(new TreeViewNode("Child 2"));
-			node.addNode(new TreeViewNode("Sub Child 1"));
+			// let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
+			// let node = treeData.addNode(new TreeViewNode("Child 1"));
+			// treeData.addNode(new TreeViewNode("Child 2"));
+			// node.addNode(new TreeViewNode("Sub Child 1"));
 
-			let treeData2 = new TreeViewNode("Root 2");
-			let node2 = treeData2.addNode(new TreeViewNode("Child 1"));
-			treeData2.addNode(new TreeViewNode("Child 2"));
-			node2.addNode(new TreeViewNode("Sub Child 1"));
+			// let treeData2 = new TreeViewNode("Root 2");
+			// let node2 = treeData2.addNode(new TreeViewNode("Child 1"));
+			// treeData2.addNode(new TreeViewNode("Child 2"));
+			// node2.addNode(new TreeViewNode("Sub Child 1"));
 
 			return <div id="application">
 				{(this.state.showSplash ? <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } /> : null)}
@@ -129,7 +129,7 @@ module Animate {
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<h2>Property editor goes here</h2>}
 									bottom={
-										<ReactTreeView nodes={[treeData, treeData2]} />
+										<TreeViewScene />
 									} />
 							} />
 					</div>
