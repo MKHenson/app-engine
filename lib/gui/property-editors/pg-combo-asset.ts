@@ -68,9 +68,9 @@ module Animate {
 				var val = parseInt( selector.val() );
                 var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 				if ( asset )
-                    TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode( "resource", asset ), true );
+                    TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode( "resource", asset ) );
 				else
-					TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("className", classNames[0] ), true );
+					TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode( "className", classNames[0] ) );
 			};
 
 			// Add listeners

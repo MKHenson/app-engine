@@ -24,7 +24,11 @@ module Animate {
             let node = this.props.node;
 
             return (
-                <div className={"treenode" + (node.expanded() ? ' expanded' : ' collapsed')  + (node.selectable() ? ' selectable' : '') + (node.disabled() ? ' disabled' : '') }>
+                <div className={"treenode" +
+                        (node.expanded() ? ' expanded' : ' collapsed')  +
+                        (node.selectable() ? ' selectable' : '') +
+                        (node.disabled() ? ' disabled' : '') +
+                        (node.focussed ? ' focussed' : '') }>
                     <div className="node-header">
                         <i className="expand-button" style={{display: ( React.Children.count(this.props.children) == 0 ? 'none' : '' )}}>
                             {( node.expanded() ?
@@ -54,7 +58,7 @@ module Animate {
                                     return;
 
                                 if (node.selectable()) {
-                                    node.store.onNodeSelected(node, e);
+                                    node.store.onNodeSelected(node, e.shiftKey);
                                 }
                             }}>
                             {node.icon()}

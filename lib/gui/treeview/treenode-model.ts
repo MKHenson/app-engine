@@ -10,6 +10,7 @@ module Animate {
         public children: TreeNodeModel[];
         protected _parent: TreeNodeModel;
         public store: TreeNodeStore;
+        public focussed: boolean;
 
         /**
          * Creates an instance of the node
@@ -23,6 +24,15 @@ module Animate {
             this._disabled = false;
             this.children = children || null;
             this.store = null;
+            this.focussed = false;
+        }
+
+        /**
+         * Gets the parent node
+         * @returns {TreeNodeModel}
+         */
+        get parent(): TreeNodeModel {
+            return this._parent;
         }
 
         /**
@@ -31,7 +41,6 @@ module Animate {
          * @returns {string}
          */
         label(val?: string): string {
-
             if (val === undefined)
                 return this._label;
 
@@ -155,5 +164,24 @@ module Animate {
         onContext(e: React.MouseEvent) {
             this.store.onContext(e, this);
         }
+
+        /**
+		 * This will recursively look through each of the nodes to find one with
+		 * the specified name and value.
+		 * @param {string} property The Javascript property on the node that we are evaluating
+		 * @param {any} value The value of the property we are comparing.
+		 * @returns {TreeNodeModel}
+		 */
+		findNode( property : string, value : any ) : TreeNodeModel {
+			if ( this[property] == value )
+				return this;
+
+			let children = this.children;
+			for ( let child of children ) {
+				var n = child.findNode( property, value );
+				if ( n != null )
+					return n;
+			}
+		}
     }
 }

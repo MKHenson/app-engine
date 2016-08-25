@@ -956,7 +956,7 @@ module Animate {
 			//If an instance, then open it
 			else if ( comp instanceof BehaviourInstance ) {
                 var tree: TreeViewScene = TreeViewScene.getSingleton();
-                var node: TreeNode = tree.findNode("resource", (<BehaviourInstance>comp).container);
+                var node = tree.findNode("resource", (<BehaviourInstance>comp).container);
 				tree.selectNode( node );
 				( <TreeViewScene>tree ).onDblClick( null );
 				return;

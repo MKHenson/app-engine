@@ -90,27 +90,6 @@ module Animate {
 			ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : this._context });
 		}
 
-		/**
-		* This will recursively look through each of the nodes to find a node with
-		* the specified name.
-		* @param {string} property The name property we are evaluating
-		* @param {any} value The object we should be comparing against
-		* @returns {TreeNode}
-		*/
-		findNode( property : string, value : any ) : TreeNode {
-			// var children: Array<TreeNode> = <Array<TreeNode>>this.children;
-			// var len = children.length;
-			// for ( var i = 0; i < len; i++ )
-			// {
-			// 	if ( children[i] instanceof TreeNode == false )
-			// 		continue;
-
-			// 	var n = children[i].findNode( property, value );
-			// 	if ( n != null )
-			// 		return n;
-			// }
-			return null;
-		}
 
 		onShortcutClick( e ) {
 			// var comp = jQuery( e.currentTarget ).data( "component" );

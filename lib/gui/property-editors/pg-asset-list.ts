@@ -84,9 +84,9 @@ module Animate {
                 asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
 
 				if ( asset )
-					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "resource", asset ), true );
+					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "resource", asset ) );
                 else
-                    TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("className", asset.class.name), true);
+                    TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("className", asset.class.name) );
 			};
 
 			// When we click on add button

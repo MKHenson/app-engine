@@ -5,7 +5,8 @@ module Animate {
     }
 
     export interface IReactTreeViewState {
-        nodes: TreeNodeModel[];
+        nodes?: TreeNodeModel[];
+        focussedNode?: TreeNodeModel;
     }
 
 	/**
@@ -21,10 +22,19 @@ module Animate {
 
             // Set the initial state
             this.state = {
-                nodes: props.nodeStore.getNodes()
+                nodes: props.nodeStore.getNodes(),
+                focussedNode: null
             };
 
             props.nodeStore.on( 'change', this.onChange, this );
+            props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
+        }
+
+        /**
+         * Called whenever a node is focussed
+         */
+        onFocusNodeChange(type: string, e : Event) {
+            this.setState({ focussedNode : e.tag });
         }
 
         /**
@@ -35,14 +45,29 @@ module Animate {
         }
 
         /**
+         * When the component is updated, we check for any focussed nodes so we can scroll to them
+         */
+        componentDidUpdate() {
+            if (this.state.focussedNode) {
+                let dom = ReactDOM.findDOMNode(this) as HTMLElement;
+                jQuery(dom).scrollTo( '.focussed', 500 );
+                this.setState({ focussedNode : null });
+            }
+        }
+
+        /**
          * Make sure that any new node store has the appropriate event handlers
          */
         componentWillReceiveProps(nextProps: IReactTreeViewProps) {
             if (nextProps.nodeStore == this.props.nodeStore)
                 return;
 
+            this.props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
             this.props.nodeStore.off( 'change', this.onChange, this );
+
             nextProps.nodeStore.on( 'change', this.onChange, this );
+            nextProps.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
+
             this.setState({
                 nodes: nextProps.nodeStore.getNodes()
             });
@@ -53,6 +78,7 @@ module Animate {
          */
         componentWillUnmount() {
             this.props.nodeStore.off( 'change', this.onChange, this );
+            this.props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**

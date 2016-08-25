@@ -259,7 +259,7 @@ module Animate {
 		*/
 		selectAsset( asset: Asset, panToNode : boolean = true, multiSelect : boolean = false ) {
 			Animate.TreeViewScene.getSingleton().selectNode(
-                Animate.TreeViewScene.getSingleton().findNode( "resource", asset ), panToNode, multiSelect );
+                Animate.TreeViewScene.getSingleton().findNode( "resource", asset ) );
 		}
 
 		///**

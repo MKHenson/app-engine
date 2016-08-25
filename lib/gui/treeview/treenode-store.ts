@@ -65,15 +65,15 @@ module Animate {
 		/**
          * Called whenever a node is selectable and clicked.
          * @param {TreeNodeModel} node
-         * @param {React.MouseEvent} e
+         * @param {boolean} shiftDown
          */
-        onNodeSelected( node: TreeNodeModel, e: React.MouseEvent ) {
+        onNodeSelected( node: TreeNodeModel, shiftDown: boolean ) {
 
 			let clearSelection = false;
 
 			if (this._multiSelect == false)
 				clearSelection = true;
-			else if ( this._multiSelect && !e.shiftKey)
+			else if ( this._multiSelect && !shiftDown)
 				clearSelection = true;
 			else if ( this._onlySimilarNodeSelection && this._selectedNodes.length > 0 && this._selectedNodes[0].constructor != node.constructor )
 				clearSelection = true;
@@ -94,13 +94,19 @@ module Animate {
                 node.selected(selected);
 
                 if (!selected)
-                    this._selectedNodes.splice( this._selectedNodes.indexOf(node), 1 );
+					this._selectedNodes.splice( this._selectedNodes.indexOf(node), 1 );
                 else
                     this._selectedNodes.push( node );
             }
 
 			this.onSelectionChange(this._selectedNodes);
         }
+
+		unFocus( node : TreeNodeModel ) {
+			node.focussed = false;
+			for ( let n of node.children )
+				this.unFocus(n);
+		}
 
 		/**
          * Called whenever the node receives a context event
@@ -110,6 +116,45 @@ module Animate {
         onContext(e: React.MouseEvent, node : TreeNodeModel) {
 
         }
+
+		/**
+		 * This will recursively look through each of the nodes to find a node with
+		 * the specified name.
+		 * @param {string} property The name property we are evaluating
+		 * @param {any} value The object we should be comparing against
+		 * @returns {TreeNodeModel}
+		 */
+		findNode( property : string, value : any ) : TreeNodeModel {
+			let children = this._children;
+			for (let child of children) {
+				var n = child.findNode( property, value );
+				if ( n != null )
+					return n;
+			}
+		}
+
+		/**
+		 * Selects a node manually. This will also bring the focus into node
+		 */
+		selectNode( node: TreeNodeModel ) {
+			this.onNodeSelected( node, false );
+
+			for ( let n of node.children )
+				this.unFocus(n);
+
+			//Make sure the tree node is expanded
+			var p = node.parent;
+			var scroll = 0;
+			while ( p ) {
+				if ( !p.expanded )
+					p.expanded(true);
+
+				p = p.parent;
+			}
+
+			node.focussed = true;
+			this.emit( new Event('focus-node', node) );
+		}
 
 		/**
 		 * Gets the nodes associated with this store

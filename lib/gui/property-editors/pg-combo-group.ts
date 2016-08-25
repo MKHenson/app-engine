@@ -66,7 +66,7 @@ module Animate {
             var onEye = function (e: JQueryEventObject ) {
                 var val = parseFloat(selector.val());
                 var group = project.getResourceByShallowID(val, ResourceType.GROUP);
-                TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("resource", group ), true );
+                TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode("resource", group ) );
 			};
 
 			//Add listeners

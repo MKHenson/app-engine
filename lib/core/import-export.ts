@@ -300,7 +300,8 @@ module Animate {
                     var group = <GroupArray>assetVars[i].getVal();
 
                     if (group) {
-                        var groupNode: TreeNodeGroup = <TreeNodeGroup>TreeViewScene.getSingleton().findNode("resource", group);
+                        var groupNode: any = TreeViewScene.getSingleton().findNode("resource", group);
+						// TODO: This needs to be checked with update to TSX
                         this.referenceCheckGroup(groupNode, container );
 					}
 				}
