@@ -1,13 +1,9 @@
 module Animate {
 
-	export interface ITreeViewSceneProps {
-
-	}
-
 	/**
 	* An implementation of the tree view for the scene.
 	*/
-	export class TreeViewScene extends React.Component<ITreeViewSceneProps, any>  {
+	export class TreeViewScene extends TreeNodeStore  {
 		private static _singleton: TreeViewScene;
 
 		private _sceneNode: TreeNode;
@@ -26,10 +22,22 @@ module Animate {
 		private _contextNode: TreeNode;
 		private _shortcutProxy: any;
 
-		constructor( props? : ITreeViewSceneProps ) {
-			super( props );
+		private _context : IReactContextMenuItem[];
+
+		constructor() {
+			super();
+
+			this.addNode( new TreeViewNodeContainers() );
+			this.addNode( new TreeNodeModel('Assets', <i className="fa fa-globe" aria-hidden="true"></i> ));
+			this.addNode( new TreeNodeModel('Groups', <i className="fa fa-globe" aria-hidden="true"></i> ));
+			this.addNode( new TreeNodeModel('Behaviours', <i className="fa fa-globe" aria-hidden="true"></i> ));
+
 
 			TreeViewScene._singleton = this;
+
+			this._context = [
+                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => this.onDelete() }
+            ];
 
 			// this._sceneNode = this.addNode( new TreeNode( "Scene", "media/world_16.png" ) );
 			// this._assetsNode = this.addNode( new TreeNode( "Assets", "media/wrench.png" ) );
@@ -51,7 +59,7 @@ module Animate {
 			// this._contextMenu.on( ContextMenuEvents.ITEM_CLICKED, this.onContextSelect, this );
 
 
-			// jQuery( document ).on( "contextmenu", this.onContext.bind( this ) );
+			// jQuery( document ).on( "contextmenu", this.onContext2.bind( this ) );
 			// jQuery( ".selectable .text", this._sceneNode.element ).addClass( "top-node" );
 			// jQuery( ".selectable .text", this._assetsNode.element ).addClass( "top-node" );
 			// jQuery( ".selectable .text", this._groupsNode.element ).addClass( "top-node" );
@@ -77,21 +85,9 @@ module Animate {
             // RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
-		 /**
-         * Creates the component elements
-         * @returns {JSX.Element}
-         */
-        render(): JSX.Element {
-
-			let nodes : TreeViewNode[] = [];
-			nodes.push( new TreeViewNode('Scene', <i className="fa fa-globe" aria-hidden="true"></i> ));
-			nodes.push( new TreeViewNode('Assets', <i className="fa fa-globe" aria-hidden="true"></i> ));
-			nodes.push( new TreeViewNode('Groups', <i className="fa fa-globe" aria-hidden="true"></i> ));
-			nodes.push( new TreeViewNode('Behaviours', <i className="fa fa-globe" aria-hidden="true"></i> ));
-
-			return <div className="treeview-scene">
-				<ReactTreeView nodes={nodes} />
-			</div>
+		onContext(e: React.MouseEvent, n: TreeNodeModel) {
+			e.preventDefault();
+			ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : this._context });
 		}
 
 		/**
@@ -328,6 +324,27 @@ module Animate {
 		//		node.save( true );
 		//	}
 		//}
+
+		/**
+		 *
+		 */
+		handleNodePromise(promise: Promise<any>, node: TreeViewNodeResource<ProjectResource<Engine.IResource>>) {
+			promise.then(function () {
+				node.loading(false);
+			}).catch(function (err: Error) {
+				node.loading(false);
+				Logger.logMessage(err.message, null, LogType.ERROR)
+			});
+		}
+
+		private onDelete() {
+			for ( let n of this._selectedNodes ) {
+	            if (n instanceof TreeViewNodeResource) {
+					n.loading(true);
+	                this.handleNodePromise(User.get.project.deleteResources([(n.resource as ProjectResource<Engine.IResource>).entry._id]), n);
+				}
+			}
+		}
 
 
 		/**
@@ -768,7 +785,7 @@ module Animate {
 		* Called when the context menu is about to open.
 		* @param <jQuery> e The jQuery event object
 		*/
-		onContext( e ) {
+		onContext2( e ) {
 			// //Now hook the context events
 			// var targ = jQuery( e.target ).parent();
 			// if ( targ == null )
@@ -825,47 +842,12 @@ module Animate {
 		}
 
 		/**
-		* Selects a node.
-		* @param {TreeNode} node The node to select
-		* @param {boolean} expandToNode A bool to say if we need to traverse the tree down until we get to the node
-		* and expand all parent nodes
-		* @param {boolean} multiSelect Do we allow nodes to be multiply selected
-		*/
-		selectNode( node: TreeNode, expandToNode: boolean = false, multiSelect: boolean = false ) {
-			// if ( !this.enabled )
-			// 	return;
-
-			// var multipleNodesSelected = false;
-			// if ( multiSelect ) {
-			// 	var selectedNodes = [];
-			// 	var i = this.selectedNodes.length;
-			// 	while ( i-- )
-			// 		selectedNodes.push( this.selectedNodes[i] );
-			// 	selectedNodes.push( node );
-
-			// 	i = selectedNodes.length;
-			// 	while ( i-- ) {
-			// 		var ii = selectedNodes.length;
-			// 		while ( ii-- ) {
-			// 			if ( selectedNodes[i].constructor.name != selectedNodes[ii].constructor.name && selectedNodes[i] != selectedNodes[ii] ) {
-			// 				multipleNodesSelected = true;
-			// 				break;
-			// 			}
-			// 		}
-
-			// 		if ( multipleNodesSelected )
-			// 			break;
-			// 	}
-
-			// 	if ( multipleNodesSelected )
-			// 		multiSelect = false;
-			// }
-
-			// super.selectNode( node, expandToNode, multiSelect );
-
-			// if ( node == null )
-			// 	PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
-			// 	//PluginManager.getSingleton().assetSelected( null );
+		 * Called whenever the selection has changed
+		 * @param {TreeNodeModel[]} selection
+		 */
+		onSelectionChange( selection : TreeNodeModel[] ) {
+			if (selection.length == 0)
+				PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
 		}
 
 		/**
@@ -873,9 +855,6 @@ module Animate {
 		* @returns <TreeViewScene> The singleton instance
 		*/
 		static getSingleton() : TreeViewScene {
-			// if ( !TreeViewScene._singleton )
-			// 	new TreeViewScene();
-
 			return TreeViewScene._singleton;
 		}
 

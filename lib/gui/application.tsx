@@ -129,7 +129,7 @@ module Animate {
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<h2>Property editor goes here</h2>}
 									bottom={
-										<TreeViewScene />
+										<ReactTreeView nodeStore={new TreeViewScene()} />
 									} />
 							} />
 					</div>
