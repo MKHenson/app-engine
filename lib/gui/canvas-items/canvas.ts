@@ -150,23 +150,27 @@ module Animate {
 		* @param {any} ui The event object sent from jQuery UI
 		*/
 		onObjectDropped( event: any, ui: any ) {
-			var comp: Component = jQuery( ui.draggable ).data( "component" );
-			if ( comp instanceof TreeNode ) {
-				var p: JQuery = this.parent.element;
-				var offset = this.element.offset();
-				var scrollX = p.scrollLeft();
-				var scrollY = p.scrollTop();
-				var mouse = { x: event.pageX - offset.left - scrollX, y: event.pageY - offset.top - scrollY };
-				this._x = mouse.x + scrollX;
-				this._y = mouse.y + scrollY;
 
-                if (comp instanceof TreeNodeAssetInstance)
-                    this.addAssetAtLocation((<TreeNodeAssetInstance>comp).resource, this._x, this._y);
-				else if ( comp instanceof TreeNodePluginBehaviour )
-					this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this._x, this._y );
-                else if (comp instanceof TreeNodeBehaviour)
-                    this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this._x, this._y, (<TreeNodeBehaviour>comp).resource);
-			}
+			// TODO: This needs to be updated with TSX. It also needs to use the new IDragDropToken instead of the JQuery one. see
+			// the tree node models on how to use it
+
+			// var comp: Component = jQuery( ui.draggable ).data( "component" );
+			// if ( comp instanceof TreeNode ) {
+			// 	var p: JQuery = this.parent.element;
+			// 	var offset = this.element.offset();
+			// 	var scrollX = p.scrollLeft();
+			// 	var scrollY = p.scrollTop();
+			// 	var mouse = { x: event.pageX - offset.left - scrollX, y: event.pageY - offset.top - scrollY };
+			// 	this._x = mouse.x + scrollX;
+			// 	this._y = mouse.y + scrollY;
+
+            //     if (comp instanceof TreeNodeAssetInstance)
+            //         this.addAssetAtLocation((comp as TreeNodeAssetInstance).resource, this._x, this._y);
+			// 	else if ( comp instanceof TreeNodePluginBehaviour )
+			// 		this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this._x, this._y );
+            //     else if (comp instanceof TreeNodeBehaviour)
+            //         this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this._x, this._y, (<TreeNodeBehaviour>comp).resource);
+			// }
 		}
 
 		/**

@@ -1,7 +1,8 @@
 module Animate {
+
 	/**
-	* This class describes a template. These templates are used when creating assets.
-	*/
+	 * This class describes a template. These templates are used when creating assets.
+	 */
 	export class AssetClass {
 		private _abstractClass : boolean;
 		private _name: string;
@@ -17,6 +18,22 @@ module Animate {
 			this._imgURL = imgURL;
 			this._variables = [];
 			this.classes = [];
+		}
+
+		/**
+		 * Gets an array of all classes that are possible from this
+		 * @returns {AssetClass[]}
+		 */
+		getClasses(): AssetClass[] {
+			let toRet: AssetClass[] = [];
+			let classes = this.classes;
+
+			for ( let childClass of classes ) {
+				toRet.push( childClass );
+				classes.concat( childClass.getClasses() );
+			}
+
+			return toRet;
 		}
 
 		/**
@@ -105,13 +122,17 @@ module Animate {
 		* Gets the image URL of this template
 		* @returns {string}
 		*/
-        get imgURL(): string { return this._imgURL; }
+        get imgURL(): string {
+			return this._imgURL;
+		}
 
         /**
 		* Gets the variables associated with this template
 		* @returns {Array<Prop<any>>}
 		*/
-        get variables(): Array<Prop<any>> { return this._variables; }
+        get variables(): Array<Prop<any>> {
+			return this._variables;
+		}
 
 		/**
 		* Adds a class
@@ -130,12 +151,16 @@ module Animate {
         * Gets the name of the class
         * @returns {string}
         */
-		get name(): string { return this._name; }
+		get name(): string {
+			return this._name;
+		}
 
 		/**
         * Gets if this class is abstract or not
         * @returns {boolean}
         */
-		get abstractClass(): boolean { return this._abstractClass; }
+		get abstractClass(): boolean {
+			return this._abstractClass;
+		}
 	}
 }

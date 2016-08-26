@@ -32,6 +32,7 @@
             padding: 10px;
             margin: 0 5px 0 0;
             background: shade( $tooltip-bg, 20 );
+            min-width: 16px;
         }
 
         &:hover .menu-item-button {

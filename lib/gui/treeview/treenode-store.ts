@@ -20,6 +20,9 @@ module Animate {
             this._selectedNodes = [];
 			this._multiSelect = true;
 			this._onlySimilarNodeSelection = true;
+
+			for (let node of this._children)
+				this.setStore(node);
 		}
 
 		/**
@@ -28,7 +31,8 @@ module Animate {
          * @returns {TreeNodeModel}
          */
         addNode(node: TreeNodeModel) : TreeNodeModel {
-            this._children.push(node);
+			let children = this._children;
+            children.push(node);
             node.store = this;
             this.invalidate();
             return node;
@@ -39,13 +43,26 @@ module Animate {
          * @param {TreeNodeModel} node
          */
         removeNode(node: TreeNodeModel) {
-			if (this._children.indexOf(node) == -1 )
-				return;
+			let children = this._children;
+			let selection = this._selectedNodes;
+			if (children.indexOf(node) == -1 )
+				throw new Error('Node must be child of store in order to remove it');
 
-            this._children.splice(this._children.indexOf(node), 1);
-            node.store = null;
+            children.splice(children.indexOf(node), 1);
+			if (selection.indexOf(node) != -1)
+				selection.splice( selection.indexOf(node), 1 );
+
+			node.dispose();
             this.invalidate();
         }
+
+		/**
+		 * Removes all nodes from the store
+		 */
+		clear() {
+			for ( let node of this._children )
+				this.removeNode(node);
+		}
 
 		/**
 		 * Triggers a change in the tree structure
@@ -86,10 +103,12 @@ module Animate {
 
 				this._selectedNodes.splice( 0, this._selectedNodes.length );
 
-                this._selectedNodes.push( node );
-                node.selected(true);
+				if (node) {
+					this._selectedNodes.push( node );
+                	node.selected(true);
+				}
 			}
-            else {
+            else if (node) {
                 let selected = !node.selected();
                 node.selected(selected);
 
@@ -102,7 +121,13 @@ module Animate {
 			this.onSelectionChange(this._selectedNodes);
         }
 
-		unFocus( node : TreeNodeModel ) {
+		private setStore( node : TreeNodeModel ) {
+			node.store = this;
+			for ( let n of node.children )
+				this.setStore(n);
+		}
+
+		private unFocus( node : TreeNodeModel ) {
 			node.focussed = false;
 			for ( let n of node.children )
 				this.unFocus(n);
@@ -158,9 +183,18 @@ module Animate {
 
 		/**
 		 * Gets the nodes associated with this store
+		 * @returns {TreeNodeModel[]}
 		 */
 		getNodes() : TreeNodeModel[] {
 			return this._children;
+		}
+
+		/**
+		 * Gets the currently selected nodes
+		 * @returns {TreeNodeModel[]}
+		 */
+		getSelectedNodes() : TreeNodeModel[] {
+			return this._selectedNodes;
 		}
     }
 }

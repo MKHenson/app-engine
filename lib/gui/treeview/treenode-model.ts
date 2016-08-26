@@ -11,6 +11,8 @@ module Animate {
         protected _parent: TreeNodeModel;
         public store: TreeNodeStore;
         public focussed: boolean;
+        public canDrag: boolean;
+        public canDrop: boolean;
 
         /**
          * Creates an instance of the node
@@ -22,9 +24,11 @@ module Animate {
             this._expanded = true;
             this._selected = false;
             this._disabled = false;
-            this.children = children || null;
+            this.children = children || [];
             this.store = null;
             this.focussed = false;
+            this.canDrag = false;
+            this.canDrop = false;
         }
 
         /**
@@ -47,6 +51,26 @@ module Animate {
             this._label = val;
             this.invalidate();
             return val;
+        }
+
+        /**
+         * Called whenever we start dragging. This is only called if canDrag is true.
+         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * @param {React.DragEvent} e
+         * @returns {IDragDropToken} Return data to serialize
+         */
+        onDragStart(e: React.DragEvent) : IDragDropToken {
+            return null;
+        }
+
+        /**
+         * Called whenever we drop an item on this element. This is only called if canDrop is true.
+         * Use it to set drag data, eg: e.dataTransfer.getData("text");
+         * @param {React.DragEvent} e
+         * @param {IDragDropToken} json The unserialized data
+         */
+        onDragDrop(e: React.DragEvent, json: IDragDropToken) {
+
         }
 
         /**
@@ -140,7 +164,7 @@ module Animate {
         addNode(node: TreeNodeModel) : TreeNodeModel {
             this.children.push(node);
             node._parent = this;
-            this.store = this.store;
+            node.store = this.store;
             this.invalidate();
             return node;
         }
@@ -150,10 +174,14 @@ module Animate {
          * @param {TreeNodeModel} node
          */
         removeNode(node: TreeNodeModel) {
+            if ( this.store ) {
+                let selectedNodes = this.store.getSelectedNodes();
+				if ( selectedNodes.indexOf( this ) != -1 )
+					selectedNodes.splice( selectedNodes.indexOf( this ), 1 );
+			}
+
             this.children.splice(this.children.indexOf(node), 1);
-            //node._treeview.removeNode(this);
-            node.store = null;
-            node._parent = null;
+            node.dispose();
             this.invalidate();
         }
 
@@ -182,6 +210,18 @@ module Animate {
 				if ( n != null )
 					return n;
 			}
+		}
+
+        /**
+		 * This will cleanup the model
+		 */
+		dispose() {
+            for ( let node of this.children )
+                this.removeNode(node);
+
+            this.children = null;
+            this._parent = null;
+            this.store = null;
 		}
     }
 }

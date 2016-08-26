@@ -21,6 +21,14 @@
     }
 
     /**
+     * Describes the base type used in drag and drop communication
+     */
+    export interface IDragDropToken {
+        type: 'resource' | 'template' | 'container' | 'other';
+        id? : string | number;
+    }
+
+    /**
 	* A simple interface for any compent that needs to act as a Docker parent.
 	*/
     export interface IDockItem extends IComponent {

@@ -59,8 +59,8 @@
         }
 
         /**
-        * Broadcasts an "edited" event to the owner of the set
-        */
+         * Broadcasts an "edited" event to the owner of the set
+         */
         notifyEdit(prop: Prop<any>) {
             this.parent.emit(new EditEvent(prop, this));
         }

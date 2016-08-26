@@ -34,6 +34,14 @@ declare module Animate {
     }
 
     /**
+     * Describes the base type used in drag and drop communication
+     */
+    export interface IDragDropToken {
+        type: 'resource' | 'template' | 'container' | 'other';
+        id? : string | number;
+    }
+
+    /**
 	* A simple interface for any compent that needs to act as a Docker parent.
 	*/
     export interface IDockItem extends IComponent {
@@ -974,8 +982,8 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * This class describes a template. These templates are used when creating assets.
-    */
+     * This class describes a template. These templates are used when creating assets.
+     */
     class AssetClass {
         private _abstractClass;
         private _name;
@@ -984,6 +992,11 @@ declare module Animate {
         private _variables;
         classes: Array<AssetClass>;
         constructor(name: string, parent: AssetClass, imgURL: string, abstractClass?: boolean);
+        /**
+         * Gets an array of all classes that are possible from this
+         * @returns {AssetClass[]}
+         */
+        getClasses(): AssetClass[];
         /**
         * Creates an object of all the variables for an instance of this class.
         * @returns {EditableSet} The variables we are editing
@@ -2110,8 +2123,8 @@ declare module Animate {
         */
         removeVar(name: string): void;
         /**
-        * Broadcasts an "edited" event to the owner of the set
-        */
+         * Broadcasts an "edited" event to the owner of the set
+         */
         notifyEdit(prop: Prop<any>): void;
         /**
         * Updates a variable with a new value
@@ -3202,10 +3215,12 @@ declare module Animate {
      * This visual representation of a TreeNodeModel
      */
     class ReactTreeNode extends React.Component<IReactTreeNodeProps, any> {
+        private _dropProxy;
         /**
          * Creates an instance
          */
         constructor(props: IReactTreeNodeProps);
+        componentDidMount(): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3238,6 +3253,10 @@ declare module Animate {
          */
         removeNode(node: TreeNodeModel): void;
         /**
+         * Removes all nodes from the store
+         */
+        clear(): void;
+        /**
          * Triggers a change in the tree structure
          */
         invalidate(): void;
@@ -3252,7 +3271,8 @@ declare module Animate {
          * @param {boolean} shiftDown
          */
         onNodeSelected(node: TreeNodeModel, shiftDown: boolean): void;
-        unFocus(node: TreeNodeModel): void;
+        private setStore(node);
+        private unFocus(node);
         /**
          * Called whenever the node receives a context event
          * @param {React.MouseEvent} e
@@ -3273,8 +3293,14 @@ declare module Animate {
         selectNode(node: TreeNodeModel): void;
         /**
          * Gets the nodes associated with this store
+         * @returns {TreeNodeModel[]}
          */
         getNodes(): TreeNodeModel[];
+        /**
+         * Gets the currently selected nodes
+         * @returns {TreeNodeModel[]}
+         */
+        getSelectedNodes(): TreeNodeModel[];
     }
 }
 declare module Animate {
@@ -3289,6 +3315,8 @@ declare module Animate {
         protected _parent: TreeNodeModel;
         store: TreeNodeStore;
         focussed: boolean;
+        canDrag: boolean;
+        canDrop: boolean;
         /**
          * Creates an instance of the node
          */
@@ -3304,6 +3332,20 @@ declare module Animate {
          * @returns {string}
          */
         label(val?: string): string;
+        /**
+         * Called whenever we start dragging. This is only called if canDrag is true.
+         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * @param {React.DragEvent} e
+         * @returns {IDragDropToken} Return data to serialize
+         */
+        onDragStart(e: React.DragEvent): IDragDropToken;
+        /**
+         * Called whenever we drop an item on this element. This is only called if canDrop is true.
+         * Use it to set drag data, eg: e.dataTransfer.getData("text");
+         * @param {React.DragEvent} e
+         * @param {IDragDropToken} json The unserialized data
+         */
+        onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
         /**
          * Gets or sets if the node is selected
          * @param {boolean} val
@@ -3362,6 +3404,10 @@ declare module Animate {
          * @returns {TreeNodeModel}
          */
         findNode(property: string, value: any): TreeNodeModel;
+        /**
+         * This will cleanup the model
+         */
+        dispose(): void;
     }
 }
 declare module Animate {
@@ -4679,8 +4725,6 @@ declare module Animate {
     */
     class TreeViewScene extends TreeNodeStore {
         private static _singleton;
-        private _sceneNode;
-        private _assetsNode;
         private _groupsNode;
         private _pluginBehaviours;
         private _contextMenu;
@@ -4694,9 +4738,7 @@ declare module Animate {
         private _quickAdd;
         private _contextNode;
         private _shortcutProxy;
-        private _context;
         constructor();
-        onContext(e: React.MouseEvent, n: TreeNodeModel): void;
         onShortcutClick(e: any): void;
         onMouseMove(e: any): void;
         /**
@@ -4723,11 +4765,6 @@ declare module Animate {
         * @param {Asset} asset The asset to associate with the node
         */
         addAssetInstance(asset: Asset, collapse?: boolean): void;
-        /**
-         *
-         */
-        handleNodePromise(promise: Promise<any>, node: TreeViewNodeResource<ProjectResource<Engine.IResource>>): void;
-        private onDelete();
         /**
         * Called when we select a menu item.
         */
@@ -4784,8 +4821,6 @@ declare module Animate {
         * @returns {TreeNode}
         */
         removePluginBehaviour(name: string, dispose?: boolean): TreeNode;
-        sceneNode: TreeNode;
-        assetsNode: TreeNode;
         groupsNode: TreeNode;
         pluginBehaviours: TreeNode;
         contextNode: TreeNode;
@@ -4919,6 +4954,157 @@ declare module Animate {
 }
 declare module Animate {
     /**
+     * A model for referencing a project resource
+     */
+    class TreeViewNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNodeModel {
+        resource: T;
+        private _loading;
+        /**
+         * Creates an instance of the node
+         */
+        constructor(resource: T);
+        /**
+         * Called whenever we start dragging. This is only called if canDrag is true.
+         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * @param {React.DragEvent} e
+         * @returns {IDragDropToken} Return data to serialize
+         */
+        onDragStart(e: React.DragEvent): IDragDropToken;
+        /**
+         * Show a context menu of resource options
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * Gets or sets if this node is in a loading/busy state
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        loading(val?: boolean): boolean;
+        /**
+         * Gets or sets the label of the node
+         * @param {string} val
+         * @returns {string}
+         */
+        label(val?: string): string;
+        /**
+         * Gets or sets the icon of the node
+         * @param {JSX.Element} val
+         * @returns {JSX.Element}
+         */
+        icon(val?: JSX.Element): JSX.Element;
+        /**
+         * This will cleanup the model
+         */
+        dispose(): void;
+        /**
+         * Called whenever the resource is modified
+         */
+        protected onDeleted(): void;
+        /**
+         * Called whenever the resource is modified
+         */
+        protected onModified(): void;
+        /**
+         * Called whenever the resource is edited
+         */
+        protected onEdited(): void;
+        /**
+         * Called when the rename context item is clicked
+         */
+        onRenameClick(): void;
+        /**
+         * Called when the delete context item is clicked
+         */
+        private onDeleteClick();
+        /**
+         * Called when the refresh context item is clicked
+         */
+        private onRefreshClick();
+        /**
+         * Called whenever the resource is re-downloaded
+         */
+        protected onRefreshed(): void;
+        /**
+         * Handles the completion of project requests
+         */
+        private handleNodePromise(promise, node);
+    }
+}
+declare module Animate {
+    /**
+     * A root node that contains the visual representations of project containers
+     */
+    class TreeViewNodeContainers extends TreeNodeModel {
+        private _context;
+        /**
+         * Creates an instance of the node
+         */
+        constructor();
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Show context menu items
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * If a container is created, then add its node representation
+         */
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+    }
+}
+declare module Animate {
+    /**
+     * A root node that contains the visual representations of project groups
+     */
+    class TreeViewNodeGroups extends TreeNodeModel {
+        private _loading;
+        /**
+         * Creates an instance of the node
+         */
+        constructor();
+        /**
+         * Gets or sets the icon of the node
+         * @param {JSX.Element} val
+         * @returns {JSX.Element}
+         */
+        icon(val?: JSX.Element): JSX.Element;
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Show context menu items
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * If a container is created, then add its node representation
+         */
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+    }
+}
+declare module Animate {
+    /**
+     * A root node that contains the visual representations of project assets
+     */
+    class TreeViewNodeAssets extends TreeNodeModel {
+        /**
+         * Creates an instance of the node
+         */
+        constructor();
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+        * If a container is created, then add its node representation
+        */
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+    }
+}
+declare module Animate {
+    /**
     * This node represents a project resource
     */
     class TreeNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNode {
@@ -4949,154 +5135,115 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * Treenodes are added to the treeview class. This treenode contains a reference to the
-    * AssetClass object defined by plugins.
-    */
-    class TreeNodeAssetClass extends TreeNode {
+     * A node that represents an Asset Class
+     */
+    class TreeNodeAssetClass extends TreeNodeModel {
         assetClass: AssetClass;
-        className: string;
         /**
-        * @param {AssetClas} assetClass The asset class this node represents
-        * @param {TreeView} treeview The treeview to which this is added
-        */
-        constructor(assetClass: AssetClass, treeview: TreeView);
+         * Creates an instance of node
+         */
+        constructor(assetClass: AssetClass);
         /**
-        * This will get all TreeNodeAssetInstance nodes of a particular class name
-        * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
-        * @returns Array<TreeNodeAssetInstance>
-        */
-        getInstances(classNames: string | Array<string>): Array<TreeNodeAssetInstance>;
+         * This will get all instance nodes of a particular class name(s)
+         * @param {string | string[]} classNames The class name of the asset, or an array of class names
+         * @returns {TreeNodeAssetInstance[]}
+         */
+        getInstances(classNames: string | string[]): TreeNodeAssetInstance[];
         /**
-        * This will get all sub TreeNodeAssetClass nodes
-        * @returns Array<AssetClass>
-        */
-        getClasses(): Array<AssetClass>;
-        /**
-        * This will cleanup the component.
-        */
+         * This will cleanup the component.
+         */
         dispose(): void;
     }
 }
 declare module Animate {
     /**
-    * Treenodes are added to the treeview class. This treenode contains a reference to the
-    * AssetClass object defined by plugins.
-    */
-    class TreeNodeAssetInstance extends TreeNodeResource<Asset> {
+     * Treenode that contains a reference to an asset
+     */
+    class TreeNodeAssetInstance extends TreeViewNodeResource<Asset> {
         assetClass: AssetClass;
         /**
-        * @param {AssetClass} assetClass The name of the asset's template
-        * @param {Asset} asset The asset itself
-        */
+         * Creates an instance of the node
+         */
         constructor(assetClass: AssetClass, asset: Asset);
         /**
-        * Called when the node is selected
-        */
-        onSelect(): void;
-        /**
-        * When we click ok on the portal form
-        * @param {string} type
-        * @param {EditEvent} data
-        */
+         * When we click ok on the portal form
+         * @param {string} type
+         * @param {EditEvent} data
+         */
         onAssetEdited(type: string, data: EditEvent, sender?: EventDispatcher): void;
         /**
-        * This will cleanup the component.
-        */
+         * This will cleanup the component.
+         */
         dispose(): void;
     }
 }
 declare module Animate {
     /**
-    *  A tree node class for behaviour container objects.
-    */
-    class TreeNodeBehaviour extends TreeNodeResource<Container> {
+     * This node represents a group asset.
+     * Other resource nodes can be dropped on these which will append the object (if valid) into the group
+     */
+    class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
         /**
-        * @param {Container} behaviour The container we are associating with this node
-        */
-        constructor(container: Container);
-        /**
-        * Called when the node is selected
-        */
-        onSelect(): void;
-        /**
-        * Whenever a container property is changed by the editor
-        */
-        onPropertyGridEdited(type: string, event: EditEvent, sender?: EventDispatcher): void;
-        /**
-        * This will cleanup the component
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * This node represents a group asset. Goups are collections of objects - think of them as arrays.
-    */
-    class TreeNodeGroup extends TreeNodeResource<GroupArray> {
+         * Creates an instance of the node
+         */
         constructor(group: GroupArray);
         /**
-        * Called whenever the resource is re-downloaded
-        */
-        protected onRefreshed(type: string, event: Event, sender: EventDispatcher): void;
+         * Called whenever the resource is re-downloaded
+         */
+        protected onRefreshed(): void;
         /**
-        * Called when a draggable object is dropped onto the canvas.
-        */
-        protected onDropped(event: any, ui: any): void;
+         * Called whenever we drop an item on this element. This is only called if canDrop is true.
+         * Use it to set drag data, eg: e.dataTransfer.getData("text");
+         * @param {React.DragEvent} e
+         * @param {IDragDropToken} json The unserialized data
+         */
+        onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
     }
 }
 declare module Animate {
     /**
-    * This node represents a group instance. Goups are collections of objects - think of them as arrays.
-    */
-    class TreeNodeGroupInstance extends TreeNode {
+     * This node represents a group instance
+     */
+    class TreeNodeGroupInstance extends TreeNodeModel {
         private _instanceID;
         private _group;
+        /**
+         * Creates an instance of the node
+         */
         constructor(instanceID: number, name: string, group: GroupArray);
         /**
-        * This will cleanup the component
-        */
+         * Show a context menu of resource options
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * This will cleanup the component
+         */
         dispose(): void;
         shallowId: number;
     }
 }
 declare module Animate {
     /**
-    * This node represents a behaviour created by a plugin.
-    */
-    class TreeNodePluginBehaviour extends TreeNode {
+     * This node represents a behaviour created by a plugin.
+     */
+    class TreeNodePluginBehaviour extends TreeNodeModel {
         private _template;
+        /**
+         * Creates an instance of the node
+         */
         constructor(template: BehaviourDefinition);
         /**
-        * This will cleanup the component
-        */
+         * Called whenever we start dragging. This is only called if canDrag is true.
+         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * @param {React.DragEvent} e
+         * @returns {IDragDropToken} Return data to serialize
+         */
+        onDragStart(e: React.DragEvent): IDragDropToken;
+        /**
+         * This will cleanup the component
+         */
         dispose(): void;
         template: BehaviourDefinition;
-    }
-}
-declare module Animate {
-    class TreeViewNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNodeModel {
-        resource: T;
-        private _loading;
-        constructor(resource: T);
-        /**
-         * Gets or sets if this node is in a loading/busy state
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        loading(val?: boolean): boolean;
-        /**
-         * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
-         */
-        icon(val?: JSX.Element): JSX.Element;
-    }
-}
-declare module Animate {
-    class TreeViewNodeContainers extends TreeNodeModel {
-        private _context;
-        constructor();
-        onContext(e: React.MouseEvent): boolean;
     }
 }
 declare module Animate {
@@ -7765,6 +7912,7 @@ declare module Animate {
         private _dockerrighttop;
         private _dockerrightbottom;
         private _canvasContext;
+        private _sceneStore;
         constructor(props: React.HTMLAttributes);
         componentDidMount(): void;
         /**

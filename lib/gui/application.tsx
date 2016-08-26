@@ -20,6 +20,8 @@ module Animate {
 		private _dockerrightbottom: Docker;
 		private _canvasContext: CanvasContext;
 
+		private _sceneStore : TreeViewScene;
+
 		constructor( props: React.HTMLAttributes ) {
 			super(props);
 
@@ -37,6 +39,8 @@ module Animate {
 			//Start the tooltip manager
             TooltipManager.create();
             User.get;
+
+			this._sceneStore = new TreeViewScene();
 
 			// this._resizeProxy = this.onWindowResized.bind( this );
 			// this._downProxy = this.onMouseDown.bind( this );
@@ -129,7 +133,7 @@ module Animate {
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<h2>Property editor goes here</h2>}
 									bottom={
-										<ReactTreeView nodeStore={new TreeViewScene()} />
+										<ReactTreeView nodeStore={this._sceneStore} />
 									} />
 							} />
 					</div>

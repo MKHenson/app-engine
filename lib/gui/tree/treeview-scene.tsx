@@ -6,8 +6,6 @@ module Animate {
 	export class TreeViewScene extends TreeNodeStore  {
 		private static _singleton: TreeViewScene;
 
-		private _sceneNode: TreeNode;
-		private _assetsNode: TreeNode;
 		private _groupsNode: TreeNode;
 		private _pluginBehaviours: TreeNode;
 		private _contextMenu: ContextMenu;
@@ -22,29 +20,26 @@ module Animate {
 		private _contextNode: TreeNode;
 		private _shortcutProxy: any;
 
-		private _context : IReactContextMenuItem[];
+		// private _context : IReactContextMenuItem[];
 
 		constructor() {
 			super();
 
 			this.addNode( new TreeViewNodeContainers() );
-			this.addNode( new TreeNodeModel('Assets', <i className="fa fa-globe" aria-hidden="true"></i> ));
-			this.addNode( new TreeNodeModel('Groups', <i className="fa fa-globe" aria-hidden="true"></i> ));
+			this.addNode( new TreeViewNodeAssets() );
+			this.addNode( new TreeViewNodeGroups() );
 			this.addNode( new TreeNodeModel('Behaviours', <i className="fa fa-globe" aria-hidden="true"></i> ));
 
 
 			TreeViewScene._singleton = this;
 
-			this._context = [
-                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => this.onDelete() }
-            ];
+			// this._context = [
+            //     { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => this.onDelete() }
+            // ];
 
-			// this._sceneNode = this.addNode( new TreeNode( "Scene", "media/world_16.png" ) );
-			// this._assetsNode = this.addNode( new TreeNode( "Assets", "media/wrench.png" ) );
 			// this._groupsNode = this.addNode( new TreeNode( "Groups", "media/array.png" ) );
 			// this._pluginBehaviours = this.addNode( new TreeNode( "Behaviours", "media/behavior_20.png" ) );
 
-			// this._sceneNode.canUpdate = true;
 			// this._groupsNode.canUpdate = true;
 
 			// //Create the context menu
@@ -60,8 +55,6 @@ module Animate {
 
 
 			// jQuery( document ).on( "contextmenu", this.onContext2.bind( this ) );
-			// jQuery( ".selectable .text", this._sceneNode.element ).addClass( "top-node" );
-			// jQuery( ".selectable .text", this._assetsNode.element ).addClass( "top-node" );
 			// jQuery( ".selectable .text", this._groupsNode.element ).addClass( "top-node" );
 			// jQuery( ".selectable .text", this._pluginBehaviours.element ).addClass( "top-node" );
 
@@ -85,10 +78,10 @@ module Animate {
             // RenameForm.get.on("renaming", this.onRenameCheck, this );
 		}
 
-		onContext(e: React.MouseEvent, n: TreeNodeModel) {
-			e.preventDefault();
-			ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : this._context });
-		}
+		// onContext(e: React.MouseEvent, n: TreeNodeModel) {
+		// 	e.preventDefault();
+		// 	ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : this._context });
+		// }
 
 
 		onShortcutClick( e ) {
@@ -132,31 +125,20 @@ module Animate {
 		* Called when the project is loaded and ready.
 		*/
         projectReady(project: Project)  {
-            // project.on("resource-created", this.onResourceCreated, this);
+            project.on("resource-created", this.onResourceCreated, this);
 
-			// //Add all the asset nodes
-			// var assetTemplates = PluginManager.getSingleton().assetTemplates;
-			// var assetClass: AssetClass;
 
-			// var len = assetTemplates.length;
-			// for ( var i = 0; i < len; i++ )
-			// 	for ( var ii = 0; ii < assetTemplates[i].classes.length; ii++ ) {
-			// 		assetClass = assetTemplates[i].classes[ii];
-			// 		var toRet = new TreeNodeAssetClass( assetClass, this );
-			// 		this._assetsNode.addNode( toRet );
-			// 	}
-
-			// //this._curProj = User.get.project;
-			// //this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
-			// //this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
-			// //this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
-			// //this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
-			// //this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
-			// //this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
-			// //this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
-			// //this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
-			// //this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
-            // //RenameForm.get.on("renamed", this.onObjectRenamed, this);
+			//this._curProj = User.get.project;
+			//this._curProj.on( ProjectEvents.BEHAVIOUR_SAVED, this.onBehaviourResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_SAVED, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_UPDATED, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.BEHAVIOUR_DELETING, this.onProjectResponse, this );
+			//this._curProj.on( ProjectEvents.ASSET_DELETING, this.onAssetResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_CREATED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_UPDATED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_SAVED, this.onGroupResponse, this );
+			//this._curProj.on( ProjectEvents.GROUP_DELETING, this.onGroupResponse, this );
+            //RenameForm.get.on("renamed", this.onObjectRenamed, this);
 
         }
 
@@ -169,8 +151,6 @@ module Animate {
             // var r = event.resource;
             // if (r instanceof Asset)
             //     this.addAssetInstance(r, false);
-            // else if (r instanceof Container)
-            //     this._sceneNode.addNode(new TreeNodeBehaviour(r));
             // else if (r instanceof GroupArray)
             //     this._groupsNode.addNode(new TreeNodeGroup(r));
 
@@ -303,28 +283,6 @@ module Animate {
 		//		node.save( true );
 		//	}
 		//}
-
-		/**
-		 *
-		 */
-		handleNodePromise(promise: Promise<any>, node: TreeViewNodeResource<ProjectResource<Engine.IResource>>) {
-			promise.then(function () {
-				node.loading(false);
-			}).catch(function (err: Error) {
-				node.loading(false);
-				Logger.logMessage(err.message, null, LogType.ERROR)
-			});
-		}
-
-		private onDelete() {
-			for ( let n of this._selectedNodes ) {
-	            if (n instanceof TreeViewNodeResource) {
-					n.loading(true);
-	                this.handleNodePromise(User.get.project.deleteResources([(n.resource as ProjectResource<Engine.IResource>).entry._id]), n);
-				}
-			}
-		}
-
 
 		/**
 		* Called when we select a menu item.
@@ -827,6 +785,16 @@ module Animate {
 		onSelectionChange( selection : TreeNodeModel[] ) {
 			if (selection.length == 0)
 				PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
+			else {
+				let lastSelectedNode = selection[selection.length - 1];
+				if ( lastSelectedNode instanceof TreeViewNodeResource ) {
+
+					let resource = lastSelectedNode.resource;
+					PropertyGrid.getSingleton().editableObject( resource.properties, `${resource.entry.name} [${resource.entry.shallowId}]`, 'media/variable.png');
+					// TODO: This should probably be RESOURCE_SELECTED
+					PluginManager.getSingleton().emit( new AssetEvent(EditorEvents.ASSET_SELECTED, resource ));
+				}
+			}
 		}
 
 		/**
@@ -836,20 +804,6 @@ module Animate {
 		static getSingleton() : TreeViewScene {
 			return TreeViewScene._singleton;
 		}
-
-
-		///**
-		//* This will add a node to the treeview to represent the containers.
-		//* @param {Container} behaviour The behaviour we are associating with the node
-		//* @returns {TreeNodeBehaviour}
-		//*/
-		//addContainer(behaviour: Container): TreeNodeBehaviour
-		//{
-		//	var toRet: TreeNodeBehaviour = new TreeNodeBehaviour( behaviour );
-		//	this._sceneNode.addNode( toRet );
-
-		//	return toRet;
-		//}
 
 		/**
 		* This will add a node to the treeview to represent the behaviours available to developers
@@ -883,8 +837,6 @@ module Animate {
 			return null;
 		}
 
-		get sceneNode(): TreeNode { return this._sceneNode; }
-		get assetsNode(): TreeNode { return this._assetsNode; }
 		get groupsNode(): TreeNode { return this._groupsNode; }
 		get pluginBehaviours(): TreeNode { return this._pluginBehaviours; }
 
