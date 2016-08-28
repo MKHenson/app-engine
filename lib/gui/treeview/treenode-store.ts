@@ -84,7 +84,7 @@ module Animate {
          * @param {TreeNodeModel} node
          * @param {boolean} shiftDown
          */
-        onNodeSelected( node: TreeNodeModel, shiftDown: boolean ) {
+        onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState : boolean = true ) {
 
 			let clearSelection = false;
 
@@ -109,7 +109,7 @@ module Animate {
 				}
 			}
             else if (node) {
-                let selected = !node.selected();
+                let selected = ( toggleSelectedState ? !node.selected() : node.selected() );
                 node.selected(selected);
 
                 if (!selected)

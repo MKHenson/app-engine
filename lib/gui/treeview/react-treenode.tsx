@@ -18,14 +18,6 @@ module Animate {
             super(props);
         }
 
-        componentDidMount() {
-            let div = this.refs['label'] as HTMLElement;
-            if (this.props.node.canDrag)
-                jQuery(div).draggable({ opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" } as JQueryUI.DroppableOptions);
-            if (this.props.node.canDrop)
-                jQuery(div).droppable({ drop: this._dropProxy, accept: ".tree-node-asset,.tree-node-group" } as JQueryUI.DroppableOptions);
-        }
-
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -41,24 +33,23 @@ module Animate {
                         (node.disabled() ? ' disabled' : '') +
                         (node.focussed ? ' focussed' : '') }>
                     <div className="node-header">
-                        <i className="expand-button" style={{display: ( React.Children.count(this.props.children) == 0 ? 'none' : '' )}}>
+                        <div className="expand-button" style={{visibility: ( this.props.node.children.length == 0 ? 'hidden' : '' )}}>
                             {( node.expanded() ?
-                                <i className="fa fa-minus" aria-hidden="true" onClick={(e) => {
+                                <span onClick={(e) => {
                                     if (node.disabled())
                                         return;
 
                                     node.expanded(false);
-                                }}></i> :
-                                <i className="fa fa-plus" aria-hidden="true" onClick={(e) => {
+                                }}>-</span> :
+                                <span onClick={(e) => {
                                     if (node.disabled())
                                         return;
 
                                     node.expanded(true);
-                                }}></i>
+                                }}>+</span>
                             )}
-                        </i>
-                        <div ref="label"
-                            draggable={node.canDrag}
+                        </div>
+                        <div draggable={node.canDrag}
                             onDragStart={ (e) => {
                                 let json = node.onDragStart(e);
                                 if (json)
@@ -87,7 +78,7 @@ module Animate {
                                     return;
 
                                 if (node.selectable())
-                                    node.store.onNodeSelected(node, false);
+                                    node.store.onNodeSelected(node, node.selected() ? true : false, false );
                                 else
                                     node.store.onNodeSelected(null, false);
 
