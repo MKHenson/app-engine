@@ -11,7 +11,7 @@ module Animate {
          * Creates an instance of the node
          */
         constructor(resource : T) {
-            super(resource.entry.name, <i className="fa fa-cube" aria-hidden="true"></i> );
+            super(resource.entry.name, <i className="fa fa-square resource" aria-hidden="true"></i> );
             this.resource = resource;
             this._loading = false;
 
@@ -38,12 +38,32 @@ module Animate {
          * Show a context menu of resource options
          */
         onContext(e: React.MouseEvent) {
-            e.preventDefault();
-            ReactContextMenu.show({ x: e.pageX, y : e.pageY, items : [
+
+            // Check if we need to add the save button
+            let resourcesSaved = this.resource.saved;
+
+            // Check other nodes need saving
+            let otherNodes = this.store.getSelectedNodes();
+            for ( let node of otherNodes )
+                if ( !(node as TreeViewNodeResource<T>).resource.saved ) {
+                    resourcesSaved = false;
+                    break;
+                }
+
+
+            let menuItems = [
                 { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => { this.onDeleteClick() } },
                 { label: 'Refresh', prefix: <i className="fa fa-refresh" aria-hidden="true"></i>, onSelect: (e) => { this.onRefreshClick() } },
                 { label: 'Rename', prefix: <i className="fa fa-pencil" aria-hidden="true"></i>, onSelect: (e) => { this.onRenameClick() } }
-            ]});
+            ];
+
+            if (!resourcesSaved)
+                menuItems.push({
+                    label: 'Save', prefix: <i className="fa fa-save" aria-hidden="true"></i>, onSelect: (e) => { this.onSaveClick() }
+                });
+
+            e.preventDefault();
+            ReactContextMenu.show({ x: e.pageX, y : e.pageY, items: menuItems });
         }
 
         /**
@@ -157,6 +177,19 @@ module Animate {
 
 			for ( let node of selection )
                 this.handleNodePromise(project.deleteResources([node.resource.entry._id]), node);
+		}
+
+        /**
+		 * Called when the delete context item is clicked
+		 */
+		private onSaveClick() {
+            let project = User.get.project;
+            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<Engine.IResource>>[];
+            if (selection.length == 0)
+                selection.push(this);
+
+			for ( let node of selection )
+                this.handleNodePromise( project.saveResource( node.resource.entry._id ), node );
 		}
 
         /**
