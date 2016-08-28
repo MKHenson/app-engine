@@ -12,7 +12,8 @@ module Animate {
         constructor(group: GroupArray) {
             super( group );
             let project = User.get.project;
-
+            this.canDrop = true;
+            this.icon( <i className="fa fa-object-group" aria-hidden="true" /> );
             this.onRefreshed();
         }
 
@@ -43,7 +44,6 @@ module Animate {
          * @param {IDragDropToken} json The unserialized data
          */
         onDragDrop(e: React.DragEvent, json : IDragDropToken ) {
-
 			if ( json.type == 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID(json.id as number);
                 let entry = resource.entry;

@@ -11,7 +11,7 @@ module Animate {
 		 * Creates an instance of the node
 		 */
         constructor(instanceID: number, name: string, group: GroupArray) {
-            super( name,  <i className="fa fa-cube" aria-hidden="true"></i> );
+            super( name,  <i className="fa fa-square resource" aria-hidden="true"></i> );
             this._group = group;
 			this._instanceID = instanceID;
 		}
