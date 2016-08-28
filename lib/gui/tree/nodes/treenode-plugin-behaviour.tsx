@@ -10,9 +10,19 @@ module Animate {
 		 * Creates an instance of the node
 		 */
 		constructor(template: BehaviourDefinition ) {
-			super( template.behaviourName, <i className="fa fa-cube" aria-hidden="true"></i> );
+			super( template.behaviourName, <i className="fa fa-square resource" aria-hidden="true"></i> );
 			this._template = template;
+			PluginManager.getSingleton().on("template-removed", this.onTemplateRemoved, this);
 		}
+
+		/**
+         * If a template is removed then remove its instance
+         */
+        onTemplateRemoved(type: string, event: Event ) {
+            let r = event.tag as BehaviourDefinition;
+			if (this._template == r && this._parent)
+				this._parent.removeNode(this);
+        }
 
 		/**
          * Called whenever we start dragging. This is only called if canDrag is true.
@@ -28,6 +38,7 @@ module Animate {
          * This will cleanup the component
          */
 		dispose() {
+			PluginManager.getSingleton().off("template-removed", this.onTemplateRemoved, this);
 			this._template.dispose();
 			this.template = null;
 			super.dispose();

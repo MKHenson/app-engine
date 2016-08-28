@@ -144,12 +144,12 @@ module Animate {
 
 				// TODO: This must be refactored from updates to TSX
 				// ==================================================
-				// var len = btemplates.length;
-				// for ( var i = 0; i < len; i++ ) {
-				// 	this.behaviourTemplates.push( btemplates[i] );
+				for ( let template of btemplates ) {
+				 	this.behaviourTemplates.push( btemplates[i] );
 				// 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
 				// 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
-				// }
+					this.emit( new Event("template-created", template ));
+				}
 				// ===================================================
 			}
 
@@ -188,13 +188,13 @@ module Animate {
 			var i = toRemove.length;
 			// TODO: This must be refactored from updates to TSX
 			// ==================================================
-			// while ( i-- )
-			// {
+			 while ( i-- ) {
 			// 	BehaviourPicker.getSingleton().list.removeItem( toRemove[i].behaviourName );
 			// 	TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
 
-			// 	this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
-			// }
+			 	this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
+				this.emit( new Event("template-removed", toRemove[i]) );
+			 }
 			// ==================================================
 
 			// Get converters

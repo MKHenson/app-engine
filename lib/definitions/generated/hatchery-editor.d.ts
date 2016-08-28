@@ -3220,7 +3220,6 @@ declare module Animate {
          * Creates an instance
          */
         constructor(props: IReactTreeNodeProps);
-        componentDidMount(): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3270,7 +3269,7 @@ declare module Animate {
          * @param {TreeNodeModel} node
          * @param {boolean} shiftDown
          */
-        onNodeSelected(node: TreeNodeModel, shiftDown: boolean): void;
+        onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
         private setStore(node);
         private unFocus(node);
         /**
@@ -4726,7 +4725,6 @@ declare module Animate {
     class TreeViewScene extends TreeNodeStore {
         private static _singleton;
         private _groupsNode;
-        private _pluginBehaviours;
         private _contextMenu;
         private _contextCopy;
         private _contextDel;
@@ -4822,7 +4820,6 @@ declare module Animate {
         */
         removePluginBehaviour(name: string, dispose?: boolean): TreeNode;
         groupsNode: TreeNode;
-        pluginBehaviours: TreeNode;
         contextNode: TreeNode;
     }
 }
@@ -5017,6 +5014,10 @@ declare module Animate {
          */
         private onDeleteClick();
         /**
+         * Called when the delete context item is clicked
+         */
+        private onSaveClick();
+        /**
          * Called when the refresh context item is clicked
          */
         private onRefreshClick();
@@ -5101,6 +5102,29 @@ declare module Animate {
         * If a container is created, then add its node representation
         */
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+    }
+}
+declare module Animate {
+    /**
+     * A root node that contains the visual representations of project containers
+     */
+    class TreeViewNodeBehaviours extends TreeNodeModel {
+        /**
+         * Creates an instance of the node
+         */
+        constructor();
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Show context menu items
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * If a template is created, then add its node representation
+         */
+        onTemplateCreated(type: string, event: Event): void;
     }
 }
 declare module Animate {
@@ -5232,6 +5256,10 @@ declare module Animate {
          * Creates an instance of the node
          */
         constructor(template: BehaviourDefinition);
+        /**
+         * If a template is removed then remove its instance
+         */
+        onTemplateRemoved(type: string, event: Event): void;
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');

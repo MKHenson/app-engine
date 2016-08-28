@@ -7,7 +7,6 @@ module Animate {
 		private static _singleton: TreeViewScene;
 
 		private _groupsNode: TreeNode;
-		private _pluginBehaviours: TreeNode;
 		private _contextMenu: ContextMenu;
 		private _contextCopy: ContextMenuItem;
 		private _contextDel: ContextMenuItem;
@@ -28,7 +27,7 @@ module Animate {
 			this.addNode( new TreeViewNodeContainers() );
 			this.addNode( new TreeViewNodeAssets() );
 			this.addNode( new TreeViewNodeGroups() );
-			this.addNode( new TreeNodeModel('Behaviours', <i className="fa fa-globe" aria-hidden="true"></i> ));
+			this.addNode( new TreeViewNodeBehaviours() );
 
 
 			TreeViewScene._singleton = this;
@@ -36,9 +35,6 @@ module Animate {
 			// this._context = [
             //     { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => this.onDelete() }
             // ];
-
-			// this._groupsNode = this.addNode( new TreeNode( "Groups", "media/array.png" ) );
-			// this._pluginBehaviours = this.addNode( new TreeNode( "Behaviours", "media/behavior_20.png" ) );
 
 			// this._groupsNode.canUpdate = true;
 
@@ -55,8 +51,6 @@ module Animate {
 
 
 			// jQuery( document ).on( "contextmenu", this.onContext2.bind( this ) );
-			// jQuery( ".selectable .text", this._groupsNode.element ).addClass( "top-node" );
-			// jQuery( ".selectable .text", this._pluginBehaviours.element ).addClass( "top-node" );
 
 			// this._quickAdd = new Component( "<div class='quick-button'><img src='media/portal.png'/></div>", this );
 			// this._quickCopy = new Component( "<div class='quick-button'><img src='media/copy-small.png'/></div>", this );
@@ -151,8 +145,6 @@ module Animate {
             // var r = event.resource;
             // if (r instanceof Asset)
             //     this.addAssetInstance(r, false);
-            // else if (r instanceof GroupArray)
-            //     this._groupsNode.addNode(new TreeNodeGroup(r));
 
             // // Todo: Add script nodes + files?
         }
@@ -838,7 +830,6 @@ module Animate {
 		}
 
 		get groupsNode(): TreeNode { return this._groupsNode; }
-		get pluginBehaviours(): TreeNode { return this._pluginBehaviours; }
 
 		get contextNode(): TreeNode { return this._contextNode; }
 		set contextNode( val: TreeNode) { this._contextNode = val; }
