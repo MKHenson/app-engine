@@ -15,6 +15,7 @@ module Animate {
             this.canDrop = true;
             this.icon( <i className="fa fa-object-group" aria-hidden="true" /> );
             this.onRefreshed();
+            this.expanded(false);
         }
 
         /**

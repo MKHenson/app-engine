@@ -33,7 +33,7 @@ module Animate {
                         (node.disabled() ? ' disabled' : '') +
                         (node.focussed ? ' focussed' : '') }>
                     <div className="node-header">
-                        <div className="expand-button" style={{visibility: ( this.props.node.children.length == 0 ? 'hidden' : '' )}}>
+                        <div className="expand-button unselectable" style={{visibility: ( this.props.node.children.length == 0 ? 'hidden' : '' )}}>
                             {( node.expanded() ?
                                 <span onClick={(e) => {
                                     if (node.disabled())
