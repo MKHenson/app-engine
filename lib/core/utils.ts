@@ -65,6 +65,8 @@
                 Utils.shallowIds = reference + 1;
                 return reference;
             }
+            else if (reference !== undefined)
+                return reference;
 
             Utils.shallowIds++;
             return Utils.shallowIds;
