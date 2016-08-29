@@ -6,7 +6,7 @@ module Animate {
 	/**
 	 * A form for editing various project/user options
 	 */
-	export class OptionsForm extends ReactWindow<IOptionsForm> {
+	export class OptionsForm extends ReactWindow<IOptionsForm, IReactWindowState> {
 		static defaultProps: IOptionsForm = {
             controlBox: true,
             canResize: true,

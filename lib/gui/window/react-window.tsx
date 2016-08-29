@@ -6,6 +6,7 @@ module Animate {
         modal?: boolean;
         popup?: boolean;
         controlBox? : boolean;
+        showCloseButton? : boolean;
         canResize? : boolean;
         className?: string;
         _id?: number;
@@ -20,7 +21,7 @@ module Animate {
      * The base class for all windows in the application. Most windows will be derived from this class.
      * You can display/hide the window by using the static Window.show and Window.hide methods.
      */
-    export class ReactWindow<T extends IReactWindowProps> extends React.Component<T, IReactWindowState> {
+    export class ReactWindow<T extends IReactWindowProps, S extends IReactWindowState> extends React.Component<T, S> {
         private static _openWindows: number = 0;
         private static _windows : { [id: number]: {
             window : HTMLElement,
@@ -31,6 +32,7 @@ module Animate {
             modal: true,
             popup: false,
             controlBox: true,
+            showCloseButton: true,
             title: null,
             autoCenter: true,
             canResize: true
@@ -53,9 +55,9 @@ module Animate {
             this._mouseUpProxy = this.onMouseUp.bind(this);
             this._mouseDeltaX = 0;
             this._mouseDeltaY = 0;
-            this.state = {
+            this.state = ({
                 centered: true
-            };
+            } as IReactWindowState) as S;
         }
 
         /**
@@ -101,7 +103,7 @@ module Animate {
          */
         onHeaderDown(e: React.MouseEvent) {
             e.preventDefault();
-            let w = this.refs['window'] as ReactWindow<T>;
+            let w = this.refs['window'] as ReactWindow<T, S>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let bounds = elm.getBoundingClientRect();
 
@@ -119,7 +121,7 @@ module Animate {
 
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
-                let w = this.refs['window'] as ReactWindow<T>;
+                let w = this.refs['window'] as ReactWindow<T,S>;
                 let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
                 elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 )) + 'px';
@@ -130,7 +132,7 @@ module Animate {
          * When the mouse moves and we are dragging the header bar we move the window
          */
         onMouseMove(e: MouseEvent) {
-            let w = this.refs['window'] as ReactWindow<T>;
+            let w = this.refs['window'] as ReactWindow<T, S>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let x = e.pageX -  this._mouseDeltaX;
             let y = e.pageY -  this._mouseDeltaY;
@@ -155,7 +157,7 @@ module Animate {
 
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
-                let w = this.refs['window'] as ReactWindow<T>;
+                let w = this.refs['window'] as ReactWindow<T, S>;
                 let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
                 elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 )) + 'px';
@@ -223,9 +225,8 @@ module Animate {
 
             if (this.props.controlBox) {
                 controlBox = <div className='window-control-box' onMouseDown={(e) =>{this.onHeaderDown(e) }}>
-                    <div
-                        onClick={() => { this.onClose(); }}
-                        className='close-but'>X</div>
+                    { this.props.showCloseButton ?
+                        <div  onClick={() => { this.onClose(); }} className='close-but'>X</div> : null }
                     <div className='window-header'>{this.props.title}</div>
                     <div className='fix'></div>
                 </div>

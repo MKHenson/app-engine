@@ -10,7 +10,7 @@ module Animate {
 	/**
 	 * A form uploading and selecting files
 	 */
-	export class FileDialogue extends ReactWindow<IFileDialogueProps> {
+	export class FileDialogue extends ReactWindow<IFileDialogueProps, IReactWindowState> {
 		static defaultProps: IFileDialogueProps = {
             controlBox: true,
             canResize: true,

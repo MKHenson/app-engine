@@ -10,7 +10,7 @@ module Animate {
 	/**
 	 * A window to show a blocking window with a message to the user.
 	 */
-	export class MessageBox extends ReactWindow<IMessageBoxProps> {
+	export class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState> {
 		static defaultProps: IMessageBoxProps = {
 			buttons: ['Ok'],
 			className: 'message-box',
