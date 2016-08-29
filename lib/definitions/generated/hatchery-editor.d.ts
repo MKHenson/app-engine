@@ -822,19 +822,6 @@ declare module Animate {
         */
         static ASSET_COPIED: EditorEvents;
     }
-    /**
-    * Event used to describe re-naming of objects. Listen for either
-    * 'renaming' or 'renamed' event types
-    */
-    class RenameFormEvent extends Event {
-        cancel: boolean;
-        name: string;
-        oldName: string;
-        object: IRenamable;
-        reason: string;
-        resourceType: ResourceType;
-        constructor(type: string, name: string, oldName: string, object: IRenamable, rt: ResourceType);
-    }
     class OkCancelFormEvent extends Event {
         text: string;
         cancel: boolean;
@@ -1824,7 +1811,7 @@ declare module Animate {
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
+        createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
         * This function is used to create an entry for this project on the DB.
         */
@@ -2882,6 +2869,7 @@ declare module Animate {
         modal?: boolean;
         popup?: boolean;
         controlBox?: boolean;
+        showCloseButton?: boolean;
         canResize?: boolean;
         className?: string;
         _id?: number;
@@ -2894,7 +2882,7 @@ declare module Animate {
      * The base class for all windows in the application. Most windows will be derived from this class.
      * You can display/hide the window by using the static Window.show and Window.hide methods.
      */
-    class ReactWindow<T extends IReactWindowProps> extends React.Component<T, IReactWindowState> {
+    class ReactWindow<T extends IReactWindowProps, S extends IReactWindowState> extends React.Component<T, S> {
         private static _openWindows;
         private static _windows;
         static defaultProps: IReactWindowProps;
@@ -3716,7 +3704,7 @@ declare module Animate {
     /**
     * Behaviours are the base class for all nodes placed on a <Canvas>
     */
-    class Behaviour extends CanvasItem implements IRenamable {
+    class Behaviour extends CanvasItem {
         private _originalName;
         private _alias;
         private _canGhost;
@@ -4722,10 +4710,6 @@ declare module Animate {
         * @param {ProjectEvents} response The loader response
         * @param {ProjectEvent} data The data sent from the server
         */
-        /** When the rename form is about to proceed. We can cancel it by externally checking
-        * if against the data.object and data.name variables.
-        */
-        onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher): void;
         /**
         * This function will get a list of asset instances based on their class name.
         * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
@@ -6168,7 +6152,7 @@ declare module Animate {
     /**
      * A form for editing various project/user options
      */
-    class OptionsForm extends ReactWindow<IOptionsForm> {
+    class OptionsForm extends ReactWindow<IOptionsForm, IReactWindowState> {
         static defaultProps: IOptionsForm;
         /**
          * Creates a new instance
@@ -6386,7 +6370,7 @@ declare module Animate {
     /**
      * A form uploading and selecting files
      */
-    class FileDialogue extends ReactWindow<IFileDialogueProps> {
+    class FileDialogue extends ReactWindow<IFileDialogueProps, IReactWindowState> {
         static defaultProps: IFileDialogueProps;
         /**
          * Creates a new instance
@@ -6408,7 +6392,7 @@ declare module Animate {
     /**
      * A window to show a blocking window with a message to the user.
      */
-    class MessageBox extends ReactWindow<IMessageBoxProps> {
+    class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState> {
         static defaultProps: IMessageBoxProps;
         /**
          * Creates a new instance of the message box
@@ -6482,61 +6466,36 @@ declare module Animate {
     }
 }
 declare module Animate {
-    interface IRenameToken {
-        newName: string;
-        oldName: string;
-        object: IRenamable;
-        cancelled: boolean;
-    }
-    interface IRenamable {
+    interface IRenameFormProps extends IReactWindowProps {
         name?: string;
+        onRenaming?: (newName: string, prevName: string) => Error;
+        onCancel?: () => void;
+        onOk: (newName: string) => void;
+    }
+    interface IRenameFormState extends IReactWindowState {
+        $errorMsg?: string;
     }
     /**
-    * This form is used to rename objects
-    */
-    class RenameForm extends Window {
-        private static _singleton;
-        private object;
-        $errorMsg: string;
-        private $loading;
-        private $name;
-        private _projectElm;
-        private _resourceId;
-        private _type;
-        private _fromOk;
-        constructor();
+     * This form is used to rename objects
+     */
+    class RenameForm extends ReactWindow<IRenameFormProps, IRenameFormState> {
+        static defaultProps: IRenameFormProps;
         /**
-        * Hides the window from view
-        */
-        hide(): void;
-        /**
-         * Shows the window by adding it to a parent.
-         * @param {Component} parent The parent Component we are adding this window to
-         * @param {number} x The x coordinate of the window
-         * @param {number} y The y coordinate of the window
-         * @param {boolean} isModal Does this window block all other user operations?
-         * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
+         * Creates a new instance
          */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        constructor(props: IRenameFormProps);
         /**
-        * Attempts to rename an object
-        * @param {IRenamable} object
-        * @extends {RenameForm}
-        */
-        renameObject(object: IRenamable, id: string, type: ResourceType): Promise<IRenameToken>;
+         * Hides the form
+         */
+        onCancel(): void;
         /**
-        * @type public mfunc OnButtonClick
-        * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-        * and pass the text either for the ok or cancel buttons.
-        * @param {any} e
-        * @extends {RenameForm}
-        */
-        ok(): any;
+         * Gets the content JSX for the window.
+         */
+        getContent(): React.ReactNode;
         /**
-        * Gets the singleton instance.
-        * @returns {RenameForm}
-        */
-        static get: RenameForm;
+         * Called when the form is submitted
+         */
+        ok(name: string): void;
     }
 }
 declare module Animate {
