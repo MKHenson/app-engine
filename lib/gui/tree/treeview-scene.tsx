@@ -6,7 +6,6 @@ module Animate {
 	export class TreeViewScene extends TreeNodeStore  {
 		private static _singleton: TreeViewScene;
 
-		private _groupsNode: TreeNode;
 		private _contextMenu: ContextMenu;
 		private _contextCopy: ContextMenuItem;
 		private _contextDel: ContextMenuItem;
@@ -16,7 +15,6 @@ module Animate {
 		private _contextAddGroup: ContextMenuItem;
 		private _quickCopy: Component;
 		private _quickAdd: Component;
-		private _contextNode: TreeNode;
 		private _shortcutProxy: any;
 
 		// private _context : IReactContextMenuItem[];
@@ -796,42 +794,5 @@ module Animate {
 		static getSingleton() : TreeViewScene {
 			return TreeViewScene._singleton;
 		}
-
-		/**
-		* This will add a node to the treeview to represent the behaviours available to developers
-		* @param {BehaviourDefinition} template
-		* @returns {TreeNodePluginBehaviour}
-		*/
-		addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour {
-			// var toRet = new TreeNodePluginBehaviour( template );
-			// this._pluginBehaviours.addNode( toRet );
-			// return toRet;
-
-			return null;
-		}
-
-		/**
-		* This will remove a node from the treeview that represents the behaviours available to developers.
-		* @param  {string} name The name if the plugin behaviour
-		* @returns {TreeNode}
-		*/
-		removePluginBehaviour( name : string, dispose : boolean = true ) : TreeNode {
-			// var node : TreeNode = this._pluginBehaviours.findNode( "mText", name );
-			// if ( node != null ) {
-			// 	this._pluginBehaviours.removeNode( node );
-
-			// 	if ( dispose )
-			// 		node.dispose();
-			// }
-
-			// return node;
-
-			return null;
-		}
-
-		get groupsNode(): TreeNode { return this._groupsNode; }
-
-		get contextNode(): TreeNode { return this._contextNode; }
-		set contextNode( val: TreeNode) { this._contextNode = val; }
 	}
 }
