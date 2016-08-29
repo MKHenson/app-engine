@@ -42,9 +42,8 @@ module Animate {
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IVCheckboxProps) {
-            this.setState({
-                checked: ( nextProps.checked !== this.props.checked ? nextProps.checked : this.state.checked )
-            });
+            if (nextProps.checked !== this.props.checked)
+                this.setState({  checked: nextProps.checked });
         }
 
         /**
