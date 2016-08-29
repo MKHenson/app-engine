@@ -4988,16 +4988,22 @@ declare module Animate {
      * This node represents a group instance
      */
     class TreeNodeGroupInstance extends TreeNodeModel {
-        private _instanceID;
+        private _resource;
         private _group;
         /**
          * Creates an instance of the node
          */
-        constructor(instanceID: number, name: string, group: GroupArray);
+        constructor(resource: ProjectResource<Engine.IResource>, group: GroupArray);
         /**
          * Show a context menu of resource options
          */
         onContext(e: React.MouseEvent): void;
+        /**
+         * Gets or sets the label of the node
+         * @param {string} val
+         * @returns {string}
+         */
+        label(val?: string): string;
         /**
          * This will cleanup the component
          */

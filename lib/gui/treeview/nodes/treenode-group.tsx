@@ -34,7 +34,7 @@ module Animate {
             // Add each of the node references
             for (let item of group.entry.items ) {
                 let resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>( item );
-                this.addNode( new TreeNodeGroupInstance( resource.entry._id, resource.entry.name, group ));
+                this.addNode( new TreeNodeGroupInstance( resource, group ));
             }
         }
 
@@ -48,7 +48,7 @@ module Animate {
 			if ( json.type == 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID(json.id as number);
                 let entry = resource.entry;
-                let added = this.addNode( new TreeNodeGroupInstance( entry.shallowId, entry.name, this.resource ) );
+                let added = this.addNode( new TreeNodeGroupInstance( resource, this.resource ) );
 				this.expanded();
                 this.resource.addReference(entry.shallowId);
 			}
