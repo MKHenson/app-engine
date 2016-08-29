@@ -3112,304 +3112,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /**
-    * This class is used to create tree view items.
-    */
-    class TreeView extends Component {
-        private _selectedNode;
-        private fixDiv;
-        private _selectedNodes;
-        constructor(parent: Component);
-        /**
-        * When we click the view
-        * @param {any} e
-        */
-        onClick(e: any): void;
-        /**
-        * Selects a node.
-        * @param {TreeNode} node The node to select
-        * @param {boolean} expandToNode A bool to say if we need to traverse the tree down until we get to the node
-        * and expand all parent nodes
-        * @param {boolean} multiSelect If true then multiple nodes are selected
-        */
-        selectNode(node: TreeNode, expandToNode?: boolean, multiSelect?: boolean): void;
-        /**
-        * This will add a node to the treeview
-        * @param {TreeNode} node The node to add
-        * @returns {TreeNode}
-        */
-        addNode(node: TreeNode): TreeNode;
-        /** @returns {Array<TreeNode>} The nodes of this treeview.*/
-        nodes(): Array<TreeNode>;
-        /**
-        * This will clear and dispose of all the nodes
-        * @returns Array<TreeNode> The nodes of this tree
-        */
-        clear(): void;
-        /**
-        * This removes a node from the treeview
-        * @param {TreeNode} node The node to remove
-        * @returns {TreeNode}
-        */
-        removeNode(node: any): TreeNode;
-        /**
-        * This will recursively look through each of the nodes to find a node with
-        * the specified name.
-        * @param {string} property The name property we are evaluating
-        * @param {any} value The object we should be comparing against
-        * @returns {TreeNode}
-        */
-        findNode(property: string, value: any): TreeNode;
-        selectedNode: TreeNode;
-        selectedNodes: Array<TreeNode>;
-    }
-}
-declare module Animate {
-    interface IReactTreeViewProps {
-        nodeStore: TreeNodeStore;
-    }
-    interface IReactTreeViewState {
-        nodes?: TreeNodeModel[];
-        focussedNode?: TreeNodeModel;
-    }
-    /**
-     * A component visually represents a TreeNodeStore and its nodes
-     */
-    class ReactTreeView extends React.Component<IReactTreeViewProps, IReactTreeViewState> {
-        /**
-         * Creates a new instance of the treenode
-         */
-        constructor(props: IReactTreeViewProps);
-        /**
-         * Called whenever a node is focussed
-         */
-        onFocusNodeChange(type: string, e: Event): void;
-        /**
-         * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
-         */
-        onChange(type: string): void;
-        /**
-         * When the component is updated, we check for any focussed nodes so we can scroll to them
-         */
-        componentDidUpdate(): void;
-        /**
-         * Make sure that any new node store has the appropriate event handlers
-         */
-        componentWillReceiveProps(nextProps: IReactTreeViewProps): void;
-        /**
-         * Cleans up the component
-         */
-        componentWillUnmount(): void;
-        /**
-         * Creates the component elements
-         * @returns {JSX.Element}
-         */
-        render(): JSX.Element;
-    }
-}
-declare module Animate {
-    interface IReactTreeNodeProps {
-        node: TreeNodeModel;
-    }
-    /**
-     * This visual representation of a TreeNodeModel
-     */
-    class ReactTreeNode extends React.Component<IReactTreeNodeProps, any> {
-        private _dropProxy;
-        /**
-         * Creates an instance
-         */
-        constructor(props: IReactTreeNodeProps);
-        /**
-         * Creates the component elements
-         * @returns {JSX.Element}
-         */
-        render(): JSX.Element;
-    }
-}
-declare module Animate {
-    /**
-     * This class is used to create tree view items.
-     */
-    class TreeNodeStore extends EventDispatcher {
-        protected _children: TreeNodeModel[];
-        protected _selectedNodes: TreeNodeModel[];
-        protected _multiSelect: boolean;
-        protected _onlySimilarNodeSelection: boolean;
-        /**
-         * Creates a treenode store
-         */
-        constructor(children?: TreeNodeModel[]);
-        /**
-         * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
-         */
-        addNode(node: TreeNodeModel): TreeNodeModel;
-        /**
-         * Removes a child node
-         * @param {TreeNodeModel} node
-         */
-        removeNode(node: TreeNodeModel): void;
-        /**
-         * Removes all nodes from the store
-         */
-        clear(): void;
-        /**
-         * Triggers a change in the tree structure
-         */
-        invalidate(): void;
-        /**
-         * Called whenever the selection has changed
-         * @param {TreeNodeModel[]} selection
-         */
-        onSelectionChange(selection: TreeNodeModel[]): void;
-        /**
-         * Called whenever a node is selectable and clicked.
-         * @param {TreeNodeModel} node
-         * @param {boolean} shiftDown
-         */
-        onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
-        private setStore(node);
-        private unFocus(node);
-        /**
-         * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
-         * @param {TreeNodeModel} node
-         */
-        onContext(e: React.MouseEvent, node: TreeNodeModel): void;
-        /**
-         * This will recursively look through each of the nodes to find a node with
-         * the specified name.
-         * @param {string} property The name property we are evaluating
-         * @param {any} value The object we should be comparing against
-         * @returns {TreeNodeModel}
-         */
-        findNode(property: string, value: any): TreeNodeModel;
-        /**
-         * Selects a node manually. This will also bring the focus into node
-         */
-        selectNode(node: TreeNodeModel): void;
-        /**
-         * Gets the nodes associated with this store
-         * @returns {TreeNodeModel[]}
-         */
-        getNodes(): TreeNodeModel[];
-        /**
-         * Gets the currently selected nodes
-         * @returns {TreeNodeModel[]}
-         */
-        getSelectedNodes(): TreeNodeModel[];
-    }
-}
-declare module Animate {
-    class TreeNodeModel {
-        private _icon;
-        private _label;
-        private _selected;
-        private _expanded;
-        private _disabled;
-        private _selectable;
-        children: TreeNodeModel[];
-        protected _parent: TreeNodeModel;
-        store: TreeNodeStore;
-        focussed: boolean;
-        canDrag: boolean;
-        canDrop: boolean;
-        /**
-         * Creates an instance of the node
-         */
-        constructor(label: string, icon?: JSX.Element, children?: TreeNodeModel[]);
-        /**
-         * Gets the parent node
-         * @returns {TreeNodeModel}
-         */
-        parent: TreeNodeModel;
-        /**
-         * Gets or sets the label of the node
-         * @param {string} val
-         * @returns {string}
-         */
-        label(val?: string): string;
-        /**
-         * Called whenever we start dragging. This is only called if canDrag is true.
-         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
-         * @param {React.DragEvent} e
-         * @returns {IDragDropToken} Return data to serialize
-         */
-        onDragStart(e: React.DragEvent): IDragDropToken;
-        /**
-         * Called whenever we drop an item on this element. This is only called if canDrop is true.
-         * Use it to set drag data, eg: e.dataTransfer.getData("text");
-         * @param {React.DragEvent} e
-         * @param {IDragDropToken} json The unserialized data
-         */
-        onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
-        /**
-         * Gets or sets if the node is selected
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        selected(val?: boolean): boolean;
-        /**
-         * Gets or sets if the node is disabled
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        disabled(val?: boolean): boolean;
-        /**
-         * Gets or sets if the node is selectable
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        selectable(val?: boolean): boolean;
-        /**
-         * Gets or sets if the node is expanded
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        expanded(val?: boolean): boolean;
-        /**
-         * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
-         */
-        icon(val?: JSX.Element): JSX.Element;
-        /**
-         * Attempts to trigger a change event on the store
-         */
-        protected invalidate(): void;
-        /**
-         * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
-         */
-        addNode(node: TreeNodeModel): TreeNodeModel;
-        /**
-         * Removes a child node
-         * @param {TreeNodeModel} node
-         */
-        removeNode(node: TreeNodeModel): void;
-        /**
-         * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
-         */
-        onContext(e: React.MouseEvent): void;
-        /**
-         * This will recursively look through each of the nodes to find one with
-         * the specified name and value.
-         * @param {string} property The Javascript property on the node that we are evaluating
-         * @param {any} value The value of the property we are comparing.
-         * @returns {TreeNodeModel}
-         */
-        findNode(property: string, value: any): TreeNodeModel;
-        /**
-         * This will cleanup the model
-         */
-        dispose(): void;
-    }
-}
-declare module Animate {
     interface ITabProps {
         panes: React.ReactElement<ITabPaneProps>[];
     }
@@ -4719,12 +4421,256 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface ITreeViewProps {
+        nodeStore: TreeNodeStore;
+    }
+    interface ITreeViewState {
+        nodes?: TreeNodeModel[];
+        focussedNode?: TreeNodeModel;
+    }
+    /**
+     * A component visually represents a TreeNodeStore and its nodes
+     */
+    class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
+        /**
+         * Creates a new instance of the treenode
+         */
+        constructor(props: ITreeViewProps);
+        /**
+         * Called whenever a node is focussed
+         */
+        onFocusNodeChange(type: string, e: Event): void;
+        /**
+         * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
+         */
+        onChange(type: string): void;
+        /**
+         * When the component is updated, we check for any focussed nodes so we can scroll to them
+         */
+        componentDidUpdate(): void;
+        /**
+         * Make sure that any new node store has the appropriate event handlers
+         */
+        componentWillReceiveProps(nextProps: ITreeViewProps): void;
+        /**
+         * Cleans up the component
+         */
+        componentWillUnmount(): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface ITreeNodeProps {
+        node: TreeNodeModel;
+    }
+    /**
+     * This visual representation of a TreeNodeModel
+     */
+    class TreeNode extends React.Component<ITreeNodeProps, any> {
+        private _dropProxy;
+        /**
+         * Creates an instance
+         */
+        constructor(props: ITreeNodeProps);
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    /**
+     * This class is used to create tree view items.
+     */
+    class TreeNodeStore extends EventDispatcher {
+        protected _children: TreeNodeModel[];
+        protected _selectedNodes: TreeNodeModel[];
+        protected _multiSelect: boolean;
+        protected _onlySimilarNodeSelection: boolean;
+        /**
+         * Creates a treenode store
+         */
+        constructor(children?: TreeNodeModel[]);
+        /**
+         * Adds a child node
+         * @param {TreeNodeModel} node
+         * @returns {TreeNodeModel}
+         */
+        addNode(node: TreeNodeModel): TreeNodeModel;
+        /**
+         * Removes a child node
+         * @param {TreeNodeModel} node
+         */
+        removeNode(node: TreeNodeModel): void;
+        /**
+         * Removes all nodes from the store
+         */
+        clear(): void;
+        /**
+         * Triggers a change in the tree structure
+         */
+        invalidate(): void;
+        /**
+         * Called whenever the selection has changed
+         * @param {TreeNodeModel[]} selection
+         */
+        onSelectionChange(selection: TreeNodeModel[]): void;
+        /**
+         * Called whenever a node is selectable and clicked.
+         * @param {TreeNodeModel} node
+         * @param {boolean} shiftDown
+         */
+        onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        private setStore(node);
+        private unFocus(node);
+        /**
+         * Called whenever the node receives a context event
+         * @param {React.MouseEvent} e
+         * @param {TreeNodeModel} node
+         */
+        onContext(e: React.MouseEvent, node: TreeNodeModel): void;
+        /**
+         * This will recursively look through each of the nodes to find a node with
+         * the specified name.
+         * @param {string} property The name property we are evaluating
+         * @param {any} value The object we should be comparing against
+         * @returns {TreeNodeModel}
+         */
+        findNode(property: string, value: any): TreeNodeModel;
+        /**
+         * Selects a node manually. This will also bring the focus into node
+         */
+        selectNode(node: TreeNodeModel): void;
+        /**
+         * Gets the nodes associated with this store
+         * @returns {TreeNodeModel[]}
+         */
+        getNodes(): TreeNodeModel[];
+        /**
+         * Gets the currently selected nodes
+         * @returns {TreeNodeModel[]}
+         */
+        getSelectedNodes(): TreeNodeModel[];
+    }
+}
+declare module Animate {
+    class TreeNodeModel {
+        private _icon;
+        private _label;
+        private _selected;
+        private _expanded;
+        private _disabled;
+        private _selectable;
+        children: TreeNodeModel[];
+        protected _parent: TreeNodeModel;
+        store: TreeNodeStore;
+        focussed: boolean;
+        canDrag: boolean;
+        canDrop: boolean;
+        /**
+         * Creates an instance of the node
+         */
+        constructor(label: string, icon?: JSX.Element, children?: TreeNodeModel[]);
+        /**
+         * Gets the parent node
+         * @returns {TreeNodeModel}
+         */
+        parent: TreeNodeModel;
+        /**
+         * Gets or sets the label of the node
+         * @param {string} val
+         * @returns {string}
+         */
+        label(val?: string): string;
+        /**
+         * Called whenever we start dragging. This is only called if canDrag is true.
+         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * @param {React.DragEvent} e
+         * @returns {IDragDropToken} Return data to serialize
+         */
+        onDragStart(e: React.DragEvent): IDragDropToken;
+        /**
+         * Called whenever we drop an item on this element. This is only called if canDrop is true.
+         * Use it to set drag data, eg: e.dataTransfer.getData("text");
+         * @param {React.DragEvent} e
+         * @param {IDragDropToken} json The unserialized data
+         */
+        onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
+        /**
+         * Gets or sets if the node is selected
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        selected(val?: boolean): boolean;
+        /**
+         * Gets or sets if the node is disabled
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        disabled(val?: boolean): boolean;
+        /**
+         * Gets or sets if the node is selectable
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        selectable(val?: boolean): boolean;
+        /**
+         * Gets or sets if the node is expanded
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        expanded(val?: boolean): boolean;
+        /**
+         * Gets or sets the icon of the node
+         * @param {JSX.Element} val
+         * @returns {JSX.Element}
+         */
+        icon(val?: JSX.Element): JSX.Element;
+        /**
+         * Attempts to trigger a change event on the store
+         */
+        protected invalidate(): void;
+        /**
+         * Adds a child node
+         * @param {TreeNodeModel} node
+         * @returns {TreeNodeModel}
+         */
+        addNode(node: TreeNodeModel): TreeNodeModel;
+        /**
+         * Removes a child node
+         * @param {TreeNodeModel} node
+         */
+        removeNode(node: TreeNodeModel): void;
+        /**
+         * Called whenever the node receives a context event
+         * @param {React.MouseEvent} e
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * This will recursively look through each of the nodes to find one with
+         * the specified name and value.
+         * @param {string} property The Javascript property on the node that we are evaluating
+         * @param {any} value The value of the property we are comparing.
+         * @returns {TreeNodeModel}
+         */
+        findNode(property: string, value: any): TreeNodeModel;
+        /**
+         * This will cleanup the model
+         */
+        dispose(): void;
+    }
+}
+declare module Animate {
     /**
     * An implementation of the tree view for the scene.
     */
     class TreeViewScene extends TreeNodeStore {
         private static _singleton;
-        private _groupsNode;
         private _contextMenu;
         private _contextCopy;
         private _contextDel;
@@ -4734,7 +4680,6 @@ declare module Animate {
         private _contextAddGroup;
         private _quickCopy;
         private _quickAdd;
-        private _contextNode;
         private _shortcutProxy;
         constructor();
         onShortcutClick(e: any): void;
@@ -4807,146 +4752,6 @@ declare module Animate {
         * @returns <TreeViewScene> The singleton instance
         */
         static getSingleton(): TreeViewScene;
-        /**
-        * This will add a node to the treeview to represent the behaviours available to developers
-        * @param {BehaviourDefinition} template
-        * @returns {TreeNodePluginBehaviour}
-        */
-        addPluginBehaviour(template: BehaviourDefinition): TreeNodePluginBehaviour;
-        /**
-        * This will remove a node from the treeview that represents the behaviours available to developers.
-        * @param  {string} name The name if the plugin behaviour
-        * @returns {TreeNode}
-        */
-        removePluginBehaviour(name: string, dispose?: boolean): TreeNode;
-        groupsNode: TreeNode;
-        contextNode: TreeNode;
-    }
-}
-declare module Animate {
-    /**
-    * This is the base class for all tree node classes
-    */
-    class TreeNode extends Component implements IRenamable {
-        protected mText: string;
-        private _expanded;
-        private hasExpandButton;
-        canDelete: boolean;
-        canFocus: boolean;
-        canUpdate: boolean;
-        canCopy: boolean;
-        treeview: TreeView;
-        private _modified;
-        private _loading;
-        private _modifiedStar;
-        /**
-        * @param {string} text The text to use for this node
-        * @param {string} img An optional image to use (image src text)
-        * @param {boolean} hasExpandButton A bool to tell the node if it should use the expand button
-        */
-        constructor(text: any, img?: string, hasExpandButton?: boolean);
-        /**
-        * Gets if this tree node is in a modified state
-        * @returns {boolean}
-        */
-        /**
-        * Sets if this tree node is in a modified state
-        * @param {boolean} val
-        */
-        modified: boolean;
-        /**
-        * Gets if this tree node is busy with a loading operation
-        * @returns {boolean}
-        */
-        /**
-        * Sets if this tree node is busy with a loading operation
-        * @param {boolean} val
-        */
-        loading: boolean;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-        /**
-        * Called when the node is selected
-        */
-        onSelect(): void;
-        /**
-        * This function will rturn an array of all its child nodes
-        * @param {Function} type This is an optional type object. You can pass a function or class and it will only return nodes of that type.
-        * @param Array<TreeNode> array This is the array where data will be stored in. This can be left as null and one will be created
-        * @returns Array<TreeNode>
-        */
-        getAllNodes(type: Function, array?: Array<TreeNode>): Array<TreeNode>;
-        /**
-        * This function will expand this node and show its children.
-        */
-        expand(): void;
-        /**
-        * This function will collapse this node and hide its children.
-        */
-        collapse(): void;
-        /**
-        * This will recursively look through each of the nodes to find a node with
-        * the specified name.
-        * @param {string} property The Javascript property on the node that we are evaluating
-        * @param {any} value The value of the property we are comparing.
-        * @returns {TreeNode}
-        */
-        findNode(property: string, value: any): TreeNode;
-        /**
-        * This will clear and dispose of all the nodes
-        */
-        clear(): void;
-        /**
-        * Get if the component is selected
-        * @returns {boolean} If the component is selected or not.
-        */
-        /**
-        * Set if the component is selected
-        * @param {boolean} val Pass a true or false value to select the component.
-        */
-        selected: boolean;
-        /**
-        * Gets the text of the node
-        * @returns {string} The text of the node
-        */
-        /**
-        * Sets the text of the node
-        * @param {string} val The text to set
-        */
-        text: string;
-        /**
-        * This will add a node to the treeview
-        * @param {TreeNode} node The node to add
-        * @param {boolean} collapse True if you want to make this node collapse while adding the new node
-        * @returns {TreeNode}
-        */
-        addNode(node: TreeNode, collapse?: boolean): TreeNode;
-        /**
-        * The nodes of this treeview.
-        * @returns {Array<TreeNode>}
-        */
-        nodes: Array<TreeNode>;
-        /**
-        * Gets if this treenode is expanded or not
-        * @returns {boolean}
-        */
-        expanded: boolean;
-        /**
-        * Use this function to remove a child from this component.
-        * It uses the {JQuery} detach function to achieve this functionality.
-        * @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
-        * @returns {IComponent} The {IComponent} we have removed
-        */
-        removeChild(child: IComponent): IComponent;
-        /**
-        * This removes a node from the treeview
-        * @param {TreeNode} node The node to remove
-        * @returns {TreeNode}
-        */
-        removeNode(node: TreeNode): TreeNode;
-        name: string;
     }
 }
 declare module Animate {
@@ -5125,36 +4930,6 @@ declare module Animate {
          * If a template is created, then add its node representation
          */
         onTemplateCreated(type: string, event: Event): void;
-    }
-}
-declare module Animate {
-    /**
-    * This node represents a project resource
-    */
-    class TreeNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNode {
-        resource: T;
-        private _dropProxy;
-        constructor(resource: T, text: string, img: string, hasExpand: boolean);
-        /**
-        * Called whenever the resource is re-downloaded
-        */
-        protected onRefreshed(type: string, event: Event, sender: EventDispatcher): void;
-        /**
-        * Called whenever the resource is modified
-        */
-        protected onDeleted(type: string, event: Event, sender: EventDispatcher): void;
-        /**
-        * Called whenever the resource is modified
-        */
-        protected onModified(type: string, event: Event, sender: EventDispatcher): void;
-        /**
-        * Called when a draggable object is dropped onto the node
-        */
-        protected onDropped(event: any, ui: any): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
     }
 }
 declare module Animate {

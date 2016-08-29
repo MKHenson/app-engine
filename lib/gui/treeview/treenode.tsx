@@ -1,20 +1,20 @@
 module Animate {
 
-    export interface IReactTreeNodeProps {
+    export interface ITreeNodeProps {
         node: TreeNodeModel;
     }
 
 	/**
 	 * This visual representation of a TreeNodeModel
 	 */
-	export class ReactTreeNode extends React.Component<IReactTreeNodeProps, any> {
+	export class TreeNode extends React.Component<ITreeNodeProps, any> {
 
         private _dropProxy: any;
 
         /**
          * Creates an instance
          */
-        constructor(props: IReactTreeNodeProps) {
+        constructor(props: ITreeNodeProps) {
             super(props);
         }
 
@@ -98,7 +98,7 @@ module Animate {
                     </div>
                     <div className="child-nodes">
                         {this.props.node.children && this.props.node.children.map(function(n, index) {
-                            return <ReactTreeNode key={'node-' + index} node={n} />
+                            return <TreeNode key={'node-' + index} node={n} />
                         })}
                     </div>
                 </div>

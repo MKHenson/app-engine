@@ -1,10 +1,10 @@
 module Animate {
 
-    export interface IReactTreeViewProps {
+    export interface ITreeViewProps {
         nodeStore: TreeNodeStore;
     }
 
-    export interface IReactTreeViewState {
+    export interface ITreeViewState {
         nodes?: TreeNodeModel[];
         focussedNode?: TreeNodeModel;
     }
@@ -12,12 +12,12 @@ module Animate {
 	/**
 	 * A component visually represents a TreeNodeStore and its nodes
 	 */
-	export class ReactTreeView extends React.Component<IReactTreeViewProps, IReactTreeViewState> {
+	export class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
 
         /**
          * Creates a new instance of the treenode
          */
-        constructor(props: IReactTreeViewProps) {
+        constructor(props: ITreeViewProps) {
             super(props);
 
             // Set the initial state
@@ -58,7 +58,7 @@ module Animate {
         /**
          * Make sure that any new node store has the appropriate event handlers
          */
-        componentWillReceiveProps(nextProps: IReactTreeViewProps) {
+        componentWillReceiveProps(nextProps: ITreeViewProps) {
             if (nextProps.nodeStore == this.props.nodeStore)
                 return;
 
@@ -88,7 +88,7 @@ module Animate {
         render(): JSX.Element {
             return <div className="treeview" >
                 { this.state.nodes.map((node, index) => {
-                    return <ReactTreeNode key={'node-0-'+ index} node={node} />
+                    return <TreeNode key={'node-0-'+ index} node={node} />
                 })}
             </div>
         }
