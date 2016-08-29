@@ -371,7 +371,7 @@ module Animate {
 
                 // If the project has a build then load it - otherwise create a new one
                 if (that._entry.build && that._entry.build != "")
-                    promise = Utils.get(`${DB.API}/users/${username}/projects/${that._entry._id}/builds/${that._entry.build}`);
+                    promise = Utils.get(`${DB.API}/users/${username}/projects/${that._entry._id}/builds/${that._entry.build}?verbose=true`);
                 else
                     promise = Utils.post(`${DB.API}/users/${username}/projects/${that._entry._id}/builds?set-current=true`, null);
 
@@ -447,18 +447,18 @@ module Animate {
                 this._containers.splice(0, this._containers.length);
                 this._groups.splice(0, this._groups.length);
 
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.FILE].url}`));
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.ASSET].url}`));
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.CONTAINER].url}`));
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.GROUP].url}`));
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.SCRIPT].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.FILE].url}?verbose=true`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.ASSET].url}?verbose=true`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.CONTAINER].url}?verbose=true`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.GROUP].url}?verbose=true`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ResourceType.SCRIPT].url}?verbose=true`));
             }
             else {
                 // Send delete events for all existing resources
                 for (var i = 0, pArr = paths[type].array, l = pArr.length; i < l; i++)
                     pArr[i].emit(new Event("deleted"));
 
-                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[type].url}`));
+                arr.push(Utils.get(`${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[type].url}?verbose=true`));
                 paths[type].array.splice(0, paths[type].array.length);
             }
 
@@ -524,7 +524,7 @@ module Animate {
                 return Promise.reject<Error>(new Error("Could not find a resource with that ID"));
 
             return new Promise<T>(function (resolve, reject) {
-                Utils.get<Modepress.IGetArrayResponse<T>>(`${DB.API}/users/${that._entry.user}/projects/${that._entry._id}/${paths[r.type].url}/${id}`).then(function (response) {
+                Utils.get<Modepress.IGetArrayResponse<T>>(`${DB.API}/users/${that._entry.user}/projects/${that._entry._id}/${paths[r.type].url}/${id}?verbose=true`).then(function (response) {
                     if (response.error)
                         return reject(new Error(response.message));
 
@@ -748,12 +748,15 @@ module Animate {
         * @param {ResourceType} type The type of resource we are renaming
         * @returns { Promise<ProjectResource<any>>}
         */
-        createResource<T>(type: ResourceType, data: T): Promise<ProjectResource<T>> {
+        createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>> {
             var that = this;
             var details = User.get.entry;
             var projId = this._entry._id;
             var paths = this._restPaths;
             var url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[type].url}`;
+
+			if (data.shallowId === undefined)
+				data.shallowId = Utils.generateLocalId();
 
             return new Promise<ProjectResource<T>>(function (resolve, reject) {
                 Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data) {
