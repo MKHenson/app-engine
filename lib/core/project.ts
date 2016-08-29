@@ -420,18 +420,16 @@ module Animate {
             }
 
             resource.initialize();
-
-            this.emit(new ProjectEvent("resource-created", resource));
             return resource;
         }
 
         /**
 		* This function is used to fetch the project resources associated with a project.
 		* @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Array<ProjectResource<any>>}
+        * @returns {Promise<Array<ProjectResource<Engine.IResource>>}
 		*/
-        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>> {
-            var that = this;
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<Engine.IResource>>> {
+
             var arr: Array<Promise<Modepress.IGetArrayResponse<Engine.IResource>>> = [];
             var paths = this._restPaths;
 
@@ -462,8 +460,8 @@ module Animate {
                 paths[type].array.splice(0, paths[type].array.length);
             }
 
-            return new Promise<Array<ProjectResource<Engine.IResource>>>(function (resolve, reject) {
-                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>(arr).then(function (data) {
+            return new Promise<Array<ProjectResource<Engine.IResource>>>( (resolve, reject) => {
+                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>(arr).then( (data) => {
                     // Check for any errors
                     for (var i = 0, l = data.length; i < l; i++)
                         if (data[i].error)
@@ -473,37 +471,43 @@ module Animate {
 
                     if (!type) {
                         for (var i = 0, l = data[0].data.length; i < l; i++)
-                            createdResources.push( that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE) );
+                            createdResources.push( this.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE) );
                         for (var i = 0, l = data[1].data.length; i < l; i++)
-                            createdResources.push(that.createResourceInstance<Engine.IAsset>(data[1].data[i], ResourceType.ASSET));
+                            createdResources.push( this.createResourceInstance<Engine.IAsset>(data[1].data[i], ResourceType.ASSET));
                         for (var i = 0, l = data[2].data.length; i < l; i++)
-                            createdResources.push(that.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER));
+                            createdResources.push( this.createResourceInstance<Engine.IContainer>(data[2].data[i], ResourceType.CONTAINER));
                         for (var i = 0, l = data[3].data.length; i < l; i++)
-                            createdResources.push(that.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP));
+                            createdResources.push( this.createResourceInstance<Engine.IGroup>(data[3].data[i], ResourceType.GROUP));
                         for (var i = 0, l = data[4].data.length; i < l; i++)
-                            createdResources.push(that.createResourceInstance<Engine.IScript>(data[4].data[i], ResourceType.SCRIPT));
+                            createdResources.push( this.createResourceInstance<Engine.IScript>(data[4].data[i], ResourceType.SCRIPT));
                     }
                     else {
                         if (type == ResourceType.FILE)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                createdResources.push(that.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE));
+                                createdResources.push( this.createResourceInstance<Engine.IFile>(data[0].data[i], ResourceType.FILE));
                         else if (type == ResourceType.ASSET)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                createdResources.push(that.createResourceInstance<Engine.IAsset>(data[0].data[i], ResourceType.ASSET));
+                                createdResources.push( this.createResourceInstance<Engine.IAsset>(data[0].data[i], ResourceType.ASSET));
                         else if (type == ResourceType.CONTAINER)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                createdResources.push(that.createResourceInstance<Engine.IContainer>(data[0].data[i], ResourceType.CONTAINER));
+                                createdResources.push( this.createResourceInstance<Engine.IContainer>(data[0].data[i], ResourceType.CONTAINER));
                         else if (type == ResourceType.GROUP)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                createdResources.push(that.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP));
+                                createdResources.push( this.createResourceInstance<Engine.IGroup>(data[0].data[i], ResourceType.GROUP));
                         else if (type == ResourceType.SCRIPT)
                             for (var i = 0, l = data[0].data.length; i < l; i++)
-                                createdResources.push(that.createResourceInstance<Engine.IScript>(data[0].data[i], ResourceType.SCRIPT));
+                                createdResources.push( this.createResourceInstance<Engine.IScript>(data[0].data[i], ResourceType.SCRIPT));
                     }
+
+					let event = new ProjectEvent("resource-created", null);
+					for (let resource of createdResources) {
+						event.resource = resource;
+						this.emit(event);
+					}
 
                     return resolve(createdResources);
 
-                }).catch(function (err: IAjaxError) {
+                }).catch( (err: IAjaxError) => {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
@@ -749,7 +753,6 @@ module Animate {
         * @returns { Promise<ProjectResource<any>>}
         */
         createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>> {
-            var that = this;
             var details = User.get.entry;
             var projId = this._entry._id;
             var paths = this._restPaths;
@@ -758,24 +761,25 @@ module Animate {
 			if (data.shallowId === undefined)
 				data.shallowId = Utils.generateLocalId();
 
-            return new Promise<ProjectResource<T>>(function (resolve, reject) {
-                Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then(function (data) {
+            return new Promise<ProjectResource<T>>( (resolve, reject) => {
+                Utils.post<ModepressAddons.ICreateResource<T>>(url, data).then( (data) => {
                     if (data.error)
                         return reject(new Error(data.message));
 
                     var resource : ProjectResource<T>;
                     if (type == ResourceType.ASSET)
-                        resource = that.createResourceInstance<T>(data.data, ResourceType.ASSET);
+                        resource = this.createResourceInstance<T>(data.data, ResourceType.ASSET);
                     else if (type == ResourceType.CONTAINER)
-                        resource = that.createResourceInstance<T>(data.data, ResourceType.CONTAINER);
+                        resource = this.createResourceInstance<T>(data.data, ResourceType.CONTAINER);
                     else if (type == ResourceType.GROUP)
-                        resource = that.createResourceInstance<T>(data.data, ResourceType.GROUP);
+                        resource = this.createResourceInstance<T>(data.data, ResourceType.GROUP);
                     else if (type == ResourceType.SCRIPT)
-                        resource = that.createResourceInstance<T>(data.data, ResourceType.SCRIPT);
+                        resource = this.createResourceInstance<T>(data.data, ResourceType.SCRIPT);
 
+					this.emit(new ProjectEvent("resource-created", resource));
                     return resolve(resource);
 
-                }).catch(function (err: IAjaxError) {
+                }).catch( (err: IAjaxError) => {
                     return reject(new Error(`An error occurred while connecting to the server. ${err.status}: ${err.message}`));
                 });
             });
