@@ -33,21 +33,15 @@ module Animate {
                         (node.disabled() ? ' disabled' : '') +
                         (node.focussed ? ' focussed' : '') }>
                     <div className="node-header">
-                        <div className="expand-button unselectable" style={{visibility: ( this.props.node.children.length == 0 ? 'hidden' : '' )}}>
-                            {( node.expanded() ?
-                                <span onClick={(e) => {
-                                    if (node.disabled())
-                                        return;
+                        <div className="expand-button unselectable"
+                            onClick={(e) => {
+                                if (node.disabled())
+                                    return;
 
-                                    node.expanded(false);
-                                }}>-</span> :
-                                <span onClick={(e) => {
-                                    if (node.disabled())
-                                        return;
-
-                                    node.expanded(true);
-                                }}>+</span>
-                            )}
+                                node.expanded( !node.expanded() );
+                            }}
+                            style={{visibility: ( this.props.node.children.length == 0 ? 'hidden' : '' )}}>
+                            {( node.expanded() ? '-' : '+' )}
                         </div>
                         <div draggable={node.canDrag}
                             onDragStart={ (e) => {
