@@ -155,7 +155,7 @@
     "lib/gui/forms/file-dialogue/file-dialogue.tsx",
     "lib/gui/forms/message-box/message-box.tsx",
     "lib/gui/forms/portal-form/portal-form.ts",
-    "lib/gui/forms/rename-form/rename-form.ts",
+    "lib/gui/forms/rename-form/rename-form.tsx",
     "lib/gui/forms/user-privileges-form.ts",
     "lib/gui/forms/behaviour-picker.ts",
     "lib/gui/logger/logger.tsx",

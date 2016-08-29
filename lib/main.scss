@@ -239,6 +239,7 @@ body {
 @import 'gui/splash/style.scss';
 @import 'gui/forms/message-box/style.scss';
 @import 'gui/forms/file-dialogue/style.scss';
+@import 'gui/forms/rename-form/style.scss';
 @import 'gui/file-viewer/style.scss';
 
 
@@ -279,32 +280,26 @@ body {
 .prop-colour{ height:20px; width:100%; }
 .prop-colour input { width:auto;}
 
+#portal-editor input, #portal-editor select {
 
-
-
-
-/**
-*  RENAME FORM &  PORTAL EDITOR FORM
-*  =========================
-*/
-#rename-content input, #portal-editor input, #portal-editor select {
-    width:100%;
     padding:15px;
     border:none;
 }
-#rename-content .error, #portal-editor .error {
+#portal-editor .error {
     padding: 5px;
     text-align: center;
     margin: 0 0 10px 0;
 }
-.buttons-container .button, #portal-editor .button {
+
+#portal-editor .dropdown {
+    width:100%;
+}
+#portal-editor .button {
     float:right;
     height:45px;
     padding:10px 15px;
 }
-#portal-editor .dropdown {
-    width:100%;
-}
+
 /**
 *  BEHAVIOUR PICKER
 *  =========================

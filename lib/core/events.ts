@@ -109,28 +109,6 @@
         static ASSET_COPIED: EditorEvents = new EditorEvents("plugin_asset_copied");
     }
 
-    /**
-    * Event used to describe re-naming of objects. Listen for either
-    * 'renaming' or 'renamed' event types
-    */
-    export class RenameFormEvent extends Event {
-        cancel: boolean;
-        name: string;
-        oldName: string;
-        object: IRenamable;
-        reason: string;
-        resourceType: ResourceType;
-
-        constructor(type: string, name: string, oldName: string, object: IRenamable, rt: ResourceType) {
-            super(type, name);
-            this.cancel = false;
-            this.name = name;
-            this.oldName = oldName;
-            this.object = object;
-            this.resourceType = rt;
-        }
-    }
-
     export class OkCancelFormEvent extends Event {
         public text: string;
         public cancel: boolean;

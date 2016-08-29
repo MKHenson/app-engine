@@ -1,0 +1,18 @@
+.rename-form {
+    height: auto;
+    width: 450px;
+
+    input {
+        width:100%;
+    }
+
+    .attention {
+        margin: 4px 0 0 0;
+    }
+
+    .buttons-container button {
+        display: inline-block;
+        width:50%;
+        box-sizing: border-box;
+    }
+}

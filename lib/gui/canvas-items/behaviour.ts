@@ -2,7 +2,7 @@ module Animate {
 	/**
 	* Behaviours are the base class for all nodes placed on a <Canvas>
 	*/
-    export class Behaviour extends CanvasItem implements IRenamable {
+    export class Behaviour extends CanvasItem {
 		private _originalName: string;
 		private _alias: string;
 		private _canGhost: boolean;
