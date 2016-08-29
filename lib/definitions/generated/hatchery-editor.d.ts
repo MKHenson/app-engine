@@ -1751,9 +1751,9 @@ declare module Animate {
         /**
         * This function is used to fetch the project resources associated with a project.
         * @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Array<ProjectResource<any>>}
+        * @returns {Promise<Array<ProjectResource<Engine.IResource>>}
         */
-        loadResources(type?: ResourceType): Promise<Array<ProjectResource<any>>>;
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<Engine.IResource>>>;
         /**
         * This function is used to fetch a project resource by Id
         * @param {string} id the Id of the resource to update
@@ -2963,6 +2963,7 @@ declare module Animate {
         x: number;
         y: number;
         className?: string;
+        onChange?: (item: IReactContextMenuItem) => void;
         items?: IReactContextMenuItem[];
         _closing?: () => void;
     }
@@ -3110,7 +3111,6 @@ declare module Animate {
      * A Tab Component for organising pages of content into separate labelled tabs/folders
      */
     class Tab extends React.Component<ITabProps, ITabState> {
-        static contextMenu: ContextMenu;
         private _panes;
         /**
          * Creates a new instance of the tab
@@ -3137,12 +3137,6 @@ declare module Animate {
          * @param {ITabPaneProps} props props of the selected tab
          */
         onTabSelected(index: number, props: ITabPaneProps): void;
-        /**
-         * Called when we click an item on the context menu
-         * @param {ContextMenuEvents} response
-         * @param {ContextMenuEvent} event
-         */
-        onContext(response: ContextMenuEvents, event: ContextMenuEvent): void;
         /**
          * Select a panel by index
          * @param {number} index
@@ -4090,6 +4084,134 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+    * The link class are the lines drawn from behavior portals
+    */
+    class Link extends CanvasItem {
+        startPortal: Portal;
+        endPortal: Portal;
+        delta: number;
+        private _startBehaviour;
+        private _endBehaviour;
+        private _mouseMoveProxy;
+        private _mouseUpProxy;
+        private _mouseUpAnchorProxy;
+        private _prevPortal;
+        private _startClientX;
+        private _startClientY;
+        private _startX;
+        private _startY;
+        private _curTarget;
+        private _canvas;
+        private _graphics;
+        private _linePoints;
+        private _selected;
+        private _properties;
+        /**
+        * @param {Canvas} parent The parent {Canvas} of the link
+        */
+        constructor(parent: Component);
+        /**
+        * Tokenizes the data into a JSON.
+        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
+        * @returns {ILinkItem}
+        */
+        tokenize(slim?: boolean): ILinkItem;
+        /**
+        * De-Tokenizes data from a JSON.
+        * @param {ILinkItem} data The data to import from
+        */
+        deTokenize(data: ILinkItem): void;
+        /**
+        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+        * @param {number} originalId The original shallow ID of the item when it was tokenized.
+        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+        * or to get the token you can use items[originalId].token
+        */
+        link(originalId: number, items: LinkMap): void;
+        /**
+        * This is called when we need a link to start drawing. This will
+        * follow the mouse and draw a link from the original mouse co-ordinates to an
+        * end portal.
+        * @param {Portal} startPortal
+        * @param {any} e
+        */
+        start(startPortal: Portal, e: any): void;
+        /**
+        * Check if a point is actually selecting the link
+        * @param {any} e
+        */
+        hitTestPoint(e: any): boolean;
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        /**
+        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
+        */
+        selected: boolean;
+        /**
+        * Builds the dimensions of link based on the line points
+        */
+        buildDimensions(): void;
+        /**
+        * Use this function to build the line points that define the link
+        */
+        buildLinePoints(e: any): void;
+        /**
+        * Updates the link points (should they have been moved).
+        */
+        updatePoints(): void;
+        /**
+        * When the mouse moves we resize the stage.
+        * @param {any} e
+        */
+        onMouseMove(e: any): void;
+        /**
+       * Draws a series of lines
+       */
+        draw(): void;
+        /**
+        * Remove listeners.
+        * @param {any} e
+        */
+        onMouseUpAnchor(e: any): void;
+        /**
+        * When the link properties are edited
+        */
+        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
+        /**
+        * Gets the properties of this link
+        * @returns {EditableSet}
+        */
+        properties: EditableSet;
+        /**
+        * Cleanup the link
+        */
+        dispose(): void;
+    }
+}
+declare module Animate {
+    /**
+    * This is the implementation of the context menu on the canvas.
+    */
+    class CanvasContext extends ContextMenu {
+        private mCreateInput;
+        private mCreateOutput;
+        private mCreateParam;
+        private mCreateProduct;
+        private mEditPortal;
+        private mDel;
+        private mCreate;
+        private mCreateComment;
+        private mDelEmpty;
+        constructor();
+        /**
+        * Shows the window by adding it to a parent.
+        */
+        showContext(x: number, y: number, item: Component): void;
+    }
+}
+declare module Animate {
     class CanvasEvents extends ENUM {
         constructor(v: string);
         static MODIFIED: CanvasEvents;
@@ -4278,134 +4400,6 @@ declare module Animate {
             groups: Array<number>;
             assets: Array<number>;
         };
-    }
-}
-declare module Animate {
-    /**
-    * The link class are the lines drawn from behavior portals
-    */
-    class Link extends CanvasItem {
-        startPortal: Portal;
-        endPortal: Portal;
-        delta: number;
-        private _startBehaviour;
-        private _endBehaviour;
-        private _mouseMoveProxy;
-        private _mouseUpProxy;
-        private _mouseUpAnchorProxy;
-        private _prevPortal;
-        private _startClientX;
-        private _startClientY;
-        private _startX;
-        private _startY;
-        private _curTarget;
-        private _canvas;
-        private _graphics;
-        private _linePoints;
-        private _selected;
-        private _properties;
-        /**
-        * @param {Canvas} parent The parent {Canvas} of the link
-        */
-        constructor(parent: Component);
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {ILinkItem}
-        */
-        tokenize(slim?: boolean): ILinkItem;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {ILinkItem} data The data to import from
-        */
-        deTokenize(data: ILinkItem): void;
-        /**
-        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized.
-        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-        * or to get the token you can use items[originalId].token
-        */
-        link(originalId: number, items: LinkMap): void;
-        /**
-        * This is called when we need a link to start drawing. This will
-        * follow the mouse and draw a link from the original mouse co-ordinates to an
-        * end portal.
-        * @param {Portal} startPortal
-        * @param {any} e
-        */
-        start(startPortal: Portal, e: any): void;
-        /**
-        * Check if a point is actually selecting the link
-        * @param {any} e
-        */
-        hitTestPoint(e: any): boolean;
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        selected: boolean;
-        /**
-        * Builds the dimensions of link based on the line points
-        */
-        buildDimensions(): void;
-        /**
-        * Use this function to build the line points that define the link
-        */
-        buildLinePoints(e: any): void;
-        /**
-        * Updates the link points (should they have been moved).
-        */
-        updatePoints(): void;
-        /**
-        * When the mouse moves we resize the stage.
-        * @param {any} e
-        */
-        onMouseMove(e: any): void;
-        /**
-       * Draws a series of lines
-       */
-        draw(): void;
-        /**
-        * Remove listeners.
-        * @param {any} e
-        */
-        onMouseUpAnchor(e: any): void;
-        /**
-        * When the link properties are edited
-        */
-        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
-        /**
-        * Gets the properties of this link
-        * @returns {EditableSet}
-        */
-        properties: EditableSet;
-        /**
-        * Cleanup the link
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * This is the implementation of the context menu on the canvas.
-    */
-    class CanvasContext extends ContextMenu {
-        private mCreateInput;
-        private mCreateOutput;
-        private mCreateParam;
-        private mCreateProduct;
-        private mEditPortal;
-        private mDel;
-        private mCreate;
-        private mCreateComment;
-        private mDelEmpty;
-        constructor();
-        /**
-        * Shows the window by adding it to a parent.
-        */
-        showContext(x: number, y: number, item: Component): void;
     }
 }
 declare module Animate {
