@@ -220,25 +220,41 @@ module Animate {
         * Shows the rename form - and creates a new behaviour if valid
         */
         newContainer() {
-            // var that = this;
 
-            // // Todo: This must be NewBehaviourForm
-            // RenameForm.get.renameObject({ name: "" }, null, ResourceType.CONTAINER).then(function (token) {
-            //     if (token.cancelled)
-            //         return;
+			// Show the rename form
+			ReactWindow.show( RenameForm, {
+				name: "",
+				onOk: (newName) => {
+					let project = User.get.project;
 
-            //     User.get.project.createResource(ResourceType.CONTAINER, { name: token.newName }).then(function(resource) {
-            //         // The container is created - so lets open it up
-            //         var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
-            //         jQuery(".content", tabPair.tabSelector.element).text(resource.entry.name);
-            //         tabPair.name = resource.entry.name;
+					project.createResource( ResourceType.CONTAINER, { name: newName }).then( ( resource ) => {
+						// TODO: This might be removed from update to TSX
+						// // The container is created - so lets open it up
+						// var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
+						// jQuery(".content", tabPair.tabSelector.element).text(resource.entry.name);
+						// tabPair.name = resource.entry.name;
 
-            //     }).catch(function (err: Error) {
-            //         RenameForm.get.$errorMsg = (err.message.indexOf("urred while creating the resource") == -1 ? err.message : `The name '${token.newName}' is taken, please use another`);
-            //         that.newContainer();
+					}).catch( (err: Error) => {
+						Logger.error(err.message);
+						ReactWindow.show( MessageBox, { message: err.message, buttons : ['Ok'],
+							onChange: (button) => {
 
-            //     });
-            // });
+								// Show the new behaviour form again
+								this.newContainer();
+							}} as IMessageBoxProps );
+					});
+				},
+				onRenaming: (newName, prevName) : Error => {
+
+					// Make sure no other container exists with the same name
+					let containers = User.get.project.containers;
+					for (let container of containers)
+						if (container.entry.name == newName && container.entry.name != prevName)
+							return new Error(`A container with the name '${newName}' already exists`);
+
+					return null;
+				}
+			} as IRenameFormProps);
         }
 
         /**

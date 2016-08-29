@@ -237,18 +237,23 @@ module Animate {
 
             var that = this;
             return new Promise<{ prop: Prop<any>, cancel: boolean }>(function (resolve, reject) {
-                var onEvent = function (type, event: RenameFormEvent) {
-                    if (type == "property-created")
-                        resolve({ prop: that._newProperty, cancel: false });
-                    else
-                        resolve({ prop: null, cancel: true });
 
-                    that.off("property-created", onEvent);
-                    that.off("cancelled", onEvent);
-                }
+                // TODO: THIS WAS REMOVED WHEN WE UPDATED RENAMED FORM TO TSX
+                // ==========================================================
+                // var onEvent = function (type, event: RenameFormEvent) {
+                //     if (type == "property-created")
+                //         resolve({ prop: that._newProperty, cancel: false });
+                //     else
+                //         resolve({ prop: null, cancel: true });
 
-                that.on("property-created", onEvent);
-                that.on("cancelled", onEvent);
+                //     that.off("property-created", onEvent);
+                //     that.off("cancelled", onEvent);
+                // }
+
+                // that.on("property-created", onEvent);
+                // that.on("cancelled", onEvent);
+                // ==========================================================
+
             });
         }
 

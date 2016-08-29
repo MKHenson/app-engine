@@ -41,6 +41,7 @@ module Animate {
 
             // Check if we need to add the save button
             let resourcesSaved = this.resource.saved;
+            let showRename = this.store.getSelectedNodes().length > 1 ? false : true;
 
             // Check other nodes need saving
             let otherNodes = this.store.getSelectedNodes();
@@ -53,14 +54,18 @@ module Animate {
 
             let menuItems = [
                 { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: (e) => { this.onDeleteClick() } },
-                { label: 'Refresh', prefix: <i className="fa fa-refresh" aria-hidden="true"></i>, onSelect: (e) => { this.onRefreshClick() } },
-                { label: 'Rename', prefix: <i className="fa fa-pencil" aria-hidden="true"></i>, onSelect: (e) => { this.onRenameClick() } }
+                { label: 'Refresh', prefix: <i className="fa fa-refresh" aria-hidden="true"></i>, onSelect: (e) => { this.onRefreshClick() } }
             ];
 
             if (!resourcesSaved)
                 menuItems.push({
                     label: 'Save', prefix: <i className="fa fa-save" aria-hidden="true"></i>, onSelect: (e) => { this.onSaveClick() }
                 });
+
+            if (showRename)
+                menuItems.push({
+                label: 'Rename', prefix: <i className="fa fa-pencil" aria-hidden="true"></i>, onSelect: (e) => { this.onRenameClick() }
+            });
 
             e.preventDefault();
             ReactContextMenu.show({ x: e.pageX, y : e.pageY, items: menuItems });
@@ -158,12 +163,35 @@ module Animate {
          */
         onRenameClick() {
             let resource = this.resource;
-            if (resource instanceof GroupArray)
-                this.handleNodePromise( RenameForm.get.renameObject(resource.entry, resource.entry._id, ResourceType.GROUP), this );
-            else if (resource instanceof Container)
-                this.handleNodePromise( RenameForm.get.renameObject(resource.entry, resource.entry._id, ResourceType.CONTAINER), this );
+            let p = User.get.project;
+
+            let onOk = ( type: ResourceType, newName: string ) => {
+                this.handleNodePromise( p.editResource( resource.entry._id, { name : newName }, type ), this );
+            };
+
+            if (resource instanceof GroupArray) {
+                ReactWindow.show( RenameForm, { name: resource.entry.name, onOk: (newName) => { onOk(ResourceType.GROUP, newName) } } as IRenameFormProps);
+            }
+            else if (resource instanceof Container) {
+
+                // Show the rename form
+                ReactWindow.show( RenameForm, {
+                    name: resource.entry.name,
+                    onOk: (newName) => { onOk(ResourceType.CONTAINER, newName) },
+                    onRenaming: (newName, prevName) : Error => {
+
+                        // Make sure no other container exists with the same name
+                        let containers = User.get.project.containers;
+                        for (let container of containers)
+                            if (container.entry.name == newName && container.entry.name != prevName)
+                                return new Error(`A container with the name '${newName}' already exists`);
+
+                        return null;
+                    }
+                } as IRenameFormProps);
+            }
             else if (resource instanceof Asset)
-                this.handleNodePromise( RenameForm.get.renameObject(resource.entry, resource.entry._id, ResourceType.ASSET), this );
+                ReactWindow.show( RenameForm, { name: resource.entry.name, onOk: (newName) => { onOk(ResourceType.ASSET, newName) } } as IRenameFormProps);
         }
 
         /**

@@ -759,12 +759,8 @@ module Animate {
 
 			if ( template ) {
                 if (template.behaviourName == "Script") {
-                    RenameForm.get.renameObject({ name: "Script" }, null, ResourceType.SCRIPT).then(function (data) {
-                        if (data.cancelled)
-                            return;
-
-                        that.createNode(template, that._x, that._y, null, data.newName);
-                    });
+					ReactWindow.show( RenameForm, { name: "Script",
+						onOk: (newName) => { that.createNode(template, that._x, that._y, null, newName); } } as IRenameFormProps);
                 }
                 else
                     that.createNode(template, that._x, that._y );
@@ -891,31 +887,29 @@ module Animate {
                     else if (focusObj instanceof BehaviourComment)
                         return focusObj.enterText();
                     else if (focusObj instanceof Behaviour ) {
-                        // Attempt to rename the behaviour
-                        RenameForm.get.renameObject(focusObj, focusObj.id, null).then(function (token) {
-                            if (token.cancelled)
-                                return;
 
-                            var toEdit: Behaviour = null;
+						// Attempt to rename the behaviour
+						ReactWindow.show( RenameForm, { name: "Script", onOk: (newName) => {
+
+							var toEdit: Behaviour = null;
                             if (focusObj instanceof BehaviourShortcut)
                                 toEdit = focusObj.originalNode;
                             else
                                 toEdit = focusObj;
 
-                            toEdit.text = token.newName;
-                            toEdit.alias = token.newName;
+                            toEdit.text = newName;
+                            toEdit.alias = newName;
 
-                            //Check if there are any shortcuts and make sure they are renamed
-                            var i = that.children.length;
-                            while (i--) {
-                                var shortcut = <BehaviourShortcut>that.children[i];
-
+                            // Check if there are any shortcuts and make sure they are renamed
+                            for (let child of this.children) {
+                                let shortcut = <BehaviourShortcut>child;
                                 if (shortcut instanceof BehaviourShortcut && shortcut.originalNode == toEdit) {
-                                    shortcut.text = token.newName;
-                                    shortcut.alias = token.newName;
+                                    shortcut.text = newName;
+                                    shortcut.alias = newName;
                                 }
                             }
-                        });
+
+						}} as IRenameFormProps);
 						return;
 					}
 				}

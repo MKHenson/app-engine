@@ -495,25 +495,6 @@ module Animate {
 			//}
 		//}
 
-
-		/** When the rename form is about to proceed. We can cancel it by externally checking
-		* if against the data.object and data.name variables.
-		*/
-		onRenameCheck(response: string, event: RenameFormEvent, sender?: EventDispatcher ) {
-			// //if (event.tag.object.type == "project" )
-			// //	return;
-			// var project = User.get.project;
-            // var len = project.containers.length;
-            // if (event.resourceType == ResourceType.CONTAINER)
-			// 	for ( var i = 0; i < len; i++ )
-            //         if (project.containers[i].entry.name == event.name ) {
-            //             event.reason = "A behaviour with the name '" + event.name + "' already exists, please choose another.";
-			// 			return;
-			// 		}
-
-			// event.cancel = false;
-		}
-
 		///**
 		//* When the database returns from its command to rename an object.
 		//* @param {string} type The event type
