@@ -15,6 +15,7 @@ module Animate {
             controlBox: true,
             canResize: true,
             autoCenter: true,
+            showCloseButton: true,
             title: 'Files',
             modal: true,
             className: 'file-viewer-window',

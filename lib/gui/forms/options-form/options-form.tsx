@@ -10,6 +10,7 @@ module Animate {
 		static defaultProps: IOptionsForm = {
             controlBox: true,
             canResize: true,
+            showCloseButton: true,
             autoCenter: true,
             title: 'Options Form',
             modal: true,
