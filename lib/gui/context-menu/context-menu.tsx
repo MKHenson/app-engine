@@ -13,6 +13,7 @@ module Animate {
         x: number;
         y: number;
         className?: string;
+        onChange?: ( item : IReactContextMenuItem ) => void;
         items? : IReactContextMenuItem[];
         _closing? : () => void;
     }
@@ -50,6 +51,10 @@ module Animate {
          */
         private onMouseDown(e: React.MouseEvent, item : IReactContextMenuItem) {
             e.preventDefault();
+
+            if (this.props.onChange)
+                this.props.onChange(item);
+
             item.onSelect && item.onSelect(item);
             this.props._closing();
         }

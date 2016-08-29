@@ -13,7 +13,6 @@ module Animate {
 	 */
 	export class Tab extends React.Component<ITabProps, ITabState> {
 
-        public static contextMenu: ContextMenu;
 		private _panes: React.ReactElement<ITabPaneProps>[];
 
 		/**
@@ -21,10 +20,6 @@ module Animate {
 		 */
 		constructor( props : ITabProps ) {
 			super(props);
-			if ( !Tab.contextMenu )
-				Tab.contextMenu = new ContextMenu();
-
-            Tab.contextMenu.on(ContextMenuEvents.ITEM_CLICKED, this.onContext.bind(this));
 			this._panes = props.panes;
 			this.state = {
 				selectedIndex : 0
@@ -149,18 +144,6 @@ module Animate {
 		}
 
 		/**
-		 * Called when we click an item on the context menu
-		 * @param {ContextMenuEvents} response
-		 * @param {ContextMenuEvent} event
-		 */
-		onContext( response: ContextMenuEvents, event : ContextMenuEvent ) {
-			var len = this._panes.length;
-			for ( var i = 0; i < len; i++ )
-				if ( this._panes[i].props.label == event.item.text )
-					return this.setState({ selectedIndex: i });
-		}
-
-		/**
 		 * Select a panel by index
 		 * @param {number} index
 		 */
@@ -206,14 +189,16 @@ module Animate {
 		 * Shows the context menu
 		 */
 		showContext(e: React.MouseEvent) {
-			Tab.contextMenu.clear();
-
+			let items : IReactContextMenuItem[] = [];
 			let panes = this._panes;
-			for ( let i = 0, l = panes.length; i < l; i++ )
-				Tab.contextMenu.addItem( new ContextMenuItem( panes[i].props.label, null ) );
+			for ( let pane of panes )
+				items.push({ label: pane.props.label });
 
-			// TODO: The null was previously the application, but is now not used as its TSX
-			Tab.contextMenu.show( null, e.pageX, e.pageY, false, true );
+			ReactContextMenu.show({ x: e.pageX, y : e.pageY, items: items, onChange: ( item ) => {
+				for ( let i = 0, l = panes.length; i < l; i++ )
+					if ( panes[i].props.label == item.label )
+						return this.setState({ selectedIndex: i });
+			}});
 		}
 
 		/**
