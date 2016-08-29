@@ -4692,11 +4692,6 @@ declare module Animate {
         */
         onKeyDown(e: any): void;
         /**
-        * Creates an asset node for the tree
-        * @param {Asset} asset The asset to associate with the node
-        */
-        addAssetInstance(asset: Asset, collapse?: boolean): void;
-        /**
         * Called when we select a menu item.
         */
         onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
@@ -4884,13 +4879,10 @@ declare module Animate {
          */
         constructor();
         /**
-         * Clean up
+         * Called whenever the node receives a context event
+         * @param {React.MouseEvent} e
          */
-        dispose(): void;
-        /**
-        * If a container is created, then add its node representation
-        */
-        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+        onContext(e: React.MouseEvent): void;
     }
 }
 declare module Animate {
@@ -4927,15 +4919,19 @@ declare module Animate {
          */
         constructor(assetClass: AssetClass);
         /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * If a container is created, then add its node representation
+         */
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+        /**
          * This will get all instance nodes of a particular class name(s)
          * @param {string | string[]} classNames The class name of the asset, or an array of class names
          * @returns {TreeNodeAssetInstance[]}
          */
         getInstances(classNames: string | string[]): TreeNodeAssetInstance[];
-        /**
-         * This will cleanup the component.
-         */
-        dispose(): void;
     }
 }
 declare module Animate {

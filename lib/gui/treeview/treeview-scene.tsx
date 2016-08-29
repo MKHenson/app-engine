@@ -140,11 +140,7 @@ module Animate {
         * Called whenever a project resource is created
         */
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
-            // var r = event.resource;
-            // if (r instanceof Asset)
-            //     this.addAssetInstance(r, false);
-
-            // // Todo: Add script nodes + files?
+            // Todo: Add script nodes + files?
         }
 
 		/**
@@ -209,26 +205,6 @@ module Animate {
             //         }
 			// 	}
 			// }
-		}
-
-		/**
-		* Creates an asset node for the tree
-		* @param {Asset} asset The asset to associate with the node
-		*/
-		addAssetInstance( asset : Asset, collapse : boolean = true ) {
-			// // Add all the asset nodes
-            // var classNode: TreeNodeAssetClass = this.findNode("className", asset.entry.className ) as TreeNodeAssetClass;
-
-			// if ( classNode != null ) {
-			// 	var instanceNode: TreeNodeAssetInstance = new TreeNodeAssetInstance( classNode.assetClass, asset );
-			// 	classNode.addNode( instanceNode, collapse );
-
-			// 	instanceNode.element.draggable( { opacity: 0.7, helper: "clone", appendTo: "body", containment: "body" });
-
-			// 	return true;
-			// }
-
-			// return false;
 		}
 
 		///**

@@ -21,7 +21,33 @@ module Animate {
 				var toRet = new TreeNodeAssetClass( c );
 				this.addNode( toRet );
 			}
+
+			User.get.project.on("resource-created", this.onResourceCreated, this);
 		}
+
+		/**
+         * Clean up
+         */
+        dispose() {
+            User.get.project.off("resource-created", this.onResourceCreated, this);
+			this.assetClass = null;
+			super.dispose();
+        }
+
+		/**
+         * If a container is created, then add its node representation
+         */
+        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
+            let r = event.resource;
+            if (r instanceof Asset) {
+
+				if ( r.class == this.assetClass )
+					return;
+
+				var instanceNode = new TreeNodeAssetInstance( this.assetClass, r );
+				this.addNode( instanceNode );
+			}
+        }
 
 		/**
 		 * This will get all instance nodes of a particular class name(s)
@@ -70,16 +96,6 @@ module Animate {
 			}
 
 			return toRet;
-		}
-
-		/**
-		 * This will cleanup the component.
-		 */
-		dispose() {
-			this.assetClass = null;
-
-			//Call super
-			super.dispose();
 		}
 	}
 }
