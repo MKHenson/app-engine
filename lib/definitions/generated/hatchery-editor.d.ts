@@ -4514,7 +4514,10 @@ declare module Animate {
          * @param {boolean} shiftDown
          */
         onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
-        private setStore(node);
+        /**
+         * Sets the store of the node and all its children to be this store
+         */
+        setStore(node: TreeNodeModel): void;
         private unFocus(node);
         /**
          * Called whenever the node receives a context event

@@ -72,6 +72,8 @@ module Animate {
             let r = event.resource;
             if (r instanceof GroupArray)
                 this.addNode(new TreeNodeGroup(r));
+
+            this.store.setStore(this);
         }
     }
 }

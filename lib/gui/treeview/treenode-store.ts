@@ -122,7 +122,10 @@ module Animate {
 			this.onSelectionChange(selection);
         }
 
-		private setStore( node : TreeNodeModel ) {
+		/**
+		 * Sets the store of the node and all its children to be this store
+		 */
+		public setStore( node : TreeNodeModel ) {
 			node.store = this;
 			for ( let n of node.children )
 				this.setStore(n);
