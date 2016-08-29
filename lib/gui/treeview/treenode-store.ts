@@ -87,24 +87,25 @@ module Animate {
         onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState : boolean = true ) {
 
 			let clearSelection = false;
+			let selection = this._selectedNodes;
 
 			if (this._multiSelect == false)
 				clearSelection = true;
 			else if ( this._multiSelect && !shiftDown)
 				clearSelection = true;
-			else if ( this._onlySimilarNodeSelection && this._selectedNodes.length > 0 && this._selectedNodes[0].constructor != node.constructor )
+			else if ( this._onlySimilarNodeSelection && selection.length > 0 && selection[0].constructor != node.constructor )
 				clearSelection = true;
 
             // Deselect all nodes if either not multi select mode or shiftkey was not pressed
             if ( clearSelection ) {
 
-				for (let n of this._selectedNodes)
+				for (let n of selection)
 					n.selected(false);
 
-				this._selectedNodes.splice( 0, this._selectedNodes.length );
+				selection.splice( 0, selection.length );
 
 				if (node) {
-					this._selectedNodes.push( node );
+					selection.push( node );
                 	node.selected(true);
 				}
 			}
@@ -112,13 +113,13 @@ module Animate {
                 let selected = ( toggleSelectedState ? !node.selected() : node.selected() );
                 node.selected(selected);
 
-                if (!selected)
-					this._selectedNodes.splice( this._selectedNodes.indexOf(node), 1 );
-                else
-                    this._selectedNodes.push( node );
+                if (!selected && selection.indexOf(node) != -1 )
+					selection.splice( selection.indexOf(node), 1 );
+                else if ( selection.indexOf(node) == -1)
+                    selection.push( node );
             }
 
-			this.onSelectionChange(this._selectedNodes);
+			this.onSelectionChange(selection);
         }
 
 		private setStore( node : TreeNodeModel ) {
