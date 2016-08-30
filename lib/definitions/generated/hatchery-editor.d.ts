@@ -114,24 +114,27 @@ declare module Animate {
         getFileUploadExtensions(extArray: Array<string>): Array<string>;
     }
 
+    export type PortalType = 'input' | 'output' | 'parameter' | 'product';
+    export type CanvasItemType = 'behaviour' | 'link' | 'asset' | 'shortcut' | 'portal' | 'script' | 'comment' | 'instance';
+
     /**
 	* A basic wrapper for a Portal interface
 	*/
     export class IPortal {
         name: string;
-        type: number;
+        type: PortalType;
         custom: boolean;
         property: any;
+        links: number;
     }
-
     /**
-	* A basic wrapper for a CanvasItem interface
-	*/
+	 * A basic wrapper for a CanvasItem interface
+	 */
     export interface ICanvasItem {
         shallowId: number;
-        type: number;
-        left?: string;
-        top?: string;
+        type: CanvasItemType;
+        left?: number;
+        top?: number;
     }
 
     /**
@@ -150,8 +153,8 @@ declare module Animate {
 	*/
     export interface IBehaviour extends ICanvasItem {
         alias: string;
-        text: string;
-        portals: Array<IPortal>
+        behaviourType: string;
+        portals: Array<IPortal>;
     }
 
     /**
@@ -546,12 +549,6 @@ declare module Animate {
         User = 1,
         Project = 2,
     }
-    enum PortalType {
-        PARAMETER = 0,
-        PRODUCT = 1,
-        INPUT = 2,
-        OUTPUT = 3,
-    }
     enum UserPlan {
         Free = 1,
         Bronze = 2,
@@ -605,19 +602,6 @@ declare module Animate {
         HIDDEN = 10,
         HIDDEN_FILE = 11,
         OPTIONS = 12,
-    }
-    /**
-    * Describes the type of canvas item to create
-    */
-    enum CanvasItemType {
-        Link = 0,
-        Behaviour = 1,
-        BehaviourAsset = 2,
-        BehaviourShortcut = 3,
-        BehaviourPortal = 4,
-        BehaviourScript = 5,
-        BehaviourComment = 6,
-        BehaviourInstance = 7,
     }
 }
 declare module Animate {
@@ -1093,13 +1077,6 @@ declare module Animate {
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
         static delete<T>(url: string, data?: any): Promise<T>;
-        /**
-        * Creates a new canvas item based on the dataset provided
-        * @param {Canvas} parent The parent component this item must be added to
-        * @param {any} data The data, usually created from a tokenize function
-        * @returns {CanvasItem}
-        */
-        static createItem(parent: Canvas, data: ICanvasItem): CanvasItem;
         /**
         * Creates a new property based on the dataset provided
         * @param {PropertyType} type The type of property to create
@@ -3662,123 +3639,99 @@ declare module Animate {
         };
     };
     /**
-    * The base class for all canvas items
-    */
-    class CanvasItem extends Component {
+     * The base class for all canvas items
+     */
+    class CanvasItem extends EventDispatcher {
         shallowId: number;
+        top: number;
+        left: number;
+        store: CanvasStore;
         /**
-        * Creates an instance
-        */
-        constructor(html: string, parent: Component);
+         * Creates an instance
+         */
+        constructor(data?: ICanvasItem);
         /**
-        * A shortcut for jQuery's css property.
-        */
-        css(propertyName: any, value?: any): any;
+         * Serializes the data into a JSON.
+         * @returns {ICanvasItem}
+         */
+        serialize(): ICanvasItem;
         /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {ICanvasItem}
-        */
-        tokenize(slim?: boolean): ICanvasItem;
+         * De-serialize data from a JSON.
+         * @param {ICanvasItem} data The data to import from
+         */
+        deSerialize(data: ICanvasItem): void;
         /**
-        * De-Tokenizes data from a JSON.
-        * @param {ICanvasItem} data The data to import from
-        */
-        deTokenize(data: ICanvasItem): void;
-        /**
-        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized.
-        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-        * or to get the token you can use items[originalId].token
-        */
+         * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+         * @param {number} originalId The original shallow ID of the item when it was tokenized.
+         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+         * or to get the token you can use items[originalId].token
+         */
         link(originalId: number, items: LinkMap): void;
+        /**
+         * Causes the store to refresh its state
+         */
+        invalidate(): void;
+        /**
+         * Clean up
+         */
+        dispose(): void;
     }
 }
 declare module Animate {
     /**
-    * Behaviours are the base class for all nodes placed on a <Canvas>
-    */
+     * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
+     * that has been added to a container.
+     */
     class Behaviour extends CanvasItem {
-        private _originalName;
-        private _alias;
-        private _canGhost;
-        private _requiresUpdated;
+        selected: boolean;
+        alias: string;
+        canGhost: boolean;
+        behaviourType: string;
         private _parameters;
         private _products;
         private _outputs;
         private _inputs;
         private _portals;
-        private _fontSize;
         private _properties;
-        constructor(parent: Component, text: string, html?: string);
         /**
-        * Gets a portal by its name
-        * @param {string} name The portal name
-        * @returns {Portal}
-        */
+         * Creates an instance of the behaviour
+         */
+        constructor(data?: IBehaviour);
+        /**
+         * Gets a portal by its name
+         * @param {string} name The portal name
+         * @returns {Portal}
+         */
         getPortal(name: string): Portal;
         /**
-        * Adds a portal to this behaviour.
-        * @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
-        * @param {Prop<any>} property
-        * @returns {Portal}
-        */
-        addPortal(type: PortalType, property: Prop<any>, update: boolean, custom?: boolean): Portal;
+         * Adds a portal to this behaviour.
+         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param {Prop<any>} property
+         * @param {boolean} custom Declares if this portal is a custom one added by the user
+         * @returns {Portal}
+         */
+        addPortal(type: PortalType, property: Prop<any>, custom?: boolean): Portal;
         /**
         * Removes a portal from this behaviour
         * @param {Portal} toRemove The portal object we are removing
-        * @param {any} dispose Should the portal be disposed. The default is true.
         * @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
         */
-        removePortal(toRemove: Portal, dispose?: boolean): Portal;
+        removePortal(toRemove: Portal): Portal;
         /**
-        * Called when the behaviour is renamed
-        * @param {string} name The new name of the behaviour
-        */
-        onRenamed(name: string): void;
+         * Serializes the data into a JSON.
+         * @returns {IBehaviour}
+         */
+        serialize(): IBehaviour;
         /**
-        * A shortcut for jQuery's css property.
-        */
-        css(propertyName: any, value?: any): any;
+         * De-Serializes data from a JSON.
+         * @param {IBehaviour} data The data to import from
+         */
+        deSerialize(data: IBehaviour): void;
         /**
-        * Updates the behavior width and height and organises the portals
-        */
-        updateDimensions(): void;
-        /**
-        * Gets the text of the behaviour
-        */
-        /**
-        * sets the label text
-        */
-        text: string;
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        selected: boolean;
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviour}
-        */
-        tokenize(slim?: boolean): IBehaviour;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {IBehaviour} data The data to import from
-        */
-        deTokenize(data: IBehaviour): void;
-        /**
-        * Diposes and cleans up this component and all its child components
-        */
+         * Diposes and cleans up this component and its portals
+         */
         dispose(): void;
-        name: string;
         properties: EditableSet;
-        originalName: string;
-        alias: string;
-        canGhost: boolean;
-        requiresUpdated: boolean;
         parameters: Array<Portal>;
         products: Array<Portal>;
         outputs: Array<Portal>;
@@ -3787,172 +3740,15 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class BehaviourPortal extends Behaviour {
-        private _portalType;
-        private _property;
-        constructor(parent: Component, property: Prop<any>, portalType?: PortalType);
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviourPortal}
-        */
-        tokenize(slim?: boolean): IBehaviourPortal;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {IBehaviourPortal} data The data to import from
-        */
-        deTokenize(data: IBehaviourPortal): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-        portaltype: PortalType;
-        property: Prop<any>;
-    }
-}
-declare module Animate {
-    /**
-    * A node used to ghost - or act as a shortcut - for an existing node. This node is created when you hold shift and
-    * move a node on the canvas. The ghost can then be as if it were the original node.
-    */
-    class BehaviourShortcut extends Behaviour {
-        private _originalNode;
-        private _savedResource;
-        /**
-        * @param {Canvas} parent The parent canvas
-        * @param {Behaviour} originalNode The original node we are copying from
-        */
-        constructor(parent: Canvas, originalNode: Behaviour, text: string);
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviourResource}
-        */
-        tokenize(slim?: boolean): IBehaviourShortcut;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {IBehaviourResource} data The data to import from
-        */
-        deTokenize(data: IBehaviourShortcut): void;
-        /**
-        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized.
-        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-        * or to get the token you can use items[originalId].token
-        */
-        link(originalId: number, items: LinkMap): void;
-        setOriginalNode(originalNode: Behaviour, buildPortals: boolean): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-        originalNode: Behaviour;
-    }
-}
-declare module Animate {
-    class BehaviourAsset extends Behaviour {
-        private _asset;
-        constructor(parent: Canvas, text?: string);
-        /**
-        * Diposes and cleans up this component and all its child <Component>s
-        */
-        dispose(): void;
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviour}
-        */
-        tokenize(slim?: boolean): IBehaviour;
-        /**
-        * Adds a portal to this behaviour.
-        * @param {PortalType} type The type of portal we are adding. It can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER & Portal.PRODUCT
-        * @param {Prop<any>} property
-        * @returns {Portal}
-        */
-        addPortal(type: PortalType, property: Prop<any>, update: boolean): Portal;
-        asset: Asset;
-    }
-}
-declare module Animate {
-    /**
-    * A node for displaying comments
-    */
-    class BehaviourComment extends Behaviour {
-        private isInInputMode;
-        private input;
-        private stageClickProxy;
-        private mStartX;
-        private mStartY;
-        private mOffsetX;
-        private mOffsetY;
-        constructor(parent: Component, text: string);
-        /**
-       * Tokenizes the data into a JSON.
-       * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-       * @returns {IBehaviour}
-       */
-        tokenize(slim?: boolean): IBehaviour;
-        /**
-       * De-Tokenizes data from a JSON.
-       * @param {IBehaviourComment} data The data to import from
-       */
-        deTokenize(data: IBehaviourComment): void;
-        /**
-        * When the text property is edited
-        */
-        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
-        /**
-        * Does nothing...
-        */
-        updateDimensions(): void;
-        /**
-        * When the mouse enters the behaviour
-        */
-        onIn(e: any): void;
-        /**
-        * A shortcut for jQuery's css property.
-        */
-        css(propertyName: any, value?: any): any;
-        /**
-        * When the mouse enters the behaviour
-        */
-        onOut(e: any): void;
-        /**
-        * When the resize starts.
-        */
-        onResizeStart(event: any, ui: any): void;
-        /**
-        * When the resize updates.
-        */
-        onResizeUpdate(event: any, ui: any): void;
-        /**
-        * When the resize stops.
-        */
-        onResizeStop(event: any, ui: any): void;
-        /**
-        * Call this to allow for text editing in the comment.
-        */
-        enterText(): boolean;
-        /**
-        * When we click on the stage we go out of edit mode.
-        */
-        onStageClick(e: any): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
     /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
     */
-    class Portal extends Component {
-        private _links;
-        private _customPortal;
-        private _type;
-        private _property;
+    class Portal extends EventDispatcher {
+        links: Array<any>;
+        custom: boolean;
+        type: PortalType;
+        property: Prop<any>;
         behaviour: Behaviour;
         /**
         * @param {Behaviour} parent The parent component of the Portal
@@ -3960,234 +3756,31 @@ declare module Animate {
         * @param {Prop<any>} property The property associated with this portal
         */
         constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom?: boolean);
+        serialize(): IPortal;
         /**
         * Edits the portal variables
         * @param {Prop<any>} property The new value of the property
         */
         edit(property: Prop<any>): void;
         /**
-        * This function will check if the source portal is an acceptable match with the current portal.
-        * @param source The source panel we are checking against
-        */
+         * This function will check if the source portal is an acceptable match with the current portal.
+         * @param {Portal} source The source panel we are checking against
+         */
         checkPortalLink(source: Portal): boolean;
         /**
-        * This function will check if the source portal is an acceptable match with the current portal.
-        */
+         * Clean up
+         */
         dispose(): void;
         /**
-        * When the mouse is down on the portal.
-        * @param {object} e The jQuery event object
-        */
-        onPortalDown(e: any): void;
+         * Adds a link to the portal.
+         * @param {Link} link The link we are adding
+         */
+        addLink(link: any): void;
         /**
-        * Adds a link to the portal.
-        * @param {Link} link The link we are adding
-        */
-        addLink(link: Link): void;
-        /**
-        * Removes a link from the portal.
-        * @param {Link} link The link we are removing
-        */
-        removeLink(link: Link): Link;
-        /**
-        * Makes sure the links are positioned correctly
-        */
-        updateAllLinks(): void;
-        /**
-        * Returns this portal's position on the canvas.
-        */
-        positionOnCanvas(): {
-            left: number;
-            top: number;
-        };
-        type: PortalType;
-        property: Prop<any>;
-        customPortal: boolean;
-        links: Array<Link>;
-    }
-}
-declare module Animate {
-    /**
-    * A behaviour node that represents a Behaviour Container
-    */
-    class BehaviourInstance extends Behaviour {
-        private _container;
-        constructor(parent: Component, container: Container);
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviourResource}
-        */
-        tokenize(slim?: boolean): IBehaviourShortcut;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {IBehaviourResource} data The data to import from
-        */
-        deTokenize(data: IBehaviourShortcut): void;
-        /**
-        * Called when a behaviour is disposed
-        */
-        onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher): void;
-        /**
-        * This is called when a Canvas reports a portal being added, removed or modified.
-        */
-        onPortalChanged(type: string, event: PortalEvent, sender?: EventDispatcher): void;
-        /**
-        * Diposes and cleans up this component and all its child Components
-        */
-        dispose(): void;
-        /**
-        * Gets the container this instance represents
-        * @returns {Container}
-        */
-        /**
-        * Sets the container this instance represents
-        * @param {Container} val
-        */
-        container: Container;
-    }
-}
-declare module Animate {
-    /**
-    * A behaviour node that acts as a script. Users can create custom JS within the body. These nodes are connected to
-    * database entries and so need to be cleaned up properly when modified by the user.
-    */
-    class BehaviourScript extends Behaviour {
-        scriptId: string;
-        scriptTab: ScriptTab;
-        private _loading;
-        constructor(parent: Component, scriptId: string, text: string, copied?: boolean);
-        /**
-        * Called when the behaviour is renamed
-        * @param <string> name The new name of the behaviour
-        */
-        onRenamed(name: any): void;
-        /**
-        * This function will open a script tab
-        */
-        edit(): void;
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {IBehaviourScript}
-        */
-        tokenize(slim?: boolean): IBehaviourScript;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {IBehaviourScript} data The data to import from
-        */
-        deTokenize(data: IBehaviourScript): void;
-        /**
-        * Diposes and cleans up this component and all its child Components
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * The link class are the lines drawn from behavior portals
-    */
-    class Link extends CanvasItem {
-        startPortal: Portal;
-        endPortal: Portal;
-        delta: number;
-        private _startBehaviour;
-        private _endBehaviour;
-        private _mouseMoveProxy;
-        private _mouseUpProxy;
-        private _mouseUpAnchorProxy;
-        private _prevPortal;
-        private _startClientX;
-        private _startClientY;
-        private _startX;
-        private _startY;
-        private _curTarget;
-        private _canvas;
-        private _graphics;
-        private _linePoints;
-        private _selected;
-        private _properties;
-        /**
-        * @param {Canvas} parent The parent {Canvas} of the link
-        */
-        constructor(parent: Component);
-        /**
-        * Tokenizes the data into a JSON.
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @returns {ILinkItem}
-        */
-        tokenize(slim?: boolean): ILinkItem;
-        /**
-        * De-Tokenizes data from a JSON.
-        * @param {ILinkItem} data The data to import from
-        */
-        deTokenize(data: ILinkItem): void;
-        /**
-        * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-        * @param {number} originalId The original shallow ID of the item when it was tokenized.
-        * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-        * or to get the token you can use items[originalId].token
-        */
-        link(originalId: number, items: LinkMap): void;
-        /**
-        * This is called when we need a link to start drawing. This will
-        * follow the mouse and draw a link from the original mouse co-ordinates to an
-        * end portal.
-        * @param {Portal} startPortal
-        * @param {any} e
-        */
-        start(startPortal: Portal, e: any): void;
-        /**
-        * Check if a point is actually selecting the link
-        * @param {any} e
-        */
-        hitTestPoint(e: any): boolean;
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        selected: boolean;
-        /**
-        * Builds the dimensions of link based on the line points
-        */
-        buildDimensions(): void;
-        /**
-        * Use this function to build the line points that define the link
-        */
-        buildLinePoints(e: any): void;
-        /**
-        * Updates the link points (should they have been moved).
-        */
-        updatePoints(): void;
-        /**
-        * When the mouse moves we resize the stage.
-        * @param {any} e
-        */
-        onMouseMove(e: any): void;
-        /**
-       * Draws a series of lines
-       */
-        draw(): void;
-        /**
-        * Remove listeners.
-        * @param {any} e
-        */
-        onMouseUpAnchor(e: any): void;
-        /**
-        * When the link properties are edited
-        */
-        onEdit(type: string, event: EditEvent, sender?: EventDispatcher): void;
-        /**
-        * Gets the properties of this link
-        * @returns {EditableSet}
-        */
-        properties: EditableSet;
-        /**
-        * Cleanup the link
-        */
-        dispose(): void;
+         * Removes a link from the portal.
+         * @param {Link} link The link we are removing
+         */
+        removeLink(link: any): any;
     }
 }
 declare module Animate {
@@ -4241,165 +3834,89 @@ declare module Animate {
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
         constructor(parent: Component, container: Container);
-        /**
-         * Event fired when we start dragging a behaviour
-         * @param e
-         * @param ui
-         */
-        onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent): void;
-        /**
-        * When an item is finished being dragged
-        */
-        onChildDropped(e: any, ui: any): void;
-        /**
-        * Called when a draggable object is dropped onto the canvas.
-        * @param {any} event The jQuery UI event
-        * @param {any} ui The event object sent from jQuery UI
-        */
-        onObjectDropped(event: any, ui: any): void;
-        /**
-        * Create an asset node at a location
-        * @param {Asset} asset
-        * @param {number} x
-        * @param {number} y
-        */
-        addAssetAtLocation(asset: Asset, x: number, y: number): void;
-        /**
-        * This function is used to cleanup the object before its removed from memory.
-        */
-        dispose(): void;
-        /**
-        * This function will remove all references of an asset in the behaviour nodes
-        * @param {Asset} asset The asset reference
-        */
-        removeAsset(asset: Asset): void;
-        /**
-        * Call this to remove an item from the canvas
-        * @param {Component} item The component we are removing from the canvas
-        */
-        removeItem(item: Component): void;
-        /**
-        * Removes all selected items
-        */
-        removeItems(): void;
-        /**
-        * Called when the canvas context menu is closed and an item clicked.
-        */
-        onContextSelect(e: ContextMenuEvents, event: ContextMenuEvent): void;
-        getAssetList(asset: Asset, assetMap: Array<number>): void;
-        onAssetEdited(e: ENUM, event: Event, sender?: EventDispatcher): void;
-        buildSceneReferences(): void;
-        /**
-        * Whenever an item is edited
-        */
-        onItemEdited(type: string, event: EditEvent, sender?: EventDispatcher): void;
-        /**
-        * When we click ok on the portal form
-        */
-        OnPortalConfirm(response: OkCancelFormEvents, e: OkCancelFormEvent): void;
-        /**
-        * When the context is hidden we remove the event listeners.
-        */
-        onContextHide(response: WindowEvents, e: WindowEvent): void;
-        /**
-        * Called when the context menu is about to open
-        * @param {any} e The jQuery event object
-        */
-        onContext(e: any): void;
-        /**
-        * When we have chosen a behaviour
-        */
-        onBehaviourPicked(response: BehaviourPickerEvents, event: BehaviourPickerEvent): void;
-        /**
-        * Iteratively goes through each container to check if its pointing to this behaviour
-        */
-        private isCyclicDependency(container, ref);
-        /**
-        * This will create a canvas node based on the template given
-        * @param {BehaviourDefinition} template The definition of the node
-        * @param {number} x The x position of where the node shoule be placed
-        * @param {number} y The y position of where the node shoule be placed
-        * @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
-        * is the actual behaviour container
-        * @param {string} name The name of the node
-        * @returns {Behaviour}
-        */
-        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container, name?: string): Behaviour;
-        /**
-        * Catch the key down events.
-        * @param {any} e The jQuery event object
-        */
-        onKeyDown(e: any): boolean;
-        /**
-        * When we double click the canvas we show the behaviour picker.
-        * @param {any} e The jQuery event object
-        */
-        onDoubleClick(e: any): void;
-        /**
-        * This is called to set the selected canvas item.
-        * @param {Component} comp The component to select
-        */
-        selectItem(comp: Component): void;
-        /**
-        * Called when we click down on the canvas
-        * @param {any} e The jQuery event object
-        */
-        onMouseDown(e: any): void;
-        /**
-        * Called when we click up on the canvas
-        * @param {any} e The jQuery event object
-        */
-        onMouseUp(e: any): void;
-        /**
-        * This is called externally when the canvas has been selected. We use this
-        * function to remove any animated elements
-        */
-        onSelected(): void;
-        /**
-        * Use this function to add a child to this component. This has the same effect of adding some HTML as a child of another piece of HTML.
-        * It uses the jQuery append function to achieve this functionality.
-        * @param {IComponent} child The child to add. Valid parameters are valid HTML code or other Components.
-        * @returns {IComponent} The child as a Component.
-        */
-        addChild(child: IComponent): IComponent;
-        /**
-        * Use this function to remove a child from this component. It uses the jQuery detach function to achieve this functionality.
-        * @param {IComponent} child The child to remove. Valid parameters are valid Components.
-        * @returns {IComponent} The child as a Component.
-        */
-        removeChild(child: IComponent): IComponent;
-        /**
-        * Called when an item is moving
-        */
-        onChildMoving(e: any, ui: any): void;
-        /**
-        * This function is called when animate is reading in saved data from the server.
-        * @param {any} data
-        */
-        open(data: any): void;
-        /**
-        * Tokenizes the canvas and all its items into a JSON object that can be serialized into a DB
-        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
-        * @param {Array<CanvasItem>} items The items
-        * @returns {IContainerToken}
-        */
-        tokenize(slim: boolean, items?: Array<CanvasItem>): IContainerToken;
-        /**
-        * De-serializes token data and adds them to the canvas
-        * @param {boolean} Data
-        * @param {Array<CanvasItem>} items The items
-        * @returns {IContainerToken}
-        */
-        deTokenize(data?: IContainerToken, clearItems?: boolean): void;
-        /**
-        * This function is called to make sure the canvas min width and min height variables are set
-        */
-        checkDimensions(): void;
         container: Container;
         containerReferences: {
             groups: Array<number>;
             assets: Array<number>;
         };
+    }
+}
+declare module Animate {
+    interface IReactCanvasProps {
+        store: CanvasStore;
+    }
+    class ReactCanvas extends React.Component<IReactCanvasProps, {
+        items: ICanvasItem[];
+    }> {
+        constructor(props: IReactCanvasProps);
+        /**
+         * Clean up any listeners
+         */
+        componentWillUnmount(): void;
+        /**
+         * When the store changes, we update the state
+         */
+        invalidate(): void;
+        renderBehaviour(behaviour: IBehaviour, index: number): JSX.Element;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    /**
+     * A store of various diagram items
+     */
+    class CanvasStore extends EventDispatcher {
+        protected _items: CanvasItem[];
+        /**
+         * Creates an instance of the canvas store
+         */
+        constructor(items?: CanvasItem[]);
+        /**
+         * Adds a canvas item to the canvas
+         * @param {CanvasItem} item
+         * @returns {CanvasItem}
+         */
+        addItem(item: CanvasItem): CanvasItem;
+        /**
+         * Removes a canvas item from the canvas
+         * @param {CanvasItem} item
+         */
+        removeItem(item: CanvasItem): void;
+        /**
+         * Gets all the canvas items in a serialized array
+         * @returns {ICanvasItem[]}
+         */
+        getState(): ICanvasItem[];
+        /**
+         * Triggers a change in the tree structure
+         */
+        invalidate(): void;
+    }
+}
+declare module Animate {
+    interface IBehaviourComponentProps {
+        behaviour: IBehaviour;
+    }
+    /**
+     * A visual representation of a Behaviour
+     */
+    class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
+        /**
+         * Creates an instance of the component
+         */
+        constructor(props: IBehaviourComponentProps);
+        componentDidMount(): void;
+        componentDidUnmount(): void;
+        onLinkStart(e: React.MouseEvent): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
@@ -5208,7 +4725,7 @@ declare module Animate {
         private onFrame;
         private onInitialize;
         private onDispose;
-        constructor(scriptNode: BehaviourScript);
+        constructor(scriptNode: any);
         /**
         * When we click on one of the function buttons
         * @param <object> e

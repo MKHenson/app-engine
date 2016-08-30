@@ -101,24 +101,27 @@
         getFileUploadExtensions(extArray: Array<string>): Array<string>;
     }
 
+    export type PortalType = 'input' | 'output' | 'parameter' | 'product';
+    export type CanvasItemType = 'behaviour' | 'link' | 'asset' | 'shortcut' | 'portal' | 'script' | 'comment' | 'instance';
+
     /**
 	* A basic wrapper for a Portal interface
 	*/
     export class IPortal {
         name: string;
-        type: number;
+        type: PortalType;
         custom: boolean;
         property: any;
+        links: number;
     }
-
     /**
-	* A basic wrapper for a CanvasItem interface
-	*/
+	 * A basic wrapper for a CanvasItem interface
+	 */
     export interface ICanvasItem {
         shallowId: number;
-        type: number;
-        left?: string;
-        top?: string;
+        type: CanvasItemType;
+        left?: number;
+        top?: number;
     }
 
     /**
@@ -137,8 +140,8 @@
 	*/
     export interface IBehaviour extends ICanvasItem {
         alias: string;
-        text: string;
-        portals: Array<IPortal>
+        behaviourType: string;
+        portals: Array<IPortal>;
     }
 
     /**
