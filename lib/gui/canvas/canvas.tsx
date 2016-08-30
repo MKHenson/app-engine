@@ -51,14 +51,21 @@ module Animate {
 		onObjectDropped( e: React.MouseEvent, json : IDragDropToken ) {
 
             let elm = this.refs['canvas'] as HTMLElement;
-            let offsetX = elm.offsetLeft;
-            let offsetY = elm.offsetTop;
+            let offsetX = elm.parentElement.offsetLeft;
+            let offsetY = elm.parentElement.offsetTop;
+            let ref = elm.offsetParent as HTMLElement;
+
+            while ( ref ) {
+                offsetX += ref.offsetLeft;
+                offsetY += ref.offsetTop;
+                ref = ref.offsetParent as HTMLElement;
+            }
+
             let scrollX = elm.scrollLeft;
             let scrollY = elm.scrollTop;
-            let mouse = { x: e.pageX - offsetX - scrollX, y: e.pageY - offsetY - scrollY };
+            let mouse = { x: e.pageX - offsetX, y: e.pageY - offsetY };
             let x = mouse.x + scrollX;
             let y = mouse.y + scrollY;
-
 
             if ( json.type == 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID(json.id as number);
@@ -172,6 +179,7 @@ module Animate {
                 <div
                     ref='canvas'
                     className='canvas'
+                    onClick={(e) => this.props.store.onNodeSelected(null, false)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={(e) => {
                         e.preventDefault();
