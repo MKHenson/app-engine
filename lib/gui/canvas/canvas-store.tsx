@@ -6,6 +6,7 @@ module Animate {
     export class CanvasStore extends EventDispatcher {
 
         protected _items : CanvasItem[];
+        protected _selection : CanvasItem[];
 
         /**
          * Creates an instance of the canvas store
@@ -13,6 +14,7 @@ module Animate {
         constructor(items : CanvasItem[] = []) {
             super();
             this._items = items;
+            this._selection = [];
         }
 
         getItems(): CanvasItem[] {
@@ -27,7 +29,7 @@ module Animate {
         onNodeSelected( node: CanvasItem, shiftDown: boolean, toggleSelectedState : boolean = true ) {
 
 			let clearSelection = false;
-			let selection = this._items;
+			let selection = this._selection;
 
 			if ( !shiftDown )
 				clearSelection = true;
