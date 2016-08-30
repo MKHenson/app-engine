@@ -32,14 +32,14 @@ module Animate {
 			// Create some standard templates
 			this.behaviourTemplates.push( new BehaviourDefinition( "Asset",
                 [
-                    new PortalTemplate(new PropAsset("Asset In", null), PortalType.PARAMETER),
-                    new PortalTemplate(new PropAsset("Asset Out", null), PortalType.PRODUCT )
+                    new PortalTemplate(new PropAsset("Asset In", null), 'parameter'),
+                    new PortalTemplate(new PropAsset("Asset Out", null), 'product' )
                 ], null, false, false, false, false));
 
             this.behaviourTemplates.push(new BehaviourDefinition("Script",
                 [
-                    new PortalTemplate(new PropBool("Execute", false), PortalType.INPUT),
-                    new PortalTemplate(new PropBool("Exit", false), PortalType.OUTPUT)
+                    new PortalTemplate(new PropBool("Execute", false), 'input'),
+                    new PortalTemplate(new PropBool("Exit", false), 'output')
                 ], null, true, true, true, true));
 
             this.behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
@@ -145,7 +145,7 @@ module Animate {
 				// TODO: This must be refactored from updates to TSX
 				// ==================================================
 				for ( let template of btemplates ) {
-				 	this.behaviourTemplates.push( btemplates[i] );
+				 	this.behaviourTemplates.push( template );
 				// 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
 				// 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
 					this.emit( new Event("template-created", template ));
@@ -154,17 +154,17 @@ module Animate {
 			}
 
 			// Get converters
-			var converters: Array<TypeConverter> = plugin.getTypeConverters();
+			let converters: Array<TypeConverter> = plugin.getTypeConverters();
 			if ( converters ) {
-				var i = converters.length;
+				let i = converters.length;
 				while ( i-- )
 					this._converters.push( converters[i] );
 			}
 
 			// Get asset templates
-			var atemplates :Array<AssetTemplate> = plugin.getAssetsTemplate();
+			let atemplates :Array<AssetTemplate> = plugin.getAssetsTemplate();
 			if ( atemplates ) {
-				var i = atemplates.length;
+				let i = atemplates.length;
 				while ( i-- )
 					this._assetTemplates.push( atemplates[i] );
 			}
