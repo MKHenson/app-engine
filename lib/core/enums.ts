@@ -50,13 +50,6 @@
         Project
     }
 
-    export enum PortalType {
-        PARAMETER,
-        PRODUCT,
-        INPUT,
-        OUTPUT
-    }
-
     /*
     * The payment type of the user
     */
@@ -118,19 +111,5 @@
         HIDDEN,
         HIDDEN_FILE,
         OPTIONS
-    }
-
-    /**
-    * Describes the type of canvas item to create
-    */
-    export enum CanvasItemType {
-        Link,
-        Behaviour,
-        BehaviourAsset,
-        BehaviourShortcut,
-        BehaviourPortal,
-        BehaviourScript,
-        BehaviourComment,
-        BehaviourInstance
     }
 }
