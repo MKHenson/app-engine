@@ -8,15 +8,23 @@ module Animate {
      * A visual representation of a Behaviour
      */
     export class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
+        private _upProxy;
+        private _moveProxy;
+        private _deltaX;
+        private _deltaY;
 
         /**
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps) {
             super(props);
+            this._upProxy = this.onMouseUp.bind(this);
+            this._moveProxy = this.onMouseMove.bind(this);
         }
 
         componentDidMount() {
+            // let elm = this.refs['behaviour'] as HTMLElement;
+            // jQuery(elm).draggable({  cancel: ".portal", scroll: true, scrollSensitivity: 1 } as JQueryUI.DraggableOptions);
             //toRet.element.draggable({ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 } as JQueryUI.DraggableOptions);
         }
 
@@ -24,10 +32,63 @@ module Animate {
             // The draggable functionality is added in the Canvas addChild function because we need to listen for the events.
 			// To make sure its properly removed however we put it here.
 			//this.element.draggable( "destroy" );
+            window.removeEventListener('mouseup', this._upProxy);
+            window.removeEventListener('mousemove', this._moveProxy);
         }
 
         onLinkStart(e: React.MouseEvent) {
 
+        }
+
+        onMouseDown(e: React.MouseEvent) {
+            e.preventDefault();
+            window.addEventListener('mouseup', this._upProxy);
+            window.addEventListener('mousemove', this._moveProxy);
+        }
+
+        getRelativePos( e: React.MouseEvent ) : {x: number; y: number} {
+            let elm = this.refs['behaviour'] as HTMLElement;
+            let offsetX = elm.parentElement.offsetLeft;
+            let offsetY = elm.parentElement.offsetTop;
+            let ref = elm.offsetParent as HTMLElement;
+
+            while ( ref ) {
+                offsetX += ref.offsetLeft;
+                offsetY += ref.offsetTop;
+                ref = ref.offsetParent as HTMLElement;
+            }
+
+            let scrollX = elm.parentElement.scrollLeft;
+            let scrollY = elm.parentElement.scrollTop;
+            let mouse = { x: e.pageX - offsetX, y: e.pageY - offsetY };
+            let x = mouse.x + scrollX;
+            let y = mouse.y + scrollY;
+            return { x: x, y: y };
+        }
+
+        onMouseMove(e: React.MouseEvent) {
+            let pos = this.getRelativePos(e);
+            let elm = this.refs['behaviour'] as HTMLElement;
+            let xBuffer = 0;
+            let yBuffer = 0;
+
+            elm.style.left = pos.x + 'px';
+            elm.style.top = pos.y + 'px';
+
+            if ( pos.x + (elm.offsetWidth + xBuffer) > elm.parentElement.offsetWidth + elm.parentElement.scrollLeft )
+                elm.parentElement.scrollLeft = ( pos.x - elm.parentElement.offsetWidth ) + (elm.offsetWidth + xBuffer);
+            else if ( pos.x  - xBuffer < elm.parentElement.scrollLeft )
+                elm.parentElement.scrollLeft = ( pos.x ) - (elm.offsetWidth + xBuffer);
+
+            if ( pos.y + (elm.offsetHeight + yBuffer) > elm.parentElement.offsetHeight + elm.parentElement.scrollTop )
+                elm.parentElement.scrollTop = ( pos.y - elm.parentElement.offsetHeight ) + (elm.offsetHeight + yBuffer);
+            else if ( pos.y - yBuffer < elm.parentElement.scrollTop )
+                elm.parentElement.scrollTop = ( pos.y ) - ( elm.offsetHeight + yBuffer );
+        }
+
+        onMouseUp(e: React.MouseEvent) {
+            window.removeEventListener('mouseup', this._upProxy);
+            window.removeEventListener('mousemove', this._moveProxy);
         }
 
         /**
@@ -83,14 +144,17 @@ module Animate {
 
             return (
                 <div
-                    className={'behaviour scale-in-animation' + ( this.props.behaviour.selected() ? ' selected' : '' )}
+                    ref="behaviour"
+                    className={'behaviour scale-in-animation unselectable' + ( this.props.behaviour.selected() ? ' selected' : '' )}
                     style={{
                         width: tw + 'px',
                         height: th + 'px',
                         left: this.props.behaviour.left + 'px',
                         top: this.props.behaviour.top + 'px'
                     }}
+                    onMouseDown={(e) => { this.onMouseDown(e) }}
                     onClick={(e) => {
+                        e.stopPropagation();
                         this.props.behaviour.store.onNodeSelected(this.props.behaviour, e.shiftKey )}}
                 >
                     {params.map( (p, i) => {
