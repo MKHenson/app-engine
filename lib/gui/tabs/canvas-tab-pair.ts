@@ -10,9 +10,13 @@ module Animate {
 			super( null, null, name );
             this._canvas = canvas;
             this.forceClose = false;
-            this._canvas.container.on("refreshed", this.onRefreshed, this);
-            this._canvas.container.on("modified", this.onContainerModified, this);
-            this._canvas.container.on("deleted", this.onContainerDeleted, this);
+
+            // TODO: Canvas TSX changes
+            // ==========================================================
+            // this._canvas.container.on("refreshed", this.onRefreshed, this);
+            // this._canvas.container.on("modified", this.onContainerModified, this);
+            // this._canvas.container.on("deleted", this.onContainerDeleted, this);
+            // ==========================================================
         }
 
         /**
@@ -36,17 +40,23 @@ module Animate {
 		* Whenever the container is modified, we show this with a *
 		*/
         onContainerModified(type: string, event: Event, sender: EventDispatcher) {
-            this.modified = !this._canvas.container.saved;
+            // TODO: Canvas TSX changes
+            // ==========================================================
+            // this.modified = !this._canvas.container.saved;
+            // ==========================================================
         }
 
         /**
 		* Cleans up the pair
 		*/
 		dispose() {
-            this._canvas.container.off("refreshed", this.onRefreshed, this);
-            this._canvas.container.off("modified", this.onContainerModified, this);
-            this._canvas.container.off("deleted", this.onContainerDeleted, this);
-            this._canvas = null;
+            // TODO: Canvas TSX changes
+            // ==========================================================
+            // this._canvas.container.off("refreshed", this.onRefreshed, this);
+            // this._canvas.container.off("modified", this.onContainerModified, this);
+            // this._canvas.container.off("deleted", this.onContainerDeleted, this);
+            // this._canvas = null;
+            // ==========================================================
 			super.dispose();
         }
 

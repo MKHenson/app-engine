@@ -411,7 +411,7 @@ module Animate {
         //get value(): any { return this._value; }
         get value(): any { return this._newProperty.getVal(); }
         get parameterType(): PropertyType {
-            if (this._portalType != PortalType.INPUT && this._portalType != PortalType.OUTPUT)
+            if (this._portalType != 'input' && this._portalType != 'output')
                 //    return <PropertyType>parseInt(this._typeCombo.selectedItem);
                 this._newProperty.type;
 			else

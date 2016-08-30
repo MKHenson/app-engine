@@ -22,11 +22,14 @@ module Animate {
         * This function is called just before the entry is saved to the database.
         */
         onSaving(): any {
-            // Make sure the container is fully serialized before saving if there is an open canvas
-            if (this.canvas) {
-                var token: IContainerToken = this.canvas.tokenize(false);
-                this.entry.json = token;
-            }
+            // TODO: Update with new React Canvas
+            //=======================================
+            // // Make sure the container is fully serialized before saving if there is an open canvas
+            // if (this.canvas) {
+            //     var token: IContainerToken = this.canvas.tokenize(false);
+            //     this.entry.json = token;
+            // }
+            //=======================================
         }
 
         /**

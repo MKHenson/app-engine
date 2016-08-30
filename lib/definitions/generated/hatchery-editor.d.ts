@@ -131,8 +131,8 @@ declare module Animate {
 	 * A basic wrapper for a CanvasItem interface
 	 */
     export interface ICanvasItem {
-        shallowId: number;
-        type: CanvasItemType;
+        id?: number;
+        type?: CanvasItemType;
         left?: number;
         top?: number;
     }
@@ -3642,19 +3642,27 @@ declare module Animate {
      * The base class for all canvas items
      */
     class CanvasItem extends EventDispatcher {
-        shallowId: number;
         top: number;
         left: number;
         store: CanvasStore;
+        id: number;
+        private _selected;
         /**
          * Creates an instance
          */
-        constructor(data?: ICanvasItem);
+        constructor();
+        /**
+         * Gets or sets if the item is selected
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        selected(val?: boolean): boolean;
         /**
          * Serializes the data into a JSON.
+         * @param {number} id
          * @returns {ICanvasItem}
          */
-        serialize(): ICanvasItem;
+        serialize(id: number): ICanvasItem;
         /**
          * De-serialize data from a JSON.
          * @param {ICanvasItem} data The data to import from
@@ -3683,7 +3691,6 @@ declare module Animate {
      * that has been added to a container.
      */
     class Behaviour extends CanvasItem {
-        selected: boolean;
         alias: string;
         canGhost: boolean;
         behaviourType: string;
@@ -3696,7 +3703,7 @@ declare module Animate {
         /**
          * Creates an instance of the behaviour
          */
-        constructor(data?: IBehaviour);
+        constructor();
         /**
          * Gets a portal by its name
          * @param {string} name The portal name
@@ -3719,9 +3726,10 @@ declare module Animate {
         removePortal(toRemove: Portal): Portal;
         /**
          * Serializes the data into a JSON.
+         * @param {number} id
          * @returns {IBehaviour}
          */
-        serialize(): IBehaviour;
+        serialize(id: number): IBehaviour;
         /**
          * De-Serializes data from a JSON.
          * @param {IBehaviour} data The data to import from
@@ -3846,9 +3854,11 @@ declare module Animate {
         store: CanvasStore;
     }
     class ReactCanvas extends React.Component<IReactCanvasProps, {
-        items: ICanvasItem[];
+        items: CanvasItem[];
     }> {
+        private static _openCanvases;
         constructor(props: IReactCanvasProps);
+        componentWillReceiveProps(nextProps: any): void;
         /**
          * Clean up any listeners
          */
@@ -3857,7 +3867,24 @@ declare module Animate {
          * When the store changes, we update the state
          */
         invalidate(): void;
-        renderBehaviour(behaviour: IBehaviour, index: number): JSX.Element;
+        renderBehaviour(behaviour: Behaviour, index: number): JSX.Element;
+        /**
+         * Called when a draggable object is dropped onto the canvas.
+         * @param {React.MouseEvent} e
+         * @param {IDragDropToken} json
+         */
+        onObjectDropped(e: React.MouseEvent, json: IDragDropToken): void;
+        /**
+        * This will create a canvas node based on the template given
+        * @param {BehaviourDefinition} template The definition of the node
+        * @param {number} x The x position of where the node shoule be placed
+        * @param {number} y The y position of where the node shoule be placed
+        * @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
+        * is the actual behaviour container
+        * @param {string} name The name of the node
+        * @returns {Behaviour}
+        */
+        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container, name?: string): Behaviour;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3875,6 +3902,18 @@ declare module Animate {
          * Creates an instance of the canvas store
          */
         constructor(items?: CanvasItem[]);
+        getItems(): CanvasItem[];
+        /**
+         * Called whenever an item is clicked.
+         * @param {CanvasItem} node
+         * @param {boolean} shiftDown
+         */
+        onNodeSelected(node: CanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        /**
+         * Called whenever the selection has changed
+         * @param {CanvasItem[]} selection
+         */
+        onSelectionChange(selection: CanvasItem[]): void;
         /**
          * Adds a canvas item to the canvas
          * @param {CanvasItem} item
@@ -3890,7 +3929,7 @@ declare module Animate {
          * Gets all the canvas items in a serialized array
          * @returns {ICanvasItem[]}
          */
-        getState(): ICanvasItem[];
+        serialize(): ICanvasItem[];
         /**
          * Triggers a change in the tree structure
          */
@@ -3899,7 +3938,7 @@ declare module Animate {
 }
 declare module Animate {
     interface IBehaviourComponentProps {
-        behaviour: IBehaviour;
+        behaviour: Behaviour;
     }
     /**
      * A visual representation of a Behaviour
@@ -3910,7 +3949,7 @@ declare module Animate {
          */
         constructor(props: IBehaviourComponentProps);
         componentDidMount(): void;
-        componentDidUnmount(): void;
+        componentWillUnmount(): void;
         onLinkStart(e: React.MouseEvent): void;
         /**
          * Creates the component elements
@@ -4532,16 +4571,16 @@ declare module Animate {
          */
         constructor(template: BehaviourDefinition);
         /**
-         * If a template is removed then remove its instance
-         */
-        onTemplateRemoved(type: string, event: Event): void;
-        /**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
         onDragStart(e: React.DragEvent): IDragDropToken;
+        /**
+         * If a template is removed then remove its instance
+         */
+        onTemplateRemoved(type: string, event: Event): void;
         /**
          * This will cleanup the component
          */

@@ -104,6 +104,8 @@
     "lib/gui/canvas-items/canvas-context.ts",
     "lib/gui/canvas-items/canvas.ts",
     "lib/gui/canvas/canvas.tsx",
+    "lib/gui/canvas/canvas-store.tsx",
+    "lib/gui/canvas/components/behaviour-component.tsx",
     "lib/gui/treeview/treeview.tsx",
     "lib/gui/treeview/treenode.tsx",
     "lib/gui/treeview/treenode-store.ts",

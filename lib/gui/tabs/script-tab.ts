@@ -7,7 +7,8 @@ module Animate {
 
 		private originalName: string;
 		private proxyFunctionClick: any;
-		private scriptNode: BehaviourScript;
+		// TODO: Canvas TSX changes
+		private scriptNode: any;// BehaviourScript;
 		public saved: boolean;
 		private close: boolean;
 		private userDefinedChange: boolean;
@@ -22,7 +23,8 @@ module Animate {
 		private onInitialize: string;
 		private onDispose: string;
 
-		constructor( scriptNode: BehaviourScript ) {
+		// TODO: Canvas TSX changes
+		constructor( scriptNode: any ) { // BehaviourScript ) {
             var originalName = scriptNode.id + " - " + scriptNode.alias;
             super( null, null, originalName );
 

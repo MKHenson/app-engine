@@ -207,32 +207,35 @@
             //return jQuery.ajax(url, { type: "delete", data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: "json" });
         }
 
-        /**
-        * Creates a new canvas item based on the dataset provided
-        * @param {Canvas} parent The parent component this item must be added to
-        * @param {any} data The data, usually created from a tokenize function
-        * @returns {CanvasItem}
-        */
-        static createItem(parent : Canvas, data: ICanvasItem): CanvasItem {
-            switch (data.type) {
-                case CanvasItemType.Link:
-                    return new Link(parent);
-                case CanvasItemType.BehaviourAsset:
-                    return new BehaviourAsset(parent);
-                case CanvasItemType.BehaviourComment:
-                    return new BehaviourComment(parent, "");
-                case CanvasItemType.BehaviourInstance:
-                    return new BehaviourInstance(parent, null);
-                case CanvasItemType.BehaviourPortal:
-                    return new BehaviourPortal(parent, null, PortalType.INPUT);
-                case CanvasItemType.BehaviourScript:
-                    return new BehaviourScript(parent, (<IBehaviourScript>data).scriptId, (<IBehaviourScript>data).text, false);
-                case CanvasItemType.BehaviourShortcut:
-                    return new BehaviourShortcut(parent, null, "");
-                case CanvasItemType.Behaviour:
-                    return new Behaviour(parent, "");
-            }
-        }
+        // TODO: This can probably be removed with new canvas tsx
+        // ======================================================
+        // /**
+        // * Creates a new canvas item based on the dataset provided
+        // * @param {Canvas} parent The parent component this item must be added to
+        // * @param {any} data The data, usually created from a tokenize function
+        // * @returns {CanvasItem}
+        // */
+        // static createItem(parent : Canvas, data: ICanvasItem): CanvasItem {
+        //     switch (data.type) {
+        //         case 'link':
+        //             return new Link(parent);
+        //         case 'asset':
+        //             return new BehaviourAsset(parent);
+        //         case 'comment':
+        //             return new BehaviourComment(parent, "");
+        //         case 'instance':
+        //             return new BehaviourInstance(parent, null);
+        //         case 'portal':
+        //             return new BehaviourPortal(parent, null, PortalType.INPUT);
+        //         case 'script':
+        //             return new BehaviourScript(parent, (<IBehaviourScript>data).scriptId, (<IBehaviourScript>data).text, false);
+        //         case 'shortcut':
+        //             return new BehaviourShortcut(parent, null, "");
+        //         case 'behaviour':
+        //             return new Behaviour(parent, "");
+        //     }
+        // }
+        // ======================================================
 
         /**
         * Creates a new property based on the dataset provided

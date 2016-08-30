@@ -104,6 +104,10 @@ module Animate {
          */
         render() : JSX.Element {
 
+			let store = new CanvasStore();
+			//let portals : IPortal[] = [{ name: 'Portal', type: 'input',  }];
+			//store.addItem( new Behaviour( { alias: "Hello world!", behaviourType: "behaviour", left: 20, top: 20, portals:  } ) );
+
 			// let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
 			// let node = treeData.addNode(new TreeViewNode("Child 1"));
 			// treeData.addNode(new TreeViewNode("Child 2"));
@@ -125,7 +129,7 @@ module Animate {
 							<SplitPanel
 									ratio={0.8}
 									orientation={SplitOrientation.HORIZONTAL}
-									top={<h2>Canvas Goes here</h2>}
+									top={<ReactCanvas store={store} />}
 									bottom={<Logger />} />
 							} right={
 								<SplitPanel

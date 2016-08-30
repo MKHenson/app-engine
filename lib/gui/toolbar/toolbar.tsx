@@ -108,12 +108,15 @@ module Animate {
 		* @param {Component} item
 		*/
 		itemSelected(item : Component) {
-            if (item instanceof Behaviour || item instanceof Link)
-                this.$itemSelected = true;
-			else
-                this.$itemSelected = false;
+			// TODO: Canvas TSX changes
+			//==========================================
+            // if (item instanceof Behaviour || item instanceof Link)
+            //     this.$itemSelected = true;
+			// else
+            //     this.$itemSelected = false;
 
-            //Compiler.digest(this._mainElm, this);
+            // //Compiler.digest(this._mainElm, this);
+			//=============================================
 		}
 
 		/**

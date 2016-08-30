@@ -118,8 +118,8 @@
 	 * A basic wrapper for a CanvasItem interface
 	 */
     export interface ICanvasItem {
-        shallowId: number;
-        type: CanvasItemType;
+        id?: number;
+        type?: CanvasItemType;
         left?: number;
         top?: number;
     }
