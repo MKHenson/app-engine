@@ -3898,6 +3898,7 @@ declare module Animate {
      */
     class CanvasStore extends EventDispatcher {
         protected _items: CanvasItem[];
+        protected _selection: CanvasItem[];
         /**
          * Creates an instance of the canvas store
          */
@@ -3944,6 +3945,10 @@ declare module Animate {
      * A visual representation of a Behaviour
      */
     class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
+        private _upProxy;
+        private _moveProxy;
+        private _deltaX;
+        private _deltaY;
         /**
          * Creates an instance of the component
          */
@@ -3951,6 +3956,13 @@ declare module Animate {
         componentDidMount(): void;
         componentWillUnmount(): void;
         onLinkStart(e: React.MouseEvent): void;
+        onMouseDown(e: React.MouseEvent): void;
+        getRelativePos(e: React.MouseEvent): {
+            x: number;
+            y: number;
+        };
+        onMouseMove(e: React.MouseEvent): void;
+        onMouseUp(e: React.MouseEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
