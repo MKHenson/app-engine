@@ -156,6 +156,18 @@ module Animate {
 		// 	return false;
 		// }
 
+        onContext( e : React.MouseEvent ) {
+            e.preventDefault();
+            ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: [
+                { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
+                    { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
+                    { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
+                    { label: 'Create Parameter', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
+                    { label: 'Create Product', prefix: <i className="fa fa-plus" aria-hidden="true" /> }
+                ]}
+            ]});
+        }
+
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -163,6 +175,7 @@ module Animate {
         render() : JSX.Element {
             return (
                 <div
+                    onContextMenu={(e) => { this.onContext(e); }}
                     ref='canvas'
                     className='canvas'
                     onClick={(e) => this.props.store.onNodeSelected(null, false)}
