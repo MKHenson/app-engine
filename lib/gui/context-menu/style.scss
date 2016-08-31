@@ -37,7 +37,7 @@
             text-align: center;
         }
 
-        &:hover .menu-item-button {
+        .menu-item-button:hover {
             background: shade( $tooltip-bg, 15 );
         }
     }
