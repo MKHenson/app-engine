@@ -128,7 +128,9 @@ module Animate {
             return (
                 <div
                     ref="behaviour"
-                    className={'behaviour scale-in-animation unselectable' + ( this.props.behaviour.selected() ? ' selected' : '' )}
+                    className={'behaviour scale-in-animation unselectable' +
+                        ( this.props.behaviour.selected() ? ' selected' : '' ) +
+                        ( this.props.behaviour.className ? ' ' + this.props.behaviour.className : '' )}
                     style={{
                         width: tw + 'px',
                         height: th + 'px',
@@ -136,6 +138,10 @@ module Animate {
                         top: this.props.behaviour.top + 'px'
                     }}
                     onMouseDown={(e) => { this.onMouseDown(e) }}
+                    onContextMenu={(e) => {
+                        behaviour.store.onNodeSelected(behaviour, behaviour.selected() ? true : false, false );
+                        behaviour.onContext(e);
+                    }}
                     onClick={(e) => {
                         e.stopPropagation();
                         this.props.behaviour.store.onNodeSelected(this.props.behaviour, e.shiftKey )}}

@@ -10,6 +10,7 @@
     export class CanvasItem extends EventDispatcher {
         public top: number;
         public left: number;
+        public className: string;
         public store : CanvasStore;
         public id: number;
         private _selected: boolean;
@@ -23,6 +24,14 @@
             this.top = 0;
             this.left = 0;
             this._selected = false;
+            this.className = '';
+        }
+
+        /**
+         * Called when we activate the context menu on the behaviour
+         */
+        onContext(e: React.MouseEvent) {
+
         }
 
         /**
