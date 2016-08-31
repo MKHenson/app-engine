@@ -112,7 +112,6 @@
         type: PortalType;
         custom: boolean;
         property: any;
-        links: number;
     }
     /**
 	 * A basic wrapper for a CanvasItem interface

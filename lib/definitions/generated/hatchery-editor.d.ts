@@ -125,7 +125,6 @@ declare module Animate {
         type: PortalType;
         custom: boolean;
         property: any;
-        links: number;
     }
     /**
 	 * A basic wrapper for a CanvasItem interface
@@ -3670,6 +3669,7 @@ declare module Animate {
     class CanvasItem extends EventDispatcher {
         top: number;
         left: number;
+        className: string;
         store: CanvasStore;
         id: number;
         private _selected;
@@ -3677,6 +3677,10 @@ declare module Animate {
          * Creates an instance
          */
         constructor();
+        /**
+         * Called when we activate the context menu on the behaviour
+         */
+        onContext(e: React.MouseEvent): void;
         /**
          * Gets or sets if the item is selected
          * @param {boolean} val
@@ -3771,6 +3775,36 @@ declare module Animate {
         outputs: Array<Portal>;
         inputs: Array<Portal>;
         portals: Array<Portal>;
+    }
+}
+declare module Animate {
+    /**
+     * A behaviour for representing container portals
+     */
+    class BehaviourPortal extends Behaviour {
+        private _portalType;
+        private _property;
+        /**
+         * Creates an instance
+         */
+        constructor(property: Prop<any>, portalType?: PortalType);
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {IBehaviourPortal}
+         */
+        serialize(id: number): IBehaviourPortal;
+        /**
+         * De-Serializes data from a JSON.
+         * @param {IBehaviourPortal} data The data to import from
+         */
+        deSerialize(data: IBehaviourPortal): void;
+        /**
+         * This will cleanup the component.
+         */
+        dispose(): void;
+        portaltype: PortalType;
+        property: Prop<any>;
     }
 }
 declare module Animate {
@@ -3911,6 +3945,7 @@ declare module Animate {
         * @returns {Behaviour}
         */
         createNode(template: BehaviourDefinition, x: number, y: number, container?: Container, name?: string): Behaviour;
+        onContext(e: React.MouseEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
