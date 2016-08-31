@@ -51,6 +51,7 @@ module Animate {
          */
         private onMouseDown(e: React.MouseEvent, item : IReactContextMenuItem) {
             e.preventDefault();
+            e.stopPropagation();
 
             if (this.props.onChange)
                 this.props.onChange(item);
