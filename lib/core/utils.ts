@@ -289,30 +289,76 @@
         }
 
 		/**
-        * Gets the local mouse position of an event on a given dom element.
-        */
-		static getMousePos( evt, id ): any {
-			// get canvas position
-			var obj: any = document.getElementById( id );
-			var top: number = 0;
-			var left: number = 0;
+         * Gets the relative position of the mouse to the given element
+         * @param {React.MouseEvent} e
+         * @param {HTMLElement} elm The target element
+         * @returns {{ x: number, y : number }}
+         */
+        static getRelativePos( e: React.MouseEvent, elm: HTMLElement ) : { x: number, y : number } {
+            let offsetX = elm.offsetLeft;
+            let offsetY = elm.offsetTop;
+            let scrollX = elm.scrollLeft;
+            let scrollY = elm.scrollTop;
+            let ref = elm.offsetParent as HTMLElement;
 
-			while ( obj && obj.tagName != 'BODY' ) {
-				top += obj.offsetTop;
-				left += obj.offsetLeft;
-				obj = obj.offsetParent;
-			}
+            while ( ref ) {
+                offsetX += ref.offsetLeft;
+                offsetY += ref.offsetTop;
+                scrollX += ref.scrollLeft;
+                scrollY += ref.scrollTop;
+                ref = ref.offsetParent as HTMLElement;
+            }
 
-			var p = jQuery( "#" + id ).parent().parent();
-			var scrollX = p.scrollLeft();
-			var scrollY = p.scrollTop();
+            const mouse = { x: e.pageX - offsetX, y: e.pageY - offsetY };
+            const x = mouse.x + scrollX;
+            const y = mouse.y + scrollY;
+            return { x: x, y: y };
+        }
 
-			// return relative mouse position
-			var mouseX = evt.clientX - left + scrollX;// window.pageXOffset;
-			var mouseY = evt.clientY - top + scrollY;//window.pageYOffset;
+        /**
+         * Gets a quadratically eased in/out value
+         * @param {number} startValue The initial value
+         * @param {number} delta The difference between the start value and its target
+         * @param {number} curTime Between 0 and duration
+         * @param {number} duration The total time
+         * @returns {number}
+         */
+        static quadInOut( startValue, delta, curTime, duration ) : number {
+            curTime /= duration/2;
+            if (curTime < 1) return delta/2*curTime*curTime + startValue;
+            curTime--;
+            return -delta/2 * (curTime*(curTime-2) - 1) + startValue;
+        };
 
-			return { y: mouseY, x: mouseX };
-		}
+        /**
+         * Scrolls an element to the destination x and y for a given duration
+         * @param {{ x: number, y : number }} dest The target X & Y coordinates
+         * @param {HTMLElement} elm The element to scroll
+         * @param {number} duration The total amount of time to take to scroll
+         * @return {number} Returns setInterval
+         */
+        static scrollTo( dest : { x: number, y : number }, elm: HTMLElement, duration : number ) : number {
+            let curTime = 0;
+            let left = 0;
+            let top = 0;
+            const tick = 15;
+            const startX = elm.scrollLeft;
+            const startY = elm.scrollTop;
+            const deltaX = dest.x - elm.scrollLeft;
+            const deltaY = dest.y - elm.scrollTop;
+            let scrollInterval = window.setInterval( () => {
+                curTime += tick;
+                left = this.quadInOut(startX, deltaX, curTime, duration);
+                top = this.quadInOut(startY, deltaY, curTime, duration);
+                if (curTime > duration)
+                    clearInterval( scrollInterval );
+
+                elm.scrollLeft = left;
+                elm.scrollTop = top;
+            }, tick);
+
+            return scrollInterval;
+        }
 
 		/**
 		* Use this function to check if a value contains characters that break things.

@@ -1083,9 +1083,35 @@ declare module Animate {
         */
         static createProperty(name: string, type: PropertyType): Prop<any>;
         /**
-        * Gets the local mouse position of an event on a given dom element.
-        */
-        static getMousePos(evt: any, id: any): any;
+         * Gets the relative position of the mouse to the given element
+         * @param {React.MouseEvent} e
+         * @param {HTMLElement} elm The target element
+         * @returns {{ x: number, y : number }}
+         */
+        static getRelativePos(e: React.MouseEvent, elm: HTMLElement): {
+            x: number;
+            y: number;
+        };
+        /**
+         * Gets a quadratically eased in/out value
+         * @param {number} startValue The initial value
+         * @param {number} delta The difference between the start value and its target
+         * @param {number} curTime Between 0 and duration
+         * @param {number} duration The total time
+         * @returns {number}
+         */
+        static quadInOut(startValue: any, delta: any, curTime: any, duration: any): number;
+        /**
+         * Scrolls an element to the destination x and y for a given duration
+         * @param {{ x: number, y : number }} dest The target X & Y coordinates
+         * @param {HTMLElement} elm The element to scroll
+         * @param {number} duration The total amount of time to take to scroll
+         * @return {number} Returns setInterval
+         */
+        static scrollTo(dest: {
+            x: number;
+            y: number;
+        }, elm: HTMLElement, duration: number): number;
         /**
         * Use this function to check if a value contains characters that break things.
         * @param {string} text The text to check
@@ -3947,21 +3973,31 @@ declare module Animate {
     class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
         private _upProxy;
         private _moveProxy;
-        private _deltaX;
-        private _deltaY;
+        private _mouseDelta;
+        private _scrollInterval;
         /**
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps);
-        componentDidMount(): void;
+        /**
+         * When unmounting, we remove any listeners
+         */
         componentWillUnmount(): void;
         onLinkStart(e: React.MouseEvent): void;
+        /**
+         * When the mouse is down on the behaviour, we add the drag listeners
+         * @param {React.MouseEvent} e
+         */
         onMouseDown(e: React.MouseEvent): void;
-        getRelativePos(e: React.MouseEvent): {
-            x: number;
-            y: number;
-        };
+        /**
+         * When the mouses moves we drag the behaviour
+         * @param {React.MouseEvent} e
+         */
         onMouseMove(e: React.MouseEvent): void;
+        /**
+         * When the mouse is up we remove the events
+         * @param {React.MouseEvent} e
+         */
         onMouseUp(e: React.MouseEvent): void;
         /**
          * Creates the component elements

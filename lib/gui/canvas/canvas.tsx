@@ -51,21 +51,7 @@ module Animate {
 		onObjectDropped( e: React.MouseEvent, json : IDragDropToken ) {
 
             let elm = this.refs['canvas'] as HTMLElement;
-            let offsetX = elm.parentElement.offsetLeft;
-            let offsetY = elm.parentElement.offsetTop;
-            let ref = elm.offsetParent as HTMLElement;
-
-            while ( ref ) {
-                offsetX += ref.offsetLeft;
-                offsetY += ref.offsetTop;
-                ref = ref.offsetParent as HTMLElement;
-            }
-
-            let scrollX = elm.scrollLeft;
-            let scrollY = elm.scrollTop;
-            let mouse = { x: e.pageX - offsetX, y: e.pageY - offsetY };
-            let x = mouse.x + scrollX;
-            let y = mouse.y + scrollY;
+            const mouse = Utils.getRelativePos(e, elm);
 
             if ( json.type == 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID(json.id as number);
@@ -74,11 +60,11 @@ module Animate {
                     //this.addAssetAtLocation(resource, x, y);
                 }
                 else if (resource instanceof Container)
-                    this.createNode( PluginManager.getSingleton().getTemplate("Instance"), x, y, resource);
+                    this.createNode( PluginManager.getSingleton().getTemplate("Instance"), mouse.x, mouse.y, resource);
 
             }
             else ( json.type == 'template' )
-                this.createNode( PluginManager.getSingleton().getTemplate( json.id as string ), x, y );
+                this.createNode( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
 
 		}
 

@@ -10,8 +10,8 @@ module Animate {
     export class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
         private _upProxy;
         private _moveProxy;
-        private _deltaX;
-        private _deltaY;
+        private _mouseDelta: {x: number, y: number};
+        private _scrollInterval: number;
 
         /**
          * Creates an instance of the component
@@ -20,18 +20,13 @@ module Animate {
             super(props);
             this._upProxy = this.onMouseUp.bind(this);
             this._moveProxy = this.onMouseMove.bind(this);
+            this._mouseDelta = null;
         }
 
-        componentDidMount() {
-            // let elm = this.refs['behaviour'] as HTMLElement;
-            // jQuery(elm).draggable({  cancel: ".portal", scroll: true, scrollSensitivity: 1 } as JQueryUI.DraggableOptions);
-            //toRet.element.draggable({ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 } as JQueryUI.DraggableOptions);
-        }
-
-        componentWillUnmount() {
-            // The draggable functionality is added in the Canvas addChild function because we need to listen for the events.
-			// To make sure its properly removed however we put it here.
-			//this.element.draggable( "destroy" );
+        /**
+         * When unmounting, we remove any listeners
+         */
+        componentWillUnmount() {;
             window.removeEventListener('mouseup', this._upProxy);
             window.removeEventListener('mousemove', this._moveProxy);
         }
@@ -40,52 +35,57 @@ module Animate {
 
         }
 
+        /**
+         * When the mouse is down on the behaviour, we add the drag listeners
+         * @param {React.MouseEvent} e
+         */
         onMouseDown(e: React.MouseEvent) {
+            this._mouseDelta = Utils.getRelativePos(e, this.refs['behaviour'] as HTMLElement );
             e.preventDefault();
             window.addEventListener('mouseup', this._upProxy);
             window.addEventListener('mousemove', this._moveProxy);
         }
 
-        getRelativePos( e: React.MouseEvent ) : {x: number; y: number} {
-            let elm = this.refs['behaviour'] as HTMLElement;
-            let offsetX = elm.parentElement.offsetLeft;
-            let offsetY = elm.parentElement.offsetTop;
-            let ref = elm.offsetParent as HTMLElement;
 
-            while ( ref ) {
-                offsetX += ref.offsetLeft;
-                offsetY += ref.offsetTop;
-                ref = ref.offsetParent as HTMLElement;
-            }
 
-            let scrollX = elm.parentElement.scrollLeft;
-            let scrollY = elm.parentElement.scrollTop;
-            let mouse = { x: e.pageX - offsetX, y: e.pageY - offsetY };
-            let x = mouse.x + scrollX;
-            let y = mouse.y + scrollY;
-            return { x: x, y: y };
-        }
-
+        /**
+         * When the mouses moves we drag the behaviour
+         * @param {React.MouseEvent} e
+         */
         onMouseMove(e: React.MouseEvent) {
-            let pos = this.getRelativePos(e);
-            let elm = this.refs['behaviour'] as HTMLElement;
-            let xBuffer = 0;
-            let yBuffer = 0;
+            const elm = this.refs['behaviour'] as HTMLElement;
+            const pos = Utils.getRelativePos( e, elm.parentElement );
+            const xBuffer = 10;
+            const yBuffer = 10;
+            let targetScrollX = elm.parentElement.scrollLeft;
+            let targetScrollY = elm.parentElement.scrollTop;
+
+            pos.x -=  this._mouseDelta.x;
+            pos.y -= this._mouseDelta.y;
 
             elm.style.left = pos.x + 'px';
             elm.style.top = pos.y + 'px';
 
             if ( pos.x + (elm.offsetWidth + xBuffer) > elm.parentElement.offsetWidth + elm.parentElement.scrollLeft )
-                elm.parentElement.scrollLeft = ( pos.x - elm.parentElement.offsetWidth ) + (elm.offsetWidth + xBuffer);
+                targetScrollX = ( pos.x - elm.parentElement.offsetWidth ) + (elm.offsetWidth + xBuffer);
             else if ( pos.x  - xBuffer < elm.parentElement.scrollLeft )
-                elm.parentElement.scrollLeft = ( pos.x ) - (elm.offsetWidth + xBuffer);
+                targetScrollX = ( pos.x ) - (elm.offsetWidth + xBuffer);
 
             if ( pos.y + (elm.offsetHeight + yBuffer) > elm.parentElement.offsetHeight + elm.parentElement.scrollTop )
-                elm.parentElement.scrollTop = ( pos.y - elm.parentElement.offsetHeight ) + (elm.offsetHeight + yBuffer);
+               targetScrollY = ( pos.y - elm.parentElement.offsetHeight ) + (elm.offsetHeight + yBuffer);
             else if ( pos.y - yBuffer < elm.parentElement.scrollTop )
-                elm.parentElement.scrollTop = ( pos.y ) - ( elm.offsetHeight + yBuffer );
+               targetScrollY = ( pos.y ) - ( elm.offsetHeight + yBuffer );
+
+            if ( targetScrollX != elm.parentElement.scrollLeft || targetScrollY != elm.parentElement.scrollTop ) {
+                window.clearInterval( this._scrollInterval );
+                this._scrollInterval = Utils.scrollTo( { x: targetScrollX, y : targetScrollY }, elm.parentElement, 250 );
+            }
         }
 
+        /**
+         * When the mouse is up we remove the events
+         * @param {React.MouseEvent} e
+         */
         onMouseUp(e: React.MouseEvent) {
             window.removeEventListener('mouseup', this._upProxy);
             window.removeEventListener('mousemove', this._moveProxy);
@@ -96,43 +96,26 @@ module Animate {
          * @returns {JSX.Element}
          */
         render() : JSX.Element {
-            let behaviour = this.props.behaviour;
-            let fontSize = 5;
+            const behaviour = this.props.behaviour;
+            const fontSize = 5;
             let tw = fontSize * behaviour.alias.length + 20;
             let th = fontSize + 20;
-            let portalSize = 10;
-			let portalSpacing = 5;
-            let padding = 10;
-            let params = behaviour.parameters;
-            let products = behaviour.products;
-            let inputs = behaviour.inputs;
-            let outputs = behaviour.outputs;
-            let svgSize = 10;
-            let svgSizeHalf = svgSize * 0.5;
-            let svgBlockS = svgSize * 0.65;
-            let svgTriS = svgSize * 0.3;
-
-            // for ( let portal of behaviour.portals )
-            //     switch (portal.type) {
-            //         case 'product':
-            //             products.push(portal);
-            //             break;
-            //         case 'parameter':
-            //             params.push(portal);
-            //             break;
-            //         case 'input':
-            //             inputs.push(portal);
-            //             break;
-            //         case 'output':
-            //             outputs.push(portal);
-            //             break;
-            //     }
-
-			let maxHorPortals = (products.length > params.length ? products.length : params.length );
-			let maxVertPortals = (inputs.length > outputs.length ? inputs.length : outputs.length );
-            let totalPortalSpacing = portalSize + portalSpacing;
-            let maxHorSize = totalPortalSpacing * maxHorPortals;
-            let maxVertSize = totalPortalSpacing * maxVertPortals;
+            const portalSize = 10;
+			const portalSpacing = 5;
+            const padding = 10;
+            const params = behaviour.parameters;
+            const products = behaviour.products;
+            const inputs = behaviour.inputs;
+            const outputs = behaviour.outputs;
+            const svgSize = 10;
+            const svgSizeHalf = svgSize * 0.5;
+            const svgBlockS = svgSize * 0.65;
+            const svgTriS = svgSize * 0.3;
+			const maxHorPortals = (products.length > params.length ? products.length : params.length );
+			const maxVertPortals = (inputs.length > outputs.length ? inputs.length : outputs.length );
+            const totalPortalSpacing = portalSize + portalSpacing;
+            const maxHorSize = totalPortalSpacing * maxHorPortals;
+            const maxVertSize = totalPortalSpacing * maxVertPortals;
 
             // If the portals increase the size - the update the dimensions
             tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
