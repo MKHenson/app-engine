@@ -159,6 +159,7 @@ module Animate {
         onContext( e : React.MouseEvent ) {
             e.preventDefault();
             ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: [
+                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" /> },
                 { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
                     { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
