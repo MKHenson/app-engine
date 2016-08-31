@@ -31,7 +31,6 @@ module Animate {
 			return {
 				name: this.property.name,
 				custom: this.custom,
-				links: this.links.length,
 				property: this.property.tokenize(),
 				type: this.type
 			};
