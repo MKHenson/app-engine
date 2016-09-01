@@ -138,17 +138,6 @@
         }
     }
 
-    export class ContextMenuEvent extends Event {
-        public item: ContextMenuItem;
-
-
-        constructor(item: ContextMenuItem, eventName: any) {
-            super(eventName, item);
-
-            this.item = item;
-        }
-    }
-
     export class UserEvent extends Event {
         constructor(type: string, data: any) {
             super(type, data);
@@ -398,25 +387,6 @@
             this.canvas = canvas;
         }
     }
-
-    export class ListViewEvent extends Event {
-        public item: ListViewItem;
-
-        constructor(eventType: ListViewEvents, item: ListViewItem) {
-            super(eventType);
-            this.item = item;
-        }
-    }
-
-    // export class ListEvent extends Event {
-    //     public item: string;
-
-    //     constructor(eventName: ListEvents, item: string) {
-    //         super(eventName, item);
-
-    //         this.item = item;
-    //     }
-    // }
 
     /**
 	* A simple project event. Always related to a project resource (null if not)

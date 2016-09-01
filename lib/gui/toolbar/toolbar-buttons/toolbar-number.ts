@@ -10,7 +10,7 @@
 	*  A toolbar button for numbers
 	*/
 	export class ToolbarNumber extends Component {
-		private static input: InputBox;
+		private static input: any//InputBox;
 		private static numInstances: number = 0;
 
 		private defaultVal: number;
@@ -47,7 +47,7 @@
 			this.delta = delta;
 
 			if ( !ToolbarNumber.input ) {
-				ToolbarNumber.input = new InputBox( null, "" );
+				//ToolbarNumber.input = new InputBox( null, "" );
 				ToolbarNumber.input.element.css( { "pointer-events": "all" });
 				ToolbarNumber.numInstances = 0;
 			}

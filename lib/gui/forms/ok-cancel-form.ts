@@ -13,8 +13,8 @@ module Animate {
 	export class OkCancelForm extends Window {
 		public okCancelContent: Component;
 		private mButtonContainer: Component;
-		private mOk: Button;
-		private mCancel: Button;
+		private mOk: any;// Button;
+		private mCancel: any;// Button;
 		private keyProxy: any;
 
 		/**
@@ -34,8 +34,8 @@ module Animate {
 			//this.heading = new Label( this.content, "OkCancelForm" );
 			this.okCancelContent = new Component( "<div class='content'></div>", this.content );
 			this.mButtonContainer = new Component( "<div class='button-container'></div>", this.content );
-			this.mOk = new Button( "Ok", this.mButtonContainer );
-			this.mCancel = new Button( "Cancel", this.mButtonContainer );
+			//this.mOk = new Button( "Ok", this.mButtonContainer );
+			//this.mCancel = new Button( "Cancel", this.mButtonContainer );
 
 			//Set button height and width
 			this.mOk.css( { width: "70px", height: "30px", "margin-right": "3px" });

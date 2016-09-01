@@ -2,9 +2,9 @@ module Animate {
 	export class UserPrivilegesForm extends Window {
 		private static _singleton: UserPrivilegesForm;
 
-		private mSave: Button;
+		private mSave: any;//Button;
 		private search: Component;
-		private mMenu: ListView;
+		private mMenu: any;// ListView;
 		//private mServerProxy: any;
 		private keyDownProxy: any;
 		private buttonProxy: any;
@@ -19,14 +19,14 @@ module Animate {
 			var top: Component = <Component>this.content.addChild( "<div class='top'></div>" );
 			var bottom: Component = <Component>this.content.addChild( "<div class='bottom'></div>" );
 
-			this.mSave = new Button( "Save", bottom );
+			//this.mSave = new Button( "Save", bottom );
 			this.mSave.element.width( 80 );
 			this.mSave.element.height( 30 );
 			this.mSave.element.css({ "margin": "0px 3px 3px 3px", "line-height":"30px" });
 
 			this.search = <Component>bottom.addChild("<div class='asset-search'><input type='text'></input><img src='media/search.png' /></div>");
 
-			this.mMenu = new ListView(top);
+			//this.mMenu = new ListView(top);
 			this.mMenu.addColumn("Username");
 			this.mMenu.addColumn("Access Rights");
 
@@ -34,11 +34,11 @@ module Animate {
 			this.mMenu.setColumnWidth( 0, 185 );
 			this.mMenu.setColumnWidth( 1, 255 );
 
-			this.mMenu.addItem(new ListViewItem(["Mat", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
-			this.mMenu.addItem(new ListViewItem(["Mat2", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
-			this.mMenu.addItem(new ListViewItem(["Anna", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
-			this.mMenu.addItem(new ListViewItem(["Steve", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
-			this.mMenu.addItem(new ListViewItem(["Ilka", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
+			// this.mMenu.addItem(new ListViewItem(["Mat", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
+			// this.mMenu.addItem(new ListViewItem(["Mat2", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
+			// this.mMenu.addItem(new ListViewItem(["Anna", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
+			// this.mMenu.addItem(new ListViewItem(["Steve", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
+			// this.mMenu.addItem(new ListViewItem(["Ilka", "<select><option value='hidden'>Hidden</option><option value='read'>Read</option><option value='write'>Write</option><option value='admin'>Administrate</option></select>"]));
 
 
 			//EVENTS AND LISTENERS
@@ -62,17 +62,18 @@ module Animate {
 						var data: Array<{ userId: string; username: string; privilege: PrivilegeType; }> = event.tag;
 
 						for ( var i = 0, l = data.length; i < l; i++ ) {
-							var item = new ListViewItem(
-								[
-									data[i].username,
-									"<select>" +
-									"<option value='" + PrivilegeType.NONE + "' " + ( data[i].privilege == PrivilegeType.NONE ? "selected='selected'" : "" ) + ">Hidden</option>" +
-									"<option value='" + PrivilegeType.READ + "' " + ( data[i].privilege == PrivilegeType.READ ? "selected='selected'" : "" ) + ">Read</option>" +
-									"<option value='" + PrivilegeType.WRITE + "' " + ( data[i].privilege == PrivilegeType.WRITE ? "selected='selected'" : "" ) + ">Write</option>" +
-									"<option value='" + PrivilegeType.ADMIN + "' " + ( data[i].privilege == PrivilegeType.ADMIN ? "selected='selected'" : "" ) + ">Administrate</option>" +
-									"</select>"
-								]
-								);
+							var item;
+							//  = new ListViewItem(
+							// 	[
+							// 		data[i].username,
+							// 		"<select>" +
+							// 		"<option value='" + PrivilegeType.NONE + "' " + ( data[i].privilege == PrivilegeType.NONE ? "selected='selected'" : "" ) + ">Hidden</option>" +
+							// 		"<option value='" + PrivilegeType.READ + "' " + ( data[i].privilege == PrivilegeType.READ ? "selected='selected'" : "" ) + ">Read</option>" +
+							// 		"<option value='" + PrivilegeType.WRITE + "' " + ( data[i].privilege == PrivilegeType.WRITE ? "selected='selected'" : "" ) + ">Write</option>" +
+							// 		"<option value='" + PrivilegeType.ADMIN + "' " + ( data[i].privilege == PrivilegeType.ADMIN ? "selected='selected'" : "" ) + ">Administrate</option>" +
+							// 		"</select>"
+							// 	]
+							// 	);
 
 							item.tag = data[i].userId;
 

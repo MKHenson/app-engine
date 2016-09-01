@@ -10,7 +10,7 @@ module Animate {
 	export class BehaviourPicker extends Window {
 		private static _singleton: BehaviourPicker;
 
-		private _input: InputBox;
+		private _input: any;//InputBox;
 		private _list: List;
 		private _X: number;
 		private _Y: number;
@@ -23,7 +23,7 @@ module Animate {
             this.element.addClass( "tooltip-text-bg" );
 			this.element.addClass( "behaviour-picker" );
 
-            this._input = new InputBox(this.content, "Behaviour Name");
+            //this._input = new InputBox(this.content, "Behaviour Name");
 			// TODO: This must be refactored from updates to TSX
 			// ==================================================
              // this._list = new List(this.content );

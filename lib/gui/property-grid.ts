@@ -3,12 +3,12 @@ module Animate {
 	* A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
 	* Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
 	*/
-	export class PropertyGrid extends Component implements IDockItem {
+	export class PropertyGrid extends Component {
 		private static _singleton: PropertyGrid;
 
 		private _header: JQuery;
 		private _editors: Array<PropertyGridEditor>;
-		private _docker: Docker;
+		//private _docker: Docker;
 		private _groups: Array<PropertyGridGroup>;
 		private _object: EditableSet;
 
@@ -21,7 +21,7 @@ module Animate {
             this._header = jQuery( "<div class='property-grid-header background-dark'>Select an Object</div>" );
 			this.element.append( this._header );
 			this._editors = [];
-			this._docker = null;
+			//this._docker = null;
 			this._groups = [];
 
             this.addEditor(new PGTextbox( this ) );
@@ -43,16 +43,16 @@ module Animate {
 		*/
 		getPreviewImage() :string { return "media/spanner.png"; }
 
-		/**
-		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		*/
-		getDocker(): Docker { return this._docker; }
+		// /**
+		// * Each IDock item needs to implement this so that we can keep track of where it moves.
+		// */
+		// getDocker(): Docker { return this._docker; }
 
-		/**
-		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @param <object> val
-		*/
-		setDocker( val : Docker ) { this._docker = val; }
+		// /**
+		// * Each IDock item needs to implement this so that we can keep track of where it moves.
+		// * @param <object> val
+		// */
+		// setDocker( val : Docker ) { this._docker = val; }
 
 		/**
 		* This is called by a controlling Docker class when the component needs to be shown.

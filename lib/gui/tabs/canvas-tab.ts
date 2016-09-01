@@ -18,7 +18,7 @@ module Animate {
 		private _currentCanvas: Canvas;
 		private welcomeTab: TabPair;
 		private closingTabPair: TabPair;
-		private mDocker: Docker;
+		//private mDocker: Docker;
 
 		constructor( parent : Component ) {
 
@@ -51,17 +51,17 @@ module Animate {
 			return "media/canvas.png";
 		}
 
-		/**
-		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @returns {Docker}
-		*/
-		getDocker() : Docker { return this.mDocker; }
+		// /**
+		// * Each IDock item needs to implement this so that we can keep track of where it moves.
+		// * @returns {Docker}
+		// */
+		// getDocker() : Docker { return this.mDocker; }
 
-		/**
-		* Each IDock item needs to implement this so that we can keep track of where it moves.
-		* @param {Docker} val
-		*/
-		setDocker( val : Docker ) { this.mDocker = val; }
+		// /**
+		// * Each IDock item needs to implement this so that we can keep track of where it moves.
+		// * @param {Docker} val
+		// */
+		// setDocker( val : Docker ) { this.mDocker = val; }
 
 		/**
 		* This is called by a controlling Docker class when the component needs to be shown.

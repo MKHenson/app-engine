@@ -42,27 +42,6 @@ declare module Animate {
     }
 
     /**
-	* A simple interface for any compent that needs to act as a Docker parent.
-	*/
-    export interface IDockItem extends IComponent {
-		/*This is called by a controlling Docker class. An image string needs to be returned
-		* which will act as a preview of the component that is being viewed or hidden.*/
-        getPreviewImage(): string;
-
-        /*This is called by a controlling Docker class when the component needs to be shown.*/
-        onShow(): void;
-
-        /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
-        getDocker(): Docker;
-
-        /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
-        setDocker(dockItem: Docker);
-
-        /*This is called by a controlling Docker class when the component needs to be hidden.*/
-        onHide(): void;
-    }
-
-    /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
 	*/
     export interface IPlugin {
@@ -818,10 +797,6 @@ declare module Animate {
         behaviourName: string;
         constructor(eventName: BehaviourPickerEvents, behaviourName: string);
     }
-    class ContextMenuEvent extends Event {
-        item: ContextMenuItem;
-        constructor(item: ContextMenuItem, eventName: any);
-    }
     class UserEvent extends Event {
         constructor(type: string, data: any);
     }
@@ -929,10 +904,6 @@ declare module Animate {
     class CanvasEvent extends Event {
         canvas: Canvas;
         constructor(eventName: CanvasEvents, canvas: Canvas);
-    }
-    class ListViewEvent extends Event {
-        item: ListViewItem;
-        constructor(eventType: ListViewEvents, item: ListViewItem);
     }
     /**
     * A simple project event. Always related to a project resource (null if not)
@@ -2545,25 +2516,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    /**
-    * A singleton class that manages displaying the tooltips of various components.
-    */
-    class TooltipManager {
-        private static _singleton;
-        private label;
-        constructor();
-        /**
-        * @description Called when we hover over an element.
-        * @param {any} e The JQUery event object
-        */
-        onMove: (e: any) => void;
-        /**
-        * Gets the singleton instance
-        */
-        static create(): TooltipManager;
-    }
-}
-declare module Animate {
     class ComponentEvents extends ENUM {
         constructor(v: string);
         static UPDATED: ComponentEvents;
@@ -2675,46 +2627,6 @@ declare module Animate {
         * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
         */
         selected: boolean;
-    }
-}
-declare module Animate {
-    /**
-    * A Docker is used in Animate so that we can divide up screen real estate. A box is added to a parent component
-    * which, when hovered or dragged, will enabled the user to move components around or explore hidden sections
-    * of the application.
-    */
-    class Docker extends Component {
-        private activeComponent;
-        private _activePreview;
-        private rollout;
-        private mComponents;
-        private mPreviews;
-        private startProxy;
-        private stopProxy;
-        private clickPreview;
-        private dropProxy;
-        constructor(parent: Component);
-        /** When we click on a preview.*/
-        onClick(e: any): void;
-        /** When we start draggin.*/
-        onStart(e: any): void;
-        /** When we stop draggin.*/
-        onStop(e: any): void;
-        /** Called when the mouse is over this element.*/
-        onEnter(e: any): void;
-        /** Called when the mouse leaves this element.*/
-        onOut(e: any): void;
-        /**Called when a draggable object is dropped onto the canvas.*/
-        onObjectDropped(event: any, ui: any): void;
-        /** Call this function to update the manager.*/
-        update(): void;
-        /** Gets the singleton instance. */
-        setActiveComponent(comp: IDockItem, attach?: boolean): void;
-        /** Removes an IDockItem from the manager */
-        removeComponent(comp: IDockItem, completeRemoval?: boolean): void;
-        /** Adds a IDockItem to the manager */
-        addComponent(comp: any, attach: any): void;
-        activePreview: JQuery;
     }
 }
 declare module Animate {
@@ -3020,89 +2932,6 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class ContextMenuItem extends Component {
-        private _text;
-        private _imgURL;
-        /**
-        * Creates an instance of the item
-        * @param {string} text The text of the item
-        * @param {string} imgURL An optional image URL
-        */
-        constructor(text: string, imgURL: string, parent?: Component);
-        /** Gets the text of the item */
-        /** Sets the text of the item */
-        text: string;
-        /** Gets the image src of the item */
-        /** Sets the image src of the item */
-        imageURL: string;
-    }
-    class ContextMenuEvents extends ENUM {
-        constructor(v: string);
-        static ITEM_CLICKED: ContextMenuEvents;
-    }
-    /**
-    * A ContextMenu is a popup window which displays a list of items that can be selected.
-    */
-    class ContextMenu extends Window {
-        static currentContext: ContextMenu;
-        private items;
-        private selectedItem;
-        /**
-        */
-        constructor();
-        /**
-        * Cleans up the context menu
-        */
-        dispose(): void;
-        /**
-        * Shows the window by adding it to a parent.
-        * @param {Component} parent The parent Component we are adding this window to
-        * @param {number} x The x coordinate of the window
-        * @param {number} y The y coordinate of the window
-        * @param {boolean} isModal Does this window block all other user operations?
-        * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-        */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
-        /**
-        * Adds an item to the ContextMenu
-        * @param {ContextMenuItem} val The item we are adding
-        * @returns {ContextMenuItem}
-        */
-        addItem(val: ContextMenuItem): ContextMenuItem;
-        /**
-        * Removes an item from the ContextMenu
-        * @param {ContextMenuItem} val The item we are removing
-        * @returns {ContextMenuItem}
-        */
-        removeItem(val: ContextMenuItem): ContextMenuItem;
-        /**
-        * Checks if we selected an item - if so it closes the context and dispatches the ITEM_CLICKED event.
-        */
-        onStageClick(e: any): void;
-        /**
-        * @description Called when we click an item
-        * @param {ContextMenuItem} item The selected item
-        * @param {JQuery} jqueryItem The jquery item
-        */
-        onItemClicked(item: ContextMenuItem, jqueryItem: JQuery): void;
-        /**
-        * Gets the number of items
-        * @returns {number}
-        */
-        numItems: number;
-        /**
-        * Gets an item from the menu
-        * @param {string} val The text of the item we need to get
-        * @returns {ContextMenuItem}
-        */
-        getItem(val: string): ContextMenuItem;
-        /**
-        * Removes all items
-        */
-        clear(): void;
-    }
-}
-declare module Animate {
     interface ITabProps {
         panes: React.ReactElement<ITabPaneProps>[];
     }
@@ -3262,339 +3091,6 @@ declare module Animate {
         * Cleans up the references
         */
         dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * A simple label wrapper. This creates a div that has a textfield sub div. the
-    * subdiv is the DOM element that actually contains the text.
-    */
-    class Label extends Component {
-        private _text;
-        textfield: Component;
-        constructor(text: string, parent: Component, html?: string);
-        /**
-        * Gets the text of the label
-        */
-        /**
-        * Sets the text of the label
-        */
-        text: string;
-        /**
-        * This will cleanup the {Label}
-        */
-        dispose(): void;
-        /**
-        * Returns the text height, in pixels, of this label. Use this function sparingly as it adds a clone
-        * of the element to the body, measures the text then removes the clone. This is so that we get the text even if
-        * the <Component> is not on the DOM
-        * @extends <Label>
-        * @returns <number>
-        */
-        textHeight: number;
-    }
-}
-declare module Animate {
-    /**
-    * A simple button class
-    */
-    class Button extends Label {
-        /**
-        * @param {string} The button text
-        * @param {Component} parent The parent of the button
-        * @param {number} width The width of the button (optional)
-        * @param {number} height The height of the button (optional)
-        */
-        constructor(text: string, parent: Component, html?: string, width?: number, height?: number);
-        /**
-        * A shortcut for jQuery's css property.
-        */
-        css(propertyName: any, value?: any): any;
-        /**This will cleanup the component.*/
-        dispose(): void;
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        /**
-        * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-        */
-        selected: boolean;
-    }
-}
-declare module Animate {
-    /**
-    * A simple {Component} that you can use to get user input by using the text function
-    */
-    class InputBox extends Component {
-        private _limit;
-        private _textfield;
-        /**
-        * @param {Component} parent The parent <Component> to which we add this box
-        * @param {string} text The text of the input box
-        * @param {boolean} isTextArea True if this is a text area (for larger text)
-        * @param {boolean} isPassword True if this needs to be obscured for passwords
-        * @param {string} html
-        */
-        constructor(parent: Component, text: string, isTextArea?: boolean, isPassword?: boolean, html?: string);
-        /**
-        * Called when the text property is changed. This function will only fire if a limit has been
-        * set with the limitCharacters(val) function.
-        * @param {any} e
-        */
-        onTextChange(e: any): void;
-        /**
-        * Use this function to get a limit on how many characters can be entered in this input
-        * @returns {number} val The integer limit of characters
-        */
-        /**
-        * Use this function to set a limit on how many characters can be entered in this input
-        * @param {number} val The integer limit of characters
-        */
-        limitCharacters: number;
-        /**
-        * @returns {string}
-        */
-        /**
-        * @param {string} val
-        */
-        text: string;
-        /**
-        * Highlights and focuses the text of this input
-        * @param {boolean} focusInView If set to true the input will be scrolled to as well as selected. This is not
-        * always desireable because the input  might be off screen on purpose.
-        */
-        focus(focusInView?: boolean): void;
-        /**
-        * This will cleanup the component.
-        */
-        dispose(): void;
-        textfield: Component;
-    }
-}
-declare module Animate {
-    /**
-    * A wrapper class for checkboxes
-    */
-    class Checkbox extends Component {
-        private checkbox;
-        private textfield;
-        /**
-        * A wrapper class for checkboxes
-        */
-        constructor(parent: Component, text: string, checked: boolean, html?: string);
-        /**Gets if the checkbox is checked.*/
-        /**Sets if the checkbox is checked.*/
-        checked: boolean;
-        /**Gets the checkbox label text*/
-        /**Sets the checkbox label text*/
-        text: string;
-        /**This will cleanup the component.*/
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * A small component that represents a text - value pair
-    */
-    class LabelVal extends Component {
-        private label;
-        private _val;
-        /**
-        * @param {Component} parent The parent component
-        * @param {string} text The label text
-        * @param {Component} val The component we are pairing with the label
-        * @param {any} css An optional css object to apply to the val component
-        */
-        constructor(parent: Component, text: string, val: Component, css?: any);
-        /**This will cleanup the component.*/
-        dispose(): void;
-        val: Component;
-        /**Gets the label text*/
-        text: string;
-    }
-}
-declare module Animate {
-    /**
-    * The ListViewItem class is used in the ListView class. These represent the items you can select.
-    */
-    class ListViewItem {
-        private _fields;
-        private _components;
-        private _smallImg;
-        private _largeIMG;
-        private _rowNum;
-        tag: any;
-        /**
-        * @param {Array<string>} fields An array of strings. These strings will be evenly distributed between columns of a list view.
-        * @param {string} smallImg The URL of an image to use that can represent the small image of this item when in Image mode of the list view
-        * @param {string} largeIMG The URL of an image to use that can represent the large image of this item when in Image mode of the list view
-        */
-        constructor(fields: Array<string>, smallImg?: string, largeIMG?: string);
-        /**
-        * This function clears the field's components
-        */
-        clearComponents(): void;
-        /**
-        * This function is used to cleanup the object before its removed from memory.
-        */
-        dispose(): void;
-        /**
-        * Creates a preview component for the list view.
-        * @param {string} text Text to show under the preview
-        * @param {number} imgSize The size of the image
-        * @returns <Component>
-        */
-        preview(text: string, imgSize: number): Component;
-        /**
-        * Creates a field component
-        * @param string content The text to show inside of the field
-        * @returns {Component}
-        */
-        field(content: string): Component;
-        components: Array<Component>;
-        fields: Array<string>;
-        smallImg: string;
-        largeIMG: string;
-    }
-}
-declare module Animate {
-    /**
-    * The ListViewHeader class is used in the ListView class. It acts as the first selectable item row in the list view.
-    */
-    class ListViewHeader extends Component {
-        text: string;
-        /**
-        * @param {string} text The text of the header
-        * @param {string} image The optional image of the header
-        */
-        constructor(text: string, image: string);
-    }
-}
-declare module Animate {
-    class ListViewEvents extends ENUM {
-        constructor(v: string);
-        static ITEM_CLICKED: ListViewEvents;
-        static ITEM_DOUBLE_CLICKED: ListViewEvents;
-    }
-    class ColumnItem {
-        text: string;
-        image: string;
-        constructor(text: string, image?: string);
-    }
-    class ListViewType {
-        value: string;
-        constructor(v: string);
-        toString(): string;
-        static DETAILS: ListViewType;
-        static IMAGES: ListViewType;
-    }
-    /**
-    * The ListView class is used to display a series of {ListViewItem}s. Each item can
-    * organised by a series of columns
-    */
-    class ListView extends Component {
-        private _mode;
-        private _selectedItem;
-        private _lists;
-        private _items;
-        private _columns;
-        private _sortableColumn;
-        private _imgSize;
-        private _multiSelect;
-        private _fix;
-        private _divider;
-        private _selectedColumn;
-        private _dClickProxy;
-        private _clickProxy;
-        private _downProxy;
-        private _upProxy;
-        private _moveProxy;
-        constructor(parent: Component);
-        /**
-        * @returns {ListViewType} Either ListViewType.DETAILS or ListViewType.IMAGES
-        */
-        /**
-        * Toggle between the different modes
-        * @param {ListViewType} mode Either DETAILS or IMAGES mode
-        */
-        displayMode: ListViewType;
-        /**
-        * Called when we hold down on this component
-        * @param {any} e The jQuery event object
-        */
-        onDown(e: any): boolean;
-        /**
-        * Called when we move over this componeny
-        * @param {any} e The jQuery event object
-        */
-        onMove(e: any): void;
-        /**
-        * Called when the mouse up event is fired
-        * @param {any} e The jQuery event object
-        */
-        onUp(e: any): void;
-        onDoubleClick(e: any): boolean;
-        /**
-        * Called when we click this component
-        * @param {any} e The jQuery event object
-        */
-        onClick(e: any): void;
-        /**
-        * Gets all the items that are selected
-        * @returns {Array<ListViewItem>}
-        */
-        getSelectedItems(): Array<ListViewItem>;
-        /**
-        * Sets which items must be selected. If you specify null then no items will be selected.
-        */
-        setSelectedItems(items: any): void;
-        /**
-        * This function is used to clean up the list
-        */
-        dispose(): void;
-        /**
-        * Redraws the list with the items correctly synced with the column names
-        * @returns {any}
-        */
-        updateItems(): void;
-        /**
-        * Adds a column
-        * @param {string} name The name of the new column
-        * @param {string} image The image of the column
-        */
-        addColumn(name: string, image?: string): void;
-        /**
-        * Removes a column
-        * @param {string} name The name of the column to remove
-        */
-        removeColumn(name: any): void;
-        /**
-        * Adds a {ListViewItem} to this list
-        * @param {ListViewItem} item The item we are adding to the list
-        * @returns {ListViewItem}
-        */
-        addItem(item: any): any;
-        /**
-        * Sets the length of a column by its index
-        * @param <int> columnIndex The index of the column
-        * @param {string} width A CSS width property. This can be either % or px
-        * @returns {ListViewItem}
-        */
-        setColumnWidth(columnIndex: any, width: any): void;
-        /**
-        * Removes a {ListViewItem} from this list
-        * @param {ListViewItem} item The {ListViewItem} to remove.
-        * @param {boolean} dispose If set to true the item will be disposed
-        * @returns {ListViewItem}
-        */
-        removeItem(item: ListViewItem, dispose?: boolean): ListViewItem;
-        /**
-        * This function is used to remove all items from the list.
-        * @param {boolean} dispose If set to true the item will be disposed
-        */
-        clearItems(dispose?: boolean): void;
-        items: Array<ListViewItem>;
-        lists: Array<Component>;
     }
 }
 declare module Animate {
@@ -3849,27 +3345,6 @@ declare module Animate {
          * @param {Link} link The link we are removing
          */
         removeLink(link: any): any;
-    }
-}
-declare module Animate {
-    /**
-    * This is the implementation of the context menu on the canvas.
-    */
-    class CanvasContext extends ContextMenu {
-        private mCreateInput;
-        private mCreateOutput;
-        private mCreateParam;
-        private mCreateProduct;
-        private mEditPortal;
-        private mDel;
-        private mCreate;
-        private mCreateComment;
-        private mDelEmpty;
-        constructor();
-        /**
-        * Shows the window by adding it to a parent.
-        */
-        showContext(x: number, y: number, item: Component): void;
     }
 }
 declare module Animate {
@@ -4295,13 +3770,6 @@ declare module Animate {
     */
     class TreeViewScene extends TreeNodeStore {
         private static _singleton;
-        private _contextMenu;
-        private _contextCopy;
-        private _contextDel;
-        private _contextAddInstance;
-        private _contextSave;
-        private _contextRefresh;
-        private _contextAddGroup;
         private _quickCopy;
         private _quickAdd;
         private _shortcutProxy;
@@ -4330,7 +3798,7 @@ declare module Animate {
         /**
         * Called when we select a menu item.
         */
-        onContextSelect(response: ContextMenuEvents, event: ContextMenuEvent, sender?: EventDispatcher): void;
+        onContextSelect(response: Event, event: Event, sender?: EventDispatcher): void;
         /**
         * When we double click the tree
         * @param <object> e The jQuery event object
@@ -4897,7 +4365,6 @@ declare module Animate {
     */
     class SceneTab extends Tab {
         private static _singleton;
-        private mDocker;
         assetPanel: Component;
         /**
         * @param {Component} parent The parent of the button
@@ -4906,8 +4373,6 @@ declare module Animate {
         /**This is called by a controlling ScreenManager class. An image string needs to be returned
         * which will act as a preview of the component that is being viewed or hidden.*/
         getPreviewImage(): string;
-        getDocker(): Docker;
-        setDocker(val: any): void;
         onShow(): void;
         onHide(): void;
         /** Gets the singleton instance. */
@@ -4931,7 +4396,6 @@ declare module Animate {
         private _currentCanvas;
         private welcomeTab;
         private closingTabPair;
-        private mDocker;
         constructor(parent: Component);
         /**
         * This is called by a controlling ScreenManager class. An image string needs to be returned
@@ -4939,16 +4403,6 @@ declare module Animate {
         * @return {string}
         */
         getPreviewImage(): string;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @returns {Docker}
-        */
-        getDocker(): Docker;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @param {Docker} val
-        */
-        setDocker(val: Docker): void;
         /**
         * This is called by a controlling Docker class when the component needs to be shown.
         */
@@ -5249,11 +4703,10 @@ declare module Animate {
     * A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
     * Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
     */
-    class PropertyGrid extends Component implements IDockItem {
+    class PropertyGrid extends Component {
         private static _singleton;
         private _header;
         private _editors;
-        private _docker;
         private _groups;
         private _object;
         constructor(parent: Component);
@@ -5263,15 +4716,6 @@ declare module Animate {
         * @returns <string> The image url
         */
         getPreviewImage(): string;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        */
-        getDocker(): Docker;
-        /**
-        * Each IDock item needs to implement this so that we can keep track of where it moves.
-        * @param <object> val
-        */
-        setDocker(val: Docker): void;
         /**
         * This is called by a controlling Docker class when the component needs to be shown.
         */
@@ -5819,13 +5263,6 @@ declare module Animate {
         private $loading;
         private $loadingPercent;
         private _tab;
-        private _buildVerMaj;
-        private _buildVerMid;
-        private _buildVerMin;
-        private _visibility;
-        private _notes;
-        private _selectBuild;
-        private _saveBuild;
         private _buildProxy;
         private _settingPages;
         constructor();
@@ -7307,11 +6744,6 @@ declare module Animate {
         private _focusObj;
         private _resizeProxy;
         private _downProxy;
-        private _dockerlefttop;
-        private _dockerleftbottom;
-        private _dockerrighttop;
-        private _dockerrightbottom;
-        private _canvasContext;
         private _sceneStore;
         constructor(props: React.HTMLAttributes);
         componentDidMount(): void;
@@ -7339,11 +6771,6 @@ declare module Animate {
         */
         static getInstance(domElement?: string): Application;
         focusObj: Component;
-        canvasContext: CanvasContext;
-        dockerLeftTop: Docker;
-        dockerLeftBottom: Docker;
-        dockerRightTop: Docker;
-        dockerRightBottom: Docker;
     }
 }
 declare var _cache: string;

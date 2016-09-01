@@ -4,7 +4,7 @@ module Animate {
 	*/
 	export class SceneTab extends Tab {
 		private static _singleton: SceneTab;
-		private mDocker: Docker;
+		//private mDocker: Docker;
 		public assetPanel: Component;
 
 		/**
@@ -34,11 +34,11 @@ module Animate {
 			return "media/world_48.png";
 		}
 
-		/*Each IDock item needs to implement this so that we can keep track of where it moves.*/
-		getDocker() { return this.mDocker; }
+		// /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
+		// getDocker() { return this.mDocker; }
 
-		/*Each IDock item needs to implement this so that we can keep track of where it moves.*/
-		setDocker( val ) { this.mDocker = val; }
+		// /*Each IDock item needs to implement this so that we can keep track of where it moves.*/
+		// setDocker( val ) { this.mDocker = val; }
 
 		/*This is called by a controlling Docker class when the component needs to be shown.*/
 		onShow() { }

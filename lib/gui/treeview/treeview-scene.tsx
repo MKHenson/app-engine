@@ -6,13 +6,13 @@ module Animate {
 	export class TreeViewScene extends TreeNodeStore  {
 		private static _singleton: TreeViewScene;
 
-		private _contextMenu: ContextMenu;
-		private _contextCopy: ContextMenuItem;
-		private _contextDel: ContextMenuItem;
-		private _contextAddInstance: ContextMenuItem;
-		private _contextSave: ContextMenuItem;
-		private _contextRefresh: ContextMenuItem;
-		private _contextAddGroup: ContextMenuItem;
+		// private _contextMenu: ContextMenu;
+		// private _contextCopy: ContextMenuItem;
+		// private _contextDel: ContextMenuItem;
+		// private _contextAddInstance: ContextMenuItem;
+		// private _contextSave: ContextMenuItem;
+		// private _contextRefresh: ContextMenuItem;
+		// private _contextAddGroup: ContextMenuItem;
 		private _quickCopy: Component;
 		private _quickAdd: Component;
 		private _shortcutProxy: any;
@@ -253,7 +253,7 @@ module Animate {
 		/**
 		* Called when we select a menu item.
 		*/
-		onContextSelect( response: ContextMenuEvents, event: ContextMenuEvent, sender? : EventDispatcher ) {
+		onContextSelect( response: Event, event: Event, sender? : EventDispatcher ) {
             // var promise: Promise<any>;
             // var project = User.get.project;
             // var context = this._contextNode;

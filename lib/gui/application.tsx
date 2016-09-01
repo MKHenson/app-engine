@@ -14,11 +14,11 @@ module Animate {
 
 		private _resizeProxy: any;
 		private _downProxy: any;
-		private _dockerlefttop: Docker;
-		private _dockerleftbottom: Docker;
-		private _dockerrighttop: Docker;
-		private _dockerrightbottom: Docker;
-		private _canvasContext: CanvasContext;
+		// private _dockerlefttop: Docker;
+		// private _dockerleftbottom: Docker;
+		// private _dockerrighttop: Docker;
+		// private _dockerrightbottom: Docker;
+		//private _canvasContext: CanvasContext;
 
 		private _sceneStore : TreeViewScene;
 
@@ -33,11 +33,11 @@ module Animate {
             Application.bodyComponent = new Component("body");
 
 			Application._singleton = this;
-			this._canvasContext = new CanvasContext();
+			//this._canvasContext = new CanvasContext();
 			this._focusObj = null;
 
 			//Start the tooltip manager
-            TooltipManager.create();
+            //TooltipManager.create();
             User.get;
 
 			this._sceneStore = new TreeViewScene();
@@ -235,10 +235,10 @@ module Animate {
 		}
 
 		get focusObj(): Component { return this._focusObj; }
-		get canvasContext(): CanvasContext { return this._canvasContext; }
-		get dockerLeftTop(): Docker { return this._dockerlefttop; }
-		get dockerLeftBottom(): Docker { return this._dockerleftbottom; }
-		get dockerRightTop(): Docker { return this._dockerrighttop; }
-		get dockerRightBottom(): Docker { return this._dockerrightbottom; }
+		//get canvasContext(): CanvasContext { return this._canvasContext; }
+		// get dockerLeftTop(): Docker { return this._dockerlefttop; }
+		// get dockerLeftBottom(): Docker { return this._dockerleftbottom; }
+		// get dockerRightTop(): Docker { return this._dockerrighttop; }
+		// get dockerRightBottom(): Docker { return this._dockerrightbottom; }
     }
 }

@@ -23,17 +23,17 @@ module Animate {
 		//private _description: LabelVal;
 		//private _projVisibility: LabelVal;
 		//private _category: LabelVal;
-		private _buildVerMaj: LabelVal;
-		private _buildVerMid: LabelVal;
-		private _buildVerMin: LabelVal;
+		// private _buildVerMaj: LabelVal;
+		// private _buildVerMid: LabelVal;
+		// private _buildVerMin: LabelVal;
 		//private _warning: Label;
-		private _visibility: LabelVal;
-		private _notes: LabelVal;
+		// private _visibility: LabelVal;
+		// private _notes: LabelVal;
 		//private _imgPreview: Component;
 		//private _addButton: Component;
 		//private _saveProject: Button;
-		private _selectBuild: Button;
-        private _saveBuild: Button;
+		// private _selectBuild: Button;
+        // private _saveBuild: Button;
         //private _uploader: FileUploaderBasic;
 
 		//private _renameProxy: any;
