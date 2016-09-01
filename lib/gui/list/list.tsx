@@ -7,19 +7,28 @@ module Animate
 	}
 
 	export interface IListProps {
-		items?: IListItem[];
-		onSelected?: (item : IListItem) => void;
+		items: IListItem[];
+		onSelected?: (item : IListItem, index: number) => void;
+		onDSelected?: (item : IListItem, index: number) => void;
+		selectedIndex?: number;
+		canDeselect? : boolean;
 	}
 
 	export interface IListState {
-		selected: IListItem;
+		selected?: IListItem;
+		selectedIndex?: number;
 	}
 
 	/**
 	 * A list of items, with optional tooltips & icons
 	 */
 	export class List extends React.Component<IListProps, IListState>  {
-		private _items: IListItem[];
+		static defaultProps : IListProps = {
+			selectedIndex : -1,
+			items: null,
+			canDeselect: true
+		}
+		//private _items: IListItem[];
 		private _prevItems : IListItem[];
 
 		/**
@@ -29,9 +38,10 @@ module Animate
 			super(props);
 
 			this._prevItems = props.items;
-			this._items = props.items || [];
+			//this._items = props.items || [];
 			this.state = {
-				selected : null
+				selected : null,
+				selectedIndex: props.selectedIndex
 			};
 		}
 
@@ -39,10 +49,27 @@ module Animate
          * Called when the props are updated
          */
         componentWillReceiveProps(nextProps: IListProps) {
-			this._items = (nextProps.items !== this._prevItems ? ( nextProps.items || [] ) : this._items );
-            this.setState({
-                selected: null
-            });
+
+			//this._items = (nextProps.items !== this._prevItems ? ( nextProps.items || [] ) : this._items );
+			let selectedIndex = this.state.selectedIndex;
+
+			if ( nextProps.selectedIndex !== undefined && nextProps.selectedIndex != this.props.selectedIndex ) {
+				selectedIndex = nextProps.selectedIndex;
+
+				if (selectedIndex > this.props.items.length)
+					throw new Error('Selected index out of range')
+
+				this.setState({
+					selected: this.props.items[selectedIndex],
+					selectedIndex: selectedIndex
+				});
+			}
+			else {
+				this.setState({
+					selected: this.state.selected,
+					selectedIndex: selectedIndex
+				});
+			}
         }
 
 		/**
@@ -51,7 +78,7 @@ module Animate
          */
         render(): JSX.Element {
 			return <div className='list'> {
-				this._items.map( ( item, index ) => {
+				this.props.items.map( ( item, index ) => {
 
 					let jsx : JSX.Element;
 					if (item.prefix)
@@ -60,8 +87,11 @@ module Animate
 						jsx = <img src={item.icon} />
 
 					return <div key={'item-' + index}
-						className={'list-item light-hover' + ( this.state.selected == item ? ' selected' : '' )}
-						onClick={(e) => { this.onItemSelected(e, item); }}>
+						ref={( this.state.selectedIndex == index ? 'selected-item' : '' )}
+						className={'list-item light-hover' + ( this.state.selectedIndex == index ? ' selected' : '' )}
+						onClick={(e) => { this.onItemSelected(e, item, index, false ); }}
+						onDoubleClick={(e) => { this.onItemSelected(e, item, index, true ); }}
+						>
 						{jsx}
 						<span className='list-text'>{item.label}</span>
 					</div>
@@ -69,71 +99,37 @@ module Animate
 			}</div>;
 		}
 
+		 componentDidUpdate( prevProps: IListProps ) {
+			// only scroll into view if the active item changed last render
+			if ( this.props.selectedIndex !== prevProps.selectedIndex ) {
+				let item = this.refs['selected-item'] as HTMLElement;
+				if (item) {
+					Utils.scrollTo( { x: 0, y: item.offsetTop - item.offsetHeight }, item.parentElement, 250 );
+				}
+			}
+		}
+
 		/**
 		 * Called whenever a list item is selected
 		 */
-		onItemSelected(e : React.MouseEvent, item : IListItem ) {
-			let selected = ( this.state.selected == item ? null : item );
+		onItemSelected(e : React.MouseEvent, item : IListItem, index : number, doubleClick : boolean ) {
 
-			if (this.props.onSelected)
-				this.props.onSelected(selected);
+			let selected;
 
-			this.setState({
-				selected : selected
-			});
-		}
+			if (this.props.canDeselect)
+				selected = ( this.state.selected == item ? null : item );
+			else
+				selected = item;
 
-		/**
-		 * Add an item to the list
-		 * @param {IListItem} item
-		 * @returns {IListItem}
-		 */
-		addItem( item : IListItem ) : IListItem {
-			this._items.push(item);
-			this.setState({
-				selected: this.state.selected
-			});
-			return item;
-		}
-
-		/**
-		 * Removes an item from the list
-		 * @param {IListItem} item
-		 * @param {IListItem}
-		 */
-		removeItem( item : IListItem ) : IListItem {
-			let selected = this.state.selected;
-
-			if (this._items.indexOf(item) != -1) {
-				this._items.splice(this._items.indexOf(item), 1);
-				if (item == this.state.selected)
-					selected = null;
-			}
+			if (!doubleClick && this.props.onSelected)
+				this.props.onSelected(selected, index);
+			else if (doubleClick && this.props.onDSelected)
+				this.props.onDSelected(selected, index);
 
 			this.setState({
-				selected: selected
+				selected : selected,
+				selectedIndex : index
 			});
-
-			return item;
-		}
-
-		/**
-		 * Clears all the items added to this list
-		 */
-		clear() : void {
-			this._items.splice( 0, this.items.length );
-			this.setState({
-				selected: this.state.selected
-			});
-		}
-
-		/**
-		 * Gets the list items
-		 * @returns {IListItem[]}
-		 */
-		get items(): IListItem[]
-		{
-			return this._items;
 		}
 	}
 }
