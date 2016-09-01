@@ -10,6 +10,11 @@ module Animate {
         value?: string;
 
         /**
+         * If specified, the hint will help users type out a word
+         */
+        hint? : string;
+
+        /**
          * The minimum number of characters allowed
          */
         minCharacters?: number;
@@ -52,6 +57,8 @@ module Animate {
             selectOnClick: true
         }
         private _pristine: boolean;
+        private _hintStart = -1;
+        private _hintEnd = -1;
 
         /**
          * Creates a new instance
@@ -59,6 +66,8 @@ module Animate {
         constructor(props) {
             super(props);
             this._pristine = true;
+            this._hintStart = -1;
+            this._hintEnd = -1;
             this.state = {
                 value : props.value || '',
                 error: null,
@@ -125,14 +134,57 @@ module Animate {
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
 
+        componentDidUpdate(nextProps) {
+            if (this._hintStart != -1)
+                ( ReactDOM.findDOMNode(this) as HTMLInputElement).setSelectionRange( this._hintStart, this._hintEnd );
+        }
+
+        /**
+         * Only called when we have hints enabled
+         */
+        onKeyUp(e : React.KeyboardEvent) {
+
+            // Backspace, or arrow keys, do nothing
+            if (e.keyCode == 8 || e.keyCode == 40 || e.keyCode == 39 || e.keyCode == 38 || e.keyCode == 37 ) {
+                if (this.props.onKeyUp)
+                    this.props.onKeyUp(e);
+                return;
+            }
+
+            let val = (e.target as HTMLInputElement).value;
+
+            if ( this.props.hint ) {
+                let isMatching = true;
+                let index = this.props.hint.toLowerCase().indexOf(val.toLowerCase());
+
+                if ( index == 0 ) {
+                    let valLen = val.length;
+                    val = this.props.hint;
+                    this._hintStart = index + valLen;
+                    this._hintEnd = this.props.hint.length;
+                }
+                else {
+                    this._hintStart = -1;
+                    this._hintEnd = -1;
+                }
+
+                this.setState({
+                    value: val
+                });
+            }
+
+            if (this.props.onKeyUp)
+                this.props.onKeyUp(e);
+        }
+
         /**
          * Called whenever the value changes
          * @param {React.FormEvent} e
          */
         private onChange(e: React.FormEvent) {
-            var wasAnError = this.state.error;
-            var val = (e.target as HTMLInputElement).value;
-            var err = this.getValidationErrorMsg(val);
+            let wasAnError = this.state.error;
+            let val = (e.target as HTMLInputElement).value;
+            let err = this.getValidationErrorMsg(val);
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
@@ -172,6 +224,7 @@ module Animate {
             delete divProps.onValidationError;
             delete divProps.onValidationResolved;
             delete divProps.selectOnClick;
+            delete divProps.hint;
 
             var className = ( this.props.className ? this.props.className + ' v-input' : 'v-input' )
             if (this.state.error)
@@ -183,6 +236,7 @@ module Animate {
 
             return <input
                 {...divProps}
+                onKeyUp={ (e) => {this.onKeyUp(e)} }
                 onFocus={(e) => {
                     this._pristine = false;
                     if (this.props.selectOnClick)
