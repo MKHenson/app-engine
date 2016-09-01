@@ -1,4 +1,11 @@
 ﻿module Animate {
+
+    /**
+     * Describes all the different types of editor events
+     */
+    export type EditorEventType =
+        'change' | 'focus-node';
+
     export class EditorEvents extends ENUM {
         constructor(v: string) { super(v); }
 
@@ -126,15 +133,6 @@
         constructor(type: string, container: Container)  {
             super(type, null);
             this.container = container;
-        }
-    }
-
-    export class BehaviourPickerEvent extends Event {
-        public behaviourName: string;
-
-        constructor(eventName: BehaviourPickerEvents, behaviourName: string) {
-            super(eventName, behaviourName);
-            this.behaviourName = behaviourName;
         }
     }
 

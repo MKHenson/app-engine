@@ -26,21 +26,21 @@ module Animate {
                 focussedNode: null
             };
 
-            props.nodeStore.on( 'change', this.onChange, this );
-            props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
+            props.nodeStore.on<EditorEventType>( 'change', this.onChange, this );
+            props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**
          * Called whenever a node is focussed
          */
-        onFocusNodeChange(type: string, e : Event) {
+        onFocusNodeChange(type: EditorEventType, e : Event) {
             this.setState({ focussedNode : e.tag });
         }
 
         /**
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
-        onChange(type: string) {
+        onChange(type: EditorEventType) {
             this.setState({ nodes : this.props.nodeStore.getNodes() });
         }
 
@@ -62,11 +62,11 @@ module Animate {
             if (nextProps.nodeStore == this.props.nodeStore)
                 return;
 
-            this.props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
-            this.props.nodeStore.off( 'change', this.onChange, this );
+            this.props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
+            this.props.nodeStore.off<EditorEventType>( 'change', this.onChange, this );
 
-            nextProps.nodeStore.on( 'change', this.onChange, this );
-            nextProps.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
+            nextProps.nodeStore.on<EditorEventType>( 'change', this.onChange, this );
+            nextProps.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
 
             this.setState({
                 nodes: nextProps.nodeStore.getNodes()

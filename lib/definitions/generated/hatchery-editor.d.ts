@@ -704,6 +704,10 @@ declare module Animate {
     }
 }
 declare module Animate {
+    /**
+     * Describes all the different types of editor events
+     */
+    type EditorEventType = 'change' | 'focus-node';
     class EditorEvents extends ENUM {
         constructor(v: string);
         /**
@@ -792,10 +796,6 @@ declare module Animate {
     class ContainerEvent extends Event {
         container: Container;
         constructor(type: string, container: Container);
-    }
-    class BehaviourPickerEvent extends Event {
-        behaviourName: string;
-        constructor(eventName: BehaviourPickerEvents, behaviourName: string);
     }
     class UserEvent extends Event {
         constructor(type: string, data: any);
@@ -1104,7 +1104,7 @@ declare module Animate {
         private static _singleton;
         private _plugins;
         private _loadedPlugins;
-        private behaviourTemplates;
+        private _behaviourTemplates;
         private _assetTemplates;
         private _converters;
         private _previewVisualizers;
@@ -1178,8 +1178,9 @@ declare module Animate {
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
         displayPreview(file: Engine.IFile): JSX.Element;
-        assetTemplates: Array<AssetTemplate>;
-        loadedPlugins: Array<IPlugin>;
+        assetTemplates: AssetTemplate[];
+        loadedPlugins: IPlugin[];
+        behaviourTemplates: BehaviourDefinition[];
         /**
         * Gets the singleton instance.
         */
@@ -2788,6 +2789,8 @@ declare module Animate {
         className?: string;
         _id?: number;
         _closing?: () => void;
+        x?: number;
+        y?: number;
     }
     interface IReactWindowState {
         centered?: boolean;
@@ -3100,17 +3103,21 @@ declare module Animate {
         prefix?: JSX.Element;
     }
     interface IListProps {
-        items?: IListItem[];
-        onSelected?: (item: IListItem) => void;
+        items: IListItem[];
+        onSelected?: (item: IListItem, index: number) => void;
+        onDSelected?: (item: IListItem, index: number) => void;
+        selectedIndex?: number;
+        canDeselect?: boolean;
     }
     interface IListState {
-        selected: IListItem;
+        selected?: IListItem;
+        selectedIndex?: number;
     }
     /**
      * A list of items, with optional tooltips & icons
      */
     class List extends React.Component<IListProps, IListState> {
-        private _items;
+        static defaultProps: IListProps;
         private _prevItems;
         /**
          * Creates an instance
@@ -3125,31 +3132,11 @@ declare module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
+        componentDidUpdate(prevProps: IListProps): void;
         /**
          * Called whenever a list item is selected
          */
-        onItemSelected(e: React.MouseEvent, item: IListItem): void;
-        /**
-         * Add an item to the list
-         * @param {IListItem} item
-         * @returns {IListItem}
-         */
-        addItem(item: IListItem): IListItem;
-        /**
-         * Removes an item from the list
-         * @param {IListItem} item
-         * @param {IListItem}
-         */
-        removeItem(item: IListItem): IListItem;
-        /**
-         * Clears all the items added to this list
-         */
-        clear(): void;
-        /**
-         * Gets the list items
-         * @returns {IListItem[]}
-         */
-        items: IListItem[];
+        onItemSelected(e: React.MouseEvent, item: IListItem, index: number, doubleClick: boolean): void;
     }
 }
 declare module Animate {
@@ -3393,7 +3380,7 @@ declare module Animate {
     }> {
         private static _openCanvases;
         constructor(props: IReactCanvasProps);
-        componentWillReceiveProps(nextProps: any): void;
+        componentWillReceiveProps(nextProps: IReactCanvasProps): void;
         /**
          * Clean up any listeners
          */
@@ -3535,11 +3522,11 @@ declare module Animate {
         /**
          * Called whenever a node is focussed
          */
-        onFocusNodeChange(type: string, e: Event): void;
+        onFocusNodeChange(type: EditorEventType, e: Event): void;
         /**
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
-        onChange(type: string): void;
+        onChange(type: EditorEventType): void;
         /**
          * When the component is updated, we check for any focussed nodes so we can scroll to them
          */
@@ -5612,51 +5599,47 @@ declare module Animate {
     }
 }
 declare module Animate {
-    class BehaviourPickerEvents extends ENUM {
-        constructor(v: string);
-        static BEHAVIOUR_PICKED: BehaviourPickerEvents;
+    interface IBehaviourPickerProps extends IReactWindowProps {
+        onTemplateSelected?: (template: BehaviourDefinition) => void;
     }
-    class BehaviourPicker extends Window {
-        private static _singleton;
-        private _input;
-        private _list;
-        private _X;
-        private _Y;
-        constructor();
+    interface IBehaviourPickerState extends IReactWindowState {
+        items?: IListItem[];
+        selectedIndex?: number;
+        search?: string;
+        selectedText?: string;
+    }
+    /**
+     * A popup form for quick selection of loaded behaviours
+     */
+    class BehaviourPicker extends ReactWindow<IBehaviourPickerProps, IBehaviourPickerState> {
+        static defaultProps: IBehaviourPickerProps;
+        private _onUpProxy;
         /**
-        * Shows the window by adding it to a parent.
-        * @param {Component} parent The parent Component we are adding this window to
-        * @param {number} x The x coordinate of the window
-        * @param {number} y The y coordinate of the window
-        * @param {boolean} isModal Does this window block all other user operations?
-        * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-        */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+         * Creates an instance of the picker
+         */
+        constructor(props: IBehaviourPickerProps);
         /**
-        * Called when we click the list.
-        * @param {any} e
-        * @returns {any}
-        */
-        onListClick(e: any): void;
+         * Close the window if we click anywhere but the window
+         */
+        onUp(e: React.MouseEvent): void;
         /**
-        * Called when we double click the list.
-        * @param {any} e
-        * @returns {any}
-        */
-        onListDClick(e: any): void;
+         * Remove any listeners
+         */
+        componentWillUnmount(): void;
         /**
-        * When the input text changes we go through each list item
-        * and select it.
-        * @param {any} e
-        * @returns {any}
-        */
-        onKeyDown(e: any): void;
+         * Get all behaviour template names
+         */
+        componentDidMount(): void;
         /**
-        * Gets the singleton instance.
-        * @returns {BehaviourPicker}
-        */
-        static getSingleton(): BehaviourPicker;
-        list: List;
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent(): React.ReactNode;
+        /**
+         * When the input text changes we go through each list item and select the one that is the closest match
+         * @param {React.KeyboardEvent} e
+         */
+        onKeyUp(e: React.KeyboardEvent): void;
     }
 }
 declare module Animate {
@@ -5668,20 +5651,28 @@ declare module Animate {
         WARNING = 1,
         ERROR = 2,
     }
-    /**
-     * The Logger is a singleton class used to write message's to Animate's log window.
-     */
-    class Logger extends List {
+    interface ILogMessage {
+        type: LogType;
+        message: string;
+        tag: any;
+    }
+    class LoggerStore extends EventDispatcher {
         private static _singleton;
+        private _logs;
         /**
-         * Creates an instance of the logger
+         * Creates an instance of the logger store
          */
-        constructor(props: IListProps);
+        constructor();
         /**
-         * Creates the component elements
-         * @returns {JSX.Element}
+         * Gests all currently logged messages
+         * @returns {ILogMessage[]}
          */
-        render(): JSX.Element;
+        getLogs(): ILogMessage[];
+        /**
+         * Gets global logger store instance
+         * @returns {LoggerStore}
+         */
+        static get: LoggerStore;
         /**
          * Logs an error message
          * @param {string} msg
@@ -5698,18 +5689,44 @@ declare module Animate {
          */
         static success(msg: string): void;
         /**
+         * Adds a new log item
+         */
+        add(message: string, type: LogType, tag: any): void;
+        /**
+         * Removes all logs
+         */
+        clear(): void;
+        /**
          * Logs a message to the logger
          * @param {string} val The text to show on the logger.
          * @param {any} tag An optional tag to associate with the log.
          * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
          */
-        static logMessage(val: string, tag: any, type?: LogType): IListItem;
+        static logMessage(val: string, tag: any, type?: LogType): void;
+    }
+}
+declare module Animate {
+    interface ILoggerProps {
+        store: LoggerStore;
+    }
+    /**
+     * The Logger is a singleton class used to write message's to Animate's log window.
+     */
+    class Logger extends React.Component<ILoggerProps, {
+        items: ILogMessage[];
+    }> {
         /**
-         * Gets logger global instance
-         * @param {Component} parent
-         * @returns {Logger}
+         * Creates an instance of the logger
          */
-        static getSingleton(parent?: Component): Logger;
+        constructor(props: ILoggerProps);
+        componentWillMount(): void;
+        componentWillUnmount(): void;
+        onLogsChanged(type: EditorEventType): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
     }
 }
 declare module Animate {
@@ -6145,6 +6162,10 @@ declare module Animate {
         validator?: ValidationType;
         value?: string;
         /**
+         * If specified, the hint will help users type out a word
+         */
+        hint?: string;
+        /**
          * The minimum number of characters allowed
          */
         minCharacters?: number;
@@ -6182,6 +6203,8 @@ declare module Animate {
     }> {
         static defaultProps: IVInputProps;
         private _pristine;
+        private _hintStart;
+        private _hintEnd;
         /**
          * Creates a new instance
          */
@@ -6209,6 +6232,11 @@ declare module Animate {
          * @returns {string} An error string or null if there are no errors
          */
         getValidationErrorMsg(val: string): string;
+        componentDidUpdate(nextProps: any): void;
+        /**
+         * Only called when we have hints enabled
+         */
+        onKeyUp(e: React.KeyboardEvent): void;
         /**
          * Called whenever the value changes
          * @param {React.FormEvent} e
