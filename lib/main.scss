@@ -236,6 +236,7 @@ body {
 @import 'gui/login-widget/style.scss';
 @import 'gui/project-list/style.scss';
 @import 'gui/new-project/style.scss';
+@import 'gui/forms/behaviour-picker/style.scss';
 @import 'gui/splash/style.scss';
 @import 'gui/forms/message-box/style.scss';
 @import 'gui/forms/file-dialogue/style.scss';
@@ -300,27 +301,6 @@ body {
     float:right;
     height:45px;
     padding:10px 15px;
-}
-
-/**
-*  BEHAVIOUR PICKER
-*  =========================
-*/
-.behaviour-picker .list-box {
-    width: 100%;
-    height: calc(100% - 30px);
-}
-.behaviour-picker {
-    z-index: 9999;
-    padding: 3px;
-}
-// .behaviour-picker .list-box .list {
-//     overflow: auto;
-//     height:100%;
-//     border:none;
-// }
-.behaviour-picker input {
-    width: 100%;
 }
 
 
@@ -505,9 +485,6 @@ a:active, a:hover {
 .red-highlight:hover {
     color:red;
 }
-// .behaviour-picker .list{
-//     color:#fff;
-// }
 
 /**
 ======================================================

@@ -1,0 +1,11 @@
+.behaviour-picker .list-box {
+    width: 100%;
+    height: calc(100% - 30px);
+}
+.behaviour-picker {
+    z-index: 9999;
+    padding: 3px;
+}
+.behaviour-picker input {
+    width: 100%;
+}
