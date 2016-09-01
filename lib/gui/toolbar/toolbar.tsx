@@ -238,7 +238,7 @@ module Animate {
 						// tabPair.name = resource.entry.name;
 
 					}).catch( (err: Error) => {
-						Logger.error(err.message);
+						LoggerStore.error(err.message);
 						ReactWindow.show( MessageBox, { message: err.message, buttons : ['Ok'],
 							onChange: (button) => {
 

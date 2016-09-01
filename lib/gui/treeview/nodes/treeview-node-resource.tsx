@@ -270,7 +270,7 @@ module Animate {
 				node.loading(false);
 			}).catch( (err: Error) => {
 				node.loading(false);
-				Logger.logMessage(err.message, null, LogType.ERROR);
+				LoggerStore.error(err.message);
 			});
 		}
     }

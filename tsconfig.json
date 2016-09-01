@@ -144,6 +144,7 @@
     "lib/gui/forms/rename-form/rename-form.tsx",
     "lib/gui/forms/user-privileges-form.ts",
     "lib/gui/forms/behaviour-picker/behaviour-picker.tsx",
+    "lib/gui/logger/logger-store.ts",
     "lib/gui/logger/logger.tsx",
     "lib/gui/tooltip/tooltip.tsx",
     "lib/gui/toolbar/toolBar.tsx",

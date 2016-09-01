@@ -52,7 +52,7 @@ module Animate {
                 message: message
             });
 
-            Logger.logMessage(message, null, LogType.MESSAGE);
+            LoggerStore.success(message);
 
             // Attempts to load all the project resources
             project.loadResources().then( (resources) => {
@@ -61,7 +61,7 @@ module Animate {
                     message: message
                 });
 
-                Logger.logMessage( message, null, LogType.MESSAGE);
+                LoggerStore.success( message );
                 return project.loadBuild();
 
             }).then( (build) => {
@@ -72,13 +72,13 @@ module Animate {
                     message: message
                 });
 
-                Logger.logMessage( message, null, LogType.MESSAGE);
+                LoggerStore.success( message );
 
                 // Make sure the title tells us which project is open
                 document.title = `Hatchery: ${project.entry.name} ${project.entry._id}`;
 
                 // Log
-                Logger.logMessage(`Project '${this.state.selectedProject.name}' has successfully been opened`, null, LogType.MESSAGE);
+                LoggerStore.success(`Project '${this.state.selectedProject.name}' has successfully been opened` );
 
                 // Everything done
                 this.props.onComplete();

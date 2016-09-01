@@ -28,6 +28,7 @@ module Animate {
 			Application._singleton = this;
 
             Utils.init();
+			new LoggerStore();
 
             // Creates a common body element
             Application.bodyComponent = new Component("body");
@@ -95,7 +96,7 @@ module Animate {
 		}
 
 		componentDidMount() {
-			Logger.logMessage("Welcome to the Hatchery!", null, LogType.MESSAGE);
+			LoggerStore.logMessage("Welcome to the Hatchery!", null, LogType.MESSAGE);
 		}
 
 		/**
@@ -130,7 +131,7 @@ module Animate {
 									ratio={0.8}
 									orientation={SplitOrientation.HORIZONTAL}
 									top={<ReactCanvas store={store} />}
-									bottom={<Logger />} />
+									bottom={<Logger store={LoggerStore.get} />} />
 							} right={
 								<SplitPanel
 									ratio={0.6}
@@ -208,7 +209,7 @@ module Animate {
             var user = User.get;
 
 			PropertyGrid.getSingleton().projectReset();
-			Logger.getSingleton().clear();
+			LoggerStore.get.clear();
             TreeViewScene.getSingleton().projectReset(user.project);
             //CanvasTab.getSingleton().projectReset();
 

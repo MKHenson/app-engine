@@ -415,10 +415,10 @@ module Animate {
 			if ( response == LoaderEvents.COMPLETE ) {
 				if ( event.return_type == AnimateLoaderResponses.SUCCESS ) {
 					if ( loader.url == "/export/compile" ) {
-						Logger.getSingleton().clear();
+						LoggerStore.get.clear();
 						var now: Date = new Date();
-						Logger.logMessage( "Build complete at " + new Date( Date.now() ).toDateString(), null, LogType.MESSAGE );
-						Logger.logMessage( "External link: " + event.tag.liveLink, null, LogType.MESSAGE );
+						LoggerStore.success( "Build complete at " + new Date( Date.now() ).toDateString() );
+						LoggerStore.success( "External link: " + event.tag.liveLink );
 
 						if ( this.runWhenDone )
 							window.open( event.tag.liveLink, 'Webinate Live!', 'width=900,height=860' ); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'

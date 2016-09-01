@@ -32,7 +32,7 @@ module Animate {
 
             }).catch(function (err: Error) {
                 that.loading(false);
-                Logger.logMessage(`Could not update the build CSS: '${err.message}'`, null, LogType.ERROR);
+                LoggerStore.error(`Could not update the build CSS: '${err.message}'`);
             });
         }
 

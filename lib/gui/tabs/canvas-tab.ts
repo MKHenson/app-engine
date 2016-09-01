@@ -127,7 +127,7 @@ module Animate {
 					that.closingTabPair = null;
 
                 }).catch(function(err: Error) {
-                    Logger.logMessage(err.message, null, LogType.ERROR);
+                    LoggerStore.error(err.message);
                 });
 
 				//Now get the project to save it.

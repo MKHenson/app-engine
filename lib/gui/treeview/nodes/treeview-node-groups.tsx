@@ -59,7 +59,7 @@ module Animate {
                     }).catch( (err: Error) => {
                         this._loading = false;
                         this.disabled(false);
-                        Logger.logMessage(err.message, null, LogType.ERROR);
+                        LoggerStore.error(err.message);
                     })
                 }
             }]});
