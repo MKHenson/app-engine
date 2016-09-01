@@ -11,6 +11,8 @@ module Animate {
         className?: string;
         _id?: number;
         _closing?: () => void;
+        x?: number;
+        y?: number;
     }
 
     export interface IReactWindowState {
@@ -155,12 +157,17 @@ module Animate {
 
             window.addEventListener('resize', this._resizeProxy);
 
+            let w = this.refs['window'] as ReactWindow<T, S>;
+            let elm = ReactDOM.findDOMNode(w) as HTMLElement;
+
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
-                let w = this.refs['window'] as ReactWindow<T, S>;
-                let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
                 elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 )) + 'px';
+            }
+            else {
+                elm.style.left = (this.props.x || 0) + 'px';
+                elm.style.top = (this.props.y || 0) + 'px';
             }
 
             // Make the form resizable
