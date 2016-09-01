@@ -7,7 +7,7 @@ module Animate {
 
 		private _plugins: Array<Animate.IPlugin>;
 		private _loadedPlugins: Array<IPlugin>;
-		private behaviourTemplates: Array<BehaviourDefinition>;
+		private _behaviourTemplates: Array<BehaviourDefinition>;
 		private _assetTemplates: Array<AssetTemplate>;
 		private _converters: Array<TypeConverter>;
 		//private _dataTypes: Array<string>;
@@ -24,25 +24,25 @@ module Animate {
 			PluginManager._singleton = this;
 
 			this._plugins = new Array<IPlugin>();
-			this.behaviourTemplates = new Array<BehaviourDefinition>();
+			this._behaviourTemplates = new Array<BehaviourDefinition>();
 			this._assetTemplates = new Array<AssetTemplate>();
 			this._converters = new Array<TypeConverter>();
             //this._dataTypes = new Array<string>("asset", "number", "group", "file", "string", "object", "bool", "int", "color", "enum");
 
 			// Create some standard templates
-			this.behaviourTemplates.push( new BehaviourDefinition( "Asset",
+			this._behaviourTemplates.push( new BehaviourDefinition( "Asset",
                 [
                     new PortalTemplate(new PropAsset("Asset In", null), 'parameter'),
                     new PortalTemplate(new PropAsset("Asset Out", null), 'product' )
                 ], null, false, false, false, false));
 
-            this.behaviourTemplates.push(new BehaviourDefinition("Script",
+            this._behaviourTemplates.push(new BehaviourDefinition("Script",
                 [
                     new PortalTemplate(new PropBool("Execute", false), 'input'),
                     new PortalTemplate(new PropBool("Exit", false), 'output')
                 ], null, true, true, true, true));
 
-            this.behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
+            this._behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
 
 			this._loadedPlugins = [];
 			// TODO: This must be refactored from updates to TSX
@@ -145,7 +145,7 @@ module Animate {
 				// TODO: This must be refactored from updates to TSX
 				// ==================================================
 				for ( let template of btemplates ) {
-				 	this.behaviourTemplates.push( template );
+				 	this._behaviourTemplates.push( template );
 				// 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
 				// 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
 					this.emit( new Event("template-created", template ));
@@ -179,10 +179,10 @@ module Animate {
 		unloadPlugin( plugin: IPlugin ) {
 			// Get converters
 			var toRemove : Array<BehaviourDefinition> = new Array();
-			var i = this.behaviourTemplates.length;
+			var i = this._behaviourTemplates.length;
 			while ( i-- )
-				if ( this.behaviourTemplates[i].plugin == plugin )
-					toRemove.push( this.behaviourTemplates[i] );
+				if ( this._behaviourTemplates[i].plugin == plugin )
+					toRemove.push( this._behaviourTemplates[i] );
 
 			// Get behaviour definitions
 			var i = toRemove.length;
@@ -192,7 +192,7 @@ module Animate {
 			// 	BehaviourPicker.getSingleton().list.removeItem( toRemove[i].behaviourName );
 			// 	TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
 
-			 	this.behaviourTemplates.splice( this.behaviourTemplates.indexOf( toRemove[i] ), 1 );
+			 	this._behaviourTemplates.splice( this._behaviourTemplates.indexOf( toRemove[i] ), 1 );
 				this.emit( new Event("template-removed", toRemove[i]) );
 			 }
 			// ==================================================
@@ -243,10 +243,10 @@ module Animate {
 		*/
 		getTemplate( behaviorName : string )
 		{
-			var len = this.behaviourTemplates.length;
+			var len = this._behaviourTemplates.length;
 			while ( len-- )
-				if ( this.behaviourTemplates[len].behaviourName == behaviorName )
-					return this.behaviourTemplates[len];
+				if ( this._behaviourTemplates[len].behaviourName == behaviorName )
+					return this._behaviourTemplates[len];
 
 			return null;
 		}
@@ -478,8 +478,9 @@ module Animate {
 		}
 
 		//get dataTypes(): Array<string> { return this._dataTypes; }
-		get assetTemplates(): Array<AssetTemplate> { return this._assetTemplates; }
-		get loadedPlugins(): Array<IPlugin> { return this._loadedPlugins; }
+		get assetTemplates(): AssetTemplate[] { return this._assetTemplates; }
+		get loadedPlugins(): IPlugin[] { return this._loadedPlugins; }
+		get behaviourTemplates(): BehaviourDefinition[] { return this._behaviourTemplates; }
 
 		/**
 		* Gets the singleton instance.

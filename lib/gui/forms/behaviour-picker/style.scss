@@ -1,11 +1,33 @@
-.behaviour-picker .list-box {
-    width: 100%;
-    height: calc(100% - 30px);
-}
 .behaviour-picker {
     z-index: 9999;
     padding: 3px;
-}
-.behaviour-picker input {
-    width: 100%;
+    background: $tooltip-bg;
+
+    input {
+        width: 100%;
+    }
+
+    .list {
+        width: 100%;
+        height: calc(100% - 41px);
+        overflow: auto;
+    }
+
+    .container {
+        height: 100%;
+    }
+
+    .list-item {
+
+        color:#fff;
+        border-bottom: none;
+
+        .fa {
+            padding: 5px;
+        }
+
+        &:hover{
+            background: shade( $tooltip-bg, 15 );
+        }
+    }
 }

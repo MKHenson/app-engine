@@ -1,171 +1,224 @@
 module Animate {
-	export class BehaviourPickerEvents extends ENUM {
-		constructor( v: string ) { super( v ); }
 
-		static BEHAVIOUR_PICKED: BehaviourPickerEvents = new BehaviourPickerEvents("behaviour_picker_picked");
+	export interface IBehaviourPickerProps extends IReactWindowProps {
+		onTemplateSelected?: (template: BehaviourDefinition) => void;
+    }
+
+	export interface IBehaviourPickerState extends IReactWindowState {
+		items?: IListItem[];
+		selectedIndex?: number;
+		search? : string;
+		selectedText?: string;
 	}
 
+	/**
+	 * A popup form for quick selection of loaded behaviours
+	 */
+	export class BehaviourPicker extends ReactWindow<IBehaviourPickerProps, IBehaviourPickerState> {
 
+		static defaultProps: IBehaviourPickerProps = {
+			className: 'behaviour-picker',
+			controlBox: false,
+			canResize: false,
+			autoCenter: false,
+			modal: false
+		}
 
-	export class BehaviourPicker extends Window {
-		private static _singleton: BehaviourPicker;
+		private _onUpProxy: any;
 
-		private _input: any;//InputBox;
-		private _list: List;
-		private _X: number;
-		private _Y: number;
-
-		constructor() {
-            // Call super-class constructor
-			super( 200, 250 );
-
-			BehaviourPicker._singleton = this;
-            this.element.addClass( "tooltip-text-bg" );
-			this.element.addClass( "behaviour-picker" );
-
-            //this._input = new InputBox(this.content, "Behaviour Name");
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-             // this._list = new List(this.content );
-			// ==================================================
-			this._X = 0;
-			this._Y = 0;
-
-			//Hook listeners
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			// this._list.selectBox.element.on( "click", this.onListClick.bind( this ) );
-			// this._list.selectBox.element.on( "dblclick", this.onListDClick.bind( this ) );
-			// ==================================================
-			this._input.textfield.element.on( "keyup", this.onKeyDown.bind( this ) );
+		/**
+		 * Creates an instance of the picker
+		 */
+		constructor(props: IBehaviourPickerProps) {
+			super(props);
+			this._onUpProxy = this.onUp.bind(this);
+			this.state = {
+				items : [],
+				selectedIndex: -1,
+				search:'',
+				selectedText: ''
+			};
 		}
 
 		/**
-		* Shows the window by adding it to a parent.
-		* @param {Component} parent The parent Component we are adding this window to
-		* @param {number} x The x coordinate of the window
-		* @param {number} y The y coordinate of the window
-		* @param {boolean} isModal Does this window block all other user operations?
-		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-		*/
-		show( parent: Component = null, x: number = 0, y: number = 0, isModal: boolean = false, isPopup: boolean = false ) {
+		 * Close the window if we click anywhere but the window
+		 */
+		onUp( e: React.MouseEvent ) {
+			const elm = this.refs['window'] as HTMLElement;
+			let ref = e.target as HTMLElement;
+			let wasWithinWindow = false;
 
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			// this._list.sort();
-			// ==================================================
+			while ( ref ) {
+				if (ref == elm) {
+					wasWithinWindow = true;
+					break;
+				}
 
-			if ( y + this.element.height() > jQuery( "body" ).height() )
-				y = jQuery( "body" ).height() - this.element.height();
-			if ( x + this.element.width() > jQuery( "body" ).width() )
-				x = jQuery( "body" ).width() - this.element.width();
+				ref = ref.parentElement;
+			}
 
-			super.show( parent, x, y, isModal, isPopup );
-
-			this._input.focus(true);
+			if ( !wasWithinWindow )
+				this.onClose();
 		}
 
 		/**
-		* Called when we click the list.
-		* @param {any} e
-		* @returns {any}
-		*/
-		onListClick( e ) {
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			//this._input.text = this._list.selectedItem;
-			//===================================================
+		 * Remove any listeners
+		 */
+		componentWillUnmount() {
+			window.removeEventListener( 'mouseup', this._onUpProxy );
+			super.componentWillUnmount();
 		}
 
 		/**
-		* Called when we double click the list.
-		* @param {any} e
-		* @returns {any}
-		*/
-		onListDClick( e ) {
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			// this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
-			//=================================
-			this.hide();
+		 * Get all behaviour template names
+		 */
+		componentDidMount() {
+			let items : IListItem[];
+			let templates = PluginManager.getSingleton().behaviourTemplates.slice();
+
+			templates = templates.sort( function ( a, b ) {
+				var textA = a.behaviourName.toUpperCase();
+				var textB = b.behaviourName.toUpperCase();
+				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
+			});
+
+			items = templates.map( function(t) {
+				return { label: t.behaviourName, prefix: <i className="fa fa-cube" aria-hidden="true" /> } as IListItem;
+			});
+
+			this.setState({ items : items });
+			super.componentDidMount();
+
+			window.addEventListener( 'mouseup', this._onUpProxy );
 		}
 
 		/**
-		* When the input text changes we go through each list item
-		* and select it.
-		* @param {any} e
-		* @returns {any}
-		*/
-		onKeyDown( e ) {
-			//Check for up and down keys
+         * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
+         * in derived classes
+         */
+        getContent() : React.ReactNode {
+            return <div className="container">
+				<VInput type="text" autoFocus={true} placeholder="Behaviour Name" ref="input"
+						hint={this.state.search}
+						value={this.state.selectedText}
+						onKeyUp={(e) => { this.onKeyUp(e) }}
+						onChange={(e) => {
+							this.setState({ selectedText : (e.target as HTMLInputElement).value  })
+						}}
+					/>
+				<List
+					canDeselect={false}
+					selectedIndex={this.state.selectedIndex}
+					items={this.state.items}
+					onDSelected={( item, index ) => {
+						if (this.props.onTemplateSelected)
+							this.props.onTemplateSelected( PluginManager.getSingleton().getTemplate( item.label ) );
+
+						this.onClose();
+					}}
+					onSelected={( item, index ) => {
+						(ReactDOM.findDOMNode( this.refs['input'] ) as HTMLInputElement).focus();
+						this.setState({
+							selectedIndex: index,
+							search: item.label,
+							selectedText : item.label
+						});
+					}}
+				/>
+			</div>
+        }
+
+		/**
+		 * When the input text changes we go through each list item and select the one that is the closest match
+		 * @param {React.KeyboardEvent} e
+		 */
+		onKeyUp( e : React.KeyboardEvent ) {
+
+			// If left or right - do nothing
+			if ( e.keyCode == 39 || e.keyCode == 37 )
+				return;
+
+			// Check for up and down keys
 			if ( e.keyCode == 38 || e.keyCode == 40 ) {
 				e.preventDefault();
+				e.stopPropagation();
 
-				// TODO: This must be refactored from updates to TSX
-				// ==================================================
+				// Get the selected item and move it up and down
+				let selected = this.state.selectedIndex;
 
-				// //Get the selected item and move it up and down
-				// var selected = this._list.selectedIndex;
-				// if ( selected != -1 ) {
-				// 	var items: number = this._list.numItems();
-				// 	//If up
-				// 	if ( e.keyCode == 38 ) {
-				// 		if ( selected - 1 < 0 )
-				// 			this._list.selectedIndex = items - 1;
-				// 		else
-				// 			this._list.selectedIndex = selected - 1;
-				// 	}
-				// 	//If down
-				// 	else {
-				// 		if ( selected + 1 < items )
-				// 			this._list.selectedIndex = selected + 1;
-				// 		else
-				// 			this._list.selectedIndex = 0;
-				// 	}
+				if ( selected != -1 ) {
 
-				// 	this._input.text = this._list.selectedItem;
-				// }
+					let items: number = this.state.items.length;
 
-				// =======================================================
+					// If up
+					if ( e.keyCode == 38 ) {
+						if ( selected - 1 < 0 )
+							this.setState({
+								selectedIndex : items - 1,
+								search: this.state.items[items - 1].label,
+								selectedText : this.state.items[items - 1].label
+							});
+						else
+							this.setState({
+								selectedIndex : selected - 1,
+								search: this.state.items[selected - 1].label,
+								selectedText : this.state.items[selected - 1].label
+							});
+					}
+					// If down
+					else {
+						if ( selected + 1 < items )
+							this.setState({
+								selectedIndex : selected + 1,
+								search: this.state.items[selected + 1].label,
+								selectedText: this.state.items[selected + 1].label
+							});
+						else
+							this.setState({
+								selectedIndex : 0,
+								search: this.state.items[0].label,
+								selectedText: this.state.items[0].label
+							});
+					}
+				}
 
 				return;
 			}
 
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			//If enter is pressed we select the current item
-			// if ( e.keyCode == 13 ) {
-			// 	this.emit( new BehaviourPickerEvent( BehaviourPickerEvents.BEHAVIOUR_PICKED, this._list.selectedItem ) );
-			// 	this.hide();
-			// }
-			// ===================================================
 
-			// TODO: This must be refactored from updates to TSX
-			// ==================================================
-			// var len = this._list.items.length;
-			// for ( var i = 0; i < len; i++ ) {
-			// 	var v1 = this._list.items[i].text().toLowerCase();
-			// 	var v2 = this._input.text.toLowerCase();
-			// 	if ( v1.indexOf( v2 ) != -1 )
-			// 	{
-			// 		this._list.selectedItem = this._list.items[i].text();
-			// 		return;
-			// 	}
-			// }
-			// =====================================================
+			// If enter is pressed we select the current item
+			if ( e.keyCode == 13 ) {
+
+				let selectedItem = this.state.items[this.state.selectedIndex];
+
+				if (this.props.onTemplateSelected)
+					this.props.onTemplateSelected( selectedItem ? PluginManager.getSingleton().getTemplate( selectedItem.label ) : null );
+
+				this.onClose();
+				return;
+			}
+
+
+			let items = this.state.items;
+			for ( let i = 0, l = items.length; i < l; i++ ) {
+
+				let v1 = items[i].label.toLowerCase();
+				let v2 = (e.target as HTMLInputElement).value.toLowerCase();
+
+
+				if ( v1.indexOf( v2 ) != -1 ) {
+					let selectedItem = this.state.items[i];
+					this.setState({
+						selectedIndex : i,
+						search: selectedItem.label
+					});
+					return;
+				}
+			}
+
+			this.setState({
+				search: (e.target as HTMLInputElement).value
+			});
 		}
-
-		/**
-		* Gets the singleton instance.
-		* @returns {BehaviourPicker}
-		*/
-		static getSingleton(): BehaviourPicker {
-			if ( !BehaviourPicker._singleton )
-				new BehaviourPicker();
-
-			return BehaviourPicker._singleton;
-		}
-
-		get list(): List { return this._list; }
 	}
 }

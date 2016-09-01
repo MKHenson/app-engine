@@ -17,19 +17,19 @@ module Animate {
                 items : props.store.getItems() || []
             }
 
-            props.store.on('change', this.invalidate, this );
+            props.store.on<EditorEventType>('change', this.invalidate, this );
         }
 
-        componentWillReceiveProps(nextProps) {
-            this.props.store.off('change', this.invalidate, this );
-            nextProps.store.on('change', this.invalidate, this );
+        componentWillReceiveProps(nextProps : IReactCanvasProps) {
+            this.props.store.off<EditorEventType>('change', this.invalidate, this );
+            nextProps.store.on<EditorEventType>('change', this.invalidate, this );
         }
 
         /**
          * Clean up any listeners
          */
         componentWillUnmount() {
-            this.props.store.off('change', this.invalidate, this );
+            this.props.store.off<EditorEventType>('change', this.invalidate, this );
         }
 
         /**
@@ -181,6 +181,10 @@ module Animate {
                     className='canvas'
                     onClick={(e) => this.props.store.onNodeSelected(null, false)}
                     onDragOver={(e) => e.preventDefault()}
+                    onDoubleClick={(e) => {
+                        e.preventDefault();
+                        ReactWindow.show(BehaviourPicker, { x: e.pageX, y: e.pageY }  as IBehaviourPickerProps )
+                    }}
                     onDrop={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -193,7 +197,7 @@ module Animate {
                             this.onObjectDropped(e, json);
                         }
                         catch(e) {
-                            Logger.error(e.message);
+                            LoggerStore.error(e.message);
                         }
                     }}
                 >
