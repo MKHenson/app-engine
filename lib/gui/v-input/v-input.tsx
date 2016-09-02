@@ -45,6 +45,9 @@ module Animate {
          * If true, then the input will select everything when clicked
          */
         selectOnClick?: boolean;
+
+        onChange?(e: React.FormEvent, newString: string) : void;
+        onChange?(e: React.FormEvent) : void;
     }
 
 
@@ -59,6 +62,7 @@ module Animate {
         private _pristine: boolean;
         private _hintStart = -1;
         private _hintEnd = -1;
+        private _allowHint: boolean;
 
         /**
          * Creates a new instance
@@ -68,6 +72,8 @@ module Animate {
             this._pristine = true;
             this._hintStart = -1;
             this._hintEnd = -1;
+            this._allowHint = true;
+
             this.state = {
                 value : props.value || '',
                 error: null,
@@ -134,6 +140,9 @@ module Animate {
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
 
+        /**
+         * Check if we need to highlight the next
+         */
         componentDidUpdate(nextProps) {
             if (this._hintStart != -1)
                 ( ReactDOM.findDOMNode(this) as HTMLInputElement).setSelectionRange( this._hintStart, this._hintEnd );
@@ -143,38 +152,27 @@ module Animate {
          * Only called when we have hints enabled
          */
         onKeyUp(e : React.KeyboardEvent) {
-
-            // Backspace, or arrow keys, do nothing
-            if (e.keyCode == 8 || e.keyCode == 40 || e.keyCode == 39 || e.keyCode == 38 || e.keyCode == 37 ) {
-                if (this.props.onKeyUp)
-                    this.props.onKeyUp(e);
-                return;
-            }
-
-            let val = (e.target as HTMLInputElement).value;
-
-            if ( this.props.hint ) {
-                let isMatching = true;
-                let index = this.props.hint.toLowerCase().indexOf(val.toLowerCase());
-
-                if ( index == 0 ) {
-                    let valLen = val.length;
-                    val = this.props.hint;
-                    this._hintStart = index + valLen;
-                    this._hintEnd = this.props.hint.length;
-                }
-                else {
-                    this._hintStart = -1;
-                    this._hintEnd = -1;
-                }
-
-                this.setState({
-                    value: val
-                });
-            }
-
             if (this.props.onKeyUp)
                 this.props.onKeyUp(e);
+        }
+
+        /**
+         * Makes sure that the key is printable and therefore if we have to show the hint or not
+         */
+        private onKeyDown(e: React.KeyboardEvent) {
+            let keycode = e.keyCode;
+            let valid =
+                (keycode > 47 && keycode < 58)   || // number keys
+                keycode == 32 || keycode == 13   || // spacebar & return key(s) (if you want to allow carriage returns)
+                (keycode > 64 && keycode < 91)   || // letter keys
+                (keycode > 95 && keycode < 112)  || // numpad keys
+                (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
+                (keycode > 218 && keycode < 223);   // [\]' (in order)
+
+            if (valid)
+                this._allowHint = true;
+            else
+                this._allowHint = false;
         }
 
         /**
@@ -192,14 +190,31 @@ module Animate {
             else if (wasAnError && !err && this.props.onValidationResolved)
                 this.props.onValidationResolved(this);
 
+            if ( this.props.hint && this._allowHint ) {
+                let isMatching = true;
+                let index = this.props.hint.toLowerCase().indexOf(val.toLowerCase());
+
+                if ( index == 0 ) {
+                    let valLen = val.length;
+                    val = this.props.hint;
+                    this._hintStart = index + valLen;
+                    this._hintEnd = this.props.hint.length;
+                }
+                else {
+                    this._hintStart = -1;
+                    this._hintEnd = -1;
+                }
+            }
+
             this.setState({
                 value: val,
                 error: (err? err : null),
                 highlightError: (err && this.state.highlightError ? true : false)
             });
 
+            this._allowHint = true;
             if (!err && this.props.onChange)
-                this.props.onChange(e);
+                this.props.onChange(e, val);
         }
 
         /**
@@ -215,7 +230,6 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            // Remove the custom properties
             const divProps : IVInputProps  = Object.assign({}, this.props);
             delete divProps.validator;
             delete divProps.minCharacters;
@@ -236,6 +250,7 @@ module Animate {
 
             return <input
                 {...divProps}
+                onKeyDown={(e) => { this.onKeyDown(e) }}
                 onKeyUp={ (e) => {this.onKeyUp(e)} }
                 onFocus={(e) => {
                     this._pristine = false;
