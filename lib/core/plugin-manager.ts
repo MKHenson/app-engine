@@ -42,8 +42,8 @@ module Animate {
                     new PortalTemplate(new PropBool("Exit", false), 'output')
                 ], null, true, true, true, true));
 
+			this._behaviourTemplates.push(new BehaviourDefinition("Portal", [], null, false, false, false, false));
             this._behaviourTemplates.push(new BehaviourDefinition("Instance", [], null, true, true, true, true));
-
 			this._loadedPlugins = [];
 			// TODO: This must be refactored from updates to TSX
 			// ==================================================
