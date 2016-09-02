@@ -49,21 +49,18 @@ module Animate {
          * @param {IDragDropToken} json
 		 */
 		onObjectDropped( e: React.MouseEvent, json : IDragDropToken ) {
-
-            let elm = this.refs['canvas'] as HTMLElement;
+            const elm = this.refs['canvas'] as HTMLElement;
             const mouse = Utils.getRelativePos(e, elm);
 
             if ( json.type == 'resource' ) {
-                let resource = User.get.project.getResourceByShallowID(json.id as number);
-
-                if (resource instanceof Asset) {
-                    this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), mouse.x, mouse.y, resource);
+                const resource = User.get.project.getResourceByShallowID(json.id as number);
+                if (resource instanceof Container)
+                    this.createNode( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource);
+                else if ( resource instanceof Asset || resource instanceof GroupArray ) {
+                    this.createNode( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource);
                 }
-                else if (resource instanceof Container)
-                    this.createNode( PluginManager.getSingleton().getTemplate("Instance"), mouse.x, mouse.y, resource);
-
             }
-            else ( json.type == 'template' )
+            else if ( json.type == 'template' )
                 this.createNode( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
 
 		}
@@ -79,10 +76,10 @@ module Animate {
 		* @returns {Behaviour}
 		*/
 		createNode( template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name ?: string ): Behaviour {
+
+			let toAdd: Behaviour = null;
             x = x - x % 10;
 			y = y - y % 10;
-
-			var toAdd: Behaviour = null;
 
 			// if ( template.behaviourName == "Instance" ) {
 			// 	var nameOfBehaviour: string = "";
@@ -93,31 +90,15 @@ module Animate {
 			// 	}
 			// 	toAdd = new BehaviourInstance( this, container );
 			// }
-			if ( template.behaviourName == "Asset" )
+			if ( template.behaviourName == 'Asset' )
 			    toAdd = new BehaviourAsset(resource);
             // else if (template.behaviourName == "Script")
             //     toAdd = new BehaviourScript(this, null, name );
 			else
-				toAdd = new Behaviour(template.behaviourName);
+				toAdd = new Behaviour(template);
 
             toAdd.left = x;
             toAdd.top = y;
-
-            // if (template.behaviourName != "Instance" && template.behaviourName != "Script" )
-			// 	toAdd.text = template.behaviourName;
-
-			var portalTemplates = template.portalsTemplates();
-
-			// Check for name duplicates
-			if ( portalTemplates ) {
-				// Create each of the portals
-				for ( let pTemplate of portalTemplates ) {
-                    var portal = toAdd.addPortal( pTemplate.type, pTemplate.property.clone() );
-					// if ( toAdd instanceof BehaviourScript == false )
-					// 	portal.customPortal = false;
-				}
-			}
-
             this.props.store.addItem(toAdd);
 			return toAdd;
         }
@@ -164,6 +145,7 @@ module Animate {
         onContext( e : React.MouseEvent ) {
             const selection = this.props.store.getSelection();
             const items : IReactContextMenuItem[] = [
+                { label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" /> },
                 { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
                     { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },

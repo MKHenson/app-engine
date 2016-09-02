@@ -11,7 +11,7 @@ module Animate {
          * Creates an instance
          */
         constructor( property: Prop<any>, portalType: PortalType = 'input' ) {
-            super('Portal');
+            super( PluginManager.getSingleton().getTemplate( 'Portal' ) );
 
             this.alias = property.name;
             this._portalType = portalType;

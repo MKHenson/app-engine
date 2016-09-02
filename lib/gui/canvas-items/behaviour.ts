@@ -18,7 +18,7 @@ module Animate {
 		/**
 		 * Creates an instance of the behaviour
 		 */
-        constructor(type: string = 'Behaviour') {
+        constructor(template: BehaviourDefinition) {
             super();
 
 			this._parameters = [];
@@ -26,10 +26,14 @@ module Animate {
 			this._outputs = [];
 			this._inputs = [];
 			this._portals = [];
-			this.alias = type;
-			this.behaviourType = type;
+			this.alias = template.behaviourName;
+			this.behaviourType = template.behaviourName;
 			this.canGhost = true;
             this._properties = new EditableSet(this);
+
+			const portalTemplates = template.portalsTemplates();
+			for ( const portal of portalTemplates )
+            	this.addPortal( portal.type, portal.property.clone() );
 		}
 
         /**
