@@ -184,7 +184,7 @@ module Animate {
                         autoFocus=""
                         type='text'
                         name="username"
-                        onChange={(e)=>{ this.setState({ username : (e.target as HTMLInputElement).value })}}
+                        onChange={(e, newText)=>{ this.setState({ username : newText })}}
                         value={this.state.username}
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
                         />

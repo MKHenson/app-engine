@@ -102,8 +102,8 @@ module Animate {
 						hint={this.state.search}
 						value={this.state.selectedText}
 						onKeyUp={(e) => { this.onKeyUp(e) }}
-						onChange={(e) => {
-							this.setState({ selectedText : (e.target as HTMLInputElement).value  })
+						onChange={(e, newText) => {
+							this.setState({ selectedText : newText  })
 						}}
 					/>
 				<List

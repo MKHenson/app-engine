@@ -158,8 +158,8 @@ module Animate {
                             <div className="tr">
                                 <span className="td"><i className="fa fa-file-o" aria-hidden="true"/> Name:</span>
                                 <span className="td">
-                                    <VInput type="text" value={fileToken.name} onChange={(e) => {
-                                        fileToken.name = (e.target as HTMLInputElement).value;
+                                    <VInput type="text" value={fileToken.name} onChange={(e, newText) => {
+                                        fileToken.name = newText;
                                         this.setState({ fileToken : fileToken });
                                     }} />
                                 </span>
@@ -168,8 +168,8 @@ module Animate {
                                 <span className="td"><i className="fa fa-tags" aria-hidden="true"/> Tags:</span>
                                 <span className="td">
                                     <VInput type="text" value={fileToken.tags.join(',')}
-                                        onChange={(e) => {
-                                            fileToken.tags = (e.target as HTMLInputElement).value.trim().split(',');
+                                        onChange={(e, newText) => {
+                                            fileToken.tags = newText.trim().split(',');
                                             for (let t = 0, l = fileToken.tags.length; t < l; t++)
                                                 fileToken.tags[t] = fileToken.tags[t].trim();
 
