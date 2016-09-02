@@ -1,12 +1,19 @@
 module Animate {
 
     export interface IDraggableProps {
+        enabled? : boolean;
         x: number;
         y: number;
-        onMove: (x: number, y: number) => void;
+        onMove?: (x: number, y: number) => void;
     }
 
     export class Draggable extends React.Component<IDraggableProps, any> {
+        static defaultProps : IDraggableProps = {
+            enabled: true,
+            x: 0,
+            y: 0,
+            onMove: null
+        };
 
         private _upProxy;
         private _moveProxy;
@@ -38,6 +45,9 @@ module Animate {
          * @param {React.MouseEvent} e
          */
         onMouseDown(e: React.MouseEvent) {
+            if (!this.props.enabled)
+                return;
+
             this._mouseDelta = Utils.getRelativePos(e, this.refs['draggable'] as HTMLElement );
             e.preventDefault();
             window.addEventListener('mouseup', this._upProxy);

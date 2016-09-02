@@ -136,6 +136,15 @@ declare module Animate {
     }
 
     /**
+	* A basic wrapper for a Comment interface
+	*/
+    export interface IComment extends ICanvasItem {
+        label: string;
+        width : number;
+		height : number;
+    }
+
+    /**
     * A basic wrapper for a BehaviourPortal interface
     */
     export interface IBehaviourPortal extends IBehaviour {
@@ -2470,11 +2479,13 @@ declare module Animate {
 }
 declare module Animate {
     interface IDraggableProps {
+        enabled?: boolean;
         x: number;
         y: number;
-        onMove: (x: number, y: number) => void;
+        onMove?: (x: number, y: number) => void;
     }
     class Draggable extends React.Component<IDraggableProps, any> {
+        static defaultProps: IDraggableProps;
         private _upProxy;
         private _moveProxy;
         private _mouseDelta;
@@ -3354,6 +3365,31 @@ declare module Animate {
 }
 declare module Animate {
     /**
+     * A user comment
+     */
+    class Comment extends CanvasItem {
+        label: string;
+        width: number;
+        height: number;
+        /**
+         * Creates an instance
+         */
+        constructor(label: string);
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {IComment}
+         */
+        serialize(id: number): IComment;
+        /**
+         * De-Serializes data from a JSON.
+         * @param {IComment} data The data to import from
+         */
+        deSerialize(data: IComment): void;
+    }
+}
+declare module Animate {
+    /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
     */
@@ -3548,6 +3584,50 @@ declare module Animate {
          */
         constructor(props: IBehaviourComponentProps);
         onLinkStart(e: React.MouseEvent): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
+    interface ICommentComponentProps {
+        comment: Animate.Comment;
+    }
+    interface ICommentComponentState {
+        editMode?: boolean;
+        newLabel?: string;
+    }
+    /**
+     * A visual representation of a Behaviour
+     */
+    class CommentComponent extends React.Component<ICommentComponentProps, ICommentComponentState> {
+        private _onUp;
+        /**
+         * Creates an instance of the component
+         */
+        constructor(props: ICommentComponentProps);
+        /**
+         * Adds jQuery resizable hooks to the comment
+         */
+        addJqueryResize(): void;
+        /**
+         * Add the resizable hooks
+         */
+        componentDidMount(): void;
+        /**
+         * Remove any remaining listeners
+         */
+        componentWillUnmount(): void;
+        /**
+         * When we switch edit mode, we add/remove listeners and/or focus on the editable textarea
+         */
+        componentDidUpdate(prevProps: ICommentComponentProps, prevState: ICommentComponentState): void;
+        /**
+         * When the mouse is up, we remove the listeners and set the label
+         */
+        onUp(e: React.MouseEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}

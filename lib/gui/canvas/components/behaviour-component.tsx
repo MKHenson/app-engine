@@ -58,7 +58,6 @@ module Animate {
                 <Draggable onMove={(x, y) => {
                         behaviour.left = x;
                         behaviour.top = y;
-                        this.setState({ behaviour : behaviour })
                     }} x={this.props.behaviour.left} y={this.props.behaviour.top}>
                     <div
                         ref="behaviour"

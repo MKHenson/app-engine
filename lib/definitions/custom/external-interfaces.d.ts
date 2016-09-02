@@ -123,6 +123,15 @@
     }
 
     /**
+	* A basic wrapper for a Comment interface
+	*/
+    export interface IComment extends ICanvasItem {
+        label: string;
+        width : number;
+		height : number;
+    }
+
+    /**
     * A basic wrapper for a BehaviourPortal interface
     */
     export interface IBehaviourPortal extends IBehaviour {

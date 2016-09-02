@@ -143,9 +143,17 @@ module Animate {
          * @param {React.MouseEvent} e
          */
         onContext( e : React.MouseEvent ) {
+
+            const elm = this.refs['canvas'] as HTMLElement;
+            const mouse = Utils.getRelativePos(e, elm);
+
             const selection = this.props.store.getSelection();
             const items : IReactContextMenuItem[] = [
-                { label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" /> },
+                { label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" />, onSelect: (e) => {
+                    const comment = new Animate.Comment('Type a message');
+                    comment.left = mouse.x, comment.top = mouse.y;
+                    this.props.store.addItem( comment );
+                 }},
                 { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
                     { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
@@ -207,6 +215,8 @@ module Animate {
                     {this.state.items.map( (item, index) => {
                         if (item instanceof Behaviour)
                             return this.renderBehaviour(item, index);
+                        else if (item instanceof Animate.Comment)
+                            return <CommentComponent comment={item} key={'item-' + index} />;
 
                         return null;
                     })}
