@@ -132,7 +132,7 @@ declare module Animate {
     export interface IBehaviour extends ICanvasItem {
         alias: string;
         behaviourType: string;
-        portals: Array<IPortal>;
+        portals?: Array<IPortal>;
     }
 
     /**
@@ -2469,6 +2469,44 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IDraggableProps {
+        x: number;
+        y: number;
+        onMove: (x: number, y: number) => void;
+    }
+    class Draggable extends React.Component<IDraggableProps, any> {
+        private _upProxy;
+        private _moveProxy;
+        private _mouseDelta;
+        private _scrollInterval;
+        constructor(props: IDraggableProps);
+        /**
+         * When unmounting, we remove any listeners
+         */
+        componentWillUnmount(): void;
+        /**
+         * When the mouse is down on the behaviour, we add the drag listeners
+         * @param {React.MouseEvent} e
+         */
+        onMouseDown(e: React.MouseEvent): void;
+        /**
+         * When the mouse is up we remove the events
+         * @param {React.MouseEvent} e
+         */
+        onMouseUp(e: React.MouseEvent): void;
+        /**
+         * When the mouses moves we drag the behaviour
+         * @param {React.MouseEvent} e
+         */
+        onMouseMove(e: React.MouseEvent): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     /**
     * The interface for all layout objects.
     */
@@ -3216,7 +3254,7 @@ declare module Animate {
         /**
          * Creates an instance of the behaviour
          */
-        constructor();
+        constructor(template: BehaviourDefinition);
         /**
          * Gets a portal by its name
          * @param {string} name The portal name
@@ -3227,10 +3265,9 @@ declare module Animate {
          * Adds a portal to this behaviour.
          * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
          * @param {Prop<any>} property
-         * @param {boolean} custom Declares if this portal is a custom one added by the user
          * @returns {Portal}
          */
-        addPortal(type: PortalType, property: Prop<any>, custom?: boolean): Portal;
+        addPortal(type: PortalType, property: Prop<any>): Portal;
         /**
         * Removes a portal from this behaviour
         * @param {Portal} toRemove The portal object we are removing
@@ -3291,6 +3328,31 @@ declare module Animate {
     }
 }
 declare module Animate {
+    class BehaviourAsset extends Behaviour {
+        asset: ProjectResource<Engine.IResource>;
+        /**
+         * Creates an instance of the behaviour
+         */
+        constructor(asset?: ProjectResource<Engine.IResource>);
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Serializes the data into a JSON.
+         * @returns {IBehaviour}
+         */
+        serialize(id: number): IBehaviour;
+        /**
+         * Adds a portal to this behaviour.
+         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param {Prop<any>} property
+         * @returns {Portal}
+         */
+        addPortal(type: PortalType, property: Prop<any>): Portal;
+    }
+}
+declare module Animate {
     /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -3306,7 +3368,7 @@ declare module Animate {
         * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
         * @param {Prop<any>} property The property associated with this portal
         */
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom?: boolean);
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>);
         serialize(): IPortal;
         /**
         * Edits the portal variables
@@ -3406,7 +3468,11 @@ declare module Animate {
         * @param {string} name The name of the node
         * @returns {Behaviour}
         */
-        createNode(template: BehaviourDefinition, x: number, y: number, container?: Container, name?: string): Behaviour;
+        createNode(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): Behaviour;
+        /**
+         * Opens the canvas context menu
+         * @param {React.MouseEvent} e
+         */
         onContext(e: React.MouseEvent): void;
         /**
          * Creates the component elements
@@ -3426,7 +3492,16 @@ declare module Animate {
          * Creates an instance of the canvas store
          */
         constructor(items?: CanvasItem[]);
+        /**
+         * Returns all items of this store
+         * @returns {CanvasItem[]}
+         */
         getItems(): CanvasItem[];
+        /**
+         * Returns the currrently selected items
+         * @returns {CanvasItem[]}
+         */
+        getSelection(): CanvasItem[];
         /**
          * Called whenever an item is clicked.
          * @param {CanvasItem} node
@@ -3468,34 +3543,11 @@ declare module Animate {
      * A visual representation of a Behaviour
      */
     class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
-        private _upProxy;
-        private _moveProxy;
-        private _mouseDelta;
-        private _scrollInterval;
         /**
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps);
-        /**
-         * When unmounting, we remove any listeners
-         */
-        componentWillUnmount(): void;
         onLinkStart(e: React.MouseEvent): void;
-        /**
-         * When the mouse is down on the behaviour, we add the drag listeners
-         * @param {React.MouseEvent} e
-         */
-        onMouseDown(e: React.MouseEvent): void;
-        /**
-         * When the mouses moves we drag the behaviour
-         * @param {React.MouseEvent} e
-         */
-        onMouseMove(e: React.MouseEvent): void;
-        /**
-         * When the mouse is up we remove the events
-         * @param {React.MouseEvent} e
-         */
-        onMouseUp(e: React.MouseEvent): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -6191,6 +6243,8 @@ declare module Animate {
          * If true, then the input will select everything when clicked
          */
         selectOnClick?: boolean;
+        onChange?(e: React.FormEvent, newString: string): void;
+        onChange?(e: React.FormEvent): void;
     }
     /**
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
@@ -6205,6 +6259,7 @@ declare module Animate {
         private _pristine;
         private _hintStart;
         private _hintEnd;
+        private _allowHint;
         /**
          * Creates a new instance
          */
@@ -6232,11 +6287,18 @@ declare module Animate {
          * @returns {string} An error string or null if there are no errors
          */
         getValidationErrorMsg(val: string): string;
+        /**
+         * Check if we need to highlight the next
+         */
         componentDidUpdate(nextProps: any): void;
         /**
          * Only called when we have hints enabled
          */
         onKeyUp(e: React.KeyboardEvent): void;
+        /**
+         * Makes sure that the key is printable and therefore if we have to show the hint or not
+         */
+        private onKeyDown(e);
         /**
          * Called whenever the value changes
          * @param {React.FormEvent} e
@@ -6526,7 +6588,6 @@ declare module Animate {
         project: Engine.IProject;
     }
     interface IOpenProjectState {
-        selectedProject?: Engine.IProject;
         message?: string;
         mode?: AttentionType;
         loading?: boolean;
@@ -6537,8 +6598,8 @@ declare module Animate {
          */
         constructor(props: IOpenProjectProps);
         /**
-        * Attempts to load the project and setup the scene
-        */
+         * Attempts to load the project and setup the scene
+         */
         loadScene(): void;
         componentWillMount(): void;
         /**

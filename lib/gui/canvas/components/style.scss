@@ -1,7 +1,7 @@
 .behaviour {
     cursor:pointer;
     z-index:1;
-    position:absolute;
+    position:relative;
     text-align:center;
     box-sizing:border-box;
     text-overflow: clip;
@@ -33,6 +33,7 @@
     width:150px;
     height:50px;
     padding: 5px;
+    position:relative;
 
     &::before {
         display:none;

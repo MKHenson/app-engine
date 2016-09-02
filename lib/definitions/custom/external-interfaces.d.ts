@@ -119,7 +119,7 @@
     export interface IBehaviour extends ICanvasItem {
         alias: string;
         behaviourType: string;
-        portals: Array<IPortal>;
+        portals?: Array<IPortal>;
     }
 
     /**
