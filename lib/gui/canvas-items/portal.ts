@@ -16,7 +16,7 @@ module Animate {
 		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
 		* @param {Prop<any>} property The property associated with this portal
 		*/
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any>, custom: boolean = false) {
+        constructor(parent: Behaviour, type: PortalType, property: Prop<any>) {
             super();
 
             this.links = [];
@@ -24,7 +24,7 @@ module Animate {
             this.type = type;
             this.behaviour = parent;
             this.edit(property);
-            this.custom = custom;
+            this.custom = false;
 		}
 
 		serialize() : IPortal {

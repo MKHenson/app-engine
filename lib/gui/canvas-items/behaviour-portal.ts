@@ -11,23 +11,22 @@ module Animate {
          * Creates an instance
          */
         constructor( property: Prop<any>, portalType: PortalType = 'input' ) {
-            super();
+            super('Portal');
 
             this.alias = property.name;
-            this.behaviourType = 'portal';
             this._portalType = portalType;
             this._property = property;
             this.className = 'behaviour-portal ' + portalType;
 
             if (property) {
                 if (this._portalType == 'output')
-                    this.addPortal('input', property, true);
+                    this.addPortal('input', property);
                 else if (this._portalType == 'input')
-                    this.addPortal('output', property, true);
+                    this.addPortal('output', property);
                 else if (this._portalType == 'parameter')
-                    this.addPortal('product', property, true);
+                    this.addPortal('product', property);
                 else if (this._portalType == 'product')
-                    this.addPortal('parameter', property, true);
+                    this.addPortal('parameter', property);
             }
         }
 

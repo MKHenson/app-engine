@@ -76,6 +76,17 @@
 // 			//	this.initializeDB();
 // 		}
 
+        // /**
+		//  * Adds a portal to this behaviour.
+		//  * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+		//  * @param {Prop<any>} property
+		//  * @returns {Portal}
+		//  */
+        // addPortal(type: PortalType, property: Prop<any> ): Portal {
+        //     let portal = super.addPortal(type, property);
+        //     portal.custom = true;
+        //     return portal;
+        // }
 
 // 		/**
 // 		* Called when the behaviour is renamed
