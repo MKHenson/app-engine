@@ -183,14 +183,22 @@ module Animate {
                     onDragOver={(e) => e.preventDefault()}
                     onDoubleClick={(e) => {
                         e.preventDefault();
-                        ReactWindow.show(BehaviourPicker, { x: e.pageX, y: e.pageY }  as IBehaviourPickerProps )
+                        const elm = this.refs['canvas'] as HTMLElement;
+                        const mouse = Utils.getRelativePos(e, elm);
+
+                        ReactWindow.show(BehaviourPicker, {
+                            x: e.pageX,
+                             y: e.pageY,
+                             onTemplateSelected: (template) => {
+                                this.createNode(template, mouse.x, mouse.y );
+                             }} as IBehaviourPickerProps )
                     }}
                     onDrop={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         try {
                             let json : IDragDropToken;
-                            let data = e.dataTransfer.getData('text');
+                            const data = e.dataTransfer.getData('text');
                             if (data && data != '')
                                 json = JSON.parse(data);
 
