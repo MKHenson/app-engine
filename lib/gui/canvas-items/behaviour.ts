@@ -18,7 +18,7 @@ module Animate {
 		/**
 		 * Creates an instance of the behaviour
 		 */
-        constructor() {
+        constructor(type: string = 'Behaviour') {
             super();
 
 			this._parameters = [];
@@ -26,9 +26,8 @@ module Animate {
 			this._outputs = [];
 			this._inputs = [];
 			this._portals = [];
-			this.alias = 'Behaviour';
-			this.behaviourType = 'Behaviour';
-
+			this.alias = type;
+			this.behaviourType = type;
 			this.canGhost = true;
             this._properties = new EditableSet(this);
 		}
@@ -51,11 +50,10 @@ module Animate {
 		 * Adds a portal to this behaviour.
 		 * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
 		 * @param {Prop<any>} property
-		 * @param {boolean} custom Declares if this portal is a custom one added by the user
 		 * @returns {Portal}
 		 */
-        addPortal(type: PortalType, property: Prop<any>, custom: boolean = false): Portal {
-            var portal = new Portal(this, type, property, custom);
+        addPortal(type: PortalType, property: Prop<any> ): Portal {
+            var portal = new Portal(this, type, property );
 
 			// Add the arrays
             if (type == 'parameter')
@@ -146,7 +144,7 @@ module Animate {
 				let prop: Prop<any> = Utils.createProperty( portal.property.name, portal.property.type );
 				prop.deTokenize( portal.property );
 
-				let newPortal = this.addPortal( portal.type, prop, false);
+				let newPortal = this.addPortal( portal.type, prop);
 				newPortal.custom = portal.custom;
 			}
         }
