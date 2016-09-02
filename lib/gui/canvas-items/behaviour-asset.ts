@@ -1,45 +1,46 @@
-// module Animate {
-// 	export class BehaviourAsset extends Behaviour {
-// 		public asset : Asset;
+module Animate {
+	export class BehaviourAsset extends Behaviour {
+		public asset : ProjectResource<Engine.IResource>;
 
-// 		constructor( data?: IBehaviour ) {
-// 			super( data );
+        /**
+         * Creates an instance of the behaviour
+         */
+		constructor(asset? : ProjectResource<Engine.IResource>) {
+			super('Asset');
+            this.className = 'behaviour-asset';
+			this.asset = asset || null;
+		}
 
-// 			this.element.addClass("behaviour-asset");
-// 			this.asset = null;
-// 		}
+		/**
+		 * Clean up
+		 */
+		dispose() {
+			this.asset = null;
+			super.dispose();
+        }
 
-// 		/**
-// 		 * Clean up
-// 		 */
-// 		dispose() {
-// 			this.asset = null;
-// 			super.dispose();
-//         }
+        /**
+         * Serializes the data into a JSON.
+         * @returns {IBehaviour}
+         */
+        serialize(id: number): IBehaviour {
+            let toRet = <IBehaviour>super.serialize(id);
+            toRet.type = 'asset';
+            return toRet;
+        }
 
-//         /**
-//          * Serializes the data into a JSON.
-//          * @returns {IBehaviour}
-//          */
-//         serialize(): IBehaviour {
-//             let toRet = <IBehaviour>super.serialize();
-//             toRet.type = 'asset';
-//             return toRet;
-//         }
+		/**
+		 * Adds a portal to this behaviour.
+		 * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+		 * @param {Prop<any>} property
+		 * @returns {Portal}
+		 */
+        addPortal(type: PortalType, property: Prop<any> ): Portal {
+            var portal = super.addPortal(type, property);
+            if (type == 'parameter')
+                this.asset = property.getVal() as Asset;
 
-// 		/**
-// 		 * Adds a portal to this behaviour.
-// 		 * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-// 		 * @param {Prop<any>} property
-// 		 * @returns {Portal}
-// 		 */
-//         addPortal(type: PortalType, property: Prop<any> ): Portal {
-//             var portal = super.addPortal(type, property, false);
-
-//             if (type == 'parameter')
-//                 this.asset = property.getVal() as Asset;
-
-// 			return portal;
-// 		}
-// 	}
-// }
+			return portal;
+		}
+	}
+}

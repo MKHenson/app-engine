@@ -57,7 +57,7 @@ module Animate {
                 let resource = User.get.project.getResourceByShallowID(json.id as number);
 
                 if (resource instanceof Asset) {
-                    //this.addAssetAtLocation(resource, x, y);
+                    this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), mouse.x, mouse.y, resource);
                 }
                 else if (resource instanceof Container)
                     this.createNode( PluginManager.getSingleton().getTemplate("Instance"), mouse.x, mouse.y, resource);
@@ -78,7 +78,7 @@ module Animate {
         * @param {string} name The name of the node
 		* @returns {Behaviour}
 		*/
-		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour {
+		createNode( template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name ?: string ): Behaviour {
             x = x - x % 10;
 			y = y - y % 10;
 
@@ -93,14 +93,15 @@ module Animate {
 			// 	}
 			// 	toAdd = new BehaviourInstance( this, container );
 			// }
-			// else if ( template.behaviourName == "Asset" )
-			// 	toAdd = new BehaviourAsset( this, template.behaviourName );
+			if ( template.behaviourName == "Asset" )
+			    toAdd = new BehaviourAsset(resource);
             // else if (template.behaviourName == "Script")
             //     toAdd = new BehaviourScript(this, null, name );
-			// else
-				toAdd = new Behaviour();
+			else
+				toAdd = new Behaviour(template.behaviourName);
 
-            toAdd.deSerialize({ behaviourType: template.behaviourName, alias: template.behaviourName, portals: [], left: x, top: y });
+            toAdd.left = x;
+            toAdd.top = y;
 
             // if (template.behaviourName != "Instance" && template.behaviourName != "Script" )
 			// 	toAdd.text = template.behaviourName;
@@ -111,7 +112,7 @@ module Animate {
 			if ( portalTemplates ) {
 				// Create each of the portals
 				for ( let pTemplate of portalTemplates ) {
-                    var portal = toAdd.addPortal( pTemplate.type, pTemplate.property.clone(), false );
+                    var portal = toAdd.addPortal( pTemplate.type, pTemplate.property.clone() );
 					// if ( toAdd instanceof BehaviourScript == false )
 					// 	portal.customPortal = false;
 				}
