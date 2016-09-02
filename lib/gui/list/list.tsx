@@ -102,9 +102,11 @@ module Animate
 		 componentDidUpdate( prevProps: IListProps ) {
 			// only scroll into view if the active item changed last render
 			if ( this.props.selectedIndex !== prevProps.selectedIndex ) {
-				let item = this.refs['selected-item'] as HTMLElement;
+				const item = this.refs['selected-item'] as HTMLElement;
 				if (item) {
-					Utils.scrollTo( { x: 0, y: item.offsetTop - item.offsetHeight }, item.parentElement, 250 );
+					const y = item.offsetTop - item.offsetHeight;
+					if (y < item.parentElement.scrollTop || y > item.parentElement.scrollTop + item.parentElement.offsetHeight)
+						Utils.scrollTo( { x: 0, y: y }, item.parentElement, 250 );
 				}
 			}
 		}
