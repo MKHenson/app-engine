@@ -17,8 +17,20 @@ module Animate {
             this._selection = [];
         }
 
+        /**
+         * Returns all items of this store
+         * @returns {CanvasItem[]}
+         */
         getItems(): CanvasItem[] {
             return this._items;
+        }
+
+        /**
+         * Returns the currrently selected items
+         * @returns {CanvasItem[]}
+         */
+        getSelection(): CanvasItem[] {
+            return this._selection;
         }
 
         /**

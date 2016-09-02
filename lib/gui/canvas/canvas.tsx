@@ -156,17 +156,29 @@ module Animate {
 		// 	return false;
 		// }
 
+        /**
+         * Opens the canvas context menu
+         * @param {React.MouseEvent} e
+         */
         onContext( e : React.MouseEvent ) {
-            e.preventDefault();
-            ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: [
-                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" /> },
+            const selection = this.props.store.getSelection();
+            const items : IReactContextMenuItem[] = [
                 { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
                     { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Parameter', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Product', prefix: <i className="fa fa-plus" aria-hidden="true" /> }
                 ]}
-            ]});
+            ];
+
+            if (selection.length > 0)
+                items.push({ label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" />, onSelect: (e) => {
+                    for (const item of selection)
+                        this.props.store.removeItem(item);
+                 }});
+
+            ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: items });
+            e.preventDefault();
         }
 
         /**
