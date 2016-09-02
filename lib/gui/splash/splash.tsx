@@ -52,6 +52,9 @@
                             this.setState({ mode: SplashMode.NEW_PROJECT });
                         }}
                         onOpenProject={(project) => {
+                            if (!project)
+                                return;
+
                             this.setState({
                                 mode: SplashMode.OPENING,
                                 project: project

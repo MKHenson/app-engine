@@ -63,27 +63,22 @@ module Animate {
          * @param {IInteractiveProject} project The project to select
          */
         selectProject(project: IInteractiveProject, doubleClick : boolean ) {
-            if ( this.state.selectedProject )
+
+            if ( this.state.selectedProject && this.state.selectedProject != project )
                 this.state.selectedProject.selected = false;
+
+            if (!project) {
+                this.setState({ selectedProject : null });
+                return;
+            }
 
             project.selected = true;
-            var selectedProject : IInteractiveProject;
-
-            if ( this.state.selectedProject != project ) {
-                selectedProject = project;
-                this.setState({ selectedProject : selectedProject });
-            }
-            else {
-                selectedProject = null;
-                this.state.selectedProject.selected = false;
-                this.setState({ selectedProject : selectedProject });
-            }
-
+            this.setState({ selectedProject : project });
             if ( this.props.onProjectSelected ) {
-                this.props.onProjectSelected(selectedProject);
+                this.props.onProjectSelected( project );
 
                 if (doubleClick)
-                    this.props.onProjectDClicked(selectedProject);
+                    this.props.onProjectDClicked( project );
             }
         }
 
@@ -136,7 +131,7 @@ module Animate {
                     }} />
                     {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null }
                 </div>
-                <div className="projects-container">
+                <div className="projects-container" onClick={(e) => { this.selectProject(null, false) }}>
                     <Pager onUpdate={this.fetchProjects.bind(this)} limit={6} ref="pager">
                         <div className="project-items">
                             <div className="error bad-input" style={{ display: (this.state.errorMsg ? 'block' : '' ) }}>
@@ -150,11 +145,13 @@ module Animate {
                                         src={p.image}
                                         label={p.name}
                                         labelIcon={<span className="fa fa-file"/>}
-                                        onDoubleClick={()=>{
-                                            this.selectProject(p, true)
+                                        onDoubleClick={(e)=>{
+                                            this.selectProject(p, true);
+                                            e.stopPropagation();
                                         }}
-                                        onClick={()=>{
-                                            this.selectProject(p, false)
+                                        onClick={(e)=>{
+                                            this.selectProject(p, false);
+                                            e.stopPropagation();
                                         }}
                                     />
                             })}

@@ -7,7 +7,7 @@ module Animate {
     }
 
     export interface IOpenProjectState {
-        selectedProject?: Engine.IProject;
+
         message?: string;
         mode?: AttentionType;
         loading?: boolean;
@@ -23,17 +23,16 @@ module Animate {
             this.state = {
                 mode: AttentionType.SUCCESS,
                 loading: true,
-                message: null,
-                selectedProject: props.project
+                message: null
             }
         }
 
         /**
-        * Attempts to load the project and setup the scene
-        */
+         * Attempts to load the project and setup the scene
+         */
         loadScene() {
             let project = User.get.project;
-            project.entry = this.state.selectedProject;
+            project.entry = this.props.project;
 
             // Notify of new project
             // TODO: ALL NEEDS TO BE UPDATED
@@ -44,7 +43,7 @@ module Animate {
             // PluginManager.getSingleton().projectReady(project);
             // ==========================================
 
-            let message = `Loading project '${this.state.selectedProject.name}'...`
+            let message = `Loading project '${this.props.project.name}'...`
 
             this.setState({
                 mode: AttentionType.SUCCESS,
@@ -78,7 +77,7 @@ module Animate {
                 document.title = `Hatchery: ${project.entry.name} ${project.entry._id}`;
 
                 // Log
-                LoggerStore.success(`Project '${this.state.selectedProject.name}' has successfully been opened` );
+                LoggerStore.success(`Project '${this.props.project.name}' has successfully been opened` );
 
                 // Everything done
                 this.props.onComplete();
@@ -92,12 +91,12 @@ module Animate {
         }
 
         /*
-        * Loads the selected project
-        */
+         * Loads the selected project
+         */
         componentWillMount() {
 
             let numLoaded = 0;
-            let project : Engine.IProject = this.state.selectedProject;
+            let project : Engine.IProject = this.props.project;
             this.setState({
                 mode: AttentionType.SUCCESS,
                 loading: true
@@ -145,10 +144,10 @@ module Animate {
          */
         render() : JSX.Element {
             let loadingPanel : JSX.Element;
-            if (this.state.selectedProject) {
+            if (this.props.project) {
                 loadingPanel = <div className="loading-panel">
                     {
-                        this.state.selectedProject.$plugins.map((plugin, index) => {
+                        this.props.project.$plugins.map((plugin, index) => {
 
                             let pluginElm : JSX.Element;
                             if (!plugin.$error) {
@@ -175,7 +174,7 @@ module Animate {
 
             return <div id="splash-loading-project" className='loading-project fade-in background'>
                 <div>
-                    { this.state.selectedProject ? <h2>Loading '{this.state.selectedProject.name}'</h2> : <h2>Project Loading</h2> }
+                    { this.props.project ? <h2>Loading '{this.props.project.name}'</h2> : <h2>Project Loading</h2> }
                     {loadingPanel}
                     { this.state.message ?
                         <div className="summary-message"><Attention
