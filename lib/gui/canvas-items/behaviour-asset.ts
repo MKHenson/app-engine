@@ -6,9 +6,16 @@ module Animate {
          * Creates an instance of the behaviour
          */
 		constructor(asset? : ProjectResource<Engine.IResource>) {
-			super('Asset');
+			super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
             this.className = 'behaviour-asset';
 			this.asset = asset || null;
+
+            // Set the property if the asset was provided
+            this.parameters[0].property.setVal( asset );
+
+            if (asset) {
+                this.alias = asset.entry.name;
+            }
 		}
 
 		/**
