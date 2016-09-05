@@ -334,6 +334,7 @@ module Animate {
                 <div className="files-view background-view animate-all">
                     <Pager ref="pager" onUpdate={(index, limit) => { return this.updateContent(index, limit) }}>
                         <div className={'file-items' + (state.highlightDropZone? ' drag-here': '')}
+                            onClick={(e) => {this.selectEntity(e, null)}}
                             onDragExit={(e) => this.onDragLeave(e)}
                             onDragLeave={(e) => this.onDragLeave(e)}
                             onDragOver={(e) => this.onDragOver(e)}
@@ -400,14 +401,23 @@ module Animate {
          * @param {IViewerFile} entity
          */
         selectEntity(e : React.MouseEvent, entity : IViewerFile) {
+            e.preventDefault();
+            e.stopPropagation();
+
             this.setState({
                 errorMsg : null
             });
 
-            entity.selected = !entity.selected;
-            var ents = this._selectedEntities;
+            if (this.state.selectedEntity == entity)
+                return;
 
-            if (entity.selected) {
+            let ents = this._selectedEntities;
+
+            if (entity) {
+                entity.selected = !entity.selected;
+            }
+
+            if (!entity || entity.selected) {
                 if ( !this.props.multiSelect || ( this.props.multiSelect && e.shiftKey == false)) {
                     for (var i = 0, l = ents.length; i < l; i++)
                         (ents[i] as any).selected = false;
@@ -415,7 +425,8 @@ module Animate {
                     ents.splice(0, ents.length);
                 }
 
-                ents.push(entity);
+                if (entity)
+                    ents.push(entity);
             }
             else
                 ents.splice(ents.indexOf(entity), 1);
