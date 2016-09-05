@@ -2518,6 +2518,53 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IResizableProps {
+        enabled?: boolean;
+        target?: HTMLElement;
+        onDragStart?(e: React.MouseEvent): boolean;
+    }
+    /**
+     * A wrapper Component that adds handles to allow for resizing of its first child component.
+     */
+    class Resizable extends React.Component<IResizableProps, any> {
+        static defaultProps: IResizableProps;
+        private _upProxy;
+        private _moveProxy;
+        private _allowMouseX;
+        private _allowMouseY;
+        private _originRect;
+        private _ghost;
+        /**
+         * Creates an instance of the resizer
+         */
+        constructor(props: IResizableProps);
+        /**
+         * When unmounting, we remove any listeners that may still remain
+         */
+        componentWillUnmount(): void;
+        /**
+         * When the mouse is down on the component, we add the move and up listeners
+         * @param {React.MouseEvent} e
+         */
+        onMouseDown(e: React.MouseEvent, allowMouseX: boolean, allowMouseY: boolean): void;
+        /**
+         * When the mouse is up we remove the events
+         * @param {React.MouseEvent} e
+         */
+        onMouseUp(e: React.MouseEvent): void;
+        /**
+         * When the mouses moves we resize the component
+         * @param {React.MouseEvent} e
+         */
+        onMouseMove(e: React.MouseEvent): void;
+        /**
+         * Creates the component elements
+         * @returns {JSX.Element}
+         */
+        render(): JSX.Element;
+    }
+}
+declare module Animate {
     /**
     * The interface for all layout objects.
     */
@@ -3505,6 +3552,7 @@ declare module Animate {
         * @returns {Behaviour}
         */
         createNode(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): Behaviour;
+        createPortal(type: PortalType): void;
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
@@ -3608,14 +3656,6 @@ declare module Animate {
          * Creates an instance of the component
          */
         constructor(props: ICommentComponentProps);
-        /**
-         * Adds jQuery resizable hooks to the comment
-         */
-        addJqueryResize(): void;
-        /**
-         * Add the resizable hooks
-         */
-        componentDidMount(): void;
         /**
          * Remove any remaining listeners
          */
@@ -5605,11 +5645,18 @@ declare module Animate {
     }
 }
 declare module Animate {
+    interface IPortalFormProps extends IReactWindowProps {
+        onCancel?: () => void;
+    }
+    interface IPortalFormStats extends IReactWindowState {
+        errorMsg?: string;
+        portal: Portal;
+    }
     /**
-    * This form is used to create or edit Portals.
-    */
-    class PortalForm extends Window {
-        private static _singleton;
+     * This form is used to create or edit Portals.
+     */
+    class PortalForm extends ReactWindow<IPortalFormProps, IPortalFormStats> {
+        static defaultProps: IPortalFormProps;
         private _portalType;
         private _value;
         private _fromOk;
@@ -5619,11 +5666,11 @@ declare module Animate {
         private $name;
         private $class;
         private $errorMsg;
-        constructor();
+        constructor(props: IPortalFormProps);
         /**
-        * Generates all the available classes to select for asset property types
-        */
-        generateClasses(): void;
+         * Gets the content JSX for the window.
+         */
+        getContent(): React.ReactNode;
         /**
         * Creates a new property from the data chosen
         * @param {Prop<any>}
@@ -5635,10 +5682,7 @@ declare module Animate {
         * @param {PortalType} type The items current portal type
         * @param {string} caption The caption of the form
         */
-        editPortal(property: Prop<any>, type: PortalType, nameVerifier: (name: string) => boolean): Promise<{
-            prop: Prop<any>;
-            cancel: boolean;
-        }>;
+        editPortal(property: Prop<any>, type: PortalType, nameVerifier: (name: string) => boolean): void;
         /**
         * Hides the window from view
         */
@@ -5647,16 +5691,11 @@ declare module Animate {
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
         * and pass the text either for the ok or cancel buttons.
         */
-        ok(): Element;
+        ok(json: any): void;
         name: string;
         portalType: PortalType;
         value: any;
         parameterType: PropertyType;
-        /**
-        * Gets the singleton instance.
-        * @returns {PortalForm}
-        */
-        static getSingleton(): PortalForm;
     }
 }
 declare module Animate {
@@ -6159,7 +6198,7 @@ declare module Animate {
     type SelectValue = {
         label: string;
         value: string | number;
-        selected: boolean;
+        selected?: boolean;
     };
     interface IVSelectProps extends React.HTMLAttributes {
         /**
