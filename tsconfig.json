@@ -63,6 +63,7 @@
     "lib/core/properties/prop-asset-list.ts",
     "lib/core/properties/prop-color.ts",
     "lib/gui/draggable/draggable.tsx",
+    "lib/gui/resizable/resizable.tsx",
     "lib/gui/layouts/i-layout.ts",
     "lib/gui/layouts/percentile.ts",
     "lib/gui/layouts/fill.ts",

@@ -2,7 +2,6 @@
 @import 'general-css/functions.scss';
 @import 'general-css/colours.scss';
 @import 'general-css/base.scss';
-@import 'general-css/jquery-ui-resizable.scss';
 
 
 
@@ -209,6 +208,7 @@ body {
     width:50%;
 }
 
+@import 'gui/resizable/style.scss';
 @import 'gui/draggable/style.scss';
 @import 'gui/buttons/style.scss';
 @import 'gui/image-preview/style.scss';
