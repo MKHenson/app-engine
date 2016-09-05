@@ -16,13 +16,17 @@
     100% { box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.2); }
 }
 
+.window-view {
+    .resizable {
+        position: absolute;
+    }
+}
+
 .window {
-    position: absolute;
+    position: relative;
     z-index: 1;
     width: 300px;
     height: 200px;
-    top: calc(50% - 200px );
-    left: calc(50% - 300px );
     box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
     background: $background-primary;
 

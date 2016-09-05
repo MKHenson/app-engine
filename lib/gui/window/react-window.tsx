@@ -105,7 +105,7 @@ module Animate {
          */
         onHeaderDown(e: React.MouseEvent) {
             e.preventDefault();
-            let w = this.refs['window'] as ReactWindow<T, S>;
+            let w = this.refs['resizable'] as ReactWindow<T, S>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let bounds = elm.getBoundingClientRect();
 
@@ -123,7 +123,7 @@ module Animate {
 
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
-                let w = this.refs['window'] as ReactWindow<T,S>;
+                let w = this.refs['resizable'] as ReactWindow<T,S>;
                 let elm = ReactDOM.findDOMNode(w) as HTMLElement;
                 elm.style.left = (( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 )) + 'px';
                 elm.style.top = (( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 )) + 'px';
@@ -134,7 +134,7 @@ module Animate {
          * When the mouse moves and we are dragging the header bar we move the window
          */
         onMouseMove(e: MouseEvent) {
-            let w = this.refs['window'] as ReactWindow<T, S>;
+            let w = this.refs['resizable'] as ReactWindow<T, S>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
             let x = e.pageX -  this._mouseDeltaX;
             let y = e.pageY -  this._mouseDeltaY;
@@ -157,7 +157,7 @@ module Animate {
 
             window.addEventListener('resize', this._resizeProxy);
 
-            let w = this.refs['window'] as ReactWindow<T, S>;
+            let w = this.refs['resizable'] as ReactWindow<T, S>;
             let elm = ReactDOM.findDOMNode(w) as HTMLElement;
 
             // When the component is mounted, check if it needs to be centered
@@ -169,16 +169,6 @@ module Animate {
                 elm.style.left = (this.props.x || 0) + 'px';
                 elm.style.top = (this.props.y || 0) + 'px';
             }
-
-            // Make the form resizable
-            if ( this.props.canResize ) {
-                let elm = ReactDOM.findDOMNode( this.refs['window'] );
-                jQuery(elm).resizable({
-                    minHeight: 50,
-                    minWidth: 50,
-                    helper: "ui-resizable-helper"
-                });
-            }
         }
 
         /**
@@ -188,11 +178,6 @@ module Animate {
             window.removeEventListener('resize', this._resizeProxy);
             window.removeEventListener('mouseup', this._mouseUpProxy);
             document.body.removeEventListener('mousemove', this._mouseMoveProxy);
-
-            if ( this.props.canResize ) {
-                 let elm = ReactDOM.findDOMNode( this.refs['window'] );
-                jQuery(elm).resizable('destroy');
-            }
         }
 
         /**
@@ -240,12 +225,14 @@ module Animate {
             }
             return <div>
                 {(this.props.modal ? <div className='modal-backdrop' onClick={()=>{ this.onModalClick(); }}></div> : null)}
-                <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' )} ref="window">
-                    {controlBox}
-                    <div className={'window-content' + (!this.props.controlBox ? ' no-control' : '')}>
-                        {this.getContent()}
+                <Resizable ref="resizable" enabled={this.props.canResize}>
+                    <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' )} ref="window">
+                        {controlBox}
+                        <div className={'window-content' + (!this.props.controlBox ? ' no-control' : '')}>
+                            {this.getContent()}
+                        </div>
                     </div>
-                </div>
+                </Resizable>
             </div>;
         }
     }

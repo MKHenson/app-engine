@@ -28,30 +28,10 @@ module Animate {
         }
 
         /**
-         * Adds jQuery resizable hooks to the comment
-         */
-        addJqueryResize() {
-            const comment = this.refs['comment'] as HTMLElement;
-            jQuery(comment).resizable({
-				minHeight: 50,
-				minWidth: 50,
-				helper: "ui-resizable-helper"
-            } as JQueryUI.ResizableOptions );
-        }
-
-        /**
-         * Add the resizable hooks
-         */
-        componentDidMount() {
-            this.addJqueryResize();
-        }
-
-        /**
          * Remove any remaining listeners
          */
         componentWillUnmount() {
             window.removeEventListener('mouseup', this._onUp);
-            jQuery(this.refs['comment'] as HTMLElement).resizable('destroy');
         }
 
         /**
@@ -70,7 +50,6 @@ module Animate {
             }
             else if ( prevState.editMode && !this.state.editMode ) {
                 window.removeEventListener('mouseup', this._onUp);
-                this.addJqueryResize();
             }
         }
 
@@ -109,55 +88,57 @@ module Animate {
                         comment.left = x;
                         comment.top = y;
                     }}>
-                    <div
-                        onKeyUp={(e) => {
-                            // F2
-                            if (e.keyCode == 113) {
-                                this.setState({ editMode: true, newLabel: comment.label });
+                    <Resizable onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); return true; }}>
+                        <div
+                            onKeyUp={(e) => {
+                                // F2
+                                if (e.keyCode == 113) {
+                                    this.setState({ editMode: true, newLabel: comment.label });
+                                }
+                            }}
+                            onDoubleClick={(e) => {
+                                this.setState({ editMode: true });
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }}
+                            ref="comment"
+                            style={{width: comment.width + 'px', height: comment.height + 'px'}}
+                            className={'scale-in-animation comment' +
+                                ( !this.state.editMode ? ' unselectable' : '' ) +
+                                ( !this.state.editMode && this.props.comment.selected() ? ' selected' : '' ) +
+                                ( this.props.comment.className ? ' ' + this.props.comment.className : '' )}
+                            onContextMenu={(e) => {
+                                comment.store.onNodeSelected(comment, comment.selected() ? true : false, false );
+                                comment.onContext(e);
+                            }}
+                            onClick={(e) => {
+                                if (this.state.editMode)
+                                    return;
+
+                                e.stopPropagation();
+                                this.props.comment.store.onNodeSelected(this.props.comment, e.shiftKey )}}
+                        >
+                            { this.state.editMode ?
+                                <textarea ref="input"
+                                    onKeyDown={(e) => {
+                                        // Esc
+                                        if ( e.keyCode == 27 )
+                                            this.setState({editMode : false, newLabel : comment.label });
+
+                                        // Enter
+                                        if ( e.keyCode == 13 ) {
+                                            this.setState({editMode : false });
+                                            comment.label = (e.target as HTMLTextAreaElement).value;
+                                        }
+                                    }}
+                                    value={this.state.newLabel}
+                                    onChange={(e) =>{
+                                        this.setState({newLabel : (e.target as HTMLTextAreaElement).value });
+                                    }}/>
+                                : comment.label
                             }
-                        }}
-                        onDoubleClick={(e) => {
-                            this.setState({ editMode: true });
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }}
-                        ref="comment"
-                        style={{width: comment.width + 'px', height: comment.height + 'px'}}
-                        className={'scale-in-animation comment' +
-                            ( !this.state.editMode ? ' unselectable' : '' ) +
-                            ( !this.state.editMode && this.props.comment.selected() ? ' selected' : '' ) +
-                            ( this.props.comment.className ? ' ' + this.props.comment.className : '' )}
-                        onContextMenu={(e) => {
-                            comment.store.onNodeSelected(comment, comment.selected() ? true : false, false );
-                            comment.onContext(e);
-                        }}
-                        onClick={(e) => {
-                            if (this.state.editMode)
-                                return;
-
-                            e.stopPropagation();
-                            this.props.comment.store.onNodeSelected(this.props.comment, e.shiftKey )}}
-                    >
-                        { this.state.editMode ?
-                            <textarea ref="input"
-                                onKeyDown={(e) => {
-                                    // Esc
-                                    if ( e.keyCode == 27 )
-                                        this.setState({editMode : false, newLabel : comment.label });
-
-                                    // Enter
-                                    if ( e.keyCode == 13 ) {
-                                        this.setState({editMode : false });
-                                        comment.label = (e.target as HTMLTextAreaElement).value;
-                                    }
-                                }}
-                                value={this.state.newLabel}
-                                onChange={(e) =>{
-                                    this.setState({newLabel : (e.target as HTMLTextAreaElement).value });
-                                }}/>
-                            : comment.label
-                        }
-                    </div>
+                        </div>
+                    </Resizable>
                 </Draggable>
             )
         }
