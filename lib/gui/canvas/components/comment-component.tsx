@@ -42,8 +42,6 @@ module Animate {
             if ( !prevState.editMode && this.state.editMode ) {
                 const input = this.refs['input'] as HTMLTextAreaElement;
                 const comment = this.refs['comment'] as HTMLElement;
-
-                jQuery(comment).resizable('destroy');
                 window.removeEventListener('mouseup', this._onUp);
                 window.addEventListener('mouseup', this._onUp);
                 input.focus();
