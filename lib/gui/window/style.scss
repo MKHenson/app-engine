@@ -60,6 +60,7 @@
         font-size: 16px;
         margin-left: 10px;
         cursor: pointer;
+        color: #bbb;
 
         background-color: rgba(0,0,0,0.1);
         &:hover {
@@ -74,5 +75,6 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: $ps-color;
     }
 }

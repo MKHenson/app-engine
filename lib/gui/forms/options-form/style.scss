@@ -2,6 +2,10 @@
     width: 800px;
     height: 600px;
 
+    .soft-text {
+        color: $text-lightest;
+    }
+
     input, textarea, select {
         width: 100%;
     }
