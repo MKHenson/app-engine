@@ -1,6 +1,6 @@
 module Animate {
 
-    export type SelectValue = { label: string; value: string | number, selected: boolean; };
+    export type SelectValue = { label: string; value: string | number, selected?: boolean; };
 
     export interface IVSelectProps extends React.HTMLAttributes {
 
