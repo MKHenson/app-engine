@@ -56,9 +56,8 @@ module Animate {
                 const resource = User.get.project.getResourceByShallowID(json.id as number);
                 if (resource instanceof Container)
                     this.createNode( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource);
-                else if ( resource instanceof Asset || resource instanceof GroupArray ) {
+                else if ( resource instanceof Asset || resource instanceof GroupArray )
                     this.createNode( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource);
-                }
             }
             else if ( json.type == 'template' )
                 this.createNode( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
@@ -138,6 +137,10 @@ module Animate {
 		// 	return false;
 		// }
 
+        createPortal( type : PortalType ) {
+
+        }
+
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
@@ -155,7 +158,8 @@ module Animate {
                     this.props.store.addItem( comment );
                  }},
                 { label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
-                    { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
+                    { label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                        onSelect: (e) => { this.createPortal('input'); } },
                     { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Parameter', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
                     { label: 'Create Product', prefix: <i className="fa fa-plus" aria-hidden="true" /> }
