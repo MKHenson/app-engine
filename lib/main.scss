@@ -82,6 +82,7 @@ body {
 @import 'gui/project-list/style.scss';
 @import 'gui/new-project/style.scss';
 @import 'gui/forms/behaviour-picker/style.scss';
+@import 'gui/forms/portal-form/style.scss';
 @import 'gui/splash/style.scss';
 @import 'gui/forms/message-box/style.scss';
 @import 'gui/forms/file-dialogue/style.scss';
@@ -128,25 +129,7 @@ body {
 .prop-colour{ height:20px; width:100%; }
 .prop-colour input { width:auto;}
 
-#portal-editor input, #portal-editor select {
 
-    padding:15px;
-    border:none;
-}
-#portal-editor .error {
-    padding: 5px;
-    text-align: center;
-    margin: 0 0 10px 0;
-}
-
-#portal-editor .dropdown {
-    width:100%;
-}
-#portal-editor .button {
-    float:right;
-    height:45px;
-    padding:10px 15px;
-}
 
 
 

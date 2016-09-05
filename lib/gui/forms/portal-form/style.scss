@@ -1,0 +1,19 @@
+#portal-editor input, #portal-editor select {
+
+    padding:15px;
+    border:none;
+}
+#portal-editor .error {
+    padding: 5px;
+    text-align: center;
+    margin: 0 0 10px 0;
+}
+
+#portal-editor .dropdown {
+    width:100%;
+}
+#portal-editor .button {
+    float:right;
+    height:45px;
+    padding:10px 15px;
+}
