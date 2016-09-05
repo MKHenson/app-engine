@@ -373,7 +373,7 @@ module Animate {
                                 <ButtonLink className="edit" style={{display: (!state.editMode ? '' : 'none')}}
                                     onClick={() => { this.setState({ editMode : !state.editMode }); }
                                 }>
-                                    <span className="edit-icon">✎</span>
+                                    <i className="fa fa-pencil" aria-hidden="true"></i>
                                 </ButtonLink>
                                 <h2>{selectedFile.name}</h2>
                                 {this.getFileDetails(selectedFile, state.editMode)}
