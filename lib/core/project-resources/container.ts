@@ -1,4 +1,7 @@
 module Animate {
+
+    export module Resources {
+
 	/**
 	* Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
 	* essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
@@ -10,7 +13,6 @@ module Animate {
 		* {string} name The name of the container
 		*/
         constructor(entry?: Engine.IContainer) {
-			// Call super-class constructor
             super(entry);
 
             this.canvas = null;
@@ -53,4 +55,6 @@ module Animate {
 			this.canvas = null;
 		}
 	}
+
+    }
 }

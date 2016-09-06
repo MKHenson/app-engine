@@ -2,7 +2,7 @@
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    export class PropGroup extends Prop<GroupArray> {
+    export class PropGroup extends Prop<Resources.GroupArray> {
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -10,7 +10,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: GroupArray, category?: string, options?: any) {
+        constructor(name: string, value: Resources.GroupArray, category?: string, options?: any) {
             super(name, value, category, options, PropertyType.GROUP);
         }
 

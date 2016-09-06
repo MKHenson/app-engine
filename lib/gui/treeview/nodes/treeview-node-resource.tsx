@@ -169,10 +169,10 @@ module Animate {
                 this.handleNodePromise( p.editResource( resource.entry._id, { name : newName }, type ), this );
             };
 
-            if (resource instanceof GroupArray) {
+            if (resource instanceof Resources.GroupArray) {
                 ReactWindow.show( RenameForm, { name: resource.entry.name, onOk: (newName) => { onOk(ResourceType.GROUP, newName) } } as IRenameFormProps);
             }
-            else if (resource instanceof Container) {
+            else if (resource instanceof Resources.Container) {
 
                 // Show the rename form
                 ReactWindow.show( RenameForm, {
@@ -190,7 +190,7 @@ module Animate {
                     }
                 } as IRenameFormProps);
             }
-            else if (resource instanceof Asset)
+            else if (resource instanceof Resources.Asset)
                 ReactWindow.show( RenameForm, { name: resource.entry.name, onOk: (newName) => { onOk(ResourceType.ASSET, newName) } } as IRenameFormProps);
         }
 

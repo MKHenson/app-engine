@@ -45,7 +45,7 @@ module Animate {
         addPortal(type: PortalType, property: Prop<any> ): Portal {
             var portal = super.addPortal(type, property);
             if (type == 'parameter')
-                this.asset = property.getVal() as Asset;
+                this.asset = property.getVal() as Resources.Asset;
 
 			return portal;
 		}

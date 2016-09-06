@@ -5,12 +5,12 @@ module Animate {
 	 */
 	export class TreeNodeGroupInstance extends TreeNodeModel {
         private _resource: ProjectResource<Engine.IResource>;
-        private _group: GroupArray;
+        private _group: Resources.GroupArray;
 
 		/**
 		 * Creates an instance of the node
 		 */
-        constructor( resource : ProjectResource<Engine.IResource>, group: GroupArray) {
+        constructor( resource : ProjectResource<Engine.IResource>, group: Resources.GroupArray) {
             super( name,  <i className="fa fa-square resource" aria-hidden="true"></i> );
 			this._resource = resource;
             this._group = group;

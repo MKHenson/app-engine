@@ -3,13 +3,13 @@ module Animate {
 	/**
 	 * Treenode that contains a reference to an asset
 	 */
-	export class TreeNodeAssetInstance extends TreeViewNodeResource<Asset> {
+	export class TreeNodeAssetInstance extends TreeViewNodeResource<Resources.Asset> {
 		public assetClass: AssetClass;
 
 		/**
 		 * Creates an instance of the node
 		 */
-		constructor(assetClass: AssetClass, asset: Asset) {
+		constructor(assetClass: AssetClass, asset: Resources.Asset) {
 			super(asset);
 			this.assetClass = assetClass;
 			this.canDrag = true;

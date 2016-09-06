@@ -70,7 +70,7 @@ module Animate {
          */
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
             let r = event.resource;
-            if (r instanceof GroupArray)
+            if (r instanceof Resources.GroupArray)
                 this.addNode(new TreeNodeGroup(r));
 
             this.store.setStore(this);

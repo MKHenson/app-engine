@@ -22,7 +22,7 @@ module Animate {
         /**
         * Called whenever the container is refreshed
         */
-        onRefreshed(type: string, event: Event, sender: Container) {
+        onRefreshed(type: string, event: Event, sender: Resources.Container) {
             this.text = sender.entry.name;
         }
 

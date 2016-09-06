@@ -2,7 +2,7 @@
 	/**
 	* A base class for all project resources
 	*/
-    export class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
+    export abstract class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
         public entry: T;
         private _saved: boolean;
         protected _properties: EditableSet;

@@ -4,12 +4,12 @@ module Animate {
 	 * This node represents a group asset.
      * Other resource nodes can be dropped on these which will append the object (if valid) into the group
 	 */
-    export class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
+    export class TreeNodeGroup extends TreeViewNodeResource<Resources.GroupArray> {
 
         /**
          * Creates an instance of the node
          */
-        constructor(group: GroupArray) {
+        constructor(group: Resources.GroupArray) {
             super( group );
             let project = User.get.project;
             this.canDrop = true;

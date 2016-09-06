@@ -40,7 +40,7 @@ module Animate {
          */
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
             let r = event.resource;
-            if (r instanceof Container)
+            if (r instanceof Resources.Container)
                 this.addNode(new TreeViewNodeResource(r));
         }
     }

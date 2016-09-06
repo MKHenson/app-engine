@@ -35,7 +35,7 @@
 //                 promise = project.createResource<Engine.IScript>(ResourceType.SCRIPT, { name: text, projectId: project.entry._id  });
 
 
-//             promise.then(function (data: ScriptResource) {
+//             promise.then(function (data: Resources.Script) {
 //                 Logger.logMessage(`Created behaviour script '${text}'`, null, LogType.MESSAGE);
 //                 that._loading.detach();
 //                 that.scriptId = data.entry._id;

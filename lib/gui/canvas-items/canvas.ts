@@ -31,7 +31,7 @@ module Animate {
 		private _contextNode: Component;
 		private _x: number;
 		private _y: number;
-		private _container: Container;
+		private _container: Resources.Container;
         private _containerReferences: { groups: Array<number>; assets: Array<number>; };
 		private _proxyMoving: any;
 		private _proxyStartDrag: any;
@@ -42,7 +42,7 @@ module Animate {
 		* @param {Component} parent The parent component to add this canvas to
 		* @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
-		constructor( parent: Component, container: Container ) {
+		constructor( parent: Component, container: Resources.Container ) {
 			// Call super-class constructor
 			super( "<div class='canvas' tabindex='0'></div>", parent );
 
@@ -1605,7 +1605,7 @@ module Animate {
 // 		}
 
 
-		get container(): Container { return this._container; }
+		get container(): Resources.Container { return this._container; }
         get containerReferences(): { groups: Array<number>; assets: Array<number> } { return this._containerReferences; }
 	}
 }

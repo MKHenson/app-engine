@@ -146,9 +146,9 @@ module Animate {
 
 		/**
 		* We use this function to remove any assets from the tabs
-		* @param {Asset} asset The asset we are removing
+		* @param {Resources.Asset} asset The asset we are removing
 		*/
-		removeAsset( asset : Asset ) {
+		removeAsset( asset : Resources.Asset ) {
 
 			// TODO: This no longer makes sense in TSX
 			//=========================================

@@ -54,9 +54,9 @@ module Animate {
 
             if ( json.type == 'resource' ) {
                 const resource = User.get.project.getResourceByShallowID(json.id as number);
-                if (resource instanceof Container)
+                if (resource instanceof Resources.Container)
                     this.createNode( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource);
-                else if ( resource instanceof Asset || resource instanceof GroupArray )
+                else if ( resource instanceof Resources.Asset || resource instanceof Resources.GroupArray )
                     this.createNode( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource);
             }
             else if ( json.type == 'template' )

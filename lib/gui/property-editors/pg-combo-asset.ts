@@ -59,14 +59,14 @@ module Animate {
 			// When we select a new asset
             var onSelect = function (e: JQueryEventObject  ) {
                 var val = parseFloat(selector.val());
-                var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
+                var asset = User.get.project.getResourceByShallowID<Resources.Asset>(val, ResourceType.ASSET);
                 p.setVal(asset);
             };
 
             // When we click on the target
             var onEye = function (e: JQueryEventObject) {
 				var val = parseInt( selector.val() );
-                var asset: Asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
+                var asset = User.get.project.getResourceByShallowID<Resources.Asset>(val, ResourceType.ASSET);
 				if ( asset )
                     TreeViewScene.getSingleton().selectNode(TreeViewScene.getSingleton().findNode( "resource", asset ) );
 				else

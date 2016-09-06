@@ -36,7 +36,7 @@ module Animate {
 			var remove: JQuery = jQuery( ".remove", editor );
             var that = this;
 			var assetId: number;
-            var asset: Asset;
+            var asset: Resources.Asset;
             var assets = p.getVal();
 			var classNames = p.classNames;
 			var nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
@@ -61,7 +61,7 @@ module Animate {
 
             // Fill the already selected items
             for (var i = 0, l: number = assets.length; i < l; i++) {
-                var selectedAsset = User.get.project.getResourceByShallowID<Asset>(assets[i].entry.shallowId, ResourceType.ASSET);
+                var selectedAsset = User.get.project.getResourceByShallowID<Resources.Asset>(assets[i].entry.shallowId, ResourceType.ASSET);
 				if ( selectedAsset )
                     items.append(`<option title='${assets[i] + " : " + selectedAsset.entry.className}' value='${selectedAsset.entry.shallowId}'>${selectedAsset.entry.name}</option>`);
 			}
@@ -69,7 +69,7 @@ module Animate {
 			// When we select an asset
             var onSelect = function (e: JQueryEventObject  ) {
                 assetId = parseInt(selector.val());
-                asset = User.get.project.getResourceByShallowID<Asset>(assetId, ResourceType.ASSET);
+                asset = User.get.project.getResourceByShallowID<Resources.Asset>(assetId, ResourceType.ASSET);
 			};
 
 
@@ -81,7 +81,7 @@ module Animate {
             // When we click on the eye selector
             var onEye = function (e: JQueryEventObject ) {
                 var val = parseInt(selector.val());
-                asset = User.get.project.getResourceByShallowID<Asset>(val, ResourceType.ASSET);
+                asset = User.get.project.getResourceByShallowID<Resources.Asset>(val, ResourceType.ASSET);
 
 				if ( asset )
 					TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "resource", asset ) );
@@ -101,7 +101,7 @@ module Animate {
 			// When we click on remove button
             var onRemove = function (e: JQueryEventObject ) {
                 var toRemove: number = parseInt(items.val());
-                asset = User.get.project.getResourceByShallowID<Asset>(toRemove, ResourceType.ASSET);
+                asset = User.get.project.getResourceByShallowID<Resources.Asset>(toRemove, ResourceType.ASSET);
 
                 if (assets.indexOf(asset) != -1 ) {
                     assets.splice(assets.indexOf(asset ), 1 );

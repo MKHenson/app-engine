@@ -659,61 +659,6 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * A base class for all project resources
-    */
-    class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
-        entry: T;
-        private _saved;
-        protected _properties: EditableSet;
-        protected _options: {
-            [s: string]: any;
-        };
-        constructor(entry: T);
-        /**
-        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-        */
-        initialize(): void;
-        /**
-        * This function is called just before the entry is saved to the database.
-        */
-        onSaving(): any;
-        /**
-        * Gets the properties of this resource
-        */
-        /**
-        * Sets the properties of this resource
-        */
-        properties: EditableSet;
-        /**
-        * Gets if this resource is saved
-        * @returns {boolean}
-        */
-        /**
-        * Sets if this resource is saved
-        * @param {boolean} val
-        */
-        saved: boolean;
-        dispose(): void;
-        /**
-        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
-        */
-        createOption(name: string, val: any): void;
-        /**
-        * Destroys an option
-        */
-        removeOption(name: string): void;
-        /**
-        * Update the value of an option
-        */
-        updateOption(name: string, val: any): void;
-        /**
-        * Returns the value of an option
-        */
-        getOption(name: string): any;
-    }
-}
-declare module Animate {
-    /**
      * Describes all the different types of editor events
      */
     type EditorEventType = 'change' | 'focus-node';
@@ -803,8 +748,8 @@ declare module Animate {
         constructor(eventName: OkCancelFormEvents, text: string);
     }
     class ContainerEvent extends Event {
-        container: Container;
-        constructor(type: string, container: Container);
+        container: Resources.Container;
+        constructor(type: string, container: Resources.Container);
     }
     class UserEvent extends Event {
         constructor(type: string, data: any);
@@ -830,7 +775,7 @@ declare module Animate {
         /**
         * {Container} container The container associated with this event
         */
-        container: Container;
+        container: Resources.Container;
         /**
         * {any} token The data being read or written to
         */
@@ -842,7 +787,7 @@ declare module Animate {
             groups: Array<number>;
             assets: Array<number>;
         };
-        constructor(eventName: EditorEvents, container: Container, token: any, sceneReferences?: {
+        constructor(eventName: EditorEvents, container: Resources.Container, token: any, sceneReferences?: {
             groups: Array<number>;
             assets: Array<number>;
         });
@@ -854,8 +799,8 @@ declare module Animate {
         /**
         * {Asset} asset The asset associated with this event
         */
-        asset: Asset;
-        constructor(eventName: EditorEvents, asset: Asset);
+        asset: Resources.Asset;
+        constructor(eventName: EditorEvents, asset: Resources.Asset);
     }
     /**
     * Called when an asset is renamed
@@ -865,7 +810,7 @@ declare module Animate {
         * {string} oldName The old name of the asset
         */
         oldName: string;
-        constructor(asset: Asset, oldName: string);
+        constructor(asset: Resources.Asset, oldName: string);
     }
     /**
     * Events assocaited with Assets in relation to Containers
@@ -874,17 +819,17 @@ declare module Animate {
         /**
         * {Container} container The container assocaited with this event
         */
-        container: Container;
-        constructor(eventName: EditorEvents, asset: Asset, container: Container);
+        container: Resources.Container;
+        constructor(eventName: EditorEvents, asset: Resources.Asset, container: Resources.Container);
     }
     /**
     * Portal associated events
     */
     class PortalEvent extends Event {
-        container: Container;
+        container: Resources.Container;
         portal: Portal;
         oldName: string;
-        constructor(type: string, oldName: string, container: Container, portal: Portal);
+        constructor(type: string, oldName: string, container: Resources.Container, portal: Portal);
     }
     class WindowEvent extends Event {
         window: Window;
@@ -1151,11 +1096,11 @@ declare module Animate {
         getTemplate(behaviorName: string): BehaviourDefinition;
         /**
         * Use this function to select an asset in the tree view and property grid
-        * @param {Asset} asset The Asset object we need to select
+        * @param {Resources.Asset} asset The Asset object we need to select
         * @param {boolean} panToNode When set to true, the treeview will bring the node into view
         * @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
         */
-        selectAsset(asset: Asset, panToNode?: boolean, multiSelect?: boolean): void;
+        selectAsset(asset: Resources.Asset, panToNode?: boolean, multiSelect?: boolean): void;
         /**
         * Gets an asset class by its name
         * @param {string} name The name of the asset class
@@ -1224,11 +1169,11 @@ declare module Animate {
         exportScene(): void;
         /**
         * Adds asset references to a container token during the export.
-        * @param {Asset} asset the asset object to check
+        * @param {Resources.Asset} asset the asset object to check
         * @param {ContainerToken} container The container to add refernces on
         * @returns {any}
         */
-        referenceCheckAsset(asset: Asset, container: ContainerToken): void;
+        referenceCheckAsset(asset: Resources.Asset, container: ContainerToken): void;
         /**
         * Adds group references to a container token during the export.
         * @param {TreeNodeGroup} group the group object to check
@@ -1270,107 +1215,172 @@ declare module Animate {
 }
 declare module Animate {
     /**
-    * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
-    * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
-    * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
-    * the plugin.
+    * A base class for all project resources
     */
-    class Asset extends ProjectResource<Engine.IAsset> {
-        class: AssetClass;
+    abstract class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
+        entry: T;
+        private _saved;
+        protected _properties: EditableSet;
+        protected _options: {
+            [s: string]: any;
+        };
+        constructor(entry: T);
         /**
-        * @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
-        * @param {IAsset} entry [Optional] The asset database entry
+        * Use this function to initialize the resource. This called just after the resource is created and its entry set.
         */
-        constructor(assetClass: AssetClass, entry?: Engine.IAsset);
-        /**
-        * Writes this assset to a readable string
-        * @returns {string}
-        */
-        toString(): string;
-        /**
-        * Use this function to reset the asset properties
-        * @param {string} name The name of the asset
-        * @param {string} className The "class" or "template" name of the asset
-        * @param {any} json The JSON data of the asset.
-        */
-        update(name: string, className: string, json?: any): void;
-        /**
-        * Disposes and cleans up the data of this asset
-        */
-        dispose(): void;
-    }
-}
-declare module Animate {
-    /**
-    * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
-    * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
-    */
-    class Container extends ProjectResource<Engine.IContainer> {
-        canvas: Canvas;
-        /**
-        * {string} name The name of the container
-        */
-        constructor(entry?: Engine.IContainer);
+        initialize(): void;
         /**
         * This function is called just before the entry is saved to the database.
         */
         onSaving(): any;
         /**
-         * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-         */
-        initialize(): void;
-        /**
-        * This will cleanup the behaviour.
+        * Gets the properties of this resource
         */
+        /**
+        * Sets the properties of this resource
+        */
+        properties: EditableSet;
+        /**
+        * Gets if this resource is saved
+        * @returns {boolean}
+        */
+        /**
+        * Sets if this resource is saved
+        * @param {boolean} val
+        */
+        saved: boolean;
         dispose(): void;
+        /**
+        * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
+        */
+        createOption(name: string, val: any): void;
+        /**
+        * Destroys an option
+        */
+        removeOption(name: string): void;
+        /**
+        * Update the value of an option
+        */
+        updateOption(name: string, val: any): void;
+        /**
+        * Returns the value of an option
+        */
+        getOption(name: string): any;
     }
 }
 declare module Animate {
-    /**
-    * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
-    */
-    class GroupArray extends ProjectResource<Engine.IGroup> {
+    module Resources {
         /**
-        * @param {IGroup} entry [Optional] The database entry of the resource
+        * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
+        * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
+        * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
+        * the plugin.
         */
-        constructor(entry?: Engine.IGroup);
-        /**
-        * Adds a new reference to the group
-        * @param {number} shallowId
-        */
-        addReference(shallowId: number): void;
-        /**
-        * Removes a reference from the group
-        * @param {number} shallowId
-        */
-        removeReference(shallowId: number): void;
-        /**
-        * Disposes and cleans up the data of this asset
-        */
-        dispose(): void;
+        class Asset extends ProjectResource<Engine.IAsset> {
+            class: AssetClass;
+            /**
+            * @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
+            * @param {IAsset} entry [Optional] The asset database entry
+            */
+            constructor(assetClass: AssetClass, entry?: Engine.IAsset);
+            /**
+            * Writes this assset to a readable string
+            * @returns {string}
+            */
+            toString(): string;
+            /**
+            * Use this function to reset the asset properties
+            * @param {string} name The name of the asset
+            * @param {string} className The "class" or "template" name of the asset
+            * @param {any} json The JSON data of the asset.
+            */
+            update(name: string, className: string, json?: any): void;
+            /**
+            * Disposes and cleans up the data of this asset
+            */
+            dispose(): void;
+        }
     }
 }
 declare module Animate {
-    /**
-    * A wrapper for DB file instances
-    * @events deleted, refreshed
-    */
-    class FileResource extends ProjectResource<Engine.IFile> {
+    module Resources {
         /**
-        * @param {IFile} entry The DB entry of this file
+        * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
+        * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
         */
-        constructor(entry: Engine.IFile);
+        class Container extends ProjectResource<Engine.IContainer> {
+            canvas: Canvas;
+            /**
+            * {string} name The name of the container
+            */
+            constructor(entry?: Engine.IContainer);
+            /**
+            * This function is called just before the entry is saved to the database.
+            */
+            onSaving(): any;
+            /**
+             * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+             */
+            initialize(): void;
+            /**
+            * This will cleanup the behaviour.
+            */
+            dispose(): void;
+        }
     }
 }
 declare module Animate {
-    /**
-    * A wrapper for DB script instances
-    */
-    class ScriptResource extends ProjectResource<Engine.IScript> {
+    module Resources {
         /**
-        * @param {IScript} entry The DB entry of this script
+        * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
         */
-        constructor(entry: Engine.IScript);
+        class GroupArray extends ProjectResource<Engine.IGroup> {
+            /**
+            * @param {IGroup} entry [Optional] The database entry of the resource
+            */
+            constructor(entry?: Engine.IGroup);
+            /**
+            * Adds a new reference to the group
+            * @param {number} shallowId
+            */
+            addReference(shallowId: number): void;
+            /**
+            * Removes a reference from the group
+            * @param {number} shallowId
+            */
+            removeReference(shallowId: number): void;
+            /**
+            * Disposes and cleans up the data of this asset
+            */
+            dispose(): void;
+        }
+    }
+}
+declare module Animate {
+    module Resources {
+        /**
+        * A wrapper for DB file instances
+        * @events deleted, refreshed
+        */
+        class File extends ProjectResource<Engine.IFile> {
+            /**
+            * @param {IFile} entry The DB entry of this file
+            */
+            constructor(entry: Engine.IFile);
+        }
+    }
+}
+declare module Animate {
+    module Resources {
+        /**
+        * A wrapper for DB script instances
+        */
+        class Script extends ProjectResource<Engine.IScript> {
+            /**
+            * @param {IScript} entry The DB entry of this script
+            */
+            constructor(entry: Engine.IScript);
+        }
     }
 }
 declare module Animate {
@@ -1807,11 +1817,11 @@ declare module Animate {
         * This function is called whenever we get a resonse from the server
         */
         onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
-        containers: Array<Container>;
-        files: Array<FileResource>;
-        scripts: Array<ScriptResource>;
-        assets: Array<Asset>;
-        groups: Array<GroupArray>;
+        containers: Array<Resources.Container>;
+        files: Array<Resources.File>;
+        scripts: Array<Resources.Script>;
+        assets: Array<Resources.Asset>;
+        groups: Array<Resources.GroupArray>;
         /**
         * This will cleanup the project and remove all data associated with it.
         */
@@ -2246,7 +2256,7 @@ declare module Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropFileResource extends Prop<FileResource> {
+    class PropFileResource extends Prop<Resources.File> {
         extensions: Array<string>;
         /**
         * Creates a new instance
@@ -2256,7 +2266,7 @@ declare module Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor(name: string, value: FileResource, extensions: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: Resources.File, extensions: Array<string>, category?: string, options?: any);
         /**
         * Attempts to clone the property
         * @returns {PropFileResource}
@@ -2376,7 +2386,7 @@ declare module Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropGroup extends Prop<GroupArray> {
+    class PropGroup extends Prop<Resources.GroupArray> {
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -2384,7 +2394,7 @@ declare module Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: GroupArray, category?: string, options?: any);
+        constructor(name: string, value: Resources.GroupArray, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -3508,8 +3518,8 @@ declare module Animate {
         * @param {Component} parent The parent component to add this canvas to
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
-        constructor(parent: Component, container: Container);
-        container: Container;
+        constructor(parent: Component, container: Resources.Container);
+        container: Resources.Container;
         containerReferences: {
             groups: Array<number>;
             assets: Array<number>;
@@ -4201,12 +4211,12 @@ declare module Animate {
     /**
      * Treenode that contains a reference to an asset
      */
-    class TreeNodeAssetInstance extends TreeViewNodeResource<Asset> {
+    class TreeNodeAssetInstance extends TreeViewNodeResource<Resources.Asset> {
         assetClass: AssetClass;
         /**
          * Creates an instance of the node
          */
-        constructor(assetClass: AssetClass, asset: Asset);
+        constructor(assetClass: AssetClass, asset: Resources.Asset);
         /**
          * When we click ok on the portal form
          * @param {string} type
@@ -4224,11 +4234,11 @@ declare module Animate {
      * This node represents a group asset.
      * Other resource nodes can be dropped on these which will append the object (if valid) into the group
      */
-    class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
+    class TreeNodeGroup extends TreeViewNodeResource<Resources.GroupArray> {
         /**
          * Creates an instance of the node
          */
-        constructor(group: GroupArray);
+        constructor(group: Resources.GroupArray);
         /**
          * Called whenever the resource is re-downloaded
          */
@@ -4252,7 +4262,7 @@ declare module Animate {
         /**
          * Creates an instance of the node
          */
-        constructor(resource: ProjectResource<Engine.IResource>, group: GroupArray);
+        constructor(resource: ProjectResource<Engine.IResource>, group: Resources.GroupArray);
         /**
          * Show a context menu of resource options
          */
@@ -4309,7 +4319,7 @@ declare module Animate {
         /**
         * Called whenever the container is refreshed
         */
-        onRefreshed(type: string, event: Event, sender: Container): void;
+        onRefreshed(type: string, event: Event, sender: Resources.Container): void;
         /**
         * Whenever the container deleted
         */
@@ -4587,9 +4597,9 @@ declare module Animate {
         onMessage(choice: string): void;
         /**
         * We use this function to remove any assets from the tabs
-        * @param {Asset} asset The asset we are removing
+        * @param {Resources.Asset} asset The asset we are removing
         */
-        removeAsset(asset: Asset): void;
+        removeAsset(asset: Resources.Asset): void;
         /**
         * You can use this function to fetch a tab's canvas by a behaviour local ID
         * @param {number} behaviourID The local id of the container

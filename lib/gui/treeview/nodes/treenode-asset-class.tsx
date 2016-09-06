@@ -39,7 +39,7 @@ module Animate {
          */
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>) {
             let r = event.resource;
-            if (r instanceof Asset) {
+            if (r instanceof Resources.Asset) {
 
 				if ( r.class == this.assetClass )
 					return;

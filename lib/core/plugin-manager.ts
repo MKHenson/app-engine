@@ -253,11 +253,11 @@ module Animate {
 
 		/**
 		* Use this function to select an asset in the tree view and property grid
-		* @param {Asset} asset The Asset object we need to select
+		* @param {Resources.Asset} asset The Asset object we need to select
 		* @param {boolean} panToNode When set to true, the treeview will bring the node into view
 		* @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
 		*/
-		selectAsset( asset: Asset, panToNode : boolean = true, multiSelect : boolean = false ) {
+		selectAsset( asset: Resources.Asset, panToNode : boolean = true, multiSelect : boolean = false ) {
 			Animate.TreeViewScene.getSingleton().selectNode(
                 Animate.TreeViewScene.getSingleton().findNode( "resource", asset ) );
 		}

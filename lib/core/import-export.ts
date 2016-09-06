@@ -261,11 +261,11 @@ module Animate {
 
 		/**
 		* Adds asset references to a container token during the export.
-		* @param {Asset} asset the asset object to check
+		* @param {Resources.Asset} asset the asset object to check
 		* @param {ContainerToken} container The container to add refernces on
 		* @returns {any}
 		*/
-		referenceCheckAsset( asset: Asset, container : ContainerToken ) {
+		referenceCheckAsset( asset: Resources.Asset, container : ContainerToken ) {
 			if ( asset == null )
 				return;
 
@@ -275,7 +275,7 @@ module Animate {
 			//Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
 			for ( var i = 0, l = assetVars.length; i < l; i++ ) {
                 if (assetVars[i].type == PropertyType.ASSET ) {
-                    var asset = <Asset>assetVars[i].getVal();
+                    var asset = <Resources.Asset>assetVars[i].getVal();
                     if (asset) {
                         container.assets.push(asset.entry.shallowId);
 
@@ -285,10 +285,10 @@ module Animate {
 					}
 				}
                 else if (assetVars[i].type == PropertyType.ASSET_LIST ) {
-                    var aList = <Array<Asset>>assetVars[i].getVal();
+                    var aList = <Array<Resources.Asset>>assetVars[i].getVal();
 
                     for (var a = 0, al = aList.length; a < al; a++ ) {
-                        var asset = <Asset>aList[a];
+                        var asset = <Resources.Asset>aList[a];
                         container.assets.push(asset.entry.shallowId);
 
 						//It can also the be case that assets reference other assets. In those
@@ -297,7 +297,7 @@ module Animate {
 					}
 				}
                 else if (assetVars[i].type == PropertyType.GROUP ) {
-                    var group = <GroupArray>assetVars[i].getVal();
+                    var group = <Resources.GroupArray>assetVars[i].getVal();
 
                     if (group) {
                         var groupNode: any = TreeViewScene.getSingleton().findNode("resource", group);
@@ -337,7 +337,7 @@ module Animate {
 
 						//It can also the be case that assets reference other assets. In those
                         //situations you will want the container to keep adding to all the assets
-                        this.referenceCheckAsset(project.getResourceByShallowID<Asset>(assetID, ResourceType.ASSET), container);
+                        this.referenceCheckAsset(project.getResourceByShallowID<Resources.Asset>(assetID, ResourceType.ASSET), container);
 					}
 				}
 		}

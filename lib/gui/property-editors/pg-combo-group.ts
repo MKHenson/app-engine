@@ -26,7 +26,7 @@ module Animate {
 		*/
         edit(prop: Prop<any>, container: Component) {
             var p = <PropGroup>prop;
-            var group = <GroupArray>p.getVal();
+            var group = <Resources.GroupArray>p.getVal();
             var groupId = (group ? p.getVal().entry.shallowId : "");
 
 			//Create HTML
@@ -41,7 +41,7 @@ module Animate {
             var groups = project.groups.slice(0, project.groups.length);
 
             //Sort alphabetically
-            groups = groups.sort(function (a: GroupArray, b: GroupArray) {
+            groups = groups.sort(function (a: Resources.GroupArray, b: Resources.GroupArray) {
                 var textA = a.entry.name;
                 var textB = b.entry.name;
 				return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -59,7 +59,7 @@ module Animate {
 			// Functions to deal with user interactions with JQuery
             var onSelect = function (e: JQueryEventObject  ) {
                 var val = parseFloat(selector.val());
-                var group = <GroupArray>project.getResourceByShallowID(val, ResourceType.GROUP);
+                var group = <Resources.GroupArray>project.getResourceByShallowID(val, ResourceType.GROUP);
                 p.setVal(group);
             };
 

@@ -2,7 +2,7 @@
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    export class PropFileResource extends Prop<FileResource> {
+    export class PropFileResource extends Prop<Resources.File> {
         public extensions: Array<string>;
 
         /**
@@ -13,7 +13,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor(name: string, value: FileResource, extensions: Array<string>, category?: string, options?: any) {
+        constructor(name: string, value: Resources.File, extensions: Array<string>, category?: string, options?: any) {
             super(name, value, category, options, PropertyType.FILE);
             this.extensions = extensions;
         }

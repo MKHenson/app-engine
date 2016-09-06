@@ -139,11 +139,11 @@ module Animate {
 		//public mRating: number;
 		//public mImgPath: string;
 		//public mVisibility: string;
-		private _containers: Array<Container>;
-        private _assets: Array<Asset>;
-        private _files: Array<FileResource>;
-        private _scripts: Array<ScriptResource>;
-        private _groups: Array<GroupArray>;
+		private _containers: Array<Resources.Container>;
+        private _assets: Array<Resources.Asset>;
+        private _files: Array<Resources.File>;
+        private _scripts: Array<Resources.Script>;
+        private _groups: Array<Resources.GroupArray>;
         private _restPaths: { [type: number]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
 
 		/**
@@ -276,9 +276,9 @@ module Animate {
 		///**
 		//* Gets a file by its ID
 		//* @param {string} id The ID of the file
-		//* @returns {FileResource} The file whose id matches the id parameter or null
+		//* @returns {File} The file whose id matches the id parameter or null
 		//*/
-  //      getFile(id: string): FileResource
+  //      getFile(id: string): Resources.File
 		//{
   //          for (var i = 0; i < this._files.length; i++)
   //              if (this._files[i].entry._id == id)
@@ -399,23 +399,23 @@ module Animate {
 
             if (type == ResourceType.ASSET) {
                 var aClass = PluginManager.getSingleton().getAssetClass((<Engine.IAsset>entry).className);
-                resource = new Asset(aClass, entry);
-                this._assets.push(<Asset>resource);
+                resource = new Resources.Asset(aClass, entry);
+                this._assets.push(<Resources.Asset>resource);
             }
             else if (type == ResourceType.SCRIPT) {
-                resource = new ScriptResource(<any>entry);
+                resource = new Resources.Script(<any>entry);
                 this._scripts.push(resource);
             }
             else if (type == ResourceType.CONTAINER) {
-                resource = new Container(entry);
-                this._containers.push(<Container>resource);
+                resource = new Resources.Container(entry);
+                this._containers.push(<Resources.Container>resource);
             }
             else if (type == ResourceType.GROUP) {
-                resource = new GroupArray(entry);
-                this._groups.push(<GroupArray>resource);
+                resource = new Resources.GroupArray(entry);
+                this._groups.push(<Resources.GroupArray>resource);
             }
             else if (type == ResourceType.FILE) {
-                resource = new FileResource(entry);
+                resource = new Resources.File(entry);
                 this._files.push(resource);
             }
 
@@ -1740,11 +1740,11 @@ module Animate {
 			//	this.emit(new ProjectEvent(ProjectEvents.FAILED, "Could not connec to the server.", LoaderEvents.FAILED, null ));
         }
 
-        get containers(): Array<Container> { return this._containers; }
-        get files(): Array<FileResource> { return this._files; }
-        get scripts(): Array<ScriptResource> { return this._scripts; }
-        get assets(): Array<Asset> { return this._assets; }
-        get groups(): Array<GroupArray> { return this._groups; }
+        get containers(): Array<Resources.Container> { return this._containers; }
+        get files(): Array<Resources.File> { return this._files; }
+        get scripts(): Array<Resources.Script> { return this._scripts; }
+        get assets(): Array<Resources.Asset> { return this._assets; }
+        get groups(): Array<Resources.GroupArray> { return this._groups; }
 
 		/**
 		* This will cleanup the project and remove all data associated with it.

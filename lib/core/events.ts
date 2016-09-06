@@ -128,9 +128,9 @@
     }
 
     export class ContainerEvent extends Event {
-        public container: Container;
+        public container: Resources.Container;
 
-        constructor(type: string, container: Container)  {
+        constructor(type: string, container: Resources.Container)  {
             super(type, null);
             this.container = container;
         }
@@ -191,7 +191,7 @@
 		/**
 		* {Container} container The container associated with this event
 		*/
-        public container: Container;
+        public container: Resources.Container;
 
 		/**
 		* {any} token The data being read or written to
@@ -203,7 +203,7 @@
 		*/
         public sceneReferences: { groups: Array<number>; assets: Array<number> };
 
-        constructor(eventName: EditorEvents, container: Container, token: any, sceneReferences?: { groups: Array<number>; assets: Array<number> }) {
+        constructor(eventName: EditorEvents, container: Resources.Container, token: any, sceneReferences?: { groups: Array<number>; assets: Array<number> }) {
             super(eventName, null);
             this.container = container;
             this.token = token;
@@ -218,9 +218,9 @@
 		/**
 		* {Asset} asset The asset associated with this event
 		*/
-        public asset: Asset;
+        public asset: Resources.Asset;
 
-        constructor(eventName: EditorEvents, asset: Asset) {
+        constructor(eventName: EditorEvents, asset: Resources.Asset) {
             super(eventName, null);
             this.asset = asset;
         }
@@ -284,7 +284,7 @@
 		*/
         public oldName: string;
 
-        constructor(asset: Asset, oldName: string) {
+        constructor(asset: Resources.Asset, oldName: string) {
             super(EditorEvents.ASSET_RENAMED, asset);
             this.oldName = oldName;
         }
@@ -298,9 +298,9 @@
 		/**
 		* {Container} container The container assocaited with this event
 		*/
-        public container: Container;
+        public container: Resources.Container;
 
-        constructor(eventName: EditorEvents, asset: Asset, container: Container) {
+        constructor(eventName: EditorEvents, asset: Resources.Asset, container: Resources.Container) {
             super(eventName, asset);
             this.container = container;
         }
@@ -311,11 +311,11 @@
 	* Portal associated events
 	*/
     export class PortalEvent extends Event {
-        public container: Container;
+        public container: Resources.Container;
         public portal: Portal;
         public oldName: string;
 
-        constructor(type: string, oldName: string, container: Container, portal: Portal) {
+        constructor(type: string, oldName: string, container: Resources.Container, portal: Portal) {
             super(type, null);
             this.container = container;
             this.portal = portal;
