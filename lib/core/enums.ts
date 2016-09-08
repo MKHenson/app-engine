@@ -1,5 +1,5 @@
 ﻿namespace Animate {
-    export module EventTypes {
+    export namespace EventTypes {
         export const PORTAL_ADDED: string = 'portal-added';
         export const PORTAL_REMOVED: string = 'portal-removed';
         export const PORTAL_EDITED: string = 'edited';

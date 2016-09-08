@@ -13,9 +13,8 @@ namespace Animate {
             // Set the property if the asset was provided
             this.parameters[ 0 ].property.setVal( asset );
 
-            if ( asset ) {
+            if ( asset )
                 this.alias = asset.entry.name;
-            }
         }
 
 		/**
@@ -30,8 +29,8 @@ namespace Animate {
          * Serializes the data into a JSON.
          * @returns {IBehaviour}
          */
-        serialize( id: number ): IBehaviour {
-            let toRet = <IBehaviour>super.serialize( id );
+        serialize( id: number ): Engine.Editor.IBehaviour {
+            let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
             toRet.type = 'asset';
             return toRet;
         }
@@ -42,7 +41,7 @@ namespace Animate {
 		 * @param {Prop<any>} property
 		 * @returns {Portal}
 		 */
-        addPortal( type: PortalType, property: Prop<any> ): Portal {
+        addPortal( type: HatcheryRuntime.PortalType, property: Prop<any> ): Portal {
             const portal = super.addPortal( type, property );
             if ( type === 'parameter' )
                 this.asset = property.getVal() as Resources.Asset;
