@@ -1,4 +1,4 @@
-﻿module Animate {
+﻿namespace Animate {
 	/**
 	* A base class for all project resources
 	*/
@@ -6,17 +6,17 @@
         public entry: T;
         private _saved: boolean;
         protected _properties: EditableSet;
-        protected _options: { [s: string]: any; };
+        protected _options: { [ s: string ]: any; };
 
-        constructor(entry: T) {
+        constructor( entry: T ) {
             super();
 
             this.entry = entry;
-            var resource: Engine.IResource = <Engine.IResource>entry;
-            resource.shallowId = Utils.generateLocalId(resource.shallowId);
+            const resource: Engine.IResource = <Engine.IResource>entry;
+            resource.shallowId = Utils.generateLocalId( resource.shallowId );
             this._saved = true;
             this._options = {};
-            this._properties = new EditableSet(this);
+            this._properties = new EditableSet( this );
         }
 
         /**
@@ -42,7 +42,7 @@
         /**
         * Sets the properties of this resource
         */
-        set properties(val: EditableSet) {
+        set properties( val: EditableSet ) {
             this._properties = val;
             val.parent = this;
         }
@@ -59,9 +59,9 @@
         * Sets if this resource is saved
         * @param {boolean} val
         */
-        set saved(val: boolean)  {
+        set saved( val: boolean ) {
             this._saved = val;
-            this.emit(new Event("modified"));
+            this.emit( new Event( 'modified' ) );
         }
 
 
@@ -76,21 +76,21 @@
         /**
         * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
         */
-        createOption(name: string, val: any) { this._options[name] = val; }
+        createOption( name: string, val: any ) { this._options[ name ] = val; }
 
         /**
         * Destroys an option
         */
-        removeOption(name: string) { delete this._options[name]; }
+        removeOption( name: string ) { delete this._options[ name ]; }
 
         /**
         * Update the value of an option
         */
-        updateOption(name: string, val: any) { this._options[name] = val; }
+        updateOption( name: string, val: any ) { this._options[ name ] = val; }
 
         /**
         * Returns the value of an option
         */
-        getOption(name: string): any { return this._options[name]; }
+        getOption( name: string ): any { return this._options[ name ]; }
     }
 }

@@ -1,4 +1,4 @@
-﻿module Animate {
+﻿namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -19,8 +19,8 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor(name: string, value: number, min: number = -Number.MAX_VALUE, max: number = Number.MAX_VALUE, decimals: number = 0, interval: number = 1, category?: string, options?: any) {
-            super(name, value, category, options, PropertyType.NUMBER);
+        constructor( name: string, value: number, min: number = -Number.MAX_VALUE, max: number = Number.MAX_VALUE, decimals: number = 0, interval: number = 1, category?: string, options?: any ) {
+            super( name, value, category, options, PropertyType.NUMBER );
             this.min = min;
             this.max = max;
             this.decimals = decimals;
@@ -32,12 +32,12 @@
         * @returns {number}
         */
         getVal(): number {
-            if (this._value < this.min)
+            if ( this._value < this.min )
                 return this.min;
-            if (this._value > this.max)
+            if ( this._value > this.max )
                 return this.max;
 
-            return parseInt(this._value.toFixed(this.decimals));
+            return parseInt( this._value.toFixed( this.decimals ) );
         }
 
         /**
@@ -45,11 +45,11 @@
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
         * @returns {any}
         */
-        tokenize(slim: boolean = false): any {
-            if (slim)
-                return super.tokenize(slim);
+        tokenize( slim: boolean = false ): any {
+            if ( slim )
+                return super.tokenize( slim );
 
-            var token: PropNum = super.tokenize(slim)
+            const token: PropNum = super.tokenize( slim )
             token.min = this.min;
             token.max = this.max;
             token.decimals = this.decimals;
@@ -62,10 +62,10 @@
         * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
         */
-        deTokenize(data: PropNum) {
-            super.deTokenize(data);
-            this.min = (data.min === null || data.min === undefined ? -Number.MAX_VALUE : data.min);
-            this.max = (data.max === null || data.max === undefined ? Number.MAX_VALUE  : data.max);
+        deTokenize( data: PropNum ) {
+            super.deTokenize( data );
+            this.min = ( data.min === null || data.min === undefined ? -Number.MAX_VALUE : data.min );
+            this.max = ( data.max === null || data.max === undefined ? Number.MAX_VALUE : data.max );
             this.decimals = data.decimals;
             this.interval = data.interval;
         }
@@ -74,8 +74,8 @@
         * Attempts to clone the property
         * @returns {PropNum}
         */
-        clone(clone?: PropNum): PropNum {
-            return new PropNum(this.name, this._value, this.min, this.max, this.decimals, this.interval, this.category, this.options);
+        clone( clone?: PropNum ): PropNum {
+            return new PropNum( this.name, this._value, this.min, this.max, this.decimals, this.interval, this.category, this.options );
         }
     }
 }

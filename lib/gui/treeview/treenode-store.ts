@@ -1,38 +1,38 @@
-module Animate {
+namespace Animate {
 
 	/**
 	 * This class is used to create tree view items.
 	 */
-	export class TreeNodeStore extends EventDispatcher {
+    export class TreeNodeStore extends EventDispatcher {
 
-		protected _children : TreeNodeModel[];
-        protected _selectedNodes : TreeNodeModel[];
-		protected _multiSelect: boolean;
-		protected _onlySimilarNodeSelection: boolean;
+        protected _children: TreeNodeModel[];
+        protected _selectedNodes: TreeNodeModel[];
+        protected _multiSelect: boolean;
+        protected _onlySimilarNodeSelection: boolean;
 
 		/**
 		 * Creates a treenode store
 		 */
-		constructor(children : TreeNodeModel[] = []) {
-			super();
+        constructor( children: TreeNodeModel[] = [] ) {
+            super();
 
-			this._children = children;
+            this._children = children;
             this._selectedNodes = [];
-			this._multiSelect = true;
-			this._onlySimilarNodeSelection = true;
+            this._multiSelect = true;
+            this._onlySimilarNodeSelection = true;
 
-			for (let node of this._children)
-				this.setStore(node);
-		}
+            for ( let node of this._children )
+                this.setStore( node );
+        }
 
 		/**
          * Adds a child node
          * @param {TreeNodeModel} node
          * @returns {TreeNodeModel}
          */
-        addNode(node: TreeNodeModel) : TreeNodeModel {
-			let children = this._children;
-            children.push(node);
+        addNode( node: TreeNodeModel ): TreeNodeModel {
+            let children = this._children;
+            children.push( node );
             node.store = this;
             this.invalidate();
             return node;
@@ -42,107 +42,107 @@ module Animate {
          * Removes a child node
          * @param {TreeNodeModel} node
          */
-        removeNode(node: TreeNodeModel) {
-			let children = this._children;
-			let selection = this._selectedNodes;
-			if (children.indexOf(node) == -1 )
-				throw new Error('Node must be child of store in order to remove it');
+        removeNode( node: TreeNodeModel ) {
+            let children = this._children;
+            let selection = this._selectedNodes;
+            if ( children.indexOf( node ) === -1 )
+                throw new Error( 'Node must be child of store in order to remove it' );
 
-            children.splice(children.indexOf(node), 1);
-			if (selection.indexOf(node) != -1)
-				selection.splice( selection.indexOf(node), 1 );
+            children.splice( children.indexOf( node ), 1 );
+            if ( selection.indexOf( node ) !== -1 )
+                selection.splice( selection.indexOf( node ), 1 );
 
-			node.dispose();
+            node.dispose();
             this.invalidate();
         }
 
 		/**
 		 * Removes all nodes from the store
 		 */
-		clear() {
-			for ( let node of this._children )
-				this.removeNode(node);
-		}
+        clear() {
+            for ( let node of this._children )
+                this.removeNode( node );
+        }
 
 		/**
 		 * Triggers a change in the tree structure
 		 */
-		invalidate() {
-			this.emit(new Event('change'));
-		}
+        invalidate() {
+            this.emit( new Event( 'change' ) );
+        }
 
 		/**
 		 * Called whenever the selection has changed
 		 * @param {TreeNodeModel[]} selection
 		 */
-		onSelectionChange( selection : TreeNodeModel[] ) {
+        onSelectionChange( selection: TreeNodeModel[] ) {
 
-		}
+        }
 
 		/**
          * Called whenever a node is selectable and clicked.
          * @param {TreeNodeModel} node
          * @param {boolean} shiftDown
          */
-        onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState : boolean = true ) {
+        onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
-			let clearSelection = false;
-			let selection = this._selectedNodes;
+            let clearSelection = false;
+            let selection = this._selectedNodes;
 
-			if (this._multiSelect == false)
-				clearSelection = true;
-			else if ( this._multiSelect && !shiftDown)
-				clearSelection = true;
-			else if ( this._onlySimilarNodeSelection && selection.length > 0 && selection[0].constructor != node.constructor )
-				clearSelection = true;
+            if ( this._multiSelect === false )
+                clearSelection = true;
+            else if ( this._multiSelect && !shiftDown )
+                clearSelection = true;
+            else if ( this._onlySimilarNodeSelection && selection.length > 0 && selection[ 0 ].constructor !== node.constructor )
+                clearSelection = true;
 
             // Deselect all nodes if either not multi select mode or shiftkey was not pressed
             if ( clearSelection ) {
 
-				for (let n of selection)
-					n.selected(false);
+                for ( let n of selection )
+                    n.selected( false );
 
-				selection.splice( 0, selection.length );
+                selection.splice( 0, selection.length );
 
-				if (node) {
-					selection.push( node );
-                	node.selected(true);
-				}
-			}
-            else if (node) {
+                if ( node ) {
+                    selection.push( node );
+                    node.selected( true );
+                }
+            }
+            else if ( node ) {
                 let selected = ( toggleSelectedState ? !node.selected() : node.selected() );
-                node.selected(selected);
+                node.selected( selected );
 
-                if (!selected && selection.indexOf(node) != -1 )
-					selection.splice( selection.indexOf(node), 1 );
-                else if ( selection.indexOf(node) == -1)
+                if ( !selected && selection.indexOf( node ) !== -1 )
+                    selection.splice( selection.indexOf( node ), 1 );
+                else if ( selection.indexOf( node ) === -1 )
                     selection.push( node );
             }
 
-			this.onSelectionChange(selection);
+            this.onSelectionChange( selection );
         }
 
 		/**
 		 * Sets the store of the node and all its children to be this store
 		 */
-		public setStore( node : TreeNodeModel ) {
-			node.store = this;
-			for ( let n of node.children )
-				this.setStore(n);
-		}
+        public setStore( node: TreeNodeModel ) {
+            node.store = this;
+            for ( let n of node.children )
+                this.setStore( n );
+        }
 
-		private unFocus( node : TreeNodeModel ) {
-			node.focussed = false;
-			for ( let n of node.children )
-				this.unFocus(n);
-		}
+        private unFocus( node: TreeNodeModel ) {
+            node.focussed = false;
+            for ( let n of node.children )
+                this.unFocus( n );
+        }
 
 		/**
          * Called whenever the node receives a context event
          * @param {React.MouseEvent} e
 		 * @param {TreeNodeModel} node
          */
-        onContext(e: React.MouseEvent, node : TreeNodeModel) {
+        onContext( e: React.MouseEvent, node: TreeNodeModel ) {
 
         }
 
@@ -153,52 +153,52 @@ module Animate {
 		 * @param {any} value The object we should be comparing against
 		 * @returns {TreeNodeModel}
 		 */
-		findNode( property : string, value : any ) : TreeNodeModel {
-			let children = this._children;
-			for (let child of children) {
-				var n = child.findNode( property, value );
-				if ( n != null )
-					return n;
-			}
-		}
+        findNode( property: string, value: any ): TreeNodeModel {
+            let children = this._children;
+            for ( let child of children ) {
+                const n = child.findNode( property, value );
+                if ( n !== null )
+                    return n;
+            }
+        }
 
 		/**
 		 * Selects a node manually. This will also bring the focus into node
 		 */
-		selectNode( node: TreeNodeModel ) {
-			this.onNodeSelected( node, false );
+        selectNode( node: TreeNodeModel ) {
+            this.onNodeSelected( node, false );
 
-			for ( let n of node.children )
-				this.unFocus(n);
+            for ( let n of node.children )
+                this.unFocus( n );
 
-			//Make sure the tree node is expanded
-			var p = node.parent;
-			var scroll = 0;
-			while ( p ) {
-				if ( !p.expanded )
-					p.expanded(true);
+            //Make sure the tree node is expanded
+            let p = node.parent;
+            const scroll = 0;
+            while ( p ) {
+                if ( !p.expanded )
+                    p.expanded( true );
 
-				p = p.parent;
-			}
+                p = p.parent;
+            }
 
-			node.focussed = true;
-			this.emit( new Event('focus-node', node) );
-		}
+            node.focussed = true;
+            this.emit( new Event( 'focus-node', node ) );
+        }
 
 		/**
 		 * Gets the nodes associated with this store
 		 * @returns {TreeNodeModel[]}
 		 */
-		getNodes() : TreeNodeModel[] {
-			return this._children;
-		}
+        getNodes(): TreeNodeModel[] {
+            return this._children;
+        }
 
 		/**
 		 * Gets the currently selected nodes
 		 * @returns {TreeNodeModel[]}
 		 */
-		getSelectedNodes() : TreeNodeModel[] {
-			return this._selectedNodes;
-		}
+        getSelectedNodes(): TreeNodeModel[] {
+            return this._selectedNodes;
+        }
     }
 }

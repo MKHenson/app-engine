@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface IVInputProps extends React.HTMLAttributes {
         /**
@@ -12,7 +12,7 @@ module Animate {
         /**
          * If specified, the hint will help users type out a word
          */
-        hint? : string;
+        hint?: string;
 
         /**
          * The minimum number of characters allowed
@@ -27,12 +27,12 @@ module Animate {
         /**
          * Called whenever the input fails a validation test
          */
-        onValidationError?: (e: Error, target: VInput) => void;
+        onValidationError?: ( e: Error, target: VInput ) => void;
 
         /**
          * Called whenever the input passes a previously failed validation test
          */
-        onValidationResolved?: (target: VInput) => void;
+        onValidationResolved?: ( target: VInput ) => void;
 
         /**
          * An optional error message to use to describe when a problem occurs. If for example you have validation against
@@ -46,8 +46,8 @@ module Animate {
          */
         selectOnClick?: boolean;
 
-        onChange?(e: React.FormEvent, newString: string) : void;
-        onChange?(e: React.FormEvent) : void;
+        onChange?( e: React.FormEvent, newString: string ): void;
+        onChange?( e: React.FormEvent ): void;
     }
 
 
@@ -55,8 +55,8 @@ module Animate {
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
      * with the VForm.
      */
-    export class VInput extends React.Component<IVInputProps, { error? : string, value?: string, highlightError? : boolean }> {
-        static defaultProps : IVInputProps = {
+    export class VInput extends React.Component<IVInputProps, { error?: string, value?: string, highlightError?: boolean }> {
+        static defaultProps: IVInputProps = {
             selectOnClick: true
         }
         private _pristine: boolean;
@@ -67,15 +67,15 @@ module Animate {
         /**
          * Creates a new instance
          */
-        constructor(props) {
-            super(props);
+        constructor( props ) {
+            super( props );
             this._pristine = true;
             this._hintStart = -1;
             this._hintEnd = -1;
             this._allowHint = true;
 
             this.state = {
-                value : props.value || '',
+                value: props.value || '',
                 error: null,
                 highlightError: false
             };
@@ -85,57 +85,57 @@ module Animate {
          * Gets the current value of the input
          * @returns {string}
          */
-        get value() : string { return this.state.value; }
+        get value(): string { return this.state.value; }
 
         /**
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void {
-            var err = this.getValidationErrorMsg( this.props.value );
+            const err = this.getValidationErrorMsg( this.props.value );
 
-             // Call the optional error callback
+            // Call the optional error callback
             if ( err && !this._pristine && this.props.onValidationError )
-               this.props.onValidationError( new Error(err), this );
+                this.props.onValidationError( new Error( err ), this );
 
-            this.setState({
-                error: (err? err: null)
+            this.setState( {
+                error: ( err ? err : null )
             });
         }
 
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps(nextProps: IVCheckboxProps) {
-            if (nextProps.value as string !== this.props.value)
-                this.setState({  value: nextProps.value as string });
+        componentWillReceiveProps( nextProps: IVCheckboxProps ) {
+            if ( nextProps.value as string !== this.props.value )
+                this.setState( { value: nextProps.value as string });
         }
 
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
          */
-        set highlightError( val : boolean ) {
-            this.setState({ highlightError : val });
+        set highlightError( val: boolean ) {
+            this.setState( { highlightError: val });
         }
 
         /**
          * Checks the string against all validators.
          * @returns {string} An error string or null if there are no errors
          */
-        getValidationErrorMsg(val : string): string {
+        getValidationErrorMsg( val: string ): string {
             let validators = Utils.validators;
             let validator = null;
             let errorMsg: string = null;
 
             val = ( val !== undefined ? val : this.state.value );
 
-            if (this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
+            if ( this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
                 errorMsg = `You have too few characters`;
-            if (this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
+            if ( this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
                 errorMsg = `You have too many characters`;
 
             if ( !errorMsg )
-                errorMsg = Utils.checkValidation(val, this.props.validator)
+                errorMsg = Utils.checkValidation( val, this.props.validator )
 
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
@@ -143,33 +143,33 @@ module Animate {
         /**
          * Check if we need to highlight the next
          */
-        componentDidUpdate(nextProps) {
-            if (this._hintStart != -1)
-                ( ReactDOM.findDOMNode(this) as HTMLInputElement).setSelectionRange( this._hintStart, this._hintEnd );
+        componentDidUpdate( nextProps ) {
+            if ( this._hintStart !== -1 )
+                ( ReactDOM.findDOMNode( this ) as HTMLInputElement ).setSelectionRange( this._hintStart, this._hintEnd );
         }
 
         /**
          * Only called when we have hints enabled
          */
-        onKeyUp(e : React.KeyboardEvent) {
-            if (this.props.onKeyUp)
-                this.props.onKeyUp(e);
+        onKeyUp( e: React.KeyboardEvent ) {
+            if ( this.props.onKeyUp )
+                this.props.onKeyUp( e );
         }
 
         /**
          * Makes sure that the key is printable and therefore if we have to show the hint or not
          */
-        private onKeyDown(e: React.KeyboardEvent) {
+        private onKeyDown( e: React.KeyboardEvent ) {
             let keycode = e.keyCode;
             let valid =
-                (keycode > 47 && keycode < 58)   || // number keys
-                keycode == 32 || keycode == 13   || // spacebar & return key(s) (if you want to allow carriage returns)
-                (keycode > 64 && keycode < 91)   || // letter keys
-                (keycode > 95 && keycode < 112)  || // numpad keys
-                (keycode > 185 && keycode < 193) || // ;=,-./` (in order)
-                (keycode > 218 && keycode < 223);   // [\]' (in order)
+                ( keycode > 47 && keycode < 58 ) || // number keys
+                keycode === 32 || keycode === 13 || // spacebar & return key(s) (if you want to allow carriage returns)
+                ( keycode > 64 && keycode < 91 ) || // letter keys
+                ( keycode > 95 && keycode < 112 ) || // numpad keys
+                ( keycode > 185 && keycode < 193 ) || // ;=,-./` (in order)
+                ( keycode > 218 && keycode < 223 );   // [\]' (in order)
 
-            if (valid)
+            if ( valid )
                 this._allowHint = true;
             else
                 this._allowHint = false;
@@ -179,22 +179,22 @@ module Animate {
          * Called whenever the value changes
          * @param {React.FormEvent} e
          */
-        private onChange(e: React.FormEvent) {
+        private onChange( e: React.FormEvent ) {
             let wasAnError = this.state.error;
-            let val = (e.target as HTMLInputElement).value;
-            let err = this.getValidationErrorMsg(val);
+            let val = ( e.target as HTMLInputElement ).value;
+            let err = this.getValidationErrorMsg( val );
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
-               this.props.onValidationError( new Error(err), this );
-            else if (wasAnError && !err && this.props.onValidationResolved)
-                this.props.onValidationResolved(this);
+                this.props.onValidationError( new Error( err ), this );
+            else if ( wasAnError && !err && this.props.onValidationResolved )
+                this.props.onValidationResolved( this );
 
             if ( this.props.hint && this._allowHint ) {
                 let isMatching = true;
-                let index = this.props.hint.toLowerCase().indexOf(val.toLowerCase());
+                let index = this.props.hint.toLowerCase().indexOf( val.toLowerCase() );
 
-                if ( index == 0 ) {
+                if ( index === 0 ) {
                     let valLen = val.length;
                     val = this.props.hint;
                     this._hintStart = index + valLen;
@@ -206,22 +206,22 @@ module Animate {
                 }
             }
 
-            this.setState({
+            this.setState( {
                 value: val,
-                error: (err? err : null),
-                highlightError: (err && this.state.highlightError ? true : false)
+                error: ( err ? err : null ),
+                highlightError: ( err && this.state.highlightError ? true : false )
             });
 
             this._allowHint = true;
-            if (!err && this.props.onChange)
-                this.props.onChange(e, val);
+            if ( !err && this.props.onChange )
+                this.props.onChange( e, val );
         }
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
          */
-        get pristine() : boolean {
+        get pristine(): boolean {
             return this._pristine;
         }
 
@@ -230,7 +230,7 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            const divProps : IVInputProps  = Object.assign({}, this.props);
+            const divProps: IVInputProps = Object.assign( {}, this.props );
             delete divProps.validator;
             delete divProps.minCharacters;
             delete divProps.maxCharacters;
@@ -240,27 +240,27 @@ module Animate {
             delete divProps.selectOnClick;
             delete divProps.hint;
 
-            var className = ( this.props.className ? this.props.className + ' v-input' : 'v-input' )
-            if (this.state.error)
+            let className = ( this.props.className ? this.props.className + ' v-input' : 'v-input' )
+            if ( this.state.error )
                 className += ' bad-input';
-            if (this.state.highlightError)
+            if ( this.state.highlightError )
                 className += ' highlight-error';
-            if (!this._pristine)
+            if ( !this._pristine )
                 className += ' dirty';
 
             return <input
                 {...divProps}
-                onKeyDown={(e) => { this.onKeyDown(e) }}
-                onKeyUp={ (e) => {this.onKeyUp(e)} }
-                onFocus={(e) => {
+                onKeyDown={( e ) => { this.onKeyDown( e ) } }
+                onKeyUp={ ( e ) => { this.onKeyUp( e ) } }
+                onFocus={( e ) => {
                     this._pristine = false;
-                    if (this.props.selectOnClick)
-                        (e.target as HTMLInputElement).setSelectionRange(0, (e.target as HTMLInputElement).value.length);
-                }}
+                    if ( this.props.selectOnClick )
+                        ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
+                } }
                 className={className}
                 value={this.state.value}
-                onChange={(e)=>{ this.onChange(e); }}
-            />;
+                onChange={( e ) => { this.onChange( e ); } }
+                />;
         }
     }
 }

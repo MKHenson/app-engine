@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface ITreeViewProps {
         nodeStore: TreeNodeStore;
@@ -59,7 +59,7 @@ module Animate {
          * Make sure that any new node store has the appropriate event handlers
          */
         componentWillReceiveProps(nextProps: ITreeViewProps) {
-            if (nextProps.nodeStore == this.props.nodeStore)
+            if (nextProps.nodeStore === this.props.nodeStore)
                 return;
 
             this.props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );

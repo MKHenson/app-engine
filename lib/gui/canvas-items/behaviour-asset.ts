@@ -1,37 +1,37 @@
-module Animate {
-	export class BehaviourAsset extends Behaviour {
-		public asset : ProjectResource<Engine.IResource>;
+namespace Animate {
+    export class BehaviourAsset extends Behaviour {
+        public asset: ProjectResource<Engine.IResource>;
 
         /**
          * Creates an instance of the behaviour
          */
-		constructor(asset? : ProjectResource<Engine.IResource>) {
-			super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
+        constructor( asset?: ProjectResource<Engine.IResource> ) {
+            super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
             this.className = 'behaviour-asset';
-			this.asset = asset || null;
+            this.asset = asset || null;
 
             // Set the property if the asset was provided
-            this.parameters[0].property.setVal( asset );
+            this.parameters[ 0 ].property.setVal( asset );
 
-            if (asset) {
+            if ( asset ) {
                 this.alias = asset.entry.name;
             }
-		}
+        }
 
 		/**
 		 * Clean up
 		 */
-		dispose() {
-			this.asset = null;
-			super.dispose();
+        dispose() {
+            this.asset = null;
+            super.dispose();
         }
 
         /**
          * Serializes the data into a JSON.
          * @returns {IBehaviour}
          */
-        serialize(id: number): IBehaviour {
-            let toRet = <IBehaviour>super.serialize(id);
+        serialize( id: number ): IBehaviour {
+            let toRet = <IBehaviour>super.serialize( id );
             toRet.type = 'asset';
             return toRet;
         }
@@ -42,12 +42,12 @@ module Animate {
 		 * @param {Prop<any>} property
 		 * @returns {Portal}
 		 */
-        addPortal(type: PortalType, property: Prop<any> ): Portal {
-            var portal = super.addPortal(type, property);
-            if (type == 'parameter')
+        addPortal( type: PortalType, property: Prop<any> ): Portal {
+            const portal = super.addPortal( type, property );
+            if ( type === 'parameter' )
                 this.asset = property.getVal() as Resources.Asset;
 
-			return portal;
-		}
-	}
+            return portal;
+        }
+    }
 }

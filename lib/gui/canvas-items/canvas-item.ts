@@ -1,7 +1,7 @@
-﻿module Animate {
+﻿namespace Animate {
 
     export type LinkMap = {
-        [shallowId: number]: { item: CanvasItem; token: ICanvasItem; }
+        [ shallowId: number ]: { item: CanvasItem; token: ICanvasItem; }
     };
 
     /**
@@ -11,7 +11,7 @@
         public top: number;
         public left: number;
         public className: string;
-        public store : CanvasStore;
+        public store: CanvasStore;
         public id: number;
         private _selected: boolean;
 
@@ -30,7 +30,7 @@
         /**
          * Called when we activate the context menu on the behaviour
          */
-        onContext(e: React.MouseEvent) {
+        onContext( e: React.MouseEvent ) {
 
         }
 
@@ -39,9 +39,9 @@
          * @param {boolean} val
          * @returns {boolean}
          */
-        selected(val?: boolean): boolean {
+        selected( val?: boolean ): boolean {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._selected;
 
             this._selected = val;
@@ -54,11 +54,11 @@
          * @param {number} id
          * @returns {ICanvasItem}
          */
-        serialize(id: number): ICanvasItem {
+        serialize( id: number ): ICanvasItem {
             this.id = id;
-            var toRet : ICanvasItem = {
-                id : id,
-                type : 'behaviour',
+            const toRet: ICanvasItem = {
+                id: id,
+                type: 'behaviour',
                 left: this.left,
                 top: this.top
             };
@@ -70,7 +70,7 @@
          * De-serialize data from a JSON.
          * @param {ICanvasItem} data The data to import from
          */
-        deSerialize(data: ICanvasItem) {
+        deSerialize( data: ICanvasItem ) {
             this.top = data.top;
             this.left = data.left;
         }
@@ -81,14 +81,14 @@
          * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
          * or to get the token you can use items[originalId].token
          */
-        link(originalId: number, items: LinkMap) {
+        link( originalId: number, items: LinkMap ) {
         }
 
         /**
          * Causes the store to refresh its state
          */
         invalidate() {
-            if (this.store)
+            if ( this.store )
                 this.store.invalidate();
         }
 

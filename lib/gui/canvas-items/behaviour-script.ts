@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 // 	/**
 // 	* A behaviour node that acts as a script. Users can create custom JS within the body. These nodes are connected to
 // 	* database entries and so need to be cleaned up properly when modified by the user.
@@ -60,9 +60,9 @@
 // 			//	{
 // 			//		loader = null;
 
-// 			//		if ( response == LoaderEvents.COMPLETE )
+// 			//		if ( response === LoaderEvents.COMPLETE )
 // 			//		{
-// 			//			if ( event.return_type == AnimateLoaderResponses.ERROR )
+// 			//			if ( event.return_type === AnimateLoaderResponses.ERROR )
 // 			//			{
 // 			//				MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
 // 			//				return;
@@ -122,9 +122,9 @@
 // 			//function onServer( response: LoaderEvents, event : AnimateLoaderEvent)
 // 			//{
 // 			//	loader = null;
-// 			//	if ( response == LoaderEvents.COMPLETE )
+// 			//	if ( response === LoaderEvents.COMPLETE )
 // 			//	{
-// 			//		if (event.return_type == AnimateLoaderResponses.ERROR )
+// 			//		if (event.return_type === AnimateLoaderResponses.ERROR )
 // 			//		{
 // 			//			MessageBox.show(event.message, Array<string>("Ok"), null, null );
 // 			//			return;
@@ -154,9 +154,9 @@
 // 		//	function onServer( response: LoaderEvents, event : AnimateLoaderEvent, sender? : EventDispatcher )
 // 		//	{
 // 		//		loader = null;
-// 		//		if ( response == LoaderEvents.COMPLETE )
+// 		//		if ( response === LoaderEvents.COMPLETE )
 // 		//		{
-// 		//			if (event.return_type == AnimateLoaderResponses.ERROR )
+// 		//			if (event.return_type === AnimateLoaderResponses.ERROR )
 // 		//			{
 // 		//				MessageBox.show( event.message, Array<string>( "Ok" ), null, null );
 // 		//				if ( onComplete )

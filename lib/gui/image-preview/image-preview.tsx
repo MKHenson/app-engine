@@ -1,20 +1,20 @@
-module Animate {
+namespace Animate {
 
     export interface IImagePreviewProps extends React.HTMLAttributes {
         src: string;
         defaultSrc?: string;
         label: string;
         labelIcon?: React.ReactDOM;
-        className? : string;
-        selected? : boolean;
-        onLabelClick? : (e: React.MouseEvent) => void;
-        showLoadingIcon? : boolean;
+        className?: string;
+        selected?: boolean;
+        onLabelClick?: ( e: React.MouseEvent ) => void;
+        showLoadingIcon?: boolean;
     }
 
     /**
      * Shows an image in a against transparent backdrop that is vertically centered and scaled into its container
      */
-    export class ImagePreview extends React.Component<IImagePreviewProps, { loading : boolean }> {
+    export class ImagePreview extends React.Component<IImagePreviewProps, { loading: boolean }> {
 
         static defaultProps: IImagePreviewProps = {
             selected: false,
@@ -29,15 +29,15 @@ module Animate {
         /**
          * Creates an instance
          */
-        constructor(props: IImagePreviewProps) {
-            super(props);
+        constructor( props: IImagePreviewProps ) {
+            super( props );
             this._mounted = true;
-            this.state = { loading : false };
+            this.state = { loading: false };
             this._imgLoader = new Image();
             this._imgLoader.onload = () => {
-                if (!this._mounted)
+                if ( !this._mounted )
                     return;
-                this.setState({ loading : false });
+                this.setState( { loading: false });
             }
         }
 
@@ -50,18 +50,18 @@ module Animate {
          */
         componentDidMount() {
             this._imgLoader.src = this.props.src || this.props.defaultSrc;
-            this.setState({ loading : true });
+            this.setState( { loading: true });
         }
 
         /**
          * If the src or default props change, we reload the new image
          */
-        componentWillReceiveProps(nextProps : IImagePreviewProps) {
+        componentWillReceiveProps( nextProps: IImagePreviewProps ) {
             let nextSrc = nextProps.src || nextProps.defaultSrc;
             let curSrc = this.props.src || this.props.defaultSrc;
-            if ( nextSrc != curSrc ) {
+            if ( nextSrc !== curSrc ) {
                 this._imgLoader.src = nextSrc;
-                this.setState({ loading : true });
+                this.setState( { loading: true });
             }
         }
 
@@ -72,7 +72,7 @@ module Animate {
         render(): JSX.Element {
 
             // Remove the custom properties
-            const props : IImagePreviewProps  = Object.assign({}, this.props);
+            const props: IImagePreviewProps = Object.assign( {}, this.props );
             delete props.defaultSrc;
             delete props.labelIcon;
             delete props.onLabelClick;
@@ -80,8 +80,8 @@ module Animate {
 
             let img = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
 
-            if (!this.props.showLoadingIcon) {
-                if (!this.state.loading)
+            if ( !this.props.showLoadingIcon ) {
+                if ( !this.state.loading )
                     img = <img ref="img" className="vert-align" src={this._imgLoader.src}/>
             }
 
@@ -95,12 +95,12 @@ module Animate {
                     </div>
                 </div>
                 <div
-                    className={'item-name' + (this.props.selected ? ' selected' : '')}
-                    onClick={(e) => {
-                        if (this.props.onLabelClick)
-                            this.props.onLabelClick(e);
-                    }}
-                >
+                    className={'item-name' + ( this.props.selected ? ' selected' : '' ) }
+                    onClick={( e ) => {
+                        if ( this.props.onLabelClick )
+                            this.props.onLabelClick( e );
+                    } }
+                    >
                     {this.props.labelIcon} {this.props.label}
                 </div>
             </div>

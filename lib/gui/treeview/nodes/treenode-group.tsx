@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
 	/**
 	 * This node represents a group asset.
@@ -9,13 +9,13 @@ module Animate {
         /**
          * Creates an instance of the node
          */
-        constructor(group: Resources.GroupArray) {
+        constructor( group: Resources.GroupArray ) {
             super( group );
             let project = User.get.project;
             this.canDrop = true;
             this.icon( <i className="fa fa-object-group" aria-hidden="true" /> );
             this.onRefreshed();
-            this.expanded(false);
+            this.expanded( false );
         }
 
         /**
@@ -25,16 +25,16 @@ module Animate {
 
             // Remove all current nodes
             let children = this.children;
-            for (let node of children)
-                this.removeNode(node);
+            for ( let node of children )
+                this.removeNode( node );
 
-            var project: Project = User.get.project;
-            var group = this.resource;
+            const project: Project = User.get.project;
+            const group = this.resource;
 
             // Add each of the node references
-            for (let item of group.entry.items ) {
+            for ( let item of group.entry.items ) {
                 let resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>( item );
-                this.addNode( new TreeNodeGroupInstance( resource, group ));
+                this.addNode( new TreeNodeGroupInstance( resource, group ) );
             }
         }
 
@@ -44,14 +44,14 @@ module Animate {
          * @param {React.DragEvent} e
          * @param {IDragDropToken} json The unserialized data
          */
-        onDragDrop(e: React.DragEvent, json : IDragDropToken ) {
-			if ( json.type == 'resource' ) {
-                let resource = User.get.project.getResourceByShallowID(json.id as number);
+        onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
+            if ( json.type === 'resource' ) {
+                let resource = User.get.project.getResourceByShallowID( json.id as number );
                 let entry = resource.entry;
                 let added = this.addNode( new TreeNodeGroupInstance( resource, this.resource ) );
-				this.expanded();
-                this.resource.addReference(entry.shallowId);
-			}
-		}
-	}
+                this.expanded();
+                this.resource.addReference( entry.shallowId );
+            }
+        }
+    }
 }

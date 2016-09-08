@@ -1,18 +1,18 @@
-module Animate {
+namespace Animate {
 
     export interface ITabPaneProps {
         label: string;
         showCloseButton?: boolean;
-        onDispose? : (paneIndex : number, prop: ITabPaneProps) => void;
-        canSelect? : (paneIndex : number, prop: ITabPaneProps) => boolean | Promise<boolean>;
-        canClose? : (paneIndex : number, prop: ITabPaneProps) => boolean | Promise<boolean>;
+        onDispose?: ( paneIndex: number, prop: ITabPaneProps ) => void;
+        canSelect?: ( paneIndex: number, prop: ITabPaneProps ) => boolean | Promise<boolean>;
+        canClose?: ( paneIndex: number, prop: ITabPaneProps ) => boolean | Promise<boolean>;
     }
 
 	/**
 	 * A single page/pane/folder pair for use in a Tab
 	 */
-	export class TabPane extends React.Component<ITabPaneProps, any > {
-        static defaultProps : ITabPaneProps = {
+    export class TabPane extends React.Component<ITabPaneProps, any> {
+        static defaultProps: ITabPaneProps = {
             label: null,
             showCloseButton: true,
             canClose: null,
@@ -23,8 +23,8 @@ module Animate {
         /**
          * Creates a new pane instance
          */
-        constructor(props:ITabPaneProps) {
-            super(props);
+        constructor( props: ITabPaneProps ) {
+            super( props );
         }
 
         /**
@@ -32,7 +32,7 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className="tab-pane">
+            return <div className='tab-pane'>
                 {this.props.children}
             </div>
         }

@@ -2,7 +2,7 @@
 	<form action="" en-submit="false">
 		<input type="text" id="rename-input" placeholder="Please enter a name" class="background-view-light" en-model="ctrl.$name" en-class="{ 'bad-input' : elm.$error }" en-validate="non-empty|no-html" />
 		<div class="buttons-container">
-			<div class="error" en-show="ctrl.$errorMsg != ''">{{ctrl.$errorMsg}}</div>
+			<div class="error" en-show="ctrl.$errorMsg !== ''">{{ctrl.$errorMsg}}</div>
 			<button type="submit" class="button green" en-click="ctrl.ok()">
 				<div class="tick"></div>OK
 			</button>

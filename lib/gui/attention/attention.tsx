@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface IAttentionProps extends React.HTMLAttributes {
         mode?: AttentionType;
@@ -9,8 +9,8 @@ module Animate {
     /**
      * A simple component for displaying a styled message to the user
      */
-    export class Attention extends React.Component< IAttentionProps, {isClosed : boolean } > {
-        static defaultProps : IAttentionProps = {
+    export class Attention extends React.Component<IAttentionProps, { isClosed: boolean }> {
+        static defaultProps: IAttentionProps = {
             mode: AttentionType.WARNING,
             showIcon: true,
             allowClose: true
@@ -19,8 +19,8 @@ module Animate {
         /**
          * Creates an a new intance
          */
-        constructor(props : IAttentionProps) {
-            super(props);
+        constructor( props: IAttentionProps ) {
+            super( props );
             this.state = {
                 isClosed: false
             };
@@ -29,8 +29,8 @@ module Animate {
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps(nextProps: IAttentionProps) {
-            this.setState({
+        componentWillReceiveProps( nextProps: IAttentionProps ) {
+            this.setState( {
                 isClosed: false
             });
         }
@@ -40,47 +40,47 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            let props : IAttentionProps = Object.assign({}, this.props);
+            let props: IAttentionProps = Object.assign( {}, this.props );
             delete props.mode;
             delete props.showIcon;
             delete props.className;
             delete props.allowClose;
 
-            let primaryClass : string;
-            let icon : JSX.Element;
-            let className = ( props.className ? props.className +  ' attention' : 'attention')
+            let primaryClass: string;
+            let icon: JSX.Element;
+            let className = ( props.className ? props.className + ' attention' : 'attention' )
 
-            if (this.props.mode == AttentionType.ERROR) {
+            if ( this.props.mode === AttentionType.ERROR ) {
                 className += ' error';
-                if (this.props.showIcon)
+                if ( this.props.showIcon )
                     icon = <div className="icon"><span className="fa fa-exclamation-triangle" /></div>
             }
-            else if (this.props.mode == AttentionType.WARNING) {
+            else if ( this.props.mode === AttentionType.WARNING ) {
                 className += ' warning';
-                if (this.props.showIcon)
+                if ( this.props.showIcon )
                     icon = <div className="icon"><span className="fa fa-exclamation-circle" /></div>
             }
             else {
                 className += ' success';
-                if (this.props.showIcon)
+                if ( this.props.showIcon )
                     icon = <div className="icon"><span className="fa fa-check" /></div>
             }
 
             if ( this.props.showIcon )
                 className += ' with-icon';
 
-            var content : JSX.Element;
-            if ( !this.state.isClosed) {
+            let content: JSX.Element;
+            if ( !this.state.isClosed ) {
                 content = <div key="attention"  {...props} className={className}>
                     {icon}
                     <div className={'message'}>
                         {this.props.children}
                     </div>
                     {
-                        (this.props.allowClose ?
-                            <span className="close fa fa-times" onClick={()=>{
-                                this.setState({isClosed: true});
-                            }} /> : null )
+                        ( this.props.allowClose ?
+                            <span className="close fa fa-times" onClick={() => {
+                                this.setState( { isClosed: true });
+                            } } /> : null )
                     }
 
                 </div>
@@ -93,7 +93,7 @@ module Animate {
                 transitionEnterTimeout={500}
                 transitionLeaveTimeout={500}
                 transitionAppearTimeout={500}
-            >
+                >
                 {content}
             </React.addons.CSSTransitionGroup>
 

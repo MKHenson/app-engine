@@ -1,9 +1,9 @@
-//module Animate
+//namespace Animate
 //{
 //	export class CanvasTokenPortal
 //	{
-//		public name: string = "";
-//		public value: string = "";
+//		public name: string = '';
+//		public value: string = '';
 //        public type: PortalType = PortalType.INPUT;
 //        public dataType: PropertyType = null;
 //		public customPortal: boolean = false;
@@ -23,15 +23,15 @@
 
 //	export class CanvasTokenItem
 //	{
-//		public id: string = "";
-//		public type: string = "";
-//		public left: string = "";
-//		public top: string = "";
-//		public zIndex: string = "";
-//		public position: string = "";
-//		public text: string = "";
-//		public name: string = "";
-//		public alias: string = "";
+//		public id: string = '';
+//		public type: string = '';
+//		public left: string = '';
+//		public top: string = '';
+//		public zIndex: string = '';
+//		public position: string = '';
+//		public text: string = '';
+//		public name: string = '';
+//		public alias: string = '';
 
 //		// Asset items
 //        public assetID: number = 0;

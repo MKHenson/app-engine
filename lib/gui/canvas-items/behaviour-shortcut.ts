@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 
 // 	/**
 // 	 * A behaviour used to ghost - or act as a shortcut - for an existing behaviour. This is created when you hold shift and

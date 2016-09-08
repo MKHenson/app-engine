@@ -1,278 +1,278 @@
-﻿module Animate {
-	export class ToolbarNumberEvents extends ENUM {
-		constructor( v: string ) { super( v ); }
-		static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
-	}
+﻿namespace Animate {
+    export class ToolbarNumberEvents extends ENUM {
+        constructor( v: string ) { super( v ); }
+        static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
+    }
 
 
 
 	/**
 	*  A toolbar button for numbers
 	*/
-	export class ToolbarNumber extends Component {
-		private static input: any//InputBox;
-		private static numInstances: number = 0;
+    export class ToolbarNumber extends Component {
+        private static input: any//InputBox;
+        private static numInstances: number = 0;
 
-		private defaultVal: number;
-		private minValue: number;
-		private maxValue: number;
-		private delta: number;
-		private startPos: number;
+        private defaultVal: number;
+        private minValue: number;
+        private maxValue: number;
+        private delta: number;
+        private startPos: number;
 
 
-		private label: IComponent;
-		private leftArrow: IComponent;
-		private rightArrow: IComponent;
+        private label: IComponent;
+        private leftArrow: IComponent;
+        private rightArrow: IComponent;
 
-		// Proxies
-		private stageUpPoxy: any;
-		private stageMovePoxy: any;
-		private downProxy: any;
-		private clickProxy: any;
-		private wheelProxy: any;
-		private keyProxy: any;
+        // Proxies
+        private stageUpPoxy: any;
+        private stageMovePoxy: any;
+        private downProxy: any;
+        private clickProxy: any;
+        private wheelProxy: any;
+        private keyProxy: any;
 
 		/**
 		* @param {Component} parent The parent of this toolbar
 		*/
-		constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 ) {
+        constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 ) {
             super( "<div class='toolbar-button tooltip scrolling-number'></div>", parent );
 
-			var container : IComponent = this.addChild( "<div class='number-holder'></div>" );
+            const container: IComponent = this.addChild( "<div class='number-holder'></div>" );
             this.addChild( "<div class='tooltip-text tooltip-text-bg'>" + text + "</div>" );
 
-			this.defaultVal = defaultVal;
-			this.minValue = minValue;
-			this.maxValue = maxValue;
-			this.delta = delta;
+            this.defaultVal = defaultVal;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.delta = delta;
 
-			if ( !ToolbarNumber.input ) {
-				//ToolbarNumber.input = new InputBox( null, "" );
-				ToolbarNumber.input.element.css( { "pointer-events": "all" });
-				ToolbarNumber.numInstances = 0;
-			}
+            if ( !ToolbarNumber.input ) {
+                //ToolbarNumber.input = new InputBox( null, "" );
+                ToolbarNumber.input.element.css( { "pointer-events": "all" });
+                ToolbarNumber.numInstances = 0;
+            }
 
-			this.label = container.addChild( "<div class='number-label'>" + defaultVal + "</div>" );
-			var arrows = container.addChild( "<div class='arrows'></div>" );
-			this.leftArrow = arrows.addChild( "<div class='left'>←</div>" );
-			this.rightArrow = arrows.addChild( "<div class='right'>→</div>" );
+            this.label = container.addChild( "<div class='number-label'>" + defaultVal + "</div>" );
+            const arrows = container.addChild( "<div class='arrows'></div>" );
+            this.leftArrow = arrows.addChild( "<div class='left'>←</div>" );
+            this.rightArrow = arrows.addChild( "<div class='right'>→</div>" );
 
-			this.element.css( "pointer-events", "all" );
+            this.element.css( "pointer-events", "all" );
 
-			this.startPos = 0;
+            this.startPos = 0;
 
-			// TODO: Must find a way that ensures the mouse move events are not lost when we move over an iframe...
+            // TODO: Must find a way that ensures the mouse move events are not lost when we move over an iframe...
 
-			//Events
-			this.stageUpPoxy = jQuery.proxy( this.onStageUp, this );
-			this.stageMovePoxy = jQuery.proxy( this.onStageMove, this );
-			this.downProxy = jQuery.proxy( this.onDown, this );
-			this.clickProxy = jQuery.proxy( this.onClick, this );
-			this.wheelProxy = jQuery.proxy( this.onWheel, this );
-			this.keyProxy = jQuery.proxy( this.onKeyDown, this );
+            //Events
+            this.stageUpPoxy = jQuery.proxy( this.onStageUp, this );
+            this.stageMovePoxy = jQuery.proxy( this.onStageMove, this );
+            this.downProxy = jQuery.proxy( this.onDown, this );
+            this.clickProxy = jQuery.proxy( this.onClick, this );
+            this.wheelProxy = jQuery.proxy( this.onWheel, this );
+            this.keyProxy = jQuery.proxy( this.onKeyDown, this );
 
-			this.leftArrow.element.on( "mousedown", this.downProxy );
-			this.rightArrow.element.on( "mousedown", this.downProxy );
-			this.leftArrow.element.on( "click", this.clickProxy );
-			this.rightArrow.element.on( "click", this.clickProxy );
-			this.label.element.on( "click", this.clickProxy );
-			this.element.on( "mousewheel", this.wheelProxy );
-		}
+            this.leftArrow.element.on( "mousedown", this.downProxy );
+            this.rightArrow.element.on( "mousedown", this.downProxy );
+            this.leftArrow.element.on( "click", this.clickProxy );
+            this.rightArrow.element.on( "click", this.clickProxy );
+            this.label.element.on( "click", this.clickProxy );
+            this.element.on( "mousewheel", this.wheelProxy );
+        }
 
 		/**
 		* Called when the mouse is down on the DOM
 		* @param <object> e The jQuery event
 		*/
-		onStageUp( e ) {
-			var inputOnDOM: boolean = ( ToolbarNumber.input.parent ? true : false );
+        onStageUp( e ) {
+            const inputOnDOM: boolean = ( ToolbarNumber.input.parent ? true : false );
 
-			// Remove listeners
-			var body = jQuery( window );
-			body.off( "mouseup", this.stageUpPoxy );
-			body.off( "mousemove", this.stageMovePoxy );
-			jQuery( document ).off( 'keydown', this.keyProxy );
+            // Remove listeners
+            const body = jQuery( window );
+            body.off( "mouseup", this.stageUpPoxy );
+            body.off( "mousemove", this.stageMovePoxy );
+            jQuery( document ).off( 'keydown', this.keyProxy );
 
-			// If input present, then check what we are over
-			if ( inputOnDOM ) {
-				var targetComp = jQuery( e.target ).data( "component" );
+            // If input present, then check what we are over
+            if ( inputOnDOM ) {
+                const targetComp = jQuery( e.target ).data( "component" );
 
-				if ( !targetComp )
-					return;
+                if ( !targetComp )
+                    return;
 
-				if ( targetComp.parent == ToolbarNumber.input && !e.keyCode )
-					return;
+                if ( targetComp.parent === ToolbarNumber.input && !e.keyCode )
+                    return;
 
-				this.defaultVal = parseFloat( parseFloat( ToolbarNumber.input.text ).toFixed( 2 ) );
-				ToolbarNumber.input.parent.removeChild( ToolbarNumber.input );
+                this.defaultVal = parseFloat( parseFloat( ToolbarNumber.input.text ).toFixed( 2 ) );
+                ToolbarNumber.input.parent.removeChild( ToolbarNumber.input );
 
-				if ( this.defaultVal < this.minValue )
-					this.defaultVal = this.minValue;
-				if ( this.defaultVal > this.maxValue )
-					this.defaultVal = this.maxValue;
+                if ( this.defaultVal < this.minValue )
+                    this.defaultVal = this.minValue;
+                if ( this.defaultVal > this.maxValue )
+                    this.defaultVal = this.maxValue;
 
-				this.label.element.text( this.defaultVal.toString() );
+                this.label.element.text( this.defaultVal.toString() );
 
-				this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
-			}
-		}
+                this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+            }
+        }
 
 		/**
 		* Called when we move on the stage
 		* @param <object> e The jQuery event
 		*/
-		onStageMove( e ) {
-			var delta = e.screenX - this.startPos;
-			this.startPos = e.screenX;
+        onStageMove( e ) {
+            const delta = e.screenX - this.startPos;
+            this.startPos = e.screenX;
 
-			if ( delta < 0 )
-				this.defaultVal -= this.delta;
-			else
-				this.defaultVal += this.delta;
+            if ( delta < 0 )
+                this.defaultVal -= this.delta;
+            else
+                this.defaultVal += this.delta;
 
-			if ( this.defaultVal < this.minValue )
-				this.defaultVal = this.minValue;
-			if ( this.defaultVal > this.maxValue )
-				this.defaultVal = this.maxValue;
+            if ( this.defaultVal < this.minValue )
+                this.defaultVal = this.minValue;
+            if ( this.defaultVal > this.maxValue )
+                this.defaultVal = this.maxValue;
 
-			this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
+            this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
 
-			this.label.element.text( this.defaultVal.toString() );
-			this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
-		}
-
-		/**
-		* Set or get the value
-		* @param {number} val The value we are setting
-		*/
-		set value( val: number ) {
-			this.defaultVal = val;
-			if ( this.defaultVal < this.minValue )
-				this.defaultVal = this.minValue;
-			if ( this.defaultVal > this.maxValue )
-				this.defaultVal = this.maxValue;
-
-			this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
-			this.label.element.text( this.defaultVal.toString() );
-		}
+            this.label.element.text( this.defaultVal.toString() );
+            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+        }
 
 		/**
 		* Set or get the value
 		* @param {number} val The value we are setting
 		*/
-		get value() : number { return this.defaultVal; }
+        set value( val: number ) {
+            this.defaultVal = val;
+            if ( this.defaultVal < this.minValue )
+                this.defaultVal = this.minValue;
+            if ( this.defaultVal > this.maxValue )
+                this.defaultVal = this.maxValue;
 
-		onWheel( event, delta, deltaX, deltaY ) {
-			if ( delta < 0 )
-				this.defaultVal -= this.delta;
-			else
-				this.defaultVal += this.delta;
+            this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
+            this.label.element.text( this.defaultVal.toString() );
+        }
 
-			if ( this.defaultVal < this.minValue )
-				this.defaultVal = this.minValue;
-			if ( this.defaultVal > this.maxValue )
-				this.defaultVal = this.maxValue;
+		/**
+		* Set or get the value
+		* @param {number} val The value we are setting
+		*/
+        get value(): number { return this.defaultVal; }
 
-			this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
+        onWheel( event, delta, deltaX, deltaY ) {
+            if ( delta < 0 )
+                this.defaultVal -= this.delta;
+            else
+                this.defaultVal += this.delta;
 
-			this.label.element.text( this.defaultVal.toString() );
-			this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
-		}
+            if ( this.defaultVal < this.minValue )
+                this.defaultVal = this.minValue;
+            if ( this.defaultVal > this.maxValue )
+                this.defaultVal = this.maxValue;
 
-		onKeyDown( e ) {
-			//If enter
-			if ( e.keyCode == 13 ) {
-				this.onStageUp( e );
-			}
-		}
+            this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
 
+            this.label.element.text( this.defaultVal.toString() );
+            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+        }
 
-		onDown( e ) {
-			var body = jQuery( window );
-			body.off( "mouseup", this.stageUpPoxy );
-			body.off( "mousemove", this.stageMovePoxy );
-
-			body.on( "mouseup", this.stageUpPoxy );
-			body.on( "mousemove", this.stageMovePoxy );
-
-			this.startPos = e.screenX;
-
-			// Stops text selection
-			e.preventDefault();
-		}
-
-		onClick( e ) {
-			// Do nothing if the input box is present
-			if ( ToolbarNumber.input.parent )
-				return;
-
-			var target = jQuery( e.currentTarget ).data( "component" );
-
-			//If you click on the label, we replace it with an input box so you can enter data by typing
-			if ( target == this.label ) {
-				ToolbarNumber.input.text = target.element.text();
-				target.element.text( "" );
-				target.addChild( ToolbarNumber.input );
-				jQuery( "body" ).off( "mouseup", this.stageUpPoxy );
-				jQuery( "body" ).on( "mouseup", this.stageUpPoxy );
-				jQuery( document ).on( 'keydown', this.keyProxy );
-				return;
-			}
-
-			if ( target == this.leftArrow )
-				this.defaultVal -= this.delta;
-			else if ( target == this.rightArrow )
-				this.defaultVal += this.delta;
+        onKeyDown( e ) {
+            //If enter
+            if ( e.keyCode === 13 ) {
+                this.onStageUp( e );
+            }
+        }
 
 
-			if ( this.defaultVal < this.minValue )
-				this.defaultVal = this.minValue;
+        onDown( e ) {
+            const body = jQuery( window );
+            body.off( "mouseup", this.stageUpPoxy );
+            body.off( "mousemove", this.stageMovePoxy );
 
-			if ( this.defaultVal > this.maxValue )
-				this.defaultVal = this.maxValue;
+            body.on( "mouseup", this.stageUpPoxy );
+            body.on( "mousemove", this.stageMovePoxy );
 
-			this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
-			this.label.element.text( this.defaultVal.toString() );
+            this.startPos = e.screenX;
 
-			this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
-		}
+            // Stops text selection
+            e.preventDefault();
+        }
+
+        onClick( e ) {
+            // Do nothing if the input box is present
+            if ( ToolbarNumber.input.parent )
+                return;
+
+            const target = jQuery( e.currentTarget ).data( "component" );
+
+            //If you click on the label, we replace it with an input box so you can enter data by typing
+            if ( target === this.label ) {
+                ToolbarNumber.input.text = target.element.text();
+                target.element.text( "" );
+                target.addChild( ToolbarNumber.input );
+                jQuery( "body" ).off( "mouseup", this.stageUpPoxy );
+                jQuery( "body" ).on( "mouseup", this.stageUpPoxy );
+                jQuery( document ).on( 'keydown', this.keyProxy );
+                return;
+            }
+
+            if ( target === this.leftArrow )
+                this.defaultVal -= this.delta;
+            else if ( target === this.rightArrow )
+                this.defaultVal += this.delta;
+
+
+            if ( this.defaultVal < this.minValue )
+                this.defaultVal = this.minValue;
+
+            if ( this.defaultVal > this.maxValue )
+                this.defaultVal = this.maxValue;
+
+            this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
+            this.label.element.text( this.defaultVal.toString() );
+
+            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+        }
 
 		/**
 		* Cleans up the component
 		*/
-		dispose(): void {
-			var body = jQuery( window );
-			body.off( "mouseup", this.stageUpPoxy );
-			body.off( "mousemove", this.stageMovePoxy );
+        dispose(): void {
+            const body = jQuery( window );
+            body.off( "mouseup", this.stageUpPoxy );
+            body.off( "mousemove", this.stageMovePoxy );
 
-			this.leftArrow.element.off( "mousedown", this.downProxy );
-			this.rightArrow.element.off( "mousedown", this.downProxy );
-			this.element.off( "mousewheel", this.wheelProxy );
-			this.leftArrow.element.off( "click", this.clickProxy );
-			this.rightArrow.element.off( "click", this.clickProxy );
-			this.label.element.off( "click", this.clickProxy );
-			this.downProxy = null;
-			this.clickProxy = null;
-			this.defaultVal = null;
-			this.minValue = null;
-			this.maxValue = null;
-			this.delta = null;
-			this.label = null;
-			this.leftArrow = null;
-			this.rightArrow = null;
-			this.wheelProxy = null;
-			this.stageUpPoxy = null;
-			this.stageMovePoxy = null;
-			this.startPos = null;
+            this.leftArrow.element.off( "mousedown", this.downProxy );
+            this.rightArrow.element.off( "mousedown", this.downProxy );
+            this.element.off( "mousewheel", this.wheelProxy );
+            this.leftArrow.element.off( "click", this.clickProxy );
+            this.rightArrow.element.off( "click", this.clickProxy );
+            this.label.element.off( "click", this.clickProxy );
+            this.downProxy = null;
+            this.clickProxy = null;
+            this.defaultVal = null;
+            this.minValue = null;
+            this.maxValue = null;
+            this.delta = null;
+            this.label = null;
+            this.leftArrow = null;
+            this.rightArrow = null;
+            this.wheelProxy = null;
+            this.stageUpPoxy = null;
+            this.stageMovePoxy = null;
+            this.startPos = null;
 
-			ToolbarNumber.numInstances--;
-			if ( ToolbarNumber.numInstances <= 0 ) {
-				ToolbarNumber.numInstances = 0;
-				ToolbarNumber.input.dispose();
-				ToolbarNumber.input = null;
-			}
+            ToolbarNumber.numInstances--;
+            if ( ToolbarNumber.numInstances <= 0 ) {
+                ToolbarNumber.numInstances = 0;
+                ToolbarNumber.input.dispose();
+                ToolbarNumber.input = null;
+            }
 
-			//Call super
-			super.dispose();
-		}
-	}
+            //Call super
+            super.dispose();
+        }
+    }
 }

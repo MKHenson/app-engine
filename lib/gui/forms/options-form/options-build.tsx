@@ -1,35 +1,35 @@
-module Animate {
+namespace Animate {
 
     export interface IOptionsBuildState {
 
     }
 
-	export interface IOptionsBuildProps extends IReactWindowProps {
+    export interface IOptionsBuildProps extends IReactWindowProps {
     }
 
 	/**
 	 * A component for editing the build properties
 	 */
-	export class OptionsBuild extends React.Component<IOptionsBuildProps, any> {
-		static defaultProps: IOptionsBuildProps = {
-		}
+    export class OptionsBuild extends React.Component<IOptionsBuildProps, any> {
+        static defaultProps: IOptionsBuildProps = {
+        }
 
         /**
          * Creates a new instance
          */
-        constructor( props : IOptionsBuildProps) {
-            super(props)
+        constructor( props: IOptionsBuildProps ) {
+            super( props )
         }
 
         /**
          * Draws the options JSX
          * @returns {JSX.Element}
          */
-        render() : JSX.Element {
+        render(): JSX.Element {
             return <div id='options-build'>
                 <Group label="Build">
                     <div className="field-option">
-                        <div className="label">Version:</div>
+                        <div className="label">Version: </div>
                         <div className="build-version">
                             V
                             <input type="text" className="background-view-light" /> -
@@ -40,8 +40,8 @@ module Animate {
                     </div>
                     <div className="soft-text info field-option">
                         When you build a project it saves the data according to its version number.
-                        This helps you differenciate your builds and release incremental versions. You can switch between the different
-                        builds by specifying which version to use. Use the above fields to select,
+                        This helps you differenciate your builds and release incremental versions.You can switch between the different
+                        builds by specifying which version to use.Use the above fields to select,
                         or if its not present create, a particular build.
                     </div>
                     <ButtonPrimary>Select Build</ButtonPrimary>
@@ -61,7 +61,7 @@ module Animate {
                                 <option value="1">Public</option>
                             </select>
                         </div>
-                        <div className="info soft-text">By default all builds are public. If you want to make your project private, then please upgrade your account.</div>
+                        <div className="info soft-text">By default all builds are public.If you want to make your project private , then please upgrade your account.</div>
                     </div>
                     <ButtonPrimary>Update Build Properties</ButtonPrimary>
                     <div className="fix" />

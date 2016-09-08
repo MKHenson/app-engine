@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export enum TooltipPosition {
         TOP,
@@ -34,10 +34,10 @@ module Animate {
         /**
          * Creates an instance
          */
-        constructor(props: ITooltipProps) {
-            super(props);
-            if (!Tooltip._tooltip) {
-                Tooltip._tooltip = document.createElement("div");
+        constructor( props: ITooltipProps ) {
+            super( props );
+            if ( !Tooltip._tooltip ) {
+                Tooltip._tooltip = document.createElement( "div" );
                 Tooltip._tooltip.className = "tooltip";
             }
 
@@ -49,15 +49,15 @@ module Animate {
         /**
          * When the mouse enters over the element we add the tooltip to the body
          */
-        onMouseEnter(e: React.MouseEvent) {
-            if (this.props.disabled)
+        onMouseEnter( e: React.MouseEvent ) {
+            if ( this.props.disabled )
                 return;
 
             let tooltipParent = Tooltip._tooltip;
-            let target : HTMLElement = e.target as HTMLElement;
-            let jsx : JSX.Element = ( typeof(this.props.tooltip) == "string" ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
+            let target: HTMLElement = e.target as HTMLElement;
+            let jsx: JSX.Element = ( typeof ( this.props.tooltip ) === "string" ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
 
-            this.setState({ showTooltip: true });
+            this.setState( { showTooltip: true });
 
             // Add the tooltip to the dom
             document.body.appendChild( tooltipParent );
@@ -71,7 +71,7 @@ module Animate {
             let x;
             let y;
 
-            if (this.props.position == TooltipPosition.TOP) {
+            if ( this.props.position === TooltipPosition.TOP ) {
                 className += " top";
                 x = ( bounds.left + bounds.width * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + bounds.width * 0.5 );
                 y = ( bounds.top - h - offset < 0 ? 0 : bounds.top - h - offset );
@@ -91,61 +91,61 @@ module Animate {
             tooltipParent.style.top = y + "px";
 
             // Add CSS classes for animation
-            setTimeout( function() {
+            setTimeout( function () {
                 tooltipParent.className = className + " enter";
-                setTimeout( function() {
+                setTimeout( function () {
                     tooltipParent.className = className + " enter active";
-                }, 20);
-            }, 20);
+                }, 20 );
+            }, 20 );
         }
 
         /**
          * When the element is unmounted we remove the tooltip if its added
          */
         componentWillUnmount() {
-            this.onMouseleave(null);
+            this.onMouseleave( null );
         }
 
         /**
          * When the mouse leaves we remove the tooltip
          */
-        onMouseleave(e: React.MouseEvent) {
-            var tooltipParent = Tooltip._tooltip;
+        onMouseleave( e: React.MouseEvent ) {
+            const tooltipParent = Tooltip._tooltip;
 
-            if (!document.body.contains(tooltipParent))
+            if ( !document.body.contains( tooltipParent ) )
                 return;
 
-            this.setState({ showTooltip: false });
+            this.setState( { showTooltip: false });
             document.body.removeChild( tooltipParent );
             ReactDOM.unmountComponentAtNode( tooltipParent );
         }
 
-         /**
-         * Creates the component elements
-         * @returns {JSX.Element}
-         */
+        /**
+        * Creates the component elements
+        * @returns {JSX.Element}
+        */
         render(): JSX.Element {
-            var tooltipContent: JSX.Element;
+            let tooltipContent: JSX.Element;
 
             if ( this.state.showTooltip ) {
-                    tooltipContent = <React.addons.CSSTransitionGroup
-                        transitionName="tooltip"
-                        transitionAppear={true}
-                        transitionEnterTimeout={500}
-                        transitionLeaveTimeout={500}
-                        transitionAppearTimeout={500}
-                        style={{position: "relative"}}
+                tooltipContent = <React.addons.CSSTransitionGroup
+                    transitionName="tooltip"
+                    transitionAppear={true}
+                    transitionEnterTimeout={500}
+                    transitionLeaveTimeout={500}
+                    transitionAppearTimeout={500}
+                    style={{ position: "relative" }}
                     >
-                        <div className="tooltip">
-                            {this.props.tooltip}
-                        </div>
-                    </React.addons.CSSTransitionGroup>
+                    <div className="tooltip">
+                        {this.props.tooltip}
+                    </div>
+                </React.addons.CSSTransitionGroup>
             }
 
             return <span
-                onMouseEnter={(e)=> this.onMouseEnter(e) }
-                onMouseLeave={(e)=> this.onMouseleave(e) }
-            >
+                onMouseEnter={( e ) => this.onMouseEnter( e ) }
+                onMouseLeave={( e ) => this.onMouseleave( e ) }
+                >
                 {this.props.children}
             </span>;
         }

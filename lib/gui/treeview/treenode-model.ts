@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export class TreeNodeModel {
         private _icon: JSX.Element;
@@ -17,7 +17,7 @@ module Animate {
         /**
          * Creates an instance of the node
          */
-        constructor(label: string, icon? : JSX.Element, children? : TreeNodeModel[]) {
+        constructor( label: string, icon?: JSX.Element, children?: TreeNodeModel[] ) {
             this._label = label;
             this._icon = icon;
             this._selectable = true;
@@ -44,8 +44,8 @@ module Animate {
          * @param {string} val
          * @returns {string}
          */
-        label(val?: string): string {
-            if (val === undefined)
+        label( val?: string ): string {
+            if ( val === undefined )
                 return this._label;
 
             this._label = val;
@@ -59,7 +59,7 @@ module Animate {
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
-        onDragStart(e: React.DragEvent) : IDragDropToken {
+        onDragStart( e: React.DragEvent ): IDragDropToken {
             return null;
         }
 
@@ -69,7 +69,7 @@ module Animate {
          * @param {React.DragEvent} e
          * @param {IDragDropToken} json The unserialized data
          */
-        onDragDrop(e: React.DragEvent, json: IDragDropToken) {
+        onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
 
         }
 
@@ -78,9 +78,9 @@ module Animate {
          * @param {boolean} val
          * @returns {boolean}
          */
-        selected(val?: boolean): boolean {
+        selected( val?: boolean ): boolean {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._selected;
 
             this._selected = val;
@@ -93,9 +93,9 @@ module Animate {
          * @param {boolean} val
          * @returns {boolean}
          */
-        disabled(val?: boolean): boolean {
+        disabled( val?: boolean ): boolean {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._disabled;
 
             this._disabled = val;
@@ -108,9 +108,9 @@ module Animate {
          * @param {boolean} val
          * @returns {boolean}
          */
-        selectable(val?: boolean): boolean {
+        selectable( val?: boolean ): boolean {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._selectable;
 
             this._selectable = val;
@@ -123,9 +123,9 @@ module Animate {
          * @param {boolean} val
          * @returns {boolean}
          */
-        expanded(val?: boolean): boolean {
+        expanded( val?: boolean ): boolean {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._expanded;
 
             this._expanded = val;
@@ -138,9 +138,9 @@ module Animate {
          * @param {JSX.Element} val
          * @returns {JSX.Element}
          */
-        icon(val?: JSX.Element): JSX.Element {
+        icon( val?: JSX.Element ): JSX.Element {
 
-            if (val === undefined)
+            if ( val === undefined )
                 return this._icon;
 
             this._icon = val;
@@ -152,7 +152,7 @@ module Animate {
          * Attempts to trigger a change event on the store
          */
         protected invalidate() {
-            if (this.store)
+            if ( this.store )
                 this.store.invalidate();
         }
 
@@ -161,8 +161,8 @@ module Animate {
          * @param {TreeNodeModel} node
          * @returns {TreeNodeModel}
          */
-        addNode(node: TreeNodeModel) : TreeNodeModel {
-            this.children.push(node);
+        addNode( node: TreeNodeModel ): TreeNodeModel {
+            this.children.push( node );
             node._parent = this;
             node.store = this.store;
             this.invalidate();
@@ -173,14 +173,14 @@ module Animate {
          * Removes a child node
          * @param {TreeNodeModel} node
          */
-        removeNode(node: TreeNodeModel) {
+        removeNode( node: TreeNodeModel ) {
             if ( this.store ) {
                 let selectedNodes = this.store.getSelectedNodes();
-				if ( selectedNodes.indexOf( this ) != -1 )
-					selectedNodes.splice( selectedNodes.indexOf( this ), 1 );
-			}
+                if ( selectedNodes.indexOf( this ) !== -1 )
+                    selectedNodes.splice( selectedNodes.indexOf( this ), 1 );
+            }
 
-            this.children.splice(this.children.indexOf(node), 1);
+            this.children.splice( this.children.indexOf( node ), 1 );
             node.dispose();
             this.invalidate();
         }
@@ -189,8 +189,8 @@ module Animate {
          * Called whenever the node receives a context event
          * @param {React.MouseEvent} e
          */
-        onContext(e: React.MouseEvent) {
-            this.store.onContext(e, this);
+        onContext( e: React.MouseEvent ) {
+            this.store.onContext( e, this );
         }
 
         /**
@@ -200,28 +200,28 @@ module Animate {
 		 * @param {any} value The value of the property we are comparing.
 		 * @returns {TreeNodeModel}
 		 */
-		findNode( property : string, value : any ) : TreeNodeModel {
-			if ( this[property] == value )
-				return this;
+        findNode( property: string, value: any ): TreeNodeModel {
+            if ( this[ property ] === value )
+                return this;
 
-			let children = this.children;
-			for ( let child of children ) {
-				var n = child.findNode( property, value );
-				if ( n != null )
-					return n;
-			}
-		}
+            let children = this.children;
+            for ( let child of children ) {
+                const n = child.findNode( property, value );
+                if ( n !== null )
+                    return n;
+            }
+        }
 
         /**
 		 * This will cleanup the model
 		 */
-		dispose() {
+        dispose() {
             for ( let node of this.children )
-                this.removeNode(node);
+                this.removeNode( node );
 
             this.children = null;
             this._parent = null;
             this.store = null;
-		}
+        }
     }
 }

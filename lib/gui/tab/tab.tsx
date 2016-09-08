@@ -1,40 +1,40 @@
-module Animate {
+namespace Animate {
 
-	export interface ITabProps {
-		panes: React.ReactElement<ITabPaneProps>[];
-	}
+    export interface ITabProps {
+        panes: React.ReactElement<ITabPaneProps>[];
+    }
 
-	export interface ITabState {
-		selectedIndex: number;
-	}
+    export interface ITabState {
+        selectedIndex: number;
+    }
 
 	/**
 	 * A Tab Component for organising pages of content into separate labelled tabs/folders
 	 */
-	export class Tab extends React.Component<ITabProps, ITabState> {
+    export class Tab extends React.Component<ITabProps, ITabState> {
 
-		private _panes: React.ReactElement<ITabPaneProps>[];
+        private _panes: React.ReactElement<ITabPaneProps>[];
 
 		/**
 		 * Creates a new instance of the tab
 		 */
-		constructor( props : ITabProps ) {
-			super(props);
-			this._panes = props.panes;
-			this.state = {
-				selectedIndex : 0
-			};
-		}
+        constructor( props: ITabProps ) {
+            super( props );
+            this._panes = props.panes;
+            this.state = {
+                selectedIndex: 0
+            };
+        }
 
-		 /**
-          * When the props are reset we remove all the existing panes and create the new ones
-          */
-        componentWillReceiveProps(nextProps: ITabProps) {
-			if (this._panes !== nextProps.panes) {
-				this.clear();
-				this._panes = nextProps.panes;
-				this.setState({ selectedIndex: (this.state.selectedIndex < nextProps.panes.length ? this.state.selectedIndex : 0 ) });
-			}
+        /**
+         * When the props are reset we remove all the existing panes and create the new ones
+         */
+        componentWillReceiveProps( nextProps: ITabProps ) {
+            if ( this._panes !== nextProps.panes ) {
+                this.clear();
+                this._panes = nextProps.panes;
+                this.setState( { selectedIndex: ( this.state.selectedIndex < nextProps.panes.length ? this.state.selectedIndex : 0 ) });
+            }
         }
 
 		/**
@@ -42,33 +42,33 @@ module Animate {
 		 * @param {number} index The index of the selected tab
 		 * @param {ITabPaneProps} props props of the selected tab
 		 */
-		removePane( index : number, prop: ITabPaneProps ) {
+        removePane( index: number, prop: ITabPaneProps ) {
 
-			let canClose : Promise<boolean>;
-			if (prop.canClose) {
-				let query = prop.canClose( index, prop );
-				if ( typeof(query) == "boolean" )
-					canClose = Promise.resolve(query);
-				else
-					canClose = query as Promise<boolean>;
-			}
-			else
-				canClose = Promise.resolve(true);
+            let canClose: Promise<boolean>;
+            if ( prop.canClose ) {
+                let query = prop.canClose( index, prop );
+                if ( typeof ( query ) === 'boolean' )
+                    canClose = Promise.resolve( query );
+                else
+                    canClose = query as Promise<boolean>;
+            }
+            else
+                canClose = Promise.resolve( true );
 
-			canClose.then((result) => {
-				if (!result)
-					return;
+            canClose.then(( result ) => {
+                if ( !result )
+                    return;
 
-				// Notify of its removal
-				if (prop.onDispose)
-					prop.onDispose(index, prop);
+                // Notify of its removal
+                if ( prop.onDispose )
+                    prop.onDispose( index, prop );
 
-				this._panes.splice(index);
-				this.setState({
-					selectedIndex: ( this.state.selectedIndex == this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
-				});
-			});
-		}
+                this._panes.splice( index );
+                this.setState( {
+                    selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
+                });
+            });
+        }
 
 		/**
          * Creates the component elements
@@ -76,190 +76,192 @@ module Animate {
          */
         render(): JSX.Element {
 
-			let children = this._panes;
+            let children = this._panes;
 
-			return <div className='tab'>
-				<div className='tab-labels'>
-					{( children.length > 0 ?
-						<div className='tab-drop-button' onClick={(e)=>{
-								this.showContext(e);
-							}}>
-							<i className="fa fa-arrow-circle-down" aria-hidden="true"></i>
-						</div> : null
-					)}
-					{
-						children.map( ( pane, index ) => {
-							return <div key={'tab-' + index}
-									className={'tab-label' +
-										( index == this.state.selectedIndex ? ' selected' : '' )}
-									onClick={()=>
-										this.onTabSelected(index, pane.props )
-									}
-								>
-								<div className='text'>
-									<span className='content'>{pane.props.label}</span>
-								</div>
-								{
-									pane.props.showCloseButton ?
-									<div className='tab-close'
-										onClick={(e) => {
-											e.stopPropagation();
-											this.removePane(index, pane.props)
-										}}>X
-									</div> : null
-								}
-							</div>
-					})}
-				</div>
-				<div className='tab-panes'>
-					{ children.length > 0 ? children[this.state.selectedIndex] : null }
-				</div>
-			</div>
-		}
+            return <div className='tab'>
+                <div className='tab-labels'>
+                    {( children.length > 0 ?
+                        <div className='tab-drop-button' onClick={( e ) => {
+                            this.showContext( e );
+                        } }>
+                            <i className='fa fa-arrow-circle-down' aria-hidden='true'></i>
+                        </div> : null
+                    ) }
+                    {
+                        children.map(( pane, index ) => {
+                            return <div key={'tab-' + index}
+                                className={'tab-label' +
+                                    ( index === this.state.selectedIndex ? ' selected' : '' ) }
+                                onClick={() =>
+                                    this.onTabSelected( index, pane.props )
+                                }
+                                >
+                                <div className='text'>
+                                    <span className='content'>{pane.props.label}</span>
+                                </div>
+                                {
+                                    pane.props.showCloseButton ?
+                                        <div className='tab-close'
+                                            onClick={( e ) => {
+                                                e.stopPropagation();
+                                                this.removePane( index, pane.props )
+                                            } }>X
+                                        </div> : null
+                                }
+                            </div>
+                        }) }
+                </div>
+                <div className='tab-panes'>
+                    { children.length > 0 ? children[ this.state.selectedIndex ] : null }
+                </div>
+            </div>
+        }
 
 		/**
 		 * When we select a tab
 		 * @param {number} index The index of the selected tab
 		 * @param {ITabPaneProps} props props of the selected tab
 		 */
-		onTabSelected( index : number, props: ITabPaneProps ) {
+        onTabSelected( index: number, props: ITabPaneProps ) {
 
-			let canSelect : Promise<boolean>;
-			if (props.canSelect) {
-				let query = props.canSelect( index, props );
-				if ( typeof(query) == "boolean" )
-					canSelect = Promise.resolve(query);
-				else
-					canSelect = query as Promise<boolean>;
-			}
-			else
-				canSelect = Promise.resolve(true);
+            let canSelect: Promise<boolean>;
+            if ( props.canSelect ) {
+                let query = props.canSelect( index, props );
+                if ( typeof ( query ) === 'boolean' )
+                    canSelect = Promise.resolve( query );
+                else
+                    canSelect = query as Promise<boolean>;
+            }
+            else
+                canSelect = Promise.resolve( true );
 
-			canSelect.then((result) => {
-				if (!result)
-					return;
+            canSelect.then(( result ) => {
+                if ( !result )
+                    return;
 
-				this.setState({ selectedIndex: index })
-			});
-		}
+                this.setState( { selectedIndex: index })
+            });
+        }
 
 		/**
 		 * Select a panel by index
 		 * @param {number} index
 		 */
-		selectByIndex( index: number ) : ITabPaneProps {
-			if ( !this._panes[index] )
-				throw new Error("Tab index out of range");
+        selectByIndex( index: number ): ITabPaneProps {
+            if ( !this._panes[ index ] )
+                throw new Error( 'Tab index out of range' );
 
-			this.onTabSelected(index, this._panes[index].props);
-			return this._panes[index].props;
-		}
+            this.onTabSelected( index, this._panes[ index ].props );
+            return this._panes[ index ].props;
+        }
 
 		/**
 		 * Select a panel by its label
 		 * @param {string} label
 		 */
-		selectByLabel( label: string ) : ITabPaneProps {
-			let panes = this._panes;
-			for ( let i = 0, l = panes.length; i < l; i++ )
-				if (panes[i].props.label == label) {
-					this.onTabSelected(i, panes[i].props);
-					return panes[i].props;
-				}
+        selectByLabel( label: string ): ITabPaneProps {
+            let panes = this._panes;
+            for ( let i = 0, l = panes.length; i < l; i++ )
+                if ( panes[ i ].props.label === label ) {
+                    this.onTabSelected( i, panes[ i ].props );
+                    return panes[ i ].props;
+                }
 
-			throw new Error( "Could not find pane with the label: " + label );
-		}
+            throw new Error( 'Could not find pane with the label: ' + label );
+        }
 
 		/**
 		 * Select a panel by its property object
 		 * @param {ITabPaneProps} props
 		 */
-		selectByProps( props: ITabPaneProps ) : ITabPaneProps {
-			let panes = this._panes;
-			for ( let i = 0, l = panes.length; i < l; i++ )
-				if (panes[i].props == props) {
-					this.onTabSelected(i, panes[i].props);
-					return panes[i].props;
-				}
+        selectByProps( props: ITabPaneProps ): ITabPaneProps {
+            let panes = this._panes;
+            for ( let i = 0, l = panes.length; i < l; i++ )
+                if ( panes[ i ].props === props ) {
+                    this.onTabSelected( i, panes[ i ].props );
+                    return panes[ i ].props;
+                }
 
-			throw new Error( "Could not find pane with those props" );
-		}
+            throw new Error( 'Could not find pane with those props' );
+        }
 
 		/**
 		 * Shows the context menu
 		 */
-		showContext(e: React.MouseEvent) {
-			let items : IReactContextMenuItem[] = [];
-			let panes = this._panes;
-			for ( let pane of panes )
-				items.push({ label: pane.props.label });
+        showContext( e: React.MouseEvent ) {
+            let items: IReactContextMenuItem[] = [];
+            let panes = this._panes;
+            for ( let pane of panes )
+                items.push( { label: pane.props.label });
 
-			ReactContextMenu.show({ x: e.pageX, y : e.pageY, items: items, onChange: ( item ) => {
-				for ( let i = 0, l = panes.length; i < l; i++ )
-					if ( panes[i].props.label == item.label )
-						return this.setState({ selectedIndex: i });
-			}});
-		}
+            ReactContextMenu.show( {
+                x: e.pageX, y: e.pageY, items: items, onChange: ( item ) => {
+                    for ( let i = 0, l = panes.length; i < l; i++ )
+                        if ( panes[ i ].props.label === item.label )
+                            return this.setState( { selectedIndex: i });
+                }
+            });
+        }
 
 		/**
 		 * Adds a dynamic pane to the tab
 		 */
-		addTab( pane: React.ReactElement<ITabPaneProps> ) {
-			this._panes.push(pane);
-			this.setState({
-				selectedIndex: this.state.selectedIndex
-			 });
-		}
+        addTab( pane: React.ReactElement<ITabPaneProps> ) {
+            this._panes.push( pane );
+            this.setState( {
+                selectedIndex: this.state.selectedIndex
+            });
+        }
 
 		/**
 		 * Gets a tab's' props by its label
 		 * @param {string} val The label text of the tab
 		 * @returns {TabPair} The tab pair containing both the label and page {Component}s
 		 */
-		getPaneByLabel( label: string ): ITabPaneProps {
-			var panes = this._panes;
-			for ( let i = 0, l = panes.length; i < panes.length; i++ )
-				if ( panes[i].props.label == label )
-					return panes[i].props;
+        getPaneByLabel( label: string ): ITabPaneProps {
+            const panes = this._panes;
+            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+                if ( panes[ i ].props.label === label )
+                    return panes[ i ].props;
 
-			return null;
-		}
+            return null;
+        }
 
 		/**
 		 * Called when the component is unmounted
 		 */
-		componentwillunmount() {
-			var panes = this._panes;
-			for ( let i = 0, l = panes.length; i < panes.length; i++ )
-				if (panes[i].props.onDispose)
-					panes[i].props.onDispose(i, panes[i].props);
-		}
+        componentwillunmount() {
+            const panes = this._panes;
+            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+                if ( panes[ i ].props.onDispose )
+                    panes[ i ].props.onDispose( i, panes[ i ].props );
+        }
 
 		/**
 		 * Removes all panes from the tab
 		 */
-		clear() {
+        clear() {
 
-			// Notify of each pane's removal
-			var panes = this._panes;
-			for ( let i = 0, l = panes.length; i < panes.length; i++ )
-				if (panes[i].props.onDispose)
-					panes[i].props.onDispose(i, panes[i].props);
+            // Notify of each pane's removal
+            const panes = this._panes;
+            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+                if ( panes[ i ].props.onDispose )
+                    panes[ i ].props.onDispose( i, panes[ i ].props );
 
-			this._panes.splice(0, this._panes.length);
-			this.setState({
-				selectedIndex: 0
-			});
-		}
+            this._panes.splice( 0, this._panes.length );
+            this.setState( {
+                selectedIndex: 0
+            });
+        }
 
 		/**
 		 * Gets an array of all the tab props
 		 * @returns {ITabPaneProps[]}
 		 */
-		get panes() : ITabPaneProps[] {
-			return this._panes.map( function(pane) {
-				return pane.props;
-			 });
-		}
-	}
+        get panes(): ITabPaneProps[] {
+            return this._panes.map( function ( pane ) {
+                return pane.props;
+            });
+        }
+    }
 }

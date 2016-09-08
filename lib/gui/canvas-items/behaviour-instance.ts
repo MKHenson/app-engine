@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 // 	/**
 // 	* A behaviour node that represents a Behaviour Container
 // 	*/
@@ -30,7 +30,7 @@
 //     //                }
 
 //                 // TODO: What to do here??
-//     //            else if (this._container.entry.json != null )
+//     //            else if (this._container.entry.json !== null )
 // 				//{
 // 				//	// Parse the saved object and get the portal data
 //     //                var jsonObj: CanvasToken = this._container.entry.json;
@@ -42,7 +42,7 @@
 // 				//			var item = null;
 
 // 				//			//Create the portals only if its a Behaviour portal
-// 				//			if ( jsonObj.items[i].type == "BehaviourPortal" )
+// 				//			if ( jsonObj.items[i].type === "BehaviourPortal" )
 // 				//			{
 // 				//				this.addPortal( jsonObj.items[i].portalType,
 // 				//					jsonObj.items[i].name,
@@ -86,7 +86,7 @@
 // 		* Called when a behaviour is disposed
 // 		*/
 //         onContainerDeleted(type: string, event: ContainerEvent, sender?: EventDispatcher) {
-//             if (<Container>event.container == this._container)
+//             if (<Container>event.container === this._container)
 //             {
 //                 var canvas: Canvas = this._container.canvas;
 //                 if (canvas)
@@ -101,29 +101,29 @@
 // 			var curParent: JQuery = this.element.parent();
 //             var portals = this.portals;
 
-//             if (type == EventTypes.PORTAL_ADDED) {
+//             if (type === EventTypes.PORTAL_ADDED) {
 // 				var pType: PortalType = null;
-// 				if ( event.portal.type == PortalType.INPUT )
+// 				if ( event.portal.type === PortalType.INPUT )
 //                     pType = PortalType.OUTPUT;
-// 				else if ( event.portal.type == PortalType.OUTPUT )
+// 				else if ( event.portal.type === PortalType.OUTPUT )
 //                     pType = PortalType.INPUT;
-// 				else if ( event.portal.type == PortalType.PARAMETER )
+// 				else if ( event.portal.type === PortalType.PARAMETER )
 //                     pType = PortalType.PRODUCT;
-// 				else if ( event.portal.type == PortalType.PRODUCT )
+// 				else if ( event.portal.type === PortalType.PRODUCT )
 //                     pType = PortalType.PARAMETER;
 
 //                 this.addPortal(pType, event.portal.property.clone(), true);
 // 			}
-//             else if (type == EventTypes.PORTAL_REMOVED ) {
+//             else if (type === EventTypes.PORTAL_REMOVED ) {
 //                 for ( var i = 0, l = portals.length; i < l; i++)
-//                     if (portals[i].property.name == event.oldName) {
+//                     if (portals[i].property.name === event.oldName) {
 // 						this.removePortal( portals[i], true );
 // 						break;
 // 					}
 // 			}
-//             else if (type == EventTypes.PORTAL_EDITED )	{
+//             else if (type === EventTypes.PORTAL_EDITED )	{
 //                 for (var i = 0, l = portals.length; i < l; i++)
-//                     if (portals[i].property.name == event.oldName ) {
+//                     if (portals[i].property.name === event.oldName ) {
 //                         var portal = portals[i];
 //                         portal.edit(event.portal.property.clone());
 // 						break;

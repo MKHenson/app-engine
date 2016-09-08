@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 	/**
 	* The AssetTemplate object is used to define what assets are available to the scene.
 	* Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
@@ -26,7 +26,7 @@ module Animate {
 		* @returns {AssetClass}
 		*/
 		addClass( name: string, img: string, abstractClass: boolean ): AssetClass {
-			var toAdd = new AssetClass( name, null, img, abstractClass );
+			const toAdd = new AssetClass( name, null, img, abstractClass );
 			this.classes.push( toAdd );
 			return toAdd;
 		}
@@ -36,8 +36,8 @@ module Animate {
 		* @param {string} name The name of the class to remove
 		*/
 		removeClass( name : string) {
-			for ( var i = 0, l = this.classes.length; i < l; i++ )
-				if ( this.classes[i].name == name )
+			for ( let i = 0, l = this.classes.length; i < l; i++ )
+				if ( this.classes[i].name === name )
 				{
 					this.classes[i].dispose();
 					this.classes.splice( i, 1 );
@@ -49,10 +49,10 @@ module Animate {
 		* Finds a class by its name. Returns null if nothing is found
 		*/
 		findClass( name: string ) {
-			var classes: Array<AssetClass> = this.classes;
-			for ( var i = 0, l = classes.length; i < l; i++ )
+			const classes: Array<AssetClass> = this.classes;
+			for ( let i = 0, l = classes.length; i < l; i++ )
 			{
-				var aClass: AssetClass = classes[i].findClass( name );
+				const aClass: AssetClass = classes[i].findClass( name );
 				if ( aClass )
 					return aClass;
 			}

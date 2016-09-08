@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 	export class DataToken {
 		public category: string;
 		public command: string;

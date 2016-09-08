@@ -1,15 +1,15 @@
-﻿module Animate {
+﻿namespace Animate {
     export module EventTypes {
-        export const PORTAL_ADDED: string = "portal-added";
-        export const PORTAL_REMOVED: string = "portal-removed";
-        export const PORTAL_EDITED: string = "edited";
+        export const PORTAL_ADDED: string = 'portal-added';
+        export const PORTAL_REMOVED: string = 'portal-removed';
+        export const PORTAL_EDITED: string = 'edited';
 
         // Container events
-        export const CONTAINER_DELETED: string = "container-deleted";
+        export const CONTAINER_DELETED: string = 'container-deleted';
 
         // Plugin events
-        export const CONTAINER_SELECTED: string = "container-selected";
-        export const CONTAINER_CREATED: string = "container-created";
+        export const CONTAINER_SELECTED: string = 'container-selected';
+        export const CONTAINER_CREATED: string = 'container-created';
     }
 
     /**
@@ -44,7 +44,7 @@
     /**
 	* Defines which types of files to search through
 	*/
-    export enum FileSearchType  {
+    export enum FileSearchType {
         Global,
         User,
         Project

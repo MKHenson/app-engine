@@ -1,10 +1,10 @@
-module Animate {
+namespace Animate {
 
     export interface IImageUploaderProps {
-        onImage?: (file: Engine.IFile) => void;
+        onImage?: ( file: Engine.IFile ) => void;
         src: string;
         label: string;
-        onError? : (e: Error) => void;
+        onError?: ( e: Error ) => void;
     }
 
     export interface IImageUploaderState {
@@ -19,8 +19,8 @@ module Animate {
         /**
          * Creates an instance
          */
-        constructor(props: IImageUploaderProps) {
-            super(props);
+        constructor( props: IImageUploaderProps ) {
+            super( props );
             this.state = {
                 src: props.src
             }
@@ -29,8 +29,8 @@ module Animate {
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps(nextProps: IImageUploaderProps) {
-            this.setState({
+        componentWillReceiveProps( nextProps: IImageUploaderProps ) {
+            this.setState( {
                 src: ( nextProps.src !== this.props.src ? nextProps.src : this.state.src )
             });
         }
@@ -41,17 +41,17 @@ module Animate {
         pickProjectPick() {
 
             ReactWindow.show( FileDialogue, {
-				extensions: ['jpg', 'png', 'jpeg', 'gif'],
+                extensions: [ 'jpg', 'png', 'jpeg', 'gif' ],
                 multiselect: false,
-				onFilesSelected: (files) => {
-                    this.setState({
-                        src: (files ? files[0].url : null)
+                onFilesSelected: ( files ) => {
+                    this.setState( {
+                        src: ( files ? files[ 0 ].url : null )
                     });
 
-                    if (this.props.onImage)
-                        this.props.onImage(files[0]);
-				}
-		 	} as IFileDialogueProps);
+                    if ( this.props.onImage )
+                        this.props.onImage( files[ 0 ] );
+                }
+            } as IFileDialogueProps );
         }
 
         /**
@@ -65,8 +65,8 @@ module Animate {
                 label={this.props.label}
                 src={this.state.src}
                 labelIcon={<i className="fa fa-plus" aria-hidden="true"></i>}
-                onLabelClick={(e)=>{ this.pickProjectPick(); }}
-            />
+                onLabelClick={( e ) => { this.pickProjectPick(); } }
+                />
         }
     }
 }

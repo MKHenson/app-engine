@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 // 	/**
 // 	* A node for displaying comments
 // 	*/
@@ -160,10 +160,10 @@
 //         * When we click on the stage we go out of edit mode.
 //         */
 // 		onStageClick( e ) {
-// 			if ( this.isInInputMode == false )
+// 			if ( this.isInInputMode === false )
 // 				return;
 
-// 			if ( e != null && jQuery( e.target ).is( this.input ) )
+// 			if ( e !== null && jQuery( e.target ).is( this.input ) )
 // 				return;
 
 //             jQuery("body").off("click", this.stageClickProxy);

@@ -1,10 +1,10 @@
-module Animate {
+namespace Animate {
 	/**
 	* A property editor which edits objects and strings
 	*/
     export class PGTextbox extends PropertyGridEditor {
-		constructor( grid: PropertyGrid ) {
-			super( grid );
+        constructor( grid: PropertyGrid ) {
+            super( grid );
         }
 
         /**
@@ -12,8 +12,8 @@ module Animate {
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean {
-            if (prop instanceof PropText)
+        canEdit( prop: Prop<any> ): boolean {
+            if ( prop instanceof PropText )
                 return true;
             else
                 return false;
@@ -24,24 +24,24 @@ module Animate {
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component)  {
-            var p = <PropText>prop;
+        edit( prop: Prop<any>, container: Component ) {
+            const p = <PropText>prop;
 
             // Create HTML
-            var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><input type='text' class='PropTextbox' value = '${p.getVal().toString()}' /></div><div class='fix'></div>`);
-            var that = this;
+            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><input type='text' class='PropTextbox' value = '${p.getVal().toString()}' /></div><div class='fix'></div>` );
+            const that = this;
 
             // Add to DOM
-            container.element.append(editor);
+            container.element.append( editor );
 
-			//Function to deal with user interactions with JQuery
-            var valueEdited = function (e: JQueryEventObject ) {
-                p.setVal( jQuery("input", editor).val() );
-			};
+            //Function to deal with user interactions with JQuery
+            const valueEdited = function ( e: JQueryEventObject ) {
+                p.setVal( jQuery( "input", editor ).val() );
+            };
 
             // Add listeners
-            jQuery("input", editor).val(p.getVal());
-            jQuery("input", editor).on("keyup", valueEdited);
-		}
-	}
+            jQuery( "input", editor ).val( p.getVal() );
+            jQuery( "input", editor ).on( "keyup", valueEdited );
+        }
+    }
 }

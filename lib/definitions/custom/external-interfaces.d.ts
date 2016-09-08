@@ -1,4 +1,4 @@
-﻿declare module Animate {
+﻿declare namespace Animate {
     /**
     * A simple interface for any component
     */
@@ -6,10 +6,10 @@
         element: JQuery;
         parent: IComponent;
         dispose(): void;
-        addChild(child: string): IComponent;
-        addChild(child: IComponent): IComponent;
-        addChild(child: any): IComponent;
-        removeChild(child: IComponent): IComponent
+        addChild( child: string ): IComponent;
+        addChild( child: IComponent ): IComponent;
+        addChild( child: any ): IComponent;
+        removeChild( child: IComponent ): IComponent
         update(): void;
         selected: boolean;
         savedID: string;
@@ -25,7 +25,7 @@
      */
     export interface IDragDropToken {
         type: 'resource' | 'template' | 'container' | 'other';
-        id? : string | number;
+        id?: string | number;
     }
 
     /**
@@ -46,7 +46,7 @@
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
-        onDisplayPreview(file: Engine.IFile, previewComponent: Component): boolean;
+        onDisplayPreview( file: Engine.IFile, previewComponent: Component ): boolean;
 
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
@@ -77,7 +77,7 @@
 		* @param {Array<string>} extArray The array of allowed extensions that are so far allowed.
 		* @returns {Array<string>} An array of allowed file extensions.
 		*/
-        getFileUploadExtensions(extArray: Array<string>): Array<string>;
+        getFileUploadExtensions( extArray: Array<string> ): Array<string>;
     }
 
     export type PortalType = 'input' | 'output' | 'parameter' | 'product';
@@ -127,8 +127,8 @@
 	*/
     export interface IComment extends ICanvasItem {
         label: string;
-        width : number;
-		height : number;
+        width: number;
+        height: number;
     }
 
     /**
@@ -174,18 +174,18 @@
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate(file: Engine.IFile): JSX.Element;
+        generate( file: Engine.IFile ): JSX.Element;
 
-         /**
-         * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
-         */
-        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        /**
+        * Creates a thumbnail preview of the file
+        * @param {Engine.IFile} file
+        * @returns {Promise<HTMLCanvasElement>}
+        */
+        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {
-        onShow(project: Project, user: User);
+        onShow( project: Project, user: User );
         name: string;
         onTab(): void;
     }

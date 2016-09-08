@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface IGroupProps extends React.HTMLAttributes {
         label: string;
@@ -12,8 +12,8 @@ module Animate {
         /**
          * Creates an instance of the group
          */
-        constructor(props: IGroupProps) {
-            super(props);
+        constructor( props: IGroupProps ) {
+            super( props );
         }
 
         /**
@@ -21,8 +21,8 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            const props : IVInputProps  = Object.assign({}, this.props);
-            let className = 'group' + (this.props.className ? (' ' + this.props.className) : '');
+            const props: IVInputProps = Object.assign( {}, this.props );
+            let className = 'group' + ( this.props.className ? ( ' ' + this.props.className ) : '' );
             return <div {...props} className={className}>
                 <div className='group-header'>{this.props.label}</div>
                 <div className='group-content'>

@@ -1,70 +1,70 @@
-declare module Animate {
-	export interface PortalToken {
-		name: string;
-		type: string;
-		dataType: string;
-		value: any;
-	}
+declare namespace Animate {
+    export interface PortalToken {
+        name: string;
+        type: string;
+        dataType: string;
+        value: any;
+    }
 
-	export interface LinkToken {
-		id: string;
-		type: string;
-		startPortal: string;
-		endPortal: string;
-		startBehaviour: string;
-		endBehaviour: string;
-		frameDelay: number;
-	}
+    export interface LinkToken {
+        id: string;
+        type: string;
+        startPortal: string;
+        endPortal: string;
+        startBehaviour: string;
+        endBehaviour: string;
+        frameDelay: number;
+    }
 
-	export interface BehaviourToken {
-		id: string;
-		name: string;
-		type: string;
+    export interface BehaviourToken {
+        id: string;
+        name: string;
+        type: string;
 
-		portals: Array<PortalToken>;
+        portals: Array<PortalToken>;
 
-		// Portal behaviours
-		portalType: string;
-		dataType: string;
-		value: any;
+        // Portal behaviours
+        portalType: string;
+        dataType: string;
+        value: any;
 
-		// Behaviour Instances
-		originalContainerID: number;
+        // Behaviour Instances
+        originalContainerID: number;
 
-		// Behaviour Script
-		shallowId: number;
-	}
+        // Behaviour Script
+        shallowId: number;
+    }
 
-	export interface ContainerToken	{
-		name: string;
-		id: any;
-		behaviours: Array<BehaviourToken>;
-		links: Array<LinkToken>;
-		assets: Array<number>;
-		groups: Array<string>;
-		properties: {};
-		plugins: {};
-	}
+    export interface ContainerToken {
+        name: string;
+        id: any;
+        behaviours: Array<BehaviourToken>;
+        links: Array<LinkToken>;
+        assets: Array<number>;
+        groups: Array<string>;
+        properties: {};
+        plugins: {};
+    }
 
-	export interface GroupToken {
-		name: string;
+    export interface GroupToken {
+        name: string;
         id: string;
         items: Array<number>
-	}
+    }
 
-	export interface AssetToken {
-		name: string;
-		id: number;
-		properties: { [name: string]: any };
-		className: string;
-		assets: Array<number>;
-	}
+    export interface AssetToken {
+        name: string;
+        id: number;
+        properties: { [ name: string ]: any };
+        className: string;
+        assets: Array<number>;
+    }
 
-	export interface ExportToken {
-		assets: Array<AssetToken>;
-		groups: Array<GroupToken>;
-		containers: Array<ContainerToken>;
-		converters: {};
-		data: {};
-	}
+    export interface ExportToken {
+        assets: Array<AssetToken>;
+        groups: Array<GroupToken>;
+        containers: Array<ContainerToken>;
+        converters: {};
+        data: {};
+    }
 }

@@ -1,11 +1,10 @@
-module Animate {
+namespace Animate {
 	/**
 	* This represents a combo property for enums that the user can select from a list.
 	*/
     export class PGComboEnum extends PropertyGridEditor {
-		constructor( grid: PropertyGrid )
-		{
-			super( grid );
+        constructor( grid: PropertyGrid ) {
+            super( grid );
         }
 
         /**
@@ -13,8 +12,8 @@ module Animate {
         * @param {Prop<any>} prop The property being edited
         * @returns {boolean}
         */
-        canEdit(prop: Prop<any>): boolean {
-            if (prop instanceof PropEnum)
+        canEdit( prop: Prop<any> ): boolean {
+            if ( prop instanceof PropEnum )
                 return true;
             else
                 return false;
@@ -25,35 +24,35 @@ module Animate {
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component) {
-            var p = <PropEnum>prop;
+        edit( prop: Prop<any>, container: Component ) {
+            const p = <PropEnum>prop;
 
-			// Create HTML
-            var editor: JQuery = jQuery(`<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
-			var selector: JQuery = jQuery( "select", editor );
+            // Create HTML
+            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
+            const selector: JQuery = jQuery( "select", editor );
 
             // Add to DOM
-            container.element.append(editor);
+            container.element.append( editor );
 
             // Enums
-            var selectedValue: string = p.getVal();
-			var vars = p.choices;
-			vars = vars.sort();
+            const selectedValue: string = p.getVal();
+            let vars = p.choices;
+            vars = vars.sort();
 
-			var len: number = vars.length;
-			for ( var i: number = 0; i < len; i++ )
-                selector.append(`<option value='${vars[i]}' ${( selectedValue == vars[i] ? "selected='selected'" : "" )}>${vars[i]}</option>` );
+            const len: number = vars.length;
+            for ( let i: number = 0; i < len; i++ )
+                selector.append( `<option value='${vars[ i ]}' ${( selectedValue === vars[ i ] ? "selected='selected'" : "" )}>${vars[ i ]}</option>` );
 
-			var that = this;
+            const that = this;
 
-			// Functions to deal with user interactions with JQuery
-            var onSelect = function (e: JQueryEventObject  ) {
-                var val = selector.val();
-                p.setVal(val);
-			};
+            // Functions to deal with user interactions with JQuery
+            const onSelect = function ( e: JQueryEventObject ) {
+                const val = selector.val();
+                p.setVal( val );
+            };
 
-			// Add listeners
-			selector.on( "change", onSelect );
-		}
-	}
+            // Add listeners
+            selector.on( "change", onSelect );
+        }
+    }
 }

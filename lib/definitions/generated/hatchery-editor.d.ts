@@ -11,7 +11,7 @@ declare module Engine {
         $instance?: Animate.IPlugin;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A simple interface for any component
     */
@@ -19,10 +19,10 @@ declare module Animate {
         element: JQuery;
         parent: IComponent;
         dispose(): void;
-        addChild(child: string): IComponent;
-        addChild(child: IComponent): IComponent;
-        addChild(child: any): IComponent;
-        removeChild(child: IComponent): IComponent
+        addChild( child: string ): IComponent;
+        addChild( child: IComponent ): IComponent;
+        addChild( child: any ): IComponent;
+        removeChild( child: IComponent ): IComponent
         update(): void;
         selected: boolean;
         savedID: string;
@@ -38,7 +38,7 @@ declare module Animate {
      */
     export interface IDragDropToken {
         type: 'resource' | 'template' | 'container' | 'other';
-        id? : string | number;
+        id?: string | number;
     }
 
     /**
@@ -59,7 +59,7 @@ declare module Animate {
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
-        onDisplayPreview(file: Engine.IFile, previewComponent: Component): boolean;
+        onDisplayPreview( file: Engine.IFile, previewComponent: Component ): boolean;
 
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
@@ -90,7 +90,7 @@ declare module Animate {
 		* @param {Array<string>} extArray The array of allowed extensions that are so far allowed.
 		* @returns {Array<string>} An array of allowed file extensions.
 		*/
-        getFileUploadExtensions(extArray: Array<string>): Array<string>;
+        getFileUploadExtensions( extArray: Array<string> ): Array<string>;
     }
 
     export type PortalType = 'input' | 'output' | 'parameter' | 'product';
@@ -140,8 +140,8 @@ declare module Animate {
 	*/
     export interface IComment extends ICanvasItem {
         label: string;
-        width : number;
-		height : number;
+        width: number;
+        height: number;
     }
 
     /**
@@ -187,98 +187,98 @@ declare module Animate {
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate(file: Engine.IFile): JSX.Element;
+        generate( file: Engine.IFile ): JSX.Element;
 
-         /**
-         * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
-         */
-        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        /**
+        * Creates a thumbnail preview of the file
+        * @param {Engine.IFile} file
+        * @returns {Promise<HTMLCanvasElement>}
+        */
+        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {
-        onShow(project: Project, user: User);
+        onShow( project: Project, user: User );
         name: string;
         onTab(): void;
     }
 }
-declare module Animate {
-	export interface PortalToken {
-		name: string;
-		type: string;
-		dataType: string;
-		value: any;
-	}
+declare namespace Animate {
+    export interface PortalToken {
+        name: string;
+        type: string;
+        dataType: string;
+        value: any;
+    }
 
-	export interface LinkToken {
-		id: string;
-		type: string;
-		startPortal: string;
-		endPortal: string;
-		startBehaviour: string;
-		endBehaviour: string;
-		frameDelay: number;
-	}
+    export interface LinkToken {
+        id: string;
+        type: string;
+        startPortal: string;
+        endPortal: string;
+        startBehaviour: string;
+        endBehaviour: string;
+        frameDelay: number;
+    }
 
-	export interface BehaviourToken {
-		id: string;
-		name: string;
-		type: string;
+    export interface BehaviourToken {
+        id: string;
+        name: string;
+        type: string;
 
-		portals: Array<PortalToken>;
+        portals: Array<PortalToken>;
 
-		// Portal behaviours
-		portalType: string;
-		dataType: string;
-		value: any;
+        // Portal behaviours
+        portalType: string;
+        dataType: string;
+        value: any;
 
-		// Behaviour Instances
-		originalContainerID: number;
+        // Behaviour Instances
+        originalContainerID: number;
 
-		// Behaviour Script
-		shallowId: number;
-	}
+        // Behaviour Script
+        shallowId: number;
+    }
 
-	export interface ContainerToken	{
-		name: string;
-		id: any;
-		behaviours: Array<BehaviourToken>;
-		links: Array<LinkToken>;
-		assets: Array<number>;
-		groups: Array<string>;
-		properties: {};
-		plugins: {};
-	}
+    export interface ContainerToken {
+        name: string;
+        id: any;
+        behaviours: Array<BehaviourToken>;
+        links: Array<LinkToken>;
+        assets: Array<number>;
+        groups: Array<string>;
+        properties: {};
+        plugins: {};
+    }
 
-	export interface GroupToken {
-		name: string;
+    export interface GroupToken {
+        name: string;
         id: string;
         items: Array<number>
-	}
+    }
 
-	export interface AssetToken {
-		name: string;
-		id: number;
-		properties: { [name: string]: any };
-		className: string;
-		assets: Array<number>;
-	}
+    export interface AssetToken {
+        name: string;
+        id: number;
+        properties: { [ name: string ]: any };
+        className: string;
+        assets: Array<number>;
+    }
 
-	export interface ExportToken {
-		assets: Array<AssetToken>;
-		groups: Array<GroupToken>;
-		containers: Array<ContainerToken>;
-		converters: {};
-		data: {};
-	}
+    export interface ExportToken {
+        assets: Array<AssetToken>;
+        groups: Array<GroupToken>;
+        containers: Array<ContainerToken>;
+        converters: {};
+        data: {};
+    }
 }
 declare var config: {
     "version": string;
     "userServiceUrl": string;
     "host": string;
 };
-declare module Animate {
+declare namespace Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
         expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
@@ -337,32 +337,32 @@ declare module Animate {
         private static attrs;
         private static $commentRefIDCounter;
         static validators: {
-            "alpha-numeric": {
+            'alpha-numeric': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
             };
-            "non-empty": {
+            'non-empty': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
             };
-            "alpha-numeric-plus": {
+            'alpha-numeric-plus': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
             };
-            "email-plus": {
+            'email-plus': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
             };
-            "email": {
+            'email': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
             };
-            "no-html": {
+            'no-html': {
                 regex: RegExp;
                 name: string;
                 negate: boolean;
@@ -478,21 +478,21 @@ declare module Animate {
         static build(elm: JQuery, ctrl: any, includeSubTemplates?: boolean): JQuery;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class Repeater implements IDirective {
         private _returnVal;
         constructor();
         expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class If implements IDirective {
         private _returnVal;
         constructor();
         expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
     }
 }
-declare module Animate {
+declare namespace Animate {
     module EventTypes {
         const PORTAL_ADDED: string;
         const PORTAL_REMOVED: string;
@@ -591,7 +591,7 @@ declare module Animate {
         OPTIONS = 12,
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Base class for all custom enums
     */
@@ -657,7 +657,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * Describes all the different types of editor events
      */
@@ -875,7 +875,7 @@ declare module Animate {
         constructor(type: string, file: Engine.IFile);
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * This class describes a template. These templates are used when creating assets.
      */
@@ -947,7 +947,7 @@ declare module Animate {
         abstractClass: boolean;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IAjaxError {
         message: string;
         status: number;
@@ -1050,7 +1050,7 @@ declare module Animate {
         static getObjectClass(obj: any): any;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * The plugin manager is used to load and manage external Animate plugins.
     */
@@ -1141,7 +1141,7 @@ declare module Animate {
         static getSingleton(): PluginManager;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class ImportExportEvents extends ENUM {
         constructor(v: string);
         static COMPLETE: ImportExportEvents;
@@ -1192,7 +1192,7 @@ declare module Animate {
         static getSingleton(): ImportExport;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A simple interface for property grid editors
     */
@@ -1213,7 +1213,7 @@ declare module Animate {
         cleanup(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A base class for all project resources
     */
@@ -1268,7 +1268,7 @@ declare module Animate {
         getOption(name: string): any;
     }
 }
-declare module Animate {
+declare namespace Animate {
     module Resources {
         /**
         * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
@@ -1279,7 +1279,7 @@ declare module Animate {
         class Asset extends ProjectResource<Engine.IAsset> {
             class: AssetClass;
             /**
-            * @param {AssetClass} assetClass The name of the "class" or "template" that this asset belongs to
+            * @param {AssetClass} assetClass The name of the 'class' or 'template' that this asset belongs to
             * @param {IAsset} entry [Optional] The asset database entry
             */
             constructor(assetClass: AssetClass, entry?: Engine.IAsset);
@@ -1291,7 +1291,7 @@ declare module Animate {
             /**
             * Use this function to reset the asset properties
             * @param {string} name The name of the asset
-            * @param {string} className The "class" or "template" name of the asset
+            * @param {string} className The 'class' or 'template' name of the asset
             * @param {any} json The JSON data of the asset.
             */
             update(name: string, className: string, json?: any): void;
@@ -1302,7 +1302,7 @@ declare module Animate {
         }
     }
 }
-declare module Animate {
+declare namespace Animate {
     module Resources {
         /**
         * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
@@ -1329,7 +1329,7 @@ declare module Animate {
         }
     }
 }
-declare module Animate {
+declare namespace Animate {
     module Resources {
         /**
         * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
@@ -1356,7 +1356,7 @@ declare module Animate {
         }
     }
 }
-declare module Animate {
+declare namespace Animate {
     module Resources {
         /**
         * A wrapper for DB file instances
@@ -1370,7 +1370,7 @@ declare module Animate {
         }
     }
 }
-declare module Animate {
+declare namespace Animate {
     module Resources {
         /**
         * A wrapper for DB script instances
@@ -1383,7 +1383,7 @@ declare module Animate {
         }
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
@@ -1417,7 +1417,7 @@ declare module Animate {
         findClass(name: string): AssetClass;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     *  A simple class to define the behavior of a behaviour object.
     */
@@ -1449,14 +1449,14 @@ declare module Animate {
         plugin: IPlugin;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class DataToken {
         category: string;
         command: string;
         projectID: string;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class DB {
         static USERS: string;
         static USERS_SOCKET: string;
@@ -1469,7 +1469,7 @@ declare module Animate {
         static PLAN_PLATINUM: string;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Basic set of loader events shared by all loaders
     */
@@ -1534,7 +1534,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Valid response codes for requests made to the Animate server
     */
@@ -1590,7 +1590,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Valid response codes for xhr binary requests
     */
@@ -1639,7 +1639,7 @@ declare module Animate {
         onBuffersLoaded(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A simple class to define portal behaviour.
     */
@@ -1653,7 +1653,7 @@ declare module Animate {
         constructor(property: Prop<any>, type: PortalType);
     }
 }
-declare module Animate {
+declare namespace Animate {
     class ProjectEvents {
         value: string;
         constructor(v: string);
@@ -1829,7 +1829,7 @@ declare module Animate {
         plugins: Array<Engine.IPlugin>;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class TypeConverter {
         plugin: IPlugin;
         typeA: string;
@@ -1842,7 +1842,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This class is used to represent the user who is logged into Animate.
     */
@@ -1956,7 +1956,7 @@ declare module Animate {
         static get: User;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type SocketEvents = 'error' | UsersInterface.SocketTokens.ClientInstructionType;
     /**
      * A singleton class that deals with comminication between the client frontend
@@ -1994,7 +1994,7 @@ declare module Animate {
         static get: SocketManager;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Abstract class downloading content by pages
     */
@@ -2037,7 +2037,7 @@ declare module Animate {
         goPrev(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class ImageVisualizer implements IPreviewFactory {
         private _maxPreviewSize;
         constructor();
@@ -2055,7 +2055,7 @@ declare module Animate {
         generate(file: Engine.IFile): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type ProgressCallback = (percent: number) => void;
     type CompleteCallback = (err?: Error, files?: Array<UsersInterface.IUploadToken>) => void;
     class FileUploader {
@@ -2073,7 +2073,7 @@ declare module Animate {
         upload(form: FormData, url: string, parentFile?: string): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a set of variables. The set is typically owned by an object that can be edited by users. The set can be passed to editors like the
     * PropertyGrid to expose the variables to the user.
@@ -2103,7 +2103,7 @@ declare module Animate {
         */
         removeVar(name: string): void;
         /**
-         * Broadcasts an "edited" event to the owner of the set
+         * Broadcasts an 'edited' event to the owner of the set
          */
         notifyEdit(prop: Prop<any>): void;
         /**
@@ -2132,7 +2132,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data.
     * Each property is typically owner by an EditableSet.
@@ -2219,7 +2219,7 @@ declare module Animate {
         clone(clone?: PropText): PropText;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2252,7 +2252,7 @@ declare module Animate {
         deTokenize(data: PropEnum): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2262,7 +2262,7 @@ declare module Animate {
         * Creates a new instance
         * @param {string} name The name of the property
         * @param {string} value The value of the property
-        * @param {number} extensions The valid extends to use eg: ["bmp", "jpeg"]
+        * @param {number} extensions The valid extends to use eg: ['bmp', 'jpeg']
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
@@ -2285,7 +2285,7 @@ declare module Animate {
         deTokenize(data: PropFileResource): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2329,7 +2329,7 @@ declare module Animate {
         clone(clone?: PropNum): PropNum;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines an any property variable.
     */
@@ -2349,7 +2349,7 @@ declare module Animate {
         clone(clone?: PropObject): PropObject;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2382,7 +2382,7 @@ declare module Animate {
         clone(clone?: PropAsset): PropAsset;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2413,7 +2413,7 @@ declare module Animate {
         clone(clone?: PropGroup): PropGroup;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
@@ -2446,7 +2446,7 @@ declare module Animate {
         clone(clone?: PropAssetList): PropAssetList;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A small wrapper for colors
     */
@@ -2487,7 +2487,7 @@ declare module Animate {
         deTokenize(data: Color): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IDraggableProps {
         enabled?: boolean;
         x: number;
@@ -2527,7 +2527,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IResizableProps {
         enabled?: boolean;
         target?: HTMLElement;
@@ -2574,7 +2574,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * The interface for all layout objects.
     */
@@ -2586,7 +2586,7 @@ declare module Animate {
         update(component: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A simple Percentile layout. Changes a component's dimensions to be a
     * percentage of its parent width and height.
@@ -2602,7 +2602,7 @@ declare module Animate {
         update(component: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A simple fill layout. Fills a component to its parent width and height. Optional
     * offsets can be used to tweak the fill.
@@ -2622,7 +2622,7 @@ declare module Animate {
         update(component: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class ComponentEvents extends ENUM {
         constructor(v: string);
         static UPDATED: ComponentEvents;
@@ -2736,7 +2736,7 @@ declare module Animate {
         selected: boolean;
     }
 }
-declare module Animate {
+declare namespace Animate {
     enum SplitOrientation {
         VERTICAL = 0,
         HORIZONTAL = 1,
@@ -2801,7 +2801,7 @@ declare module Animate {
         ratio: number;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class WindowEvents extends ENUM {
         constructor(v: string);
         static HIDDEN: WindowEvents;
@@ -2883,7 +2883,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IReactWindowProps {
         autoCenter?: boolean;
         title?: string;
@@ -2973,7 +2973,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IReactContextMenuItem {
         onSelect?: (item: IReactContextMenuItem) => void;
         tag?: any;
@@ -3040,7 +3040,7 @@ declare module Animate {
         static hide(id: number): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ITabProps {
         panes: React.ReactElement<ITabPaneProps>[];
     }
@@ -3121,7 +3121,7 @@ declare module Animate {
         panes: ITabPaneProps[];
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ITabPaneProps {
         label: string;
         showCloseButton?: boolean;
@@ -3145,7 +3145,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This class is a small container class that is used by the Tab class. It creates TabPairs
     * each time a tab is created with the addTab function. This creates a TabPair object that keeps a reference to the
@@ -3202,7 +3202,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IListItem {
         label: string;
         icon?: string;
@@ -3245,7 +3245,7 @@ declare module Animate {
         onItemSelected(e: React.MouseEvent, item: IListItem, index: number, doubleClick: boolean): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type LinkMap = {
         [shallowId: number]: {
             item: CanvasItem;
@@ -3304,7 +3304,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
      * that has been added to a container.
@@ -3365,7 +3365,7 @@ declare module Animate {
         portals: Array<Portal>;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A behaviour for representing container portals
      */
@@ -3395,7 +3395,7 @@ declare module Animate {
         property: Prop<any>;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class BehaviourAsset extends Behaviour {
         asset: ProjectResource<Engine.IResource>;
         /**
@@ -3420,7 +3420,7 @@ declare module Animate {
         addPortal(type: PortalType, property: Prop<any>): Portal;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A user comment
      */
@@ -3445,7 +3445,7 @@ declare module Animate {
         deSerialize(data: IComment): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A portal class for behaviours. There are 4 different types of portals -
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -3489,7 +3489,7 @@ declare module Animate {
         removeLink(link: any): any;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class CanvasEvents extends ENUM {
         constructor(v: string);
         static MODIFIED: CanvasEvents;
@@ -3526,7 +3526,7 @@ declare module Animate {
         };
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IReactCanvasProps {
         store: CanvasStore;
     }
@@ -3575,7 +3575,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A store of various diagram items
      */
@@ -3629,7 +3629,7 @@ declare module Animate {
         invalidate(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IBehaviourComponentProps {
         behaviour: Behaviour;
     }
@@ -3649,7 +3649,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ICommentComponentProps {
         comment: Animate.Comment;
     }
@@ -3685,7 +3685,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ITreeViewProps {
         nodeStore: TreeNodeStore;
     }
@@ -3728,7 +3728,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ITreeNodeProps {
         node: TreeNodeModel;
     }
@@ -3748,7 +3748,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * This class is used to create tree view items.
      */
@@ -3826,7 +3826,7 @@ declare module Animate {
         getSelectedNodes(): TreeNodeModel[];
     }
 }
-declare module Animate {
+declare namespace Animate {
     class TreeNodeModel {
         private _icon;
         private _label;
@@ -3933,7 +3933,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * An implementation of the tree view for the scene.
     */
@@ -4006,7 +4006,7 @@ declare module Animate {
         static getSingleton(): TreeViewScene;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A model for referencing a project resource
      */
@@ -4088,7 +4088,7 @@ declare module Animate {
         private handleNodePromise(promise, node);
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A root node that contains the visual representations of project containers
      */
@@ -4112,7 +4112,7 @@ declare module Animate {
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A root node that contains the visual representations of project groups
      */
@@ -4142,7 +4142,7 @@ declare module Animate {
         onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A root node that contains the visual representations of project assets
      */
@@ -4158,7 +4158,7 @@ declare module Animate {
         onContext(e: React.MouseEvent): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A root node that contains the visual representations of project containers
      */
@@ -4181,7 +4181,7 @@ declare module Animate {
         onTemplateCreated(type: string, event: Event): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * A node that represents an Asset Class
      */
@@ -4207,7 +4207,7 @@ declare module Animate {
         getInstances(classNames: string | string[]): TreeNodeAssetInstance[];
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * Treenode that contains a reference to an asset
      */
@@ -4229,7 +4229,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * This node represents a group asset.
      * Other resource nodes can be dropped on these which will append the object (if valid) into the group
@@ -4252,7 +4252,7 @@ declare module Animate {
         onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * This node represents a group instance
      */
@@ -4280,7 +4280,7 @@ declare module Animate {
         shallowId: number;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * This node represents a behaviour created by a plugin.
      */
@@ -4308,7 +4308,7 @@ declare module Animate {
         template: BehaviourDefinition;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A Tab pair for the canvas tabs
     */
@@ -4338,7 +4338,7 @@ declare module Animate {
         canvas: Canvas;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A tab pair that uses the ace editor
     */
@@ -4399,7 +4399,7 @@ declare module Animate {
         editor: AceAjax.Editor;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A tab pair that manages the build HTML
     */
@@ -4431,7 +4431,7 @@ declare module Animate {
         onRemove(event: TabEvent): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A tab pair that manages the build CSS
     */
@@ -4463,7 +4463,7 @@ declare module Animate {
         onRemove(event: TabEvent): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A tab pair that creates a javascript node
     */
@@ -4528,7 +4528,7 @@ declare module Animate {
         save(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This is an implementation of the tab class
     */
@@ -4548,7 +4548,7 @@ declare module Animate {
         static getSingleton(parent?: Component): SceneTab;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class CanvasTabType extends ENUM {
         constructor(v: string);
         static CANVAS: CanvasTabType;
@@ -4654,7 +4654,7 @@ declare module Animate {
         currentCanvas: Canvas;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IGroupProps extends React.HTMLAttributes {
         label: string;
     }
@@ -4673,7 +4673,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This small class is used to group property grid elements together
     */
@@ -4687,7 +4687,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A property editor which edits objects and strings
     */
@@ -4707,7 +4707,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A property editor which edits numbers
     */
@@ -4727,7 +4727,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This represents a combo property for booleans that the user can select from a list.
     */
@@ -4747,7 +4747,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): JQuery;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This represents a combo property for enums that the user can select from a list.
     */
@@ -4767,7 +4767,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * An editor which allows a user to select files on the local server.
     */
@@ -4787,7 +4787,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This represents a combo property for assets that the user can select from a list.
     */
@@ -4807,7 +4807,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This represents a combo property for assets that the user can select from a list.
     */
@@ -4827,7 +4827,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This represents a property for choosing a list of assets
     */
@@ -4847,7 +4847,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * This editor is used to pick colours from a colour dialogue.
     */
@@ -4867,7 +4867,7 @@ declare module Animate {
         edit(prop: Prop<any>, container: Component): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
     * Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
@@ -4935,7 +4935,7 @@ declare module Animate {
         currentObject: any;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * Describes the button style
      */
@@ -4989,7 +4989,7 @@ declare module Animate {
         static defaultProps: IButtonProps;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IImagePreviewProps extends React.HTMLAttributes {
         src: string;
         defaultSrc?: string;
@@ -5029,7 +5029,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IImageUploaderProps {
         onImage?: (file: Engine.IFile) => void;
         src: string;
@@ -5062,7 +5062,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IToolbarButtonProps {
         onChange: (val: boolean) => void;
         pushButton?: boolean;
@@ -5102,7 +5102,7 @@ declare module Animate {
         selected: boolean;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class ToolbarNumberEvents extends ENUM {
         constructor(v: string);
         static CHANGED: ToolbarNumberEvents;
@@ -5160,7 +5160,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     *  Use this tool bar button to pick a colour.
     */
@@ -5181,7 +5181,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * The interface for all layout objects.
     */
@@ -5251,7 +5251,7 @@ declare module Animate {
         dispose(): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class OkCancelFormEvents extends ENUM {
         constructor(v: string);
         static CONFIRM: OkCancelFormEvents;
@@ -5308,7 +5308,7 @@ declare module Animate {
         onKeyDown(e: any): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IOptionsBuildState {
     }
     interface IOptionsBuildProps extends IReactWindowProps {
@@ -5329,7 +5329,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IOptionsUserProps {
     }
     interface IOptionsUserStats {
@@ -5362,7 +5362,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IOptionsProjectProps extends IReactWindowProps {
     }
     interface IOptionsProjectState {
@@ -5397,7 +5397,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IOptionsForm extends IReactWindowProps {
     }
     /**
@@ -5415,7 +5415,7 @@ declare module Animate {
         getContent(): React.ReactNode;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
     * Use this form to set the project meta and update build versions.
     */
@@ -5485,7 +5485,7 @@ declare module Animate {
         static getSingleton(): BuildOptionsForm;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IViewerFile extends Engine.IFile {
         selected?: boolean;
         loadingPreview?: boolean;
@@ -5604,7 +5604,7 @@ declare module Animate {
         updateFile(token: Engine.IFile): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IFileDialogueProps extends IReactWindowProps {
         extensions?: string[];
         multiselect?: boolean;
@@ -5626,7 +5626,7 @@ declare module Animate {
         getContent(): React.ReactNode;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IMessageBoxProps extends IReactWindowProps {
         message?: string;
         onChange?: (button: string) => void;
@@ -5654,7 +5654,7 @@ declare module Animate {
         onButtonClick(e: React.MouseEvent, button: string): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IPortalFormProps extends IReactWindowProps {
         onCancel?: () => void;
     }
@@ -5708,7 +5708,7 @@ declare module Animate {
         parameterType: PropertyType;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IRenameFormProps extends IReactWindowProps {
         name?: string;
         onRenaming?: (newName: string, prevName: string) => Error;
@@ -5741,7 +5741,7 @@ declare module Animate {
         ok(name: string): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     class UserPrivilegesForm extends Window {
         private static _singleton;
         private mSave;
@@ -5779,7 +5779,7 @@ declare module Animate {
         static getSingleton(): UserPrivilegesForm;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IBehaviourPickerProps extends IReactWindowProps {
         onTemplateSelected?: (template: BehaviourDefinition) => void;
     }
@@ -5823,7 +5823,7 @@ declare module Animate {
         onKeyUp(e: React.KeyboardEvent): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      * Describes the type of log message
      */
@@ -5886,7 +5886,7 @@ declare module Animate {
         static logMessage(val: string, tag: any, type?: LogType): void;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ILoggerProps {
         store: LoggerStore;
     }
@@ -5910,7 +5910,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     enum TooltipPosition {
         TOP = 0,
         BOTTOM = 1,
@@ -5955,7 +5955,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IToolbarProps {
     }
     interface IToolbarState {
@@ -6074,7 +6074,7 @@ declare module Animate {
         static getSingleton(parent?: Component): Toolbar;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IPagerProps extends React.HTMLAttributes {
         onUpdate: (index: number, limit: number) => Promise<number>;
         limit?: number;
@@ -6136,7 +6136,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ISearchBoxProps extends React.HTMLAttributes {
         onSearch(e: React.FormEvent, searchText: string): any;
         /**
@@ -6176,7 +6176,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IAttentionProps extends React.HTMLAttributes {
         mode?: AttentionType;
         showIcon?: boolean;
@@ -6204,7 +6204,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type SelectValue = {
         label: string;
         value: string | number;
@@ -6294,7 +6294,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IVCheckboxProps extends React.HTMLAttributes {
         onChecked?: (e: React.FormEvent, checked: boolean, input: HTMLInputElement) => void;
         noInteractions?: boolean;
@@ -6334,7 +6334,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IVInputProps extends React.HTMLAttributes {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
@@ -6445,7 +6445,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IVTextareaProps extends React.HTMLAttributes {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
@@ -6531,7 +6531,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type ValidationError = {
         name: string;
         error: string;
@@ -6612,7 +6612,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     type PluginMap = {
         [name: string]: IPluginPlus[];
     };
@@ -6667,7 +6667,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     /**
      *  Extends the project with a selected attribute
      */
@@ -6710,7 +6710,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IOpenProjectProps {
         onCancel: () => void;
         onComplete: () => void;
@@ -6738,7 +6738,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface ILoginFormProps {
         onLogin: () => void;
         onLoadingChange?: (loading: boolean) => void;
@@ -6781,7 +6781,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IRegisterFormProps {
         onLogin?: () => void;
         onLoadingChange?: (loading: boolean) => void;
@@ -6820,7 +6820,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     enum LoginMode {
         LOGIN = 0,
         REGISTER = 1,
@@ -6845,7 +6845,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     enum SplashMode {
         WELCOME = 0,
         LOGIN = 1,
@@ -6889,7 +6889,7 @@ declare module Animate {
         static get: Splash;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface INewProjectProps {
         onCancel: () => void;
         onProjectCreated: (project: Engine.IProject) => void;
@@ -6921,7 +6921,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IProjectsOverviewProps extends React.HTMLAttributes {
         onCreateProject: () => void;
         onOpenProject: (project: Engine.IProject) => void;
@@ -6949,7 +6949,7 @@ declare module Animate {
         render(): JSX.Element;
     }
 }
-declare module Animate {
+declare namespace Animate {
     interface IApplicationState {
         showSplash?: boolean;
     }
@@ -6991,11 +6991,11 @@ declare module Animate {
         focusObj: Component;
     }
 }
-declare var _cache: string;
-declare var __plugins: {
+declare let _cache: string;
+declare const __plugins: {
     [name: string]: Array<Engine.IPlugin>;
 };
-declare var __newPlugin: Animate.IPlugin;
+declare let __newPlugin: Animate.IPlugin;
 /**
 * Goes through each of the plugins and returns the one with the matching ID
 * @param {string} id The ID of the plugin to fetch

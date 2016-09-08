@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface IOpenProjectProps {
         onCancel: () => void;

@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     export interface IVTextareaProps extends React.HTMLAttributes {
         /**
@@ -22,12 +22,12 @@ module Animate {
         /**
          * Called whenever the input fails a validation test
          */
-        onValidationError?: (e: Error, target: VTextarea) => void;
+        onValidationError?: ( e: Error, target: VTextarea ) => void;
 
         /**
          * Called whenever the input passes a previously failed validation test
          */
-        onValidationResolved?: (target: VTextarea) => void;
+        onValidationResolved?: ( target: VTextarea ) => void;
 
         /**
          * An optional error message to use to describe when a problem occurs. If for example you have validation against
@@ -42,20 +42,20 @@ module Animate {
      * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
      * with the VForm.
      */
-    export class VTextarea extends React.Component<IVTextareaProps, { error? : string, value?: string, highlightError? : boolean, className? : string }> {
+    export class VTextarea extends React.Component<IVTextareaProps, { error?: string, value?: string, highlightError?: boolean, className?: string }> {
         private _pristine: boolean;
 
         /**
          * Creates a new instance
          */
-        constructor(props) {
-            super(props);
+        constructor( props ) {
+            super( props );
             this._pristine = true;
             this.state = {
-                value : props.value || '',
+                value: props.value || '',
                 error: null,
                 highlightError: false,
-                className:  ( props.className ? props.className + ' v-textarea' : 'v-textarea' )
+                className: ( props.className ? props.className + ' v-textarea' : 'v-textarea' )
             };
         }
 
@@ -63,58 +63,58 @@ module Animate {
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void {
-            var err = this.getValidationErrorMsg( this.props.value );
+            const err = this.getValidationErrorMsg( this.props.value );
 
-             // Call the optional error callback
+            // Call the optional error callback
             if ( err && !this._pristine && this.props.onValidationError )
-               this.props.onValidationError( new Error(err), this );
+                this.props.onValidationError( new Error( err ), this );
 
-            this.setState({
-                error: (err? err: null)
+            this.setState( {
+                error: ( err ? err : null )
             });
         }
 
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps(nextProps: IVCheckboxProps) {
-            if (nextProps.value as string !== this.props.value )
-                this.setState({ value: nextProps.value as string });
+        componentWillReceiveProps( nextProps: IVCheckboxProps ) {
+            if ( nextProps.value as string !== this.props.value )
+                this.setState( { value: nextProps.value as string });
         }
 
         /**
          * Gets the current value of the input
          * @returns {string}
          */
-        get value() : string { return this.state.value; }
+        get value(): string { return this.state.value; }
 
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
          */
-        set highlightError( val : boolean ) {
-            this.setState({ highlightError : val });
+        set highlightError( val: boolean ) {
+            this.setState( { highlightError: val });
         }
 
         /**
          * Checks the string against all validators.
          * @returns {string} An error string or null if there are no errors
          */
-        getValidationErrorMsg(val : string): string {
+        getValidationErrorMsg( val: string ): string {
             let validators = Utils.validators;
             let validator = null;
-            let error : boolean = false;
+            let error: boolean = false;
             let errorMsg: string = null;
 
             val = ( val !== undefined ? val : this.state.value );
 
-            if (this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
+            if ( this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
                 errorMsg = `You have too few characters`;
-            if (this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
+            if ( this.props.maxCharacters !== undefined && val.length > this.props.maxCharacters )
                 errorMsg = `You have too many characters`;
 
             if ( !errorMsg )
-                errorMsg = Utils.checkValidation(val, this.props.validator)
+                errorMsg = Utils.checkValidation( val, this.props.validator )
 
             return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
         }
@@ -123,32 +123,32 @@ module Animate {
          * Called whenever the value changes
          * @param {React.FormEvent} e
          */
-        private onChange(e: React.FormEvent) {
-            var wasAnError = this.state.error;
-            var val = (e.target as HTMLInputElement).value;
-            var err = this.getValidationErrorMsg(val);
+        private onChange( e: React.FormEvent ) {
+            const wasAnError = this.state.error;
+            const val = ( e.target as HTMLInputElement ).value;
+            const err = this.getValidationErrorMsg( val );
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
-               this.props.onValidationError( new Error(err), this );
-            else if (wasAnError && !err && this.props.onValidationResolved)
-                this.props.onValidationResolved(this);
+                this.props.onValidationError( new Error( err ), this );
+            else if ( wasAnError && !err && this.props.onValidationResolved )
+                this.props.onValidationResolved( this );
 
-            this.setState({
+            this.setState( {
                 value: val,
-                error: (err? err : null),
-                highlightError: (err && this.state.highlightError ? true : false)
+                error: ( err ? err : null ),
+                highlightError: ( err && this.state.highlightError ? true : false )
             });
 
-            if (!err && this.props.onChange)
-                this.props.onChange(e);
+            if ( !err && this.props.onChange )
+                this.props.onChange( e );
         }
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          * @returns {boolean}
          */
-        get pristine() : boolean {
+        get pristine(): boolean {
             return this._pristine;
         }
 
@@ -158,7 +158,7 @@ module Animate {
          */
         render(): JSX.Element {
             // Remove the custom properties
-            const divProps : IVInputProps  = Object.assign({}, this.props);
+            const divProps: IVInputProps = Object.assign( {}, this.props );
             delete divProps.validator;
             delete divProps.minCharacters;
             delete divProps.maxCharacters;
@@ -166,23 +166,23 @@ module Animate {
             delete divProps.onValidationError;
             delete divProps.onValidationResolved;
 
-            var className = this.state.className;
-            if (this.state.error)
+            let className = this.state.className;
+            if ( this.state.error )
                 className += ' bad-input';
-            if (this.state.highlightError)
+            if ( this.state.highlightError )
                 className += ' highlight-error';
-            if (!this._pristine)
+            if ( !this._pristine )
                 className += ' dirty';
 
             return <textarea
                 {...divProps}
-                onFocus={(e) => {
+                onFocus={( e ) => {
                     this._pristine = false;
-                }}
+                } }
                 className={className}
                 value={this.state.value}
-                onChange={(e)=>{ this.onChange(e); }}
-            />;
+                onChange={( e ) => { this.onChange( e ); } }
+                />;
         }
     }
 }

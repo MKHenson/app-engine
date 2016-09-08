@@ -1,12 +1,12 @@
-module Animate {
+namespace Animate {
     //export interface IRenameToken { newName: string; oldName: string; object: IRenamable; cancelled: boolean; };
     //export interface IRenamable { name?: string; };
 
     export interface IRenameFormProps extends IReactWindowProps {
         name?: string;
-        onRenaming? : ( newName: string, prevName: string ) => Error;
-        onCancel? : () => void;
-        onOk : (newName: string) => void;
+        onRenaming?: ( newName: string, prevName: string ) => Error;
+        onCancel?: () => void;
+        onOk: ( newName: string ) => void;
     }
 
     export interface IRenameFormState extends IReactWindowState {
@@ -27,15 +27,15 @@ module Animate {
             modal: true,
             className: 'rename-form',
             onOk: null
-		}
+        }
 
         /**
          * Creates a new instance
          */
-        constructor( props : IRenameFormProps ) {
-            super(props);
+        constructor( props: IRenameFormProps ) {
+            super( props );
             this.state = {
-                $errorMsg : null
+                $errorMsg: null
             };
         }
 
@@ -52,18 +52,18 @@ module Animate {
         /**
          * Gets the content JSX for the window.
          */
-        getContent() : React.ReactNode {
+        getContent(): React.ReactNode {
             return (
-                <VForm onSubmitted={(json) => { this.ok( json.name ); }}
-                        onValidationError={(errors) => { this.setState({ $errorMsg: `${Utils.capitalize(errors[0].name)} : ${errors[0].error}` }) }}
-                        onValidationsResolved={(e) => { this.setState({ $errorMsg : null }) }}>
+                <VForm onSubmitted={( json ) => { this.ok( json.name ); } }
+                    onValidationError={( errors ) => { this.setState( { $errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}` }) } }
+                    onValidationsResolved={( e ) => { this.setState( { $errorMsg: null }) } }>
                     <VInput type="text" name="name" placeholder="Please enter a name"
                         validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML}
                         value={this.props.name}
                         />
                     { this.state.$errorMsg ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.$errorMsg}</Attention> : null }
                     <div className="buttons-container">
-                        <ButtonLink type="button" onClick={(e) => { e.preventDefault(); this.onCancel(); }}>
+                        <ButtonLink type="button" onClick={( e ) => { e.preventDefault(); this.onCancel(); } }>
                             CANCEL
                         </ButtonLink>
                         <ButtonSuccess type="submit">
@@ -77,19 +77,19 @@ module Animate {
 		/**
          * Called when the form is submitted
 		 */
-		ok( name : string ) {
+        ok( name: string ) {
             let curName: string = name;
-            let prevName = (this.props.name ? this.props.name : "");
-            let error : Error = null;
+            let prevName = ( this.props.name ? this.props.name : "" );
+            let error: Error = null;
 
-            if (this.props.onRenaming)
+            if ( this.props.onRenaming )
                 error = this.props.onRenaming( curName, prevName );
 
-            if (error)
-                return this.setState({  $errorMsg: error.message });
+            if ( error )
+                return this.setState( { $errorMsg: error.message });
 
-            this.props.onOk(name);
+            this.props.onOk( name );
             this.onClose();
-		}
-	}
+        }
+    }
 }

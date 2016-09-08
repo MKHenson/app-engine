@@ -1,4 +1,4 @@
-//module Animate
+//namespace Animate
 //{
 //	export class ButtonOptions
 //	{
@@ -33,7 +33,7 @@
 //		*/
 //        edit(prop: Prop<any>): JQuery
 //		{
-//			if ( objectType != ParameterType.OPTIONS )
+//			if ( objectType !== ParameterType.OPTIONS )
 //				return null;
 
 //			if ( !PropOptionsWindow._window )
@@ -45,8 +45,8 @@
 //			}
 
 //			var buttonOptions: ButtonOptions = <ButtonOptions>options;
-		
-//			//Create HTML	
+
+//			//Create HTML
 //			var editor: JQuery = jQuery( "<div class='options-button button'>" + propertyName + "</div><div class='fix' ></div >");
 //			var that = this;
 
@@ -69,15 +69,15 @@
 //					that.notify( propertyName, newValue, objectType );
 //				}
 //			};
-			
+
 //			// Called when we click on the button
-//            var mouseUp = function (e: JQueryEventObject  ) 
+//            var mouseUp = function (e: JQueryEventObject  )
 //			{
 //				//Remove any previous references
 //				PropOptionsWindow._window.off( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
 //				PropOptionsWindow._window.on( OkCancelFormEvents.CONFIRM, onOkFormConfirm );
 //				PropOptionsWindow._window.show( Application.getInstance(), NaN, NaN, true );
-				
+
 
 //				if ( buttonOptions.onWindowShow )
 //					buttonOptions.onWindowShow( PropOptionsWindow._window.okCancelContent );

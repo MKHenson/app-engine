@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 // 	/**
 // 	* This is the implementation of the context menu on the canvas.
 // 	*/
@@ -41,7 +41,7 @@
 // 			// this.mDelEmpty.element.hide();
 
 // 			// //If there is nothing selected
-// 			// if ( item == null ) {
+// 			// if ( item === null ) {
 // 			// 	this.mDel.element.hide();
 // 			// 	this.mCreate.element.show();
 // 			// 	this.mCreateComment.element.show();
@@ -75,7 +75,7 @@
 // 			// 	this.mCreateParam.element.hide();
 // 			// 	this.mCreateProduct.element.hide();
 
-// 			// 	if ( item instanceof BehaviourPortal == false ) {
+// 			// 	if ( item instanceof BehaviourPortal === false ) {
 // 			// 		var template = PluginManager.getSingleton().getTemplate((<BehaviourPortal>item).originalName );
 // 			// 		if ( template ) {
 // 			// 			if ( template.canBuildOutput( <Behaviour>item ) )

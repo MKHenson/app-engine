@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     /**
      * Describes the button style
@@ -11,7 +11,7 @@ module Animate {
     }
 
     export interface IButtonProps extends React.HTMLAttributes {
-        preventDefault? : boolean;
+        preventDefault?: boolean;
         buttonType?: ButtonType;
     }
 
@@ -19,7 +19,7 @@ module Animate {
      * A base class for all buttons
      */
     export class ReactButton extends React.Component<IButtonProps, any> {
-        static defaultProps : IButtonProps = {
+        static defaultProps: IButtonProps = {
             preventDefault: true,
             buttonType: ButtonType.PRIMARY
         }
@@ -27,8 +27,8 @@ module Animate {
         /**
          * Creates an instance
          */
-        constructor(props: IButtonProps) {
-            super(props);
+        constructor( props: IButtonProps ) {
+            super( props );
         }
 
         /**
@@ -36,17 +36,17 @@ module Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            const props : IButtonProps  = Object.assign({}, this.props);
+            const props: IButtonProps = Object.assign( {}, this.props );
             delete props.preventDefault;
             delete props.buttonType;
             let className = this.props.className || '';
             let createWrapper = false;
 
-            if (this.props.buttonType == ButtonType.SUCCESS)
+            if ( this.props.buttonType === ButtonType.SUCCESS )
                 className += ' success';
-            else if (this.props.buttonType == ButtonType.ERROR)
+            else if ( this.props.buttonType === ButtonType.ERROR )
                 className += ' error';
-            else if (this.props.buttonType == ButtonType.RED_LINK) {
+            else if ( this.props.buttonType === ButtonType.RED_LINK ) {
                 className += ' red-link';
                 createWrapper = true;
             }
@@ -55,14 +55,14 @@ module Animate {
 
             return (
                 <button {...props} className={className}
-                    onClick={ (e) => {
-                        if (this.props.preventDefault)
+                    onClick={ ( e ) => {
+                        if ( this.props.preventDefault )
                             e.preventDefault();
 
-                        if (this.props.onClick)
-                            this.props.onClick(e);
-                    }}>
-                    {(createWrapper ? <span className='wrapper'>{this.props.children}</span> : this.props.children)}
+                        if ( this.props.onClick )
+                            this.props.onClick( e );
+                    } }>
+                    {( createWrapper ? <span className='wrapper'>{this.props.children}</span> : this.props.children ) }
                 </button>
             )
         }
@@ -72,7 +72,7 @@ module Animate {
      * A wrapper for the base button class to style it as a primary button
      */
     export class ButtonPrimary extends ReactButton {
-        static defaultProps : IButtonProps = {
+        static defaultProps: IButtonProps = {
             buttonType: ButtonType.PRIMARY
         }
     }
@@ -81,7 +81,7 @@ module Animate {
      * A wrapper for the base button class to style it as a success button
      */
     export class ButtonSuccess extends ReactButton {
-        static defaultProps : IButtonProps = {
+        static defaultProps: IButtonProps = {
             buttonType: ButtonType.SUCCESS
         }
     }
@@ -90,7 +90,7 @@ module Animate {
      * A wrapper for the base button class to style it as an error button
      */
     export class ButtonError extends ReactButton {
-        static defaultProps : IButtonProps = {
+        static defaultProps: IButtonProps = {
             buttonType: ButtonType.ERROR
         }
     }
@@ -99,7 +99,7 @@ module Animate {
      * A wrapper for the base button class to style it as a red link button
      */
     export class ButtonLink extends ReactButton {
-        static defaultProps : IButtonProps = {
+        static defaultProps: IButtonProps = {
             buttonType: ButtonType.RED_LINK
         }
     }

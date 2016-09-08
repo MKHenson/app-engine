@@ -1,4 +1,4 @@
-module Animate {
+namespace Animate {
 
     /**
      * A root node that contains the visual representations of project containers
@@ -9,9 +9,9 @@ module Animate {
          * Creates an instance of the node
          */
         constructor() {
-            super('Behaviours', <i className="fa fa-plug" aria-hidden="true"></i> );
-            PluginManager.getSingleton().on("template-created", this.onTemplateCreated, this);
-            this.expanded(false);
+            super( 'Behaviours', <i className="fa fa-plug" aria-hidden="true"></i> );
+            PluginManager.getSingleton().on( "template-created", this.onTemplateCreated, this );
+            this.expanded( false );
         }
 
         /**
@@ -19,23 +19,23 @@ module Animate {
          */
         dispose() {
             super.dispose();
-            PluginManager.getSingleton().off("template-created", this.onTemplateCreated, this);
+            PluginManager.getSingleton().off( "template-created", this.onTemplateCreated, this );
 
         }
 
         /**
          * Show context menu items
          */
-        onContext(e: React.MouseEvent) {
+        onContext( e: React.MouseEvent ) {
             e.preventDefault();
         }
 
         /**
          * If a template is created, then add its node representation
          */
-        onTemplateCreated(type: string, event: Event ) {
+        onTemplateCreated( type: string, event: Event ) {
             let r = event.tag as BehaviourDefinition;
-            this.addNode(new TreeNodePluginBehaviour(r));
+            this.addNode( new TreeNodePluginBehaviour( r ) );
         }
     }
 }

@@ -1,245 +1,244 @@
-module Animate {
+namespace Animate {
 
-	export interface IApplicationState {
-		showSplash?: boolean;
-	}
+    export interface IApplicationState {
+        showSplash?: boolean;
+    }
 
 	/**
 	* The main GUI component of the application.
 	*/
-	export class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
+    export class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
         private static _singleton: Application;
         public static bodyComponent: Component;
-		private _focusObj: Component;
+        private _focusObj: Component;
 
-		private _resizeProxy: any;
-		private _downProxy: any;
-		// private _dockerlefttop: Docker;
-		// private _dockerleftbottom: Docker;
-		// private _dockerrighttop: Docker;
-		// private _dockerrightbottom: Docker;
-		//private _canvasContext: CanvasContext;
+        private _resizeProxy: any;
+        private _downProxy: any;
+        // private _dockerlefttop: Docker;
+        // private _dockerleftbottom: Docker;
+        // private _dockerrighttop: Docker;
+        // private _dockerrightbottom: Docker;
+        //private _canvasContext: CanvasContext;
 
-		private _sceneStore : TreeViewScene;
+        private _sceneStore: TreeViewScene;
 
-		constructor( props: React.HTMLAttributes ) {
-			super(props);
+        constructor( props: React.HTMLAttributes ) {
+            super( props );
 
-			Application._singleton = this;
+            Application._singleton = this;
 
             Utils.init();
-			new LoggerStore();
+            new LoggerStore();
 
             // Creates a common body element
-            Application.bodyComponent = new Component("body");
+            Application.bodyComponent = new Component( "body" );
 
-			Application._singleton = this;
-			//this._canvasContext = new CanvasContext();
-			this._focusObj = null;
+            Application._singleton = this;
+            //this._canvasContext = new CanvasContext();
+            this._focusObj = null;
 
-			//Start the tooltip manager
+            //Start the tooltip manager
             //TooltipManager.create();
             User.get;
 
-			this._sceneStore = new TreeViewScene();
+            this._sceneStore = new TreeViewScene();
 
-			// this._resizeProxy = this.onWindowResized.bind( this );
-			// this._downProxy = this.onMouseDown.bind( this );
+            // this._resizeProxy = this.onWindowResized.bind( this );
+            // this._downProxy = this.onMouseDown.bind( this );
 
-			//var comp = jQuery( document.activeElement ).data( "component" );
+            //var comp = jQuery( document.activeElement ).data( "component" );
 
-			// //Create each of the main components for the application.
-			// var stage: Component = new Component( "#stage" );
-			// var toolbar: Toolbar = Toolbar.getSingleton( new Component( "#toolbar" ) );
+            // //Create each of the main components for the application.
+            // var stage: Component = new Component( "#stage" );
+            // var toolbar: Toolbar = Toolbar.getSingleton( new Component( "#toolbar" ) );
 
-			// this.addChild( toolbar );
-			// this.addChild( stage );
+            // this.addChild( toolbar );
+            // this.addChild( stage );
 
-			// //Create each of the main split panels
-			// var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
-			// mainSplit.element.css( { width: "100%", height: "100%" });
+            // //Create each of the main split panels
+            // var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
+            // mainSplit.element.css( { width: "100%", height: "100%" });
 
-			// var leftSplit : SplitPanel = new SplitPanel( mainSplit.left, SplitOrientation.HORIZONTAL, 0.85 );
-			// var rightSplit : SplitPanel = new SplitPanel( mainSplit.right, SplitOrientation.HORIZONTAL, 0.5 );
-			// leftSplit.element.css( { width: "100%", height: "100%" });
-			// rightSplit.element.css( { width: "100%", height: "100%" });
-			// var grid: PropertyGrid = new PropertyGrid( rightSplit.top );
+            // var leftSplit : SplitPanel = new SplitPanel( mainSplit.left, SplitOrientation.HORIZONTAL, 0.85 );
+            // var rightSplit : SplitPanel = new SplitPanel( mainSplit.right, SplitOrientation.HORIZONTAL, 0.5 );
+            // leftSplit.element.css( { width: "100%", height: "100%" });
+            // rightSplit.element.css( { width: "100%", height: "100%" });
+            // var grid: PropertyGrid = new PropertyGrid( rightSplit.top );
 
-			// var scenetab = SceneTab.getSingleton( rightSplit.bottom );
-			// var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
+            // var scenetab = SceneTab.getSingleton( rightSplit.bottom );
+            // var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
 
-			// //now set up the dockers
-			// this._dockerlefttop = new Docker( leftSplit.top );
-			// this._dockerlefttop.addComponent( canvastab, false );
+            // //now set up the dockers
+            // this._dockerlefttop = new Docker( leftSplit.top );
+            // this._dockerlefttop.addComponent( canvastab, false );
             // this._dockerleftbottom = new Docker(leftSplit.bottom);
             // this._dockerleftbottom.addComponent(Logger.getSingleton(), false);
-			// this._dockerrightbottom = new Docker( rightSplit.bottom );
-			// this._dockerrightbottom.addComponent( scenetab, false );
-			// this._dockerrighttop = new Docker( rightSplit.top );
-			// this._dockerrighttop.addComponent( grid, false );
+            // this._dockerrightbottom = new Docker( rightSplit.bottom );
+            // this._dockerrightbottom.addComponent( scenetab, false );
+            // this._dockerrighttop = new Docker( rightSplit.top );
+            // this._dockerrighttop.addComponent( grid, false );
 
 
 
-			// this.update();
+            // this.update();
 
-			// //Hook the resize event
-			// jQuery( window ).on( 'resize', this._resizeProxy );
-			// jQuery( document ).on( 'mousedown', this._downProxy );
+            // //Hook the resize event
+            // jQuery( window ).on( 'resize', this._resizeProxy );
+            // jQuery( document ).on( 'mousedown', this._downProxy );
 
 
 
-			// Show Splash screen
-			// splash.show();
-			this.state = {
-				showSplash: true
-			}
-		}
+            // Show Splash screen
+            // splash.show();
+            this.state = {
+                showSplash: true
+            }
+        }
 
-		componentDidMount() {
-			LoggerStore.logMessage("Welcome to the Hatchery!", null, LogType.MESSAGE);
-		}
+        componentDidMount() {
+            LoggerStore.logMessage( "Welcome to the Hatchery!", null, LogType.MESSAGE );
+        }
 
 		/**
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render() : JSX.Element {
+        render(): JSX.Element {
 
-			let store = new CanvasStore();
-			//let portals : IPortal[] = [{ name: 'Portal', type: 'input',  }];
-			//store.addItem( new Behaviour( { alias: "Hello world!", behaviourType: "behaviour", left: 20, top: 20, portals:  } ) );
+            let store = new CanvasStore();
+            //let portals : IPortal[] = [{ name: 'Portal', type: 'input',  }];
+            //store.addItem( new Behaviour( { alias: "Hello world!", behaviourType: "behaviour", left: 20, top: 20, portals:  } ) );
 
-			// let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
-			// let node = treeData.addNode(new TreeViewNode("Child 1"));
-			// treeData.addNode(new TreeViewNode("Child 2"));
-			// node.addNode(new TreeViewNode("Sub Child 1"));
+            // let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
+            // let node = treeData.addNode(new TreeViewNode("Child 1"));
+            // treeData.addNode(new TreeViewNode("Child 2"));
+            // node.addNode(new TreeViewNode("Sub Child 1"));
 
-			// let treeData2 = new TreeViewNode("Root 2");
-			// let node2 = treeData2.addNode(new TreeViewNode("Child 1"));
-			// treeData2.addNode(new TreeViewNode("Child 2"));
-			// node2.addNode(new TreeViewNode("Sub Child 1"));
+            // let treeData2 = new TreeViewNode("Root 2");
+            // let node2 = treeData2.addNode(new TreeViewNode("Child 1"));
+            // treeData2.addNode(new TreeViewNode("Child 2"));
+            // node2.addNode(new TreeViewNode("Sub Child 1"));
 
-			return <div id="application">
-				{(this.state.showSplash ? <Animate.Splash onClose={()=> this.setState({ showSplash: false }) } /> : null)}
-				<div id="main-view" style={{display: this.state.showSplash ? 'none' : '' }}>
-					<div id="toolbar">
-						<Toolbar />
-					</div>
-					<div id="stage">
-						<SplitPanel ratio={0.7} left={
-							<SplitPanel
-									ratio={0.8}
-									orientation={SplitOrientation.HORIZONTAL}
-									top={<ReactCanvas store={store} />}
-									bottom={<Logger store={LoggerStore.get} />} />
-							} right={
-								<SplitPanel
-									ratio={0.6}
-									orientation={SplitOrientation.HORIZONTAL}
-									top={<h2>Property editor goes here</h2>}
-									bottom={
-										<TreeView nodeStore={this._sceneStore} />
-									} />
-							} />
-					</div>
-				</div>
-			</div>
-		}
+            return <div id="application">
+                {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
+                <div id="main-view" style={{ display: this.state.showSplash ? 'none' : '' }}>
+                    <div id="toolbar">
+                        <Toolbar />
+                    </div>
+                    <div id="stage">
+                        <SplitPanel ratio={0.7} left={
+                            <SplitPanel
+                                ratio={0.8}
+                                orientation={SplitOrientation.HORIZONTAL}
+                                top={<ReactCanvas store={store} />}
+                                bottom={<Logger store={LoggerStore.get} />} />
+                        } right={
+                            <SplitPanel
+                                ratio={0.6}
+                                orientation={SplitOrientation.HORIZONTAL}
+                                top={<h2>Property editor goes here</h2>}
+                                bottom={
+                                    <TreeView nodeStore={this._sceneStore} />
+                                } />
+                        } />
+                    </div>
+                </div>
+            </div>
+        }
 
 		/**
 		* Deals with the focus changes
 		* @param {object} e The jQuery event object
 		*/
-		onMouseDown( e ) : void {
-			var elem : JQuery = jQuery( e.target );
-            var comp: Component = elem.data( "component" ) as Component;
+        onMouseDown( e ): void {
+            let elem: JQuery = jQuery( e.target );
+            let comp: Component = elem.data( "component" ) as Component;
 
-			while ( !comp && elem.length != 0 ) {
-				elem = jQuery( elem ).parent();
-				comp = elem.data( "component" );
-			}
+            while ( !comp && elem.length !== 0 ) {
+                elem = jQuery( elem ).parent();
+                comp = elem.data( "component" );
+            }
 
-			this.setFocus( comp );
-		}
+            this.setFocus( comp );
+        }
 
 		/**
 		* Sets a component to be focused.
 		* @param {Component} comp The component to focus on.
 		*/
-		setFocus( comp : Component ) : void {
-			if ( this._focusObj )
-				this._focusObj.element.data( "focus", false );
+        setFocus( comp: Component ): void {
+            if ( this._focusObj )
+                this._focusObj.element.data( "focus", false );
 
-			if ( comp != null ) {
-				comp.element.data( "focus", true );
-				this._focusObj = comp;
-			}
-		}
+            if ( comp !== null ) {
+                comp.element.data( "focus", true );
+                this._focusObj = comp;
+            }
+        }
 
-		// /**
-		// * Updates the dimensions of the application
-		// * @param {object} val The jQuery event object
-		// */
-		// onWindowResized( val ) : void {
+        // /**
+        // * Updates the dimensions of the application
+        // * @param {object} val The jQuery event object
+        // */
+        // onWindowResized( val ) : void {
         //     // Do not update everything if the event is from JQ UI
         //     if (val && $(val.target).hasClass('ui-resizable'))
         //         return;
 
-		// 	super.update();
-		// }
+        // 	super.update();
+        // }
 
-		// /**
-		// * This will cleanup the component.
-		// */
-		// dispose() {
-		// 	jQuery( window ).off( 'resize', this._resizeProxy );
-		// 	jQuery( document ).off( 'mousedown', this._downProxy );
+        // /**
+        // * This will cleanup the component.
+        // */
+        // dispose() {
+        // 	jQuery( window ).off( 'resize', this._resizeProxy );
+        // 	jQuery( document ).off( 'mousedown', this._downProxy );
 
-		// 	this._resizeProxy = null;
-		// 	this._downProxy = null;
+        // 	this._resizeProxy = null;
+        // 	this._downProxy = null;
 
-		// 	//Call super
-		// 	super.dispose();
-		// }
+        // 	//Call super
+        // 	super.dispose();
+        // }
 
 		/**
 		*  This is called when a project is unloaded and we need to reset the GUI.
 		*/
-		projectReset() {
-            var user = User.get;
+        projectReset() {
+            const user = User.get;
 
-			PropertyGrid.getSingleton().projectReset();
-			LoggerStore.get.clear();
-            TreeViewScene.getSingleton().projectReset(user.project);
+            PropertyGrid.getSingleton().projectReset();
+            LoggerStore.get.clear();
+            TreeViewScene.getSingleton().projectReset( user.project );
             //CanvasTab.getSingleton().projectReset();
 
 
-			//Must be called after reset
-            var user = User.get;
-			if ( user.project ) {
+            //Must be called after reset
+            if ( user.project ) {
                 user.project.reset();
-				//user.project = null;
-			}
+                //user.project = null;
+            }
 
-			//Unload all the plugins
-            PluginManager.getSingleton().projectReset(user.project);
-		}
+            //Unload all the plugins
+            PluginManager.getSingleton().projectReset( user.project );
+        }
 
 		/**
 		* Gets the singleton instance
 		*/
-		public static getInstance( domElement? : string ): Application {
+        public static getInstance( domElement?: string ): Application {
             // if (Application._singleton === undefined)
-			// 	Application._singleton = new Application(domElement);
+            // 	Application._singleton = new Application(domElement);
 
-			return Application._singleton;
-		}
+            return Application._singleton;
+        }
 
-		get focusObj(): Component { return this._focusObj; }
-		//get canvasContext(): CanvasContext { return this._canvasContext; }
-		// get dockerLeftTop(): Docker { return this._dockerlefttop; }
-		// get dockerLeftBottom(): Docker { return this._dockerleftbottom; }
-		// get dockerRightTop(): Docker { return this._dockerrighttop; }
-		// get dockerRightBottom(): Docker { return this._dockerrightbottom; }
+        get focusObj(): Component { return this._focusObj; }
+        //get canvasContext(): CanvasContext { return this._canvasContext; }
+        // get dockerLeftTop(): Docker { return this._dockerlefttop; }
+        // get dockerLeftBottom(): Docker { return this._dockerleftbottom; }
+        // get dockerRightTop(): Docker { return this._dockerrighttop; }
+        // get dockerRightBottom(): Docker { return this._dockerrightbottom; }
     }
 }

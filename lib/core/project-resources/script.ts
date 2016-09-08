@@ -1,18 +1,18 @@
-module Animate {
+namespace Animate {
 
-	export module Resources {
+    export module Resources {
 
 		/**
 		* A wrapper for DB script instances
 		*/
-		export class Script extends ProjectResource<Engine.IScript> {
+        export class Script extends ProjectResource<Engine.IScript> {
 			/**
 			* @param {IScript} entry The DB entry of this script
 			*/
-			constructor(entry: Engine.IScript) {
-				super(entry);
-			}
-		}
+            constructor( entry: Engine.IScript ) {
+                super( entry );
+            }
+        }
 
-	}
+    }
 }

@@ -1,4 +1,4 @@
-// module Animate {
+// namespace Animate {
 // 	/**
 // 	* The link class are the lines drawn from behavior portals
 // 	*/
@@ -129,9 +129,9 @@
 // 			});
 
 // 			// Add glow
-// 			if ( this.startPortal.type == PortalType.PRODUCT )
+// 			if ( this.startPortal.type === PortalType.PRODUCT )
 // 				jQuery( ".parameter" ).addClass( "green-glow" );
-// 			else if ( this.startPortal.type == PortalType.OUTPUT )
+// 			else if ( this.startPortal.type === PortalType.OUTPUT )
 // 				jQuery( ".input" ).addClass( "green-glow" );
 
 // 			this.onMouseMove( e );
@@ -258,13 +258,13 @@
 // 			var endX = 0;
 // 			var endY = 0;
 
-// 			if ( this.endPortal != null ) {
+// 			if ( this.endPortal !== null ) {
 // 				var endPositionOnCanvas = this.endPortal.positionOnCanvas();
 // 				endX = endPositionOnCanvas.left + delta;
 // 				endY = endPositionOnCanvas.top + delta;
 // 			}
 // 			else {
-// 				if ( e == null )
+// 				if ( e === null )
 // 					return;
 
 //                 var t = 2;
@@ -273,13 +273,13 @@
 // 			}
 
 // 			// Now the end coords
-// 			if ( this.endPortal != null ) {
+// 			if ( this.endPortal !== null ) {
 // 				// If this loops on itself then we need to make it look nice.
-// 				if ( this.startPortal.behaviour == this.endPortal.behaviour &&
-// 					this.startPortal != this.endPortal ) {
+// 				if ( this.startPortal.behaviour === this.endPortal.behaviour &&
+// 					this.startPortal !== this.endPortal ) {
 // 					// First the start points
 // 					linePoints.push( { x: startX, y: startY });
-// 					if ( this.startPortal.type == PortalType.OUTPUT )
+// 					if ( this.startPortal.type === PortalType.OUTPUT )
 // 						linePoints.push( { x: startX + 10, y: startY });
 // 					else
 // 						linePoints.push( { x: startX, y: startY + 20 });
@@ -289,36 +289,36 @@
 // 					var behaviourWidth = this.endPortal.behaviour.element.width();
 // 					var behaviourHeight = this.endPortal.behaviour.element.height();
 
-// 					if ( this.startPortal.type == PortalType.PRODUCT )
+// 					if ( this.startPortal.type === PortalType.PRODUCT )
 // 						linePoints.push( { x: behaviourLeft + behaviourWidth + 20, y: startY + 20 });
 
 // 					linePoints.push( { x: behaviourLeft + behaviourWidth + 20, y: startY });
 // 					linePoints.push( { x: behaviourLeft + behaviourWidth + 20, y: behaviourTop - 20 });
 
-// 					if ( this.endPortal.type == PortalType.INPUT ) {
+// 					if ( this.endPortal.type === PortalType.INPUT ) {
 // 						linePoints.push( { x: behaviourLeft - 20, y: behaviourTop - 20 });
 // 						linePoints.push( { x: behaviourLeft - 20, y: endY });
 // 					}
 
-// 					if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT ) {
+// 					if ( this.endPortal.type === PortalType.PARAMETER || this.endPortal.type === PortalType.INPUT ) {
 // 						// Set the 'just before end' point
-// 						if ( this.endPortal.type == PortalType.INPUT )
+// 						if ( this.endPortal.type === PortalType.INPUT )
 // 							linePoints.push( { x: endX - 10, y: endY });
 // 						else
 // 							linePoints.push( { x: endX, y: endY - 10 });
 // 					}
 // 				}
-// 				else if ( this.endPortal.type == PortalType.PARAMETER || this.endPortal.type == PortalType.INPUT ) {
+// 				else if ( this.endPortal.type === PortalType.PARAMETER || this.endPortal.type === PortalType.INPUT ) {
 // 					// First the start points
 // 					linePoints.push( { x: startX, y: startY });
-// 					if ( this.startPortal.type == PortalType.OUTPUT )
+// 					if ( this.startPortal.type === PortalType.OUTPUT )
 // 						linePoints.push( { x: startX + 20, y: startY });
 // 					else
 // 						linePoints.push( { x: startX, y: startY + 30 });
 
 
 // 					// Set the 'just before end' point
-// 					if ( this.endPortal.type == PortalType.INPUT )
+// 					if ( this.endPortal.type === PortalType.INPUT )
 // 						linePoints.push( { x: endX - 20, y: endY });
 // 					else
 // 						linePoints.push( { x: endX, y: endY - 20 });
@@ -327,7 +327,7 @@
 // 			else {
 // 				// First the start points
 // 				linePoints.push( { x: startX, y: startY });
-// 				if ( this.startPortal.type == PortalType.OUTPUT )
+// 				if ( this.startPortal.type === PortalType.OUTPUT )
 // 					linePoints.push( { x: startX + 20, y: startY });
 // 				else
 // 					linePoints.push( { x: startX, y: startY + 30 });
@@ -362,7 +362,7 @@
 // 			var curTarget : Component = this._curTarget;
 
 // 			// Check if a portal
-// 			if ( curTarget != null )
+// 			if ( curTarget !== null )
 // 				curTarget.element.css( "cursor", "" );
 
 
@@ -401,7 +401,7 @@
 // 			var points = this._linePoints;
 // 			var len = points.length;
 
-// 			if ( len == 0 )
+// 			if ( len === 0 )
 // 				return;
 
 // 			var prevMidpt = null;
@@ -419,7 +419,7 @@
 // 			graphics.lineJoin = 'round';
 
 
-// 			if ( startPortal.type != PortalType.OUTPUT ) {
+// 			if ( startPortal.type !== PortalType.OUTPUT ) {
 // 				// Set dashed lines (only some browsers support this)
 //                 if (graphics.setLineDash !== undefined)
 //                     graphics.setLineDash([5]);
@@ -428,7 +428,7 @@
 // 			graphics.beginPath();
 
 // 			// If this loops on itself then we need to make it look nice.
-// 			if ( endPortal && startPortalBehaviour == endPortalBehaviour && startPortal != endPortal )
+// 			if ( endPortal && startPortalBehaviour === endPortalBehaviour && startPortal !== endPortal )
 // 				loops = true;
 
 // 			for ( var i = 1; i < len; i++ ) {
@@ -466,7 +466,7 @@
 // 			if ( pt2 )
 // 				graphics.lineTo( pt2.x, pt2.y - 1 );
 
-// 			if ( startPortal.type == PortalType.OUTPUT ) {
+// 			if ( startPortal.type === PortalType.OUTPUT ) {
 // 				graphics.lineWidth = 3;
 // 				if ( element.data( "selected" ) )
 // 					graphics.strokeStyle = "#FF0000";
@@ -518,21 +518,21 @@
 // 			this.startPortal.element.css( "cursor", "" );
 
 // 			// Add remove glow
-// 			if ( this.startPortal.type == PortalType.PRODUCT )
+// 			if ( this.startPortal.type === PortalType.PRODUCT )
 // 				jQuery( ".parameter" ).removeClass( "green-glow" );
-// 			else if ( this.startPortal.type == PortalType.OUTPUT )
+// 			else if ( this.startPortal.type === PortalType.OUTPUT )
 // 				jQuery( ".input" ).removeClass( "green-glow" );
 
 // 			var elm : JQuery = jQuery( e.target );
 // 			if ( elm.hasClass( "portal" ) ) {
 // 				this._curTarget = elm.data( "component" );
 
-// 				if ( this._curTarget.type == PortalType.PRODUCT || this._curTarget.type == PortalType.OUTPUT )
+// 				if ( this._curTarget.type === PortalType.PRODUCT || this._curTarget.type === PortalType.OUTPUT )
 // 					this.dispose();
 // 				else {
 // 					if (
-// 						( this.startPortal.type == PortalType.OUTPUT && this._curTarget.type == PortalType.INPUT ) ||
-// 						( this.startPortal.type == PortalType.PRODUCT && this._curTarget.type == PortalType.PARAMETER )
+// 						( this.startPortal.type === PortalType.OUTPUT && this._curTarget.type === PortalType.INPUT ) ||
+// 						( this.startPortal.type === PortalType.PRODUCT && this._curTarget.type === PortalType.PARAMETER )
 // 						) {
 // 						if ( this._curTarget.checkPortalLink( this.startPortal ) ) {
 // 							//Drop is ok
