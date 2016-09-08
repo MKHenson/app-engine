@@ -14,6 +14,7 @@
 /// <reference path="./definitions/required/react/react-addons-css-transition-group.d.ts" />
 /// <reference path="./definitions/required/react/react-dom.d.ts" />
 /// <reference path="./definitions/required/react/react-global.d.ts" />
+/// <reference path="./definitions/required/hatchery-runtime.d.ts" />
 
 
 /// <reference path="./definitions/custom/ace.d.ts" />

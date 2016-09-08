@@ -93,94 +93,6 @@ declare namespace Animate {
         getFileUploadExtensions( extArray: Array<string> ): Array<string>;
     }
 
-    export type PortalType = 'input' | 'output' | 'parameter' | 'product';
-    export type CanvasItemType = 'behaviour' | 'link' | 'asset' | 'shortcut' | 'portal' | 'script' | 'comment' | 'instance';
-
-    /**
-	* A basic wrapper for a Portal interface
-	*/
-    export class IPortal {
-        name: string;
-        type: PortalType;
-        custom: boolean;
-        property: any;
-    }
-    /**
-	 * A basic wrapper for a CanvasItem interface
-	 */
-    export interface ICanvasItem {
-        id?: number;
-        type?: CanvasItemType;
-        left?: number;
-        top?: number;
-    }
-
-    /**
-	* A basic wrapper for a Link interface
-	*/
-    export interface ILinkItem extends ICanvasItem {
-        frameDelay: number;
-        startPortal: string;
-        endPortal: string;
-        startBehaviour: number;
-        endBehaviour: number;
-    }
-
-    /**
-	* A basic wrapper for a Behaviour interface
-	*/
-    export interface IBehaviour extends ICanvasItem {
-        alias: string;
-        behaviourType: string;
-        portals?: Array<IPortal>;
-    }
-
-    /**
-	* A basic wrapper for a Comment interface
-	*/
-    export interface IComment extends ICanvasItem {
-        label: string;
-        width: number;
-        height: number;
-    }
-
-    /**
-    * A basic wrapper for a BehaviourPortal interface
-    */
-    export interface IBehaviourPortal extends IBehaviour {
-        portal: IPortal;
-    }
-
-    /**
-    * A basic wrapper for a BehaviourComment interface
-    */
-    export interface IBehaviourComment extends IBehaviour {
-        width: number;
-        height: number;
-    }
-
-    /**
-	* A basic wrapper for a BehaviourScript interface
-	*/
-    export interface IBehaviourScript extends IBehaviour {
-        scriptId: string;
-    }
-
-    /**
-	* A basic wrapper for a BehaviourShortcut interface
-	*/
-    export interface IBehaviourShortcut extends IBehaviour {
-        originalId: number;
-    }
-
-    /**
-	* A basic interface for a container object
-	*/
-    export interface IContainerToken {
-        items: Array<ICanvasItem>;
-        properties: any;
-    }
-
     export interface IPreviewFactory {
         /**
         * This function generates a React Element that is used to preview a file
@@ -273,10 +185,10 @@ declare namespace Animate {
         data: {};
     }
 }
-declare var config: {
-    "version": string;
-    "userServiceUrl": string;
-    "host": string;
+declare let config: {
+    'version': string;
+    'userServiceUrl': string;
+    'host': string;
 };
 declare namespace Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
@@ -493,7 +405,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module EventTypes {
+    namespace EventTypes {
         const PORTAL_ADDED: string;
         const PORTAL_REMOVED: string;
         const PORTAL_EDITED: string;
@@ -1627,13 +1539,13 @@ declare namespace Animate {
     * A simple class to define portal behaviour.
     */
     class PortalTemplate {
-        type: PortalType;
+        type: HatcheryRuntime.PortalType;
         property: Prop<any>;
         /**
         * @param {Prop<any>} property The property associated with this portal
         * @param {PortalType} type The type of portal this represents
         */
-        constructor(property: Prop<any>, type: PortalType);
+        constructor(property: Prop<any>, type: HatcheryRuntime.PortalType);
     }
 }
 declare namespace Animate {
@@ -3166,7 +3078,7 @@ declare namespace Animate {
     type LinkMap = {
         [shallowId: number]: {
             item: CanvasItem;
-            token: ICanvasItem;
+            token: Engine.Editor.ICanvasItem;
         };
     };
     /**
@@ -3198,12 +3110,12 @@ declare namespace Animate {
          * @param {number} id
          * @returns {ICanvasItem}
          */
-        serialize(id: number): ICanvasItem;
+        serialize(id: number): Engine.Editor.ICanvasItem;
         /**
          * De-serialize data from a JSON.
          * @param {ICanvasItem} data The data to import from
          */
-        deSerialize(data: ICanvasItem): void;
+        deSerialize(data: Engine.Editor.ICanvasItem): void;
         /**
          * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
          * @param {number} originalId The original shallow ID of the item when it was tokenized.
@@ -3252,7 +3164,7 @@ declare namespace Animate {
          * @param {Prop<any>} property
          * @returns {Portal}
          */
-        addPortal(type: PortalType, property: Prop<any>): Portal;
+        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
         /**
         * Removes a portal from this behaviour
         * @param {Portal} toRemove The portal object we are removing
@@ -3264,12 +3176,12 @@ declare namespace Animate {
          * @param {number} id
          * @returns {IBehaviour}
          */
-        serialize(id: number): IBehaviour;
+        serialize(id: number): Engine.Editor.IBehaviour;
         /**
          * De-Serializes data from a JSON.
          * @param {IBehaviour} data The data to import from
          */
-        deSerialize(data: IBehaviour): void;
+        deSerialize(data: Engine.Editor.IBehaviour): void;
         /**
          * Diposes and cleans up this component and its portals
          */
@@ -3292,23 +3204,23 @@ declare namespace Animate {
         /**
          * Creates an instance
          */
-        constructor(property: Prop<any>, portalType?: PortalType);
+        constructor(property: Prop<any>, portalType?: HatcheryRuntime.PortalType);
         /**
          * Serializes the data into a JSON.
          * @param {number} id
          * @returns {IBehaviourPortal}
          */
-        serialize(id: number): IBehaviourPortal;
+        serialize(id: number): Engine.Editor.IBehaviourPortal;
         /**
          * De-Serializes data from a JSON.
          * @param {IBehaviourPortal} data The data to import from
          */
-        deSerialize(data: IBehaviourPortal): void;
+        deSerialize(data: Engine.Editor.IBehaviourPortal): void;
         /**
          * This will cleanup the component.
          */
         dispose(): void;
-        portaltype: PortalType;
+        portaltype: HatcheryRuntime.PortalType;
         property: Prop<any>;
     }
 }
@@ -3327,14 +3239,14 @@ declare namespace Animate {
          * Serializes the data into a JSON.
          * @returns {IBehaviour}
          */
-        serialize(id: number): IBehaviour;
+        serialize(id: number): Engine.Editor.IBehaviour;
         /**
          * Adds a portal to this behaviour.
          * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
          * @param {Prop<any>} property
          * @returns {Portal}
          */
-        addPortal(type: PortalType, property: Prop<any>): Portal;
+        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
     }
 }
 declare namespace Animate {
@@ -3354,12 +3266,12 @@ declare namespace Animate {
          * @param {number} id
          * @returns {IComment}
          */
-        serialize(id: number): IComment;
+        serialize(id: number): Engine.Editor.IComment;
         /**
          * De-Serializes data from a JSON.
          * @param {IComment} data The data to import from
          */
-        deSerialize(data: IComment): void;
+        deSerialize(data: Engine.Editor.IComment): void;
     }
 }
 declare namespace Animate {
@@ -3370,7 +3282,7 @@ declare namespace Animate {
     class Portal extends EventDispatcher {
         links: Array<any>;
         custom: boolean;
-        type: PortalType;
+        type: HatcheryRuntime.PortalType;
         property: Prop<any>;
         behaviour: Behaviour;
         /**
@@ -3378,8 +3290,8 @@ declare namespace Animate {
         * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
         * @param {Prop<any>} property The property associated with this portal
         */
-        constructor(parent: Behaviour, type: PortalType, property: Prop<any>);
-        serialize(): IPortal;
+        constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
+        serialize(): Engine.Editor.IPortal;
         /**
         * Edits the portal variables
         * @param {Prop<any>} property The new value of the property
@@ -3479,7 +3391,7 @@ declare namespace Animate {
         * @returns {Behaviour}
         */
         createNode(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): Behaviour;
-        createPortal(type: PortalType): void;
+        createPortal(type: HatcheryRuntime.PortalType): void;
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
@@ -3539,7 +3451,7 @@ declare namespace Animate {
          * Gets all the canvas items in a serialized array
          * @returns {ICanvasItem[]}
          */
-        serialize(): ICanvasItem[];
+        serialize(): Engine.Editor.ICanvasItem[];
         /**
          * Triggers a change in the tree structure
          */
@@ -5539,7 +5451,7 @@ declare namespace Animate {
         * @param {PortalType} type The items current portal type
         * @param {string} caption The caption of the form
         */
-        editPortal(property: Prop<any>, type: PortalType, nameVerifier: (name: string) => boolean): void;
+        editPortal(property: Prop<any>, type: HatcheryRuntime.PortalType, nameVerifier: (name: string) => boolean): void;
         /**
         * Hides the window from view
         */
@@ -5550,7 +5462,7 @@ declare namespace Animate {
         */
         ok(json: any): void;
         name: string;
-        portalType: PortalType;
+        portalType: HatcheryRuntime.PortalType;
         value: any;
         parameterType: PropertyType;
     }
