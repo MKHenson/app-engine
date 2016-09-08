@@ -171,7 +171,7 @@ namespace Animate {
             for ( let n of node.children )
                 this.unFocus( n );
 
-            //Make sure the tree node is expanded
+            // Make sure the tree node is expanded
             let p = node.parent;
             const scroll = 0;
             while ( p ) {

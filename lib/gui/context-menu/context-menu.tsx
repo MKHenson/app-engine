@@ -70,7 +70,7 @@ namespace Animate {
             let prefix: JSX.Element;
 
             if ( item.items ) {
-                children = <div className='sub-menu'>
+                children = <div className="sub-menu">
                     {
                         item.items.map(( item, index ) => {
                             return this.drawMenuItems( item, level + 1, index );
@@ -88,7 +88,7 @@ namespace Animate {
                 onMouseDown={( e ) => { this.onMouseDown( e, item ); } }
                 key={`menu-item-${level}-${index}`}
                 className={'menu-item' + ( prefix ? ' has-prefix' : '' ) }>
-                <div className='menu-item-button'>{prefix} {item.label}</div>
+                <div className="menu-item-button">{prefix} {item.label}</div>
                 {children}
             </div>
         }
@@ -100,7 +100,7 @@ namespace Animate {
         render(): JSX.Element {
             let controlBox: JSX.Element;
 
-            return <div ref='context' className={'context-menu ' + ( this.props.className || '' ) }>
+            return <div ref="context" className={'context-menu ' + ( this.props.className || '' ) }>
                 {
                     this.props.items.map(( item, index ) => {
                         return this.drawMenuItems( item, 0, index );

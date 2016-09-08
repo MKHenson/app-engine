@@ -26,27 +26,6 @@
 		*/
         static EDITOR_RUN: EditorEvents = new EditorEvents( 'editor_run' );
 
-        //static PORTAL_ADDED: EditorEvents = new EditorEvents('portal_added');
-        //static PORTAL_REMOVED: EditorEvents = new EditorEvents('portal_removed');
-        //static PORTAL_EDITED: EditorEvents = new EditorEvents('portal_edited');
-
-
-		/**
-		* This is called by Animate when we a container is created. Associate event type is {ContainerEvent}
-		*/
-        //static CONTAINER_CREATED: EditorEvents = new EditorEvents('plugin_container_created');
-
-		/**
-		* This is called by Animate when we a container is deleted. Associate event type is {ContainerEvent}
-		*/
-        //static CONTAINER_DELETED: EditorEvents = new EditorEvents('plugin_container_deleted');
-
-
-		/**
-		* This is called by Animate when we select a container. Associate event type is {ContainerEvent}
-		*/
-        //static CONTAINER_SELECTED: EditorEvents = new EditorEvents('plugin_container_selected');
-
 		/**
 		* This is called by Animate when we are exporting a container. The token that gets passed should be used to store any optional
 		* data with a container. Associate event type is {ContainerDataEvent}
@@ -89,11 +68,6 @@
 		* Called when an asset is removed from a container. Associate event type is {AssetContainerEvent}
 		*/
         static ASSET_REMOVED_FROM_CONTAINER: EditorEvents = new EditorEvents( 'plugin_asset_removed_from_container' );
-
-		/**
-		* Called when an asset is created. Associate event type is {AssetCreatedEvent}
-		*/
-        //static ASSET_CREATED: EditorEvents = new EditorEvents( 'plugin_asset_created' );
 
 		/**
 		* Called just before an asset is saved to the server. Associate event type is {AssetEvent}
@@ -166,24 +140,6 @@
         }
     }
 
-    ///**
-    //* ContainerEvent associated events
-    //*/
-    //   export class ContainerEvent extends Event
-    //   {
-    //	/**
-    //	* {Container} container The container associated with this event
-    //	*/
-    //       public container: Container;
-
-    //       constructor(eventName: EditorEvents, container: Container)
-    //       {
-    //           super(eventName, null);
-    //           this.container = container;
-    //       }
-    //   }
-
-
 	/**
 	* Events associated with Containers and either reading from, or writing to, a data token
 	*/
@@ -225,55 +181,6 @@
             this.asset = asset;
         }
     }
-
-    ///**
-    //* Called when an asset property is edited by the property grid
-    //*/
-    //export class AssetEditedEvent extends AssetEvent
-    //{
-    //	/**
-    //	* {string} propertyName The name of the property that was edited
-    //	*/
-    //	public propertyName: string;
-
-    //	/**
-    //	* {any} newValue The updated value
-    //	*/
-    //	public newValue: any;
-
-    //	/**
-    //	* {any} oldValue The previous value
-    //	*/
-    //	public oldValue: any;
-
-    //	/**
-    //	* {ParameterType} type The parameter type of property
-    //	*/
-    //	public type: ParameterType;
-
-    //	constructor( eventName: EditorEvents, asset: Asset, propertyName, newValue : any, oldValue : any, type : ParameterType )
-    //	{
-    //		super( eventName, asset );
-    //		this.propertyName = propertyName;
-    //		this.newValue = newValue;
-    //		this.oldValue = oldValue;
-    //		this.type = type;
-    //	}
-    //}
-
-    ///**
-    //* Called when an asset is created
-    //*/
-    //   export class ResourceCreated<T extends ProjectResource<Engine.IResource>> extends Event
-    //{
-    //	public resource: T;
-
-    //       constructor(resource: T)
-    //	{
-    //		super( 'resource-created', null );
-    //           this.resource = resource;
-    //	}
-    //}
 
 	/**
 	* Called when an asset is renamed

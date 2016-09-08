@@ -81,7 +81,7 @@ namespace Animate {
                             return <div
                                 key={'param-' + i}
                                 className={'portal parameter' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + "px", top: -portalSize + "px" }}
+                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + 'px', top: -portalSize + 'px' }}
                                 >
                                 <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSizeHalf},${svgSize - svgBlockS} ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize}`} /></svg>
                             </div>
@@ -92,7 +92,7 @@ namespace Animate {
                             return <div
                                 key={'product-' + i}
                                 className={'portal product' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + "px", top: '100%' }}
+                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + 'px', top: '100%' }}
                                 onMouseDown={( e ) => this.onLinkStart( e ) }
                                 >
                                 <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSize},0 ${svgSize},${svgBlockS} ${svgSizeHalf},${svgSize} 0,${svgBlockS}`} /></svg>
@@ -104,7 +104,7 @@ namespace Animate {
                             return <div
                                 key={'input-' + i}
                                 className={'portal input' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + "px", left: -portalSize + "px" }}
+                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + 'px', left: -portalSize + 'px' }}
                                 >
                                 <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize} ${svgSize - svgBlockS},${svgSizeHalf}`} /></svg>
                             </div>
@@ -115,7 +115,7 @@ namespace Animate {
                             return <div
                                 key={'output-' + i}
                                 className={'portal output' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + "px", left: '100%' }}
+                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + 'px', left: '100%' }}
                                 onMouseDown={( e ) => this.onLinkStart( e ) }
                                 >
                                 <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgBlockS},0 ${svgSize},${svgSizeHalf} ${svgBlockS},${svgSize} 0,${svgSize}`} /></svg>
@@ -124,7 +124,7 @@ namespace Animate {
                         )
                         }
 
-                        <div className='text'>{behaviour.alias}</div>
+                        <div className="text">{behaviour.alias}</div>
                     </div>
                 </Draggable>
             )

@@ -7,10 +7,10 @@ namespace Animate {
         private picker: any;
 
         constructor( parent: Component, text: string, color: string ) {
-            super( "<div class='toolbar-button tooltip'></div>", parent );
+            super( '<div class=\'toolbar-button tooltip\'></div>', parent );
 
-            this.numberInput = <Component>this.addChild( "<input class='toolbar-color' value='#ff0000'></input>" );
-            this.addChild( "<div class='tooltip-text tooltip-text-bg'>" + text + "</div>" );
+            this.numberInput = <Component>this.addChild( '<input class=\'toolbar-color\' value=\'#ff0000\'></input>' );
+            this.addChild( '<div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div>' );
 
             this.picker = new jscolor.color( document.getElementById( this.numberInput.id ) )
             this.picker.fromString( color );

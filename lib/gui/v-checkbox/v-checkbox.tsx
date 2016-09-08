@@ -73,7 +73,7 @@ namespace Animate {
             delete props.onChecked;
             delete props.noInteractions;
 
-            let className = "v-checkbox fa " + ( this.props.className || '' ) + ( this.props.noInteractions ? ' no-interaction' : '' );
+            let className = 'v-checkbox fa ' + ( this.props.className || '' ) + ( this.props.noInteractions ? ' no-interaction' : '' );
             if ( !this.state.pristine )
                 className += ' dirty';
 

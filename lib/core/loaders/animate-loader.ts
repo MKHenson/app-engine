@@ -62,7 +62,7 @@ namespace Animate {
         load( url: string, data: any, numTries: number = 3, type: string = 'POST' ) {
             super.load( url, data, numTries );
             LoaderBase.showLoader();
-            let fullURL : string;
+            let fullURL: string;
 
             if ( url.match( /http/g ) )
                 fullURL = url;
@@ -149,7 +149,6 @@ namespace Animate {
 		* Cleans up the object
 		*/
         dispose() {
-            //Call super
             super.dispose();
             this._curCall = null;
         }

@@ -5,7 +5,7 @@ namespace Animate {
 	*/
     export class Portal extends EventDispatcher {
         // TODO: Canvas TSX changes
-        public links: Array<any>;// Array<Link>;
+        public links: Array<any>; // Array<Link>;
         public custom: boolean;
         public type: PortalType;
         public property: Prop<any>;

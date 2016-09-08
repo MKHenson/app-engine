@@ -10,7 +10,7 @@ namespace Animate {
          */
         constructor() {
             super( 'Behaviours', <i className="fa fa-plug" aria-hidden="true"></i> );
-            PluginManager.getSingleton().on( "template-created", this.onTemplateCreated, this );
+            PluginManager.getSingleton().on( 'template-created', this.onTemplateCreated, this );
             this.expanded( false );
         }
 
@@ -19,7 +19,7 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            PluginManager.getSingleton().off( "template-created", this.onTemplateCreated, this );
+            PluginManager.getSingleton().off( 'template-created', this.onTemplateCreated, this );
 
         }
 

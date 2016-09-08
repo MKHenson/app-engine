@@ -78,13 +78,13 @@ namespace Animate {
 
             let children = this._panes;
 
-            return <div className='tab'>
-                <div className='tab-labels'>
+            return <div className="tab">
+                <div className="tab-labels">
                     {( children.length > 0 ?
-                        <div className='tab-drop-button' onClick={( e ) => {
+                        <div className="tab-drop-button" onClick={( e ) => {
                             this.showContext( e );
                         } }>
-                            <i className='fa fa-arrow-circle-down' aria-hidden='true'></i>
+                            <i className="fa fa-arrow-circle-down" aria-hidden="true"></i>
                         </div> : null
                     ) }
                     {
@@ -96,12 +96,12 @@ namespace Animate {
                                     this.onTabSelected( index, pane.props )
                                 }
                                 >
-                                <div className='text'>
-                                    <span className='content'>{pane.props.label}</span>
+                                <div className="text">
+                                    <span className="content">{pane.props.label}</span>
                                 </div>
                                 {
                                     pane.props.showCloseButton ?
-                                        <div className='tab-close'
+                                        <div className="tab-close"
                                             onClick={( e ) => {
                                                 e.stopPropagation();
                                                 this.removePane( index, pane.props )
@@ -111,7 +111,7 @@ namespace Animate {
                             </div>
                         }) }
                 </div>
-                <div className='tab-panes'>
+                <div className="tab-panes">
                     { children.length > 0 ? children[ this.state.selectedIndex ] : null }
                 </div>
             </div>

@@ -593,6 +593,27 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+    * A simple interface for property grid editors
+    */
+    abstract class PropertyGridEditor {
+        constructor(grid: PropertyGrid);
+        /**
+        * Checks a property to see if it can edit it
+        * @param {Prop<any>} prop The property being edited
+        * @returns {boolean}
+        */
+        abstract canEdit(prop: Prop<any>): boolean;
+        /**
+        * Given a property, the grid editor must produce HTML that can be used to edit the property
+        * @param {Prop<any>} prop The property being edited
+        * @param {Component} container The container acting as this editors parent
+        */
+        edit(prop: Prop<any>, container: Component): any;
+        cleanup(): void;
+    }
+}
+declare namespace Animate {
+    /**
     * Base class for all custom enums
     */
     class ENUM {
@@ -679,15 +700,6 @@ declare namespace Animate {
         */
         static EDITOR_RUN: EditorEvents;
         /**
-        * This is called by Animate when we a container is created. Associate event type is {ContainerEvent}
-        */
-        /**
-        * This is called by Animate when we a container is deleted. Associate event type is {ContainerEvent}
-        */
-        /**
-        * This is called by Animate when we select a container. Associate event type is {ContainerEvent}
-        */
-        /**
         * This is called by Animate when we are exporting a container. The token that gets passed should be used to store any optional
         * data with a container. Associate event type is {ContainerDataEvent}
         */
@@ -722,9 +734,6 @@ declare namespace Animate {
         * Called when an asset is removed from a container. Associate event type is {AssetContainerEvent}
         */
         static ASSET_REMOVED_FROM_CONTAINER: EditorEvents;
-        /**
-        * Called when an asset is created. Associate event type is {AssetCreatedEvent}
-        */
         /**
         * Called just before an asset is saved to the server. Associate event type is {AssetEvent}
         */
@@ -1072,10 +1081,10 @@ declare namespace Animate {
         */
         loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>;
         /**
-        * This funtcion is used to load a plugin.
-        * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
-        * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
-        */
+         * This funtcion is used to load a plugin.
+         * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
+         * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
+         */
         preparePlugin(pluginDefinition: Engine.IPlugin, createPluginReference?: boolean): void;
         /**
         * Call this function to unload a plugin
@@ -1107,11 +1116,6 @@ declare namespace Animate {
         * @param {AssetClass}
         */
         getAssetClass(name: string): AssetClass;
-        /**
-        * When an asset is created this function will notify all plugins of its existance
-        * @param {string} name The name of the asset
-        * @param {Asset} asset The asset itself
-        */
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
@@ -1194,27 +1198,6 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-    * A simple interface for property grid editors
-    */
-    abstract class PropertyGridEditor {
-        constructor(grid: PropertyGrid);
-        /**
-        * Checks a property to see if it can edit it
-        * @param {Prop<any>} prop The property being edited
-        * @returns {boolean}
-        */
-        abstract canEdit(prop: Prop<any>): boolean;
-        /**
-        * Given a property, the grid editor must produce HTML that can be used to edit the property
-        * @param {Prop<any>} prop The property being edited
-        * @param {Component} container The container acting as this editors parent
-        */
-        edit(prop: Prop<any>, container: Component): any;
-        cleanup(): void;
-    }
-}
-declare namespace Animate {
-    /**
     * A base class for all project resources
     */
     abstract class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
@@ -1269,7 +1252,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module Resources {
+    namespace Resources {
         /**
         * Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
         * They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
@@ -1303,7 +1286,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module Resources {
+    namespace Resources {
         /**
         * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
         * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
@@ -1330,7 +1313,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module Resources {
+    namespace Resources {
         /**
         * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
         */
@@ -1357,7 +1340,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module Resources {
+    namespace Resources {
         /**
         * A wrapper for DB file instances
         * @events deleted, refreshed
@@ -1371,7 +1354,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    module Resources {
+    namespace Resources {
         /**
         * A wrapper for DB script instances
         */
@@ -1805,18 +1788,6 @@ declare namespace Animate {
         * @returns { Promise<ProjectResource<any>>}
         */
         createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
-        /**
-        * This function is used to create an entry for this project on the DB.
-        */
-        selectBuild(major: string, mid: string, minor: string): void;
-        /**
-        * This function is used to update the current build data
-        */
-        saveBuild(notes: string, visibility: string, html: string, css: string): void;
-        /**
-        * This function is called whenever we get a resonse from the server
-        */
-        onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
         containers: Array<Resources.Container>;
         files: Array<Resources.File>;
         scripts: Array<Resources.Script>;
@@ -1941,13 +1912,7 @@ declare namespace Animate {
         * This will delete a project from the database as well as remove it from the user.
         * @param {string} id The id of the project we are removing.
         */
-        deleteProject(id: string): any;
-        /**
-        * This is the resonse from the server
-        * @param {LoaderEvents} response The response from the server. The response will be either Loader.COMPLETE or Loader.FAILED
-        * @param {Event} data The data sent from the server.
-        */
-        onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
+        deleteProject(id: string): void;
         isLoggedIn: boolean;
         /**
         * Gets the singleton instance.
@@ -2575,54 +2540,6 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    /**
-    * The interface for all layout objects.
-    */
-    interface ILayout {
-        /**
-        * Sets the component offsets based the layout algorithm
-        * @param {Component} component The {Component} we are setting dimensions for.
-        */
-        update(component: Component): void;
-    }
-}
-declare namespace Animate {
-    /**
-    * A simple Percentile layout. Changes a component's dimensions to be a
-    * percentage of its parent width and height.
-    */
-    class Percentile implements ILayout {
-        widthPercent: number;
-        heightPercent: number;
-        constructor(widthPercent?: number, heightPercent?: number);
-        /**
-        * Sets the component width and height to its parent.
-        * @param {Component} component The {Component} we are setting dimensions for.
-        */
-        update(component: Component): void;
-    }
-}
-declare namespace Animate {
-    /**
-    * A simple fill layout. Fills a component to its parent width and height. Optional
-    * offsets can be used to tweak the fill.
-    */
-    class Fill implements ILayout {
-        offsetX: number;
-        offsetY: number;
-        offsetWidth: number;
-        offsetHeight: number;
-        resrtictHorizontal: boolean;
-        resrtictVertical: boolean;
-        constructor(offsetX?: number, offsetY?: number, offsetWidth?: number, offsetHeight?: number, resrtictHorizontal?: boolean, resrtictVertical?: boolean);
-        /**
-        * Sets the component width and height to its parent.
-        * @param {Component} component The {Component} we are setting dimensions for.
-        */
-        update(component: Component): void;
-    }
-}
-declare namespace Animate {
     class ComponentEvents extends ENUM {
         constructor(v: string);
         static UPDATED: ComponentEvents;
@@ -2658,18 +2575,18 @@ declare namespace Animate {
         * @param {ILayout} layout The layout object we want to add
         * @returns {ILayout} The layout that was added
         */
-        addLayout(layout: ILayout): ILayout;
+        addLayout(layout: any): any;
         /**
         * Removes a layout from this {Component}
         * @param {ILayout} layout The layout to remove
         * @returns {ILayout} The layout that was removed
         */
-        removeLayout(layout: ILayout): ILayout;
+        removeLayout(layout: any): any;
         /**
         * Gets the ILayouts for this component
         * {returns} Array<ILayout>
         */
-        layouts: Array<ILayout>;
+        layouts: Array<any>;
         /**
         * Use this function to add a child to this component.
         * This has the same effect of adding some HTML as a child of another piece of HTML.
@@ -4019,7 +3936,7 @@ declare namespace Animate {
         constructor(resource: T);
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
-         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
@@ -4292,7 +4209,7 @@ declare namespace Animate {
         constructor(template: BehaviourDefinition);
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
-         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
@@ -5205,17 +5122,17 @@ declare namespace Animate {
         private _stageDownProxy;
         /**
         * @param {Component} parent The parent of this toolbar
-        * @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:"./img1.png", text:"option 1"}, {img:"./img2.png", text:"option 2"}]
+        * @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:'./img1.png', text:'option 1'}, {img:'./img2.png', text:'option 2'}]
         */
         constructor(parent: Component, items: Array<ToolbarItem>);
         /**
-        * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:"", text:"" }
+        * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
         * @param {ToolbarItem} item The item to add.
         * @returns {Component}
         */
         addItem(item: ToolbarItem): IComponent;
         /**
-        * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:"", text:"" }
+        * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
         * @param {any} val This can be either the item object itself, its text or its component.
         * @param {boolean} dispose Set this to true if you want delete the item
         * @returns {Component} Returns the removed item component or null
@@ -5413,76 +5330,6 @@ declare namespace Animate {
          * Gets the content JSX for the window.
          */
         getContent(): React.ReactNode;
-    }
-}
-declare namespace Animate {
-    /**
-    * Use this form to set the project meta and update build versions.
-    */
-    class BuildOptionsForm extends Window {
-        static _singleton: BuildOptionsForm;
-        private _projectElm;
-        private _buildElm;
-        private _userElm;
-        private $user;
-        private $project;
-        private $projectToken;
-        private $errorMsg;
-        private $errorMsgImg;
-        private $loading;
-        private $loadingPercent;
-        private _tab;
-        private _buildProxy;
-        private _settingPages;
-        constructor();
-        /**
-        * Opens the file viewer and lets the user pick an image for their avatar
-        */
-        pickAvatar(): void;
-        /**
-        * Opens the file viewer and lets the user pick an image for their project
-        */
-        pickProjectPick(): void;
-        /**
-        * Attempts to update the project
-        */
-        updateDetails(token: Engine.IPlugin): void;
-        /**
-        * Given a form element, we look at if it has an error and based on the expression. If there is we set the error message
-        * @param {EngineForm} The form to check.
-        * @param {boolean} True if there is an error
-        */
-        reportError(form: NodeForm): boolean;
-        /**
-        * Updates the user bio information
-        * @param {string} bio The new bio data
-        */
-        updateBio(bio: string): void;
-        /**
-        * Use this function to add a new settings page to the settings menu
-        * @param {ISettingsPage} component The ISettingsPage component we're adding
-        */
-        addSettingPage(component: ISettingsPage): void;
-        /**
-        * When we recieve the server call for saving project data.
-        * @param {UserEvents} event
-        * @param {UserEvent} data
-        */
-        /**
-        * Shows the build options form
-        * @returns {any}
-        */
-        show(): void;
-        /**
-        * Use this function to print a message on the settings screen.
-        * @param {string} message The message to print
-        * @param <bool> isError Should this be styled to an error or not
-        */
-        /**
-        * Gets the singleton instance.
-        * @returns {BuildOptionsForm}
-        */
-        static getSingleton(): BuildOptionsForm;
     }
 }
 declare namespace Animate {

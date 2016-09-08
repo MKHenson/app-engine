@@ -74,7 +74,7 @@ namespace Animate {
             project.updateDetails( json ).then(() => {
                 this.setState( {
                     loading: false,
-                    infoServerMsg: "Project details updated"
+                    infoServerMsg: 'Project details updated'
                 });
             }).catch(( err: Error ) => {
                 this.setState( {
@@ -96,7 +96,7 @@ namespace Animate {
             if ( this.state.loading )
                 loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
 
-            return <div id='options-project'>
+            return <div id="options-project">
                 <Group label="Details">
                     <VForm
                         onValidationError={( e ) => { this.setState( { infoServerMsg: `${Utils.capitalize( e[ 0 ].name )} : ${e[ 0 ].error}`, error: true }) } }
@@ -113,7 +113,7 @@ namespace Animate {
                         <VTextarea value={project.description} name="description" placeholder="A project description"></VTextarea>
 
                         <h4>Visibility: </h4>
-                        <VCheckbox name="public" label='Public' checked={project.public} />
+                        <VCheckbox name="public" label="Public" checked={project.public} />
                         <p className="info"><i>If public , your project will be searchable on the Webinate gallery.</i></p>
 
                         <h4>Category: </h4>

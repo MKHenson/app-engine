@@ -104,7 +104,7 @@ namespace Animate {
 
                     '</div></div>';
 
-                //return jQuery('<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='rotate-360' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>');
+                // return jQuery('<div style='background-color:#FFF' class='modal-backdrop dark-modal'><img class='rotate-360' style='margin-left:30%; margin-top:30%;' src='media/cog.png' /></div>');
                 LoaderBase.loaderBackdrop = jQuery( str );
             }
 
@@ -144,7 +144,6 @@ namespace Animate {
 	   * Cleans up the object
 	   */
         dispose() {
-            //Call super
             super.dispose();
             this.data = null;
         }

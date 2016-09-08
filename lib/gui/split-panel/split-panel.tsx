@@ -103,7 +103,7 @@ namespace Animate {
 
             return <div className={'split-panel ' + ( orientation === SplitOrientation.VERTICAL ? 'vertical' : 'horizontal' ) } >
                 <div className="panel1" style={panel1Style}>
-                    { this.state.dragging ? <div className='panel-input'></div> : null }
+                    { this.state.dragging ? <div className="panel-input"></div> : null }
                     { this.props.left || this.props.top }
                 </div>
                 <div ref="divider" onMouseDown={( e ) => { this.onDividerMouseDown( e ) } }
@@ -119,7 +119,7 @@ namespace Animate {
                     { this.state.dragging ? <div className="panel-input"></div> : null }
                     { this.props.right || this.props.bottom }
                 </div>
-                <div className='fix'></div>
+                <div className="fix"></div>
             </div>
         }
 

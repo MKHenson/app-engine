@@ -16,7 +16,7 @@ namespace Animate {
                 { label: 'New Container', prefix: <i className="fa fa-cube" aria-hidden="true"></i> }
             ];
 
-            User.get.project.on( "resource-created", this.onResourceCreated, this );
+            User.get.project.on( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -24,7 +24,7 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            User.get.project.off( "resource-created", this.onResourceCreated, this );
+            User.get.project.off( 'resource-created', this.onResourceCreated, this );
         }
 
         /**

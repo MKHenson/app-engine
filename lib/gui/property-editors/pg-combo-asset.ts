@@ -41,7 +41,7 @@ namespace Animate {
             let nodes = TreeViewScene.getSingleton().getAssets( classNames );
 
             // Create the blank options and select it if nothing else is chosen
-            selector.append( `<option value='' ${( !selectedID ? 'selected="selected"' : '' )}></option>` );
+            selector.append( `<option value='' ${( !selectedID ? 'selected=\'selected\'' : '' )}></option>` );
 
             // Sort alphabetically
             nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
@@ -52,7 +52,7 @@ namespace Animate {
 
             const len: number = nodes.length;
             for ( let i = 0; i < len; i++ )
-                selector.append( `<option title='${nodes[ i ].resource.entry.shallowId + ' : ' + nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( selectedID === nodes[ i ].resource.entry.shallowId ? 'selected="selected"' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
+                selector.append( `<option title='${nodes[ i ].resource.entry.shallowId + ' : ' + nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( selectedID === nodes[ i ].resource.entry.shallowId ? 'selected=\'selected\'' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
 
             const that = this;
 

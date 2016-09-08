@@ -132,7 +132,7 @@ namespace Animate {
                     plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
                     this.setState({
                         mode: AttentionType.ERROR,
-                        message: "Could not load all of the plugins"
+                        message: 'Could not load all of the plugins'
                     });
                 });
             });
@@ -164,7 +164,7 @@ namespace Animate {
                                 pluginElm = <Attention mode={AttentionType.ERROR}>{plugin.$error}</Attention>
                             }
 
-                            return <div className="load-item" key={"plugin-" + index}>
+                            return <div className="load-item" key={'plugin-' + index}>
                                 {pluginElm}
                             </div>
                         })
@@ -172,7 +172,7 @@ namespace Animate {
                 </div>
             }
 
-            return <div id="splash-loading-project" className='loading-project fade-in background'>
+            return <div id="splash-loading-project" className="loading-project fade-in background">
                 <div>
                     { this.props.project ? <h2>Loading '{this.props.project.name}'</h2> : <h2>Project Loading</h2> }
                     {loadingPanel}

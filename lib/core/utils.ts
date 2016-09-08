@@ -112,7 +112,7 @@
             });
 
             // Associate the uploaded preview with the file
-            //return jQuery.ajax(url, { type: 'post', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
+            // return jQuery.ajax(url, { type: 'post', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
         }
 
         /**
@@ -170,7 +170,7 @@
             });
 
             // Associate the uploaded preview with the file
-            //return jQuery.ajax(url, { type: 'put', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
+            // return jQuery.ajax(url, { type: 'put', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
         }
 
         /**
@@ -204,7 +204,7 @@
             });
 
             // Associate the uploaded preview with the file
-            //return jQuery.ajax(url, { type: 'delete', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
+            // return jQuery.ajax(url, { type: 'delete', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
         }
 
         // TODO: This can probably be removed with new canvas tsx
@@ -265,10 +265,10 @@
                 case PropertyType.GROUP:
                     prop = new PropGroup( name, null );
                     break;
-                //TODO: We dont have hidden props yet
+                // TODO: We dont have hidden props yet
                 case PropertyType.HIDDEN:
                     break;
-                //TODO: We dont have hidden props yet
+                // TODO: We dont have hidden props yet
                 case PropertyType.HIDDEN_FILE:
                     break;
                 case PropertyType.NUMBER:
@@ -277,7 +277,7 @@
                 case PropertyType.OBJECT:
                     prop = new PropObject( name, null );
                     break;
-                //TODO: We dont have objecy props yet
+                // TODO: We dont have objecy props yet
                 case PropertyType.OPTIONS:
                     break;
                 case PropertyType.STRING:

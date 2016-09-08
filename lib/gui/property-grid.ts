@@ -14,11 +14,11 @@ namespace Animate {
 
         constructor( parent: Component ) {
             // Call super-class constructor
-            super( "<div class='property-grid'></div>", parent );
+            super( '<div class=\'property-grid\'></div>', parent );
 
             PropertyGrid._singleton = this;
 
-            this._header = jQuery( "<div class='property-grid-header background-dark'>Select an Object</div>" );
+            this._header = jQuery( '<div class=\'property-grid-header background-dark\'>Select an Object</div>' );
             this.element.append( this._header );
             this._editors = [];
             //this._docker = null;
@@ -41,7 +41,7 @@ namespace Animate {
 		* which will act as a preview of the component that is being viewed or hidden.
 		* @returns <string> The image url
 		*/
-        getPreviewImage(): string { return "media/spanner.png"; }
+        getPreviewImage(): string { return 'media/spanner.png'; }
 
         // /**
         // * Each IDock item needs to implement this so that we can keep track of where it moves.
@@ -89,7 +89,7 @@ namespace Animate {
 		* @param {string} img An optional image string
 		* @returns {any} Returns the object we are currently editing
 		*/
-        editableObject( object: EditableSet, name: string, img: string = "" ) {
+        editableObject( object: EditableSet, name: string, img: string = '' ) {
             if ( !this.enabled )
                 return;
 
@@ -98,7 +98,7 @@ namespace Animate {
 
             if ( object !== undefined && object !== null ) {
                 // Set the header
-                this._header.html(( img && img !== "" ? "<img src='" + img + "' />" : "" ) + name );
+                this._header.html(( img && img !== '' ? '<img src=\'\' + img + \'\' />' : '' ) + name );
 
                 const sortable: Array<{ group: PropertyGridGroup; prop: Prop<any>; }> = [];
 
@@ -156,14 +156,14 @@ namespace Animate {
                         if ( !editors[ editor ].canEdit( sortable[ i ].prop ) )
                             continue;
 
-                        const editorContainer = new Component( "<div class='editor-container'></div>" );
+                        const editorContainer = new Component( '<div class=\'editor-container\'></div>' );
                         sortable[ i ].group.addChild( editorContainer );
                         editors[ editor ].edit( sortable[ i ].prop, editorContainer );
                     }
                 }
             }
             else {
-                this._header.html( "Please select an object." );
+                this._header.html( 'Please select an object.' );
 
                 // Set the editable
                 this._object = null;
@@ -189,7 +189,7 @@ namespace Animate {
 		* @returns <object>
 		*/
         projectReset() {
-            this.editableObject( null, "", "" );
+            this.editableObject( null, '', '' );
         }
 
 		/**

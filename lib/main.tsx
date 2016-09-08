@@ -38,8 +38,8 @@ function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
             if ( a === b )
                 return 0;
 
-            const a_components = a.version.split( "." );
-            const b_components = b.version.split( "." );
+            const a_components = a.version.split( '.' );
+            const b_components = b.version.split( '.' );
 
             const len = Math.min( a_components.length, b_components.length );
 
@@ -88,7 +88,7 @@ jQuery( document ).ready( function () {
         crossDomain: true,
         xhrFields: { withCredentials: true },
         //contentType: 'application/json;charset=UTF-8',
-        //dataType: "json"
+        //dataType: 'json'
     });
 
     const that = this;

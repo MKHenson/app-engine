@@ -38,16 +38,16 @@
 
 //			if ( !PropOptionsWindow._window )
 //			{
-//				PropOptionsWindow._window = new OkCancelForm( 200, 200, true, true, "Options", false );
-//				PropOptionsWindow._window.element.css( { width: "", height: "" });
-//				PropOptionsWindow._window.content.element.css( { width: "", height: "" });
-//				PropOptionsWindow._window.okCancelContent.element.addClass("prop-options-content");
+//				PropOptionsWindow._window = new OkCancelForm( 200, 200, true, true, 'Options', false );
+//				PropOptionsWindow._window.element.css( { width: '', height: '' });
+//				PropOptionsWindow._window.content.element.css( { width: '', height: '' });
+//				PropOptionsWindow._window.okCancelContent.element.addClass('prop-options-content');
 //			}
 
 //			var buttonOptions: ButtonOptions = <ButtonOptions>options;
 
 //			//Create HTML
-//			var editor: JQuery = jQuery( "<div class='options-button button'>" + propertyName + "</div><div class='fix' ></div >");
+//			var editor: JQuery = jQuery( '<div class='options-button button'>' + propertyName + '</div><div class='fix' ></div >');
 //			var that = this;
 
 //			//Functions to deal with user interactions with JQuery
@@ -86,7 +86,7 @@
 //			};
 
 //			//Add listeners
-//			editor.on( "mouseup", mouseUp );
+//			editor.on( 'mouseup', mouseUp );
 
 //			//Finall return editor as HTML to be added to the page
 //			return editor;
@@ -99,7 +99,7 @@
 //		*/
 //		update( newValue, editHTML )
 //		{
-//			jQuery( "input", editHTML ).val( newValue );
+//			jQuery( 'input', editHTML ).val( newValue );
 //		}
 //	}
 //}

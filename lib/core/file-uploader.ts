@@ -84,7 +84,7 @@
             const dataURL = canvas.toDataURL();
 
             // Convert the dataURL to pure base 64
-            //var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, '');
+            // var byteString = dataURL.replace(/^data:image\/(png|jpg);base64,/, '');
 
             // convert base64 to raw binary data held in a string
             // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
@@ -267,9 +267,7 @@
             xhr.withCredentials = true;
             xhr.open( 'post', url, true );
             xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
-            //xhr.setRequestHeader('X-File-Name', encodeURIComponent(file.name));
             xhr.setRequestHeader( 'Cache-Control', 'no-cache' );
-            //xhr.setRequestHeader('X-Mime-Type', file.type);
             xhr.send( form );
         }
     }

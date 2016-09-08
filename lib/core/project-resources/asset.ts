@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export module Resources {
+    export namespace Resources {
 
 		/**
 		* Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
@@ -22,25 +22,7 @@ namespace Animate {
 
                 // Build the properties from the asset class
                 this.properties = assetClass.buildVariables();
-
-                //this._options = {};
-                //this.id = id;
-                //this.shallowId = shallowId;
-                //this.name = name;
-                //this.saved = true;
-                //this._properties = new EditableSet();
-
-                //if ( entry.json )
-                //   this.setProperties(<Array<EditableSetToken>>entry.json);
-
-                //this._className = entry.className;
             }
-
-            //static getNewLocalId(): number
-            //{
-            //	Asset.shallowIds++;
-            //	return Asset.shallowIds;
-            //}
 
 			/**
 			* Writes this assset to a readable string
@@ -67,19 +49,9 @@ namespace Animate {
 			* Disposes and cleans up the data of this asset
 			*/
             dispose() {
-                //Call super
                 super.dispose();
-
                 this.class = null;
-                //this.id = null;
-                //this.name = null;
-                //this._properties = null;
-                //this._className = null;
-                //this._options = null;
             }
-
-            //get className(): string { return this._className; }
-
         }
     }
 }

@@ -29,25 +29,25 @@ namespace Animate {
 
             // Create HTML
             const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
-            const selector: JQuery = jQuery( "select", editor );
+            const selector: JQuery = jQuery( 'select', editor );
 
             // Add to DOM
             container.element.append( editor );
 
             // Boolean
-            selector.append( `<option value='true' ${( prop.getVal() ? "selected='selected'" : "" )}>True</option>` );
-            selector.append( `<option value='false' ${( !prop.getVal() ? "selected='selected'" : "" )}>False</option>` );
+            selector.append( `<option value='true' ${( prop.getVal() ? 'selected=\'selected\'' : '' )}>True</option>` );
+            selector.append( `<option value='false' ${( !prop.getVal() ? 'selected=\'selected\'' : '' )}>False</option>` );
 
             const that = this;
 
             //Functions to deal with user interactions with JQuery
             const onSelect = function ( e: JQueryEventObject ) {
                 const val = selector.val();
-                prop.setVal(( val === "true" ? true : false ) );
+                prop.setVal(( val === 'true' ? true : false ) );
             };
 
             // Add listeners
-            selector.on( "change", onSelect );
+            selector.on( 'change', onSelect );
 
             // Finall return editor as HTML to be added to the page
             return editor;

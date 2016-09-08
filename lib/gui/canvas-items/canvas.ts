@@ -12,7 +12,7 @@ namespace Animate {
     export class CanvasEvents extends ENUM {
         constructor( v: string ) { super( v ); }
 
-        static MODIFIED: CanvasEvents = new CanvasEvents( "canvas_modified" );
+        static MODIFIED: CanvasEvents = new CanvasEvents( 'canvas_modified' );
     }
 
 
@@ -44,7 +44,7 @@ namespace Animate {
 		*/
         constructor( parent: Component, container: Resources.Container ) {
             // Call super-class constructor
-            super( "<div class='canvas' tabindex='0'></div>", parent );
+            super( '<div class=\'canvas\' tabindex=\'0\'></div>', parent );
 
             // this._proxyMoving = this.onChildMoving.bind( this );
             // this._proxyStartDrag = this.onStartingDrag.bind( this );
@@ -65,15 +65,15 @@ namespace Animate {
             // this._containerReferences = { groups: [], assets: [] };
 
             // // Create the default portal
-            // new BehaviourPortal(this, new PropBool("Start", false), PortalType.INPUT);
+            // new BehaviourPortal(this, new PropBool('Start', false), PortalType.INPUT);
 
             // // Hook listeners
-            // this.element.on("mousedown", this._downProxy);
-            // this.element.on("dblclick", jQuery.proxy(this.onDoubleClick, this));
-            // jQuery("body").on("keydown", this._keyProxy);
-            // jQuery(document).on("contextmenu", this._contextProxy);
+            // this.element.on('mousedown', this._downProxy);
+            // this.element.on('dblclick', jQuery.proxy(this.onDoubleClick, this));
+            // jQuery('body').on('keydown', this._keyProxy);
+            // jQuery(document).on('contextmenu', this._contextProxy);
 
-            // this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: ".behaviour-to-canvas" });
+            // this.element.droppable(<JQueryUI.DroppableOptions>{ drop: this.onObjectDropped.bind(this), accept: '.behaviour-to-canvas' });
             // BehaviourPicker.getSingleton().on(BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this);
             // PortalForm.getSingleton().on(OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this);
             // PluginManager.getSingleton().on(EditorEvents.ASSET_EDITED, this.onAssetEdited, this );
@@ -85,15 +85,15 @@ namespace Animate {
         // 		 * @param ui
         // 		 */
         //         onStartingDrag(e: JQueryEventObject, ui: JQueryUI.DraggableEvent) {
-        // 			var target: Behaviour = <Behaviour>jQuery( e.currentTarget ).data( "component" );
+        // 			var target: Behaviour = <Behaviour>jQuery( e.currentTarget ).data( 'component' );
 
         // 			// Shift key pressed - so lets create a shortcut
         // 			if ( e.shiftKey ) {
         // 				if ( !( target.canGhost ) )
         // 					return;
 
-        // 				var left = target.element.css( "left" );
-        // 				var top = target.element.css( "top" );
+        // 				var left = target.element.css( 'left' );
+        // 				var top = target.element.css( 'top' );
 
         // 				var shortcut: BehaviourShortcut = null;
 
@@ -103,7 +103,7 @@ namespace Animate {
         // 				else
         // 					shortcut = new BehaviourShortcut( this, target, target.alias );
 
-        // 				shortcut.element.css( { left: left, top: top, position: "absolute" });
+        // 				shortcut.element.css( { left: left, top: top, position: 'absolute' });
 
         // 				( <any>jQuery ).ui.ddmanager.current.helper = shortcut.element;
         // 				( <any>jQuery ).ui.ddmanager.current.cancelHelperRemoval = true;
@@ -116,9 +116,9 @@ namespace Animate {
         // 		* When an item is finished being dragged
         // 		*/
         // 		onChildDropped( e, ui ) {
-        // 			var target: Behaviour = <Behaviour>ui.helper.data( "component" );
-        // 			var left = parseFloat( target.element.css( "left" ).split( "px" )[0] );
-        // 			var top = parseFloat( target.element.css( "top" ).split( "px" )[0] );
+        // 			var target: Behaviour = <Behaviour>ui.helper.data( 'component' );
+        // 			var left = parseFloat( target.element.css( 'left' ).split( 'px' )[0] );
+        // 			var top = parseFloat( target.element.css( 'top' ).split( 'px' )[0] );
 
         // 			if ( Canvas.snapping ) {
         // 				left = parseInt( left.toString() );
@@ -134,7 +134,7 @@ namespace Animate {
         // 			if ( top < 0 )
         // 				top = 0;
 
-        // 			target.element.css( { top: top + "px", left: left + "px" });
+        // 			target.element.css( { top: top + 'px', left: left + 'px' });
 
         // 			// Update the links
         // 			for ( var i = 0, l = target.portals.length; i < l; i++ )
@@ -154,7 +154,7 @@ namespace Animate {
         // 			// TODO: This needs to be updated with TSX. It also needs to use the new IDragDropToken instead of the JQuery one. see
         // 			// the tree node models on how to use it
 
-        // 			// var comp: Component = jQuery( ui.draggable ).data( "component" );
+        // 			// var comp: Component = jQuery( ui.draggable ).data( 'component' );
         // 			// if ( comp instanceof TreeNode ) {
         // 			// 	var p: JQuery = this.parent.element;
         // 			// 	var offset = this.element.offset();
@@ -169,7 +169,7 @@ namespace Animate {
         // 			// 	else if ( comp instanceof TreeNodePluginBehaviour )
         // 			// 		this.createNode( ( <TreeNodePluginBehaviour>comp ).template, this._x, this._y );
         //             //     else if (comp instanceof TreeNodeBehaviour)
-        //             //         this.createNode(PluginManager.getSingleton().getTemplate("Instance"), this._x, this._y, (<TreeNodeBehaviour>comp).resource);
+        //             //         this.createNode(PluginManager.getSingleton().getTemplate('Instance'), this._x, this._y, (<TreeNodeBehaviour>comp).resource);
         // 			// }
         // 		}
 
@@ -180,7 +180,7 @@ namespace Animate {
         // 		* @param {number} y
         // 		*/
         // 		addAssetAtLocation( asset: Asset, x: number, y: number ) {
-        // 			var node: BehaviourAsset = <BehaviourAsset>this.createNode( PluginManager.getSingleton().getTemplate( "Asset" ), x, y );
+        // 			var node: BehaviourAsset = <BehaviourAsset>this.createNode( PluginManager.getSingleton().getTemplate( 'Asset' ), x, y );
         //             node.asset = asset;
         //             node.parameters[0].property.setVal( asset );
 
@@ -197,15 +197,15 @@ namespace Animate {
         // 		* This function is used to cleanup the object before its removed from memory.
         // 		*/
         // 		dispose() {
-        // 			this.element.droppable("destroy");
+        // 			this.element.droppable('destroy');
 
         // 			PluginManager.getSingleton().off(EditorEvents.ASSET_EDITED, this.onAssetEdited, this);
         // 			BehaviourPicker.getSingleton().off( BehaviourPickerEvents.BEHAVIOUR_PICKED, this.onBehaviourPicked, this );
         // 			PortalForm.getSingleton().off( OkCancelFormEvents.CONFIRM, this.OnPortalConfirm, this );
-        // 			jQuery( "body" ).off( "keydown", this._keyProxy );
-        // 			jQuery( document ).off( "contextmenu", this._contextProxy );
+        // 			jQuery( 'body' ).off( 'keydown', this._keyProxy );
+        // 			jQuery( document ).off( 'contextmenu', this._contextProxy );
 
-        // 			this.element.off( "mousedown", this._downProxy );
+        // 			this.element.off( 'mousedown', this._downProxy );
 
         // 			this._proxyMoving = null;
         // 			this._proxyStartDrag = null;
@@ -295,7 +295,7 @@ namespace Animate {
 
         // 					// Notify of change
         //                     if (toRemove[i] instanceof BehaviourPortal)
-        //                         this.emit(new PortalEvent(EventTypes.PORTAL_REMOVED, "", this._container, (<BehaviourPortal>toRemove[i]).portals[0]));
+        //                         this.emit(new PortalEvent(EventTypes.PORTAL_REMOVED, '', this._container, (<BehaviourPortal>toRemove[i]).portals[0]));
 
         // 					toRemove[i].dispose();
         // 					this.buildSceneReferences();
@@ -316,7 +316,7 @@ namespace Animate {
 
         // 			var i = toRemove.length;
         // 			while ( i-- )
-        // 				if ( typeof ( toRemove[i] ) !== "undefined" )
+        // 				if ( typeof ( toRemove[i] ) !== 'undefined' )
         // 					if ( toRemove[i].disposed !== null && toRemove[i].selected )
         // 						this.removeItem( toRemove[i] );
         // 		}
@@ -328,7 +328,7 @@ namespace Animate {
         //             var context: Component = this._contextNode;
         //             var that = this;
 
-        // 			if ( event.item.text === "Delete" ) {
+        // 			if ( event.item.text === 'Delete' ) {
         // 				// Delete portal
         //                 if (context instanceof Portal) {
         //                     var behaviour: Behaviour = context.behaviour;
@@ -339,25 +339,25 @@ namespace Animate {
         //                     //    if (behaviour.parameters[i].links.length <= 0)
         //                     //        toEdit.addVar(behaviour.parameters[i].name, behaviour.parameters[i].value, PropertyType.fromString(behaviour.parameters[i].dataType.toString()), behaviour.element.text(), null);
 
-        //                     PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, null);
+        //                     PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + ' - ' + behaviour.id, null);
         //                     return;
         //                 }
         //                 else
         //                     Toolbar.getSingleton().onDelete();
         // 			}
-        // 			else if ( event.item.text === "Remove Empty Assets" ) {
+        // 			else if ( event.item.text === 'Remove Empty Assets' ) {
         // 				// Remove all selected
         // 				var toRemove = [];
         //                 for (var i = 0, l = this.children.length; i < l; i++)
         // 					toRemove.push( this.children[i] );
 
         //                 for (var i = 0, l = toRemove.length; i < l; i++)
-        // 					if ( typeof ( toRemove[i] ) !== "undefined" )
-        // 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value === ":" )
+        // 					if ( typeof ( toRemove[i] ) !== 'undefined' )
+        // 						if ( toRemove[i] instanceof BehaviourAsset && toRemove[i].parameters[0].value === ':' )
         // 							this.removeItem( toRemove[i] );
         // 			}
         //             // Edit an existing portal
-        //             else if (event.item.text === "Edit Portal" && context instanceof Portal) {
+        //             else if (event.item.text === 'Edit Portal' && context instanceof Portal) {
         //                 PortalForm.getSingleton().editPortal(context.property, context.type, function (name): boolean {
         //                     // Make sure there are no duplicates
         //                     for (var i = 0, portals = context.behaviour.portals, l = portals.length; i < l; i++)
@@ -373,29 +373,29 @@ namespace Animate {
         //                     context.edit(data.prop);
         //                 });
         // 			}
-        // 			else if ( event.item.text === "Create Behaviour" ) {
+        // 			else if ( event.item.text === 'Create Behaviour' ) {
         // 				var c = Application.getInstance().canvasContext;
         // 				BehaviourPicker.getSingleton().show( null, c.element.offset().left, c.element.offset().top, false, true );
 
         // 				var throwError = true;
         // 				if (throwError)
-        // 					throw new Error("Not implemented");
+        // 					throw new Error('Not implemented');
         // 			}
         // 			// Create a comment
-        // 			else if ( event.item.text === "Create Comment" ) {
-        // 				var comment = new BehaviourComment( this, "Comment" );
-        // 				comment.element.addClass( "scale-in-animation" );
-        // 				comment.css( { left: this._x + "px", top: this._y + "px", width: "100px", height: "60px" });
+        // 			else if ( event.item.text === 'Create Comment' ) {
+        // 				var comment = new BehaviourComment( this, 'Comment' );
+        // 				comment.element.addClass( 'scale-in-animation' );
+        // 				comment.css( { left: this._x + 'px', top: this._y + 'px', width: '100px', height: '60px' });
         // 			}
-        // 			else if ( event.item.text === "Create Input" || event.item.text === "Create Output"
-        // 				|| event.item.text === "Create Parameter" || event.item.text === "Create Product" ) {
+        // 			else if ( event.item.text === 'Create Input' || event.item.text === 'Create Output'
+        // 				|| event.item.text === 'Create Parameter' || event.item.text === 'Create Product' ) {
         // 				// Define the type of portal
         // 				var type: PortalType = PortalType.INPUT;
-        // 				if ( event.item.text === "Create Output" )
+        // 				if ( event.item.text === 'Create Output' )
         // 					type = PortalType.OUTPUT;
-        // 				else if ( event.item.text === "Create Parameter" )
+        // 				else if ( event.item.text === 'Create Parameter' )
         // 					type = PortalType.PARAMETER;
-        // 				if ( event.item.text === "Create Product" )
+        // 				if ( event.item.text === 'Create Product' )
         // 					type = PortalType.PRODUCT;
 
         //                 //if (context)
@@ -427,10 +427,10 @@ namespace Animate {
         //                         context.addPortal(type, data.prop, true, true);
         //                     else  {
         //                         var newNode: BehaviourPortal = new BehaviourPortal(that, data.prop, type);
-        //                         newNode.css({ "left": that._x + "px", "top": that._y + "px", "position": "absolute" });
+        //                         newNode.css({ 'left': that._x + 'px', 'top': that._y + 'px', 'position': 'absolute' });
 
         //                         // Notify of change
-        //                         that.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", that._container, newNode.portals[0]));
+        //                         that.emit(new PortalEvent(EventTypes.PORTAL_ADDED, '', that._container, newNode.portals[0]));
         //                     }
 
         //                     // Notify of change
@@ -601,7 +601,7 @@ namespace Animate {
         // 			if ( this.element.is( ':visible' ) === false )
         // 				return;
 
-        // 			if ( e.text === "Ok" ) {
+        // 			if ( e.text === 'Ok' ) {
         //                 var comp: Component = this._contextNode;
 
         // 				// If we are editing a portal
@@ -627,7 +627,7 @@ namespace Animate {
         //                     //    if (params[i].links.length <= 0 )
         //                     //       toEdit.addVar(params[i].name, params[i].value, params[i].dataType, behaviour.element.text(), null );
 
-        //                     PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + " - " + behaviour.id, "" );
+        //                     PropertyGrid.getSingleton().editableObject(behaviour.properties, behaviour.text + ' - ' + behaviour.id, '' );
 
         //                     // Notify of change
         //                     this.emit(new PortalEvent(EventTypes.PORTAL_EDITED, oldName, this._container, portal));
@@ -651,10 +651,10 @@ namespace Animate {
         // 						//PortalForm.getSingleton().parameterType,
         // 						//PortalForm.getSingleton().value );
 
-        // 					newNode.css( { "left": this._x + "px", "top": this._y + "px", "position": "absolute" });
+        // 					newNode.css( { 'left': this._x + 'px', 'top': this._y + 'px', 'position': 'absolute' });
 
         // 					// Notify of change
-        //                     this.emit(new PortalEvent(EventTypes.PORTAL_ADDED, "", this._container, newNode.portals[0]));
+        //                     this.emit(new PortalEvent(EventTypes.PORTAL_ADDED, '', this._container, newNode.portals[0]));
         // 				}
 
         // 				// Notify of change
@@ -690,9 +690,9 @@ namespace Animate {
 
         // 			// Now hook the context events
         // 			var targ = jQuery( e.target );
-        // 			var targetComp = targ.data( "component" );
+        // 			var targetComp = targ.data( 'component' );
         // 			var context = Application.getInstance().canvasContext;
-        // 			this._contextNode = targ.data( "component" );
+        // 			this._contextNode = targ.data( 'component' );
 
         // 			// If the canvas
         // 			if ( targetComp instanceof Canvas ) {
@@ -713,7 +713,7 @@ namespace Animate {
         // 			// If a link
         // 			else if ( targetComp instanceof Link ) {
         // 				e.preventDefault();
-        // 				var link = targ.data( "component" );
+        // 				var link = targ.data( 'component' );
         // 				var hit = link.hitTestPoint( e );
         // 				if ( hit ) {
         // 					context.showContext( e.pageX, e.pageY, link );
@@ -758,8 +758,8 @@ namespace Animate {
         //             var that = this;
 
         // 			if ( template ) {
-        //                 if (template.behaviourName === "Script") {
-        // 					ReactWindow.show( RenameForm, { name: "Script",
+        //                 if (template.behaviourName === 'Script') {
+        // 					ReactWindow.show( RenameForm, { name: 'Script',
         // 						onOk: (newName) => { that.createNode(template, that._x, that._y, null, newName); } } as IRenameFormProps);
         //                 }
         //                 else
@@ -818,8 +818,8 @@ namespace Animate {
         // 		createNode( template: BehaviourDefinition, x: number, y: number, container?: Container, name ?: string ): Behaviour {
         // 			var toAdd: Behaviour = null;
 
-        // 			if ( template.behaviourName === "Instance" ) {
-        // 				var nameOfBehaviour: string = "";
+        // 			if ( template.behaviourName === 'Instance' ) {
+        // 				var nameOfBehaviour: string = '';
         // 				var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
         // 				if ( cyclic ) {
         // 					ReactWindow.show(MessageBox, { message : `You have a cylic dependency with the behaviour '${nameOfBehaviour}'` } as IMessageBoxProps);
@@ -827,14 +827,14 @@ namespace Animate {
         // 				}
         // 				toAdd = new BehaviourInstance( this, container );
         // 			}
-        // 			else if ( template.behaviourName === "Asset" )
+        // 			else if ( template.behaviourName === 'Asset' )
         // 				toAdd = new BehaviourAsset( this, template.behaviourName );
-        //             else if (template.behaviourName === "Script")
+        //             else if (template.behaviourName === 'Script')
         //                 toAdd = new BehaviourScript(this, null, name );
         // 			else
         // 				toAdd = new Behaviour( this, template.behaviourName );
 
-        //             if (template.behaviourName !== "Instance" && template.behaviourName !== "Script" )
+        //             if (template.behaviourName !== 'Instance' && template.behaviourName !== 'Script' )
         // 				toAdd.text = template.behaviourName;
 
         // 			var portalTemplates = template.portalsTemplates();
@@ -855,8 +855,8 @@ namespace Animate {
         // 			x = x - x % 10;
         // 			y = y - y % 10;
 
-        // 			toAdd.element.css( { left: x + "px", top: y + "px" });
-        // 			toAdd.element.addClass( "scale-in-animation" );
+        // 			toAdd.element.css( { left: x + 'px', top: y + 'px' });
+        // 			toAdd.element.addClass( 'scale-in-animation' );
         // 			toAdd.updateDimensions();
 
         // 			//Notify of change
@@ -873,7 +873,7 @@ namespace Animate {
         // 			if ( this.element.is( ':visible' ) === false )
         // 				return;
 
-        // 			if ( jQuery( e.target ).is( "input" ) )
+        // 			if ( jQuery( e.target ).is( 'input' ) )
         // 				return;
 
         // 			var focusObj = Application.getInstance().focusObj;
@@ -889,7 +889,7 @@ namespace Animate {
         //                     else if (focusObj instanceof Behaviour ) {
 
         // 						// Attempt to rename the behaviour
-        // 						ReactWindow.show( RenameForm, { name: "Script", onOk: (newName) => {
+        // 						ReactWindow.show( RenameForm, { name: 'Script', onOk: (newName) => {
 
         // 							var toEdit: Behaviour = null;
         //                             if (focusObj instanceof BehaviourShortcut)
@@ -941,10 +941,10 @@ namespace Animate {
         // 		* @param {any} e The jQuery event object
         // 		*/
         // 		onDoubleClick( e: any ) {
-        // 			if ( jQuery( e.target ).is( "textarea" ) )
+        // 			if ( jQuery( e.target ).is( 'textarea' ) )
         // 				return;
 
-        // 			var comp = jQuery( e.target ).data( "component" );
+        // 			var comp = jQuery( e.target ).data( 'component' );
 
         // 			//If a comment edit it
         // 			if ( comp instanceof BehaviourComment ) {
@@ -954,7 +954,7 @@ namespace Animate {
         // 			//If an instance, then open it
         // 			else if ( comp instanceof BehaviourInstance ) {
         //                 var tree: TreeViewScene = TreeViewScene.getSingleton();
-        //                 var node = tree.findNode("resource", (<BehaviourInstance>comp).container);
+        //                 var node = tree.findNode('resource', (<BehaviourInstance>comp).container);
         // 				tree.selectNode( node );
         // 				( <TreeViewScene>tree ).onDblClick( null );
         // 				return;
@@ -989,23 +989,23 @@ namespace Animate {
         // 				var children = this.children;
 
         // 				for ( var i = 0, l = children.length; i < l; i++ ) {
-        //                     children[i].element.removeClass("green-glow-strong").removeClass("short-active");
+        //                     children[i].element.removeClass('green-glow-strong').removeClass('short-active');
         // 					if ( children[i].selected )
         // 						children[i].selected = false;
         // 				}
 
         // 				// Set the selected item
         // 				Canvas.lastSelectedItem = null;
-        // 				PropertyGrid.getSingleton().editableObject( null, "", "" );
+        // 				PropertyGrid.getSingleton().editableObject( null, '', '' );
         // 				Toolbar.getSingleton().itemSelected( null );
         // 				return;
         // 			}
 
         // 			if ( comp.selected ) {
-        // 				comp.element.removeClass( "green-glow-strong" );
+        // 				comp.element.removeClass( 'green-glow-strong' );
         // 				comp.selected = false;
         // 				Canvas.lastSelectedItem = null;
-        // 				PropertyGrid.getSingleton().editableObject( null, "", "" );
+        // 				PropertyGrid.getSingleton().editableObject( null, '', '' );
         // 				Toolbar.getSingleton().itemSelected( null );
         // 				return;
         // 			}
@@ -1016,26 +1016,26 @@ namespace Animate {
         // 			Canvas.lastSelectedItem = comp;
 
         // 			if ( comp instanceof Behaviour ) {
-        // 				comp.element.removeClass( "scale-in-animation" );
+        // 				comp.element.removeClass( 'scale-in-animation' );
 
         // 				// Hand the item to the editor
         // 				if ( comp instanceof BehaviourComment )
-        //                     PropertyGrid.getSingleton().editableObject(comp.properties, "Comment", "");
+        //                     PropertyGrid.getSingleton().editableObject(comp.properties, 'Comment', '');
         // 				else if ( comp instanceof BehaviourShortcut === false )
-        //                     PropertyGrid.getSingleton().editableObject(comp.properties, comp.text + " - " + comp.id, "");
+        //                     PropertyGrid.getSingleton().editableObject(comp.properties, comp.text + ' - ' + comp.id, '');
 
         // 				// Highlight all shortcuts
         // 				var children = this.children;
         // 				var i = children.length;
         // 				while ( i-- )
-        // 					if ( typeof ( children[i] ) !== "undefined" )
+        // 					if ( typeof ( children[i] ) !== 'undefined' )
         // 						if ( children[i] instanceof BehaviourShortcut && ( <BehaviourShortcut>children[i] ).originalNode === comp )
-        //                             children[i].element.addClass( "short-active" );
+        //                             children[i].element.addClass( 'short-active' );
         // 						else
-        //                             children[i].element.removeClass( "short-active" );
+        //                             children[i].element.removeClass( 'short-active' );
         // 			}
         // 			else if ( comp instanceof Link && ( <Link>comp ).startPortal.type === PortalType.OUTPUT )
-        //                 PropertyGrid.getSingleton().editableObject(comp.properties, "Link - " + (<Link>comp).id, "");
+        //                 PropertyGrid.getSingleton().editableObject(comp.properties, 'Link - ' + (<Link>comp).id, '');
 
         // 			Toolbar.getSingleton().itemSelected( comp );
         // 		}
@@ -1050,7 +1050,7 @@ namespace Animate {
 
 
         // 			// If we click the canvas - it counts as a deselect
-        // 			var comp = jQuery( e.currentTarget ).data( "component" );
+        // 			var comp = jQuery( e.currentTarget ).data( 'component' );
         // 			if ( comp instanceof Canvas && !e.ctrlKey ) {
         // 				this.selectItem( null );
         // 				return;
@@ -1062,7 +1062,7 @@ namespace Animate {
         // 		* @param {any} e The jQuery event object
         // 		*/
         // 		onMouseUp( e: any ) {
-        // 			var comp = jQuery( e.currentTarget ).data( "component" );
+        // 			var comp = jQuery( e.currentTarget ).data( 'component' );
 
         // 			// Unselect all other items
         // 			if ( !e.ctrlKey )
@@ -1070,7 +1070,7 @@ namespace Animate {
         // 					this.children[i].selected = false;
 
         // 			if ( comp instanceof Behaviour ) {
-        // 				comp.element.removeClass( "scale-in-animation" );
+        // 				comp.element.removeClass( 'scale-in-animation' );
         // 				this.selectItem( comp );
         // 				return;
         // 			}
@@ -1098,7 +1098,7 @@ namespace Animate {
         // 		onSelected() {
         // 			var len = this.children.length;
         // 			for ( var i = 0; i < len; i++ )
-        // 				this.children[i].element.removeClass( "scale-in-animation" );
+        // 				this.children[i].element.removeClass( 'scale-in-animation' );
         // 		}
 
         // 		/**
@@ -1111,12 +1111,12 @@ namespace Animate {
         //             // Call super
         //             var toRet = <Component>super.addChild(child);
         //             if (toRet instanceof Behaviour)
-        //                 toRet.element.draggable(<JQueryUI.DraggableOptions>{ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: ".portal", scroll: true, scrollSensitivity: 10 });
+        //                 toRet.element.draggable(<JQueryUI.DraggableOptions>{ drag: this._proxyMoving, start: this._proxyStartDrag, stop: this._proxyStopDrag, cancel: '.portal', scroll: true, scrollSensitivity: 10 });
 
         //             if (toRet instanceof Behaviour || toRet instanceof Link)
-        //                 toRet.on("edited", this.onItemEdited, this);
+        //                 toRet.on('edited', this.onItemEdited, this);
 
-        // 			toRet.element.on( "mouseup", this._upProxy );
+        // 			toRet.element.on( 'mouseup', this._upProxy );
 
         // 			return toRet;
         // 		}
@@ -1128,13 +1128,13 @@ namespace Animate {
         // 		*/
         //         removeChild(child: IComponent): IComponent {
         //             if (toRet instanceof Behaviour || toRet instanceof Link)
-        //                 toRet.off("edited", this.onItemEdited, this);
+        //                 toRet.off('edited', this.onItemEdited, this);
 
         // 			// Call super
         //             var toRet = <Component>super.removeChild( child );
 
         // 			if ( toRet )
-        // 				toRet.element.off( "mouseup", this._upProxy );
+        // 				toRet.element.off( 'mouseup', this._upProxy );
 
         // 			return toRet;
         // 		}
@@ -1145,7 +1145,7 @@ namespace Animate {
         // 		* Called when an item is moving
         // 		*/
         // 		onChildMoving( e, ui ) {
-        //             var target: Behaviour = jQuery( e.target ).data( "component" );
+        //             var target: Behaviour = jQuery( e.target ).data( 'component' );
 
         // 			// Update the links
         // 			var i = ( <Behaviour>target ).portals.length;
@@ -1255,10 +1255,10 @@ namespace Animate {
         // 		//		//First export all the standard item data
         //   //              canvasToken.id = comp.id;
         //   //              canvasToken.type = (<any>comp ).constructor.name;
-        //   //              canvasToken.left = comp.element.css( "left" );
-        //   //              canvasToken.top = comp.element.css( "top" );
-        //   //              canvasToken.zIndex = comp.element.css( "z-index" );
-        //   //              canvasToken.position = comp.element.css( "position" );
+        //   //              canvasToken.left = comp.element.css( 'left' );
+        //   //              canvasToken.top = comp.element.css( 'top' );
+        //   //              canvasToken.zIndex = comp.element.css( 'z-index' );
+        //   //              canvasToken.position = comp.element.css( 'position' );
 
         // 		//		// Now do all portals if its a behaviour
         //   //              if (comp instanceof Behaviour )
@@ -1268,7 +1268,7 @@ namespace Animate {
         //   //                  else if (comp instanceof Behaviour)
         // 		//			{
         //   //                      canvasToken.name = comp.originalName;
-        //   //                      canvasToken.alias = (comp.alias ? comp.alias : "" );
+        //   //                      canvasToken.alias = (comp.alias ? comp.alias : '' );
         // 		//			}
 
         //   //                  if (comp instanceof BehaviourAsset )
@@ -1276,7 +1276,7 @@ namespace Animate {
         //   //                  else if (comp instanceof BehaviourScript )
         //   //                      canvasToken.scriptId = comp.scriptId;
         //   //                  else if ( comp instanceof BehaviourShortcut )
-        //   //                      canvasToken.behaviourID = (comp.originalNode ? comp.originalNode.id : "" );
+        //   //                      canvasToken.behaviourID = (comp.originalNode ? comp.originalNode.id : '' );
         //   //                  else if (comp instanceof BehaviourInstance )
         //   //                      canvasToken.containerId = (comp.container ? comp.container.entry.shallowId : 0 );
 
@@ -1311,7 +1311,7 @@ namespace Animate {
         //   //                  var sbehaviour: Behaviour = <Behaviour>comp.startPortal.parent;
         //   //                  var ebehaviour: Behaviour = <Behaviour>comp.endPortal.parent;
 
-        //   //                  canvasToken.frameDelay = <number>comp.properties.getVar("Frame Delay").getVal();
+        //   //                  canvasToken.frameDelay = <number>comp.properties.getVar('Frame Delay').getVal();
         //   //                  canvasToken.startPortal = comp.startPortal.property.name;
         //   //                  canvasToken.endPortal = comp.endPortal.property.name;
         // 		//			canvasToken.startBehaviour = sbehaviour.id;
@@ -1358,7 +1358,7 @@ namespace Animate {
         // 		//			var item: Component = null;
 
         // 		//			// Create the GUI element
-        // 		//			if ( jsonObj.items[i].type === "BehaviourPortal" )
+        // 		//			if ( jsonObj.items[i].type === 'BehaviourPortal' )
         // 		//			{
         // 		//				// Check if there is already a portal with that name. if it does then it
         // 		//				// is ignored.
@@ -1370,8 +1370,8 @@ namespace Animate {
         // 		//					{
         // 		//						nameInUse = true;
         // 		//						Logger.logMessage(
-        // 		//							"A portal with the name '" + jsonObj.items[i].name +
-        // 		//							"' already exists on the Canvas.", null, LogType.ERROR );
+        // 		//							'A portal with the name '' + jsonObj.items[i].name +
+        // 		//							'' already exists on the Canvas.', null, LogType.ERROR );
         // 		//						break;
         // 		//					}
 
@@ -1386,11 +1386,11 @@ namespace Animate {
         // 		//					( <BehaviourPortal>item ).requiresUpdated = true;
         // 		//				}
         // 		//			}
-        // 		//			else if ( jsonObj.items[i].type === "BehaviourAsset" )
+        // 		//			else if ( jsonObj.items[i].type === 'BehaviourAsset' )
         // 		//				item = new BehaviourAsset( this, jsonObj.items[i].name );
-        // 		//			else if ( jsonObj.items[i].type === "BehaviourScript" )
+        // 		//			else if ( jsonObj.items[i].type === 'BehaviourScript' )
         //   //                      item = new BehaviourScript(this, jsonObj.items[i].scriptId, jsonObj.items[i].name, !clearItems );
-        // 		//			else if ( jsonObj.items[i].type === "BehaviourInstance" )
+        // 		//			else if ( jsonObj.items[i].type === 'BehaviourInstance' )
         // 		//			{
         //   //                      var project = User.get.project;
         //   //                      var container = project.getResourceByShallowID<Container>(jsonObj.items[i].containerId, ResourceType.CONTAINER);
@@ -1399,16 +1399,16 @@ namespace Animate {
 
         // 		//				item = new BehaviourInstance( this, container, false );
         // 		//			}
-        // 		//			else if ( jsonObj.items[i].type === "BehaviourShortcut" )
+        // 		//			else if ( jsonObj.items[i].type === 'BehaviourShortcut' )
         // 		//			{
         // 		//				item = new BehaviourShortcut( this, null, jsonObj.items[i].name );
         // 		//				shortcuts.push( new ShortCutHelper( <BehaviourShortcut>item, jsonObj.items[i] ) );
         // 		//			}
-        // 		//			else if ( jsonObj.items[i].type === "BehaviourComment" )
+        // 		//			else if ( jsonObj.items[i].type === 'BehaviourComment' )
         // 		//				item = new BehaviourComment( this, jsonObj.items[i].text );
-        // 		//			else if ( jsonObj.items[i].type === "Behaviour" )
+        // 		//			else if ( jsonObj.items[i].type === 'Behaviour' )
         // 		//				item = new Behaviour( this, jsonObj.items[i].name );
-        // 		//			else if ( jsonObj.items[i].type === "Link" )
+        // 		//			else if ( jsonObj.items[i].type === 'Link' )
         // 		//			{
         // 		//				var l: Link = new Link( this );
         //   //                      item = l;
@@ -1417,7 +1417,7 @@ namespace Animate {
         // 		//				// loaded first. So we do that, and keep each link in an array
         // 		//				// to load after the behaviours
         //   //                      links.push(l);
-        //   //                      l.properties.getVar("Frame Delay").setVal( (jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1) );
+        //   //                      l.properties.getVar('Frame Delay').setVal( (jsonObj.items[i].frameDelay !== undefined ? jsonObj.items[i].frameDelay : 1) );
 
         // 		//				// Store some temp data on the tag
         // 		//				l.tag = {};
@@ -1438,10 +1438,10 @@ namespace Animate {
 
         // 		//				// Set the positioning etc...
         // 		//				item.element.css( {
-        // 		//					"left": jsonObj.items[i].left,
-        // 		//					"top": jsonObj.items[i].top,
-        // 		//					"z-index": jsonObj.items[i].zIndex,
-        // 		//					"position": jsonObj.items[i].position
+        // 		//					'left': jsonObj.items[i].left,
+        // 		//					'top': jsonObj.items[i].top,
+        // 		//					'z-index': jsonObj.items[i].zIndex,
+        // 		//					'position': jsonObj.items[i].position
         // 		//				});
 
         // 		//				// Add the portals if they exist
@@ -1461,7 +1461,7 @@ namespace Animate {
         // 		//					}
 
         // 		//					// Set the alias text if it exists
-        // 		//					if ( jsonObj.items[i].alias && jsonObj.items[i].alias !== "" && jsonObj.items[i].alias !== null )
+        // 		//					if ( jsonObj.items[i].alias && jsonObj.items[i].alias !== '' && jsonObj.items[i].alias !== null )
         // 		//					{
         // 		//						( <Behaviour>item ).text = jsonObj.items[i].alias;
         // 		//						( <Behaviour>item ).alias = jsonObj.items[i].alias;
@@ -1538,14 +1538,14 @@ namespace Animate {
         // 		//			link.dispose();
         // 		//		else
         // 		//		{
-        // 		//			if ( !link.endPortal || !link.startPortal || typeof link.startPortal === "string" || typeof link.endPortal === "string" || !link.endPortal.behaviour || !link.startPortal.behaviour )
+        // 		//			if ( !link.endPortal || !link.startPortal || typeof link.startPortal === 'string' || typeof link.endPortal === 'string' || !link.endPortal.behaviour || !link.startPortal.behaviour )
         // 		//			{
         // 		//				link.dispose();
         // 		//			}
         // 		//			else
         // 		//			{
         // 		//				link.updatePoints();
-        // 		//				link.element.css( "pointer-events", "" );
+        // 		//				link.element.css( 'pointer-events', '' );
         // 		//			}
         // 		//		}
 
@@ -1576,12 +1576,12 @@ namespace Animate {
         // 			while ( i-- ) {
         // 				child = <Component>this.children[i];
 
-        // 				var w2 = child.element.css( "left" );
-        // 				var w2a = w2.split( "px" );
+        // 				var w2 = child.element.css( 'left' );
+        // 				var w2a = w2.split( 'px' );
         // 				var w2n = parseFloat( w2a[0] ) + child.element.width() + 5;
 
-        // 				var h2 = child.element.css( "top" );
-        // 				var h2a = h2.split( "px" );
+        // 				var h2 = child.element.css( 'top' );
+        // 				var h2a = h2.split( 'px' );
         // 				var h2n = parseFloat( h2a[0] ) + child.element.height() + 5;
 
         // 				if ( w2n > w )
@@ -1590,17 +1590,17 @@ namespace Animate {
         // 					h = h2n;
         // 			}
 
-        // 			var minW = this.element.css( "min-width" );
-        // 			var minT = minW.split( "px" );
+        // 			var minW = this.element.css( 'min-width' );
+        // 			var minT = minW.split( 'px' );
         // 			var minWi = parseFloat( minT[0] );
 
-        // 			var minH = this.element.css( "min-height" );
-        // 			var minHT = minH.split( "px" );
+        // 			var minH = this.element.css( 'min-height' );
+        // 			var minHT = minH.split( 'px' );
         // 			var minHi = parseFloat( minHT[0] );
 
         // 			this.element.css( {
-        // 				"min-width": ( w > minWi ? w : minWi ).toString() + "px",
-        // 				"min-height": ( h > minHi ? h : minHi ).toString() + "px"
+        // 				'min-width': ( w > minWi ? w : minWi ).toString() + 'px',
+        // 				'min-height': ( h > minHi ? h : minHi ).toString() + 'px'
         // 			});
         // 		}
 

@@ -26,7 +26,7 @@ namespace Animate {
      */
     export class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps: IProjectListProps = {
-            noProjectMessage: "You have no projects"
+            noProjectMessage: 'You have no projects'
         }
 
         private _user: User;
@@ -42,7 +42,7 @@ namespace Animate {
                 selectedProject: null,
                 errorMsg: null,
                 projects: [],
-                searchText: ""
+                searchText: ''
             };
         }
 
@@ -127,7 +127,7 @@ namespace Animate {
                     {this.props.children}
                     <SearchBox placeholder="Keywords" onSearch={( e, text ) => {
                         this.state.searchText = text;
-                        ( this.refs[ "pager" ] as Pager ).invalidate();
+                        ( this.refs[ 'pager' ] as Pager ).invalidate();
                     } } />
                     {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null }
                 </div>

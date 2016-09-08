@@ -13,7 +13,7 @@ namespace Animate {
         constructor() {
             super( 'Groups', <i className="fa fa-th" aria-hidden="true"></i> );
             this._loading = false;
-            User.get.project.on( "resource-created", this.onResourceCreated, this );
+            User.get.project.on( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -36,7 +36,7 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            User.get.project.off( "resource-created", this.onResourceCreated, this );
+            User.get.project.off( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -54,7 +54,7 @@ namespace Animate {
                         this.disabled( true );
                         this._loading = true;
 
-                        project.createResource<Engine.IGroup>( ResourceType.GROUP, { name: "New Group" }).then(() => {
+                        project.createResource<Engine.IGroup>( ResourceType.GROUP, { name: 'New Group' }).then(() => {
                             this._loading = false;
                             this.disabled( false );
                         }).catch(( err: Error ) => {

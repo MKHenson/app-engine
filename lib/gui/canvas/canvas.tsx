@@ -192,8 +192,8 @@ namespace Animate {
             return (
                 <div
                     onContextMenu={( e ) => { this.onContext( e ); } }
-                    ref='canvas'
-                    className='canvas'
+                    ref="canvas"
+                    className="canvas"
                     onClick={( e ) => this.props.store.onNodeSelected( null, false ) }
                     onDragOver={( e ) => e.preventDefault() }
                     onDoubleClick={( e ) => {

@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export module Resources {
+    export namespace Resources {
 
         /**
         * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
@@ -25,13 +25,13 @@ namespace Animate {
             */
             onSaving(): any {
                 // TODO: Update with new React Canvas
-                //=======================================
+                // =======================================
                 // // Make sure the container is fully serialized before saving if there is an open canvas
                 // if (this.canvas) {
                 //     var token: IContainerToken = this.canvas.tokenize(false);
                 //     this.entry.json = token;
                 // }
-                //=======================================
+                // =======================================
             }
 
             /**
@@ -49,8 +49,6 @@ namespace Animate {
             */
             dispose() {
                 this.emit( new ContainerEvent( EventTypes.CONTAINER_DELETED, this ) );
-
-                //Call super
                 super.dispose();
                 this.canvas = null;
             }

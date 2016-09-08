@@ -27,7 +27,7 @@ namespace Animate {
 
             return (
                 <div
-                    className={"treenode" +
+                    className={'treenode' +
                         ( node.expanded() ? ' expanded' : ' collapsed' ) +
                         ( node.selectable() ? ' selectable' : '' ) +
                         ( node.disabled() ? ' disabled' : '' ) +
@@ -66,7 +66,7 @@ namespace Animate {
                                 }
 
                             } : null ) }
-                            className={"label unselectable" + ( node.selected() ? ' selected' : '' ) }
+                            className={'label unselectable' + ( node.selected() ? ' selected' : '' ) }
                             onContextMenu={( e ) => {
                                 if ( node.disabled() )
                                     return;

@@ -24,8 +24,8 @@ namespace Animate {
             const props: IVInputProps = Object.assign( {}, this.props );
             let className = 'group' + ( this.props.className ? ( ' ' + this.props.className ) : '' );
             return <div {...props} className={className}>
-                <div className='group-header'>{this.props.label}</div>
-                <div className='group-content'>
+                <div className="group-header">{this.props.label}</div>
+                <div className="group-content">
                     {this.props.children}
                 </div>
             </div>

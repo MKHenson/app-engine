@@ -218,17 +218,17 @@ namespace Animate {
             let controlBox: JSX.Element;
 
             if ( this.props.controlBox ) {
-                controlBox = <div className='window-control-box' onMouseDown={( e ) => { this.onHeaderDown( e ) } }>
+                controlBox = <div className="window-control-box" onMouseDown={( e ) => { this.onHeaderDown( e ) } }>
                     { this.props.showCloseButton ?
-                        <div  onClick={() => { this.onClose(); } } className='close-but'>X</div> : null }
-                    <div className='window-header'>{this.props.title}</div>
-                    <div className='fix'></div>
+                        <div  onClick={() => { this.onClose(); } } className="close-but">X</div> : null }
+                    <div className="window-header">{this.props.title}</div>
+                    <div className="fix"></div>
                 </div>
             }
             return <div>
-                {( this.props.modal ? <div className='modal-backdrop' onClick={() => { this.onModalClick(); } }></div> : null ) }
-                <Resizable ref='resizable' enabled={this.props.canResize}>
-                    <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' ) } ref='window'>
+                {( this.props.modal ? <div className="modal-backdrop" onClick={() => { this.onModalClick(); } }></div> : null ) }
+                <Resizable ref="resizable" enabled={this.props.canResize}>
+                    <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' ) } ref="window">
                         {controlBox}
                         <div className={'window-content' + ( !this.props.controlBox ? ' no-control' : '' ) }>
                             {this.getContent() }

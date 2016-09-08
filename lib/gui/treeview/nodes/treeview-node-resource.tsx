@@ -18,15 +18,15 @@ namespace Animate {
             this.canDrag = true;
             this.canDrop = false;
 
-            resource.on( "modified", this.onModified, this );
-            resource.on( "edited", this.onEdited, this );
-            resource.on( "deleted", this.onDeleted, this );
-            resource.on( "refreshed", this.onRefreshed, this );
+            resource.on( 'modified', this.onModified, this );
+            resource.on( 'edited', this.onEdited, this );
+            resource.on( 'deleted', this.onDeleted, this );
+            resource.on( 'refreshed', this.onRefreshed, this );
         }
 
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
-         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
@@ -127,9 +127,9 @@ namespace Animate {
 		 */
         dispose() {
             let resource = this.resource;
-            resource.on( "modified", this.onModified, this );
-            resource.on( "deleted", this.onDeleted, this );
-            resource.on( "refreshed", this.onModified, this );
+            resource.on( 'modified', this.onModified, this );
+            resource.on( 'deleted', this.onDeleted, this );
+            resource.on( 'refreshed', this.onModified, this );
             this.resource = null;
 
             super.dispose();
@@ -235,10 +235,10 @@ namespace Animate {
                 if ( !node.resource.saved ) {
                     message = true;
                     ReactWindow.show( MessageBox, {
-                        message: "You have unsaved work are you sure you want to refresh?",
-                        buttons: [ "Yes", "No" ],
+                        message: 'You have unsaved work are you sure you want to refresh?',
+                        buttons: [ 'Yes', 'No' ],
                         onChange: function ( button ) {
-                            if ( button === "Yes" ) {
+                            if ( button === 'Yes' ) {
                                 for ( let node of selection )
                                     this.handleNodePromise( project.refreshResource( node.resource.entry._id ), node );
                             }

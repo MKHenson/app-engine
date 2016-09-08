@@ -157,7 +157,7 @@ namespace Animate {
 		 * Diposes and cleans up this component and its portals
 		 */
         dispose() {
-            for ( var i = 0; i < this._portals.length; i++ )
+            for ( let i = 0; i < this._portals.length; i++ )
                 this._portals[ i ].dispose();
 
             this._parameters = null;

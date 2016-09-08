@@ -1,7 +1,7 @@
 ﻿namespace Animate {
     export class ToolbarNumberEvents extends ENUM {
         constructor( v: string ) { super( v ); }
-        static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( "toolbar_number_changed" );
+        static CHANGED: ToolbarNumberEvents = new ToolbarNumberEvents( 'toolbar_number_changed' );
     }
 
 
@@ -36,10 +36,10 @@
 		* @param {Component} parent The parent of this toolbar
 		*/
         constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 ) {
-            super( "<div class='toolbar-button tooltip scrolling-number'></div>", parent );
+            super( '<div class=\'toolbar-button tooltip scrolling-number\'></div>', parent );
 
-            const container: IComponent = this.addChild( "<div class='number-holder'></div>" );
-            this.addChild( "<div class='tooltip-text tooltip-text-bg'>" + text + "</div>" );
+            const container: IComponent = this.addChild( '<div class=\'number-holder\'></div>' );
+            this.addChild( '<div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div>' );
 
             this.defaultVal = defaultVal;
             this.minValue = minValue;
@@ -47,17 +47,17 @@
             this.delta = delta;
 
             if ( !ToolbarNumber.input ) {
-                //ToolbarNumber.input = new InputBox( null, "" );
-                ToolbarNumber.input.element.css( { "pointer-events": "all" });
+                //ToolbarNumber.input = new InputBox( null, '' );
+                ToolbarNumber.input.element.css( { 'pointer-events': 'all' });
                 ToolbarNumber.numInstances = 0;
             }
 
-            this.label = container.addChild( "<div class='number-label'>" + defaultVal + "</div>" );
-            const arrows = container.addChild( "<div class='arrows'></div>" );
-            this.leftArrow = arrows.addChild( "<div class='left'>←</div>" );
-            this.rightArrow = arrows.addChild( "<div class='right'>→</div>" );
+            this.label = container.addChild( '<div class=\'number-label\'>' + defaultVal + '</div>' );
+            const arrows = container.addChild( '<div class=\'arrows\'></div>' );
+            this.leftArrow = arrows.addChild( '<div class=\'left\'>←</div>' );
+            this.rightArrow = arrows.addChild( '<div class=\'right\'>→</div>' );
 
-            this.element.css( "pointer-events", "all" );
+            this.element.css( 'pointer-events', 'all' );
 
             this.startPos = 0;
 
@@ -71,12 +71,12 @@
             this.wheelProxy = jQuery.proxy( this.onWheel, this );
             this.keyProxy = jQuery.proxy( this.onKeyDown, this );
 
-            this.leftArrow.element.on( "mousedown", this.downProxy );
-            this.rightArrow.element.on( "mousedown", this.downProxy );
-            this.leftArrow.element.on( "click", this.clickProxy );
-            this.rightArrow.element.on( "click", this.clickProxy );
-            this.label.element.on( "click", this.clickProxy );
-            this.element.on( "mousewheel", this.wheelProxy );
+            this.leftArrow.element.on( 'mousedown', this.downProxy );
+            this.rightArrow.element.on( 'mousedown', this.downProxy );
+            this.leftArrow.element.on( 'click', this.clickProxy );
+            this.rightArrow.element.on( 'click', this.clickProxy );
+            this.label.element.on( 'click', this.clickProxy );
+            this.element.on( 'mousewheel', this.wheelProxy );
         }
 
 		/**
@@ -88,13 +88,13 @@
 
             // Remove listeners
             const body = jQuery( window );
-            body.off( "mouseup", this.stageUpPoxy );
-            body.off( "mousemove", this.stageMovePoxy );
+            body.off( 'mouseup', this.stageUpPoxy );
+            body.off( 'mousemove', this.stageMovePoxy );
             jQuery( document ).off( 'keydown', this.keyProxy );
 
             // If input present, then check what we are over
             if ( inputOnDOM ) {
-                const targetComp = jQuery( e.target ).data( "component" );
+                const targetComp = jQuery( e.target ).data( 'component' );
 
                 if ( !targetComp )
                     return;
@@ -188,11 +188,11 @@
 
         onDown( e ) {
             const body = jQuery( window );
-            body.off( "mouseup", this.stageUpPoxy );
-            body.off( "mousemove", this.stageMovePoxy );
+            body.off( 'mouseup', this.stageUpPoxy );
+            body.off( 'mousemove', this.stageMovePoxy );
 
-            body.on( "mouseup", this.stageUpPoxy );
-            body.on( "mousemove", this.stageMovePoxy );
+            body.on( 'mouseup', this.stageUpPoxy );
+            body.on( 'mousemove', this.stageMovePoxy );
 
             this.startPos = e.screenX;
 
@@ -205,15 +205,15 @@
             if ( ToolbarNumber.input.parent )
                 return;
 
-            const target = jQuery( e.currentTarget ).data( "component" );
+            const target = jQuery( e.currentTarget ).data( 'component' );
 
             //If you click on the label, we replace it with an input box so you can enter data by typing
             if ( target === this.label ) {
                 ToolbarNumber.input.text = target.element.text();
-                target.element.text( "" );
+                target.element.text( '' );
                 target.addChild( ToolbarNumber.input );
-                jQuery( "body" ).off( "mouseup", this.stageUpPoxy );
-                jQuery( "body" ).on( "mouseup", this.stageUpPoxy );
+                jQuery( 'body' ).off( 'mouseup', this.stageUpPoxy );
+                jQuery( 'body' ).on( 'mouseup', this.stageUpPoxy );
                 jQuery( document ).on( 'keydown', this.keyProxy );
                 return;
             }
@@ -241,15 +241,15 @@
 		*/
         dispose(): void {
             const body = jQuery( window );
-            body.off( "mouseup", this.stageUpPoxy );
-            body.off( "mousemove", this.stageMovePoxy );
+            body.off( 'mouseup', this.stageUpPoxy );
+            body.off( 'mousemove', this.stageMovePoxy );
 
-            this.leftArrow.element.off( "mousedown", this.downProxy );
-            this.rightArrow.element.off( "mousedown", this.downProxy );
-            this.element.off( "mousewheel", this.wheelProxy );
-            this.leftArrow.element.off( "click", this.clickProxy );
-            this.rightArrow.element.off( "click", this.clickProxy );
-            this.label.element.off( "click", this.clickProxy );
+            this.leftArrow.element.off( 'mousedown', this.downProxy );
+            this.rightArrow.element.off( 'mousedown', this.downProxy );
+            this.element.off( 'mousewheel', this.wheelProxy );
+            this.leftArrow.element.off( 'click', this.clickProxy );
+            this.rightArrow.element.off( 'click', this.clickProxy );
+            this.label.element.off( 'click', this.clickProxy );
             this.downProxy = null;
             this.clickProxy = null;
             this.defaultVal = null;

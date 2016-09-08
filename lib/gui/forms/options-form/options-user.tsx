@@ -84,7 +84,7 @@ namespace Animate {
             if ( this.state.loading )
                 loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
 
-            return <div id='options-user'>
+            return <div id="options-user">
                 <Group label="Details">
                     <div className="tr">
                         <div className="td">Username: </div>
@@ -118,7 +118,7 @@ namespace Animate {
 
                     {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null ) }
 
-                    <ButtonPrimary disabled={this.state.loading} onClick={( e ) => { this.updateBio(( this.refs[ "bio" ] as VTextarea ).value ); } }>
+                    <ButtonPrimary disabled={this.state.loading} onClick={( e ) => { this.updateBio(( this.refs[ 'bio' ] as VTextarea ).value ); } }>
                         Update Information
                     </ButtonPrimary>
 

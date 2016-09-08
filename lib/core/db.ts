@@ -1,5 +1,4 @@
 namespace Animate {
-    //This class holds the DB information.
     export class DB {
         public static USERS: string = 'http://webinate.dev:8000';
         public static USERS_SOCKET: string = 'ws://webinate.dev:8020';

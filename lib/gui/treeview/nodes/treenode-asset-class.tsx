@@ -61,7 +61,7 @@ namespace Animate {
 
             if ( !classNames )
                 names = [ null ];
-            else if ( typeof ( classNames ) === "string" )
+            else if ( typeof ( classNames ) === 'string' )
                 names = [ classNames as string ];
             else
                 names = classNames as string[];
@@ -71,7 +71,7 @@ namespace Animate {
             for ( let name of names ) {
 
                 // If name matches this classs
-                if ( name === null || name === this.assetClass.name || name === "" ) {
+                if ( name === null || name === this.assetClass.name || name === '' ) {
                     for ( let node of children ) {
                         if ( node instanceof TreeNodeAssetInstance )
                             toRet.push( node );

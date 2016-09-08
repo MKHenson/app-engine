@@ -32,7 +32,7 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className='tab-pane'>
+            return <div className="tab-pane">
                 {this.props.children}
             </div>
         }

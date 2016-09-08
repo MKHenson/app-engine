@@ -36,7 +36,7 @@ namespace Animate {
         * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
         */
         removeProject( messageBoxAnswer: string ) {
-            if ( messageBoxAnswer === "No" )
+            if ( messageBoxAnswer === 'No' )
                 return;
 
             this._user.removeProject( this.state.selectedProject._id ).then(() => {
@@ -70,7 +70,7 @@ namespace Animate {
                         <ButtonLink onClick={( e ) => {
                             ReactWindow.show( MessageBox, {
                                 message: `Are you sure you want to permanently remove the project '${project.name}'?`,
-                                buttons: [ "Yes", "No" ],
+                                buttons: [ 'Yes', 'No' ],
                                 onChange: ( button ) => { this.removeProject( button ) }
                             } as IMessageBoxProps );
                         } }>

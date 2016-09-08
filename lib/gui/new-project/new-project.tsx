@@ -28,7 +28,7 @@ namespace Animate {
             this.state = {
                 plugins: [],
                 error: false,
-                errorMsg: "Please enter the project details and select any plugins you want to use",
+                errorMsg: 'Please enter the project details and select any plugins you want to use',
                 loading: false
             }
         }
@@ -68,7 +68,7 @@ namespace Animate {
         * @returns {JSX.Element}
         */
         render(): JSX.Element {
-            return <div id="splash-new-project" className='new-project fade-in'>
+            return <div id="splash-new-project" className="new-project fade-in">
 
                 <div className="double-column form-info" style={{ width: '40%' }}>
                     <VForm name="new-project"
@@ -118,7 +118,7 @@ namespace Animate {
                     <ButtonPrimary onClick={( e ) => { this.props.onCancel() } }>
                         Back
                     </ButtonPrimary>
-                    <ButtonPrimary disabled={this.state.loading}  onClick={() => { ( this.refs[ "newProjectForm" ] as VForm ).initiateSubmit(); } }>
+                    <ButtonPrimary disabled={this.state.loading}  onClick={() => { ( this.refs[ 'newProjectForm' ] as VForm ).initiateSubmit(); } }>
                         Next <span className="fa fa-chevron-right"/>
                     </ButtonPrimary>
                 </div>

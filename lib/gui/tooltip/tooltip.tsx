@@ -37,8 +37,8 @@ namespace Animate {
         constructor( props: ITooltipProps ) {
             super( props );
             if ( !Tooltip._tooltip ) {
-                Tooltip._tooltip = document.createElement( "div" );
-                Tooltip._tooltip.className = "tooltip";
+                Tooltip._tooltip = document.createElement( 'div' );
+                Tooltip._tooltip.className = 'tooltip';
             }
 
             this.state = {
@@ -55,7 +55,7 @@ namespace Animate {
 
             let tooltipParent = Tooltip._tooltip;
             let target: HTMLElement = e.target as HTMLElement;
-            let jsx: JSX.Element = ( typeof ( this.props.tooltip ) === "string" ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
+            let jsx: JSX.Element = ( typeof ( this.props.tooltip ) === 'string' ? <span>{this.props.tooltip as string}</span> : this.props.tooltip as JSX.Element );
 
             this.setState( { showTooltip: true });
 
@@ -67,17 +67,17 @@ namespace Animate {
             let h: number = tooltipParent.offsetHeight;
             let w: number = tooltipParent.offsetWidth;
             let bounds = target.getBoundingClientRect();
-            let className = "tooltip";
+            let className = 'tooltip';
             let x;
             let y;
 
             if ( this.props.position === TooltipPosition.TOP ) {
-                className += " top";
+                className += ' top';
                 x = ( bounds.left + bounds.width * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + bounds.width * 0.5 );
                 y = ( bounds.top - h - offset < 0 ? 0 : bounds.top - h - offset );
             }
             else {
-                className += " bottom";
+                className += ' bottom';
                 x = ( bounds.left + bounds.width * 0.5 > document.body.offsetWidth ? document.body.offsetWidth - w : bounds.left + bounds.width * 0.5 );
                 y = ( bounds.bottom + offset > document.body.offsetHeight ? document.body.offsetHeight - h : bounds.bottom + offset );
                 y += 5;
@@ -87,14 +87,14 @@ namespace Animate {
 
 
             // Position the tooltip just above the element
-            tooltipParent.style.left = x + "px";
-            tooltipParent.style.top = y + "px";
+            tooltipParent.style.left = x + 'px';
+            tooltipParent.style.top = y + 'px';
 
             // Add CSS classes for animation
             setTimeout( function () {
-                tooltipParent.className = className + " enter";
+                tooltipParent.className = className + ' enter';
                 setTimeout( function () {
-                    tooltipParent.className = className + " enter active";
+                    tooltipParent.className = className + ' enter active';
                 }, 20 );
             }, 20 );
         }

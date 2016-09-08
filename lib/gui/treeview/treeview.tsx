@@ -12,13 +12,13 @@ namespace Animate {
 	/**
 	 * A component visually represents a TreeNodeStore and its nodes
 	 */
-	export class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
+    export class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
 
         /**
          * Creates a new instance of the treenode
          */
-        constructor(props: ITreeViewProps) {
-            super(props);
+        constructor( props: ITreeViewProps ) {
+            super( props );
 
             // Set the initial state
             this.state = {
@@ -33,33 +33,33 @@ namespace Animate {
         /**
          * Called whenever a node is focussed
          */
-        onFocusNodeChange(type: EditorEventType, e : Event) {
-            this.setState({ focussedNode : e.tag });
+        onFocusNodeChange( type: EditorEventType, e: Event ) {
+            this.setState( { focussedNode: e.tag });
         }
 
         /**
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
-        onChange(type: EditorEventType) {
-            this.setState({ nodes : this.props.nodeStore.getNodes() });
+        onChange( type: EditorEventType ) {
+            this.setState( { nodes: this.props.nodeStore.getNodes() });
         }
 
         /**
          * When the component is updated, we check for any focussed nodes so we can scroll to them
          */
         componentDidUpdate() {
-            if (this.state.focussedNode) {
-                let dom = ReactDOM.findDOMNode(this) as HTMLElement;
-                jQuery(dom).scrollTo( '.focussed', 500 );
-                this.setState({ focussedNode : null });
+            if ( this.state.focussedNode ) {
+                let dom = ReactDOM.findDOMNode( this ) as HTMLElement;
+                jQuery( dom ).scrollTo( '.focussed', 500 );
+                this.setState( { focussedNode: null });
             }
         }
 
         /**
          * Make sure that any new node store has the appropriate event handlers
          */
-        componentWillReceiveProps(nextProps: ITreeViewProps) {
-            if (nextProps.nodeStore === this.props.nodeStore)
+        componentWillReceiveProps( nextProps: ITreeViewProps ) {
+            if ( nextProps.nodeStore === this.props.nodeStore )
                 return;
 
             this.props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
@@ -68,7 +68,7 @@ namespace Animate {
             nextProps.nodeStore.on<EditorEventType>( 'change', this.onChange, this );
             nextProps.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
 
-            this.setState({
+            this.setState( {
                 nodes: nextProps.nodeStore.getNodes()
             });
         }
@@ -87,9 +87,9 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div className="treeview" >
-                { this.state.nodes.map((node, index) => {
-                    return <TreeNode key={'node-0-'+ index} node={node} />
-                })}
+                { this.state.nodes.map(( node, index ) => {
+                    return <TreeNode key={'node-0-' + index} node={node} />
+                }) }
             </div>
         }
     }

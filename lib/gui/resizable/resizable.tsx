@@ -113,12 +113,12 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div ref='resizable'
-                className='resizable'>
+            return <div ref="resizable"
+                className="resizable">
                 {this.props.children}
-                <div className='east handle' onMouseDown={( e ) => { this.onMouseDown( e, true, false ) } } />
-                <div className='south handle' onMouseDown={( e ) => { this.onMouseDown( e, false, true ) } } />
-                <div className='south-east handle' onMouseDown={( e ) => { this.onMouseDown( e, true, true ) } } />
+                <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) } } />
+                <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) } } />
+                <div className="south-east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, true ) } } />
             </div>
         }
     }

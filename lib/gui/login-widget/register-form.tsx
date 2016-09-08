@@ -86,10 +86,10 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className='login animate-all fade-in'>
+            return <div className="login animate-all fade-in">
                 <VForm
-                    name='register'
-                    autoComplete='off'
+                    name="register"
+                    autoComplete="off"
                     onValidationError={( errors, form ) => {
                         this.setState( {
                             errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
@@ -103,27 +103,27 @@ namespace Animate {
                         this.register( json )
                     } }>
 
-                    <VInput type='text'
-                        placeholder='Username'
-                        autoComplete='off'
-                        name='username'
+                    <VInput type="text"
+                        placeholder="Username"
+                        autoComplete="off"
+                        name="username"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
 
-                    <VInput type='text'
-                        placeholder='Email'
-                        autoComplete='off'
-                        name='email'
+                    <VInput type="text"
+                        placeholder="Email"
+                        autoComplete="off"
+                        name="email"
                         validator={ValidationType.NOT_EMPTY | ValidationType.EMAIL}
                         />
 
-                    <VInput type='password'
-                        placeholder='Password'
-                        autoComplete='off'
-                        name='password'
+                    <VInput type="password"
+                        placeholder="Password"
+                        autoComplete="off"
+                        name="password"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
-                    <div id='animate-captcha' ref={( e ) => { this.mountCaptcha( e ) } }></div>
+                    <div id="animate-captcha" ref={( e ) => { this.mountCaptcha( e ) } }></div>
                     <div>
                         {( this.state.errorMsg !== '' ?
                             <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS}>
@@ -132,13 +132,13 @@ namespace Animate {
                             : null
                         ) }
                     </div>
-                    <div className='double-column'>
-                        <ButtonPrimary type='button' disabled={this.state.loading} onClick={( e ) => this.props.switchMode() }>
-                            <span className='fa-chevron-left fa' /> Login
+                    <div className="double-column">
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode() }>
+                            <span className="fa-chevron-left fa" /> Login
                         </ButtonPrimary>
                     </div>
-                    <div className='double-column'>
-                        <ButtonPrimary type='submit' preventDefault={false} disabled={this.state.loading}>
+                    <div className="double-column">
+                        <ButtonPrimary type="submit" preventDefault={false} disabled={this.state.loading}>
                             Register
                         </ButtonPrimary>
                     </div>

@@ -23,8 +23,8 @@ namespace Animate {
             this._user = User.get;
             this.state = {
                 loading: false,
-                username: "",
-                errorMsg: "",
+                username: '',
+                errorMsg: '',
                 error: false
             };
         }
@@ -90,10 +90,10 @@ namespace Animate {
          */
         resetPassword() {
             const that = this;
-            if ( this.state.username === "" ) {
+            if ( this.state.username === '' ) {
                 return this.setState( {
                     error: true,
-                    errorMsg: "Please specify a username or email to fetch"
+                    errorMsg: 'Please specify a username or email to fetch'
                 });
             }
 
@@ -113,10 +113,10 @@ namespace Animate {
             const user = this.state.username;
             const that = this;
 
-            if ( user === "" ) {
+            if ( user === '' ) {
                 return this.setState( {
                     error: true,
-                    errorMsg: "Please specify a username or email to fetch"
+                    errorMsg: 'Please specify a username or email to fetch'
                 });
             }
 
@@ -163,7 +163,7 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className='login animate-all fade-in'>
+            return <div className="login animate-all fade-in">
                 <VForm name="login"
                     autoComplete="off"
                     onValidationError={( errors, form ) => {
@@ -182,7 +182,7 @@ namespace Animate {
                         autoComplete="off"
                         placeholder="Email or Username"
                         autoFocus=""
-                        type='text'
+                        type="text"
                         name="username"
                         onChange={( e, newText ) => { this.setState( { username: newText }) } }
                         value={this.state.username}
@@ -193,7 +193,7 @@ namespace Animate {
                         autoComplete="off"
                         placeholder="Password"
                         autoFocus=""
-                        type='password'
+                        type="password"
                         name="password"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
@@ -224,12 +224,12 @@ namespace Animate {
                     </div>
                     <div className="double-column">
                         <ButtonPrimary  type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode() }>
-                            Register <span className='fa fa-user' />
+                            Register <span className="fa fa-user" />
                         </ButtonPrimary>
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type='submit' preventDefault={false} disabled={this.state.loading}>
-                            Login <span className='fa fa-sign-in' />
+                        <ButtonPrimary type="submit" preventDefault={false} disabled={this.state.loading}>
+                            Login <span className="fa fa-sign-in" />
                         </ButtonPrimary>
                     </div>
                 </VForm>

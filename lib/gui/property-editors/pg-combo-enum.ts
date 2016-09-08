@@ -29,7 +29,7 @@ namespace Animate {
 
             // Create HTML
             const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
-            const selector: JQuery = jQuery( "select", editor );
+            const selector: JQuery = jQuery( 'select', editor );
 
             // Add to DOM
             container.element.append( editor );
@@ -41,7 +41,7 @@ namespace Animate {
 
             const len: number = vars.length;
             for ( let i: number = 0; i < len; i++ )
-                selector.append( `<option value='${vars[ i ]}' ${( selectedValue === vars[ i ] ? "selected='selected'" : "" )}>${vars[ i ]}</option>` );
+                selector.append( `<option value='${vars[ i ]}' ${( selectedValue === vars[ i ] ? 'selected=\'selected\'' : '' )}>${vars[ i ]}</option>` );
 
             const that = this;
 
@@ -52,7 +52,7 @@ namespace Animate {
             };
 
             // Add listeners
-            selector.on( "change", onSelect );
+            selector.on( 'change', onSelect );
         }
     }
 }

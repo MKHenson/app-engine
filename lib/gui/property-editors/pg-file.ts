@@ -27,26 +27,26 @@ namespace Animate {
         edit( prop: Prop<any>, container: Component ) {
             const p = <PropFileResource>prop;
             const fileResource = p.getVal();
-            const fileID: string = fileResource || fileResource.entry._id || "";
+            const fileID: string = fileResource || fileResource.entry._id || '';
             const fileExtensions = p.extensions;
             const project: Project = User.get.project;
 
             // Create HTML
-            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><div class='prop-file'><div class='file-name'>${( fileResource ? fileResource.entry.name : "" )}</div><div class='file-button reg-gradient'>...</div><div class='file-button-image'><img src='media/download-file.png'/></div></div></div><div class='fix'></div>` );
+            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><div class='prop-file'><div class='file-name'>${( fileResource ? fileResource.entry.name : '' )}</div><div class='file-button reg-gradient'>...</div><div class='file-button-image'><img src='media/download-file.png'/></div></div></div><div class='fix'></div>` );
             const that = this;
 
             // TODO: Verify that this file picker works
             // =====================================================================
             // // Functions to deal with user interactions with JQuery
             // var onFileChosen = function( file: Engine.IFile ) {
-            //     FileViewer.get.off( "cancelled", onFileChosen );
-            //     FileViewer.get.off( "change", onFileChosen );
+            //     FileViewer.get.off( 'cancelled', onFileChosen );
+            //     FileViewer.get.off( 'change', onFileChosen );
 
-            //     if (response === "cancelled" )
+            //     if (response === 'cancelled' )
             // 		return;
 
             //     var file: Engine.IFile = event.file;
-            //     jQuery(".file-name", editor).text((file ? file.name : ""));
+            //     jQuery('.file-name', editor).text((file ? file.name : ''));
 
             //     fileResource.entry = file;
             //     p.setVal(fileResource);
@@ -58,24 +58,24 @@ namespace Animate {
                     extensions: fileExtensions,
                     onFileSelected: function ( file ) {
 
-                        jQuery( ".file-name", editor ).text(( file ? file.name : "" ) );
+                        jQuery( '.file-name', editor ).text(( file ? file.name : '' ) );
                         fileResource.entry = file;
                         p.setVal( fileResource );
                     }
                 } as IFileDialogueProps );
 
                 // // Remove any previous references
-                // FileViewer.get.off("cancelled", onFileChosen );
-                // FileViewer.get.off("change", onFileChosen );
-                // FileViewer.get.on("change", onFileChosen );
-                // FileViewer.get.on("cancelled", onFileChosen);
+                // FileViewer.get.off('cancelled', onFileChosen );
+                // FileViewer.get.off('change', onFileChosen );
+                // FileViewer.get.on('change', onFileChosen );
+                // FileViewer.get.on('cancelled', onFileChosen);
                 // FileViewer.get.choose(fileExtensions);
             };
 
             // =====================================================================
 
             // Add listeners
-            editor.on( "mouseup", mouseUp );
+            editor.on( 'mouseup', mouseUp );
         }
     }
 }

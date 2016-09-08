@@ -13,7 +13,7 @@ namespace Animate {
 
         private _element: JQuery;
         private _children: Array<IComponent>;
-        private _layouts: Array<ILayout>;
+        private _layouts: Array<any>;
         private _id: string;
         private _parent: Component;
 
@@ -99,7 +99,7 @@ namespace Animate {
 		* @param {boolean} updateChildren Set this to true if you want the update to proliferate to all the children components.
 		*/
         update( updateChildren: boolean = true ) {
-            const layouts: Array<ILayout> = this._layouts;
+            const layouts: Array<any> = this._layouts;
             let i = layouts.length;
             while ( i-- )
                 layouts[ i ].update( this );
@@ -119,7 +119,7 @@ namespace Animate {
 		* @param {ILayout} layout The layout object we want to add
 		* @returns {ILayout} The layout that was added
 		*/
-        addLayout( layout: ILayout ): ILayout {
+        addLayout( layout: any ): any {
             this._layouts.push( layout );
             return layout;
         }
@@ -129,7 +129,7 @@ namespace Animate {
 		* @param {ILayout} layout The layout to remove
 		* @returns {ILayout} The layout that was removed
 		*/
-        removeLayout( layout: ILayout ): ILayout {
+        removeLayout( layout: any ): any {
             if ( jQuery.inArray( layout, this._layouts ) === -1 )
                 return null;
 
@@ -141,7 +141,7 @@ namespace Animate {
 		* Gets the ILayouts for this component
 		* {returns} Array<ILayout>
 		*/
-        get layouts(): Array<ILayout> { return this._layouts; }
+        get layouts(): Array<any> { return this._layouts; }
 
 		/**
 		* Use this function to add a child to this component.

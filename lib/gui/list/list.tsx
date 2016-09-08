@@ -27,7 +27,6 @@ namespace Animate {
             items: null,
             canDeselect: true
         }
-        //private _items: IListItem[];
         private _prevItems: IListItem[];
 
 		/**
@@ -37,7 +36,6 @@ namespace Animate {
             super( props );
 
             this._prevItems = props.items;
-            //this._items = props.items || [];
             this.state = {
                 selected: null,
                 selectedIndex: props.selectedIndex
@@ -49,7 +47,6 @@ namespace Animate {
          */
         componentWillReceiveProps( nextProps: IListProps ) {
 
-            //this._items = (nextProps.items !== this._prevItems ? ( nextProps.items || [] ) : this._items );
             let selectedIndex = this.state.selectedIndex;
 
             if ( nextProps.selectedIndex !== undefined && nextProps.selectedIndex !== this.props.selectedIndex ) {
@@ -92,7 +89,7 @@ namespace Animate {
                         onDoubleClick={( e ) => { this.onItemSelected( e, item, index, true ); } }
                         >
                         {jsx}
-                        <span className='list-text'>{item.label}</span>
+                        <span className="list-text">{item.label}</span>
                     </div>
                 })
             }</div>;

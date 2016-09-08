@@ -36,12 +36,12 @@ namespace Animate {
 
             //Function to deal with user interactions with JQuery
             const valueEdited = function ( e: JQueryEventObject ) {
-                p.setVal( jQuery( "input", editor ).val() );
+                p.setVal( jQuery( 'input', editor ).val() );
             };
 
             // Add listeners
-            jQuery( "input", editor ).val( p.getVal() );
-            jQuery( "input", editor ).on( "keyup", valueEdited );
+            jQuery( 'input', editor ).val( p.getVal() );
+            jQuery( 'input', editor ).on( 'keyup', valueEdited );
         }
     }
 }

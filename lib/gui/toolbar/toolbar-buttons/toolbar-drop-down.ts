@@ -11,7 +11,7 @@ namespace Animate {
 		* @param {string} text The text to use in the item.
 		*/
         constructor( img: string, text: string, parent?: Component ) {
-            super( "<div class='toolbar-button tooltip'><div><img src='" + img + "' /></div><div class='tooltip-text tooltip-text-bg'>" + text + "</div></div>", parent );
+            super( '<div class=\'toolbar-button tooltip\'><div><img src=\'' + img + '\' /></div><div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div></div>', parent );
             this.img = img;
             this.text = text;
         }
@@ -31,13 +31,13 @@ namespace Animate {
 
 		/**
 		* @param {Component} parent The parent of this toolbar
-		* @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:"./img1.png", text:"option 1"}, {img:"./img2.png", text:"option 2"}]
+		* @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:'./img1.png', text:'option 1'}, {img:'./img2.png', text:'option 2'}]
 		*/
         constructor( parent: Component, items: Array<ToolbarItem> ) {
-            super( "<div class='toolbar-button-drop-down tooltip'></div>", parent );
+            super( '<div class=\'toolbar-button-drop-down tooltip\'></div>', parent );
 
             this.items = items;
-            this._popupContainer = new Component( "<div class='tool-bar-dropdown background shadow-small'></div>" );
+            this._popupContainer = new Component( '<div class=\'tool-bar-dropdown background shadow-small\'></div>' );
 
             let i = items.length;
             while ( i-- )
@@ -52,11 +52,11 @@ namespace Animate {
             this._stageDownProxy = this.onStageUp.bind( this );
             this._clickProxy = this.onClick.bind( this );
 
-            this.element.on( "click", this._clickProxy );
+            this.element.on( 'click', this._clickProxy );
         }
 
 		/**
-		* Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:"", text:"" }
+		* Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
 		* @param {ToolbarItem} item The item to add.
 		* @returns {Component}
 		*/
@@ -67,7 +67,7 @@ namespace Animate {
         }
 
 		/**
-		* Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:"", text:"" }
+		* Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
 		* @param {any} val This can be either the item object itself, its text or its component.
 		* @param {boolean} dispose Set this to true if you want delete the item
 		* @returns {Component} Returns the removed item component or null
@@ -120,7 +120,7 @@ namespace Animate {
 
             this.addChild( item );
             this._selectedItem = item;
-            const e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, "clicked" );
+            const e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, 'clicked' );
             this.emit( e );
             e.dispose();
 
@@ -140,12 +140,12 @@ namespace Animate {
 		* @param {any} e The jQuery event
 		*/
         onStageUp( e: any ) {
-            const body = jQuery( "body" );
-            body.off( "mousedown", this._stageDownProxy );
+            const body = jQuery( 'body' );
+            body.off( 'mousedown', this._stageDownProxy );
 
-            const comp: Component = jQuery( e.target ).data( "component" );
+            const comp: Component = jQuery( e.target ).data( 'component' );
             this._popupContainer.element.detach();
-            this.element.removeClass( "active" );
+            this.element.removeClass( 'active' );
 
             if ( comp ) {
                 let i = this.items.length;
@@ -163,13 +163,13 @@ namespace Animate {
 		* @param {any} e The jQuery event oject
 		*/
         onClick( e: any ) {
-            //var comp = jQuery( e.target ).data( "component" );
+            //var comp = jQuery( e.target ).data( 'component' );
             const offset = this.element.offset();
-            this.element.addClass( "active" );
+            this.element.addClass( 'active' );
 
-            const body = jQuery( "body" );
-            body.off( "mousedown", this._stageDownProxy );
-            body.on( "mousedown", this._stageDownProxy );
+            const body = jQuery( 'body' );
+            body.off( 'mousedown', this._stageDownProxy );
+            body.on( 'mousedown', this._stageDownProxy );
 
             this._popupContainer.element.css( { top: offset.top + this.element.height(), left: offset.left });
             body.append( this._popupContainer.element );
@@ -184,7 +184,7 @@ namespace Animate {
                 this.items[ i ].dispose();
 
             this._popupContainer.dispose();
-            this.element.off( "click", this._clickProxy );
+            this.element.off( 'click', this._clickProxy );
             this._clickProxy = null;
             this.items = null;
             this._popupContainer = null;

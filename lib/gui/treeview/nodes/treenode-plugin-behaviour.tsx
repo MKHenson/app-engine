@@ -12,7 +12,7 @@ namespace Animate {
         constructor( template: BehaviourDefinition ) {
             super( template.behaviourName, <i className="fa fa-square resource" aria-hidden="true"></i> );
             this._template = template;
-            PluginManager.getSingleton().on( "template-removed", this.onTemplateRemoved, this );
+            PluginManager.getSingleton().on( 'template-removed', this.onTemplateRemoved, this );
 
             this.canDrag = true;
             this.canDrop = false;
@@ -20,7 +20,7 @@ namespace Animate {
 
 		/**
          * Called whenever we start dragging. This is only called if canDrag is true.
-         * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
+         * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
@@ -41,7 +41,7 @@ namespace Animate {
          * This will cleanup the component
          */
         dispose() {
-            PluginManager.getSingleton().off( "template-removed", this.onTemplateRemoved, this );
+            PluginManager.getSingleton().off( 'template-removed', this.onTemplateRemoved, this );
             this._template.dispose();
             this.template = null;
             super.dispose();

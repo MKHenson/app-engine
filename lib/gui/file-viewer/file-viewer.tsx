@@ -87,7 +87,7 @@ namespace Animate {
          * @param {SelectValue} option
          */
         onScopeChange( option: SelectValue ) {
-            if ( option.label === "Only project files" )
+            if ( option.label === 'Only project files' )
                 this.selectMode( FileSearchType.Project );
             else
                 this.selectMode( FileSearchType.User );
@@ -298,7 +298,7 @@ namespace Animate {
             }
 
             return (
-                <div className={"file-viewer" + ( selectedFile ? ' file-selected' : '' ) } >
+                <div className={'file-viewer' + ( selectedFile ? ' file-selected' : '' ) } >
                     <div className="toolbar">
                         <ButtonPrimary
                             onClick={( e ) => { jQuery( '#upload-new-file' ).trigger( 'click' ) } }
@@ -324,7 +324,7 @@ namespace Animate {
                             ]} />
                         </div>
 
-                        <div className={"tool-bar-group" + ( this._selectedEntities.length === 0 ? ' disabled' : '' ) }>
+                        <div className={'tool-bar-group' + ( this._selectedEntities.length === 0 ? ' disabled' : '' ) }>
                             <ToolbarButton onChange={( e ) => { this.confirmDelete() } } label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
                         </div>
 
@@ -360,18 +360,18 @@ namespace Animate {
                                                 selected={file.selected}
                                                 labelIcon={( file.favourite ? <i className="fa fa-star" aria-hidden="true"></i> : null ) }
                                                 onClick={( e ) => { this.selectEntity( e, file ) } }
-                                                className='file-item' />
+                                                className="file-item" />
                                         })
                                     }
                                 </div>
                                 {( this._entries.length === 0 ? <div className="no-items unselectable">No files uploaded</div> : null ) }
                             </div>
-                            {( state.loading ? <div className='loading'>{loadingSymbol}</div> : null ) }
+                            {( state.loading ? <div className="loading">{loadingSymbol}</div> : null ) }
                         </Pager>
                     </div>
-                    <div className={"file-info background animate-all" + ( selectedFile ? ' open' : '' ) }>
+                    <div className={'file-info background animate-all' + ( selectedFile ? ' open' : '' ) }>
                         {( selectedFile ? (
-                            <div className="fade-in" style={{ height: "100%" }}>
+                            <div className="fade-in" style={{ height: '100%' }}>
                                 <div className="file-details">
                                     <ButtonLink className="edit" style={{ display: ( !state.editMode ? '' : 'none' ) }}
                                         onClick={() => { this.setState( { editMode: !state.editMode }); }
@@ -456,13 +456,13 @@ namespace Animate {
                 loading: true
             });
 
-            let entIds = "";
+            let entIds = '';
 
             for ( let ent of this._selectedEntities )
-                entIds += ( ent as UsersInterface.IFileEntry ).identifier + ",";
+                entIds += ( ent as UsersInterface.IFileEntry ).identifier + ',';
 
             // Make sure the string is formatted correctly
-            entIds = ( entIds.length > 0 ? entIds.substr( 0, entIds.length - 1 ) : "" );
+            entIds = ( entIds.length > 0 ? entIds.substr( 0, entIds.length - 1 ) : '' );
 
             Utils.delete( `${DB.USERS}/files/${entIds}` ).then(( token: UsersInterface.IResponse ) => {
 
@@ -555,7 +555,7 @@ namespace Animate {
                 this.setState( { errorMsg: `Only ${this.props.extensions.join( ', ' )} file types are allowed` });
 
                 // Reset the value
-                input.value = "";
+                input.value = '';
                 return false;
             }
 
@@ -568,7 +568,7 @@ namespace Animate {
             this._uploader.uploadFile( files, { browsable: true });
 
             // Reset the value
-            input.value = "";
+            input.value = '';
         }
 
         /**
@@ -583,7 +583,7 @@ namespace Animate {
 
             // Approve all extensions unless otherwise stated
             for ( let f = 0, fl = files.length; f < fl; f++ ) {
-                let split = files[ f ].name.split( "." ),
+                let split = files[ f ].name.split( '.' ),
                     ext = split[ split.length - 1 ].toLowerCase(),
                     extFound = false;
 
@@ -614,7 +614,7 @@ namespace Animate {
 		 */
         filterByExtensions( files: IViewerFile[] ): IViewerFile[] {
             let extensions = this.props.extensions,
-                ext = "",
+                ext = '',
                 hasExtension = false;
 
             if ( extensions.length === 0 )
@@ -735,7 +735,7 @@ namespace Animate {
             );
 
             // Starts the upload process
-            fu.upload2DElement( preview, file.name + "-preview", { browsable: false }, file.identifier );
+            fu.upload2DElement( preview, file.name + '-preview', { browsable: false }, file.identifier );
         }
 
         /**

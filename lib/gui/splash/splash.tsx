@@ -124,9 +124,9 @@
         */
         splashDimensions(): string {
             if ( this.state.mode === SplashMode.LOGIN || this.state.mode === SplashMode.OPENING )
-                return "compact";
+                return 'compact';
             else
-                return "wide";
+                return 'wide';
         }
 
         /*

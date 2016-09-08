@@ -1,11 +1,12 @@
 ﻿namespace Animate {
 
-    export module Resources {
+    export namespace Resources {
 
         /**
         * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
         */
         export class GroupArray extends ProjectResource<Engine.IGroup> {
+
             /**
             * @param {IGroup} entry [Optional] The database entry of the resource
             */
@@ -37,7 +38,6 @@
             * Disposes and cleans up the data of this asset
             */
             dispose() {
-                //Call super
                 super.dispose();
             }
         }

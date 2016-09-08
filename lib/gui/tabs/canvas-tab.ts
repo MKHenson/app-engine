@@ -309,7 +309,6 @@ namespace Animate {
 
                     const comp = new Component( event.tag.html, this.welcomeTab.page );
                     comp.element.css( { width: '100%', height: '100%' });
-                    comp.addLayout( new Fill() );
                 }
             }
         }

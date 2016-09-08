@@ -31,7 +31,7 @@ namespace Animate {
             new LoggerStore();
 
             // Creates a common body element
-            Application.bodyComponent = new Component( "body" );
+            Application.bodyComponent = new Component( 'body' );
 
             Application._singleton = this;
             //this._canvasContext = new CanvasContext();
@@ -96,7 +96,7 @@ namespace Animate {
         }
 
         componentDidMount() {
-            LoggerStore.logMessage( "Welcome to the Hatchery!", null, LogType.MESSAGE );
+            LoggerStore.logMessage( 'Welcome to the Hatchery!', null, LogType.MESSAGE );
         }
 
 		/**
@@ -152,11 +152,11 @@ namespace Animate {
 		*/
         onMouseDown( e ): void {
             let elem: JQuery = jQuery( e.target );
-            let comp: Component = elem.data( "component" ) as Component;
+            let comp: Component = elem.data( 'component' ) as Component;
 
             while ( !comp && elem.length !== 0 ) {
                 elem = jQuery( elem ).parent();
-                comp = elem.data( "component" );
+                comp = elem.data( 'component' );
             }
 
             this.setFocus( comp );
@@ -168,10 +168,10 @@ namespace Animate {
 		*/
         setFocus( comp: Component ): void {
             if ( this._focusObj )
-                this._focusObj.element.data( "focus", false );
+                this._focusObj.element.data( 'focus', false );
 
             if ( comp !== null ) {
-                comp.element.data( "focus", true );
+                comp.element.data( 'focus', true );
                 this._focusObj = comp;
             }
         }

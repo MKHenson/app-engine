@@ -164,8 +164,8 @@ namespace Animate {
                     if ( a === b )
                         return 0;
 
-                    const a_components = a.version.split( "." );
-                    const b_components = b.version.split( "." );
+                    const a_components = a.version.split( '.' );
+                    const b_components = b.version.split( '.' );
 
                     const len = Math.min( a_components.length, b_components.length );
 
@@ -267,7 +267,7 @@ namespace Animate {
 
 
             return <div className={
-                "plugins-widget" + ( this.state.loading ? ' loading' : '' ) +
+                'plugins-widget' + ( this.state.loading ? ' loading' : '' ) +
                 ( !this.state.activePlugin ? ' no-plugin' : '' )
             }>
                 <div className="double-column">

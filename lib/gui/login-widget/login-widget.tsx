@@ -49,10 +49,10 @@ namespace Animate {
                     onLoadingChange={( loading ) => this.setState( { loading: loading }) }
                     />
 
-            return <div id='log-reg' className={( this.state.loading ? 'loading' : null ) }>
-                <i className='fa fa-cog fa-spin fa-3x fa-fw'></i>
-                <div className='avatar'>
-                    <img src='media/blank-user.png' />
+            return <div id="log-reg" className={( this.state.loading ? 'loading' : null ) }>
+                <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                <div className="avatar">
+                    <img src="media/blank-user.png" />
                 </div>
                 {activePane}
             </div>;

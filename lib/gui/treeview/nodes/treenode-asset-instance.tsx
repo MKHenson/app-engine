@@ -15,9 +15,9 @@ namespace Animate {
             this.canDrag = true;
             this.canDrop = false;
 
-            //if (this.resource.properties === null || this.resource.properties.variables.length === 0 )
+            // if (this.resource.properties === null || this.resource.properties.variables.length === 0 )
             //    this.resource.properties = assetClass.buildVariables();
-            asset.on( "edited", this.onAssetEdited, this );
+            asset.on( 'edited', this.onAssetEdited, this );
         }
 
 		/**
@@ -33,10 +33,9 @@ namespace Animate {
 		 * This will cleanup the component.
 		 */
         dispose() {
-            this.resource.off( "edited", this.onAssetEdited, this );
+            this.resource.off( 'edited', this.onAssetEdited, this );
             this.assetClass = null;
 
-            //Call super
             super.dispose();
         }
     }

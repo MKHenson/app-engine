@@ -79,7 +79,7 @@ namespace Animate {
 		 */
         ok( name: string ) {
             let curName: string = name;
-            let prevName = ( this.props.name ? this.props.name : "" );
+            let prevName = ( this.props.name ? this.props.name : '' );
             let error: Error = null;
 
             if ( this.props.onRenaming )

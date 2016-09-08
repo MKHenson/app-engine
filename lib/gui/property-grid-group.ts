@@ -8,11 +8,11 @@ namespace Animate {
 
         constructor( name: string ) {
             // Call super-class constructor
-            super( "<div class='property-grid-group background-view-light'></div>", null );
+            super( '<div class=\'property-grid-group background-view-light\'></div>', null );
 
             this.name = name;
-            this.element.append( "<div class='property-grid-group-header tooltip-text-bg'>" + name + "</div>" );
-            this.content = jQuery( "<div class='content'></div>" );
+            this.element.append( '<div class=\'property-grid-group-header tooltip-text-bg\'>' + name + '</div>' );
+            this.content = jQuery( '<div class=\'content\'></div>' );
             this.element.append( this.content );
         }
 

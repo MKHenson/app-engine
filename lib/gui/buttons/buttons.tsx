@@ -62,7 +62,7 @@ namespace Animate {
                         if ( this.props.onClick )
                             this.props.onClick( e );
                     } }>
-                    {( createWrapper ? <span className='wrapper'>{this.props.children}</span> : this.props.children ) }
+                    {( createWrapper ? <span className="wrapper">{this.props.children}</span> : this.props.children ) }
                 </button>
             )
         }

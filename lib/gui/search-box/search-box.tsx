@@ -97,7 +97,7 @@ namespace Animate {
                     } }
                     onBlur={( e ) => this.onBlur( e ) }
                     onChange={( e ) => this.onChange( e ) }
-                    type='text'
+                    type="text"
                     id={this.props.id}
                     placeholder={this.props.placeholder}
                     name={this.props.name}
@@ -110,7 +110,7 @@ namespace Animate {
                         if ( this.props.onSearch )
                             this.props.onSearch( e, this.state.value || '' );
                     } }
-                    htmlFor={this.props.id || undefined}><span className='fa fa-search' /></label>
+                    htmlFor={this.props.id || undefined}><span className="fa fa-search" /></label>
             </div>
         }
     }

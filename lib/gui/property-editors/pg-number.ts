@@ -43,7 +43,7 @@ namespace Animate {
 
             // Function to deal with user interactions with JQuery
             const valueEdited = function ( e: JQueryEventObject ) {
-                let val: number = parseFloat( jQuery( "input", editor ).val() );
+                let val: number = parseFloat( jQuery( 'input', editor ).val() );
                 if ( isNaN( val ) )
                     val = 0;
 
@@ -57,13 +57,13 @@ namespace Animate {
             };
 
             // Add listeners
-            jQuery( "input", editor ).val( num.toString() );
-            jQuery( "input", editor ).on( "keyup", valueEdited );
+            jQuery( 'input', editor ).val( num.toString() );
+            jQuery( 'input', editor ).on( 'keyup', valueEdited );
 
 
             // This is for when the users press the up and down buttons on chrome
-            jQuery( "input", editor ).on( "mouseup", valueEdited );
-            ( <any>jQuery( "input", editor ) ).jStepper( {
+            jQuery( 'input', editor ).on( 'mouseup', valueEdited );
+            ( <any>jQuery( 'input', editor ) ).jStepper( {
                 allowDecimals: true,
                 maxValue: max,
                 minValue: min,

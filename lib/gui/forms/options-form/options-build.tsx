@@ -26,7 +26,7 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div id='options-build'>
+            return <div id="options-build">
                 <Group label="Build">
                     <div className="field-option">
                         <div className="label">Version: </div>

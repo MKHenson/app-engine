@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export module Resources {
+    export namespace Resources {
 
 		/**
 		* A wrapper for DB file instances

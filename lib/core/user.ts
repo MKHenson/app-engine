@@ -1,27 +1,4 @@
 namespace Animate {
-    //export class UserEvents extends ENUM
-    //{
-    //constructor( v: string ) { super( v ); }
-    //static LOGGED_IN: UserEvents = new UserEvents( 'user_logged_in' );
-    //static FAILED: UserEvents = new UserEvents( 'user_failed' );
-    //static REGISTERED: UserEvents = new UserEvents( 'user_registered' );
-    //static LOGGED_OUT: UserEvents = new UserEvents( 'user_logged_out' );
-    //static PASSWORD_RESET: UserEvents = new UserEvents( 'user_password_reset' );
-    //static ACTIVATION_RESET: UserEvents = new UserEvents( 'user_activation_reset' );
-    //static PROJECT_CREATED: UserEvents = new UserEvents( 'user_project_created' );
-    //static PROJECT_OPENED: UserEvents = new UserEvents( 'user_project_opened' );
-    //static PROJECTS_RECIEVED: UserEvents = new UserEvents( 'user_projects_recieved' );
-    //static PROJECT_DELETED: UserEvents = new UserEvents( 'user_project_deleted' );
-    //static PROJECT_COPIED: UserEvents = new UserEvents( 'user_project_copied' );
-    //static PROJECT_RENAMED: UserEvents = new UserEvents( 'user_project_rename' );
-    //static DETAILS_SAVED: UserEvents = new UserEvents( 'user_details_saved' );
-    //}
-
-
-
-
-
-
 
 	/**
 	* This class is used to represent the user who is logged into Animate.
@@ -372,68 +349,6 @@ namespace Animate {
             });
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        ///**
-        //* Use this function to rename a project
-        //* @param {number} id The project ID we are copying
-        //* @param {string} name The new name of the project
-        //* @param {string} description The new description of the project
-        //* @param {Array<string>} tags The new tags of the project
-        //* @param {string} category The new category of the project
-        //* @param {string} subCat The new subCat of the project
-        //* @param {string} visibility The new visibility of the project. Either public or private
-        //*/
-        //renameProject( id: string, name: string, description: string, tags: Array<string>, category: string, subCat: string, visibility: string )
-        //{
-        //	var loader = new AnimateLoader();
-        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-        //	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-        //	loader.load( '/project/rename', {
-        //		projectId: id,
-        //		name: name,
-        //		description: description,
-        //		tags: tags,
-        //		cat: category,
-        //		subCat: subCat,
-        //		visibility: visibility
-        //	} );
-        //}
-
-        ///**
-        //* @type public mfunc updateDetails
-        //* Use this function to update user details
-        //* @param {string} bio The bio of the user
-        //* @extends {User}
-        //*/
-        //updateDetails( bio )
-        //{
-        //	var loader = new AnimateLoader();
-        //	loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-        //	loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-        //	loader.load( '/user/update-details', { bio: bio } );
-        //}
-
 		/**
 		* @type public mfunc copyProject
 		* Use this function to duplicate a project
@@ -441,172 +356,23 @@ namespace Animate {
 		* @extends {User}
 		*/
         copyProject( id: string ) {
-            const loader = new AnimateLoader();
-            loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-            loader.on( LoaderEvents.FAILED, this.onServer, this );
-            loader.load( '/project/copy', { id: id });
+            throw new Error('not implemented');
         }
-
-
-        ///**
-        //* This function is used to create a new project.
-        //*/
-        //createProject( name : string, description : string )
-        //{
-        //	if ( this._isLoggedIn )
-        //	{
-        //		var loader = new AnimateLoader();
-        //		loader.addEventListener( LoaderEvents.COMPLETE, this.onServer, this );
-        //		loader.addEventListener( LoaderEvents.FAILED, this.onServer, this );
-        //		loader.load( '/project/create', { name: name, description: description } );
-        //	}
-        //}
-
 
 		/**
 		* This function is used to open an existing project.
 		*/
         openProject( id: string ) {
-            if ( this._isLoggedIn ) {
-                const loader = new AnimateLoader();
-                loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-                loader.on( LoaderEvents.FAILED, this.onServer, this );
-                loader.load( '/project/open', { id: id });
-            }
+            throw new Error('not implemented');
         }
-
 
 		/**
 		* This will delete a project from the database as well as remove it from the user.
 		* @param {string} id The id of the project we are removing.
 		*/
         deleteProject( id: string ) {
-            if ( this._isLoggedIn ) {
-                //if ( this.project !== null )
-                //{
-                //	this.project.dispose();
-                //	this.project = null;
-                //}
-
-                this.project.entry = null;
-
-                const loader = new AnimateLoader();
-                loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-                loader.on( LoaderEvents.FAILED, this.onServer, this );
-                loader.load( '/project/delete', { id: id });
-            }
-            else
-                return null;
+            throw new Error('not implemented');
         }
-
-		/**
-		* This is the resonse from the server
-		* @param {LoaderEvents} response The response from the server. The response will be either Loader.COMPLETE or Loader.FAILED
-		* @param {Event} data The data sent from the server.
-		*/
-        onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-            const data = event.tag;
-
-            const loader: AnimateLoader = <AnimateLoader>sender;
-
-            if ( response === LoaderEvents.COMPLETE ) {
-                if ( event.return_type === AnimateLoaderResponses.ERROR ) {
-                    //MessageBox.show(event.message, Array<string>('Ok'), null, null );
-                    //this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, event.data ) );
-                    return;
-                }
-
-                if ( loader.url === '/user/log-in' ) {
-                    //this.userEntry.meta.bio = data.bio;
-                    //this.userEntry.meta.plan = data.plan;
-                    //this.userEntry.meta.maxNumProjects = data.maxProjects;
-                    //this.userEntry.meta.createdOn = data.createdOn;
-                    //this.userEntry.meta.imgURL = data.image;
-
-                    //this.planLevel = 0;
-                    //if ( data.plan === DB.PLAN_SILVER || data.plan === DB.PLAN_BRONZE )
-                    //	this.planLevel = 1;
-                    //else if ( data.plan === DB.PLAN_GOLD )
-                    //	this.planLevel = 2;
-                    //else
-                    //	this.planLevel = 3;
-
-                    this._isLoggedIn = true;
-
-                    //this.dispatchEvent(new UserEvent(UserEvents.LOGGED_IN, event.message, event.return_type, data));
-                }
-                else if ( loader.url === '/user/log-out' ) {
-                    this.entry.username = '';
-                    this._isLoggedIn = false;
-                    //this.dispatchEvent( new UserEvent( UserEvents.LOGGED_OUT, event.message, event.return_type, data ) );
-                }
-                //else if ( loader.url === '/user/register' )
-                //	this.dispatchEvent( new UserEvent( UserEvents.REGISTERED, event.message, event.return_type, data ) );
-                //else if ( loader.url === '/user/reset-password' )
-                //	this.dispatchEvent( new UserEvent( UserEvents.PASSWORD_RESET, event.message, event.return_type, data ) );
-                //else if ( loader.url === '/user/resend-activation' )
-                //	this.dispatchEvent( new UserEvent( UserEvents.ACTIVATION_RESET, event.message, event.return_type, data ) );
-                //else if ( loader.url === '/user/update-details' )
-                //	this.emit(new UserEvent(UserEvents.DETAILS_SAVED, event.message, event.return_type, data));
-                //else if ( loader.url === '/project/get-user-projects' )
-                //	this.dispatchEvent( new UserEvent( UserEvents.PROJECTS_RECIEVED, '', event.return_type, data ) );
-                else if ( loader.url === '/project/create' ) {
-                    //this.project = new Project(data.project.entry._id, data.project.name, data.build );
-                    //this.emit( new ProjectEvent( UserEvents.PROJECT_CREATED, event.message, data ) );
-                }
-                //else if ( loader.url === '/project/open' )
-                //{
-                //this.project = new Project(data.project.entry._id, data.project.name, null );
-                //this.project.loadFromData( data );
-                //this.emit( new ProjectEvent( UserEvents.PROJECT_OPENED, event.message, data ) );
-                //}
-                //else if ( loader.url === '/project/delete' )
-                //	this.dispatchEvent( new UserEvent( UserEvents.PROJECT_DELETED, event.message, event.return_type, data ) );
-                //else if ( loader.url === '/project/copy' )
-                //	this.dispatchEvent(new UserEvent(UserEvents.PROJECT_COPIED, event.message, event.return_type, data));
-                else if ( loader.url === '/project/rename' ) {
-                    //this.project.mName = data.name;
-                    //this.project.mDescription = data.description;
-                    //this.project.mTags = data.tags;
-                    //this.project.mRating = data.rating;
-                    //this.project.mCategory = data.category;
-                    //this.project.mImgPath = data.image;
-                    //this.project.mVisibility = data.visibility;
-                    //this.project.mSubCategory = data.sub_category;
-
-                    //this.dispatchEvent(new UserEvent(UserEvents.PROJECT_RENAMED, event.message, event.return_type, data));
-                }
-                else if ( loader.url.match( /authenticated/ ) ) {
-                    if ( data.loggedIn ) {
-                        this.entry.username = data.username;
-                        this.entry.meta.bio = data.bio;
-                        this.entry.meta.plan = data.plan;
-                        this.entry.meta.maxNumProjects = data.maxProjects;
-                        this.entry.meta.imgURL = ( data.image === '' || data.image === null ? 'media/blank-user.png' : data.image );
-                        this.entry.meta.createdOn = data.createdOn;
-                        this._isLoggedIn = true;
-
-                        //this.planLevel = 0;
-                        //if ( data.plan === DB.PLAN_SILVER || data.plan === DB.PLAN_BRONZE )
-                        //	this.planLevel = 1;
-                        //else if ( data.plan === DB.PLAN_GOLD )
-                        //	this.planLevel = 2;
-                        //else
-                        //	this.planLevel = 3;
-                    }
-
-                    //this.dispatchEvent( new UserEvent( UserEvents.LOGGED_IN, event.message, event.return_type, data.loggedIn ) );
-                }
-
-                //else
-                //	this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
-            }
-            //else
-            //	this.emit(new UserEvent(UserEvents.FAILED, event.message, event.return_type, data));
-        }
-
-        //get project(): Project { return this._project; }
-        //set project( val: Project ) { this._project = val; }
 
         get isLoggedIn(): boolean { return this._isLoggedIn; }
 

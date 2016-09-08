@@ -56,7 +56,7 @@ namespace Animate {
                     asset = nodes[ i ].resource;
                 }
 
-                selector.append( `<option title='${nodes[ i ].resource.entry.shallowId} : ${nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( i === 0 ? 'selected="selected"' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
+                selector.append( `<option title='${nodes[ i ].resource.entry.shallowId} : ${nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( i === 0 ? 'selected=\'selected\'' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
             }
 
             // Fill the already selected items

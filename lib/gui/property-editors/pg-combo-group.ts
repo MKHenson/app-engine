@@ -27,12 +27,12 @@ namespace Animate {
         edit( prop: Prop<any>, container: Component ) {
             const p = <PropGroup>prop;
             const group = <Resources.GroupArray>p.getVal();
-            const groupId = ( group ? p.getVal().entry.shallowId : "" );
+            const groupId = ( group ? p.getVal().entry.shallowId : '' );
 
             //Create HTML
             const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>` );
-            const selector: JQuery = jQuery( "select", editor );
-            const eye: JQuery = jQuery( ".eye-picker", editor );
+            const selector: JQuery = jQuery( 'select', editor );
+            const eye: JQuery = jQuery( '.eye-picker', editor );
 
             // Add to DOM
             container.element.append( editor );
@@ -48,10 +48,10 @@ namespace Animate {
             });
 
             //Create the blank
-            selector.append( `<option value='' ${( !p.getVal() ? "selected='selected'" : "" )}></option>` );
+            selector.append( `<option value='' ${( !p.getVal() ? 'selected=\'selected\'' : '' )}></option>` );
 
             for ( let i = 0; i < groups.length; i++ )
-                selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? "selected='selected'" : "" )}>${groups[ i ].entry.name}</option>` );
+                selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? 'selected=\'selected\'' : '' )}>${groups[ i ].entry.name}</option>` );
 
 
             const that = this;
@@ -66,12 +66,12 @@ namespace Animate {
             const onEye = function ( e: JQueryEventObject ) {
                 const val = parseFloat( selector.val() );
                 const group = project.getResourceByShallowID( val, ResourceType.GROUP );
-                TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( "resource", group ) );
+                TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
             };
 
             //Add listeners
-            eye.on( "mouseup", onEye );
-            selector.on( "change", onSelect );
+            eye.on( 'mouseup', onEye );
+            selector.on( 'change', onSelect );
         }
     }
 }
