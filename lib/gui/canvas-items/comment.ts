@@ -23,8 +23,8 @@ namespace Animate {
 		 * @param {number} id
          * @returns {IComment}
          */
-        serialize( id: number ): IComment {
-            let toRet = <IComment>super.serialize( id );
+        serialize( id: number ): Engine.Editor.IComment {
+            let toRet = <Engine.Editor.IComment>super.serialize( id );
             toRet.label = this.label;
             toRet.width = this.width;
             toRet.height = this.height;
@@ -35,7 +35,7 @@ namespace Animate {
          * De-Serializes data from a JSON.
          * @param {IComment} data The data to import from
          */
-        deSerialize( data: IComment ) {
+        deSerialize( data: Engine.Editor.IComment ) {
             super.deSerialize( data );
             this.width = data.width;
             this.height = data.height;

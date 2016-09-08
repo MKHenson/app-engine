@@ -21,7 +21,7 @@ namespace Animate {
         // private _tabHomeContainer: Component;
         // private _currentContainer: Component;
         // private _currentTab: Component;
-        private _copyPasteToken: IContainerToken;
+        private _copyPasteToken: Engine.Editor.IContainerWorkspace;
 
         constructor( props?: IToolbarProps ) {
             super( props );

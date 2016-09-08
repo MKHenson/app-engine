@@ -29,7 +29,7 @@ namespace Animate {
         //private _name: LabelVal;
         //private _type: LabelVal;
         //private _warning: Label;
-        private _portalType: PortalType;
+        private _portalType: HatcheryRuntime.PortalType;
         //private _item: Component;
         private _value: any;
         private _fromOk: boolean;
@@ -89,13 +89,13 @@ namespace Animate {
             const assetClasses: SelectValue[] = [];
 
             // Add the 4 types of portals
-            portalTypes.push( { label: 'Parameter', value: 'parameter' as PortalType, selected: true });
-            portalTypes.push( { label: 'Product', value: 'product' as PortalType });
-            portalTypes.push( { label: 'Output', value: 'output' as PortalType });
-            portalTypes.push( { label: 'Input', value: 'input' as PortalType });
+            portalTypes.push( { label: 'Parameter', value: 'parameter' as HatcheryRuntime.PortalType, selected: true });
+            portalTypes.push( { label: 'Product', value: 'product' as HatcheryRuntime.PortalType });
+            portalTypes.push( { label: 'Output', value: 'output' as HatcheryRuntime.PortalType });
+            portalTypes.push( { label: 'Input', value: 'input' as HatcheryRuntime.PortalType });
 
             // Add default all value for classes
-            assetClasses.push( { label: 'All', value: 'all' as PortalType, selected: true });
+            assetClasses.push( { label: 'All', value: 'all' as HatcheryRuntime.PortalType, selected: true });
 
             // Get and sort all asset classes
             let classes: AssetClass[] = TreeViewScene.getSingleton().getAssetClasses();
@@ -182,7 +182,7 @@ namespace Animate {
         //showForm( item: Behaviour, type: PortalType, caption: string )
         //showForm( item: Canvas, type: PortalType, caption: string )
         //showForm( item : any, type : PortalType, caption : string )
-        editPortal( property: Prop<any>, type: PortalType, nameVerifier: ( name: string ) => boolean ) {
+        editPortal( property: Prop<any>, type: HatcheryRuntime.PortalType, nameVerifier: ( name: string ) => boolean ) {
             //             this.generateClasses();
             // 			//var types :Array<string> = PluginManager.getSingleton().dataTypes;
 
@@ -398,7 +398,7 @@ namespace Animate {
 
         //get name(): string { return (<InputBox>this._name.val).text; }
         get name(): string { return this.$name; }
-        get portalType(): PortalType { return this._portalType; }
+        get portalType(): HatcheryRuntime.PortalType { return this._portalType; }
         //get value(): any { return this._value; }
         get value(): any { return this._newProperty.getVal(); }
         get parameterType(): PropertyType {

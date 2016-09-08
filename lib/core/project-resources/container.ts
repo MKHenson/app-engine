@@ -38,7 +38,7 @@ namespace Animate {
              * Use this function to initialize the resource. This called just after the resource is created and its entry set.
              */
             initialize() {
-                const containerToken: IContainerToken = this.entry.json;
+                const containerToken: Engine.Editor.IContainerWorkspace = this.entry.json;
                 containerToken.items = containerToken.items || [];
                 if ( containerToken.properties )
                     this._properties.deTokenize( containerToken.properties );

@@ -56,7 +56,7 @@ namespace Animate {
 		 * @param {Prop<any>} property
 		 * @returns {Portal}
 		 */
-        addPortal( type: PortalType, property: Prop<any> ): Portal {
+        addPortal( type: HatcheryRuntime.PortalType, property: Prop<any> ): Portal {
             const portal = new Portal( this, type, property );
 
             // Add the arrays
@@ -115,11 +115,11 @@ namespace Animate {
 		 * @param {number} id
          * @returns {IBehaviour}
          */
-        serialize( id: number ): IBehaviour {
-            let toRet = <IBehaviour>super.serialize( id );
+        serialize( id: number ): Engine.Editor.IBehaviour {
+            let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
             let portals = this.portals;
 
-            toRet.portals = <Array<IPortal>>[];
+            toRet.portals = <Array<Engine.Editor.IPortal>>[];
 
             for ( let portal of portals ) {
                 toRet.portals.push( portal.serialize() );
@@ -134,7 +134,7 @@ namespace Animate {
          * De-Serializes data from a JSON.
          * @param {IBehaviour} data The data to import from
          */
-        deSerialize( data: IBehaviour ) {
+        deSerialize( data: Engine.Editor.IBehaviour ) {
             super.deSerialize( data );
 
             // Remove all existing portals

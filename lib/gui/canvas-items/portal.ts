@@ -7,7 +7,7 @@ namespace Animate {
         // TODO: Canvas TSX changes
         public links: Array<any>; // Array<Link>;
         public custom: boolean;
-        public type: PortalType;
+        public type: HatcheryRuntime.PortalType;
         public property: Prop<any>;
         public behaviour: Behaviour;
 
@@ -16,7 +16,7 @@ namespace Animate {
 		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
 		* @param {Prop<any>} property The property associated with this portal
 		*/
-        constructor( parent: Behaviour, type: PortalType, property: Prop<any> ) {
+        constructor( parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any> ) {
             super();
 
             this.links = [];
@@ -27,7 +27,7 @@ namespace Animate {
             this.custom = false;
         }
 
-        serialize(): IPortal {
+        serialize(): Engine.Editor.IPortal {
             return {
                 name: this.property.name,
                 custom: this.custom,

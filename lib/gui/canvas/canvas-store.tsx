@@ -110,8 +110,8 @@ namespace Animate {
          * Gets all the canvas items in a serialized array
          * @returns {ICanvasItem[]}
          */
-        serialize(): ICanvasItem[] {
-            let toRet: ICanvasItem[] = [];
+        serialize(): Engine.Editor.ICanvasItem[] {
+            let toRet: Engine.Editor.ICanvasItem[] = [];
             let id = 1;
 
             for ( let item of this._items ) {

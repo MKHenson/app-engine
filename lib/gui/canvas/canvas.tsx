@@ -137,7 +137,7 @@ namespace Animate {
         // 	return false;
         // }
 
-        createPortal( type: PortalType ) {
+        createPortal( type: HatcheryRuntime.PortalType ) {
 
         }
 
