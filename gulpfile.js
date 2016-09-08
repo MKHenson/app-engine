@@ -17,6 +17,7 @@ var untar = require('gulp-untar');
 var gutil = require('gulp-util');
 var rename = require('gulp-rename');
 var rimraf = require('rimraf');
+var tslint = require("gulp-tslint");
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -157,6 +158,18 @@ gulp.task('ts-code', function() {
 });
 
 /**
+ * Ensures the code quality is up to scratch
+ */
+gulp.task("tslint", ['ts-code'], function() {
+    gulp.src(tsFiles)
+        .pipe( tslint({
+            configuration: "tslint.json",
+            formatter: "verbose"
+        }))
+        .pipe( tslint.report() )
+});
+
+/**
  * Builds the definition
  */
 gulp.task('ts-code-declaration', function() {
@@ -293,7 +306,7 @@ gulp.task('install-definitions', function () {
 });
 
 
-gulp.task('build-all', ['html', 'media', 'deploy-fonts', 'check-files', 'ts-code', 'ts-code-declaration', 'deploy-third-party','css'], function () {
+gulp.task('build-all', ['html', 'media', 'deploy-fonts', 'check-files', 'tslint', 'ts-code-declaration', 'deploy-third-party','css'], function () {
 
     var index = './dist/index.html';
     var str = "<!-- inject:js -->\n";
