@@ -84,7 +84,7 @@
     "lib/gui/canvas/workspace-items/canvas-context.ts",
     "lib/gui/canvas/workspace-items/canvas.ts",
     "lib/gui/canvas/canvas.tsx",
-    "lib/gui/canvas/container-workspace.tsx",
+    "lib/gui/canvas/container-workspace.ts",
     "lib/gui/canvas/components/behaviour-component.tsx",
     "lib/gui/canvas/components/comment-component.tsx",
     "lib/gui/treeview/treeview.tsx",
