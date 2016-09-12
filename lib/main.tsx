@@ -3,9 +3,9 @@ const __plugins: { [ name: string ]: Array<Engine.IPlugin> } = {};
 let __newPlugin: Animate.IPlugin = null;
 
 /**
-* Goes through each of the plugins and returns the one with the matching ID
-* @param {string} id The ID of the plugin to fetch
-*/
+ * Goes through each of the plugins and returns the one with the matching ID
+ * @param {string} id The ID of the plugin to fetch
+ */
 function getPluginByID( id: string ): Engine.IPlugin {
     for ( const pluginName in __plugins ) {
         for ( let i = 0, l = __plugins[ pluginName ].length; i < l; i++ )
@@ -17,9 +17,9 @@ function getPluginByID( id: string ): Engine.IPlugin {
 }
 
 /**
-* Once the plugins are loaded from the DB
-* @param {Array<Engine.IPlugin>} plugins
-*/
+ * Once the plugins are loaded from the DB
+ * @param {Array<Engine.IPlugin>} plugins
+ */
 function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
     for ( let i = 0, l = plugins.length; i < l; i++ ) {
         if ( !__plugins[ plugins[ i ].name ] )
@@ -71,14 +71,14 @@ function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
 }
 
 /**
-* Returns a formatted byte string
-* @returns {string}
-*/
+ * Returns a formatted byte string
+ * @returns {string}
+ */
 function byteFilter( bytes, precision: number = 1 ): string {
     if ( isNaN( parseFloat( bytes ) ) || !isFinite( bytes ) ) return '-';
     const units = [ 'bytes', 'kB', 'MB', 'GB', 'TB', 'PB' ],
-        number = Math.floor( Math.log( bytes ) / Math.log( 1024 ) );
-    return ( bytes / Math.pow( 1024, Math.floor( number ) ) ).toFixed( precision ) + ' ' + units[ number ];
+        num = Math.floor( Math.log( bytes ) / Math.log( 1024 ) );
+    return ( bytes / Math.pow( 1024, Math.floor( num ) ) ).toFixed( precision ) + ' ' + units[ num ];
 }
 
 // Once the document is ready we begin
@@ -86,9 +86,7 @@ jQuery( document ).ready( function () {
     // Make sure we call ajax with credentials on
     jQuery.ajaxSetup( {
         crossDomain: true,
-        xhrFields: { withCredentials: true },
-        //contentType: 'application/json;charset=UTF-8',
-        //dataType: 'json'
+        xhrFields: { withCredentials: true }
     });
 
     const that = this;

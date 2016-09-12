@@ -114,14 +114,14 @@ namespace Animate {
 		*/
         itemSelected( item: Component ) {
             // TODO: Canvas TSX changes
-            //==========================================
+            // ==========================================
             // if (item instanceof Behaviour || item instanceof Link)
             //     this.$itemSelected = true;
             // else
             //     this.$itemSelected = false;
 
             // //Compiler.digest(this._mainElm, this);
-            //=============================================
+            // =============================================
         }
 
 		/**
@@ -130,7 +130,6 @@ namespace Animate {
         newProject( project: Project ) {
             this.$itemSelected = false;
             this._copyPasteToken = null;
-            //Compiler.digest(this._mainElm, this);
         }
 
         // /**

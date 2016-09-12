@@ -121,9 +121,8 @@ namespace Animate {
 
             toRet.portals = <Array<Engine.Editor.IPortal>>[];
 
-            for ( let portal of portals ) {
+            for ( let portal of portals )
                 toRet.portals.push( portal.serialize() );
-            }
 
             toRet.alias = this.alias;
             toRet.behaviourType = this.behaviourType;

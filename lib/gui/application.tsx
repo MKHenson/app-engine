@@ -11,90 +11,24 @@ namespace Animate {
         private static _singleton: Application;
         public static bodyComponent: Component;
         private _focusObj: Component;
-
-        private _resizeProxy: any;
-        private _downProxy: any;
-        // private _dockerlefttop: Docker;
-        // private _dockerleftbottom: Docker;
-        // private _dockerrighttop: Docker;
-        // private _dockerrightbottom: Docker;
-        //private _canvasContext: CanvasContext;
-
         private _sceneStore: TreeViewScene;
 
         constructor( props: React.HTMLAttributes ) {
             super( props );
 
             Application._singleton = this;
-
             Utils.init();
             new LoggerStore();
-
-            // Creates a common body element
-            Application.bodyComponent = new Component( 'body' );
-
-            Application._singleton = this;
-            //this._canvasContext = new CanvasContext();
-            this._focusObj = null;
-
-            //Start the tooltip manager
-            //TooltipManager.create();
             User.get;
-
             this._sceneStore = new TreeViewScene();
-
-            // this._resizeProxy = this.onWindowResized.bind( this );
-            // this._downProxy = this.onMouseDown.bind( this );
-
-            //var comp = jQuery( document.activeElement ).data( "component" );
-
-            // //Create each of the main components for the application.
-            // var stage: Component = new Component( "#stage" );
-            // var toolbar: Toolbar = Toolbar.getSingleton( new Component( "#toolbar" ) );
-
-            // this.addChild( toolbar );
-            // this.addChild( stage );
-
-            // //Create each of the main split panels
-            // var mainSplit: SplitPanel = new SplitPanel( stage, SplitOrientation.VERTICAL, 0.75 );
-            // mainSplit.element.css( { width: "100%", height: "100%" });
-
-            // var leftSplit : SplitPanel = new SplitPanel( mainSplit.left, SplitOrientation.HORIZONTAL, 0.85 );
-            // var rightSplit : SplitPanel = new SplitPanel( mainSplit.right, SplitOrientation.HORIZONTAL, 0.5 );
-            // leftSplit.element.css( { width: "100%", height: "100%" });
-            // rightSplit.element.css( { width: "100%", height: "100%" });
-            // var grid: PropertyGrid = new PropertyGrid( rightSplit.top );
-
-            // var scenetab = SceneTab.getSingleton( rightSplit.bottom );
-            // var canvastab: CanvasTab = CanvasTab.getSingleton( leftSplit.top );
-
-            // //now set up the dockers
-            // this._dockerlefttop = new Docker( leftSplit.top );
-            // this._dockerlefttop.addComponent( canvastab, false );
-            // this._dockerleftbottom = new Docker(leftSplit.bottom);
-            // this._dockerleftbottom.addComponent(Logger.getSingleton(), false);
-            // this._dockerrightbottom = new Docker( rightSplit.bottom );
-            // this._dockerrightbottom.addComponent( scenetab, false );
-            // this._dockerrighttop = new Docker( rightSplit.top );
-            // this._dockerrighttop.addComponent( grid, false );
-
-
-
-            // this.update();
-
-            // //Hook the resize event
-            // jQuery( window ).on( 'resize', this._resizeProxy );
-            // jQuery( document ).on( 'mousedown', this._downProxy );
-
-
-
-            // Show Splash screen
-            // splash.show();
             this.state = {
                 showSplash: true
             }
         }
 
+        /**
+         * Log the first welcome message
+         */
         componentDidMount() {
             LoggerStore.logMessage( 'Welcome to the Hatchery!', null, LogType.MESSAGE );
         }
@@ -105,19 +39,7 @@ namespace Animate {
          */
         render(): JSX.Element {
 
-            let store = new CanvasStore();
-            //let portals : IPortal[] = [{ name: 'Portal', type: 'input',  }];
-            //store.addItem( new Behaviour( { alias: "Hello world!", behaviourType: "behaviour", left: 20, top: 20, portals:  } ) );
-
-            // let treeData = new TreeViewNode("Root", <i className="fa fa-globe" aria-hidden="true"></i> );
-            // let node = treeData.addNode(new TreeViewNode("Child 1"));
-            // treeData.addNode(new TreeViewNode("Child 2"));
-            // node.addNode(new TreeViewNode("Sub Child 1"));
-
-            // let treeData2 = new TreeViewNode("Root 2");
-            // let node2 = treeData2.addNode(new TreeViewNode("Child 1"));
-            // treeData2.addNode(new TreeViewNode("Child 2"));
-            // node2.addNode(new TreeViewNode("Sub Child 1"));
+            let store = new ContainerWorkspace( null );
 
             return <div id="application">
                 {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
@@ -176,69 +98,34 @@ namespace Animate {
             }
         }
 
-        // /**
-        // * Updates the dimensions of the application
-        // * @param {object} val The jQuery event object
-        // */
-        // onWindowResized( val ) : void {
-        //     // Do not update everything if the event is from JQ UI
-        //     if (val && $(val.target).hasClass('ui-resizable'))
-        //         return;
-
-        // 	super.update();
-        // }
-
-        // /**
-        // * This will cleanup the component.
-        // */
-        // dispose() {
-        // 	jQuery( window ).off( 'resize', this._resizeProxy );
-        // 	jQuery( document ).off( 'mousedown', this._downProxy );
-
-        // 	this._resizeProxy = null;
-        // 	this._downProxy = null;
-
-        // 	//Call super
-        // 	super.dispose();
-        // }
-
 		/**
 		*  This is called when a project is unloaded and we need to reset the GUI.
 		*/
         projectReset() {
             const user = User.get;
 
+            // TODO: Figure out what to do with resets?
             PropertyGrid.getSingleton().projectReset();
             LoggerStore.get.clear();
             TreeViewScene.getSingleton().projectReset( user.project );
-            //CanvasTab.getSingleton().projectReset();
+            // CanvasTab.getSingleton().projectReset();
 
-
-            //Must be called after reset
-            if ( user.project ) {
+            // Must be called after reset
+            if ( user.project )
                 user.project.reset();
-                //user.project = null;
-            }
 
-            //Unload all the plugins
+            // Unload all the plugins
             PluginManager.getSingleton().projectReset( user.project );
         }
 
 		/**
-		* Gets the singleton instance
-		*/
+		 * Gets the singleton instance
+         * @returns {Application}
+		 */
         public static getInstance( domElement?: string ): Application {
-            // if (Application._singleton === undefined)
-            // 	Application._singleton = new Application(domElement);
-
             return Application._singleton;
         }
 
         get focusObj(): Component { return this._focusObj; }
-        //get canvasContext(): CanvasContext { return this._canvasContext; }
-        // get dockerLeftTop(): Docker { return this._dockerlefttop; }
-        // get dockerLeftBottom(): Docker { return this._dockerleftbottom; }
-        // get dockerRightTop(): Docker { return this._dockerrighttop; }
-        // get dockerRightBottom(): Docker { return this._dockerrightbottom; }
     }
 }
