@@ -166,7 +166,9 @@ gulp.task("tslint", ['ts-code'], function() {
             configuration: "tslint.json",
             formatter: "verbose"
         }))
-        .pipe( tslint.report() )
+        .pipe( tslint.report({
+            emitError: false
+        }) )
 });
 
 /**
