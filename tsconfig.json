@@ -41,6 +41,7 @@
     "lib/core/loaders/animate-loader.ts",
     "lib/core/loaders/binary-loader.ts",
     "lib/core/portal-template.ts",
+    "lib/core/build.ts",
     "lib/core/project.ts",
     "lib/core/type-converter.ts",
     "lib/core/utils.ts",

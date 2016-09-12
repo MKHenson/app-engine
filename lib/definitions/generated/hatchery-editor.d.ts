@@ -1549,16 +1549,6 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    class ProjectEvents {
-        value: string;
-        constructor(v: string);
-        toString(): string;
-        static SAVED: ProjectEvents;
-        static SAVED_ALL: ProjectEvents;
-        static FAILED: ProjectEvents;
-        static BUILD_SELECTED: ProjectEvents;
-        static BUILD_SAVED: ProjectEvents;
-    }
     /**
     * A wrapper for project builds
     */
@@ -1574,6 +1564,18 @@ declare namespace Animate {
         * @param {Engine.IBuild} token The update token data
         */
         update(token: Engine.IBuild): Promise<boolean>;
+    }
+}
+declare namespace Animate {
+    class ProjectEvents {
+        value: string;
+        constructor(v: string);
+        toString(): string;
+        static SAVED: ProjectEvents;
+        static SAVED_ALL: ProjectEvents;
+        static FAILED: ProjectEvents;
+        static BUILD_SELECTED: ProjectEvents;
+        static BUILD_SAVED: ProjectEvents;
     }
     /**
     * A project class is an object that is owned by a user.
