@@ -3,18 +3,28 @@ namespace Animate {
     /**
      * A store of various diagram items
      */
-    export class CanvasStore extends EventDispatcher {
+    export class ContainerWorkspace extends EventDispatcher {
 
+        private _container: Resources.Container;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
 
         /**
          * Creates an instance of the canvas store
          */
-        constructor( items: CanvasItem[] = [] ) {
+        constructor( container: Resources.Container, items: CanvasItem[] = [] ) {
             super();
+            this._container = container;
             this._items = items;
             this._selection = [];
+        }
+
+        /**
+         * Gets the container this workspace represents
+         * @returns {Resources.Container}
+         */
+        get container() : Resources.Container {
+            return this._container;
         }
 
         /**

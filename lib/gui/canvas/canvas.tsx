@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface IReactCanvasProps {
-        store: CanvasStore
+        store: ContainerWorkspace
     }
 
 
@@ -138,7 +138,17 @@ namespace Animate {
         // }
 
         createPortal( type: HatcheryRuntime.PortalType ) {
+            // Show the rename form
+            ReactWindow.show( RenameForm, {
+                name: "",
+                onOk: ( newName ) => {
 
+                },
+                onRenaming: ( newName, prevName ): Error => {
+
+                    return null;
+                }
+            } as IRenameFormProps );
         }
 
         /**

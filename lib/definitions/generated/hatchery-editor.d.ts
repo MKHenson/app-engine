@@ -973,8 +973,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-    * The plugin manager is used to load and manage external Animate plugins.
-    */
+     * The plugin manager is used to load and manage external Animate plugins.
+     */
     class PluginManager extends EventDispatcher {
         private static _singleton;
         private _plugins;
@@ -985,12 +985,12 @@ declare namespace Animate {
         private _previewVisualizers;
         constructor();
         /**
-        * Attempts to download a plugin by its URL and insert it onto the page.
-        * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
-        * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-        * @param {IPlugin} pluginDefinition The plugin to load
-        * @returns {Promise<Engine.IPlugin>}
-        */
+         * Attempts to download a plugin by its URL and insert it onto the page.
+         * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
+         * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
+         * @param {IPlugin} pluginDefinition The plugin to load
+         * @returns {Promise<Engine.IPlugin>}
+         */
         loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>;
         /**
          * This funtcion is used to load a plugin.
@@ -999,61 +999,61 @@ declare namespace Animate {
          */
         preparePlugin(pluginDefinition: Engine.IPlugin, createPluginReference?: boolean): void;
         /**
-        * Call this function to unload a plugin
-        * @param {IPlugin} plugin The IPlugin object that is to be loaded
-        */
+         * Call this function to unload a plugin
+         * @param {IPlugin} plugin The IPlugin object that is to be loaded
+         */
         unloadPlugin(plugin: IPlugin): void;
         /**
-        * Loops through each of the converters to see if a conversion is possible. If it is
-        * it will return an array of conversion options, if not it returns false.
-        * @param {any} typeA The first type to check
-        * @param {any} typeB The second type to check
-        */
+         * Loops through each of the converters to see if a conversion is possible. If it is
+         * it will return an array of conversion options, if not it returns false.
+         * @param {any} typeA The first type to check
+         * @param {any} typeB The second type to check
+         */
         getConverters(typeA: any, typeB: any): any;
         /**
-        * Gets a behaviour template by its name.
-        * @param {string} behaviorName The name of the behaviour template
-        */
+         * Gets a behaviour template by its name.
+         * @param {string} behaviorName The name of the behaviour template
+         */
         getTemplate(behaviorName: string): BehaviourDefinition;
         /**
-        * Use this function to select an asset in the tree view and property grid
-        * @param {Resources.Asset} asset The Asset object we need to select
-        * @param {boolean} panToNode When set to true, the treeview will bring the node into view
-        * @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
-        */
+         * Use this function to select an asset in the tree view and property grid
+         * @param {Resources.Asset} asset The Asset object we need to select
+         * @param {boolean} panToNode When set to true, the treeview will bring the node into view
+         * @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
+         */
         selectAsset(asset: Resources.Asset, panToNode?: boolean, multiSelect?: boolean): void;
         /**
-        * Gets an asset class by its name
-        * @param {string} name The name of the asset class
-        * @param {AssetClass}
-        */
+         * Gets an asset class by its name
+         * @param {string} name The name of the asset class
+         * @param {AssetClass}
+         */
         getAssetClass(name: string): AssetClass;
         /**
-        * Called when the project is reset by either creating a new one or opening an older one.
-        */
+         * Called when the project is reset by either creating a new one or opening an older one.
+         */
         projectReset(project: Project): void;
         /**
-        * This function is called by Animate when everything has been loaded and the user is able to begin their session.
-        */
+         * This function is called by Animate when everything has been loaded and the user is able to begin their session.
+         */
         projectReady(project: Project): void;
         /**
-        * Creates a thumbnail preview of the file
-        * @param {Engine.IFile} file
-        * @returns {Promise<HTMLCanvasElement>}
-        */
+         * Creates a thumbnail preview of the file
+         * @param {Engine.IFile} file
+         * @returns {Promise<HTMLCanvasElement>}
+         */
         thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
         /**
-        * This function generates a React Element that is used to preview a file
-        * @param {Engine.IFile} file The file we are looking to preview
-        * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
-        */
+         * This function generates a React Element that is used to preview a file
+         * @param {Engine.IFile} file The file we are looking to preview
+         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         */
         displayPreview(file: Engine.IFile): JSX.Element;
         assetTemplates: AssetTemplate[];
         loadedPlugins: IPlugin[];
         behaviourTemplates: BehaviourDefinition[];
         /**
-        * Gets the singleton instance.
-        */
+         * Gets the singleton instance.
+         */
         static getSingleton(): PluginManager;
     }
 }
@@ -3088,7 +3088,7 @@ declare namespace Animate {
         top: number;
         left: number;
         className: string;
-        store: CanvasStore;
+        store: ContainerWorkspace;
         id: number;
         private _selected;
         /**
@@ -3225,6 +3225,9 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    /**
+     * A behaviour that contains an asset/resource reference
+     */
     class BehaviourAsset extends Behaviour {
         asset: ProjectResource<Engine.IResource>;
         /**
@@ -3251,7 +3254,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-     * A user comment
+     * A user comment within the workspace
      */
     class Comment extends CanvasItem {
         label: string;
@@ -3357,7 +3360,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IReactCanvasProps {
-        store: CanvasStore;
+        store: ContainerWorkspace;
     }
     class ReactCanvas extends React.Component<IReactCanvasProps, {
         items: CanvasItem[];
@@ -3408,13 +3411,19 @@ declare namespace Animate {
     /**
      * A store of various diagram items
      */
-    class CanvasStore extends EventDispatcher {
+    class ContainerWorkspace extends EventDispatcher {
+        private _container;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
         /**
          * Creates an instance of the canvas store
          */
-        constructor(items?: CanvasItem[]);
+        constructor(container: Resources.Container, items?: CanvasItem[]);
+        /**
+         * Gets the container this workspace represents
+         * @returns {Resources.Container}
+         */
+        container: Resources.Container;
         /**
          * Returns all items of this store
          * @returns {CanvasItem[]}
@@ -6719,10 +6728,11 @@ declare namespace Animate {
         private static _singleton;
         static bodyComponent: Component;
         private _focusObj;
-        private _resizeProxy;
-        private _downProxy;
         private _sceneStore;
         constructor(props: React.HTMLAttributes);
+        /**
+         * Log the first welcome message
+         */
         componentDidMount(): void;
         /**
          * Creates the component elements
@@ -6744,8 +6754,9 @@ declare namespace Animate {
         */
         projectReset(): void;
         /**
-        * Gets the singleton instance
-        */
+         * Gets the singleton instance
+         * @returns {Application}
+         */
         static getInstance(domElement?: string): Application;
         focusObj: Component;
     }
@@ -6756,17 +6767,17 @@ declare const __plugins: {
 };
 declare let __newPlugin: Animate.IPlugin;
 /**
-* Goes through each of the plugins and returns the one with the matching ID
-* @param {string} id The ID of the plugin to fetch
-*/
+ * Goes through each of the plugins and returns the one with the matching ID
+ * @param {string} id The ID of the plugin to fetch
+ */
 declare function getPluginByID(id: string): Engine.IPlugin;
 /**
-* Once the plugins are loaded from the DB
-* @param {Array<Engine.IPlugin>} plugins
-*/
+ * Once the plugins are loaded from the DB
+ * @param {Array<Engine.IPlugin>} plugins
+ */
 declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
 /**
-* Returns a formatted byte string
-* @returns {string}
-*/
+ * Returns a formatted byte string
+ * @returns {string}
+ */
 declare function byteFilter(bytes: any, precision?: number): string;
