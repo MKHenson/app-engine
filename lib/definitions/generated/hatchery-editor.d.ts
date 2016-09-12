@@ -3409,7 +3409,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-     * A store of various diagram items
+     * Acts as a store/container of the various items that can be interacted with by the user
+     * when they open a container. Think of this as the model of a Container's inner components.
      */
     class ContainerWorkspace extends EventDispatcher {
         private _container;
