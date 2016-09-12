@@ -1,4 +1,8 @@
 namespace Animate {
+
+    /**
+     * A behaviour that contains an asset/resource reference
+     */
     export class BehaviourAsset extends Behaviour {
         public asset: ProjectResource<Engine.IResource>;
 

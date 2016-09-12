@@ -1,7 +1,7 @@
 namespace Animate {
 
 	/**
-	 * A user comment
+	 * A user comment within the workspace
 	 */
     export class Comment extends CanvasItem {
         public label: string;
