@@ -163,6 +163,7 @@
     "lib/gui/splash/splash.tsx",
     "lib/gui/new-project/new-project.tsx",
     "lib/gui/splash/projects-overview.tsx",
+    "lib/gui/workspace/workspace.tsx",
     "lib/gui/application.tsx",
     "lib/main.tsx"
   ]
