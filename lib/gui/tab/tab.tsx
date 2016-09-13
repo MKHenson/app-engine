@@ -12,19 +12,19 @@ namespace Animate {
 	/**
 	 * A Tab Component for organising pages of content into separate labelled tabs/folders
 	 */
-    export class Tab extends React.Component<ITabProps, ITabState> {
+    export class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
 
         private _panes: React.ReactElement<ITabPaneProps>[];
 
 		/**
 		 * Creates a new instance of the tab
 		 */
-        constructor( props: ITabProps ) {
+        constructor( props: T ) {
             super( props );
             this._panes = props.panes || [];
             this.state = {
                 selectedIndex: 0
-            };
+            } as Y;
         }
 
         /**
@@ -34,7 +34,7 @@ namespace Animate {
             if ( this._panes !== nextProps.panes ) {
                 this.clear();
                 this._panes = nextProps.panes || [];
-                this.setState( { selectedIndex: ( this.state.selectedIndex < this._panes.length ? this.state.selectedIndex : 0 ) });
+                this.setState( { selectedIndex: ( this.state.selectedIndex < this._panes.length ? this.state.selectedIndex : 0 ) } as Y );
             }
         }
 
@@ -67,7 +67,7 @@ namespace Animate {
                 this._panes.splice( index );
                 this.setState( {
                     selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
-                });
+                } as Y);
             });
         }
 
@@ -149,7 +149,7 @@ namespace Animate {
                 if ( !result )
                     return;
 
-                this.setState( { selectedIndex: index })
+                this.setState( { selectedIndex: index } as Y)
             });
         }
 
@@ -208,7 +208,7 @@ namespace Animate {
                 x: e.pageX, y: e.pageY, items: items, onChange: ( item ) => {
                     for ( let i = 0, l = panes.length; i < l; i++ )
                         if ( panes[ i ].props.label === item.label )
-                            return this.setState( { selectedIndex: i });
+                            return this.setState( { selectedIndex: i } as Y);
                 }
             });
         }
@@ -220,7 +220,7 @@ namespace Animate {
             this._panes.push( pane );
             this.setState( {
                 selectedIndex: this.state.selectedIndex
-            });
+            } as Y);
         }
 
 		/**
@@ -261,7 +261,7 @@ namespace Animate {
             this._panes.splice( 0, this._panes.length );
             this.setState( {
                 selectedIndex: 0
-            });
+            } as Y);
         }
 
 		/**

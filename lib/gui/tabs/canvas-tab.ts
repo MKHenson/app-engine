@@ -12,7 +12,7 @@ namespace Animate {
 	/**
 	* This is an implementation of the tab class that deals with the canvas
 	*/
-    export class CanvasTab extends Tab {
+    export class CanvasTab extends Tab<any, any> {
         private static _singleton: CanvasTab;
 
         private _currentCanvas: Canvas;

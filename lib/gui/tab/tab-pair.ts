@@ -5,7 +5,7 @@ namespace Animate {
 	* label and page as well as a few other things.
 	*/
     export class TabPair {
-        public tab: Tab;
+        public tab: Tab<any, any>;
         public tabSelector: Component;
         public page: Component;
         public name: string;

@@ -2,7 +2,7 @@ namespace Animate {
 	/**
 	* This is an implementation of the tab class
 	*/
-    export class SceneTab extends Tab {
+    export class SceneTab extends Tab<any, any> {
         private static _singleton: SceneTab;
         //private mDocker: Docker;
         public assetPanel: Component;
