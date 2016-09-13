@@ -52,7 +52,7 @@ namespace Animate {
                             <SplitPanel
                                 ratio={0.8}
                                 orientation={SplitOrientation.HORIZONTAL}
-                                top={<ReactCanvas store={store} />}
+                                top={<Workspace />}
                                 bottom={<Logger store={LoggerStore.get} />} />
                         } right={
                             <SplitPanel
