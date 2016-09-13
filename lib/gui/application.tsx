@@ -40,6 +40,7 @@ namespace Animate {
         render(): JSX.Element {
 
             let store = new ContainerWorkspace( null );
+            let project = User.get.project;
 
             return <div id="application">
                 {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
@@ -52,7 +53,7 @@ namespace Animate {
                             <SplitPanel
                                 ratio={0.8}
                                 orientation={SplitOrientation.HORIZONTAL}
-                                top={<Workspace />}
+                                top={<Workspace project={project} />}
                                 bottom={<Logger store={LoggerStore.get} />} />
                         } right={
                             <SplitPanel
