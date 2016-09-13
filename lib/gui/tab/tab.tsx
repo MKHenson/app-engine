@@ -1,7 +1,8 @@
 namespace Animate {
 
     export interface ITabProps {
-        panes: React.ReactElement<ITabPaneProps>[];
+        panes?: React.ReactElement<ITabPaneProps>[];
+        className?: string;
     }
 
     export interface ITabState {
@@ -20,7 +21,7 @@ namespace Animate {
 		 */
         constructor( props: ITabProps ) {
             super( props );
-            this._panes = props.panes;
+            this._panes = props.panes || [];
             this.state = {
                 selectedIndex: 0
             };
@@ -32,8 +33,8 @@ namespace Animate {
         componentWillReceiveProps( nextProps: ITabProps ) {
             if ( this._panes !== nextProps.panes ) {
                 this.clear();
-                this._panes = nextProps.panes;
-                this.setState( { selectedIndex: ( this.state.selectedIndex < nextProps.panes.length ? this.state.selectedIndex : 0 ) });
+                this._panes = nextProps.panes || [];
+                this.setState( { selectedIndex: ( this.state.selectedIndex < this._panes.length ? this.state.selectedIndex : 0 ) });
             }
         }
 
@@ -70,16 +71,25 @@ namespace Animate {
             });
         }
 
+        /**
+         * Called when there are no panes for the tab and a custom view is desired
+         */
+        renderEmptyPanes() : JSX.Element {
+            return null;
+        }
+
 		/**
          * Creates the component elements
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
 
-            let children = this._panes;
+            const children = this._panes;
 
-            return <div className="tab">
+            return <div className={'tab' + (this.props.className ? ' ' + this.props.className : '' ) +
+                    ( children.length > 0 ? ' has-panes' : ' no-panes' ) }>
                 <div className="tab-labels">
+
                     {( children.length > 0 ?
                         <div className="tab-drop-button" onClick={( e ) => {
                             this.showContext( e );
@@ -112,7 +122,7 @@ namespace Animate {
                         }) }
                 </div>
                 <div className="tab-panes">
-                    { children.length > 0 ? children[ this.state.selectedIndex ] : null }
+                    { children.length > 0 ? children[ this.state.selectedIndex ] :  this.renderEmptyPanes() }
                 </div>
             </div>
         }
