@@ -1200,14 +1200,15 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Resources {
         /**
-        * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
-        * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
-        */
+         * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
+         * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
+         */
         class Container extends ProjectResource<Engine.IContainer> {
             canvas: Canvas;
+            workspace: ContainerWorkspace;
             /**
-            * {string} name The name of the container
-            */
+             * @param {Engine.IContainer} entry The data associated with this container resource
+             */
             constructor(entry?: Engine.IContainer);
             /**
             * This function is called just before the entry is saved to the database.
@@ -1218,8 +1219,8 @@ declare namespace Animate {
              */
             initialize(): void;
             /**
-            * This will cleanup the behaviour.
-            */
+             * This will cleanup the behaviour.
+             */
             dispose(): void;
         }
     }
@@ -2873,7 +2874,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ITabProps {
-        panes: React.ReactElement<ITabPaneProps>[];
+        panes?: React.ReactElement<ITabPaneProps>[];
+        className?: string;
     }
     interface ITabState {
         selectedIndex: number;
@@ -2897,6 +2899,10 @@ declare namespace Animate {
          * @param {ITabPaneProps} props props of the selected tab
          */
         removePane(index: number, prop: ITabPaneProps): void;
+        /**
+         * Called when there are no panes for the tab and a custom view is desired
+         */
+        renderEmptyPanes(): JSX.Element;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3460,10 +3466,15 @@ declare namespace Animate {
          */
         removeItem(item: CanvasItem): void;
         /**
-         * Gets all the canvas items in a serialized array
-         * @returns {ICanvasItem[]}
+         * De-serializes the workspace from its JSON format
+         * @param {Engine.Editor.IContainerWorkspace} scene
          */
-        serialize(): Engine.Editor.ICanvasItem[];
+        deserialize(scene: Engine.Editor.IContainerWorkspace): void;
+        /**
+         * Serializes the workspace into its JSON format
+         * @returns {Engine.Editor.IContainerWorkspace}
+         */
+        serialize(): Engine.Editor.IContainerWorkspace;
         /**
          * Triggers a change in the tree structure
          */
@@ -6718,6 +6729,24 @@ declare namespace Animate {
         * @returns {JSX.Element}
         */
         render(): JSX.Element;
+    }
+}
+declare namespace Animate {
+    interface IWorkspaceProps extends ITabProps {
+    }
+    /**
+     * The main workspace area of the application.
+     */
+    class Workspace extends Tab {
+        static defaultProps: IWorkspaceProps;
+        /**
+         * Called when there are no panes for the tab and a custom view is desired
+         */
+        renderEmptyPanes(): JSX.Element;
+        /**
+         * Creates an instance of the workspace tab
+         */
+        constructor(props: ITabProps);
     }
 }
 declare namespace Animate {
