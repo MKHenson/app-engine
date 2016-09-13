@@ -54,8 +54,8 @@ namespace Animate {
 		* This function is called whenever we get a resonse from the server
 		*/
         onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-            if ( response === LoaderEvents.COMPLETE ) {
-                if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
+            if ( response === 'LoaderEvents.COMPLETE' ) {
+                if ( event.return_type === 'AnimateLoaderResponses.SUCCESS' ) {
                     const loader: AnimateLoader = <AnimateLoader>sender;
 
                     if ( loader.url === "/project/get-user-privileges" ) {
@@ -131,8 +131,8 @@ namespace Animate {
                 }
 
                 const loader = new AnimateLoader();
-                loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-                loader.on( LoaderEvents.FAILED, this.onServer, this );
+                loader.on( 'LoaderEvents.COMPLETE', this.onServer, this );
+                loader.on( 'LoaderEvents.FAILED', this.onServer, this );
                 loader.load( "/project/set-users-access", { projectId: project.entry._id, ids: ids, access: access });
             }
         }
@@ -156,8 +156,8 @@ namespace Animate {
             this.mMenu.clearItems();
 
             const loader = new AnimateLoader();
-            loader.on( LoaderEvents.COMPLETE, this.onServer, this );
-            loader.on( LoaderEvents.FAILED, this.onServer, this );
+            loader.on( 'LoaderEvents.COMPLETE', this.onServer, this );
+            loader.on( 'LoaderEvents.FAILED', this.onServer, this );
             loader.load( "/project/get-user-privileges", { projectId: project.entry._id, index: 0, limit: 20 });
         }
 

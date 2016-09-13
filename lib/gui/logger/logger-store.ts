@@ -73,7 +73,7 @@ namespace Animate {
          */
         add( message: string, type: LogType, tag: any ) {
             this._logs.push( { message: message, type: type, tag: tag });
-            this.emit( new Event( 'change' ) );
+            this.emit<LoggerEvents, any>( 'change', null );
         }
 
         /**
@@ -81,7 +81,7 @@ namespace Animate {
          */
         clear() {
             this._logs.splice( 0, this._logs.length );
-            this.emit( new Event( 'change' ) );
+            this.emit<LoggerEvents, any>( 'change', null );
         }
 
 		/**

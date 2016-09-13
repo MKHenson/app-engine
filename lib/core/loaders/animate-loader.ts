@@ -1,39 +1,4 @@
 namespace Animate {
-	/**
-	* Valid response codes for requests made to the Animate server
-	*/
-    export class AnimateLoaderResponses extends ENUM {
-        constructor( v: string ) { super( v ); }
-        static SUCCESS: AnimateLoaderResponses = new AnimateLoaderResponses( 'success' );
-        static ERROR: AnimateLoaderResponses = new AnimateLoaderResponses( 'error' );
-
-        public static fromString( val: string ): ENUM {
-            switch ( val ) {
-                case AnimateLoaderResponses.ERROR.toString():
-                    return AnimateLoaderResponses.ERROR;
-                case AnimateLoaderResponses.SUCCESS.toString():
-                default:
-                    return AnimateLoaderResponses.SUCCESS;
-            }
-        }
-    }
-
-
-	/**
-	* Events associated with requests made to the animate servers
-	*/
-    export class AnimateLoaderEvent extends Event {
-        message: string;
-        return_type: AnimateLoaderResponses;
-        data: any;
-
-        constructor( eventName: LoaderEvents, message: string, return_type: AnimateLoaderResponses, data?: any ) {
-            super( eventName, data );
-            this.message = message;
-            this.return_type = return_type;
-            this.data = data;
-        }
-    }
 
 	/**
 	* This class acts as an interface loader for the animate server.
@@ -119,7 +84,7 @@ namespace Animate {
             }
             else {
                 LoaderBase.hideLoader();
-                this.emit( new AnimateLoaderEvent( LoaderEvents.FAILED, errorThrown.message, AnimateLoaderResponses.ERROR, null ) );
+                //this.emit<LoaderEvents, AnimateLoaderEvent>( 'failed', { message: errorThrown.message, return_type: 'error', data : null  } );
                 this.dispose();
             }
         }
@@ -132,16 +97,16 @@ namespace Animate {
 		*/
         onData( data, textStatus, jqXHR ) {
             LoaderBase.hideLoader();
+            let e: AnimateLoaderEvent;
 
-            let e: AnimateLoaderEvent = null;
-            if ( this.dataType === 'text' )
-                e = new AnimateLoaderEvent( LoaderEvents.COMPLETE, 'Script Loaded', AnimateLoaderResponses.SUCCESS, null );
-            else if ( this.dataType === 'json' )
-                e = new AnimateLoaderEvent( LoaderEvents.COMPLETE, data.message, AnimateLoaderResponses.fromString( data.return_type ), data );
-            else
-                e = new AnimateLoaderEvent( LoaderEvents.COMPLETE, 'Loaded', AnimateLoaderResponses.SUCCESS, data );
+            // if ( this.dataType === 'text' )
+            //     e = { message: 'Script Loaded', return_type: 'success', data: null };
+            // else if ( this.dataType === 'json' )
+            //     e = { message: data.message, return_type: data.return_type, data: data };
+            // else
+            //     e = { message: 'Loaded', return_type: 'success', data: data };
 
-            this.emit( e );
+            this.emit<LoaderEvents, AnimateLoaderEvent>( 'complete', e );
             this.dispose();
         }
 

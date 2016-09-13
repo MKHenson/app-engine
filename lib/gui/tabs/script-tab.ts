@@ -134,7 +134,7 @@ namespace Animate {
 
             editor.setTheme( 'ace/theme/chrome' );
             editor.getSession().setMode( 'ace/mode/javascript' );
-            this._editorComponent.on( ComponentEvents.UPDATED, this.onResize, this );
+            //this._editorComponent.on( ComponentEvents.UPDATED, this.onResize, this );
 
             // Ctrl + S
             editor.commands.addCommand( {
@@ -155,7 +155,7 @@ namespace Animate {
             //When we return from the server
             const onServer = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
                 //When we come back from the server
-                if ( response === LoaderEvents.COMPLETE ) {
+                if ( response === 'LoaderEvents.COMPLETE' ) {
                     let data: any = event.tag.script;
                     if ( !data )
                         data = {};
@@ -188,8 +188,8 @@ namespace Animate {
             editor.addEventListener( 'change', onChange );
 
             //Get the current scripts
-            loader.on( LoaderEvents.COMPLETE, onServer );
-            loader.on( LoaderEvents.FAILED, onServer );
+            loader.on( 'LoaderEvents.COMPLETE', onServer );
+            loader.on( 'LoaderEvents.FAILED', onServer );
             loader.load( '/project/get-behaviour-scripts', { projectId: User.get.project.entry._id, _id: scriptId });
 
             this.onSelected();
@@ -321,7 +321,7 @@ namespace Animate {
                 return;
             }
 
-            this._editorComponent.off( ComponentEvents.UPDATED, this.onResize, this );
+            this._editorComponent.off( 'ComponentEvents.UPDATED', this.onResize, this );
             jQuery( '.function-button', this.right.element ).off( 'click', this.proxyFunctionClick );
 
             this._editor.commands.removeCommand( 'save' );
@@ -354,8 +354,8 @@ namespace Animate {
 
             // When we return from the save
             const onSave = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-                if ( response === LoaderEvents.COMPLETE ) {
-                    if ( event.return_type === AnimateLoaderResponses.ERROR ) {
+                if ( response === 'LoaderEvents.COMPLETE' ) {
+                    if ( event.return_type === 'AnimateLoaderResponses.ERROR' ) {
                         ReactWindow.show( MessageBox, { message: `There was an error saving the script: '${event.message}'` } as IMessageBoxProps );
                         return;
                     }
@@ -372,8 +372,8 @@ namespace Animate {
 
             // Try to create the database entry of this node
             const loader = new AnimateLoader();
-            loader.on( LoaderEvents.COMPLETE, onSave );
-            loader.on( LoaderEvents.FAILED, onSave );
+            loader.on(' LoaderEvents.COMPLETE', onSave );
+            loader.on(' LoaderEvents.FAILED', onSave );
             loader.load( '/project/save-behaviour-script', {
                 projectId: User.get.project.entry._id,
                 onEnter: this.onEnter,

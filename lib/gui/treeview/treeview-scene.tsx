@@ -730,18 +730,18 @@ namespace Animate {
 		 * @param {TreeNodeModel[]} selection
 		 */
         onSelectionChange( selection: TreeNodeModel[] ) {
-            if ( selection.length === 0 )
-                PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
-            else {
-                let lastSelectedNode = selection[ selection.length - 1 ];
-                if ( lastSelectedNode instanceof TreeViewNodeResource ) {
+            // if ( selection.length === 0 )
+            //     PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
+            // else {
+            //     let lastSelectedNode = selection[ selection.length - 1 ];
+            //     if ( lastSelectedNode instanceof TreeViewNodeResource ) {
 
-                    let resource = lastSelectedNode.resource;
-                    PropertyGrid.getSingleton().editableObject( resource.properties, `${resource.entry.name} [${resource.entry.shallowId}]`, 'media/variable.png' );
-                    // TODO: This should probably be RESOURCE_SELECTED
-                    PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, resource ) );
-                }
-            }
+            //         let resource = lastSelectedNode.resource;
+            //         PropertyGrid.getSingleton().editableObject( resource.properties, `${resource.entry.name} [${resource.entry.shallowId}]`, 'media/variable.png' );
+            //         // TODO: This should probably be RESOURCE_SELECTED
+            //         PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, resource ) );
+            //     }
+            // }
         }
 
 		/**

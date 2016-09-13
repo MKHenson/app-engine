@@ -112,7 +112,7 @@
 
                 this.label.element.text( this.defaultVal.toString() );
 
-                this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+                //this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
             }
         }
 
@@ -137,7 +137,7 @@
             this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
 
             this.label.element.text( this.defaultVal.toString() );
-            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+            //this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
         }
 
 		/**
@@ -175,7 +175,7 @@
             this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
 
             this.label.element.text( this.defaultVal.toString() );
-            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+           // this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
         }
 
         onKeyDown( e ) {
@@ -233,7 +233,7 @@
             this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
             this.label.element.text( this.defaultVal.toString() );
 
-            this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+            // this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
         }
 
 		/**

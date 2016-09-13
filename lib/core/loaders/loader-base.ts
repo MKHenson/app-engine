@@ -1,31 +1,7 @@
 ﻿// TODO : Remove this class
 
 namespace Animate {
-	/**
-	* Basic set of loader events shared by all loaders
-	*/
-    export class LoaderEvents extends ENUM {
-        constructor( v: string ) { super( v ); }
 
-        static COMPLETE: LoaderEvents = new LoaderEvents( 'complete' );
-        static FAILED: LoaderEvents = new LoaderEvents( 'failed' );
-
-		/**
-		* Returns an enum reference by its name/value
-		* @param {string} val
-		* @returns {LoaderEvents}
-		*/
-        static fromString( val: string ): LoaderEvents {
-            switch ( val ) {
-                case 'complete':
-                    return LoaderEvents.COMPLETE;
-                case 'failed':
-                    return LoaderEvents.FAILED;
-            }
-
-            return null;
-        }
-    }
 
 
 	/**

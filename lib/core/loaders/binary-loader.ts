@@ -1,28 +1,4 @@
 ﻿namespace Animate {
-	/**
-	* Valid response codes for xhr binary requests
-	*/
-    export class BinaryLoaderResponses extends ENUM {
-        constructor( v: string ) { super( v ); }
-        static SUCCESS: BinaryLoaderResponses = new BinaryLoaderResponses( 'binary_success' );
-        static ERROR: BinaryLoaderResponses = new BinaryLoaderResponses( 'binary_error' );
-    }
-
-
-	/**
-	* Events associated with xhr binary requests
-	*/
-    export class BinaryLoaderEvent extends Event {
-        public buffer: ArrayBuffer;
-        public message: string;
-
-        constructor( binaryResponse: BinaryLoaderResponses, buffer: ArrayBuffer, message: string = '' ) {
-            super( binaryResponse, buffer );
-            this.buffer = buffer;
-            this.message = message;
-        }
-    }
-
 
 	/**
 	* Class used to download contents from a server into an ArrayBuffer
@@ -85,7 +61,7 @@
             }
             else {
                 LoaderBase.hideLoader();
-                this.emit( new BinaryLoaderEvent( BinaryLoaderResponses.ERROR, null, 'Could not download data from \'' + fullURL + '\'' ) );
+                this.emit<BinaryLoaderResponses, BinaryLoaderEvent>( 'binary_error', { buffer: null, message: 'Could not download data from \'' + fullURL + '\'' });
                 this.dispose();
             }
         }
@@ -124,8 +100,8 @@
             // Array buffer now filled
             LoaderBase.hideLoader();
 
-            const e: BinaryLoaderEvent = new BinaryLoaderEvent( BinaryLoaderResponses.SUCCESS, buffer );
-            this.emit( e );
+            const e: BinaryLoaderEvent = { buffer: buffer, message : '' };
+            this.emit<BinaryLoaderResponses, BinaryLoaderEvent>( 'binary_success', e );
             this.dispose();
         }
     }

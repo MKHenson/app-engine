@@ -20,11 +20,11 @@ namespace Animate {
         }
 
         componentWillMount() {
-            this.props.store.on<EditorEventType>( 'change', this.onLogsChanged, this );
+            this.props.store.on<EditorEventType, void>( 'change', this.onLogsChanged, this );
         }
 
         componentWillUnmount() {
-            this.props.store.off<EditorEventType>( 'change', this.onLogsChanged, this );
+            this.props.store.off<EditorEventType, void>( 'change', this.onLogsChanged, this );
         }
 
         onLogsChanged( type: EditorEventType ) {

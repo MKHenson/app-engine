@@ -1,10 +1,4 @@
 namespace Animate {
-    export class WindowEvents extends ENUM {
-        constructor( v: string ) { super( v ); }
-
-        static HIDDEN: WindowEvents = new WindowEvents( 'window_hidden' );
-        static SHOWN: WindowEvents = new WindowEvents( 'window_shown' );
-    }
 
 	/**
 	* This class is the base class for all windows in Animate
@@ -100,7 +94,7 @@ namespace Animate {
             if ( this._controlBox )
                 this.element.draggable( 'destroy' );
 
-            this.emit( new WindowEvent( WindowEvents.HIDDEN, this ) );
+            //this.emit( new WindowEvent( WindowEvents.HIDDEN, this ) );
         }
 
 		/**
@@ -156,7 +150,7 @@ namespace Animate {
 
 
 
-            this.emit( new WindowEvent( WindowEvents.SHOWN, this ) );
+            //this.emit( new WindowEvent( WindowEvents.SHOWN, this ) );
 
             if ( this._controlBox )
                 this.element.draggable( { handle: '.window-control-box', containment: 'parent' });

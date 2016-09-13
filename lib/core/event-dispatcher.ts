@@ -1,7 +1,8 @@
 namespace Animate {
-	/**
-	* Base class for all custom enums
-	*/
+
+    /**
+	 * Base class for all custom enums
+	 */
     export class ENUM {
         private static allEnums: any;
 
@@ -13,47 +14,28 @@ namespace Animate {
         toString() { return this.value; }
     }
 
-    export type EventType = ENUM | string;
-    export type EventCallback = ( type: EventType, event: Event, sender?: EventDispatcher ) => void;
-    export type TypedCallback<T> = ( type: T, event: Event, sender?: EventDispatcher ) => void;
+    export type TypedCallback<T extends string, Y> = ( type: T, event: Y, sender?: EventDispatcher ) => void;
 
 	/**
-	* Internal class only used internally by the {EventDispatcher}
-	*/
-    export class EventListener {
-        type: EventType;
-        func: EventCallback;
+	 * Internal class only used internally by the {EventDispatcher}
+	 */
+    export class EventListener<T extends string, Y> {
+        type: T;
+        func: TypedCallback<T, Y>;
         context: any;
 
-        constructor( type: EventType, func: EventCallback, context?: any ) {
+        constructor( type: T, func: TypedCallback<T, Y>, context?: any ) {
             this.type = type;
             this.func = func;
             this.context = context;
         }
     }
 
-	/**
-	* The base class for all events dispatched by the {EventDispatcher}
-	*/
-    export class Event {
-        public type: EventType;
-        public tag: any;
-
-		/**
-		* Creates a new event object
-		* @param {EventType} eventType The type event
-		*/
-        constructor( type: EventType, tag?: any ) {
-            this.type = type;
-            this.tag = tag;
-        }
-    }
-
     /**
-    * A simple class that allows the adding, removing and dispatching of events.
-    */
+     * A simple class that allows for the adding, removing and dispatching of events.
+     */
     export class EventDispatcher {
-        private _listeners: Array<EventListener>;
+        private _listeners: Array<EventListener<string, any>>;
         public disposed: boolean;
 
         constructor() {
@@ -63,17 +45,20 @@ namespace Animate {
 
 
         /**
-        * Returns the list of {EventListener} that are currently attached to this dispatcher.
-        */
-        get listeners(): Array<EventListener> {
+         * Returns the list of {EventListener} that are currently attached to this dispatcher.
+         * @returns {Array<EventListener<string, any>>}
+         */
+        get listeners(): Array<EventListener<string, any>> {
             return this._listeners;
         }
 
         /**
-        * Adds a new listener to the dispatcher class.
-        */
-        on<T>( type: T, func: TypedCallback<T>, context?: any )
-        on( type: EventType, func: EventCallback, context?: any ) {
+         * Adds a new listener to the dispatcher class.
+         * @param {T} type The event type we are sending
+         * @param {TypedCallback<T, Y>} func The callback function
+         * @param {any} context [Optional] The context to call with
+         */
+        on<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
             if ( !func )
                 throw new Error( 'You cannot have an undefined function.' );
 
@@ -81,11 +66,13 @@ namespace Animate {
         }
 
         /**
-        * Adds a new listener to the dispatcher class.
-        */
-        off<T>( type: T, func: TypedCallback<T>, context?: any )
-        off( type: EventType, func: EventCallback, context?: any ) {
-            const listeners: Array<EventListener> = this.listeners;
+         * Adds a new listener to the dispatcher class.
+         * @param {T} type The event type we are sending
+         * @param {TypedCallback<T, Y>} func The callback function
+         * @param {any} context [Optional] The context to call with
+         */
+        off<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
+            const listeners = this.listeners;
 
             if ( !listeners )
                 return;
@@ -94,7 +81,7 @@ namespace Animate {
                 throw new Error( 'You cannot have an undefined function.' );
 
             for ( let i = 0, li = listeners.length; i < li; i++ ) {
-                const l: EventListener = listeners[ i ];
+                const l = listeners[ i ];
                 if ( l.type === type && l.func === func && l.context === context ) {
                     listeners.splice( i, 1 );
                     return;
@@ -103,35 +90,23 @@ namespace Animate {
         }
 
         /**
-        * Sends a message to all listeners based on the eventType provided.
-        * @param {String} The trigger message
-        * @param {Event} event The event to dispatch
-		* @returns {any}
-        */
-        emit( event: Event | ENUM, tag?: any ): any {
-            let e: Event = null;
-            if ( event instanceof ENUM )
-                e = new Event( event, tag );
-            else if ( event instanceof Event )
-                e = event;
-
+         * Sends a message to all listeners based on the eventType provided.
+         * @param {T} type The event type we are sending
+         * @param {Event<T> | Y} data [Optional] The data to send with the emission
+		 * @returns {any}
+         */
+        emit<T extends string, Y>( type: T, data?: Y ): any {
             if ( this._listeners.length === 0 )
                 return null;
 
-            //Slice will clone the array
-            const listeners: Array<EventListener> = this._listeners.slice( 0 );
-
-            if ( !listeners )
-                return null;
-
+            let listeners = this._listeners;
             let toRet: any = null;
-            for ( let i = 0, li = listeners.length; i < li; i++ ) {
-                const l: EventListener = listeners[ i ];
-                if ( l.type === e.type ) {
-                    if ( !l.func )
-                        throw new Error( 'A listener was added for ' + e.type + ', but the function is not defined.' );
+            for ( let listener of listeners ) {
+                if ( listener.type === type ) {
+                    if ( !listener.func )
+                        throw new Error( `A listener was added for ${type}, but the function is not defined.` );
 
-                    toRet = l.func.call( l.context || this, l.type, e, this );
+                    toRet = listener.func.call( listener.context || this, type, data, this );
                 }
             }
 
@@ -139,13 +114,11 @@ namespace Animate {
         }
 
 		/**
-		* This will cleanup the component by nullifying all its variables and clearing up all memory.
-		*/
+		 * This will cleanup the component by nullifying all its variables and clearing up all memory.
+		 */
         dispose(): void {
             this._listeners = null;
             this.disposed = true;
         }
     }
-
-
 }

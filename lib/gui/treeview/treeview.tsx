@@ -26,15 +26,15 @@ namespace Animate {
                 focussedNode: null
             };
 
-            props.nodeStore.on<EditorEventType>( 'change', this.onChange, this );
-            props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
+            props.nodeStore.on<EditorEventType, any>( 'change', this.onChange, this );
+            props.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**
          * Called whenever a node is focussed
          */
-        onFocusNodeChange( type: EditorEventType, e: Event ) {
-            this.setState( { focussedNode: e.tag });
+        onFocusNodeChange( type: EditorEventType, e: INodeEvent ) {
+            this.setState( { focussedNode: e.node });
         }
 
         /**
@@ -62,11 +62,11 @@ namespace Animate {
             if ( nextProps.nodeStore === this.props.nodeStore )
                 return;
 
-            this.props.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
-            this.props.nodeStore.off<EditorEventType>( 'change', this.onChange, this );
+            this.props.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            this.props.nodeStore.off<EditorEventType, any>( 'change', this.onChange, this );
 
-            nextProps.nodeStore.on<EditorEventType>( 'change', this.onChange, this );
-            nextProps.nodeStore.on<EditorEventType>( 'focus-node', this.onFocusNodeChange, this );
+            nextProps.nodeStore.on<EditorEventType, any>( 'change', this.onChange, this );
+            nextProps.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
 
             this.setState( {
                 nodes: nextProps.nodeStore.getNodes()

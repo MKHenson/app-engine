@@ -120,9 +120,9 @@ namespace Animate {
 
             this.addChild( item );
             this._selectedItem = item;
-            const e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, 'clicked' );
-            this.emit( e );
-            e.dispose();
+            // const e: ToolbarDropDownEvent = new ToolbarDropDownEvent( item, 'clicked' );
+            // this.emit( e );
+            // e.dispose();
 
             return;
         }

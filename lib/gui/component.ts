@@ -1,8 +1,5 @@
 namespace Animate {
-    export class ComponentEvents extends ENUM {
-        constructor( v: string ) { super( v ); }
-        static UPDATED: ComponentEvents = new ComponentEvents( 'component_updated' );
-    }
+
 
 	/**
 	* The base class for all visual elements in the application. The {Component} class
@@ -111,7 +108,7 @@ namespace Animate {
                     children[ i ].update();
             }
 
-            super.emit( new Event( ComponentEvents.UPDATED ) );
+            super.emit<ComponentEvents, void>( 'component_updated', null );
         }
 
 		/**

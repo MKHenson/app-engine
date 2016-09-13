@@ -68,7 +68,7 @@ namespace Animate {
 		 * Triggers a change in the tree structure
 		 */
         invalidate() {
-            this.emit( new Event( 'change' ) );
+            this.emit<EditorEventType, void>( 'change', null );
         }
 
 		/**
@@ -182,7 +182,7 @@ namespace Animate {
             }
 
             node.focussed = true;
-            this.emit( new Event( 'focus-node', node ) );
+            this.emit<EditorEventType, INodeEvent>( 'focus-node', { node: node } );
         }
 
 		/**

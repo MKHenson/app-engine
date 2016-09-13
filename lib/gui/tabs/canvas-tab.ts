@@ -103,8 +103,8 @@ namespace Animate {
                     } as IMessageBoxProps );
                     return false;
                 }
-                else
-                    PluginManager.getSingleton().emit( new ContainerEvent( EventTypes.CONTAINER_SELECTED, null ) );
+                // else
+                //     PluginManager.getSingleton().emit( new ContainerEvent( EventTypes.CONTAINER_SELECTED, null ) );
 
             }
 
@@ -279,10 +279,10 @@ namespace Animate {
         * @param {Project} project
 		*/
         projectReady( project: Project ) {
-            const loader = new AnimateLoader();
-            loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
-            loader.on( LoaderEvents.FAILED, this.onNewsLoaded, this );
-            loader.load( '/misc/get-news-tab', {});
+            // const loader = new AnimateLoader();
+            // loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
+            // loader.on( LoaderEvents.FAILED, this.onNewsLoaded, this );
+            // loader.load( '/misc/get-news-tab', {});
         }
 
 		/**
@@ -298,19 +298,19 @@ namespace Animate {
 		* When the news has been loaded from webinate.
 		*/
         onNewsLoaded( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-            if ( response === LoaderEvents.COMPLETE ) {
-                if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
+            // if ( response === LoaderEvents.COMPLETE ) {
+            //     if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
 
-                    // TODO: Commented out due to update to TSX
-                    // if ( this.welcomeTab )
-                    // 	this.removeTab( this.welcomeTab.name, true );
+            //         // TODO: Commented out due to update to TSX
+            //         // if ( this.welcomeTab )
+            //         // 	this.removeTab( this.welcomeTab.name, true );
 
-                    this.welcomeTab = this.addSpecialTab( 'Welcome to Animate!', CanvasTabType.BLANK );
+            //         this.welcomeTab = this.addSpecialTab( 'Welcome to Animate!', CanvasTabType.BLANK );
 
-                    const comp = new Component( event.tag.html, this.welcomeTab.page );
-                    comp.element.css( { width: '100%', height: '100%' });
-                }
-            }
+            //         const comp = new Component( event.tag.html, this.welcomeTab.page );
+            //         comp.element.css( { width: '100%', height: '100%' });
+            //     }
+            // }
         }
 
 		/**

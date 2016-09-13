@@ -412,26 +412,26 @@ namespace Animate {
 		*/
         onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
             const loader: AnimateLoader = <AnimateLoader>sender;
-            if ( response === LoaderEvents.COMPLETE ) {
-                if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
-                    if ( loader.url === '/export/compile' ) {
-                        LoggerStore.get.clear();
-                        const now: Date = new Date();
-                        LoggerStore.success( 'Build complete at ' + new Date( Date.now() ).toDateString() );
-                        LoggerStore.success( 'External link: ' + event.tag.liveLink );
+            // if ( response === LoaderEvents.COMPLETE ) {
+            //     if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
+            //         if ( loader.url === '/export/compile' ) {
+            //             LoggerStore.get.clear();
+            //             const now: Date = new Date();
+            //             LoggerStore.success( 'Build complete at ' + new Date( Date.now() ).toDateString() );
+            //             LoggerStore.success( 'External link: ' + event.tag.liveLink );
 
-                        if ( this.runWhenDone )
-                            window.open( event.tag.liveLink, 'Webinate Live!', 'width=900,height=860' ); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'
+            //             if ( this.runWhenDone )
+            //                 window.open( event.tag.liveLink, 'Webinate Live!', 'width=900,height=860' ); //'width=900,height=860,menubar=1,resizable=1,scrollbars=1,status=1,titlebar=1,toolbar=1'
 
-                        this.emit( new ImportExportEvent( ImportExportEvents.COMPLETE, event.tag.liveLink ) );
-                    }
-                }
-                else {
-                    // TODO: This should be a pure function - no gui calls allowed
-                    // MessageBox.show(event.message, Array<string>('Ok'), null, null );
-                    //this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
-                }
-            }
+            //             this.emit( new ImportExportEvent( ImportExportEvents.COMPLETE, event.tag.liveLink ) );
+            //         }
+            //     }
+            //     else {
+            //         // TODO: This should be a pure function - no gui calls allowed
+            //         // MessageBox.show(event.message, Array<string>('Ok'), null, null );
+            //         //this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag ));
+            //     }
+            // }
             //else
             //	this.emit( new ProjectEvent( ProjectEvents.FAILED, event.message, AnimateLoaderResponses.ERROR, event.tag));
         }
