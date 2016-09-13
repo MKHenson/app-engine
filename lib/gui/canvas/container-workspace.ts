@@ -118,17 +118,34 @@ namespace Animate {
         }
 
         /**
-         * Gets all the canvas items in a serialized array
-         * @returns {ICanvasItem[]}
+         * De-serializes the workspace from its JSON format
+         * @param {Engine.Editor.IContainerWorkspace} scene
          */
-        serialize(): Engine.Editor.ICanvasItem[] {
-            let toRet: Engine.Editor.ICanvasItem[] = [];
+        deserialize( scene : Engine.Editor.IContainerWorkspace ) {
+
+            for ( let item of this._items )
+                item.dispose();
+
+            throw new Error('Not implemented yet');
+        }
+
+        /**
+         * Serializes the workspace into its JSON format
+         * @returns {Engine.Editor.IContainerWorkspace}
+         */
+        serialize(): Engine.Editor.IContainerWorkspace {
+
             let id = 1;
+            let toRet: Engine.Editor.IContainerWorkspace = {
+                items: [],
+                properties: {}
+            };
+
 
             for ( let item of this._items ) {
                 let token = item.serialize( id );
                 id++;
-                toRet.push( token );
+                toRet.items.push( token );
             }
 
             return toRet;
