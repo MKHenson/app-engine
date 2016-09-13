@@ -134,7 +134,7 @@ namespace Animate {
                     transitionEnterTimeout={500}
                     transitionLeaveTimeout={500}
                     transitionAppearTimeout={500}
-                    style={{ position: "relative" }}
+                    style={{ position: 'relative' }}
                     >
                     <div className="tooltip">
                         {this.props.tooltip}

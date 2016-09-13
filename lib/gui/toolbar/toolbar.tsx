@@ -56,7 +56,7 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className='toolbar'>
+            return <div className="toolbar">
                 <Tab
                     panes={[
                         <TabPane label="Home" showCloseButton={false}>
@@ -230,7 +230,7 @@ namespace Animate {
 
             // Show the rename form
             ReactWindow.show( RenameForm, {
-                name: "",
+                name: '',
                 onOk: ( newName ) => {
                     let project = User.get.project;
 

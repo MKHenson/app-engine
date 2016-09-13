@@ -84,7 +84,7 @@
                     } }
                     />;
 
-            return <div id='splash' className={this.state.theme}>
+            return <div id="splash" className={this.state.theme}>
                 <div className="logo">
                     {( User.get.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout() }><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null ) }
                     <h2>Hatchery</h2>

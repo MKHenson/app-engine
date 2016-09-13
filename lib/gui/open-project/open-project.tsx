@@ -96,7 +96,7 @@ namespace Animate {
         componentWillMount() {
 
             let numLoaded = 0;
-            let project : Engine.IProject = this.props.project;
+            let project: Engine.IProject = this.props.project;
             this.setState({
                 mode: AttentionType.SUCCESS,
                 loading: true
@@ -142,14 +142,14 @@ namespace Animate {
          * Creates the component elements
          * @returns {JSX.Element}
          */
-        render() : JSX.Element {
-            let loadingPanel : JSX.Element;
+        render(): JSX.Element {
+            let loadingPanel: JSX.Element;
             if (this.props.project) {
                 loadingPanel = <div className="loading-panel">
                     {
                         this.props.project.$plugins.map((plugin, index) => {
 
-                            let pluginElm : JSX.Element;
+                            let pluginElm: JSX.Element;
                             if (!plugin.$error) {
                                 pluginElm = <div className="plugin-item">
                                     <VCheckbox checked={plugin.$loaded} noInteractions={true} label="" />
@@ -184,7 +184,7 @@ namespace Animate {
                         </Attention></div> : null }
 
                 </div>
-                <ButtonPrimary onClick={(e)=>{  this.props.onCancel(); }}>
+                <ButtonPrimary onClick={( e ) => {  this.props.onCancel(); }}>
                     <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
                 </ButtonPrimary>
             </div>

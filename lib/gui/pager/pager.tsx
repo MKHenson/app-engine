@@ -16,7 +16,7 @@ namespace Animate {
      * of which will be displayed in a sub panel with a footer that allows the user to navigate between the content that's inserted.
      * Use the IPagerProps events to hook for each of the navigation requests and fill the content accordingly.
      */
-    export class Pager extends React.Component<IPagerProps, IPagerState>{
+    export class Pager extends React.Component<IPagerProps, IPagerState> {
         static defaultProps: IPagerProps = {
             limit: 10,
             onUpdate: null

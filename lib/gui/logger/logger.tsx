@@ -71,7 +71,7 @@ namespace Animate {
 
                         let prefix = (
                             <span>
-                                {icon}<span className='date'>{new Date( Date.now() ).toLocaleDateString() } {new Date( Date.now() ).toLocaleTimeString() }</span>
+                                {icon}<span className="date">{new Date( Date.now() ).toLocaleDateString() } {new Date( Date.now() ).toLocaleTimeString() }</span>
                             </span>
                         );
 
