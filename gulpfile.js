@@ -18,6 +18,7 @@ var gutil = require('gulp-util');
 var rename = require('gulp-rename');
 var rimraf = require('rimraf');
 var tslint = require("gulp-tslint");
+var typedoc = require("gulp-typedoc");
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse(fs.readFileSync('tsconfig.json'));
@@ -169,6 +170,37 @@ gulp.task("tslint", ['ts-code'], function() {
         .pipe( tslint.report({
             emitError: false
         }) )
+});
+
+/**
+ * Creates an API document in a folder called 'docs' folder within /dist
+ */
+gulp.task("tsdocs", function() {
+    return gulp
+        .src(tsFiles, { base: "." })
+        .pipe(typedoc({
+            // TypeScript options (see typescript docs)
+            "jsx": tsConfig.compilerOptions.jsx,
+            "module": tsConfig.compilerOptions.module,
+            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
+            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
+            "target": tsConfig.compilerOptions.target,
+            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
+            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
+            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
+
+            // Output options (see typedoc docs)
+            out: "./dist/docs",
+            mode: "file",
+            theme: "default",
+
+            // TypeDoc options (see typedoc docs)
+            name: "Hatchery Editor",
+            plugins: [],
+            ignoreCompilerErrors: false,
+            version: true,
+        }))
+    ;
 });
 
 /**

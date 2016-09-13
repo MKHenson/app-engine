@@ -24,6 +24,8 @@
     "gulp-untar": "^0.0.4",
     "gulp-util": "^3.0.7",
     "gulp-rename": "^1.2.2",
-    "rimraf": "^2.5.3"
+    "rimraf": "^2.5.3",
+    "typedoc" : "^0.4.5",
+    "gulp-typedoc": "^2.0.0"
   }
 }
