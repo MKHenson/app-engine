@@ -8,8 +8,10 @@
         'Error' |
         UsersInterface.SocketTokens.ClientInstructionType;
 
-    // TODO: Can probably be removed / refactored
+    // TODO: Can probably be refactored
     export type ProjectEvents  =
+        'resource-created' |
+        'resource-removed' |
         'saved' |
         'saved_all' |
         'failed' |
@@ -17,14 +19,19 @@
         'build_saved';
 
     /**
+     * Events related to interactions with project containers
+     */
+    export type ContainerEvents  =
+        'workspace-opened' |
+        'workspace-closed';
+
+    /**
      * Events related to project resources
      */
     export type ResourceEvents =
-        'created' |
         'edited' |
         'refreshed' |
-        'modified' |
-        'disposed';
+        'modified';
 
     /**
      * Events related to the a container workspace
@@ -59,6 +66,13 @@
      */
     export interface IResourceEvent {
         resource: ProjectResource<Engine.IResource>;
+    }
+
+    /**
+     * An event token for events dispatched by changes to or from project containers
+     */
+    export interface IContainerEvent {
+        container: Resources.Container;
     }
 
     /**

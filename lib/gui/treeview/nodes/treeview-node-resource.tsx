@@ -18,9 +18,9 @@ namespace Animate {
             this.canDrag = true;
             this.canDrop = false;
 
+            User.get.project.on<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
             resource.on<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
             resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
-            resource.on<ResourceEvents, IResourceEvent>( 'disposed', this.onDeleted, this );
             resource.on<ResourceEvents, IResourceEvent>( 'refreshed', this.onRefreshed, this );
         }
 
@@ -127,9 +127,9 @@ namespace Animate {
 		 */
         dispose() {
             let resource = this.resource;
+            User.get.project.off<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
             resource.off<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
             resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
-            resource.off<ResourceEvents, IResourceEvent>( 'disposed', this.onDeleted, this );
             resource.off<ResourceEvents, IResourceEvent>( 'refreshed', this.onModified, this );
 
             this.resource = null;
@@ -140,7 +140,10 @@ namespace Animate {
         /**
          * Called whenever the resource is modified
          */
-        protected onDeleted() {
+        protected onDeleted(type: ProjectEvents, event: IResourceEvent) {
+            if (event.resource !== this.resource)
+                return;
+
             if ( this._parent )
                 this._parent.removeNode( this );
         }

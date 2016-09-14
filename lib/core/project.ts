@@ -207,8 +207,10 @@ namespace Animate {
 
                 // Dispose each of the resources saved
                 for ( const t in paths )
-                    for ( const resource of paths[ t ].array )
+                    for ( const resource of paths[ t ].array ) {
+                        this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
                         resource.dispose();
+                    }
 
                 this._assets.splice( 0, this._assets.length );
                 this._files.splice( 0, this._files.length );
@@ -224,8 +226,11 @@ namespace Animate {
             }
             else {
                 // Dispose each of the resources for that type
-                for ( const resource of paths[ type ].array )
+                for ( const resource of paths[ type ].array ) {
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
                     resource.dispose();
+                }
+
 
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ type ].url}?verbose=true` ) );
                 paths[ type ].array.splice( 0, paths[ type ].array.length );
@@ -273,7 +278,7 @@ namespace Animate {
                     let event: IResourceEvent = { resource: null };
                     for ( let resource of createdResources ) {
                         event.resource = resource;
-                        this.emit<ResourceEvents, IResourceEvent>( 'created', event );
+                        this.emit<ProjectEvents, IResourceEvent>( 'resource-created', event );
                     }
 
                     return resolve( createdResources );
@@ -445,6 +450,7 @@ namespace Animate {
                         return reject( new Error( response.message ) );
 
                     array.splice( array.indexOf( resource ), 1 );
+                    that.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
                     resource.dispose();
                     return resolve( true );
 
@@ -483,8 +489,8 @@ namespace Animate {
 
             for ( const t in paths )
                 for ( let k = 0, arr = paths[ t ].array, kl = arr.length; k < kl; k++ )
-                    for ( let i = 0, l = ids.length; i < l; i++ ) {
-                        if ( arr[ k ].entry._id === ids ) {
+                    for ( let id of ids ) {
+                        if ( arr[ k ].entry._id === id ) {
                             promises.push( this.deleteResource( arr[ k ].entry._id, <ResourceType>parseInt( t ) ) );
                             break;
                         }
@@ -547,13 +553,30 @@ namespace Animate {
                     else if ( type === ResourceType.SCRIPT )
                         resource = this.createResourceInstance<T>( data.data, ResourceType.SCRIPT );
 
-                    this.emit<ResourceEvents, IResourceEvent>( 'created', { resource: resource } );
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-created', { resource: resource } );
                     return resolve( resource );
 
                 }).catch(( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
+        }
+
+        /**
+         * A function used to open and close container workspaces. This function will cause the project to dispatch
+         * an [[Animate.ContainerEvents]] event.
+         * @param container The container to open or close
+         * @param open True if the workspace should be opened, false otherwise
+         */
+        openContainerWorkspace( container : Resources.Container, open: boolean ) {
+            if ( !container.workspace.opened && open ) {
+                container.workspace.opened = true;
+                this.emit<ContainerEvents, IContainerEvent>( 'workspace-opened', { container : container } );
+            }
+            else if ( container.workspace.opened && !open ) {
+                container.workspace.opened = false;
+                this.emit<ContainerEvents, IContainerEvent>( 'workspace-closed', { container : container } );
+            }
         }
 
         get containers(): Array<Resources.Container> { return this._containers; }
@@ -572,9 +595,15 @@ namespace Animate {
 
             // Dispose each of the resources saved
             const paths = this._restPaths;
-            for ( const t in paths )
-                for ( const resource of paths[ t ].array )
+            for ( const t in paths ) {
+                for ( const resource of paths[ t ].array ) {
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
                     resource.dispose();
+                }
+
+
+                paths[ t ].array.splice( 0, paths[ t ].array.length );
+            }
 
             this._assets.splice( 0, this._assets.length );
             this._files.splice( 0, this._files.length );

@@ -22,14 +22,14 @@ namespace Animate {
                 this.addNode( toRet );
             }
 
-            User.get.project.on<ResourceEvents, IResourceEvent>( "created", this.onResourceCreated, this );
+            User.get.project.on<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
         }
 
 		/**
          * Clean up
          */
         dispose() {
-            User.get.project.off<ResourceEvents, IResourceEvent>( "created", this.onResourceCreated, this );
+            User.get.project.off<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
             this.assetClass = null;
             super.dispose();
         }
@@ -37,7 +37,7 @@ namespace Animate {
 		/**
          * If a container is created, then add its node representation
          */
-        onResourceCreated( type: ResourceEvents, event: IResourceEvent ) {
+        onResourceCreated( type: ProjectEvents, event: IResourceEvent ) {
             let r = event.resource;
             if ( r instanceof Resources.Asset ) {
 

@@ -16,7 +16,7 @@ namespace Animate {
                 { label: 'New Container', prefix: <i className="fa fa-cube" aria-hidden="true"></i> }
             ];
 
-            User.get.project.on<ResourceEvents, IResourceEvent>( 'created', this.onResourceCreated, this );
+            User.get.project.on<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -24,7 +24,7 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            User.get.project.off<ResourceEvents, IResourceEvent>( 'created', this.onResourceCreated, this );
+            User.get.project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -38,7 +38,7 @@ namespace Animate {
         /**
          * If a container is created, then add its node representation
          */
-        onResourceCreated( type: ResourceEvents, event: IResourceEvent ) {
+        onResourceCreated( type: ProjectEvents, event: IResourceEvent ) {
             let r = event.resource;
             if ( r instanceof Resources.Container )
                 this.addNode( new TreeViewNodeResource( r ) );
