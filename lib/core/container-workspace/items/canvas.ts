@@ -20,7 +20,7 @@ namespace Animate {
 	/**
 	* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
 	*/
-    export class Canvas extends Component {
+    export class Canvas { // extends Component {
         public static lastSelectedItem = null;
         public static snapping: boolean = false;
         public name: string;
@@ -44,7 +44,7 @@ namespace Animate {
 		*/
         constructor( parent: Component, container: Resources.Container ) {
             // Call super-class constructor
-            super( '<div class=\'canvas\' tabindex=\'0\'></div>', parent );
+            //super( '<div class=\'canvas\' tabindex=\'0\'></div>', parent );
 
             // this._proxyMoving = this.onChildMoving.bind( this );
             // this._proxyStartDrag = this.onStartingDrag.bind( this );
