@@ -32,7 +32,7 @@ namespace Animate {
          */
         onContext( e: React.MouseEvent ) {
             e.preventDefault();
-            ReactContextMenu.show( { x: e.pageX, y: e.pageY, items: this._context });
+            ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: this._context });
         }
 
         /**

@@ -5,7 +5,7 @@ namespace Animate {
      * when they open a container. Think of this as the model of a Container's inner components.
      */
     export class ContainerWorkspace extends EventDispatcher {
-
+        public opened: boolean;
         private _container: Resources.Container;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
@@ -18,6 +18,7 @@ namespace Animate {
             this._container = container;
             this._items = items;
             this._selection = [];
+            this.opened = false;
         }
 
         /**
