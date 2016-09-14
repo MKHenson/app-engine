@@ -100,6 +100,7 @@
     "lib/gui/treeview/nodes/treeview-node-behaviours.tsx",
     "lib/gui/treeview/nodes/treeNode-asset-class.tsx",
     "lib/gui/treeview/nodes/treeNode-asset-instance.tsx",
+    "lib/gui/treeview/nodes/treeNode-container-instance.tsx",
     "lib/gui/treeview/nodes/treeNode-group.tsx",
     "lib/gui/treeview/nodes/treeNode-group-instance.tsx",
     "lib/gui/treeview/nodes/treeNode-plugin-behaviour.tsx",

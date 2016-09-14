@@ -41,7 +41,7 @@ namespace Animate {
         onResourceCreated( type: ProjectEvents, event: IResourceEvent ) {
             let r = event.resource;
             if ( r instanceof Resources.Container )
-                this.addNode( new TreeViewNodeResource( r ) );
+                this.addNode( new TreeNodeContainerInstance( r ) );
         }
     }
 }
