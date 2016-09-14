@@ -85,6 +85,14 @@ namespace Animate {
                                 if ( node.selectable() ) {
                                     node.store.onNodeSelected( node, e.shiftKey );
                                 }
+                            } }
+                            onDoubleClick={( e ) => {
+                                if ( node.disabled() )
+                                    return;
+
+                                if ( node.selectable() ) {
+                                    node.onDoubleClick(e);
+                                }
                             } }>
                             {node.icon() }
                             {node.label() }

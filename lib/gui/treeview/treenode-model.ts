@@ -33,7 +33,7 @@ namespace Animate {
 
         /**
          * Gets the parent node
-         * @returns {TreeNodeModel}
+         * @returns
          */
         get parent(): TreeNodeModel {
             return this._parent;
@@ -41,8 +41,7 @@ namespace Animate {
 
         /**
          * Gets or sets the label of the node
-         * @param {string} val
-         * @returns {string}
+         * @param val
          */
         label( val?: string ): string {
             if ( val === undefined )
@@ -56,8 +55,8 @@ namespace Animate {
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
-         * @param {React.DragEvent} e
-         * @returns {IDragDropToken} Return data to serialize
+         * @param e
+         * @returns Return data to serialize
          */
         onDragStart( e: React.DragEvent ): IDragDropToken {
             return null;
@@ -66,8 +65,8 @@ namespace Animate {
         /**
          * Called whenever we drop an item on this element. This is only called if canDrop is true.
          * Use it to set drag data, eg: e.dataTransfer.getData("text");
-         * @param {React.DragEvent} e
-         * @param {IDragDropToken} json The unserialized data
+         * @param e
+         * @param json The unserialized data
          */
         onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
 
@@ -75,8 +74,7 @@ namespace Animate {
 
         /**
          * Gets or sets if the node is selected
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         selected( val?: boolean ): boolean {
 
@@ -90,8 +88,7 @@ namespace Animate {
 
         /**
          * Gets or sets if the node is disabled
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         disabled( val?: boolean ): boolean {
 
@@ -105,8 +102,7 @@ namespace Animate {
 
         /**
          * Gets or sets if the node is selectable
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         selectable( val?: boolean ): boolean {
 
@@ -120,8 +116,7 @@ namespace Animate {
 
         /**
          * Gets or sets if the node is expanded
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         expanded( val?: boolean ): boolean {
 
@@ -135,8 +130,7 @@ namespace Animate {
 
         /**
          * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
+         * @param val
          */
         icon( val?: JSX.Element ): JSX.Element {
 
@@ -158,8 +152,7 @@ namespace Animate {
 
         /**
          * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
+         * @param node
          */
         addNode( node: TreeNodeModel ): TreeNodeModel {
             this.children.push( node );
@@ -171,7 +164,7 @@ namespace Animate {
 
         /**
          * Removes a child node
-         * @param {TreeNodeModel} node
+         * @param node
          */
         removeNode( node: TreeNodeModel ) {
             if ( this.store ) {
@@ -187,18 +180,24 @@ namespace Animate {
 
         /**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
+         * @param e
          */
         onContext( e: React.MouseEvent ) {
             this.store.onContext( e, this );
         }
 
         /**
+         * Called whenever the node is double clicked
+         */
+        onDoubleClick( e: React.MouseEvent ) {
+
+        }
+
+        /**
 		 * This will recursively look through each of the nodes to find one with
 		 * the specified name and value.
-		 * @param {string} property The Javascript property on the node that we are evaluating
-		 * @param {any} value The value of the property we are comparing.
-		 * @returns {TreeNodeModel}
+		 * @param property The Javascript property on the node that we are evaluating
+		 * @param value The value of the property we are comparing.
 		 */
         findNode( property: string, value: any ): TreeNodeModel {
             if ( this[ property ] === value )

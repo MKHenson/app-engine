@@ -27,8 +27,7 @@ namespace Animate {
 
 		/**
          * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
+         * @param node
          */
         addNode( node: TreeNodeModel ): TreeNodeModel {
             let children = this._children;
@@ -40,7 +39,7 @@ namespace Animate {
 
         /**
          * Removes a child node
-         * @param {TreeNodeModel} node
+         * @param node
          */
         removeNode( node: TreeNodeModel ) {
             let children = this._children;
@@ -73,7 +72,7 @@ namespace Animate {
 
 		/**
 		 * Called whenever the selection has changed
-		 * @param {TreeNodeModel[]} selection
+		 * @param selection
 		 */
         onSelectionChange( selection: TreeNodeModel[] ) {
 
@@ -81,8 +80,8 @@ namespace Animate {
 
 		/**
          * Called whenever a node is selectable and clicked.
-         * @param {TreeNodeModel} node
-         * @param {boolean} shiftDown
+         * @param node
+         * @param shiftDown
          */
         onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
@@ -139,8 +138,8 @@ namespace Animate {
 
 		/**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
-		 * @param {TreeNodeModel} node
+         * @param e
+		 * @param node
          */
         onContext( e: React.MouseEvent, node: TreeNodeModel ) {
 
@@ -149,9 +148,8 @@ namespace Animate {
 		/**
 		 * This will recursively look through each of the nodes to find a node with
 		 * the specified name.
-		 * @param {string} property The name property we are evaluating
-		 * @param {any} value The object we should be comparing against
-		 * @returns {TreeNodeModel}
+		 * @param property The name property we are evaluating
+		 * @param value The object we should be comparing against
 		 */
         findNode( property: string, value: any ): TreeNodeModel {
             let children = this._children;
@@ -187,7 +185,6 @@ namespace Animate {
 
 		/**
 		 * Gets the nodes associated with this store
-		 * @returns {TreeNodeModel[]}
 		 */
         getNodes(): TreeNodeModel[] {
             return this._children;
@@ -195,7 +192,6 @@ namespace Animate {
 
 		/**
 		 * Gets the currently selected nodes
-		 * @returns {TreeNodeModel[]}
 		 */
         getSelectedNodes(): TreeNodeModel[] {
             return this._selectedNodes;
