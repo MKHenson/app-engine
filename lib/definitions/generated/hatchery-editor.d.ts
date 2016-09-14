@@ -585,52 +585,72 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-     * Describes all the different types of editor events
+     * Events related to the web socket communication API
      */
-    type EditorEventType = 'change' | 'focus-node' | 'editor_project_exporting' | 'editor_ready' | 'editor_run' | 'plugin_container_exporting' | 'plugin_container_saving' | 'plugin_container_opening' | 'plugin_asset_renamed' | 'plugin_asset_selected' | 'plugin_asset_edited' | 'plugin_asset_added_to_container' | 'plugin_asset_removed_from_container' | 'plugin_asset_saving' | 'plugin_asset_loaded' | 'plugin_asset_destroyed' | 'plugin_asset_copied';
     type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
+    type ProjectEvents = 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
+    /**
+     * Events related to project resources
+     */
     type ResourceEvents = 'created' | 'edited' | 'refreshed' | 'modified' | 'disposed';
+    /**
+     * Events related to the a container workspace
+     */
     type WorkspaceEvents = 'change';
+    /**
+     * Events related to the plugin manager
+     */
     type PluginManagerEvents = 'template-created' | 'template-removed' | 'editor-ready';
     /**
      * Events dispatched by a treeview
      */
     type TreeviewEvents = 'change' | 'focus-node';
+    /**
+     * An event object dispatched by the PluginManager for template related events
+     */
     interface ITemplateEvent {
         template: BehaviourDefinition;
     }
+    /**
+     * An event token for events dispatched by changes to or from resources
+     */
     interface IResourceEvent {
         resource: ProjectResource<Engine.IResource>;
     }
     /**
+     * TODO: Can probably be removed
      * Valid response codes for requests made to the Animate server
      */
     type AnimateLoaderResponses = 'success' | 'error';
     /**
-    * Valid response codes for xhr binary requests
-    */
+     * TODO: Can probably be removed
+     * Valid response codes for xhr binary requests
+     */
     type BinaryLoaderResponses = 'binary_success' | 'binary_error';
     /**
-     * Valid response codes for requests made to the Animate server
+     * Event types for logger based events
      */
     type LoggerEvents = 'change';
     /**
      * Basic set of loader events shared by all loaders
+     * TODO: Can probably be removed
      */
     type LoaderEvents = 'complete' | 'failed';
-    type ComponentEvents = 'component_updated';
-    type OkCancelFormEvents = 'ok_cancel_confirm';
     /**
-     * Events associated with xhr binary requests
+     * An event token for TreeNodeModel related events
      */
     interface INodeEvent {
         node: TreeNodeModel;
     }
+    /**
+     * An event token for socket API related events
+     */
     interface ISocketEvent {
         error?: Error;
         json?: UsersInterface.SocketTokens.IToken;
     }
     /**
+     * TODO: Can probably be removed
      * Events associated with xhr binary requests
      */
     interface BinaryLoaderEvent {
@@ -638,6 +658,7 @@ declare namespace Animate {
         message: string;
     }
     /**
+     * TODO: Can probably be removed
      * Events associated with requests made to the animate servers
      */
     interface AnimateLoaderEvent {
@@ -645,110 +666,6 @@ declare namespace Animate {
         return_type: AnimateLoaderResponses;
         data: any;
         tag: any;
-    }
-    interface OkCancelFormEvent {
-        text: string;
-        cancel: boolean;
-    }
-    interface ContainerEvent {
-        container: Resources.Container;
-    }
-    interface ImportExportEvent {
-        live_link: any;
-    }
-    /**
-    * Called when an editor is being exported
-    */
-    interface EditorExportingEvent {
-        token: any;
-    }
-    /**
-    * Events associated with Containers and either reading from, or writing to, a data token
-    */
-    interface ContainerDataEvent {
-        /**
-        * {Container} container The container associated with this event
-        */
-        container: Resources.Container;
-        /**
-        * {any} token The data being read or written to
-        */
-        token: any;
-        /**
-        * {{ groups: Array<string>; assets: Array<number> }} sceneReferences [Optional] An array of scene asset ID's associated with this container
-        */
-        sceneReferences: {
-            groups: Array<number>;
-            assets: Array<number>;
-        };
-    }
-    /**
-    * Asset associated events
-    */
-    interface AssetEvent {
-        /**
-        * {Asset} asset The asset associated with this event
-        */
-        asset: Resources.Asset;
-    }
-    /**
-    * Called when an asset is renamed
-    */
-    interface AssetRenamedEvent {
-        /**
-        * {string} oldName The old name of the asset
-        */
-        oldName: string;
-    }
-    /**
-    * Events assocaited with Assets in relation to Containers
-    */
-    interface AssetContainerEvent {
-        /**
-        * {Container} container The container assocaited with this event
-        */
-        container: Resources.Container;
-    }
-    /**
-    * Portal associated events
-    */
-    interface PortalEvent {
-        container: Resources.Container;
-        portal: Portal;
-        oldName: string;
-    }
-    interface WindowEvent {
-        window: Window;
-    }
-    interface ToolbarNumberEvent {
-        value: number;
-    }
-    interface ToolbarDropDownEvent {
-        item: ToolbarItem;
-    }
-    interface EditEvent {
-        property: Prop<any>;
-        set: EditableSet;
-    }
-    interface TabEvent {
-        cancel: boolean;
-        pair: TabPair;
-    }
-    interface CanvasEvent {
-        canvas: Canvas;
-    }
-    /**
-    * A simple project event. Always related to a project resource (null if not)
-    */
-    class ProjectEvent<T extends ProjectResource<Engine.IResource>> {
-        resource: T;
-    }
-    /**
-    * An event to deal with file viewer events
-    * The event type can be 'cancelled' or 'change'
-    */
-    interface FileViewerEvent {
-        file: Engine.IFile;
     }
 }
 declare namespace Animate {
@@ -1475,16 +1392,6 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    class ProjectEvents {
-        value: string;
-        constructor(v: string);
-        toString(): string;
-        static SAVED: ProjectEvents;
-        static SAVED_ALL: ProjectEvents;
-        static FAILED: ProjectEvents;
-        static BUILD_SELECTED: ProjectEvents;
-        static BUILD_SAVED: ProjectEvents;
-    }
     /**
     * A project class is an object that is owned by a user.
     * The project has functions which are useful for comunicating data to the server when
@@ -2910,7 +2817,7 @@ declare namespace Animate {
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove(data: TabEvent): void;
+        onRemove(data: any): void;
         /**
         * Called by the tab when the save all button is clicked
         */
@@ -3703,7 +3610,7 @@ declare namespace Animate {
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated(type: string, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+        onResourceCreated(type: string, event: any): void;
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
@@ -4121,7 +4028,7 @@ declare namespace Animate {
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove(event: TabEvent): void;
+        onRemove(event: any): void;
         /**
         * Called when the tab is resized
         */
@@ -4177,7 +4084,7 @@ declare namespace Animate {
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove(event: TabEvent): void;
+        onRemove(event: any): void;
     }
 }
 declare namespace Animate {
@@ -4209,7 +4116,7 @@ declare namespace Animate {
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove(event: TabEvent): void;
+        onRemove(event: any): void;
     }
 }
 declare namespace Animate {
@@ -4256,7 +4163,7 @@ declare namespace Animate {
         * @param <object> event
         * @param <object> data
         */
-        onServer(response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>>): void;
+        onServer(response: ProjectEvents, event: any): void;
         /**
         * Called when the save all button is clicked
         */
@@ -4391,7 +4298,7 @@ declare namespace Animate {
         /**
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
         */
-        onCanvasModified(response: CanvasEvents, event: CanvasEvent, sender?: EventDispatcher): void;
+        onCanvasModified(response: CanvasEvents, event: any, sender?: EventDispatcher): void;
         /**
         * Adds an item to the tab
         * @param {string} text The text of the new tab
@@ -5577,7 +5484,7 @@ declare namespace Animate {
         constructor(props: ILoggerProps);
         componentWillMount(): void;
         componentWillUnmount(): void;
-        onLogsChanged(type: EditorEventType): void;
+        onLogsChanged(type: LoggerEvents): void;
         /**
          * Creates the component elements
          * @returns {JSX.Element}

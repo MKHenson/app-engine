@@ -1,17 +1,5 @@
 namespace Animate {
 
-    export class ProjectEvents {
-        public value: string;
-        constructor( v: string ) { this.value = v; }
-        toString() { return this.value; }
-
-        static SAVED: ProjectEvents = new ProjectEvents( 'saved' );
-        static SAVED_ALL: ProjectEvents = new ProjectEvents( 'saved_all' );
-        static FAILED: ProjectEvents = new ProjectEvents( 'failed' );
-        static BUILD_SELECTED: ProjectEvents = new ProjectEvents( 'build_selected' );
-        static BUILD_SAVED: ProjectEvents = new ProjectEvents( 'build_saved' );
-    }
-
 	/**
 	* A project class is an object that is owned by a user.
 	* The project has functions which are useful for comunicating data to the server when
@@ -580,7 +568,7 @@ namespace Animate {
         reset() {
             this._entry = null;
             const pManager: PluginManager = PluginManager.getSingleton();
-            let event: AssetEvent;
+            //let event: AssetEvent;
 
             // Dispose each of the resources saved
             const paths = this._restPaths;

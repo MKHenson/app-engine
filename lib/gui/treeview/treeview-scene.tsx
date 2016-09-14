@@ -139,7 +139,7 @@ namespace Animate {
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated( type: string, event: ProjectEvent<ProjectResource<Engine.IResource>> ) {
+        onResourceCreated( type: string, event: any ) {
             // Todo: Add script nodes + files?
         }
 

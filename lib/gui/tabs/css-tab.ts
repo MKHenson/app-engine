@@ -53,7 +53,7 @@ namespace Animate {
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
         */
-        onRemove( event: TabEvent ) {
+        onRemove( event: any ) {
             super.onRemove( event );
 
             if ( !event.cancel )

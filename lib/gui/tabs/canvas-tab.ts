@@ -383,7 +383,7 @@ namespace Animate {
 		/**
 		* When a canvas is modified we change the tab name, canvas name and un-save its tree node.
 		*/
-        onCanvasModified( response: CanvasEvents, event: CanvasEvent, sender?: EventDispatcher ) {
+        onCanvasModified( response: CanvasEvents, event: any, sender?: EventDispatcher ) {
             this._currentCanvas.container.saved = false;
         }
 

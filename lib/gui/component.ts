@@ -108,7 +108,7 @@ namespace Animate {
                     children[ i ].update();
             }
 
-            super.emit<ComponentEvents, void>( 'component_updated', null );
+            //super.emit<ComponentEvents, void>( 'component_updated', null );
         }
 
 		/**

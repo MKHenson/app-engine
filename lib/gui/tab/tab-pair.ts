@@ -50,7 +50,7 @@ namespace Animate {
 		* Called by the tab class when the pair is to be removed.
 		* @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
 		*/
-        onRemove( data: TabEvent ) { }
+        onRemove( data: any ) { }
 
 		/**
 		* Called by the tab when the save all button is clicked

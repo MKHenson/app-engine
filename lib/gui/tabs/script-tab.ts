@@ -200,8 +200,8 @@ namespace Animate {
 		* @param <object> event
 		* @param <object> data
 		*/
-        onServer( response: ProjectEvents, event: ProjectEvent<ProjectResource<Engine.IResource>> ) {
-            if ( response === ProjectEvents.FAILED ) {
+        onServer( response: ProjectEvents, event: any ) {
+            if ( response === 'ProjectEvents.FAILED' ) {
                 this.saved = false;
                 //MessageBox.show('Problem saving the data, server responded with:'' + event.message + ''', Array<string>('Ok'), null, null );
             }

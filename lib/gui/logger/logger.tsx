@@ -20,14 +20,14 @@ namespace Animate {
         }
 
         componentWillMount() {
-            this.props.store.on<EditorEventType, void>( 'change', this.onLogsChanged, this );
+            this.props.store.on<LoggerEvents, void>( 'change', this.onLogsChanged, this );
         }
 
         componentWillUnmount() {
-            this.props.store.off<EditorEventType, void>( 'change', this.onLogsChanged, this );
+            this.props.store.off<LoggerEvents, void>( 'change', this.onLogsChanged, this );
         }
 
-        onLogsChanged( type: EditorEventType ) {
+        onLogsChanged( type: LoggerEvents ) {
             this.setState( {
                 items: this.props.store.getLogs()
             });
