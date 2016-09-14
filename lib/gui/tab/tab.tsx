@@ -43,7 +43,7 @@ namespace Animate {
 		 * @param {number} index The index of the selected tab
 		 * @param {ITabPaneProps} props props of the selected tab
 		 */
-        removePane( index: number, prop: ITabPaneProps ) {
+        private removePane( index: number, prop: ITabPaneProps ) {
 
             let canClose: Promise<boolean>;
             if ( prop.canClose ) {
@@ -221,6 +221,15 @@ namespace Animate {
             this.setState( {
                 selectedIndex: this.state.selectedIndex
             } as Y);
+        }
+
+        removeTabByLabel( label: string ) {
+            let panes = this._panes;
+            for ( let i = 0, l = panes.length; i < l; i++ )
+                if ( panes[ i ].props.label === label )
+                    return this.removePane(i, panes[ i ].props);
+
+            throw new Error( 'Could not find pane with that label' );
         }
 
 		/**
