@@ -216,10 +216,11 @@ namespace Animate {
             const paths = this._restPaths;
 
             if ( !type ) {
-                // Send delete events for all existing resources
+
+                // Dispose each of the resources saved
                 for ( const t in paths )
-                    for ( let i = 0, pArr = paths[ t ].array, l = pArr.length; i < l; i++ )
-                        pArr[ i ].emit( new Event( 'deleted' ) );
+                    for ( const resource of paths[ t ].array )
+                        resource.dispose();
 
                 this._assets.splice( 0, this._assets.length );
                 this._files.splice( 0, this._files.length );
@@ -234,9 +235,9 @@ namespace Animate {
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.SCRIPT ].url}?verbose=true` ) );
             }
             else {
-                // Send delete events for all existing resources
-                for ( let i = 0, pArr = paths[ type ].array, l = pArr.length; i < l; i++ )
-                    pArr[ i ].emit( new Event( 'deleted' ) );
+                // Dispose each of the resources for that type
+                for ( const resource of paths[ type ].array )
+                    resource.dispose();
 
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ type ].url}?verbose=true` ) );
                 paths[ type ].array.splice( 0, paths[ type ].array.length );
@@ -281,10 +282,10 @@ namespace Animate {
                                 createdResources.push( this.createResourceInstance<Engine.IScript>( data[ 0 ].data[ i ], ResourceType.SCRIPT ) );
                     }
 
-                    let event = new ProjectEvent( 'resource-created', null );
+                    let event: IResourceEvent = { resource: null };
                     for ( let resource of createdResources ) {
                         event.resource = resource;
-                        this.emit( event );
+                        this.emit<ResourceEvents, IResourceEvent>( 'created', event );
                     }
 
                     return resolve( createdResources );
@@ -321,7 +322,7 @@ namespace Animate {
                         if ( r.resource.entry.hasOwnProperty( t ) )
                             r.resource.entry[ t ] = response.data[ 0 ][ t ];
 
-                    r.resource.emit( new Event( 'refreshed' ) );
+                    r.resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: r.resource } );
                     r.resource.saved = true;
                     return resolve( r.resource );
 
@@ -365,7 +366,7 @@ namespace Animate {
                         if ( resource.entry.hasOwnProperty( t ) )
                             resource.entry[ t ] = data[ t ];
 
-                    resource.emit( new Event( 'refreshed' ) );
+                    resource.emit<ResourceEvents, IResourceEvent >( 'refreshed', { resource: resource } );
                     return resolve( response );
 
                 }).catch( function ( err: IAjaxError ) {
@@ -456,7 +457,7 @@ namespace Animate {
                         return reject( new Error( response.message ) );
 
                     array.splice( array.indexOf( resource ), 1 );
-                    resource.emit( new Event( 'deleted' ) );
+                    resource.dispose();
                     return resolve( true );
 
                 }).catch( function ( err: IAjaxError ) {
@@ -558,7 +559,7 @@ namespace Animate {
                     else if ( type === ResourceType.SCRIPT )
                         resource = this.createResourceInstance<T>( data.data, ResourceType.SCRIPT );
 
-                    this.emit( new ProjectEvent( 'resource-created', resource ) );
+                    this.emit<ResourceEvents, IResourceEvent>( 'created', { resource: resource } );
                     return resolve( resource );
 
                 }).catch(( err: IAjaxError ) => {
@@ -581,21 +582,33 @@ namespace Animate {
             const pManager: PluginManager = PluginManager.getSingleton();
             let event: AssetEvent;
 
-            // Cleanup behaviours
-            let i = this._containers.length;
-            while ( i-- )
-                this._containers[ i ].dispose();
+            // Dispose each of the resources saved
+            const paths = this._restPaths;
+            for ( const t in paths )
+                for ( const resource of paths[ t ].array )
+                    resource.dispose();
 
-            i = this._assets.length;
+            this._assets.splice( 0, this._assets.length );
+            this._files.splice( 0, this._files.length );
+            this._scripts.splice( 0, this._scripts.length );
+            this._containers.splice( 0, this._containers.length );
+            this._groups.splice( 0, this._groups.length );
 
-            event = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
-            while ( i-- ) {
-                event.asset = this._assets[ i ];
+            // // Cleanup behaviours
+            // let i = this._containers.length;
+            // while ( i-- )
+            //     this._containers[ i ].dispose();
 
-                // Notify the destruction of an asset
-                pManager.emit( event );
-                this._assets[ i ].dispose();
-            }
+            // i = this._assets.length;
+
+            // event = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
+            // while ( i-- ) {
+            //     event.asset = this._assets[ i ];
+
+            //     // Notify the destruction of an asset
+            //     pManager.emit( event );
+            //     this._assets[ i ].dispose();
+            // }
 
             this.saved = true;
             this._containers.splice( 0, this._containers.length );

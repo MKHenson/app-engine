@@ -12,7 +12,7 @@ namespace Animate {
         constructor( template: BehaviourDefinition ) {
             super( template.behaviourName, <i className="fa fa-square resource" aria-hidden="true"></i> );
             this._template = template;
-            PluginManager.getSingleton().on( 'template-removed', this.onTemplateRemoved, this );
+            PluginManager.getSingleton().on<PluginManagerEvents, ITemplateEvent>( 'template-removed', this.onTemplateRemoved, this );
 
             this.canDrag = true;
             this.canDrop = false;
@@ -31,9 +31,8 @@ namespace Animate {
 		/**
          * If a template is removed then remove its instance
          */
-        onTemplateRemoved( type: string, event: Event ) {
-            let r = event.tag as BehaviourDefinition;
-            if ( this._template === r && this._parent )
+        onTemplateRemoved( type: PluginManagerEvents, event: ITemplateEvent ) {
+            if ( this._template === event.template && this._parent )
                 this._parent.removeNode( this );
         }
 
@@ -41,7 +40,7 @@ namespace Animate {
          * This will cleanup the component
          */
         dispose() {
-            PluginManager.getSingleton().off( 'template-removed', this.onTemplateRemoved, this );
+            PluginManager.getSingleton().off<PluginManagerEvents, ITemplateEvent>( 'template-removed', this.onTemplateRemoved, this );
             this._template.dispose();
             this.template = null;
             super.dispose();

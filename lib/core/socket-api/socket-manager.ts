@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export type SocketEvents = 'error' | UsersInterface.SocketTokens.ClientInstructionType;
+
 
     /**
      * A singleton class that deals with comminication between the client frontend
@@ -37,17 +37,17 @@ namespace Animate {
             try {
                 let json: UsersInterface.SocketTokens.IToken = JSON.parse( e.data );
                 if ( json.error ) {
-                    let type: SocketEvents = 'error';
-                    this.emit( new Event( type, e ) );
+                    let type: SocketEvents = 'Error';
+                    this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( json.error ) } );
                 }
                 else {
-                    let type = json.type;
-                    this.emit( new Event( type, json ) );
+                    let type = json.type as SocketEvents;
+                    this.emit<SocketEvents, ISocketEvent>( type, { json : json } );
                 }
             }
             catch ( e ) {
-                let type: SocketEvents = 'error';
-                this.emit( new Event( type, e ) );
+                let type: SocketEvents = 'Error';
+                this.emit<SocketEvents, ISocketEvent>( type, { error : e } );
             }
         }
 
@@ -57,8 +57,8 @@ namespace Animate {
          */
         onError( e: Error ) {
             this._reConnect( null );
-            let type: SocketEvents = 'error';
-            this.emit( new Event( type, new Error( 'An error occurred while connecting to the Users socket API' ) ) );
+            let type: SocketEvents = 'Error';
+            this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( 'An error occurred while connecting to the Users socket API' ) } );
         }
 
         /**

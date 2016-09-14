@@ -74,7 +74,7 @@ namespace Animate {
         /**
          * Called when there are no panes for the tab and a custom view is desired
          */
-        renderEmptyPanes() : JSX.Element {
+        renderEmptyPanes(): JSX.Element {
             return null;
         }
 

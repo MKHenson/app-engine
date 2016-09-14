@@ -155,7 +155,7 @@ namespace Animate {
 		 * Triggers a change in the tree structure
 		 */
         invalidate() {
-            this.emit( new Event( 'change' ) );
+            this.emit<WorkspaceEvents, void>( 'change' );
         }
     }
 }

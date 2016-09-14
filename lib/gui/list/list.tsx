@@ -73,7 +73,7 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
-            return <div className='list'> {
+            return <div className="list"> {
                 this.props.items.map(( item, index ) => {
 
                     let jsx: JSX.Element;

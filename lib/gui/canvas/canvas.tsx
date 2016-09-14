@@ -140,7 +140,7 @@ namespace Animate {
         createPortal( type: HatcheryRuntime.PortalType ) {
             // Show the rename form
             ReactWindow.show( RenameForm, {
-                name: "",
+                name: '',
                 onOk: ( newName ) => {
 
                 },

@@ -17,7 +17,7 @@ namespace Animate {
 
             // if (this.resource.properties === null || this.resource.properties.variables.length === 0 )
             //    this.resource.properties = assetClass.buildVariables();
-            asset.on( 'edited', this.onAssetEdited, this );
+            asset.on<ResourceEvents, IResourceEvent>( 'edited', this.onAssetEdited, this );
         }
 
 		/**
@@ -25,7 +25,7 @@ namespace Animate {
 		 * @param {string} type
 		 * @param {EditEvent} data
 		 */
-        onAssetEdited( type: string, data: EditEvent, sender?: EventDispatcher ) {
+        onAssetEdited( type: string, data: IResourceEvent ) {
             this.resource.saved = false;
         }
 
@@ -33,7 +33,7 @@ namespace Animate {
 		 * This will cleanup the component.
 		 */
         dispose() {
-            this.resource.off( 'edited', this.onAssetEdited, this );
+            this.resource.off<ResourceEvents, IResourceEvent>( 'edited', this.onAssetEdited, this );
             this.assetClass = null;
 
             super.dispose();

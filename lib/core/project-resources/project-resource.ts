@@ -61,7 +61,7 @@
         */
         set saved( val: boolean ) {
             this._saved = val;
-            this.emit( new Event( 'modified' ) );
+            this.emit<ResourceEvents, IResourceEvent>( 'modified', { resource : this } );
         }
 
 
@@ -71,6 +71,7 @@
             this._properties.dispose();
             this._properties = null;
             this._options = null;
+            this.emit<ResourceEvents, IResourceEvent>( 'disposed', { resource : this } );
         }
 
         /**

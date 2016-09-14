@@ -26,21 +26,21 @@ namespace Animate {
                 focussedNode: null
             };
 
-            props.nodeStore.on<EditorEventType, any>( 'change', this.onChange, this );
-            props.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            props.nodeStore.on<TreeviewEvents, void>( 'change', this.onChange, this );
+            props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**
          * Called whenever a node is focussed
          */
-        onFocusNodeChange( type: EditorEventType, e: INodeEvent ) {
+        onFocusNodeChange( type: TreeviewEvents, e: INodeEvent ) {
             this.setState( { focussedNode: e.node });
         }
 
         /**
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
-        onChange( type: EditorEventType ) {
+        onChange( type: TreeviewEvents ) {
             this.setState( { nodes: this.props.nodeStore.getNodes() });
         }
 
@@ -62,11 +62,11 @@ namespace Animate {
             if ( nextProps.nodeStore === this.props.nodeStore )
                 return;
 
-            this.props.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
-            this.props.nodeStore.off<EditorEventType, any>( 'change', this.onChange, this );
+            this.props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            this.props.nodeStore.off<TreeviewEvents, void>( 'change', this.onChange, this );
 
-            nextProps.nodeStore.on<EditorEventType, any>( 'change', this.onChange, this );
-            nextProps.nodeStore.on<EditorEventType, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            nextProps.nodeStore.on<TreeviewEvents, void>( 'change', this.onChange, this );
+            nextProps.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
 
             this.setState( {
                 nodes: nextProps.nodeStore.getNodes()
@@ -77,8 +77,8 @@ namespace Animate {
          * Cleans up the component
          */
         componentWillUnmount() {
-            this.props.nodeStore.off( 'change', this.onChange, this );
-            this.props.nodeStore.on( 'focus-node', this.onFocusNodeChange, this );
+            this.props.nodeStore.off<TreeviewEvents, void>( 'change', this.onChange, this );
+            this.props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**

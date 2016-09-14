@@ -100,7 +100,7 @@ namespace Animate {
                     this._behaviourTemplates.push( template );
                     // 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
                     // 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
-                    this.emit( new Event( 'template-created', template ) );
+                    this.emit<PluginManagerEvents, ITemplateEvent>( 'template-created', { template: template } );
                 }
                 // ===================================================
             }
@@ -145,7 +145,7 @@ namespace Animate {
                 // 	TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
 
                 this._behaviourTemplates.splice( this._behaviourTemplates.indexOf( toRemove[ i ] ), 1 );
-                this.emit( new Event( 'template-removed', toRemove[ i ] ) );
+                this.emit<PluginManagerEvents, ITemplateEvent>( 'template-removed', { template : toRemove[ i ] } );
             }
             // ==================================================
 
@@ -247,7 +247,7 @@ namespace Animate {
 		 * This function is called by Animate when everything has been loaded and the user is able to begin their session.
 		 */
         projectReady( project: Project ) {
-            this.emit( new Event( EditorEvents.EDITOR_READY, null ) );
+            this.emit<PluginManagerEvents, void>( 'editor-ready' );
         }
 
         /**

@@ -50,7 +50,6 @@ namespace Animate {
              * This will cleanup the behaviour.
              */
             dispose() {
-                this.emit( new ContainerEvent( EventTypes.CONTAINER_DELETED, this ) );
                 super.dispose();
                 this.canvas = null;
             }

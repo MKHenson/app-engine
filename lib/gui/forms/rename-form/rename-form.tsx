@@ -1,6 +1,4 @@
 namespace Animate {
-    //export interface IRenameToken { newName: string; oldName: string; object: IRenamable; cancelled: boolean; };
-    //export interface IRenamable { name?: string; };
 
     export interface IRenameFormProps extends IReactWindowProps {
         name?: string;

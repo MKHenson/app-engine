@@ -18,10 +18,10 @@ namespace Animate {
             this.canDrag = true;
             this.canDrop = false;
 
-            resource.on( 'modified', this.onModified, this );
-            resource.on( 'edited', this.onEdited, this );
-            resource.on( 'deleted', this.onDeleted, this );
-            resource.on( 'refreshed', this.onRefreshed, this );
+            resource.on<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
+            resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
+            resource.on<ResourceEvents, IResourceEvent>( 'disposed', this.onDeleted, this );
+            resource.on<ResourceEvents, IResourceEvent>( 'refreshed', this.onRefreshed, this );
         }
 
         /**
@@ -127,9 +127,11 @@ namespace Animate {
 		 */
         dispose() {
             let resource = this.resource;
-            resource.on( 'modified', this.onModified, this );
-            resource.on( 'deleted', this.onDeleted, this );
-            resource.on( 'refreshed', this.onModified, this );
+            resource.off<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
+            resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
+            resource.off<ResourceEvents, IResourceEvent>( 'disposed', this.onDeleted, this );
+            resource.off<ResourceEvents, IResourceEvent>( 'refreshed', this.onModified, this );
+
             this.resource = null;
 
             super.dispose();

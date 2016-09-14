@@ -10,7 +10,7 @@ namespace Animate {
          */
         constructor() {
             super( 'Behaviours', <i className="fa fa-plug" aria-hidden="true"></i> );
-            PluginManager.getSingleton().on( 'template-created', this.onTemplateCreated, this );
+            PluginManager.getSingleton().on<PluginManagerEvents, ITemplateEvent>( 'template-created', this.onTemplateCreated, this );
             this.expanded( false );
         }
 
@@ -19,7 +19,7 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            PluginManager.getSingleton().off( 'template-created', this.onTemplateCreated, this );
+            PluginManager.getSingleton().off<PluginManagerEvents, ITemplateEvent>( 'template-created', this.onTemplateCreated, this );
 
         }
 
@@ -33,9 +33,8 @@ namespace Animate {
         /**
          * If a template is created, then add its node representation
          */
-        onTemplateCreated( type: string, event: Event ) {
-            let r = event.tag as BehaviourDefinition;
-            this.addNode( new TreeNodePluginBehaviour( r ) );
+        onTemplateCreated( type: PluginManagerEvents, event: ITemplateEvent ) {
+            this.addNode( new TreeNodePluginBehaviour( event.template ) );
         }
     }
 }

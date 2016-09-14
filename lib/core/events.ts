@@ -21,8 +21,39 @@
         'plugin_asset_saving' |
         'plugin_asset_loaded' |
         'plugin_asset_destroyed' |
-        'plugin_asset_copied'
-        ;
+        'plugin_asset_copied';
+
+    export type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
+
+    export type ResourceEvents =
+        'created' |
+        'edited' |
+        'refreshed' |
+        'modified' |
+        'disposed';
+
+    export type WorkspaceEvents =
+        'change';
+
+    export type PluginManagerEvents =
+        'template-created' |
+        'template-removed' |
+        'editor-ready';
+
+    /**
+     * Events dispatched by a treeview
+     */
+    export type TreeviewEvents =
+        'change' |
+        'focus-node';
+
+    export interface ITemplateEvent {
+        template: BehaviourDefinition;
+    }
+
+    export interface IResourceEvent {
+        resource: ProjectResource<Engine.IResource>;
+    }
 
     /**
 	 * Valid response codes for requests made to the Animate server
@@ -62,6 +93,11 @@
 	 */
     export interface INodeEvent {
         node: TreeNodeModel;
+    }
+
+    export interface ISocketEvent {
+        error?: Error;
+        json?: UsersInterface.SocketTokens.IToken;
     }
 
     /**
