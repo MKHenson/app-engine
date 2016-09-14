@@ -588,11 +588,15 @@ declare namespace Animate {
      * Events related to the web socket communication API
      */
     type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
-    type ProjectEvents = 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
+    type ProjectEvents = 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
+    /**
+     * Events related to interactions with project containers
+     */
+    type ContainerEvents = 'workspace-opened' | 'workspace-closed';
     /**
      * Events related to project resources
      */
-    type ResourceEvents = 'created' | 'edited' | 'refreshed' | 'modified' | 'disposed';
+    type ResourceEvents = 'edited' | 'refreshed' | 'modified';
     /**
      * Events related to the a container workspace
      */
@@ -616,6 +620,12 @@ declare namespace Animate {
      */
     interface IResourceEvent {
         resource: ProjectResource<Engine.IResource>;
+    }
+    /**
+     * An event token for events dispatched by changes to or from project containers
+     */
+    interface IContainerEvent {
+        container: Resources.Container;
     }
     /**
      * TODO: Can probably be removed
@@ -1153,6 +1163,357 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+     * Acts as a store/container of the various items that can be interacted with by the user
+     * when they open a container. Think of this as the model of a Container's inner components.
+     */
+    class ContainerWorkspace extends EventDispatcher {
+        opened: boolean;
+        private _container;
+        protected _items: CanvasItem[];
+        protected _selection: CanvasItem[];
+        /**
+         * Creates an instance of the canvas store
+         */
+        constructor(container: Resources.Container, items?: CanvasItem[]);
+        /**
+         * Gets the container this workspace represents
+         * @returns {Resources.Container}
+         */
+        container: Resources.Container;
+        /**
+         * Returns all items of this store
+         * @returns {CanvasItem[]}
+         */
+        getItems(): CanvasItem[];
+        /**
+         * Returns the currrently selected items
+         * @returns {CanvasItem[]}
+         */
+        getSelection(): CanvasItem[];
+        /**
+         * Called whenever an item is clicked.
+         * @param {CanvasItem} node
+         * @param {boolean} shiftDown
+         */
+        onNodeSelected(node: CanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        /**
+         * Called whenever the selection has changed
+         * @param {CanvasItem[]} selection
+         */
+        onSelectionChange(selection: CanvasItem[]): void;
+        /**
+         * Adds a canvas item to the canvas
+         * @param {CanvasItem} item
+         * @returns {CanvasItem}
+         */
+        addItem(item: CanvasItem): CanvasItem;
+        /**
+         * Removes a canvas item from the canvas
+         * @param {CanvasItem} item
+         */
+        removeItem(item: CanvasItem): void;
+        /**
+         * De-serializes the workspace from its JSON format
+         * @param {Engine.Editor.IContainerWorkspace} scene
+         */
+        deserialize(scene: Engine.Editor.IContainerWorkspace): void;
+        /**
+         * Serializes the workspace into its JSON format
+         * @returns {Engine.Editor.IContainerWorkspace}
+         */
+        serialize(): Engine.Editor.IContainerWorkspace;
+        /**
+         * Triggers a change in the tree structure
+         */
+        invalidate(): void;
+    }
+}
+declare namespace Animate {
+    type LinkMap = {
+        [shallowId: number]: {
+            item: CanvasItem;
+            token: Engine.Editor.ICanvasItem;
+        };
+    };
+    /**
+     * The base class for all canvas items
+     */
+    class CanvasItem extends EventDispatcher {
+        top: number;
+        left: number;
+        className: string;
+        store: ContainerWorkspace;
+        id: number;
+        private _selected;
+        /**
+         * Creates an instance
+         */
+        constructor();
+        /**
+         * Called when we activate the context menu on the behaviour
+         */
+        onContext(e: React.MouseEvent): void;
+        /**
+         * Gets or sets if the item is selected
+         * @param {boolean} val
+         * @returns {boolean}
+         */
+        selected(val?: boolean): boolean;
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {ICanvasItem}
+         */
+        serialize(id: number): Engine.Editor.ICanvasItem;
+        /**
+         * De-serialize data from a JSON.
+         * @param {ICanvasItem} data The data to import from
+         */
+        deSerialize(data: Engine.Editor.ICanvasItem): void;
+        /**
+         * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
+         * @param {number} originalId The original shallow ID of the item when it was tokenized.
+         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+         * or to get the token you can use items[originalId].token
+         */
+        link(originalId: number, items: LinkMap): void;
+        /**
+         * Causes the store to refresh its state
+         */
+        invalidate(): void;
+        /**
+         * Clean up
+         */
+        dispose(): void;
+    }
+}
+declare namespace Animate {
+    /**
+     * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
+     * that has been added to a container.
+     */
+    class Behaviour extends CanvasItem {
+        alias: string;
+        canGhost: boolean;
+        behaviourType: string;
+        private _parameters;
+        private _products;
+        private _outputs;
+        private _inputs;
+        private _portals;
+        private _properties;
+        /**
+         * Creates an instance of the behaviour
+         */
+        constructor(template: BehaviourDefinition);
+        /**
+         * Gets a portal by its name
+         * @param {string} name The portal name
+         * @returns {Portal}
+         */
+        getPortal(name: string): Portal;
+        /**
+         * Adds a portal to this behaviour.
+         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param {Prop<any>} property
+         * @returns {Portal}
+         */
+        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
+        /**
+        * Removes a portal from this behaviour
+        * @param {Portal} toRemove The portal object we are removing
+        * @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
+        */
+        removePortal(toRemove: Portal): Portal;
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {IBehaviour}
+         */
+        serialize(id: number): Engine.Editor.IBehaviour;
+        /**
+         * De-Serializes data from a JSON.
+         * @param {IBehaviour} data The data to import from
+         */
+        deSerialize(data: Engine.Editor.IBehaviour): void;
+        /**
+         * Diposes and cleans up this component and its portals
+         */
+        dispose(): void;
+        properties: EditableSet;
+        parameters: Array<Portal>;
+        products: Array<Portal>;
+        outputs: Array<Portal>;
+        inputs: Array<Portal>;
+        portals: Array<Portal>;
+    }
+}
+declare namespace Animate {
+    /**
+     * A behaviour for representing container portals
+     */
+    class BehaviourPortal extends Behaviour {
+        private _portalType;
+        private _property;
+        /**
+         * Creates an instance
+         */
+        constructor(property: Prop<any>, portalType?: HatcheryRuntime.PortalType);
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {IBehaviourPortal}
+         */
+        serialize(id: number): Engine.Editor.IBehaviourPortal;
+        /**
+         * De-Serializes data from a JSON.
+         * @param {IBehaviourPortal} data The data to import from
+         */
+        deSerialize(data: Engine.Editor.IBehaviourPortal): void;
+        /**
+         * This will cleanup the component.
+         */
+        dispose(): void;
+        portaltype: HatcheryRuntime.PortalType;
+        property: Prop<any>;
+    }
+}
+declare namespace Animate {
+    /**
+     * A behaviour that contains an asset/resource reference
+     */
+    class BehaviourAsset extends Behaviour {
+        asset: ProjectResource<Engine.IResource>;
+        /**
+         * Creates an instance of the behaviour
+         */
+        constructor(asset?: ProjectResource<Engine.IResource>);
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Serializes the data into a JSON.
+         * @returns {IBehaviour}
+         */
+        serialize(id: number): Engine.Editor.IBehaviour;
+        /**
+         * Adds a portal to this behaviour.
+         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param {Prop<any>} property
+         * @returns {Portal}
+         */
+        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
+    }
+}
+declare namespace Animate {
+    /**
+     * A user comment within the workspace
+     */
+    class Comment extends CanvasItem {
+        label: string;
+        width: number;
+        height: number;
+        /**
+         * Creates an instance
+         */
+        constructor(label: string);
+        /**
+         * Serializes the data into a JSON.
+         * @param {number} id
+         * @returns {IComment}
+         */
+        serialize(id: number): Engine.Editor.IComment;
+        /**
+         * De-Serializes data from a JSON.
+         * @param {IComment} data The data to import from
+         */
+        deSerialize(data: Engine.Editor.IComment): void;
+    }
+}
+declare namespace Animate {
+    /**
+    * A portal class for behaviours. There are 4 different types of portals -
+    * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
+    */
+    class Portal extends EventDispatcher {
+        links: Array<any>;
+        custom: boolean;
+        type: HatcheryRuntime.PortalType;
+        property: Prop<any>;
+        behaviour: Behaviour;
+        /**
+        * @param {Behaviour} parent The parent component of the Portal
+        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
+        * @param {Prop<any>} property The property associated with this portal
+        */
+        constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
+        serialize(): Engine.Editor.IPortal;
+        /**
+        * Edits the portal variables
+        * @param {Prop<any>} property The new value of the property
+        */
+        edit(property: Prop<any>): void;
+        /**
+         * This function will check if the source portal is an acceptable match with the current portal.
+         * @param {Portal} source The source panel we are checking against
+         */
+        checkPortalLink(source: Portal): boolean;
+        /**
+         * Clean up
+         */
+        dispose(): void;
+        /**
+         * Adds a link to the portal.
+         * @param {Link} link The link we are adding
+         */
+        addLink(link: any): void;
+        /**
+         * Removes a link from the portal.
+         * @param {Link} link The link we are removing
+         */
+        removeLink(link: any): any;
+    }
+}
+declare namespace Animate {
+    class CanvasEvents extends ENUM {
+        constructor(v: string);
+        static MODIFIED: CanvasEvents;
+    }
+    /**
+    * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
+    */
+    class Canvas {
+        static lastSelectedItem: any;
+        static snapping: boolean;
+        name: string;
+        private _upProxy;
+        private _downProxy;
+        private _contextProxy;
+        private _keyProxy;
+        private _contextNode;
+        private _x;
+        private _y;
+        private _container;
+        private _containerReferences;
+        private _proxyMoving;
+        private _proxyStartDrag;
+        private _proxyStopDrag;
+        private _loadingScene;
+        /**
+        * @param {Component} parent The parent component to add this canvas to
+        * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
+        */
+        constructor(parent: Component, container: Resources.Container);
+        container: Resources.Container;
+        containerReferences: {
+            groups: Array<number>;
+            assets: Array<number>;
+        };
+    }
+}
+declare namespace Animate {
+    /**
     * The AssetTemplate object is used to define what assets are available to the scene.
     * Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
     * is to think of it as a predefined object that contains a number of variables. You could for example
@@ -1517,6 +1878,13 @@ declare namespace Animate {
         * @returns { Promise<ProjectResource<any>>}
         */
         createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
+        /**
+         * A function used to open and close container workspaces. This function will cause the project to dispatch
+         * an [[Animate.ContainerEvents]] event.
+         * @param container The container to open or close
+         * @param open True if the workspace should be opened, false otherwise
+         */
+        openContainerWorkspace(container: Resources.Container, open: boolean): void;
         containers: Array<Resources.Container>;
         files: Array<Resources.File>;
         scripts: Array<Resources.Script>;
@@ -2702,7 +3070,7 @@ declare namespace Animate {
          * @param {number} index The index of the selected tab
          * @param {ITabPaneProps} props props of the selected tab
          */
-        removePane(index: number, prop: ITabPaneProps): void;
+        private removePane(index, prop);
         /**
          * Called when there are no panes for the tab and a custom view is desired
          */
@@ -2741,6 +3109,7 @@ declare namespace Animate {
          * Adds a dynamic pane to the tab
          */
         addTab(pane: React.ReactElement<ITabPaneProps>): void;
+        removeTabByLabel(label: string): void;
         /**
          * Gets a tab's' props by its label
          * @param {string} val The label text of the tab
@@ -2887,290 +3256,6 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    type LinkMap = {
-        [shallowId: number]: {
-            item: CanvasItem;
-            token: Engine.Editor.ICanvasItem;
-        };
-    };
-    /**
-     * The base class for all canvas items
-     */
-    class CanvasItem extends EventDispatcher {
-        top: number;
-        left: number;
-        className: string;
-        store: ContainerWorkspace;
-        id: number;
-        private _selected;
-        /**
-         * Creates an instance
-         */
-        constructor();
-        /**
-         * Called when we activate the context menu on the behaviour
-         */
-        onContext(e: React.MouseEvent): void;
-        /**
-         * Gets or sets if the item is selected
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        selected(val?: boolean): boolean;
-        /**
-         * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {ICanvasItem}
-         */
-        serialize(id: number): Engine.Editor.ICanvasItem;
-        /**
-         * De-serialize data from a JSON.
-         * @param {ICanvasItem} data The data to import from
-         */
-        deSerialize(data: Engine.Editor.ICanvasItem): void;
-        /**
-         * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-         * @param {number} originalId The original shallow ID of the item when it was tokenized.
-         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-         * or to get the token you can use items[originalId].token
-         */
-        link(originalId: number, items: LinkMap): void;
-        /**
-         * Causes the store to refresh its state
-         */
-        invalidate(): void;
-        /**
-         * Clean up
-         */
-        dispose(): void;
-    }
-}
-declare namespace Animate {
-    /**
-     * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
-     * that has been added to a container.
-     */
-    class Behaviour extends CanvasItem {
-        alias: string;
-        canGhost: boolean;
-        behaviourType: string;
-        private _parameters;
-        private _products;
-        private _outputs;
-        private _inputs;
-        private _portals;
-        private _properties;
-        /**
-         * Creates an instance of the behaviour
-         */
-        constructor(template: BehaviourDefinition);
-        /**
-         * Gets a portal by its name
-         * @param {string} name The portal name
-         * @returns {Portal}
-         */
-        getPortal(name: string): Portal;
-        /**
-         * Adds a portal to this behaviour.
-         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-         * @param {Prop<any>} property
-         * @returns {Portal}
-         */
-        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
-        /**
-        * Removes a portal from this behaviour
-        * @param {Portal} toRemove The portal object we are removing
-        * @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
-        */
-        removePortal(toRemove: Portal): Portal;
-        /**
-         * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IBehaviour}
-         */
-        serialize(id: number): Engine.Editor.IBehaviour;
-        /**
-         * De-Serializes data from a JSON.
-         * @param {IBehaviour} data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IBehaviour): void;
-        /**
-         * Diposes and cleans up this component and its portals
-         */
-        dispose(): void;
-        properties: EditableSet;
-        parameters: Array<Portal>;
-        products: Array<Portal>;
-        outputs: Array<Portal>;
-        inputs: Array<Portal>;
-        portals: Array<Portal>;
-    }
-}
-declare namespace Animate {
-    /**
-     * A behaviour for representing container portals
-     */
-    class BehaviourPortal extends Behaviour {
-        private _portalType;
-        private _property;
-        /**
-         * Creates an instance
-         */
-        constructor(property: Prop<any>, portalType?: HatcheryRuntime.PortalType);
-        /**
-         * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IBehaviourPortal}
-         */
-        serialize(id: number): Engine.Editor.IBehaviourPortal;
-        /**
-         * De-Serializes data from a JSON.
-         * @param {IBehaviourPortal} data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IBehaviourPortal): void;
-        /**
-         * This will cleanup the component.
-         */
-        dispose(): void;
-        portaltype: HatcheryRuntime.PortalType;
-        property: Prop<any>;
-    }
-}
-declare namespace Animate {
-    /**
-     * A behaviour that contains an asset/resource reference
-     */
-    class BehaviourAsset extends Behaviour {
-        asset: ProjectResource<Engine.IResource>;
-        /**
-         * Creates an instance of the behaviour
-         */
-        constructor(asset?: ProjectResource<Engine.IResource>);
-        /**
-         * Clean up
-         */
-        dispose(): void;
-        /**
-         * Serializes the data into a JSON.
-         * @returns {IBehaviour}
-         */
-        serialize(id: number): Engine.Editor.IBehaviour;
-        /**
-         * Adds a portal to this behaviour.
-         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-         * @param {Prop<any>} property
-         * @returns {Portal}
-         */
-        addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
-    }
-}
-declare namespace Animate {
-    /**
-     * A user comment within the workspace
-     */
-    class Comment extends CanvasItem {
-        label: string;
-        width: number;
-        height: number;
-        /**
-         * Creates an instance
-         */
-        constructor(label: string);
-        /**
-         * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IComment}
-         */
-        serialize(id: number): Engine.Editor.IComment;
-        /**
-         * De-Serializes data from a JSON.
-         * @param {IComment} data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IComment): void;
-    }
-}
-declare namespace Animate {
-    /**
-    * A portal class for behaviours. There are 4 different types of portals -
-    * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
-    */
-    class Portal extends EventDispatcher {
-        links: Array<any>;
-        custom: boolean;
-        type: HatcheryRuntime.PortalType;
-        property: Prop<any>;
-        behaviour: Behaviour;
-        /**
-        * @param {Behaviour} parent The parent component of the Portal
-        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {Prop<any>} property The property associated with this portal
-        */
-        constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
-        serialize(): Engine.Editor.IPortal;
-        /**
-        * Edits the portal variables
-        * @param {Prop<any>} property The new value of the property
-        */
-        edit(property: Prop<any>): void;
-        /**
-         * This function will check if the source portal is an acceptable match with the current portal.
-         * @param {Portal} source The source panel we are checking against
-         */
-        checkPortalLink(source: Portal): boolean;
-        /**
-         * Clean up
-         */
-        dispose(): void;
-        /**
-         * Adds a link to the portal.
-         * @param {Link} link The link we are adding
-         */
-        addLink(link: any): void;
-        /**
-         * Removes a link from the portal.
-         * @param {Link} link The link we are removing
-         */
-        removeLink(link: any): any;
-    }
-}
-declare namespace Animate {
-    class CanvasEvents extends ENUM {
-        constructor(v: string);
-        static MODIFIED: CanvasEvents;
-    }
-    /**
-    * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
-    */
-    class Canvas extends Component {
-        static lastSelectedItem: any;
-        static snapping: boolean;
-        name: string;
-        private _upProxy;
-        private _downProxy;
-        private _contextProxy;
-        private _keyProxy;
-        private _contextNode;
-        private _x;
-        private _y;
-        private _container;
-        private _containerReferences;
-        private _proxyMoving;
-        private _proxyStartDrag;
-        private _proxyStopDrag;
-        private _loadingScene;
-        /**
-        * @param {Component} parent The parent component to add this canvas to
-        * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
-        */
-        constructor(parent: Component, container: Resources.Container);
-        container: Resources.Container;
-        containerReferences: {
-            groups: Array<number>;
-            assets: Array<number>;
-        };
-    }
-}
-declare namespace Animate {
     interface IReactCanvasProps {
         store: ContainerWorkspace;
     }
@@ -3217,72 +3302,6 @@ declare namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element;
-    }
-}
-declare namespace Animate {
-    /**
-     * Acts as a store/container of the various items that can be interacted with by the user
-     * when they open a container. Think of this as the model of a Container's inner components.
-     */
-    class ContainerWorkspace extends EventDispatcher {
-        private _container;
-        protected _items: CanvasItem[];
-        protected _selection: CanvasItem[];
-        /**
-         * Creates an instance of the canvas store
-         */
-        constructor(container: Resources.Container, items?: CanvasItem[]);
-        /**
-         * Gets the container this workspace represents
-         * @returns {Resources.Container}
-         */
-        container: Resources.Container;
-        /**
-         * Returns all items of this store
-         * @returns {CanvasItem[]}
-         */
-        getItems(): CanvasItem[];
-        /**
-         * Returns the currrently selected items
-         * @returns {CanvasItem[]}
-         */
-        getSelection(): CanvasItem[];
-        /**
-         * Called whenever an item is clicked.
-         * @param {CanvasItem} node
-         * @param {boolean} shiftDown
-         */
-        onNodeSelected(node: CanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
-        /**
-         * Called whenever the selection has changed
-         * @param {CanvasItem[]} selection
-         */
-        onSelectionChange(selection: CanvasItem[]): void;
-        /**
-         * Adds a canvas item to the canvas
-         * @param {CanvasItem} item
-         * @returns {CanvasItem}
-         */
-        addItem(item: CanvasItem): CanvasItem;
-        /**
-         * Removes a canvas item from the canvas
-         * @param {CanvasItem} item
-         */
-        removeItem(item: CanvasItem): void;
-        /**
-         * De-serializes the workspace from its JSON format
-         * @param {Engine.Editor.IContainerWorkspace} scene
-         */
-        deserialize(scene: Engine.Editor.IContainerWorkspace): void;
-        /**
-         * Serializes the workspace into its JSON format
-         * @returns {Engine.Editor.IContainerWorkspace}
-         */
-        serialize(): Engine.Editor.IContainerWorkspace;
-        /**
-         * Triggers a change in the tree structure
-         */
-        invalidate(): void;
     }
 }
 declare namespace Animate {
@@ -3419,13 +3438,12 @@ declare namespace Animate {
         constructor(children?: TreeNodeModel[]);
         /**
          * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
+         * @param node
          */
         addNode(node: TreeNodeModel): TreeNodeModel;
         /**
          * Removes a child node
-         * @param {TreeNodeModel} node
+         * @param node
          */
         removeNode(node: TreeNodeModel): void;
         /**
@@ -3438,13 +3456,13 @@ declare namespace Animate {
         invalidate(): void;
         /**
          * Called whenever the selection has changed
-         * @param {TreeNodeModel[]} selection
+         * @param selection
          */
         onSelectionChange(selection: TreeNodeModel[]): void;
         /**
          * Called whenever a node is selectable and clicked.
-         * @param {TreeNodeModel} node
-         * @param {boolean} shiftDown
+         * @param node
+         * @param shiftDown
          */
         onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
         /**
@@ -3454,16 +3472,15 @@ declare namespace Animate {
         private unFocus(node);
         /**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
-         * @param {TreeNodeModel} node
+         * @param e
+         * @param node
          */
         onContext(e: React.MouseEvent, node: TreeNodeModel): void;
         /**
          * This will recursively look through each of the nodes to find a node with
          * the specified name.
-         * @param {string} property The name property we are evaluating
-         * @param {any} value The object we should be comparing against
-         * @returns {TreeNodeModel}
+         * @param property The name property we are evaluating
+         * @param value The object we should be comparing against
          */
         findNode(property: string, value: any): TreeNodeModel;
         /**
@@ -3472,12 +3489,10 @@ declare namespace Animate {
         selectNode(node: TreeNodeModel): void;
         /**
          * Gets the nodes associated with this store
-         * @returns {TreeNodeModel[]}
          */
         getNodes(): TreeNodeModel[];
         /**
          * Gets the currently selected nodes
-         * @returns {TreeNodeModel[]}
          */
         getSelectedNodes(): TreeNodeModel[];
     }
@@ -3502,57 +3517,51 @@ declare namespace Animate {
         constructor(label: string, icon?: JSX.Element, children?: TreeNodeModel[]);
         /**
          * Gets the parent node
-         * @returns {TreeNodeModel}
+         * @returns
          */
         parent: TreeNodeModel;
         /**
          * Gets or sets the label of the node
-         * @param {string} val
-         * @returns {string}
+         * @param val
          */
         label(val?: string): string;
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
-         * @param {React.DragEvent} e
-         * @returns {IDragDropToken} Return data to serialize
+         * @param e
+         * @returns Return data to serialize
          */
         onDragStart(e: React.DragEvent): IDragDropToken;
         /**
          * Called whenever we drop an item on this element. This is only called if canDrop is true.
          * Use it to set drag data, eg: e.dataTransfer.getData("text");
-         * @param {React.DragEvent} e
-         * @param {IDragDropToken} json The unserialized data
+         * @param e
+         * @param json The unserialized data
          */
         onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
         /**
          * Gets or sets if the node is selected
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         selected(val?: boolean): boolean;
         /**
          * Gets or sets if the node is disabled
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         disabled(val?: boolean): boolean;
         /**
          * Gets or sets if the node is selectable
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         selectable(val?: boolean): boolean;
         /**
          * Gets or sets if the node is expanded
-         * @param {boolean} val
-         * @returns {boolean}
+         * @param val
          */
         expanded(val?: boolean): boolean;
         /**
          * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
+         * @param val
          */
         icon(val?: JSX.Element): JSX.Element;
         /**
@@ -3561,26 +3570,28 @@ declare namespace Animate {
         protected invalidate(): void;
         /**
          * Adds a child node
-         * @param {TreeNodeModel} node
-         * @returns {TreeNodeModel}
+         * @param node
          */
         addNode(node: TreeNodeModel): TreeNodeModel;
         /**
          * Removes a child node
-         * @param {TreeNodeModel} node
+         * @param node
          */
         removeNode(node: TreeNodeModel): void;
         /**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
+         * @param e
          */
         onContext(e: React.MouseEvent): void;
         /**
+         * Called whenever the node is double clicked
+         */
+        onDoubleClick(e: React.MouseEvent): void;
+        /**
          * This will recursively look through each of the nodes to find one with
          * the specified name and value.
-         * @param {string} property The Javascript property on the node that we are evaluating
-         * @param {any} value The value of the property we are comparing.
-         * @returns {TreeNodeModel}
+         * @param property The Javascript property on the node that we are evaluating
+         * @param value The value of the property we are comparing.
          */
         findNode(property: string, value: any): TreeNodeModel;
         /**
@@ -3709,7 +3720,7 @@ declare namespace Animate {
         /**
          * Called whenever the resource is modified
          */
-        protected onDeleted(): void;
+        protected onDeleted(type: ProjectEvents, event: IResourceEvent): void;
         /**
          * Called whenever the resource is modified
          */
@@ -3765,7 +3776,7 @@ declare namespace Animate {
         /**
          * If a container is created, then add its node representation
          */
-        onResourceCreated(type: ResourceEvents, event: IResourceEvent): void;
+        onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
     }
 }
 declare namespace Animate {
@@ -3795,7 +3806,7 @@ declare namespace Animate {
         /**
          * If a container is created, then add its node representation
          */
-        onResourceCreated(type: ResourceEvents, event: IResourceEvent): void;
+        onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
     }
 }
 declare namespace Animate {
@@ -3854,7 +3865,7 @@ declare namespace Animate {
         /**
          * If a container is created, then add its node representation
          */
-        onResourceCreated(type: ResourceEvents, event: IResourceEvent): void;
+        onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
         /**
          * This will get all instance nodes of a particular class name(s)
          * @param {string | string[]} classNames The class name of the asset, or an array of class names
@@ -3883,6 +3894,21 @@ declare namespace Animate {
          * This will cleanup the component.
          */
         dispose(): void;
+    }
+}
+declare namespace Animate {
+    /**
+     * Treenode that contains a reference to an asset
+     */
+    class TreeNodeContainerInstance extends TreeViewNodeResource<Resources.Container> {
+        /**
+         * Creates an instance of the node
+         */
+        constructor(container: Resources.Container);
+        /**
+         * Called whenever the node is double clicked
+         */
+        onDoubleClick(e: React.MouseEvent): void;
     }
 }
 declare namespace Animate {
@@ -6542,6 +6568,7 @@ declare namespace Animate {
         static defaultProps: IWorkspaceProps;
         componentWillMount(): void;
         componentWillUnmount(): void;
+        onContainerToggled(type: ContainerEvents, event: IContainerEvent): void;
         /**
          * Called when there are no panes for the tab and a custom view is desired
          */
