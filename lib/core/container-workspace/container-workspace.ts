@@ -25,7 +25,7 @@ namespace Animate {
          * Gets the container this workspace represents
          * @returns {Resources.Container}
          */
-        get container() : Resources.Container {
+        get container(): Resources.Container {
             return this._container;
         }
 
@@ -122,12 +122,33 @@ namespace Animate {
          * De-serializes the workspace from its JSON format
          * @param {Engine.Editor.IContainerWorkspace} scene
          */
-        deserialize( scene : Engine.Editor.IContainerWorkspace ) {
+        deserialize( scene: Engine.Editor.IContainerWorkspace ) {
 
-            for ( let item of this._items )
+            for ( const item of this._items )
                 item.dispose();
 
-            throw new Error('Not implemented yet');
+            if (!scene.items)
+                scene.items = [];
+
+            let canvasItem: CanvasItem;
+            let manager = PluginManager.getSingleton();
+
+            for ( const item of scene.items ) {
+                switch ( item.type ) {
+                    case 'comment':
+                        canvasItem = new Comment(( item as Engine.Editor.IComment ).label );
+                        break;
+                    case 'behaviour':
+                        canvasItem = new Behaviour( manager.getTemplate(( item as Engine.Editor.IBehaviour ).behaviourType ) );
+                        break;
+                    case 'asset':
+                        canvasItem = new BehaviourAsset( null );
+                        break;
+                }
+
+                canvasItem.deSerialize( item );
+                this.addItem( canvasItem );
+            }
         }
 
         /**
