@@ -71,7 +71,6 @@
             this._properties.dispose();
             this._properties = null;
             this._options = null;
-            this.emit<ResourceEvents, IResourceEvent>( 'disposed', { resource : this } );
         }
 
         /**
