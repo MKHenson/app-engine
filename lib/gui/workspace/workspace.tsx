@@ -15,11 +15,27 @@ namespace Animate {
         };
 
         componentWillMount() {
+
             // add project events
+            this.props.project.on<ContainerEvents, IContainerEvent>('workspace-opened', this.onContainerToggled, this );
         }
 
         componentWillUnmount() {
             // remove project events
+            this.props.project.off<ContainerEvents, IContainerEvent>('workspace-opened', this.onContainerToggled, this );
+        }
+
+        onContainerToggled( type: ContainerEvents, event: IContainerEvent ) {
+            if ( type == 'workspace-opened' ) {
+                this.addTab(
+                    <TabPane label={event.container.entry.name} showCloseButton={true}>
+                        <ReactCanvas store={event.container.workspace} />
+                    </TabPane>
+                );
+            }
+            else {
+                this.removeTabByLabel( event.container.entry.name );
+            }
         }
 
         /**
