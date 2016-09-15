@@ -64,18 +64,11 @@ namespace Animate {
                 if ( prop.onDispose )
                     prop.onDispose( index, prop );
 
-                this._panes.splice( index );
+                this._panes.splice( index, 1 );
                 this.setState( {
                     selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
                 } as Y);
             });
-        }
-
-        /**
-         * Called when there are no panes for the tab and a custom view is desired
-         */
-        renderEmptyPanes(): JSX.Element {
-            return null;
         }
 
 		/**
@@ -121,7 +114,7 @@ namespace Animate {
                         }) }
                 </div>
                 <div className="tab-panes">
-                    { children.length > 0 ? children[ this.state.selectedIndex ] :  this.renderEmptyPanes() }
+                    { children.length > 0 ? children[ this.state.selectedIndex ] : null }
                 </div>
             </div>
         }
