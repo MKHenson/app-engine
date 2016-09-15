@@ -40,8 +40,8 @@ namespace Animate {
 
 		/**
 		 * Removes a pane from from the tab
-		 * @param {number} index The index of the selected tab
-		 * @param {ITabPaneProps} props props of the selected tab
+		 * @param index The index of the selected tab
+		 * @param props props of the selected tab
 		 */
         private removePane( index: number, prop: ITabPaneProps ) {
 
@@ -80,7 +80,6 @@ namespace Animate {
 
 		/**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
 
@@ -129,8 +128,8 @@ namespace Animate {
 
 		/**
 		 * When we select a tab
-		 * @param {number} index The index of the selected tab
-		 * @param {ITabPaneProps} props props of the selected tab
+		 * @param index The index of the selected tab
+		 * @param props props of the selected tab
 		 */
         onTabSelected( index: number, props: ITabPaneProps ) {
 
@@ -155,7 +154,7 @@ namespace Animate {
 
 		/**
 		 * Select a panel by index
-		 * @param {number} index
+		 * @param index
 		 */
         selectByIndex( index: number ): ITabPaneProps {
             if ( !this._panes[ index ] )
@@ -167,7 +166,7 @@ namespace Animate {
 
 		/**
 		 * Select a panel by its label
-		 * @param {string} label
+		 * @param label
 		 */
         selectByLabel( label: string ): ITabPaneProps {
             let panes = this._panes;
@@ -182,7 +181,7 @@ namespace Animate {
 
 		/**
 		 * Select a panel by its property object
-		 * @param {ITabPaneProps} props
+		 * @param props
 		 */
         selectByProps( props: ITabPaneProps ): ITabPaneProps {
             let panes = this._panes;
@@ -234,8 +233,8 @@ namespace Animate {
 
 		/**
 		 * Gets a tab's' props by its label
-		 * @param {string} val The label text of the tab
-		 * @returns {TabPair} The tab pair containing both the label and page {Component}s
+		 * @param val The label text of the tab
+		 * @returns The tab pair containing both the label and page {Component}s
 		 */
         getPaneByLabel( label: string ): ITabPaneProps {
             const panes = this._panes;
@@ -275,7 +274,6 @@ namespace Animate {
 
 		/**
 		 * Gets an array of all the tab props
-		 * @returns {ITabPaneProps[]}
 		 */
         get panes(): ITabPaneProps[] {
             return this._panes.map( function ( pane ) {
