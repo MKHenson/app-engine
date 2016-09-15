@@ -8,7 +8,6 @@ namespace Animate {
          */
         export class Container extends ProjectResource<Engine.IContainer> {
             public canvas: Canvas;
-            public workspace: ContainerWorkspace;
 
             /**
              * @param {Engine.IContainer} entry The data associated with this container resource
@@ -16,7 +15,6 @@ namespace Animate {
             constructor( entry?: Engine.IContainer ) {
                 super( entry );
 
-                this.workspace = new ContainerWorkspace(this);
                 this.canvas = null;
                 this._properties.addVar( new PropBool( 'Start On Load', true, 'Container Properties' ) );
                 this._properties.addVar( new PropBool( 'Unload On Exit', true, 'Container Properties' ) );
@@ -41,7 +39,6 @@ namespace Animate {
              */
             initialize() {
                 const containerToken = this.entry.json;
-                this.workspace.deserialize( containerToken );
                 if ( containerToken.properties )
                     this._properties.deTokenize( containerToken.properties );
             }

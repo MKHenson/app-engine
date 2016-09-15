@@ -17,6 +17,8 @@ namespace Animate {
         private _groups: Array<Resources.GroupArray>;
         private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
 
+        public openEditors: Editor[];
+
 		/**
 		* @param{string} id The database id of this project
 		*/
@@ -29,6 +31,7 @@ namespace Animate {
             this._files = [];
             this._scripts = [];
             this._groups = [];
+            this.openEditors = [];
 
             this._restPaths = {};
             this._restPaths[ ResourceType.FILE ] = { url: `files`, array: this._files };
@@ -208,7 +211,7 @@ namespace Animate {
                 // Dispose each of the resources saved
                 for ( const t in paths )
                     for ( const resource of paths[ t ].array ) {
-                        this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
+                        this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                         resource.dispose();
                     }
 
@@ -227,7 +230,7 @@ namespace Animate {
             else {
                 // Dispose each of the resources for that type
                 for ( const resource of paths[ type ].array ) {
-                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                     resource.dispose();
                 }
 
@@ -315,7 +318,7 @@ namespace Animate {
                         if ( r.resource.entry.hasOwnProperty( t ) )
                             r.resource.entry[ t ] = response.data[ 0 ][ t ];
 
-                    r.resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: r.resource } );
+                    r.resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: r.resource });
                     r.resource.saved = true;
                     return resolve( r.resource );
 
@@ -329,23 +332,23 @@ namespace Animate {
 		* Use this to edit the properties of a resource
 		* @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
-		* @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse | Error>}
 		*/
-        editResource<T>( id: string, data: T, type: ResourceType ): Promise<Modepress.IResponse | Error> {
+        editResource<T>( id: string, data: T ): Promise<Modepress.IResponse | Error> {
             const that = this;
             const details = User.get.entry;
             const projId = this._entry._id;
             const paths = this._restPaths;
-            const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}/${id}`;
-            const array = paths[ type ].array;
+            let url: string;
             let resource: ProjectResource<Engine.IResource>;
 
-            for ( let i = 0, l = array.length; i < l; i++ )
-                if ( array[ i ].entry._id === id ) {
-                    resource = array[ i ];
-                    break;
-                }
+            for ( const p in paths )
+                for ( const r of paths[p].array )
+                    if ( r.entry._id == id ) {
+                        resource = r;
+                        url = `${DB.API}/users/${details.username}/projects/${projId}/${paths[p].url}/${id}`;
+                        break;
+                    }
 
             if ( !resource )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
@@ -359,7 +362,7 @@ namespace Animate {
                         if ( resource.entry.hasOwnProperty( t ) )
                             resource.entry[ t ] = data[ t ];
 
-                    resource.emit<ResourceEvents, IResourceEvent >( 'refreshed', { resource: resource } );
+                    resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: resource });
                     return resolve( response );
 
                 }).catch( function ( err: IAjaxError ) {
@@ -450,7 +453,7 @@ namespace Animate {
                         return reject( new Error( response.message ) );
 
                     array.splice( array.indexOf( resource ), 1 );
-                    that.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
+                    that.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                     resource.dispose();
                     return resolve( true );
 
@@ -553,7 +556,7 @@ namespace Animate {
                     else if ( type === ResourceType.SCRIPT )
                         resource = this.createResourceInstance<T>( data.data, ResourceType.SCRIPT );
 
-                    this.emit<ProjectEvents, IResourceEvent>( 'resource-created', { resource: resource } );
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-created', { resource: resource });
                     return resolve( resource );
 
                 }).catch(( err: IAjaxError ) => {
@@ -563,20 +566,26 @@ namespace Animate {
         }
 
         /**
-         * A function used to open and close container workspaces. This function will cause the project to dispatch
-         * an [[Animate.ContainerEvents]] event.
-         * @param container The container to open or close
-         * @param open True if the workspace should be opened, false otherwise
+         * This function is used to assign a new editor to a project resource. Editors are used by
+         * GUI components to interact with the resource the editor wraps.
+         * @param resource The resource we are creating an editor for
          */
-        openContainerWorkspace( container : Resources.Container, open: boolean ) {
-            if ( !container.workspace.opened && open ) {
-                container.workspace.opened = true;
-                this.emit<ContainerEvents, IContainerEvent>( 'workspace-opened', { container : container } );
-            }
-            else if ( container.workspace.opened && !open ) {
-                container.workspace.opened = false;
-                this.emit<ContainerEvents, IContainerEvent>( 'workspace-closed', { container : container } );
-            }
+        assignEditor( resource: ProjectResource<Engine.IResource> ): Editor {
+            for ( const editor of this.openEditors )
+                if ( editor.resource == resource )
+                    return editor;
+
+            let editor: Editor;
+            if ( resource instanceof Resources.Container )
+                editor = new ContainerSchema( resource );
+
+            this.openEditors.push( editor );
+            this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
+        }
+
+        removeEditor( editor : Editor ) {
+            this.openEditors.splice( this.openEditors.indexOf(editor), 1 );
+            this.emit<ProjectEvents, IEditorEvent>( 'editor-removed', { editor: editor });
         }
 
         get containers(): Array<Resources.Container> { return this._containers; }
@@ -597,7 +606,7 @@ namespace Animate {
             const paths = this._restPaths;
             for ( const t in paths ) {
                 for ( const resource of paths[ t ].array ) {
-                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource } );
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                     resource.dispose();
                 }
 

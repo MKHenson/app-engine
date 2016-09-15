@@ -588,19 +588,15 @@ declare namespace Animate {
      * Events related to the web socket communication API
      */
     type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
-    type ProjectEvents = 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
-    /**
-     * Events related to interactions with project containers
-     */
-    type ContainerEvents = 'workspace-opened' | 'workspace-closed';
+    type ProjectEvents = 'editor-created' | 'editor-removed' | 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
     /**
      * Events related to project resources
      */
     type ResourceEvents = 'edited' | 'refreshed' | 'modified';
     /**
-     * Events related to the a container workspace
+     * Events related to the resource editors
      */
-    type WorkspaceEvents = 'change';
+    type EditorEvents = 'change';
     /**
      * Events related to the plugin manager
      */
@@ -626,6 +622,12 @@ declare namespace Animate {
      */
     interface IContainerEvent {
         container: Resources.Container;
+    }
+    /**
+     * An event token for events dispatched by changes to or from project editors
+     */
+    interface IEditorEvent {
+        editor: Editor;
     }
     /**
      * TODO: Can probably be removed
@@ -1087,7 +1089,6 @@ declare namespace Animate {
          */
         class Container extends ProjectResource<Engine.IContainer> {
             canvas: Canvas;
-            workspace: ContainerWorkspace;
             /**
              * @param {Engine.IContainer} entry The data associated with this container resource
              */
@@ -1163,23 +1164,46 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+     * The base class for all editors. Editors are simple wrappers for resources that can be edited
+     * by a GUI Component. The component will use functions described in this class to interact with
+     * the base resource.
+     */
+    abstract class Editor extends EventDispatcher {
+        resource: ProjectResource<Engine.IResource>;
+        /**
+         * Creates an instance of the editor
+         */
+        constructor(resource: ProjectResource<Engine.IResource>);
+        /**
+         * Called when the editor is closed and the contents need to be updated on the server.
+         * The returned value of this function is what's sent in the body of the PUT request.
+         */
+        abstract buildEditToken(): Engine.IResource;
+        /**
+         * Closes the editor and optionally saves the edits to the database
+         * @param updateDatabase If true, the editor will provide edits that must be saved to the datavase
+         */
+        collapse(updateDatabase?: boolean): void;
+    }
+}
+declare namespace Animate {
+    /**
      * Acts as a store/container of the various items that can be interacted with by the user
      * when they open a container. Think of this as the model of a Container's inner components.
      */
-    class ContainerWorkspace extends EventDispatcher {
+    class ContainerSchema extends Editor {
         opened: boolean;
-        private _container;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
         /**
          * Creates an instance of the canvas store
          */
-        constructor(container: Resources.Container, items?: CanvasItem[]);
+        constructor(container: Resources.Container);
         /**
-         * Gets the container this workspace represents
-         * @returns {Resources.Container}
+         * Called when the editor is closed and the contents need to be updated on the server.
+         * The returned value of this function is what's sent in the body of the PUT request.
          */
-        container: Resources.Container;
+        buildEditToken(): Engine.IResource;
         /**
          * Returns all items of this store
          * @returns {CanvasItem[]}
@@ -1242,7 +1266,7 @@ declare namespace Animate {
         top: number;
         left: number;
         className: string;
-        store: ContainerWorkspace;
+        store: ContainerSchema;
         id: number;
         private _selected;
         /**
@@ -1768,6 +1792,7 @@ declare namespace Animate {
         private _scripts;
         private _groups;
         private _restPaths;
+        openEditors: Editor[];
         /**
         * @param{string} id The database id of this project
         */
@@ -1831,10 +1856,9 @@ declare namespace Animate {
         * Use this to edit the properties of a resource
         * @param {string} id The id of the object we are editing.
         * @param {T} data The new data for the resource
-        * @param {ResourceType} type The type of resource we are editing
         * @returns {Promise<Modepress.IResponse | Error>}
         */
-        editResource<T>(id: string, data: T, type: ResourceType): Promise<Modepress.IResponse | Error>;
+        editResource<T>(id: string, data: T): Promise<Modepress.IResponse | Error>;
         /**
         * Use this to save the properties of a resource
         * @param {string} id The id of the object we are saving.
@@ -1879,12 +1903,12 @@ declare namespace Animate {
         */
         createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
-         * A function used to open and close container workspaces. This function will cause the project to dispatch
-         * an [[Animate.ContainerEvents]] event.
-         * @param container The container to open or close
-         * @param open True if the workspace should be opened, false otherwise
+         * This function is used to assign a new editor to a project resource. Editors are used by
+         * GUI components to interact with the resource the editor wraps.
+         * @param resource The resource we are creating an editor for
          */
-        openContainerWorkspace(container: Resources.Container, open: boolean): void;
+        assignEditor(resource: ProjectResource<Engine.IResource>): Editor;
+        removeEditor(editor: Editor): void;
         containers: Array<Resources.Container>;
         files: Array<Resources.File>;
         scripts: Array<Resources.Script>;
@@ -3067,38 +3091,33 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: ITabProps): void;
         /**
          * Removes a pane from from the tab
-         * @param {number} index The index of the selected tab
-         * @param {ITabPaneProps} props props of the selected tab
+         * @param index The index of the selected tab
+         * @param props props of the selected tab
          */
         private removePane(index, prop);
         /**
-         * Called when there are no panes for the tab and a custom view is desired
-         */
-        renderEmptyPanes(): JSX.Element;
-        /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
          * When we select a tab
-         * @param {number} index The index of the selected tab
-         * @param {ITabPaneProps} props props of the selected tab
+         * @param index The index of the selected tab
+         * @param props props of the selected tab
          */
         onTabSelected(index: number, props: ITabPaneProps): void;
         /**
          * Select a panel by index
-         * @param {number} index
+         * @param index
          */
         selectByIndex(index: number): ITabPaneProps;
         /**
          * Select a panel by its label
-         * @param {string} label
+         * @param label
          */
         selectByLabel(label: string): ITabPaneProps;
         /**
          * Select a panel by its property object
-         * @param {ITabPaneProps} props
+         * @param props
          */
         selectByProps(props: ITabPaneProps): ITabPaneProps;
         /**
@@ -3112,8 +3131,8 @@ declare namespace Animate {
         removeTabByLabel(label: string): void;
         /**
          * Gets a tab's' props by its label
-         * @param {string} val The label text of the tab
-         * @returns {TabPair} The tab pair containing both the label and page {Component}s
+         * @param val The label text of the tab
+         * @returns The tab pair containing both the label and page {Component}s
          */
         getPaneByLabel(label: string): ITabPaneProps;
         /**
@@ -3126,7 +3145,6 @@ declare namespace Animate {
         clear(): void;
         /**
          * Gets an array of all the tab props
-         * @returns {ITabPaneProps[]}
          */
         panes: ITabPaneProps[];
     }
@@ -3150,7 +3168,6 @@ declare namespace Animate {
         constructor(props: ITabPaneProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -3257,7 +3274,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IReactCanvasProps {
-        store: ContainerWorkspace;
+        store: ContainerSchema;
     }
     class ReactCanvas extends React.Component<IReactCanvasProps, {
         items: CanvasItem[];
@@ -5260,6 +5277,27 @@ declare namespace Animate {
          * @param {any} e The jQuery event object
          */
         onButtonClick(e: React.MouseEvent, button: string): void;
+        /**
+         * A helper function for showing an success modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static success(message: string, buttons?: string[], callback?: (button) => void): void;
+        /**
+         * A helper function for showing a warning modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static warn(message: string, buttons?: string[], callback?: (button) => void): void;
+        /**
+         * A helper function for showing an error modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static error(message: string, buttons?: string[], callback?: (button) => void): void;
     }
 }
 declare namespace Animate {
@@ -6564,19 +6602,19 @@ declare namespace Animate {
     /**
      * The main workspace area of the application.
      */
-    class Workspace extends Tab<IWorkspaceProps, ITabState> {
-        static defaultProps: IWorkspaceProps;
-        componentWillMount(): void;
-        componentWillUnmount(): void;
-        onContainerToggled(type: ContainerEvents, event: IContainerEvent): void;
+    class Workspace extends React.Component<IWorkspaceProps, any> {
         /**
-         * Called when there are no panes for the tab and a custom view is desired
-         */
-        renderEmptyPanes(): JSX.Element;
-        /**
-         * Creates an instance of the workspace tab
+         * Creates an instance of the workspace
          */
         constructor(props: IWorkspaceProps);
+        componentWillMount(): void;
+        componentWillUnmount(): void;
+        onEditorCreated(type: ProjectEvents, event: IEditorEvent): void;
+        canContainerClose(editor: Editor): boolean | Promise<boolean>;
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element;
     }
 }
 declare namespace Animate {

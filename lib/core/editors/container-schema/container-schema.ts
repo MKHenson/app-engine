@@ -4,29 +4,29 @@ namespace Animate {
      * Acts as a store/container of the various items that can be interacted with by the user
      * when they open a container. Think of this as the model of a Container's inner components.
      */
-    export class ContainerWorkspace extends EventDispatcher {
+    export class ContainerSchema extends Editor {
         public opened: boolean;
-        private _container: Resources.Container;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
 
         /**
          * Creates an instance of the canvas store
          */
-        constructor( container: Resources.Container, items: CanvasItem[] = [] ) {
-            super();
-            this._container = container;
-            this._items = items;
+        constructor( container: Resources.Container ) {
+            super( container );
+            this._items = [];
             this._selection = [];
             this.opened = false;
+
+            this.deserialize( container.entry.json );
         }
 
         /**
-         * Gets the container this workspace represents
-         * @returns {Resources.Container}
+         * Called when the editor is closed and the contents need to be updated on the server.
+         * The returned value of this function is what's sent in the body of the PUT request.
          */
-        get container(): Resources.Container {
-            return this._container;
+        buildEditToken(): Engine.IResource {
+            return { json: this.serialize() } as Engine.IContainer;
         }
 
         /**
@@ -127,7 +127,7 @@ namespace Animate {
             for ( const item of this._items )
                 item.dispose();
 
-            if (!scene.items)
+            if ( !scene.items )
                 scene.items = [];
 
             let canvasItem: CanvasItem;
@@ -177,7 +177,7 @@ namespace Animate {
 		 * Triggers a change in the tree structure
 		 */
         invalidate() {
-            this.emit<WorkspaceEvents, void>( 'change' );
+            this.emit<EditorEvents, void>( 'change' );
         }
     }
 }

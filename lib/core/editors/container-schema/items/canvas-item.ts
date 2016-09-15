@@ -11,7 +11,7 @@
         public top: number;
         public left: number;
         public className: string;
-        public store: ContainerWorkspace;
+        public store: ContainerSchema;
         public id: number;
         private _selected: boolean;
 

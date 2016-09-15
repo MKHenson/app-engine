@@ -16,7 +16,7 @@ namespace Animate {
          * Called whenever the node is double clicked
          */
         onDoubleClick( e: React.MouseEvent ) {
-            User.get.project.openContainerWorkspace( this.resource, true );
+            User.get.project.assignEditor( this.resource );
         }
     }
 }

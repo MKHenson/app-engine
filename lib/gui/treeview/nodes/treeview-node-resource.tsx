@@ -171,7 +171,7 @@ namespace Animate {
             let p = User.get.project;
 
             let onOk = ( type: ResourceType, newName: string ) => {
-                this.handleNodePromise( p.editResource( resource.entry._id, { name: newName }, type ), this );
+                this.handleNodePromise( p.editResource( resource.entry._id, { name: newName } ), this );
             };
 
             if ( resource instanceof Resources.GroupArray ) {

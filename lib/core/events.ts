@@ -10,6 +10,8 @@
 
     // TODO: Can probably be refactored
     export type ProjectEvents  =
+        'editor-created' |
+        'editor-removed' |
         'resource-created' |
         'resource-removed' |
         'saved' |
@@ -17,13 +19,6 @@
         'failed' |
         'build_selected' |
         'build_saved';
-
-    /**
-     * Events related to interactions with project containers
-     */
-    export type ContainerEvents  =
-        'workspace-opened' |
-        'workspace-closed';
 
     /**
      * Events related to project resources
@@ -34,9 +29,9 @@
         'modified';
 
     /**
-     * Events related to the a container workspace
+     * Events related to the resource editors
      */
-    export type WorkspaceEvents =
+    export type EditorEvents =
         'change';
 
     /**
@@ -73,6 +68,13 @@
      */
     export interface IContainerEvent {
         container: Resources.Container;
+    }
+
+    /**
+     * An event token for events dispatched by changes to or from project editors
+     */
+    export interface IEditorEvent {
+        editor: Editor;
     }
 
     /**

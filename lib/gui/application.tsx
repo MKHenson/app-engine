@@ -39,7 +39,6 @@ namespace Animate {
          */
         render(): JSX.Element {
 
-            let store = new ContainerWorkspace( null );
             let project = User.get.project;
 
             return <div id="application">

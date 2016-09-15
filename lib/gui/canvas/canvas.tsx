@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface IReactCanvasProps {
-        store: ContainerWorkspace
+        store: ContainerSchema
     }
 
 
@@ -17,19 +17,19 @@ namespace Animate {
                 items: props.store.getItems() || []
             }
 
-            props.store.on<WorkspaceEvents, void>( 'change', this.invalidate, this );
+            props.store.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         componentWillReceiveProps( nextProps: IReactCanvasProps ) {
-            this.props.store.off<WorkspaceEvents, void>( 'change', this.invalidate, this );
-            nextProps.store.on<WorkspaceEvents, void>( 'change', this.invalidate, this );
+            this.props.store.off<EditorEvents, void>( 'change', this.invalidate, this );
+            nextProps.store.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         /**
          * Clean up any listeners
          */
         componentWillUnmount() {
-            this.props.store.off<WorkspaceEvents, void>( 'change', this.invalidate, this );
+            this.props.store.off<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         /**

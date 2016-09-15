@@ -19,38 +19,39 @@ namespace Animate {
         componentWillMount() {
 
             // add project events
-            this.props.project.on<ContainerEvents, IContainerEvent>( 'workspace-opened', this.onContainerToggled, this );
+            this.props.project.on<ProjectEvents, IEditorEvent>( 'editor-created', this.onEditorCreated, this );
         }
 
         componentWillUnmount() {
             // remove project events
-            this.props.project.off<ContainerEvents, IContainerEvent>( 'workspace-opened', this.onContainerToggled, this );
+            this.props.project.off<ProjectEvents, IEditorEvent>( 'editor-created', this.onEditorCreated, this );
         }
 
-        onContainerToggled( type: ContainerEvents, event: IContainerEvent ) {
+        onEditorCreated( type: ProjectEvents, event: IEditorEvent ) {
             this.forceUpdate();
         }
 
-        canContainerClose( container: Resources.Container ): boolean | Promise<boolean> {
-            if ( !container.saved ) {
+        canContainerClose( editor: Editor ): boolean | Promise<boolean> {
+
+            if ( !editor.resource.saved ) {
                 return new Promise<Boolean>( function ( resolve, reject ) {
                     MessageBox.warn(
-                        `'${container.entry.name}' is not saved. Do you want to save it before closing?`,
+                        `'${editor.resource.entry.name}' is not saved. Do you want to save it before closing?`,
                         [ 'Yes', 'No' ],
                         ( button ) => {
                             if ( button === 'Yes' ) {
-                                this.props.project.openContainerWorkspace( container, false );
+                                editor.collapse( true );
                                 resolve( false );
                             }
                             else {
-                               this.props.project.openContainerWorkspace( container, false );
+                                editor.collapse( false );
                                 resolve( true );
                             }
                         });
                 });
             }
 
-            this.props.project.openContainerWorkspace( container, false );
+            editor.collapse( false );
             return true;
         }
 
@@ -59,16 +60,11 @@ namespace Animate {
          */
         render(): JSX.Element {
 
-            const containers = this.props.project.containers;
-            const openWorkspaces: ContainerWorkspace[] = [];
-
-            for ( const c of containers )
-                if ( c.workspace.opened )
-                    openWorkspaces.push( c.workspace );
+            const editors = this.props.project.openEditors;
 
             return (
                 <div className="workspace">
-                    {( openWorkspaces.length === 0 ? (
+                    {( editors.length === 0 ? (
                         <div className="welcome">
                             <h2>Welcome back {User.get.entry.username}</h2>
                             <ButtonLink>Create Container</ButtonLink>
@@ -76,18 +72,18 @@ namespace Animate {
 
                         </div>
                     ) : (
-                            <Tab panes={ openWorkspaces.map(( workspace ) => {
+                            <Tab panes={ editors.map(( editor ) => {
                                 return (
                                     <TabPane
                                         canClose={ ( i, props ) => {
-                                            return this.canContainerClose( workspace.container );
+                                            return this.canContainerClose( editor );
                                         } }
-                                        label={ ( workspace.container.saved ? '' : '* ' ) + workspace.container.entry.name}>
-                                        <ReactCanvas store={workspace} />
+                                        label={ ( editor.resource.saved ? '' : '* ' ) + editor.resource.entry.name}>
+                                        <ReactCanvas store={editor as ContainerSchema} />
                                     </TabPane>
                                 )
                             }) } />
-                        ) )}
+                        ) ) }
                 </div>
             );
         }
