@@ -243,14 +243,15 @@ namespace Animate {
 
                     }).catch(( err: Error ) => {
                         LoggerStore.error( err.message );
-                        ReactWindow.show( MessageBox, {
-                            message: err.message, buttons: [ 'Ok' ],
-                            onChange: ( button ) => {
+                        MessageBox.error(
+                            err.message,
+                            [ 'Ok' ],
+                            ( button ) => {
 
                                 // Show the new behaviour form again
                                 this.newContainer();
                             }
-                        } as IMessageBoxProps );
+                        );
                     });
                 },
                 onRenaming: ( newName, prevName ): Error => {

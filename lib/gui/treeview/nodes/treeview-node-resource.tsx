@@ -239,16 +239,16 @@ namespace Animate {
             for ( let node of selection ) {
                 if ( !node.resource.saved ) {
                     message = true;
-                    ReactWindow.show( MessageBox, {
-                        message: 'You have unsaved work are you sure you want to refresh?',
-                        buttons: [ 'Yes', 'No' ],
-                        onChange: function ( button ) {
+                    MessageBox.warn(
+                        'You have unsaved work are you sure you want to refresh?',
+                        [ 'Yes', 'No' ],
+                        function ( button ) {
                             if ( button === 'Yes' ) {
                                 for ( let node of selection )
                                     this.handleNodePromise( project.refreshResource( node.resource.entry._id ), node );
                             }
                         }
-                    } as IMessageBoxProps );
+                    );
                     break;
                 }
             }

@@ -96,11 +96,11 @@ namespace Animate {
                 if ( !tabPair.forceClose && tabPair.modified && !canvas.container.disposed ) {
                     this.closingTabPair = tabPair;
 
-                    ReactWindow.show( MessageBox, {
-                        message: 'Do you want to save this node before you close it?',
-                        buttons: [ 'Yes', 'No' ],
-                        onChange: ( button ) => { this.onMessage( button ) }
-                    } as IMessageBoxProps );
+                    MessageBox.warn(
+                        'Do you want to save this node before you close it?',
+                        [ 'Yes', 'No' ],
+                        ( button ) => { this.onMessage( button ) }
+                    );
                     return false;
                 }
                 // else

@@ -301,10 +301,10 @@ namespace Animate {
             // If not saved ask the user.
             if ( !this.saved ) {
                 data.cancel = true;
-                ReactWindow.show( MessageBox, {
-                    message: 'You have unsaved work are you sure you want to refresh?',
-                    buttons: [ 'Yes', 'No' ],
-                    onChange: ( button ) => {
+                MessageBox.warn(
+                    'You have unsaved work are you sure you want to refresh?',
+                    [ 'Yes', 'No' ],
+                    ( button ) => {
                         if ( button === 'Yes' ) {
                             tab.close = true;
                             tab.save();
@@ -317,7 +317,7 @@ namespace Animate {
                             // CanvasTab.getSingleton().removeTab( tab, true );
                         }
                     }
-                } as IMessageBoxProps );
+                );
                 return;
             }
 
@@ -356,7 +356,7 @@ namespace Animate {
             const onSave = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
                 if ( response === 'LoaderEvents.COMPLETE' ) {
                     if ( event.return_type === 'AnimateLoaderResponses.ERROR' ) {
-                        ReactWindow.show( MessageBox, { message: `There was an error saving the script: '${event.message}'` } as IMessageBoxProps );
+                        MessageBox.error( `There was an error saving the script: '${event.message}'` );
                         return;
                     }
 

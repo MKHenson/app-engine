@@ -219,15 +219,11 @@ namespace Animate {
             else
                 msg = `Are you sure you want to permanently delete the file '${this.state.selectedEntity.name}'?`
 
-            ReactWindow.show( MessageBox, {
-                message: msg,
-                buttons: [ 'Yes Delete It', 'No' ],
-                onChange: ( button ) => {
-                    if ( button === 'No' )
-                        return;
-                    this.removeEntities();
-                }
-            } as IMessageBoxProps )
+            MessageBox.warn( msg, [ 'Yes Delete It', 'No' ], ( button ) => {
+                if ( button === 'No' )
+                    return;
+                this.removeEntities();
+            });
         }
 
         renderPanelButtons( editMode: boolean ): JSX.Element {

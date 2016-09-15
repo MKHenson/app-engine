@@ -59,5 +59,50 @@ namespace Animate {
 
             this.props._closing();
         }
+
+        /**
+         * A helper function for showing an success modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static success( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+            ReactWindow.show( MessageBox, {
+                message: message,
+                buttons: buttons,
+                onChange: callback,
+                type: AttentionType.SUCCESS
+            } as IMessageBoxProps )
+        }
+
+        /**
+         * A helper function for showing a warning modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static warn( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+            ReactWindow.show( MessageBox, {
+                message: message,
+                buttons: buttons,
+                onChange: callback,
+                type: AttentionType.WARNING
+            } as IMessageBoxProps )
+        }
+
+        /**
+         * A helper function for showing an error modal box
+         * @param message The message to display
+         * @param buttons An array of strings that represent the button choices for the modal
+         * @param callback An optional callback function for when a button is clicked
+         */
+        static error( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+            ReactWindow.show( MessageBox, {
+                message: message,
+                buttons: buttons,
+                onChange: callback,
+                type: AttentionType.ERROR
+            } as IMessageBoxProps )
+        }
     }
 }

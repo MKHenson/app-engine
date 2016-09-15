@@ -42,7 +42,7 @@ namespace Animate {
             this._user.removeProject( this.state.selectedProject._id ).then(() => {
                 this._list.removeProject( this.state.selectedProject );
             }).catch( function ( err: Error ) {
-                ReactWindow.show( MessageBox, { message: err.message } as IMessageBoxProps );
+                MessageBox.error( err.message );
             });
         }
 
@@ -68,11 +68,11 @@ namespace Animate {
                     </div>
                     <div className="buttons">
                         <ButtonLink onClick={( e ) => {
-                            ReactWindow.show( MessageBox, {
-                                message: `Are you sure you want to permanently remove the project '${project.name}'?`,
-                                buttons: [ 'Yes', 'No' ],
-                                onChange: ( button ) => { this.removeProject( button ) }
-                            } as IMessageBoxProps );
+                            MessageBox.warn(
+                                `Are you sure you want to permanently remove the project '${project.name}'?`,
+                                [ 'Yes', 'No' ],
+                                ( button ) => { this.removeProject( button ) }
+                            );
                         } }>
                             REMOVE
                         </ButtonLink>

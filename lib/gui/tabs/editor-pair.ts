@@ -71,11 +71,11 @@
             if ( this.modified ) {
                 event.cancel = true;
 
-                ReactWindow.show( MessageBox, {
-                    message: 'Document not saved, would you like to save it now?',
-                    buttons: [ 'Yes', 'No' ],
-                    onChange: ( button ) => { this.onMessage( button ) }
-                } as IMessageBoxProps );
+                MessageBox.warn(
+                    'Document not saved, would you like to save it now?',
+                    [ 'Yes', 'No' ],
+                    ( button ) => { this.onMessage( button ) }
+                );
                 return;
             }
 
