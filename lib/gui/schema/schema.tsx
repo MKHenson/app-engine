@@ -1,16 +1,16 @@
 namespace Animate {
 
-    export interface IReactCanvasProps {
+    export interface ISchemaProps {
         store: ContainerSchema
     }
 
 
-    export class ReactCanvas extends React.Component<IReactCanvasProps, { items: CanvasItem[] }> {
+    export class Schema extends React.Component<ISchemaProps, { items: CanvasItem[] }> {
 
         // We keep a list of all open canvases
         private static _openCanvases = [];
 
-        constructor( props: IReactCanvasProps ) {
+        constructor( props: ISchemaProps ) {
             super( props );
 
             this.state = {
@@ -20,7 +20,7 @@ namespace Animate {
             props.store.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
-        componentWillReceiveProps( nextProps: IReactCanvasProps ) {
+        componentWillReceiveProps( nextProps: ISchemaProps ) {
             this.props.store.off<EditorEvents, void>( 'change', this.invalidate, this );
             nextProps.store.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
