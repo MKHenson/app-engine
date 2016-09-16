@@ -12,7 +12,7 @@ namespace Animate {
         public classes: Array<AssetClass>;
 
 		/**
-		* @param {IPlugin} plugin The plugin who created this template
+		* @param plugin The plugin who created this template
 		*/
         constructor( plugin ) {
             this.plugin = plugin;
@@ -21,10 +21,9 @@ namespace Animate {
 
 		/**
 		* Adds a class to this template
-		* @param {string} name The name of the class
-		* @param {string} img The optional image
-		* @param {boolean} abstractClass A boolean to define if this class is abstract or not.
-		* @returns {AssetClass}
+		* @param name The name of the class
+		* @param img The optional image
+		* @param abstractClass A boolean to define if this class is abstract or not
 		*/
         addClass( name: string, img: string, abstractClass: boolean ): AssetClass {
             const toAdd = new AssetClass( name, null, img, abstractClass );
@@ -34,7 +33,7 @@ namespace Animate {
 
 		/**
 		* Removes a class by name
-		* @param {string} name The name of the class to remove
+		* @param name The name of the class to remove
 		*/
         removeClass( name: string ) {
             for ( let i = 0, l = this.classes.length; i < l; i++ )

@@ -18,8 +18,6 @@ namespace Animate {
 
         /**
          * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
          */
         icon( val?: JSX.Element ): JSX.Element {
             if ( val === undefined ) {

@@ -7,8 +7,8 @@ namespace Animate {
         public property: Prop<any>;
 
 		/**
-        * @param {Prop<any>} property The property associated with this portal
-		* @param {PortalType} type The type of portal this represents
+        * @param property The property associated with this portal
+		* @param type The type of portal this represents
 		*/
         constructor( property: Prop<any>, type: HatcheryRuntime.PortalType ) {
             this.type = type;

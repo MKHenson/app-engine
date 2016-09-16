@@ -22,8 +22,6 @@ namespace Animate {
 
 		/**
 		 * When we click ok on the portal form
-		 * @param {string} type
-		 * @param {EditEvent} data
 		 */
         onAssetEdited( type: string, data: IResourceEvent ) {
             this.resource.saved = false;

@@ -12,9 +12,9 @@ namespace Animate {
         public behaviour: Behaviour;
 
 		/**
-		* @param {Behaviour} parent The parent component of the Portal
-		* @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-		* @param {Prop<any>} property The property associated with this portal
+		* @param parent The parent component of the Portal
+		* @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
+		* @param property The property associated with this portal
 		*/
         constructor( parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any> ) {
             super();
@@ -38,7 +38,7 @@ namespace Animate {
 
 		/**
 		* Edits the portal variables
-		* @param {Prop<any>} property The new value of the property
+		* @param property The new value of the property
 		*/
         edit( property: Prop<any> ) {
 
@@ -55,7 +55,7 @@ namespace Animate {
 
 		/**
 		 * This function will check if the source portal is an acceptable match with the current portal.
-		 * @param {Portal} source The source panel we are checking against
+		 * @param source The source panel we are checking against
 		 */
         checkPortalLink( source: Portal ) {
             if ( source.type === 'output' && this.type === 'input' )
@@ -99,7 +99,7 @@ namespace Animate {
 
 		/**
 		 * Adds a link to the portal.
-		 * @param {Link} link The link we are adding
+		 * @param link The link we are adding
 		 */
         // TODO: Canvas TSX changes
         addLink( link: any ) {// Link ) {
@@ -110,7 +110,7 @@ namespace Animate {
 
 		/**
 		 * Removes a link from the portal.
-		 * @param {Link} link The link we are removing
+		 * @param link The link we are removing
 		 */
         // TODO: Canvas TSX changes
         removeLink( link: any ): any { // Link ) : Link {

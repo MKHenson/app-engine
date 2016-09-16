@@ -33,7 +33,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             const props: IButtonProps = Object.assign( {}, this.props );

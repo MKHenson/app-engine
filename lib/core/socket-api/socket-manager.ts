@@ -1,7 +1,5 @@
 namespace Animate {
 
-
-
     /**
      * A singleton class that deals with comminication between the client frontend
      * and the socket backends.
@@ -31,7 +29,6 @@ namespace Animate {
 
         /**
          * Called whenever we get a message from the users socket API
-         * @param {MessageEvent} e
          */
         onMessage( e: MessageEvent ) {
             try {
@@ -53,7 +50,6 @@ namespace Animate {
 
         /**
          * Called whenever an error occurs
-         * @param {Error} e
          */
         onError( e: Error ) {
             this._reConnect( null );
@@ -79,7 +75,6 @@ namespace Animate {
 
         /**
          * Gets the singleton
-         * @returns {SocketManager}
          */
         static get get(): SocketManager {
             return SocketManager._singleton;

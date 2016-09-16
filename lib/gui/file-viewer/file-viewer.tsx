@@ -84,7 +84,6 @@ namespace Animate {
 
         /**
          * When the scope changes we update the viewable contents
-         * @param {SelectValue} option
          */
         onScopeChange( option: SelectValue ) {
             if ( option.label === 'Only project files' )
@@ -273,7 +272,6 @@ namespace Animate {
 
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element {
 
@@ -395,8 +393,6 @@ namespace Animate {
 
         /**
          * Sets the selected status of a file or folder
-         * @param {React.MouseEvent} e
-         * @param {IViewerFile} entity
          */
         selectEntity( e: React.MouseEvent, entity: IViewerFile ) {
             e.preventDefault();
@@ -481,9 +477,6 @@ namespace Animate {
 
         /*
          * Fetches a list of user buckets and files
-         * @param {number} index
-         * @param {number} limit
-         * @returns {Promise<number>}
          */
         updateContent( index: number, limit: number ): Promise<number> {
             let details = User.get.entry;
@@ -569,7 +562,6 @@ namespace Animate {
 
         /**
          * Checks if a file list is one of the approved props extensions
-         * @return {boolean}
          */
         checkIfAllowed( files: FileList ): boolean {
             const extensions = this.props.extensions;
@@ -605,8 +597,7 @@ namespace Animate {
 
         /**
 		 * Makes sure we only view the file types specified in the props exensions array
-         * @param {IViewerFile[]} files The file array we are filtering
-         * @returns {IViewerFile[]}
+         * @param files The file array we are filtering
 		 */
         filterByExtensions( files: IViewerFile[] ): IViewerFile[] {
             let extensions = this.props.extensions,
@@ -693,8 +684,8 @@ namespace Animate {
 
         /**
 		 * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-         * @param {IViewerFile} file The target file we are setting the preview for
-         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+         * @param file The target file we are setting the preview for
+         * @param preview The image we are using as a preview
 		 */
         uploadPreview( file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement ) {
 
@@ -736,7 +727,7 @@ namespace Animate {
 
         /**
 		 * Attempts to update the selected file
-         * @param {IFile} token The file token to update with
+         * @param token The file token to update with
 		 */
         updateFile( token: Engine.IFile ) {
             let details = User.get.entry;

@@ -54,7 +54,6 @@ namespace Animate {
 
         /**
         * Gets the current page number
-        * @returns {number}
         */
         getPageNum(): number {
             return ( this.state.index / this.state.limit ) + 1;
@@ -62,7 +61,6 @@ namespace Animate {
 
         /**
 		* Gets the total number of pages
-        * @returns {number}
 		*/
         getTotalPages() {
             return Math.ceil( this.state.last / this.state.limit );
@@ -126,7 +124,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             const props: IPagerProps = Object.assign( {}, this.props );

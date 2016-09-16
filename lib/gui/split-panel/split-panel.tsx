@@ -60,7 +60,6 @@ namespace Animate {
 
 		/**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let orientation = this.props.orientation;
@@ -125,7 +124,6 @@ namespace Animate {
 
 		/**
 		  * This function is called when the mouse is down on the divider
-		  * @param {React.MouseEvent} e
 		  */
         onDividerMouseDown( e: React.MouseEvent ) {
             e.preventDefault();
@@ -147,7 +145,6 @@ namespace Animate {
 
 		/**
 		 * Recalculate the ratios on mouse up
-		 * @param {MouseEvent} e
 		 */
         onStageMouseUp( e: MouseEvent ): void {
 
@@ -185,7 +182,6 @@ namespace Animate {
 
 		/**
 		 * This function is called when the mouse is up from the body of stage.
-		 * @param {any} e The jQuery event object
 		 */
         onStageMouseMove( e: MouseEvent ) {
             let orientation = this.props.orientation;
@@ -199,8 +195,7 @@ namespace Animate {
         }
 
 		/**
-		 * Call this function to get the ratio of the panel. Values are from 0 to 1.
-		 * @returns {number}
+		 * Call this function to get the ratio of the panel. Values are from 0 to 1
 		 */
         get ratio(): number {
             return this.state.ratio;
@@ -208,7 +203,7 @@ namespace Animate {
 
 		/**
 		 * Call this function to set the ratio of the panel. Values are from 0 to 1.
-		 * @param {number} val The ratio from 0 to 1 of where the divider should be
+		 * @param val The ratio from 0 to 1 of where the divider should be
 		 */
         set ratio( val: number ) {
             if ( val > 1 )

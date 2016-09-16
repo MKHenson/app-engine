@@ -49,7 +49,6 @@
 
         /**
         * Gets if this resource is saved
-        * @returns {boolean}
         */
         get saved(): boolean {
             return this._saved
@@ -57,7 +56,6 @@
 
         /**
         * Sets if this resource is saved
-        * @param {boolean} val
         */
         set saved( val: boolean ) {
             this._saved = val;

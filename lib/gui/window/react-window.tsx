@@ -66,8 +66,8 @@ namespace Animate {
 
         /**
          * Shows a React window component to the user
-         * @param {React.ComponentClass<IReactWindowProps>} windowType The Class of Window to render.
-         * @param {IReactWindowProps} props The properties to use for the window component
+         * @param windowType The Class of Window to render.
+         * @param props The properties to use for the window component
          */
         static show( windowType: React.ComponentClass<IReactWindowProps>, props: IReactWindowProps = {}) {
             let id = ReactWindow._openWindows + 1;
@@ -95,7 +95,6 @@ namespace Animate {
 
         /**
          * Hides/Removes a window component by id
-         * @param {number} id
          */
         static hide( id: number ) {
             ReactDOM.unmountComponentAtNode( ReactWindow._windows[ id ].window );
@@ -212,7 +211,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let controlBox: JSX.Element;

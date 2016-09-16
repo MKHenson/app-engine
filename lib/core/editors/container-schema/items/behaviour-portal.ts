@@ -32,8 +32,6 @@ namespace Animate {
 
         /**
          * Serializes the data into a JSON.
-		 * @param {number} id
-         * @returns {IBehaviourPortal}
          */
         serialize( id: number ): Engine.Editor.IBehaviourPortal {
             const toRet = <Engine.Editor.IBehaviourPortal>super.serialize( id );
@@ -44,7 +42,7 @@ namespace Animate {
 
         /**
          * De-Serializes data from a JSON.
-         * @param {IBehaviourPortal} data The data to import from
+         * @param data The data to import from
          */
         deSerialize( data: Engine.Editor.IBehaviourPortal ) {
             super.deSerialize( data );

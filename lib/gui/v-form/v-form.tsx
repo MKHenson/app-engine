@@ -107,7 +107,6 @@ namespace Animate {
         /**
          * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
          * This can be disabled with the preventDefault property.
-         * @param {React.FormEvent} e
          */
         onSubmit( e: React.FormEvent ) {
             if ( this.props.preventDefault )
@@ -168,7 +167,6 @@ namespace Animate {
 
         /**
          * Called whenever any of the inputs fire a change event
-         * @param {React.FormEvent} e
          */
         onChange( e: React.FormEvent ) {
             let input = ( e.target as HTMLInputElement );
@@ -177,8 +175,8 @@ namespace Animate {
 
         /**
          * Called if any of the validated inputs reported or resolved an error
-         * @param {Error} e The error that occurred
-         * @param {VGeneric} target The input that triggered the error
+         * @param e The error that occurred
+         * @param target The input that triggered the error
          */
         onError( e: Error, target: VGeneric ) {
             let pristine = this.state.pristine;
@@ -218,7 +216,6 @@ namespace Animate {
 
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
-         * @returns {boolean}
          */
         get pristine(): boolean {
             return this.state.pristine;
@@ -226,7 +223,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             // Remove the custom properties

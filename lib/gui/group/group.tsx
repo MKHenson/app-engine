@@ -18,7 +18,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             const props: IVInputProps = Object.assign( {}, this.props );

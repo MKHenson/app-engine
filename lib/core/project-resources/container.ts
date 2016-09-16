@@ -10,7 +10,7 @@ namespace Animate {
             public canvas: Canvas;
 
             /**
-             * @param {Engine.IContainer} entry The data associated with this container resource
+             * @param entry The data associated with this container resource
              */
             constructor( entry?: Engine.IContainer ) {
                 super( entry );

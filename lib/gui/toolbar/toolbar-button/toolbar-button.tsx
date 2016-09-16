@@ -34,7 +34,6 @@ namespace Animate {
 
 		/**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let className = 'toolbar-button';
@@ -73,7 +72,6 @@ namespace Animate {
 
 		/**
 		 * Set if the component is selected
-		 * @param {boolean}
 		 */
         set selected( val: boolean ) {
             if ( val !== this.state.selected )
@@ -86,7 +84,6 @@ namespace Animate {
 
 		/**
 		 * Get if the component is selected
-		 * @return {boolean}
 		 */
         get selected(): boolean { return this.state.selected; }
     }

@@ -82,7 +82,6 @@ namespace Animate {
 
 		/**
 		* Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
-		* @returns {JQuery}
 		*/
         static createLoaderModal(): JQuery {
             if ( !Loader.loaderBackdrop ) {
@@ -133,9 +132,9 @@ namespace Animate {
 
 		/**
 		* This function will call a post URL
-		* @param {string} url The URL we want to load
-		* @param {any} postVars The object post variables
-		* @param {number} numTries The number of attempts allowed to make this load
+		* @param url The URL we want to load
+		* @param postVars The object post variables
+		* @param numTries The number of attempts allowed to make this load
 		*/
         load( url: string, postVars: any, numTries: number = 3 ) {
             this.url = url;

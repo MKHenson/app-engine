@@ -31,7 +31,6 @@ namespace Animate {
 
         /**
          * Serializes the data into a JSON.
-         * @returns {IBehaviour}
          */
         serialize( id: number ): Engine.Editor.IBehaviour {
             let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
@@ -41,9 +40,8 @@ namespace Animate {
 
 		/**
 		 * Adds a portal to this behaviour.
-		 * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-		 * @param {Prop<any>} property
-		 * @returns {Portal}
+		 * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+		 * @param property
 		 */
         addPortal( type: HatcheryRuntime.PortalType, property: Prop<any> ): Portal {
             const portal = super.addPortal( type, property );

@@ -38,7 +38,6 @@ namespace Animate {
         /**
 		* Checks if a user is logged in or not. This checks the server using
 		* cookie and session data from the browser.
-		* @returns {Promise<boolean>}
 		*/
         authenticated(): Promise<boolean> {
             this._isLoggedIn = false;
@@ -76,10 +75,9 @@ namespace Animate {
 
         /**
 		* Tries to log the user in asynchronously.
-		* @param {string} user The username of the user.
-		* @param {string} password The password of the user.
-		* @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+		* @param user The username of the user.
+		* @param password The password of the user.
+		* @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
 		*/
         login( user: string, password: string, rememberMe: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
             const token: UsersInterface.ILoginToken = {
@@ -123,11 +121,10 @@ namespace Animate {
 
         /**
 		* Tries to register a new user.
-		* @param {string} user The username of the user.
-		* @param {string} password The password of the user.
-		* @param {string} email The email of the user.
-		* @param {string} captcha The captcha of the login screen
-        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+		* @param user The username of the user.
+		* @param password The password of the user.
+		* @param email The email of the user.
+		* @param captcha The captcha of the login screen
 		*/
         register( user: string, password: string, email: string, captcha: string ): Promise<UsersInterface.IAuthenticationResponse> {
             const that = this,
@@ -161,8 +158,7 @@ namespace Animate {
 
         /**
 		* This function is used to resend a user's activation code
-		* @param {string} user
-        * @returns {Promise<UsersInterface.IResponse>}
+		* @param user
 		*/
         resendActivation( user: string ): Promise<UsersInterface.IResponse> {
             const that = this;
@@ -182,8 +178,7 @@ namespace Animate {
 
         /**
 		* This function is used to reset a user's password.
-		* @param {string} user
-        * @returns {Promise<UsersInterface.IResponse>}
+		* @param user
 		*/
         resetPassword( user: string ): Promise<UsersInterface.IResponse> {
             const that = this;
@@ -203,7 +198,6 @@ namespace Animate {
 
         /**
 		* Attempts to log the user out
-        * @return {Promise<UsersInterface.IResponse>}
 		*/
         logout(): Promise<UsersInterface.IResponse> {
             const that = this;
@@ -233,10 +227,9 @@ namespace Animate {
 		/**
 		* Fetches all the projects of a user. This only works if the user if logged in. If not
 		* it will return null.
-        * @param {number} index The index to  fetching projects for
-        * @param {number} limit The limit of how many items to fetch
-        * @param {string} search Optional search text
-        * @return {Promise<ModepressAddons.IGetProjects>}
+        * @param index The index to  fetching projects for
+        * @param limit The limit of how many items to fetch
+        * @param search Optional search text
 		*/
         getProjectList( index: number, limit: number, search: string = '' ): Promise<ModepressAddons.IGetProjects> {
             const that = this;
@@ -266,10 +259,9 @@ namespace Animate {
 
         /**
 		* Creates a new user projects
-        * @param {string} name The name of the project
-        * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
-        * @param {string} description [Optional] A short description
-        * @return {Promise<ModepressAddons.ICreateProject>}
+        * @param name The name of the project
+        * @param plugins An array of plugin IDs to identify which plugins to use
+        * @param description [Optional] A short description
 		*/
         newProject( name: string, plugins: Array<string>, description: string = '' ): Promise<ModepressAddons.ICreateProject> {
             const that = this,
@@ -302,8 +294,7 @@ namespace Animate {
 
         /**
 		* Removes a project by its id
-        * @param {string} pid The id of the project to remove
-        * @return {Promise<Modepress.IResponse>}
+        * @param pid The id of the project to remove
 		*/
         removeProject( pid: string ): Promise<Modepress.IResponse> {
             const that = this;
@@ -324,8 +315,7 @@ namespace Animate {
 
         /**
 		* Attempts to update the user's details base on the token provided
-        * @returns {Engine.IUserMeta} The user details token
-        * @returns {Promise<UsersInterface.IResponse>}
+        * @returns The user details token
 		*/
         updateDetails( token: Engine.IUserMeta ): Promise<UsersInterface.IResponse> {
             const meta = this.meta;
@@ -350,10 +340,8 @@ namespace Animate {
         }
 
 		/**
-		* @type public mfunc copyProject
 		* Use this function to duplicate a project
-		* @param {number} id The project ID we are copying
-		* @extends {User}
+		* @param id The project ID we are copying
 		*/
         copyProject( id: string ) {
             throw new Error('not implemented');
@@ -368,7 +356,7 @@ namespace Animate {
 
 		/**
 		* This will delete a project from the database as well as remove it from the user.
-		* @param {string} id The id of the project we are removing.
+		* @param id The id of the project we are removing.
 		*/
         deleteProject( id: string ) {
             throw new Error('not implemented');
@@ -378,7 +366,6 @@ namespace Animate {
 
 		/**
 		* Gets the singleton instance.
-		* @returns {User}
 		*/
         static get get(): User {
             if ( !User._singleton )

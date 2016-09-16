@@ -8,7 +8,7 @@ namespace Animate {
 		*/
         export class File extends ProjectResource<Engine.IFile> {
 			/**
-			* @param {IFile} entry The DB entry of this file
+			* @param entry The DB entry of this file
 			*/
             constructor( entry: Engine.IFile ) {
                 super( entry );

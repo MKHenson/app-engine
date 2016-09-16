@@ -48,7 +48,7 @@ namespace Animate {
 
         /**
          * Removes a project from the list
-         * @param {IInteractiveProject} p The project to remove
+         * @param p The project to remove
          */
         removeProject( p: IInteractiveProject ) {
             const projects = this.state.projects;
@@ -60,7 +60,7 @@ namespace Animate {
 
         /*
          * Called when we select a project
-         * @param {IInteractiveProject} project The project to select
+         * @param project The project to select
          */
         selectProject( project: IInteractiveProject, doubleClick: boolean ) {
 
@@ -84,8 +84,6 @@ namespace Animate {
 
         /*
         * Fetches a list of user projects
-        * @param {number} index
-        * @param {number} limit
         */
         fetchProjects( index: number, limit: number ): Promise<number> {
             this.setState( {
@@ -114,7 +112,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             const props: IProjectListProps = Object.assign( {}, this.props );

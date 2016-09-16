@@ -22,7 +22,6 @@ namespace Animate {
 
 		/**
 		 * Gets an array of all classes that are possible from this
-		 * @returns {AssetClass[]}
 		 */
         getClasses(): AssetClass[] {
             let toRet: AssetClass[] = [];
@@ -38,7 +37,7 @@ namespace Animate {
 
 		/**
 		* Creates an object of all the variables for an instance of this class.
-		* @returns {EditableSet} The variables we are editing
+		* @returns The variables we are editing
 		*/
         buildVariables(): EditableSet {
             const toRet: EditableSet = new EditableSet( null );
@@ -79,8 +78,8 @@ namespace Animate {
 
 		/**
 		* Adds a variable to the class.
-		* @param { Prop<any>} prop The property to add
-		* @returns {AssetClass} A reference to this AssetClass
+		* @param prop The property to add
+		* @returns A reference to this AssetClass
 		*/
         addVar( prop: Prop<any> ): AssetClass {
             this._variables.push( prop );
@@ -107,8 +106,7 @@ namespace Animate {
 
 		/**
 		* Gets a variable based on its name
-		* @param {string} name The name of the class
-		* @returns {Prop<T>}
+		* @param name The name of the class
 		*/
         getVariablesByName<T>( name: string ): Prop<T> {
             for ( let i = 0, l = this._variables.length; i < l; i++ )
@@ -120,7 +118,6 @@ namespace Animate {
 
         /**
 		* Gets the image URL of this template
-		* @returns {string}
 		*/
         get imgURL(): string {
             return this._imgURL;
@@ -128,7 +125,6 @@ namespace Animate {
 
         /**
 		* Gets the variables associated with this template
-		* @returns {Array<Prop<any>>}
 		*/
         get variables(): Array<Prop<any>> {
             return this._variables;
@@ -136,10 +132,9 @@ namespace Animate {
 
 		/**
 		* Adds a class
-		* @param {string} name The name of the class
-		* @param {string} img The optional image of the class
-		* @param {boolean} abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
-		* @returns {AssetClass}
+		* @param name The name of the class
+		* @param img The optional image of the class
+		* @param abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
 		*/
         addClass( name: string, img: string, abstractClass: boolean ): AssetClass {
             const toAdd = new AssetClass( name, this, img, abstractClass );
@@ -149,7 +144,6 @@ namespace Animate {
 
 		/**
         * Gets the name of the class
-        * @returns {string}
         */
         get name(): string {
             return this._name;
@@ -157,7 +151,6 @@ namespace Animate {
 
 		/**
         * Gets if this class is abstract or not
-        * @returns {boolean}
         */
         get abstractClass(): boolean {
             return this._abstractClass;

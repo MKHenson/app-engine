@@ -67,7 +67,7 @@ namespace Animate {
         /**
          * Called when the captcha div has been mounted and is ready
          * to be rendered
-         * @param {HTMLDivElement} div The div being rendered
+         * @param div The div being rendered
          */
         mountCaptcha( div: HTMLDivElement ) {
             if ( div && div.childNodes.length === 0 )
@@ -83,7 +83,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             return <div className="login animate-all fade-in">

@@ -1188,8 +1188,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
-     * Acts as a store/container of the various items that can be interacted with by the user
-     * when they open a container. Think of this as the model of a Container's inner components.
+     * An editor that represents the data of a container's inner behaviours and their relationships with eachother.
+     * This editor is visualised through a canvas schema.
      */
     class ContainerSchema extends Editor {
         opened: boolean;
@@ -3273,15 +3273,15 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IReactCanvasProps {
+    interface ISchemaProps {
         store: ContainerSchema;
     }
-    class ReactCanvas extends React.Component<IReactCanvasProps, {
+    class Schema extends React.Component<ISchemaProps, {
         items: CanvasItem[];
     }> {
         private static _openCanvases;
-        constructor(props: IReactCanvasProps);
-        componentWillReceiveProps(nextProps: IReactCanvasProps): void;
+        constructor(props: ISchemaProps);
+        componentWillReceiveProps(nextProps: ISchemaProps): void;
         /**
          * Clean up any listeners
          */

@@ -51,7 +51,6 @@ namespace Animate {
 
 		/**
 		 * Hide the window when ok is clicked.
-		 * @param {any} e The jQuery event object
 		 */
         onButtonClick( e: React.MouseEvent, button: string ) {
             if ( this.props.onChange )

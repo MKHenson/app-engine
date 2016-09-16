@@ -15,8 +15,8 @@
 
         /*
          * Creates an instance of the class
-         * @param {CompleteCallback} onComp Called when all uploads are complete
-         * @param {ProgressCallback} onProg Called when progress is made in the upload
+         * @param onComp Called when all uploads are complete
+         * @param onProg Called when progress is made in the upload
          */
         constructor( onComp?: CompleteCallback, onProg?: ProgressCallback ) {
             this.percent = 0;
@@ -28,7 +28,6 @@
 
         /*
         * Returns the number of active downloads
-        * @returns {number}
         */
         get numDownloads(): number {
             return this._downloads.length;
@@ -36,10 +35,10 @@
 
         /*
         * Uploads a file to the users storage api
-        * @param {File[]} files An array of files to upload
-        * @param {string} url The URL to use
-        * @param {any} meta [Optional] Any additional meta to be associated with the upload
-        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+        * @param files An array of files to upload
+        * @param url The URL to use
+        * @param meta [Optional] Any additional meta to be associated with the upload
+        * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
         uploadFile( files: File[], meta?: any, parentFile?: string ) {
             const formData = new FormData();
@@ -56,10 +55,10 @@
 
         /*
          * Uploads an image or canvas as a png or jpeg
-         * @param {HTMLImageElement | HTMLCanvasElement} img The image or canvas to upload
-         * @param {string} name The name to give it
-         * @param {Engine.IFileMeta} meta [Optional] Any additional meta to be associated with the upload
-         * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+         * @param img The image or canvas to upload
+         * @param name The name to give it
+         * @param meta [Optional] Any additional meta to be associated with the upload
+         * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
          */
         upload2DElement( img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string ) {
             let canvas: HTMLCanvasElement;
@@ -118,10 +117,10 @@
 
         /*
        * Uploads a file to the users storage api
-       * @param {ArrayBuffer} array The array we are uploading
-       * @param {string} name The name to give it
-       * @param {any} meta [Optional] Any additional meta to be associated with the upload
-       * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+       * @param array The array we are uploading
+       * @param name The name to give it
+       * @param meta [Optional] Any additional meta to be associated with the upload
+       * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
        */
         uploadArrayBuffer( array: ArrayBuffer, name: string, meta?: any, parentFile?: string ) {
             const formData = new FormData();
@@ -136,10 +135,10 @@
 
         /*
         * Uploads text and saves it as a file on the server
-        * @param {string} text The text to upload
-        * @param {string} name The name to give it
-        * @param {any} meta [Optional] Any additional meta to be associated with the upload
-        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+        * @param text The text to upload
+        * @param name The name to give it
+        * @param meta [Optional] Any additional meta to be associated with the upload
+        * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
         uploadTextAsFile( text: string, name: string, meta?: any, parentFile?: string ) {
             const formData = new FormData();
@@ -155,9 +154,9 @@
 
         /*
         * Uploads a file to the users storage api
-        * @param {FormData} file The file we are uploading
-        * @param {string} url The URL to use
-        * @param {string} parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
+        * @param file The file we are uploading
+        * @param url The URL to use
+        * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
         upload( form: FormData, url: string, parentFile?: string ) {
             if ( !url ) {

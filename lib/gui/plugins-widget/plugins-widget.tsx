@@ -64,7 +64,6 @@ namespace Animate {
 
         /**
          * Gets the currently selected plugins
-         * @returns {IPluginPlus[]}
          */
         get selectedPlugins(): IPluginPlus[] {
             return this.state.selectedPlugins;
@@ -72,7 +71,7 @@ namespace Animate {
 
         /*
         * Called when we select a plugin
-        * @param {IPlugin} The plugin to select
+        * @param The plugin to select
         */
         selectPlugin( plugin: IPluginPlus ) {
 
@@ -102,7 +101,7 @@ namespace Animate {
 
         /*
         * Checks if a plugin must show a tick. This happens if its selected, or if a different version of the same plugin is.
-        * @param {IPlugin} The plugin to check
+        * @param The plugin to check
         */
         mustShowPluginTick( plugin, index: number ): boolean {
 
@@ -125,7 +124,7 @@ namespace Animate {
 
         /*
         * Toggles if a plugin should show all its versions or not
-        * @param {IPlugin} The plugin to toggle
+        * @param The plugin to toggle
         */
         showVersions( plugin: Engine.IPlugin ) {
             for ( const n in this.state.plugins )
@@ -140,8 +139,6 @@ namespace Animate {
 
         /**
          * Once the plugins are loaded from the DB
-         * @param {Array<Engine.IPlugin>} plugins
-         * @returns {PluginMap}
          */
         onPluginsLoaded( plugins: Array<Engine.IPlugin> ): PluginMap {
 
@@ -251,7 +248,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
 

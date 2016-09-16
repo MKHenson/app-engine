@@ -23,7 +23,6 @@ namespace Animate {
 
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             return <div id="options-build">

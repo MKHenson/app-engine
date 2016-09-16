@@ -33,7 +33,7 @@ namespace Animate {
 
         /*
         * Removes the selected project if confirmed by the user
-        * @param {string} messageBoxAnswer The messagebox confirmation/denial from the user
+        * @param messageBoxAnswer The messagebox confirmation/denial from the user
         */
         removeProject( messageBoxAnswer: string ) {
             if ( messageBoxAnswer === 'No' )
@@ -48,7 +48,6 @@ namespace Animate {
 
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element {
             let projectInfo: JSX.Element;

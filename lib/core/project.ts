@@ -20,7 +20,7 @@ namespace Animate {
         public openEditors: Editor[];
 
 		/**
-		* @param{string} id The database id of this project
+		* @param id The database id of this project
 		*/
         constructor() {
             super();
@@ -43,7 +43,6 @@ namespace Animate {
 
 		/**
 		 * Gets the DB entry associated with this project
-		 * @returns {Engine.IProject}
 		 */
         get entry(): Engine.IProject {
             return this._entry;
@@ -51,7 +50,6 @@ namespace Animate {
 
 		/**
 		 * Sets the DB entry associated with this project
-		 * @param {Engine.IProject}
 		 */
         set entry( val: Engine.IProject ) {
             this._entry = val;
@@ -61,8 +59,8 @@ namespace Animate {
 
         /**
 		* Gets a resource by its ID
-		* @param {string} id The ID of the resource
-		* @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
+		* @param id The ID of the resource
+		* @returns The resource whose id matches the id parameter or null
 		*/
         getResourceByID<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } {
             const types = this._restPaths;
@@ -83,8 +81,8 @@ namespace Animate {
 
         /**
 		* Gets a resource by its shallow ID
-		* @param {string} id The shallow ID of the resource
-		* @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
+		* @param id The shallow ID of the resource
+		* @returns The resource whose shallow id matches the id parameter or null
 		*/
         getResourceByShallowID<T extends ProjectResource<Engine.IResource>>( id: number, type?: ResourceType ): T {
             const types = this._restPaths;
@@ -105,8 +103,7 @@ namespace Animate {
 
         /**
 		* Attempts to update the project details base on the token provided
-        * @returns {Engine.IProject} The project token
-        * @returns {Promise<UsersInterface.IResponse>}
+        * @returns The project token
 		*/
         updateDetails( token: Engine.IProject ): Promise<UsersInterface.IResponse> {
             const entry = this._entry;
@@ -134,7 +131,6 @@ namespace Animate {
 
         /**
 		* Loads a previously selected build, or creates one if none are selected
-        * @returns {Promise<Build>}
 		*/
         loadBuild(): Promise<Build> {
             const that = this;
@@ -163,9 +159,8 @@ namespace Animate {
 
         /**
 		* Internal function to create a resource wrapper
-		* @param {T} entry The database entry
-        * @param {ResourceType} type The type of resource to create
-        * @returns {ProjectResource<T>}
+		* @param entry The database entry
+        * @param type The type of resource to create
 		*/
         private createResourceInstance<T extends Engine.IResource>( entry: T, type?: ResourceType ): ProjectResource<T> {
             let resource: ProjectResource<any>;
@@ -198,8 +193,7 @@ namespace Animate {
 
         /**
 		* This function is used to fetch the project resources associated with a project.
-		* @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Array<ProjectResource<Engine.IResource>>}
+		* @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
 		*/
         loadResources( type?: ResourceType ): Promise<Array<ProjectResource<Engine.IResource>>> {
 
@@ -294,9 +288,8 @@ namespace Animate {
 
         /**
         * This function is used to fetch a project resource by Id
-        * @param {string} id the Id of the resource to update
-        * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<T | Error>}
+        * @param id the Id of the resource to update
+        * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
         */
         refreshResource<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): Promise<T | Error> {
             const that = this;
@@ -330,9 +323,8 @@ namespace Animate {
 
         /**
 		* Use this to edit the properties of a resource
-		* @param {string} id The id of the object we are editing.
-        * @param {T} data The new data for the resource
-        * @returns {Promise<Modepress.IResponse | Error>}
+		* @param id The id of the object we are editing.
+        * @param data The new data for the resource
 		*/
         editResource<T>( id: string, data: T ): Promise<Modepress.IResponse | Error> {
             const that = this;
@@ -373,9 +365,8 @@ namespace Animate {
 
         /**
 		* Use this to save the properties of a resource
-		* @param {string} id The id of the object we are saving.
-        * @param {ResourceType} type [Optional] The type of resource we are saving
-        * @returns {Promise<boolean>}
+		* @param id The id of the object we are saving.
+        * @param type [Optional] The type of resource we are saving
 		*/
         saveResource( id: string, type?: ResourceType ): Promise<boolean> {
             const paths = this._restPaths;
@@ -403,8 +394,7 @@ namespace Animate {
 
         /**
 		* Use this to edit the properties of a resource
-        * @param {ResourceType} type The type of resource we are saving
-        * @returns {Promise<boolean>}
+        * @param type The type of resource we are saving
 		*/
         saveResources( type: ResourceType ): Promise<boolean> {
             const paths = this._restPaths;
@@ -425,9 +415,8 @@ namespace Animate {
 
         /**
 		* Use this to delete a resource by its Id
-		* @param {string} id The id of the object we are deleting
-        * @param {ResourceType} type The type of resource we are renaming
-        * @returns {Promise<boolean | Error>}
+		* @param id The id of the object we are deleting
+        * @param type The type of resource we are renaming
 		*/
         deleteResource( id: string, type: ResourceType ): Promise<boolean | Error> {
             const that = this;
@@ -465,9 +454,8 @@ namespace Animate {
 
         /**
         * Copies an existing resource and assigns a new ID to the cloned item
-        * @param {string} id The id of the resource we are cloning from
-        * @param {ResourceType} type [Optional] The type of resource to clone
-        * @returns {Promise<ProjectResource<T>>}
+        * @param id The id of the resource we are cloning from
+        * @param type [Optional] The type of resource to clone
         */
         copyResource<T extends Engine.IResource>( id: string, type?: ResourceType ): Promise<ProjectResource<T>> {
             const r = this.getResourceByID( id, type );
@@ -483,8 +471,7 @@ namespace Animate {
 
         /**
 		* Deletes several resources in 1 function call
-        * @param {Array<string>} ids The ids An array of resource Ids
-        * @returns {Promise<boolean>}
+        * @param ids The ids An array of resource Ids
 		*/
         deleteResources( ids: Array<string> ): Promise<boolean> {
             const promises: Array<Promise<boolean>> = [];
@@ -529,8 +516,7 @@ namespace Animate {
 
         /**
         * Creates a new project resource.
-        * @param {ResourceType} type The type of resource we are renaming
-        * @returns { Promise<ProjectResource<any>>}
+        * @param type The type of resource we are renaming
         */
         createResource<T extends Engine.IResource>( type: ResourceType, data: T ): Promise<ProjectResource<T>> {
             const details = User.get.entry;

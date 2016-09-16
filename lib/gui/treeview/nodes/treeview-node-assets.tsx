@@ -21,7 +21,6 @@ namespace Animate {
 
         /**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
          */
         onContext( e: React.MouseEvent ) {
             e.preventDefault();

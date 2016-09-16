@@ -23,7 +23,6 @@ namespace Animate {
 
         /**
          * Called whenever the checkbox input changes
-         * @param {React.FormEvent} e
          */
         onChange( e: React.FormEvent ) {
             let input = e.target as HTMLInputElement;
@@ -48,13 +47,11 @@ namespace Animate {
 
         /**
          * Gets the current checked state of the input
-         * @returns {boolean}
          */
         get checked(): boolean { return this.state.checked; }
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         get pristine(): boolean {
             return this.state.pristine;
@@ -62,7 +59,6 @@ namespace Animate {
 
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element {
             let props: IVCheckboxProps = Object.assign( {}, this.props );

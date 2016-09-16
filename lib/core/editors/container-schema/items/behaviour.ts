@@ -38,8 +38,7 @@ namespace Animate {
 
         /**
 		 * Gets a portal by its name
-		 * @param {string} name The portal name
-		 * @returns {Portal}
+		 * @param name The portal name
 		 */
         getPortal( name: string ): Portal {
             let portals = this.portals
@@ -52,9 +51,8 @@ namespace Animate {
 
 		/**
 		 * Adds a portal to this behaviour.
-		 * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-		 * @param {Prop<any>} property
-		 * @returns {Portal}
+		 * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+		 * @param property
 		 */
         addPortal( type: HatcheryRuntime.PortalType, property: Prop<any> ): Portal {
             const portal = new Portal( this, type, property );
@@ -77,8 +75,7 @@ namespace Animate {
 
 		/**
 		* Removes a portal from this behaviour
-		* @param {Portal} toRemove The portal object we are removing
-		* @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
+		* @param toRemove The portal object we are removing
 		*/
         removePortal( toRemove: Portal ): Portal {
 
@@ -112,8 +109,6 @@ namespace Animate {
 
         /**
          * Serializes the data into a JSON.
-		 * @param {number} id
-         * @returns {IBehaviour}
          */
         serialize( id: number ): Engine.Editor.IBehaviour {
             let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
@@ -131,7 +126,7 @@ namespace Animate {
 
         /**
          * De-Serializes data from a JSON.
-         * @param {IBehaviour} data The data to import from
+         * @param data The data to import from
          */
         deSerialize( data: Engine.Editor.IBehaviour ) {
             super.deSerialize( data );

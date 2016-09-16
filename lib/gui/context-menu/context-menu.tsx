@@ -95,7 +95,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let controlBox: JSX.Element;
@@ -142,7 +141,7 @@ namespace Animate {
 
         /**
          * Shows a React context menu component to the user
-         * @param {IReactContextMenuProps} props The properties to use for the context menu component
+         * @param props The properties to use for the context menu component
          */
         static show( props: IReactContextMenuProps ) {
             let id = ReactContextMenu._menuCount + 1;
@@ -170,7 +169,6 @@ namespace Animate {
 
         /**
          * Hides/Removes a context menu component by id
-         * @param {number} id
          */
         static hide( id: number ) {
             ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );

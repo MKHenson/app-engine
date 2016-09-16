@@ -37,7 +37,6 @@
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let mainView: JSX.Element;
@@ -156,7 +155,6 @@
 
         /**
         * Gets the singleton reference of this class.
-        * @returns {Splash}
         */
         static get get(): Splash {
             return Splash._singleton;

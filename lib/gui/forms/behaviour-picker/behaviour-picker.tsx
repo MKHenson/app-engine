@@ -130,7 +130,6 @@ namespace Animate {
 
 		/**
 		 * When the input text changes we go through each list item and select the one that is the closest match
-		 * @param {React.KeyboardEvent} e
 		 */
         onKeyUp( e: React.KeyboardEvent ) {
 

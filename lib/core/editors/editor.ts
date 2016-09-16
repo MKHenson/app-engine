@@ -32,6 +32,9 @@ namespace Animate {
             project.removeEditor(this);
             if ( updateDatabase )
                 project.editResource(this.resource.entry._id, this.buildEditToken() );
+
+            // Cleanup
+            this.dispose();
         }
     }
 }

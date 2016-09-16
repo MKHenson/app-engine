@@ -35,7 +35,6 @@ namespace Animate {
 
 		/**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
 
@@ -70,7 +69,6 @@ namespace Animate {
 
 		/**
 		* Deals with the focus changes
-		* @param {object} e The jQuery event object
 		*/
         onMouseDown( e ): void {
             let elem: JQuery = jQuery( e.target );
@@ -86,7 +84,7 @@ namespace Animate {
 
 		/**
 		* Sets a component to be focused.
-		* @param {Component} comp The component to focus on.
+		* @param comp The component to focus on.
 		*/
         setFocus( comp: Component ): void {
             if ( this._focusObj )

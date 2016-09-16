@@ -41,8 +41,8 @@ namespace Animate {
 		/**
          * Called whenever we drop an item on this element. This is only called if canDrop is true.
          * Use it to set drag data, eg: e.dataTransfer.getData("text");
-         * @param {React.DragEvent} e
-         * @param {IDragDropToken} json The unserialized data
+         * @param e
+         * @param json The unserialized data
          */
         onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
             if ( json.type === 'resource' ) {

@@ -52,8 +52,7 @@ namespace Animate {
 		 * Attempts to download a plugin by its URL and insert it onto the page.
          * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
          * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-		 * @param {IPlugin} pluginDefinition The plugin to load
-         * @returns {Promise<Engine.IPlugin>}
+		 * @param pluginDefinition The plugin to load
 		 */
         loadPlugin( pluginDefinition: Engine.IPlugin ): Promise<Engine.IPlugin> {
             if ( pluginDefinition.$loaded )
@@ -83,8 +82,8 @@ namespace Animate {
 
 		/**
 		 * This funtcion is used to load a plugin.
-		 * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
-		 * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
+		 * @param pluginDefinition The IPlugin constructor that is to be created
+		 * @param createPluginReference Should we keep this constructor in memory? The default is true
 		 */
         preparePlugin( pluginDefinition: Engine.IPlugin, createPluginReference: boolean = true ) {
             const plugin: Animate.IPlugin = pluginDefinition.$instance;
@@ -126,7 +125,7 @@ namespace Animate {
 
 		/**
 		 * Call this function to unload a plugin
-		 * @param {IPlugin} plugin The IPlugin object that is to be loaded
+		 * @param plugin The IPlugin object that is to be loaded
 		 */
         unloadPlugin( plugin: IPlugin ) {
             // Get converters
@@ -168,8 +167,8 @@ namespace Animate {
 		/**
 		 * Loops through each of the converters to see if a conversion is possible. If it is
 		 * it will return an array of conversion options, if not it returns false.
-		 * @param {any} typeA The first type to check
-		 * @param {any} typeB The second type to check
+		 * @param typeA The first type to check
+		 * @param typeB The second type to check
 		 */
         getConverters( typeA: any, typeB: any ) {
             let toRet = null;
@@ -191,7 +190,7 @@ namespace Animate {
 
 		/**
 		 * Gets a behaviour template by its name.
-		 * @param {string} behaviorName The name of the behaviour template
+		 * @param behaviorName The name of the behaviour template
 		 */
         getTemplate( behaviorName: string ) {
             let len = this._behaviourTemplates.length;
@@ -204,9 +203,9 @@ namespace Animate {
 
 		/**
 		 * Use this function to select an asset in the tree view and property grid
-		 * @param {Resources.Asset} asset The Asset object we need to select
-		 * @param {boolean} panToNode When set to true, the treeview will bring the node into view
-		 * @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
+		 * @param asset The Asset object we need to select
+		 * @param panToNode When set to true, the treeview will bring the node into view
+		 * @param multiSelect When set to true, the treeview not clear any previous selections
 		 */
         selectAsset( asset: Resources.Asset, panToNode: boolean = true, multiSelect: boolean = false ) {
             Animate.TreeViewScene.getSingleton().selectNode(
@@ -215,8 +214,7 @@ namespace Animate {
 
 		/**
 		 * Gets an asset class by its name
-		 * @param {string} name The name of the asset class
-		 * @param {AssetClass}
+		 * @param name The name of the asset class
 		 */
         getAssetClass( name: string ): AssetClass {
             // Assign any of the options / missing variables for classes that are updated in code but not in the DB
@@ -252,8 +250,6 @@ namespace Animate {
 
         /**
          * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
          */
         thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement> {
             let toRet;
@@ -270,8 +266,8 @@ namespace Animate {
 
 		/**
          * This function generates a React Element that is used to preview a file
-         * @param {Engine.IFile} file The file we are looking to preview
-         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         * @param file The file we are looking to preview
+         * @returns If a React Element is returned is added in the File viewer preview
          */
         displayPreview( file: Engine.IFile ): JSX.Element {
             let toRet;

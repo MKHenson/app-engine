@@ -45,8 +45,7 @@ namespace Animate {
 
 
         /**
-         * Returns the list of {EventListener} that are currently attached to this dispatcher.
-         * @returns {Array<EventListener<string, any>>}
+         * Returns the list of event listeners that are currently attached to this dispatcher.
          */
         get listeners(): Array<EventListener<string, any>> {
             return this._listeners;
@@ -54,9 +53,9 @@ namespace Animate {
 
         /**
          * Adds a new listener to the dispatcher class.
-         * @param {T} type The event type we are sending
-         * @param {TypedCallback<T, Y>} func The callback function
-         * @param {any} context [Optional] The context to call with
+         * @param type The event type we are sending
+         * @param func The callback function
+         * @param context [Optional] The context to call with
          */
         on<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
             if ( !func )
@@ -67,9 +66,9 @@ namespace Animate {
 
         /**
          * Adds a new listener to the dispatcher class.
-         * @param {T} type The event type we are sending
-         * @param {TypedCallback<T, Y>} func The callback function
-         * @param {any} context [Optional] The context to call with
+         * @param type The event type we are sending
+         * @param func The callback function
+         * @param context [Optional] The context to call with
          */
         off<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
             const listeners = this.listeners;
@@ -91,9 +90,8 @@ namespace Animate {
 
         /**
          * Sends a message to all listeners based on the eventType provided.
-         * @param {T} type The event type we are sending
-         * @param {Event<T> | Y} data [Optional] The data to send with the emission
-		 * @returns {any}
+         * @param type The event type we are sending
+         * @param data [Optional] The data to send with the emission
          */
         emit<T extends string, Y>( type: T, data?: Y ): any {
             if ( this._listeners.length === 0 )

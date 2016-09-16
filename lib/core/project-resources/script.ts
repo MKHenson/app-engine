@@ -8,7 +8,7 @@ namespace Animate {
         export class Script extends ProjectResource<Engine.IScript> {
 
 			/**
-			* @param {IScript} entry The DB entry of this script
+			* @param entry The DB entry of this script
 			*/
             constructor( entry: Engine.IScript ) {
                 super( entry );

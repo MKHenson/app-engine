@@ -30,7 +30,7 @@ namespace Animate {
 
         /**
 		 * Updates the user bio information
-		 * @param {string} bio The new bio data
+		 * @param bio The new bio data
 		 */
         updateBio( bio: string ) {
             this.setState( {
@@ -74,7 +74,6 @@ namespace Animate {
 
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let user = User.get.entry;

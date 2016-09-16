@@ -53,7 +53,6 @@ namespace Animate {
 
 		/**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             return <div className="toolbar">
@@ -285,9 +284,9 @@ namespace Animate {
 
 		/**
 		* This function is used to create a new group on the toolbar
-		* @param {string} text The text of the new tab
-		* @param {boolean} text The text of the new tab
-		* @returns {Component} Returns the {Component} object representing the tab
+		* @param text The text of the new tab
+		* @param text The text of the new tab
+		* @returns Returns the {Component} object representing the tab
 		*/
         createTab( text: string, isSelected: boolean = false ): Component {
             // var topTab = this._topMenu.addChild("<div className='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>" + text + "</div>" );
@@ -312,7 +311,6 @@ namespace Animate {
 
 		/**
 		* Called when the key is pushed down
-		* @param {any} event
 		*/
         onKeyDown( event: any ) {
             // if (event.data === 'Ctrl+s')
@@ -329,7 +327,7 @@ namespace Animate {
 
 		/**
 		* Removes a tab by its name
-		* @param {string} text The name of the tab
+		* @param text The name of the tab
 		*/
         removeTab( text: string ) {
             // var children: Array<IComponent> = this._topMenu.children;
@@ -345,8 +343,8 @@ namespace Animate {
 
 		/**
 		* This function is used to create a new group on the toolbar
-		* @param {Component} tab The {Component} tab object which represents the parent of this group.
-		* @returns {Component} Returns the {Component} object representing the group
+		* @param tab The {Component} tab object which represents the parent of this group.
+		* @returns Returns the {Component} object representing the group
 		*/
         createGroup( tab: Component ): Component {
             // return <Component>tab.addChild( "<div className='tool-bar-group background-view-light'></div>" );

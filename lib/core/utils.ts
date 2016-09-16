@@ -21,8 +21,8 @@
 
         /**
          * Checks a string to see if there is a validation error
-         * @param {string} val The string to check
-         * @param {ValidationType} validator The type of validations to check
+         * @param val The string to check
+         * @param validator The type of validations to check
          */
         static checkValidation( val: string, validator: ValidationType ) {
 
@@ -56,8 +56,7 @@
 
         /**
         * Generates a new shallow Id - an id that is unique only to this local session
-        * @param {number} reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
-        * @returns {number}
+        * @param reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
         */
         static generateLocalId( reference?: number ): number {
             // Make sure the ID is always really high - i.e. dont allow for duplicates
@@ -74,8 +73,6 @@
 
         /**
          * Capitalizes the first character of a string
-         * @param {string} str
-         * @returns {string}
          */
         static capitalize( str: string ): string {
             return str.charAt( 0 ).toUpperCase() + str.slice( 1 );
@@ -239,7 +236,7 @@
 
         /**
         * Creates a new property based on the dataset provided
-        * @param {PropertyType} type The type of property to create
+        * @param type The type of property to create
         */
         static createProperty( name: string, type: PropertyType ): Prop<any> {
             let prop: Prop<any>;
@@ -290,9 +287,8 @@
 
 		/**
          * Gets the relative position of the mouse to the given element
-         * @param {React.MouseEvent} e
-         * @param {HTMLElement} elm The target element
-         * @returns {{ x: number, y : number }}
+         * @param e
+         * @param elm The target element
          */
         static getRelativePos( e: React.MouseEvent, elm: HTMLElement ): { x: number, y: number } {
             let offsetX = elm.offsetLeft;
@@ -317,11 +313,10 @@
 
         /**
          * Gets a quadratically eased in/out value
-         * @param {number} startValue The initial value
-         * @param {number} delta The difference between the start value and its target
-         * @param {number} curTime Between 0 and duration
-         * @param {number} duration The total time
-         * @returns {number}
+         * @param startValue The initial value
+         * @param delta The difference between the start value and its target
+         * @param curTime Between 0 and duration
+         * @param duration The total time
          */
         static quadInOut( startValue, delta, curTime, duration ): number {
             curTime /= duration / 2;
@@ -332,10 +327,10 @@
 
         /**
          * Scrolls an element to the destination x and y for a given duration
-         * @param {{ x: number, y : number }} dest The target X & Y coordinates
-         * @param {HTMLElement} elm The element to scroll
-         * @param {number} duration The total amount of time to take to scroll
-         * @return {number} Returns setInterval
+         * @param dest The target X & Y coordinates
+         * @param elm The element to scroll
+         * @param duration The total amount of time to take to scroll
+         * @return Returns setInterval
          */
         static scrollTo( dest: { x: number, y: number }, elm: HTMLElement, duration: number ): number {
             let curTime = 0;
@@ -362,9 +357,9 @@
 
 		/**
 		* Use this function to check if a value contains characters that break things.
-		* @param {string} text The text to check
-		* @param {boolean} allowSpace If this is true, empty space will be allowed
-		* @returns {string} Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
+		* @param text The text to check
+		* @param allowSpace If this is true, empty space will be allowed
+		* @returns Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
 		*/
         static checkForSpecialChars( text: string, allowSpace: boolean = false ): string {
             if ( allowSpace === false && jQuery.trim( text ) === '' )
@@ -380,16 +375,18 @@
         }
 
 		/**
-		Tells us if a string is a valid email address
-		*/
+		 * Tells us if a string is a valid email address
+		 */
         static validateEmail( email: string ): boolean {
             const re = /^(([^<>()[\]\\.,;:\s@\']+(\.[^<>()[\]\\.,;:\s@\']+)*)|(\'.+\'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test( email );
         }
 
 
-		/* Returns the class name of the argument or undefined if
-		*  it's not a valid JavaScript object. */
+		/**
+         * Returns the class name of the argument or undefined if
+		 * it's not a valid JavaScript object.
+         */
         static getObjectClass( obj ): any {
             if ( obj && obj.constructor && obj.constructor.toString ) {
                 const arr = obj.constructor.toString().match( /function\s*(\w+)/ );

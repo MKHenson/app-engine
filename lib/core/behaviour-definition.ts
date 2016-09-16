@@ -12,13 +12,13 @@ namespace Animate {
         private _plugin: IPlugin;
 
 		/**
-		* @param {string} behaviourName The name of the behaviour
-        * @param {Array<PortalTemplate>} portalTemplates
-		* @param {IPlugin} plugin The plugin this is associated with
-		* @param {boolean} canBuildInput
-		* @param {boolean} canBuildOutput
-		* @param {boolean} canBuildParameter
-		* @param {boolean} canBuildProduct
+		* @param  behaviourName The name of the behaviour
+        * @param portalTemplates
+		* @param plugin The plugin this is associated with
+		* @param canBuildInput
+		* @param canBuildOutput
+		* @param canBuildParameter
+		* @param canBuildProduct
 		*/
         constructor( behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput: boolean = false, canBuildOutput: boolean = false, canBuildParameter: boolean = false, canBuildProduct: boolean = false ) {
             for ( let i = 0; i < portalTemplates.length; i++ )
@@ -52,7 +52,7 @@ namespace Animate {
 
 		/*
         * This function is called by Animate to see if a behaviour can build output portals.
-		* @return {boolean} Return true if you want Animate to allow for building outputs.
+		* @return Return true if you want Animate to allow for building outputs.
         */
         canBuildOutput( behaviour: Behaviour ): boolean {
             return this._canBuildOutput;
@@ -60,7 +60,7 @@ namespace Animate {
 
 		/*
         * This function is called by Animate to see if a behaviour can build input portals.
-		* @return {boolean} Return true if you want Animate to allow for building inputs.
+		* @return Return true if you want Animate to allow for building inputs.
         */
         canBuildInput( behaviour: Behaviour ): boolean {
             return this._canBuildInput;
@@ -68,7 +68,7 @@ namespace Animate {
 
 		/*
         * This function is called by Animate to see if a behaviour can build product portals.
-		* @return {boolean} Return true if you want Animate to allow for building products.
+		* @return Return true if you want Animate to allow for building products.
         */
         canBuildProduct( behaviour: Behaviour ): boolean {
             return this._canBuildProduct;
@@ -76,7 +76,7 @@ namespace Animate {
 
 		/*
         * This function is called by Animate to see if a behaviour can build parameter portals.
-		* @return {boolean} Return true if you want Animate to allow for building parameters.
+		* @return Return true if you want Animate to allow for building parameters.
         */
         canBuildParameter( behaviour: Behaviour ): boolean {
             return this._canBuildParameter;
@@ -85,7 +85,6 @@ namespace Animate {
 		/*
         * This function is called by Animate When a new behaviour is being created. The definition
 		* has to provide the behaviour with an array of PortalTemplates.
-		* @returns {Array<PortalTemplate>}
         */
         portalsTemplates(): Array<PortalTemplate> {
             return this._portalTemplates;

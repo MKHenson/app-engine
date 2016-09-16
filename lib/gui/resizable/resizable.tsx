@@ -49,7 +49,6 @@ namespace Animate {
 
         /**
          * When the mouse is down on the component, we add the move and up listeners
-         * @param {React.MouseEvent} e
          */
         onMouseDown( e: React.MouseEvent, allowMouseX: boolean, allowMouseY: boolean ) {
             if ( !this.props.enabled )
@@ -79,7 +78,6 @@ namespace Animate {
 
         /**
          * When the mouse is up we remove the events
-         * @param {React.MouseEvent} e
          */
         onMouseUp( e: React.MouseEvent ) {
             window.removeEventListener( 'mouseup', this._upProxy );
@@ -99,7 +97,6 @@ namespace Animate {
 
         /**
          * When the mouses moves we resize the component
-         * @param {React.MouseEvent} e
          */
         onMouseMove( e: React.MouseEvent ) {
             const elm = this.refs[ 'resizable' ] as HTMLElement;
@@ -110,7 +107,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             return <div ref="resizable"

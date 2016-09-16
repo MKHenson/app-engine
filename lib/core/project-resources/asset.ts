@@ -12,8 +12,8 @@ namespace Animate {
             public class: AssetClass;
 
 			/**
-			* @param {AssetClass} assetClass The name of the 'class' or 'template' that this asset belongs to
-			* @param {IAsset} entry [Optional] The asset database entry
+			* @param assetClass The name of the 'class' or 'template' that this asset belongs to
+			* @param entry [Optional] The asset database entry
 			*/
             constructor( assetClass: AssetClass, entry?: Engine.IAsset ) {
                 super( entry );
@@ -26,7 +26,6 @@ namespace Animate {
 
 			/**
 			* Writes this assset to a readable string
-			* @returns {string}
 			*/
             toString() {
                 return this.entry.name + '(' + this.entry.shallowId + ')';
@@ -34,9 +33,9 @@ namespace Animate {
 
 			/**
 			* Use this function to reset the asset properties
-			* @param {string} name The name of the asset
-			* @param {string} className The 'class' or 'template' name of the asset
-			* @param {any} json The JSON data of the asset.
+			* @param name The name of the asset
+			* @param className The 'class' or 'template' name of the asset
+			* @param json The JSON data of the asset.
 			*/
             update( name: string, className: string, json: any = {}) {
                 this.entry.name = name;

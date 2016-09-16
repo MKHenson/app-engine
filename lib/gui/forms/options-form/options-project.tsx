@@ -32,7 +32,6 @@ namespace Animate {
 
         /**
          * Sets the project image url
-         * @param {Engine.IFile} file
          */
         setProjectImageUrl( file: Engine.IFile ) {
 
@@ -57,7 +56,7 @@ namespace Animate {
 
         /**
          * Attempts to update the project
-         * @param {any} project details
+         * @param project details
          */
         updateDetails( json: any ) {
             this.setState( {
@@ -87,7 +86,6 @@ namespace Animate {
 
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let project = User.get.project.entry;

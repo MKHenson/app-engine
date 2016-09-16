@@ -21,8 +21,6 @@ namespace Animate {
 		/**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
-         * @param {React.DragEvent} e
-         * @returns {IDragDropToken} Return data to serialize
          */
         onDragStart( e: React.DragEvent ): IDragDropToken {
             return { type: 'template', id: this._template.behaviourName } as IDragDropToken;

@@ -36,8 +36,6 @@
 
         /**
          * Gets or sets if the item is selected
-         * @param {boolean} val
-         * @returns {boolean}
          */
         selected( val?: boolean ): boolean {
 
@@ -51,8 +49,6 @@
 
         /**
          * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {ICanvasItem}
          */
         serialize( id: number ): Engine.Editor.ICanvasItem {
             this.id = id;
@@ -68,7 +64,7 @@
 
         /**
          * De-serialize data from a JSON.
-         * @param {ICanvasItem} data The data to import from
+         * @param data The data to import from
          */
         deSerialize( data: Engine.Editor.ICanvasItem ) {
             this.top = data.top;
@@ -77,8 +73,8 @@
 
         /**
          * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-         * @param {number} originalId The original shallow ID of the item when it was tokenized.
-         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+         * @param originalId The original shallow ID of the item when it was tokenized.
+         * @param items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
          * or to get the token you can use items[originalId].token
          */
         link( originalId: number, items: LinkMap ) {

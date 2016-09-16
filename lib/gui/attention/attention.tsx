@@ -37,7 +37,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             let props: IAttentionProps = Object.assign( {}, this.props );

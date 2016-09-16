@@ -35,7 +35,6 @@ namespace Animate {
 
         /**
          * Creates a new user project
-         * @param {any} json
          */
         newProject( json ) {
 
@@ -65,7 +64,6 @@ namespace Animate {
 
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element {
             return <div id="splash-new-project" className="new-project fade-in">

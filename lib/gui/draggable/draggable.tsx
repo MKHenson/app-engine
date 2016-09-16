@@ -43,7 +43,6 @@ namespace Animate {
 
         /**
          * When the mouse is down on the behaviour, we add the drag listeners
-         * @param {React.MouseEvent} e
          */
         onMouseDown( e: React.MouseEvent ) {
             if ( !this.props.enabled )
@@ -57,7 +56,6 @@ namespace Animate {
 
         /**
          * When the mouse is up we remove the events
-         * @param {React.MouseEvent} e
          */
         onMouseUp( e: React.MouseEvent ) {
             window.removeEventListener( 'mouseup', this._upProxy );
@@ -66,7 +64,6 @@ namespace Animate {
 
         /**
          * When the mouses moves we drag the behaviour
-         * @param {React.MouseEvent} e
          */
         onMouseMove( e: React.MouseEvent ) {
             const elm = this.refs[ 'draggable' ] as HTMLElement;
@@ -105,7 +102,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             return <div ref="draggable"

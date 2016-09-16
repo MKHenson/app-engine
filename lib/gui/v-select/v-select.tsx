@@ -110,7 +110,7 @@ namespace Animate {
 
         /**
          * Checks the selected option
-         * @returns {string} An error string or null if there are no errors
+         * @returns An error string or null if there are no errors
          */
         validate( val: string | number ): string {
             let errorMsg: string = null;
@@ -129,7 +129,6 @@ namespace Animate {
 
         /**
          * Called whenever the value changes
-         * @param {React.FormEvent} e
          */
         private onChange( e: React.FormEvent ) {
             const wasAnError = this.state.error;
@@ -164,7 +163,6 @@ namespace Animate {
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         get pristine(): boolean {
             return this._pristine;
@@ -172,7 +170,6 @@ namespace Animate {
 
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element {
             // Remove the custom properties

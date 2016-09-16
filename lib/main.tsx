@@ -4,7 +4,7 @@ let __newPlugin: Animate.IPlugin = null;
 
 /**
  * Goes through each of the plugins and returns the one with the matching ID
- * @param {string} id The ID of the plugin to fetch
+ * @param id The ID of the plugin to fetch
  */
 function getPluginByID( id: string ): Engine.IPlugin {
     for ( const pluginName in __plugins ) {
@@ -18,7 +18,6 @@ function getPluginByID( id: string ): Engine.IPlugin {
 
 /**
  * Once the plugins are loaded from the DB
- * @param {Array<Engine.IPlugin>} plugins
  */
 function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
     for ( let i = 0, l = plugins.length; i < l; i++ ) {
@@ -72,7 +71,6 @@ function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
 
 /**
  * Returns a formatted byte string
- * @returns {string}
  */
 function byteFilter( bytes, precision: number = 1 ): string {
     if ( isNaN( parseFloat( bytes ) ) || !isFinite( bytes ) ) return '-';

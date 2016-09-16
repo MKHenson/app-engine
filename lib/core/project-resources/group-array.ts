@@ -8,7 +8,7 @@
         export class GroupArray extends ProjectResource<Engine.IGroup> {
 
             /**
-            * @param {IGroup} entry [Optional] The database entry of the resource
+            * @param entry [Optional] The database entry of the resource
             */
             constructor( entry?: Engine.IGroup ) {
                 super( entry );
@@ -16,7 +16,7 @@
 
             /**
             * Adds a new reference to the group
-            * @param {number} shallowId
+            * @param shallowId
             */
             addReference( shallowId: number ) {
                 this.entry.items.push( shallowId );
@@ -25,7 +25,7 @@
 
             /**
             * Removes a reference from the group
-            * @param {number} shallowId
+            * @param shallowId
             */
             removeReference( shallowId: number ) {
                 if ( this.entry.items.indexOf( shallowId ) !== -1 )

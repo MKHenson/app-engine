@@ -1,8 +1,8 @@
 namespace Animate {
 
     /**
-     * Acts as a store/container of the various items that can be interacted with by the user
-     * when they open a container. Think of this as the model of a Container's inner components.
+     * An editor that represents the data of a container's inner behaviours and their relationships with eachother.
+     * This editor is visualised through a schema component.
      */
     export class ContainerSchema extends Editor {
         public opened: boolean;
@@ -31,7 +31,6 @@ namespace Animate {
 
         /**
          * Returns all items of this store
-         * @returns {CanvasItem[]}
          */
         getItems(): CanvasItem[] {
             return this._items;
@@ -39,7 +38,6 @@ namespace Animate {
 
         /**
          * Returns the currrently selected items
-         * @returns {CanvasItem[]}
          */
         getSelection(): CanvasItem[] {
             return this._selection;
@@ -47,8 +45,6 @@ namespace Animate {
 
         /**
          * Called whenever an item is clicked.
-         * @param {CanvasItem} node
-         * @param {boolean} shiftDown
          */
         onNodeSelected( node: CanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
@@ -86,15 +82,13 @@ namespace Animate {
 
         /**
 		 * Called whenever the selection has changed
-		 * @param {CanvasItem[]} selection
 		 */
         onSelectionChange( selection: CanvasItem[] ) {
         }
 
         /**
          * Adds a canvas item to the canvas
-         * @param {CanvasItem} item
-         * @returns {CanvasItem}
+         * @param item The item to add
          */
         addItem( item: CanvasItem ): CanvasItem {
             if ( this._items.indexOf( item ) !== -1 )
@@ -108,7 +102,7 @@ namespace Animate {
 
         /**
          * Removes a canvas item from the canvas
-         * @param {CanvasItem} item
+         * @param item The item to remove
          */
         removeItem( item: CanvasItem ) {
             if ( this._items.indexOf( item ) !== -1 )
@@ -120,7 +114,7 @@ namespace Animate {
 
         /**
          * De-serializes the workspace from its JSON format
-         * @param {Engine.Editor.IContainerWorkspace} scene
+         * @param scene The schema scene we are loading from
          */
         deserialize( scene: Engine.Editor.IContainerWorkspace ) {
 
@@ -153,7 +147,6 @@ namespace Animate {
 
         /**
          * Serializes the workspace into its JSON format
-         * @returns {Engine.Editor.IContainerWorkspace}
          */
         serialize(): Engine.Editor.IContainerWorkspace {
 

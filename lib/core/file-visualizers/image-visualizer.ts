@@ -8,8 +8,7 @@
 
         /**
          * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
+         * @param file
          */
         thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement> {
 
@@ -61,8 +60,8 @@
 
         /**
          * This function generates a React Element that is used to preview a file
-         * @param {Engine.IFile} file The file we are looking to preview
-         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         * @param file The file we are looking to preview
+         * @returns If a React Element is returned is added in the File viewer preview
          */
         generate( file: Engine.IFile ): JSX.Element {
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {

@@ -8,7 +8,7 @@ namespace Animate {
 
         /**
 	    * Creates an intance of the build
-        * @param {Engine.IBuild} entry The entry token from the DB
+        * @param entry The entry token from the DB
 	    */
         constructor( entry: Engine.IBuild ) {
             this.entry = entry;
@@ -16,7 +16,7 @@ namespace Animate {
 
         /**
 	    * Attempts to update the build with new data
-        * @param {Engine.IBuild} token The update token data
+        * @param token The update token data
 	    */
         update( token: Engine.IBuild ): Promise<boolean> {
             const entry = this.entry;

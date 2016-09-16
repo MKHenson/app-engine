@@ -36,8 +36,6 @@ namespace Animate {
 
 		/**
          * Gets or sets the label of the node
-         * @param {string} val
-         * @returns {string}
          */
         label( val?: string ): string {
             if ( val === undefined ) {
