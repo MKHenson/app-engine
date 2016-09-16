@@ -72,14 +72,15 @@ namespace Animate {
 
                         </div>
                     ) : (
-                            <Tab panes={ editors.map(( editor ) => {
+                            <Tab panes={ editors.map(( editor, index ) => {
                                 return (
                                     <TabPane
+                                        key={'pane-' + index}
                                         canClose={ ( i, props ) => {
                                             return this.canContainerClose( editor );
                                         } }
                                         label={ ( editor.resource.saved ? '' : '* ' ) + editor.resource.entry.name}>
-                                        <ReactCanvas store={editor as ContainerSchema} />
+                                        <Schema store={editor as ContainerSchema} />
                                     </TabPane>
                                 )
                             }) } />
