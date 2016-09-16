@@ -62,7 +62,6 @@
     "lib/core/utils.ts",
     "lib/core/user.ts",
     "lib/core/socket-api/socket-manager.ts",
-    "lib/core/page-loader.ts",
     "lib/core/file-visualizers/image-visualizer.ts",
     "lib/core/file-uploader.ts",
     "lib/core/properties/editable-set.ts",
