@@ -8,13 +8,7 @@ namespace Animate {
     export class Project extends EventDispatcher {
         private _entry: Engine.IProject;
 
-        public saved: boolean;
         public curBuild: Build;
-        private _containers: Array<Resources.Container>;
-        private _assets: Array<Resources.Asset>;
-        private _files: Array<Resources.File>;
-        private _scripts: Array<Resources.Script>;
-        private _groups: Array<Resources.GroupArray>;
         private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
 
         public openEditors: Editor[];
@@ -25,20 +19,13 @@ namespace Animate {
         constructor() {
             super();
 
-            this.saved = true;
-            this._containers = [];
-            this._assets = [];
-            this._files = [];
-            this._scripts = [];
-            this._groups = [];
             this.openEditors = [];
-
             this._restPaths = {};
-            this._restPaths[ ResourceType.FILE ] = { url: `files`, array: this._files };
-            this._restPaths[ ResourceType.ASSET ] = { url: `assets`, array: this._assets };
-            this._restPaths[ ResourceType.CONTAINER ] = { url: `containers`, array: this._containers };
-            this._restPaths[ ResourceType.GROUP ] = { url: `groups`, array: this._groups };
-            this._restPaths[ ResourceType.SCRIPT ] = { url: `scripts`, array: this._scripts };
+            this._restPaths[ ResourceType.FILE ] = { url: `files`, array: [] };
+            this._restPaths[ ResourceType.ASSET ] = { url: `assets`, array: [] };
+            this._restPaths[ ResourceType.CONTAINER ] = { url: `containers`, array: [] };
+            this._restPaths[ ResourceType.GROUP ] = { url: `groups`, array: [] };
+            this._restPaths[ ResourceType.SCRIPT ] = { url: `scripts`, array: [] };
         }
 
 		/**
@@ -168,23 +155,23 @@ namespace Animate {
             if ( type === ResourceType.ASSET ) {
                 const aClass = PluginManager.getSingleton().getAssetClass(( <Engine.IAsset>entry ).className );
                 resource = new Resources.Asset( aClass, entry );
-                this._assets.push( <Resources.Asset>resource );
+                this._restPaths[type].array.push( <Resources.Asset>resource );
             }
             else if ( type === ResourceType.SCRIPT ) {
                 resource = new Resources.Script( <any>entry );
-                this._scripts.push( resource );
+                this._restPaths[type].array.push( resource );
             }
             else if ( type === ResourceType.CONTAINER ) {
                 resource = new Resources.Container( entry );
-                this._containers.push( <Resources.Container>resource );
+                this._restPaths[type].array.push( <Resources.Container>resource );
             }
             else if ( type === ResourceType.GROUP ) {
                 resource = new Resources.GroupArray( entry );
-                this._groups.push( <Resources.GroupArray>resource );
+                this._restPaths[type].array.push( <Resources.GroupArray>resource );
             }
             else if ( type === ResourceType.FILE ) {
                 resource = new Resources.File( entry );
-                this._files.push( resource );
+                this._restPaths[type].array.push( resource );
             }
 
             resource.initialize();
@@ -203,17 +190,14 @@ namespace Animate {
             if ( !type ) {
 
                 // Dispose each of the resources saved
-                for ( const t in paths )
+                for ( const t in paths ) {
                     for ( const resource of paths[ t ].array ) {
                         this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                         resource.dispose();
                     }
 
-                this._assets.splice( 0, this._assets.length );
-                this._files.splice( 0, this._files.length );
-                this._scripts.splice( 0, this._scripts.length );
-                this._containers.splice( 0, this._containers.length );
-                this._groups.splice( 0, this._groups.length );
+                    paths[t].array.splice( paths[t].array.length );
+                }
 
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.FILE ].url}?verbose=true` ) );
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.ASSET ].url}?verbose=true` ) );
@@ -574,11 +558,11 @@ namespace Animate {
             this.emit<ProjectEvents, IEditorEvent>( 'editor-removed', { editor: editor });
         }
 
-        get containers(): Array<Resources.Container> { return this._containers; }
-        get files(): Array<Resources.File> { return this._files; }
-        get scripts(): Array<Resources.Script> { return this._scripts; }
-        get assets(): Array<Resources.Asset> { return this._assets; }
-        get groups(): Array<Resources.GroupArray> { return this._groups; }
+        get containers(): Resources.Container[] { return this._restPaths[ResourceType.CONTAINER].array as Resources.Container[]; }
+        get files(): Resources.File[] { return this._restPaths[ResourceType.FILE].array as Resources.File[]; }
+        get scripts(): Resources.Script[] { return this._restPaths[ResourceType.SCRIPT].array as Resources.Script[]; }
+        get assets(): Resources.Asset[] { return this._restPaths[ResourceType.ASSET].array as Resources.Asset[]; }
+        get groups(): Resources.GroupArray[] { return this._restPaths[ResourceType.GROUP].array as Resources.GroupArray[]; }
 
 		/**
 		* This will cleanup the project and remove all data associated with it.
@@ -586,7 +570,6 @@ namespace Animate {
         reset() {
             this._entry = null;
             const pManager: PluginManager = PluginManager.getSingleton();
-            //let event: AssetEvent;
 
             // Dispose each of the resources saved
             const paths = this._restPaths;
@@ -596,38 +579,8 @@ namespace Animate {
                     resource.dispose();
                 }
 
-
                 paths[ t ].array.splice( 0, paths[ t ].array.length );
             }
-
-            this._assets.splice( 0, this._assets.length );
-            this._files.splice( 0, this._files.length );
-            this._scripts.splice( 0, this._scripts.length );
-            this._containers.splice( 0, this._containers.length );
-            this._groups.splice( 0, this._groups.length );
-
-            // // Cleanup behaviours
-            // let i = this._containers.length;
-            // while ( i-- )
-            //     this._containers[ i ].dispose();
-
-            // i = this._assets.length;
-
-            // event = new AssetEvent( EditorEvents.ASSET_DESTROYED, null );
-            // while ( i-- ) {
-            //     event.asset = this._assets[ i ];
-
-            //     // Notify the destruction of an asset
-            //     pManager.emit( event );
-            //     this._assets[ i ].dispose();
-            // }
-
-            this.saved = true;
-            this._containers.splice( 0, this._containers.length );
-            this._assets.splice( 0, this._assets.length );
-            this._groups.splice( 0, this._groups.length );
-            this._files.splice( 0, this._files.length );
-            this._scripts.splice( 0, this._scripts.length );
         }
 
         get plugins(): Array<Engine.IPlugin> { return this._entry.$plugins; }
