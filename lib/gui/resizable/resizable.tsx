@@ -4,6 +4,7 @@ namespace Animate {
         enabled?: boolean;
         target?: HTMLElement;
         onDragStart?( e: React.MouseEvent ): boolean;
+        onResized?( size: { width: number; height: number; } ): void;
     }
 
     /**
@@ -101,8 +102,13 @@ namespace Animate {
         onMouseMove( e: React.MouseEvent ) {
             const elm = this.refs[ 'resizable' ] as HTMLElement;
             const bounds = elm.getBoundingClientRect();
-            this._ghost.style.width = ( this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width ) + 'px';
-            this._ghost.style.height = ( this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height ) + 'px';
+            const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
+            const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
+            this._ghost.style.width = ( w ) + 'px';
+            this._ghost.style.height = ( h ) + 'px';
+
+            if ( this.props.onResized )
+                this.props.onResized({ width: w, height: h });
         }
 
         /**
