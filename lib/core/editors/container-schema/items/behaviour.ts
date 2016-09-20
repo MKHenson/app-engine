@@ -8,12 +8,13 @@ namespace Animate {
         public alias: string;
         public canGhost: boolean;
         public behaviourType: string;
-        private _parameters: Array<Portal>;
-        private _products: Array<Portal>;
-        private _outputs: Array<Portal>;
-        private _inputs: Array<Portal>;
-        private _portals: Array<Portal>;
-        private _properties: EditableSet;
+        public parameters: Portal[];
+        public products: Portal[];
+        public outputs: Portal[];
+        public inputs: Portal[];
+        public portals: Portal[];
+        public properties: EditableSet;
+        public template: BehaviourDefinition;
 
 		/**
 		 * Creates an instance of the behaviour
@@ -21,19 +22,38 @@ namespace Animate {
         constructor( template: BehaviourDefinition ) {
             super();
 
-            this._parameters = [];
-            this._products = [];
-            this._outputs = [];
-            this._inputs = [];
-            this._portals = [];
+            this.parameters = [];
+            this.products = [];
+            this.outputs = [];
+            this.inputs = [];
+            this.portals = [];
             this.alias = template.behaviourName;
+            this.template = template;
             this.behaviourType = template.behaviourName;
             this.canGhost = true;
-            this._properties = new EditableSet( this );
+            this.properties = new EditableSet( this );
 
             const portalTemplates = template.portalsTemplates();
             for ( const portal of portalTemplates )
                 this.addPortal( portal.type, portal.property.clone() );
+        }
+
+        /**
+         * Clones the canvas item
+         */
+        clone( clone?: Behaviour ) : Behaviour {
+            if ( !clone )
+                clone = new Behaviour( this.template );
+
+            clone.alias = this.alias;
+            clone.behaviourType = this.behaviourType;
+            clone.canGhost = this.canGhost;
+
+            // TODO: This should be deep cloned
+            clone.properties = this.properties;
+
+            super.clone(clone);
+            return clone;
         }
 
         /**
@@ -59,15 +79,15 @@ namespace Animate {
 
             // Add the arrays
             if ( type === 'parameter' )
-                this._parameters.push( portal );
+                this.parameters.push( portal );
             else if ( type === 'product' )
-                this._products.push( portal );
+                this.products.push( portal );
             else if ( type === 'output' )
-                this._outputs.push( portal );
+                this.outputs.push( portal );
             else
-                this._inputs.push( portal );
+                this.inputs.push( portal );
 
-            this._portals.push( portal );
+            this.portals.push( portal );
             portal.behaviour = this;
             this.invalidate();
             return portal;
@@ -80,27 +100,27 @@ namespace Animate {
         removePortal( toRemove: Portal ): Portal {
 
             // Remove from arrays
-            let index = this._parameters.indexOf( toRemove )
+            let index = this.parameters.indexOf( toRemove )
             if ( index !== -1 ) {
-                this._properties.removeVar( toRemove.property.name );
-                this._parameters.splice( index, 1 );
+                this.properties.removeVar( toRemove.property.name );
+                this.parameters.splice( index, 1 );
             }
 
-            index = this._products.indexOf( toRemove );
+            index = this.products.indexOf( toRemove );
             if ( index !== -1 )
-                this._products.splice( index, 1 );
+                this.products.splice( index, 1 );
 
-            index = this._outputs.indexOf( toRemove );
+            index = this.outputs.indexOf( toRemove );
             if ( index !== -1 )
-                this._outputs.splice( index, 1 );
+                this.outputs.splice( index, 1 );
 
-            index = this._inputs.indexOf( toRemove );
+            index = this.inputs.indexOf( toRemove );
             if ( index !== -1 )
-                this._inputs.splice( index, 1 );
+                this.inputs.splice( index, 1 );
 
-            index = this._portals.indexOf( toRemove );
+            index = this.portals.indexOf( toRemove );
             if ( index !== -1 )
-                this._portals.splice( index, 1 );
+                this.portals.splice( index, 1 );
 
             toRemove.dispose();
             this.invalidate();
@@ -151,24 +171,17 @@ namespace Animate {
 		 * Diposes and cleans up this component and its portals
 		 */
         dispose() {
-            for ( let i = 0; i < this._portals.length; i++ )
-                this._portals[ i ].dispose();
+            for ( let i = 0; i < this.portals.length; i++ )
+                this.portals[ i ].dispose();
 
-            this._parameters = null;
-            this._products = null;
-            this._outputs = null;
-            this._inputs = null;
-            this._portals = null;
+            this.parameters = null;
+            this.products = null;
+            this.outputs = null;
+            this.inputs = null;
+            this.portals = null;
 
             // Call super
             super.dispose();
         }
-
-        get properties(): EditableSet { return this._properties; }
-        get parameters(): Array<Portal> { return this._parameters; }
-        get products(): Array<Portal> { return this._products; }
-        get outputs(): Array<Portal> { return this._outputs; }
-        get inputs(): Array<Portal> { return this._inputs; }
-        get portals(): Array<Portal> { return this._portals; }
     }
 }

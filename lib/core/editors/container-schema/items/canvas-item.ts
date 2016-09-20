@@ -10,10 +10,9 @@
     export class CanvasItem extends EventDispatcher {
         public top: number;
         public left: number;
-        public className: string;
         public store: ContainerSchema;
         public id: number;
-        private _selected: boolean;
+        public selected: boolean;
 
         /**
          * Creates an instance
@@ -23,8 +22,21 @@
             this.id = -1;
             this.top = 0;
             this.left = 0;
-            this._selected = false;
-            this.className = '';
+            this.selected = false;
+        }
+
+        /**
+         * Clones the canvas item
+         */
+        clone( clone?: CanvasItem ) : CanvasItem {
+            if ( !clone )
+                clone = new CanvasItem();
+
+            clone.id = -1;
+            clone.top = this.top;
+            clone.left = this.left;
+            clone.selected = this.selected;
+            return clone;
         }
 
         /**
@@ -32,19 +44,6 @@
          */
         onContext( e: React.MouseEvent ) {
 
-        }
-
-        /**
-         * Gets or sets if the item is selected
-         */
-        selected( val?: boolean ): boolean {
-
-            if ( val === undefined )
-                return this._selected;
-
-            this._selected = val;
-            this.invalidate();
-            return val;
         }
 
         /**
@@ -56,7 +55,8 @@
                 id: id,
                 type: 'behaviour',
                 left: this.left,
-                top: this.top
+                top: this.top,
+                selected: this.selected
             };
 
             return toRet;

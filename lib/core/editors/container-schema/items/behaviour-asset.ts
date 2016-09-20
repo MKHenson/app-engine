@@ -11,7 +11,6 @@ namespace Animate {
          */
         constructor( asset?: ProjectResource<Engine.IResource> ) {
             super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
-            this.className = 'behaviour-asset';
             this.asset = asset || null;
 
             // Set the property if the asset was provided
@@ -19,6 +18,17 @@ namespace Animate {
 
             if ( asset )
                 this.alias = asset.entry.name;
+        }
+
+        /**
+         * Clones the canvas item
+         */
+        clone( clone?: BehaviourAsset ) : BehaviourAsset {
+            if ( !clone )
+                clone = new BehaviourAsset( this.asset );
+
+            super.clone(clone);
+            return clone;
         }
 
 		/**

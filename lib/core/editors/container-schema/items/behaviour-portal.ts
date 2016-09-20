@@ -4,30 +4,40 @@ namespace Animate {
      * A behaviour for representing container portals
      */
     export class BehaviourPortal extends Behaviour {
-        private _portalType: HatcheryRuntime.PortalType;
+        public portalType: HatcheryRuntime.PortalType;
         private _property: Prop<any>;
 
         /**
          * Creates an instance
          */
-        constructor( property: Prop<any>, portalType: HatcheryRuntime.PortalType = 'input' ) {
+        constructor( property: Prop<any>, portalType: HatcheryRuntime.PortalType ) {
             super( PluginManager.getSingleton().getTemplate( 'Portal' ) );
 
             this.alias = property.name;
-            this._portalType = portalType;
+            this.portalType = portalType;
             this._property = property;
-            this.className = 'behaviour-portal ' + portalType;
 
             if ( property ) {
-                if ( this._portalType === 'output' )
+                if ( this.portalType === 'output' )
                     this.addPortal( 'input', property );
-                else if ( this._portalType === 'input' )
+                else if ( this.portalType === 'input' )
                     this.addPortal( 'output', property );
-                else if ( this._portalType === 'parameter' )
+                else if ( this.portalType === 'parameter' )
                     this.addPortal( 'product', property );
-                else if ( this._portalType === 'product' )
+                else if ( this.portalType === 'product' )
                     this.addPortal( 'parameter', property );
             }
+        }
+
+        /**
+         * Clones the canvas item
+         */
+        clone( clone?: BehaviourPortal ) : BehaviourPortal {
+            if ( !clone )
+                clone = new BehaviourPortal( this._property.clone(), this.portalType );
+
+            super.clone(clone);
+            return clone;
         }
 
         /**
@@ -35,7 +45,7 @@ namespace Animate {
          */
         serialize( id: number ): Engine.Editor.IBehaviourPortal {
             const toRet = <Engine.Editor.IBehaviourPortal>super.serialize( id );
-            toRet.portal = { name: this._property.name, custom: true, type: this._portalType, property: this._property.tokenize() };
+            toRet.portal = { name: this._property.name, custom: true, type: this.portalType, property: this._property.tokenize() };
             toRet.type = 'portal';
             return toRet;
         }
@@ -46,8 +56,7 @@ namespace Animate {
          */
         deSerialize( data: Engine.Editor.IBehaviourPortal ) {
             super.deSerialize( data );
-            this._portalType = data.portal.type;
-            this.className = 'behaviour-portal ' + this._portalType;
+            this.portalType = data.portal.type;
             this._property = Utils.createProperty( data.portal.property.name, data.portal.property.type );
             this._property.deTokenize( data );
         }
@@ -60,7 +69,6 @@ namespace Animate {
             super.dispose();
         }
 
-        get portaltype(): HatcheryRuntime.PortalType { return this._portalType; }
         get property(): Prop<any> { return this._property; }
     }
 }

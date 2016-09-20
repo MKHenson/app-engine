@@ -11,7 +11,7 @@ namespace Animate {
 		/**
 		 * Creates an instance
 		 */
-        constructor( label: string ) {
+        constructor( label: string = 'Type a message' ) {
             super();
             this.label = label;
             this.width = 150;
@@ -19,10 +19,25 @@ namespace Animate {
         }
 
         /**
+         * Clones the canvas item
+         */
+        clone( clone?: Comment ) : Comment {
+            if ( !clone )
+                clone = new Comment( this.label );
+
+            clone.width = this.width;
+            clone.height = this.height;
+
+            super.clone(clone);
+            return clone;
+        }
+
+        /**
          * Serializes the data into a JSON.
          */
         serialize( id: number ): Engine.Editor.IComment {
             let toRet = <Engine.Editor.IComment>super.serialize( id );
+            toRet.type = 'comment';
             toRet.label = this.label;
             toRet.width = this.width;
             toRet.height = this.height;

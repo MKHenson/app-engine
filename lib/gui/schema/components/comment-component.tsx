@@ -1,7 +1,8 @@
 namespace Animate {
 
     export interface ICommentComponentProps {
-        comment: Animate.Comment;
+        comment: Engine.Editor.IComment;
+        editor: ContainerSchema;
     }
 
     export interface ICommentComponentState {
@@ -75,17 +76,19 @@ namespace Animate {
          */
         render(): JSX.Element {
             const comment = this.props.comment;
+            const editor = this.props.editor;
 
             return (
                 <Draggable
                     x={this.props.comment.left}
                     y={this.props.comment.top}
                     enabled={( !this.state.editMode ) }
-                    onMove={( x, y ) => {
-                        comment.left = x;
-                        comment.top = y;
+                    onDragComplete={( start, end ) => {
+                        editor.doAction( new Actions.SelectionMoved( [ { index: comment.id, x: end.x, y: end.y }] ) );
                     } }>
-                    <Resizable onDragStart={( e ) => { e.preventDefault(); e.stopPropagation(); return true; } }>
+                    <Resizable
+                        onResized={ ( size ) => { editor.doAction( new Actions.CommentResized( comment.id, size.width, size.height ) ) } }
+                        onDragStart={( e ) => { e.preventDefault(); e.stopPropagation(); return true; } }>
                         <div
                             onKeyUp={( e ) => {
                                 // F2
@@ -102,18 +105,17 @@ namespace Animate {
                             style={{ width: comment.width + 'px', height: comment.height + 'px' }}
                             className={'scale-in-animation comment' +
                                 ( !this.state.editMode ? ' unselectable' : '' ) +
-                                ( !this.state.editMode && this.props.comment.selected() ? ' selected' : '' ) +
-                                ( this.props.comment.className ? ' ' + this.props.comment.className : '' ) }
+                                ( !this.state.editMode && this.props.comment.selected ? ' selected' : '' ) }
                             onContextMenu={( e ) => {
-                                comment.store.onNodeSelected( comment, comment.selected() ? true : false, false );
-                                comment.onContext( e );
+                                editor.onNodeSelected( comment, comment.selected ? true : false, false );
+                                editor.onContext( comment, e );
                             } }
                             onClick={( e ) => {
                                 if ( this.state.editMode )
                                     return;
 
                                 e.stopPropagation();
-                                this.props.comment.store.onNodeSelected( this.props.comment, e.shiftKey )
+                                editor.onNodeSelected( this.props.comment, e.shiftKey )
                             } }
                             >
                             { this.state.editMode ?

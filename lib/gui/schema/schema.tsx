@@ -1,11 +1,11 @@
 namespace Animate {
 
     export interface ISchemaProps {
-        store: ContainerSchema
+        editor: ContainerSchema
     }
 
 
-    export class Schema extends React.Component<ISchemaProps, { items: CanvasItem[] }> {
+    export class Schema extends React.Component<ISchemaProps, { workspace: Engine.Editor.IContainerWorkspace }> {
 
         // We keep a list of all open canvases
         private static _openCanvases = [];
@@ -14,33 +14,29 @@ namespace Animate {
             super( props );
 
             this.state = {
-                items: props.store.getItems() || []
+                workspace: props.editor.serialize() || { items: [] } as Engine.Editor.IContainerWorkspace
             }
 
-            props.store.on<EditorEvents, void>( 'change', this.invalidate, this );
+            props.editor.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         componentWillReceiveProps( nextProps: ISchemaProps ) {
-            this.props.store.off<EditorEvents, void>( 'change', this.invalidate, this );
-            nextProps.store.on<EditorEvents, void>( 'change', this.invalidate, this );
+            this.props.editor.off<EditorEvents, void>( 'change', this.invalidate, this );
+            nextProps.editor.on<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         /**
          * Clean up any listeners
          */
         componentWillUnmount() {
-            this.props.store.off<EditorEvents, void>( 'change', this.invalidate, this );
+            this.props.editor.off<EditorEvents, void>( 'change', this.invalidate, this );
         }
 
         /**
          * When the store changes, we update the state
          */
         invalidate() {
-            this.setState( { items: this.props.store.getItems() || [] });
-        }
-
-        renderBehaviour( behaviour: Behaviour, index: number ): JSX.Element {
-            return <BehaviourComponent behaviour={behaviour} key={'item-' + index} />
+            this.setState( { workspace: this.props.editor.serialize() });
         }
 
         /**
@@ -55,51 +51,28 @@ namespace Animate {
             if ( json.type === 'resource' ) {
                 const resource = User.get.project.getResourceByShallowID( json.id as number );
                 if ( resource instanceof Resources.Container )
-                    this.createNode( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource );
                 else if ( resource instanceof Resources.Asset || resource instanceof Resources.GroupArray )
-                    this.createNode( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource );
             }
             else if ( json.type === 'template' )
-                this.createNode( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
+                this.addBehaviour( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
 
         }
 
         /**
-		* This will create a canvas node based on the template given
-		* @param {BehaviourDefinition} template The definition of the node
-		* @param {number} x The x position of where the node shoule be placed
-		* @param {number} y The y position of where the node shoule be placed
-		* @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
-		* is the actual behaviour container
-        * @param {string} name The name of the node
-		* @returns {Behaviour}
+		* This will create a new behaviour based on the template given
+		* @param template The definition of the behaviour we're creating
+		* @param x The x position of where the node shoule be placed
+		* @param y The y position of where the node shoule be placed
+		* @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
+        * @param name The alias of the behaviour
 		*/
-        createNode( template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string ): Behaviour {
-
-            let toAdd: Behaviour = null;
+        addBehaviour( template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string ) {
             x = x - x % 10;
             y = y - y % 10;
 
-            // if ( template.behaviourName === "Instance" ) {
-            // 	var nameOfBehaviour: string = "";
-            // 	var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
-            // 	if ( cyclic ) {
-            // 		ReactWindow.show(MessageBox, { message : `You have a cylic dependency with the behaviour '${nameOfBehaviour}'` } as IMessageBoxProps);
-            // 		return null;
-            // 	}
-            // 	toAdd = new BehaviourInstance( this, container );
-            // }
-            if ( template.behaviourName === 'Asset' )
-                toAdd = new BehaviourAsset( resource );
-            // else if (template.behaviourName === "Script")
-            //     toAdd = new BehaviourScript(this, null, name );
-            else
-                toAdd = new Behaviour( template );
-
-            toAdd.left = x;
-            toAdd.top = y;
-            this.props.store.addItem( toAdd );
-            return toAdd;
+            this.props.editor.doAction( new Actions.BehaviourCreated( template, { left: x, top: y }, resource ) );
         }
 
         // /**
@@ -137,14 +110,20 @@ namespace Animate {
         // 	return false;
         // }
 
-        createPortal( type: HatcheryRuntime.PortalType ) {
+        createPortal( type: HatcheryRuntime.PortalType, pos: { x: number; y: number; } ) {
             // Show the rename form
             ReactWindow.show( RenameForm, {
                 name: '',
                 onOk: ( newName ) => {
-
+                    this.props.editor.doAction( new Actions.PortalCreated( new Portal( null, type, new PropBool( newName, false ) ), null, pos.x, pos.y )  );
                 },
                 onRenaming: ( newName, prevName ): Error => {
+                    // Do not allow for duplicate portal names
+                    const items = this.props.editor.getItems();
+                    for ( const item of items )
+                        if ( item instanceof BehaviourPortal )
+                            if ( item.portals[0].property.name == newName )
+                                return new Error(`A portal with the name '${newName}' already exists`);
 
                     return null;
                 }
@@ -160,24 +139,37 @@ namespace Animate {
             const elm = this.refs[ 'canvas' ] as HTMLElement;
             const mouse = Utils.getRelativePos( e, elm );
 
-            const selection = this.props.store.getSelection();
+            mouse.x = mouse.x - mouse.x % 10;
+            mouse.y = mouse.y - mouse.y % 10;
+
+            const selection = this.props.editor.getSelection();
             const items: IReactContextMenuItem[] = [
                 {
                     label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" />, onSelect: ( e ) => {
-                        const comment = new Animate.Comment( 'Type a message' );
-                        comment.left = mouse.x, comment.top = mouse.y;
-                        this.props.store.addItem( comment );
+                        this.props.editor.doAction( new Actions.CommentCreated(mouse.x, mouse.y));
                     }
                 },
                 {
-                    label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [
-                        {
-                            label: 'Create Input', prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                            onSelect: ( e ) => { this.createPortal( 'input' ); }
+                    label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [ {
+                            label: 'Create Input',
+                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                            onSelect: ( e ) => { this.createPortal( 'input', mouse ); }
                         },
-                        { label: 'Create Output', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
-                        { label: 'Create Parameter', prefix: <i className="fa fa-plus" aria-hidden="true" /> },
-                        { label: 'Create Product', prefix: <i className="fa fa-plus" aria-hidden="true" /> }
+                        {
+                            label: 'Create Output',
+                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                            onSelect: ( e ) => { this.createPortal( 'output', mouse ); }
+                        },
+                        {
+                            label: 'Create Parameter',
+                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                            onSelect: ( e ) => { this.createPortal( 'parameter', mouse ); }
+                        },
+                        {
+                            label: 'Create Product',
+                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                            onSelect: ( e ) => { this.createPortal( 'product', mouse ); }
+                        }
                     ]
                 }
             ];
@@ -185,8 +177,7 @@ namespace Animate {
             if ( selection.length > 0 )
                 items.push( {
                     label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" />, onSelect: ( e ) => {
-                        for ( const item of selection )
-                            this.props.store.removeItem( item );
+                        this.props.editor.doAction( new Actions.BehavioursRemoved( selection ) );
                     }
                 });
 
@@ -204,7 +195,7 @@ namespace Animate {
                     onContextMenu={( e ) => { this.onContext( e ); } }
                     ref="canvas"
                     className="canvas"
-                    onClick={( e ) => this.props.store.onNodeSelected( null, false ) }
+                    onClick={( e ) => this.props.editor.onNodeSelected( null, false ) }
                     onDragOver={( e ) => e.preventDefault() }
                     onDoubleClick={( e ) => {
                         e.preventDefault();
@@ -215,7 +206,7 @@ namespace Animate {
                             x: e.pageX,
                             y: e.pageY,
                             onTemplateSelected: ( template ) => {
-                                this.createNode( template, mouse.x, mouse.y );
+                                this.addBehaviour( template, mouse.x, mouse.y );
                             }
                         } as IBehaviourPickerProps )
                     } }
@@ -235,11 +226,11 @@ namespace Animate {
                         }
                     } }
                     >
-                    {this.state.items.map(( item, index ) => {
-                        if ( item instanceof Behaviour )
-                            return this.renderBehaviour( item, index );
-                        else if ( item instanceof Animate.Comment )
-                            return <CommentComponent comment={item} key={'item-' + index} />;
+                    {this.state.workspace.items.map(( item, index ) => {
+                        if ( item.type === 'behaviour' || item.type === 'asset' || item.type === 'portal' )
+                            return <BehaviourComponent editor={this.props.editor} behaviour={item} key={'item-' + index} />;
+                        else if ( item.type === 'comment' )
+                            return <CommentComponent editor={this.props.editor} comment={item} key={'item-' + index} />;
 
                         return null;
                     }) }

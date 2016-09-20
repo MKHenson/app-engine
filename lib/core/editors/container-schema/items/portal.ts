@@ -27,12 +27,22 @@ namespace Animate {
             this.custom = false;
         }
 
+        /**
+         * Clones the canvas item
+         */
+        clone() : Portal {
+            const clone = new Portal( this.behaviour, this.type, this.property.clone() );
+            clone.custom = this.custom;
+            return clone;
+        }
+
         serialize(): Engine.Editor.IPortal {
             return {
                 name: this.property.name,
                 custom: this.custom,
                 property: this.property.tokenize(),
-                type: this.type
+                type: this.type,
+                links: []
             };
         }
 
@@ -42,7 +52,7 @@ namespace Animate {
 		*/
         edit( property: Prop<any> ) {
 
-            if ( this.type === 'parameter' ) {
+            if ( this.type === 'parameter' && this.behaviour ) {
                 this.behaviour.properties.removeVar( property.name );
                 this.behaviour.properties.addVar( property );
             }

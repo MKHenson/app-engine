@@ -1,7 +1,8 @@
 namespace Animate {
 
     export interface IBehaviourComponentProps {
-        behaviour: Behaviour;
+        editor: ContainerSchema;
+        behaviour: Engine.Editor.IBehaviour;
     }
 
     /**
@@ -31,10 +32,23 @@ namespace Animate {
             const portalSize = 10;
             const portalSpacing = 5;
             const padding = 10;
-            const params = behaviour.parameters;
-            const products = behaviour.products;
-            const inputs = behaviour.inputs;
-            const outputs = behaviour.outputs;
+            const portals = behaviour.portals;
+            const params = [];
+            const products = [];
+            const inputs = [];
+            const outputs = [];
+            const editor = this.props.editor;
+
+            for ( const portal of portals )
+                if ( portal.type === 'parameter' )
+                    params.push( portal );
+                else if ( portal.type === 'product' )
+                    products.push( portal );
+                else if ( portal.type === 'input' )
+                    inputs.push( portal );
+                else
+                    outputs.push( portal );
+
             const svgSize = 10;
             const svgSizeHalf = svgSize * 0.5;
             const svgBlockS = svgSize * 0.65;
@@ -53,27 +67,34 @@ namespace Animate {
             tw = Math.ceil(( tw ) / 10 ) * 10;
             th = Math.ceil(( th ) / 10 ) * 10;
 
+            let behaviourTypeClass = '';
+            if ( behaviour.type == 'portal' )
+                behaviourTypeClass += ( behaviour as Engine.Editor.IBehaviourPortal ).portal.type;
+
             return (
-                <Draggable onMove={( x, y ) => {
-                    behaviour.left = x;
-                    behaviour.top = y;
-                } } x={this.props.behaviour.left} y={this.props.behaviour.top}>
+                <Draggable
+                    x={this.props.behaviour.left}
+                    y={this.props.behaviour.top}
+                    onDragComplete={( start, end ) => {
+                        editor.doAction( new Actions.SelectionMoved( [ { index: behaviour.id, x: end.x, y: end.y }] ) );
+                    } } >
                     <div
                         ref="behaviour"
                         className={'behaviour scale-in-animation unselectable' +
-                            ( this.props.behaviour.selected() ? ' selected' : '' ) +
-                            ( this.props.behaviour.className ? ' ' + this.props.behaviour.className : '' ) }
+                            ( this.props.behaviour.selected ? ' selected' : '' ) +
+                            ( behaviourTypeClass ? ' ' + behaviourTypeClass : '' ) +
+                            ' ' + this.props.behaviour.type}
                         style={{
                             width: tw + 'px',
                             height: th + 'px'
                         }}
                         onContextMenu={( e ) => {
-                            behaviour.store.onNodeSelected( behaviour, behaviour.selected() ? true : false, false );
-                            behaviour.onContext( e );
+                            editor.onNodeSelected( behaviour, behaviour.selected ? true : false, false );
+                            editor.onContext( behaviour, e );
                         } }
                         onClick={( e ) => {
                             e.stopPropagation();
-                            this.props.behaviour.store.onNodeSelected( this.props.behaviour, e.shiftKey )
+                            editor.onNodeSelected( this.props.behaviour, e.shiftKey )
                         } }
                         >
                         {params.map(( p, i ) => {

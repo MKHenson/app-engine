@@ -15,8 +15,6 @@ namespace Animate {
         static MODIFIED: CanvasEvents = new CanvasEvents( 'canvas_modified' );
     }
 
-
-
 	/**
 	* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
 	*/
