@@ -8,6 +8,10 @@ namespace Animate {
     export abstract class Editor extends EventDispatcher {
 
         public resource: ProjectResource<Engine.IResource>;
+        public pastActions: Actions.EditorAction[];
+        public currentAction: Actions.EditorAction;
+        public futureActions: Actions.EditorAction[];
+        private _actionHistoryLength: number;
 
         /**
          * Creates an instance of the editor
@@ -15,13 +19,88 @@ namespace Animate {
         constructor( resource: ProjectResource<Engine.IResource> ) {
             super();
             this.resource = resource;
+            this.pastActions = [];
+            this.currentAction = null;
+            this.futureActions = [];
+            this._actionHistoryLength = 20;
         }
 
         /**
-         * Called when the editor is closed and the contents need to be updated on the server.
-         * The returned value of this function is what's sent in the body of the PUT request.
+         * Gets if this editor has actions to undo
          */
-        abstract buildEditToken(): Engine.IResource;
+        get hasUndos(): boolean {
+            return this.currentAction ? true : false;
+        }
+
+        /**
+         * Gets if this editor has actions to redo
+         */
+        get hasRedos(): boolean {
+            return this.futureActions.length === 0 ? false : true;
+        }
+
+        /**
+         * Adds a new action to the editor and resets the undo history
+         */
+        doAction( action: Actions.EditorAction ) {
+            if ( this.currentAction )
+                this.pastActions.push( this.currentAction );
+
+            this.futureActions.splice( 0, this.futureActions.length );
+            this.currentAction = action;
+            action.redo( this );
+
+            if ( this.pastActions.length > this._actionHistoryLength )
+                this.pastActions.splice( 0, 1 );
+
+            this.invalidate();
+        }
+
+        /**
+         * Undo the last history action
+         */
+        undo() {
+            if ( this.currentAction ) {
+                this.currentAction.undo( this );
+                this.futureActions.splice( 0, 0, this.currentAction );
+                this.currentAction = this.pastActions.pop();
+                this.invalidate();
+            }
+        }
+
+        /**
+         * Redo the last un-done action
+         */
+        redo() {
+            if ( this.futureActions.length === 0 )
+                return;
+
+            if ( this.currentAction )
+                this.pastActions.push( this.currentAction );
+
+            this.currentAction = this.futureActions[ 0 ];
+            this.futureActions.splice( 0, 1 );
+            this.currentAction.redo( this );
+            this.invalidate();
+        }
+
+        /**
+         * De-serializes the workspace from its JSON format
+         * @param scene The schema scene we are loading from
+         */
+        abstract deserialize<T>( scene: T );
+
+        /**
+         * Serializes the workspace into its JSON format
+         */
+        abstract serialize<T>(): T;
+
+        /**
+		 * Triggers a change in the tree structure
+		 */
+        invalidate() {
+            this.emit<EditorEvents, void>( 'change' );
+        }
 
         /**
          * Closes the editor and optionally saves the edits to the database
@@ -29,9 +108,9 @@ namespace Animate {
          */
         collapse( updateDatabase: boolean = false ) {
             const project = User.get.project;
-            project.removeEditor(this);
+            project.removeEditor( this );
             if ( updateDatabase )
-                project.editResource(this.resource.entry._id, this.buildEditToken() );
+                project.editResource( this.resource.entry._id, this.serialize() );
 
             // Cleanup
             this.dispose();

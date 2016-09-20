@@ -21,13 +21,59 @@ namespace Animate {
             this.deserialize( container.entry.json );
         }
 
-        /**
-         * Called when the editor is closed and the contents need to be updated on the server.
-         * The returned value of this function is what's sent in the body of the PUT request.
-         */
-        buildEditToken(): Engine.IResource {
-            return { json: this.serialize() } as Engine.IContainer;
-        }
+        // protected createItem( action: IBehaviourCreated ): Behaviour {
+        //     let toAdd: Behaviour;
+
+        //     // if ( template.behaviourName === "Instance" ) {
+        //     // 	var nameOfBehaviour: string = "";
+        //     // 	var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
+        //     // 	if ( cyclic ) {
+        //     // 		ReactWindow.show(MessageBox, { message : `You have a cylic dependency with the behaviour '${nameOfBehaviour}'` } as IMessageBoxProps);
+        //     // 		return null;
+        //     // 	}
+        //     // 	toAdd = new BehaviourInstance( this, container );
+        //     // }
+        //     if ( action.template.behaviourName === 'Asset' )
+        //         toAdd = new BehaviourAsset( action.resource );
+        //     // else if (template.behaviourName === "Script")
+        //     //     toAdd = new BehaviourScript(this, null, name );
+        //     else
+        //         toAdd = new Behaviour( action.template );
+
+        //     this.addItem( toAdd );
+        //     toAdd.alias = ( action.edits as Engine.Editor.IBehaviour ).alias;
+        //     return toAdd
+        // }
+
+        // onAction( action: IContainerAction ): Engine.Editor.IContainerWorkspace {
+        //     let newItem: CanvasItem;
+
+        //     switch ( action.type ) {
+        //         case 'behaviour-created':
+        //             newItem = this.createItem( action as IBehaviourCreated );
+        //             break;
+        //         case 'comment-created':
+        //             newItem = new Animate.Comment();
+        //             this.addItem( newItem );
+        //             break;
+        //         case 'items-removed':
+        //             this.removeItem( this._items[(action as IItemRemoved).id] );
+        //             break;
+        //         case 'selection-changed':
+        //             // TODO:
+        //             for (const id of (action as ISelectionChanged).selectedIds)
+        //                 this._items[id].selected
+
+        //             throw new Error('Not implemented');
+        //     }
+
+        //     if ( newItem ) {
+        //         newItem.left = action.edits.left;
+        //         newItem.top = action.edits.top;
+        //     }
+
+        //     return this.serialize();
+        // }
 
         /**
          * Returns all items of this store
@@ -46,10 +92,18 @@ namespace Animate {
         /**
          * Called whenever an item is clicked.
          */
-        onNodeSelected( node: CanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
+        onNodeSelected( item: Engine.Editor.ICanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
             let clearSelection = false;
+            let previousNumSelected = this._selection.length;
             let selection = this._selection;
+            let node: CanvasItem = null;
+            const selectedIds = [];
+            const items = this._items;
+
+            // Check if the item exists
+            if ( item )
+                node = this._items[ item.id ];
 
             if ( !shiftDown )
                 clearSelection = true;
@@ -57,19 +111,13 @@ namespace Animate {
             // Deselect all nodes if either not multi select mode or shiftkey was not pressed
             if ( clearSelection ) {
 
-                for ( let n of selection )
-                    n.selected( false );
-
                 selection.splice( 0, selection.length );
 
-                if ( node ) {
+                if ( node )
                     selection.push( node );
-                    node.selected( true );
-                }
             }
             else if ( node ) {
-                let selected = ( toggleSelectedState ? !node.selected() : node.selected() );
-                node.selected( selected );
+                let selected = ( toggleSelectedState ? !node.selected : node.selected );
 
                 if ( !selected && selection.indexOf( node ) !== -1 )
                     selection.splice( selection.indexOf( node ), 1 );
@@ -77,13 +125,21 @@ namespace Animate {
                     selection.push( node );
             }
 
-            this.onSelectionChange( selection );
+            if ( previousNumSelected === 0 && selection.length === 0 )
+                return;
+
+            for ( const item of selection )
+                selectedIds.push( items.indexOf( item ) );
+
+            this.doAction( new Actions.SelectionChanged( selectedIds ) );
         }
 
         /**
-		 * Called whenever the selection has changed
-		 */
-        onSelectionChange( selection: CanvasItem[] ) {
+         * Whenever we receive a context event on an item
+         */
+        onContext( item: Engine.Editor.ICanvasItem, e: React.MouseEvent ) {
+            let node = this._items[ item.id ];
+            node.onContext( e );
         }
 
         /**
@@ -95,7 +151,6 @@ namespace Animate {
                 return item;
 
             this._items.push( item );
-            this.invalidate();
             item.store = this;
             return item;
         }
@@ -108,7 +163,6 @@ namespace Animate {
             if ( this._items.indexOf( item ) !== -1 )
                 this._items.splice( this._items.indexOf( item ), 1 );
 
-            this.invalidate();
             item.dispose();
         }
 
@@ -149,28 +203,18 @@ namespace Animate {
          * Serializes the workspace into its JSON format
          */
         serialize(): Engine.Editor.IContainerWorkspace {
-
-            let id = 1;
             let toRet: Engine.Editor.IContainerWorkspace = {
                 items: [],
                 properties: {}
             };
 
-
-            for ( let item of this._items ) {
-                let token = item.serialize( id );
-                id++;
+            for ( let i = 0, l = this._items.length; i < l; i++ ) {
+                let item = this._items[ i ];
+                let token = item.serialize( i );
                 toRet.items.push( token );
             }
 
             return toRet;
-        }
-
-        /**
-		 * Triggers a change in the tree structure
-		 */
-        invalidate() {
-            this.emit<EditorEvents, void>( 'change' );
         }
     }
 }

@@ -1,21 +1,19 @@
 namespace Animate {
 
 	/**
-	* A project class is an object that is owned by a user.
-	* The project has functions which are useful for comunicating data to the server when
-	* loading and saving data in the scene.
-	*/
+	 * A project is the logical container of all resources and functions related
+     * to a user's hatchery editor project.
+	 */
     export class Project extends EventDispatcher {
-        private _entry: Engine.IProject;
-
-        public curBuild: Build;
-        private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
 
         public openEditors: Editor[];
+        public curBuild: Build;
+        private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
+        private _entry: Engine.IProject;
 
 		/**
-		* @param id The database id of this project
-		*/
+		 * @param id The database id of this project
+		 */
         constructor() {
             super();
 
@@ -45,10 +43,10 @@ namespace Animate {
         }
 
         /**
-		* Gets a resource by its ID
-		* @param id The ID of the resource
-		* @returns The resource whose id matches the id parameter or null
-		*/
+		 * Gets a resource by its ID
+		 * @param id The ID of the resource
+		 * @returns The resource whose id matches the id parameter or null
+		 */
         getResourceByID<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } {
             const types = this._restPaths;
             if ( type ) {
@@ -67,10 +65,10 @@ namespace Animate {
         }
 
         /**
-		* Gets a resource by its shallow ID
-		* @param id The shallow ID of the resource
-		* @returns The resource whose shallow id matches the id parameter or null
-		*/
+		 * Gets a resource by its shallow ID
+		 * @param id The shallow ID of the resource
+		 * @returns The resource whose shallow id matches the id parameter or null
+		 */
         getResourceByShallowID<T extends ProjectResource<Engine.IResource>>( id: number, type?: ResourceType ): T {
             const types = this._restPaths;
             if ( type ) {
@@ -89,9 +87,9 @@ namespace Animate {
         }
 
         /**
-		* Attempts to update the project details base on the token provided
-        * @returns The project token
-		*/
+		 * Attempts to update the project details base on the token provided
+         * @returns The project token
+		 */
         updateDetails( token: Engine.IProject ): Promise<UsersInterface.IResponse> {
             const entry = this._entry;
             const that = this;
@@ -117,8 +115,8 @@ namespace Animate {
         }
 
         /**
-		* Loads a previously selected build, or creates one if none are selected
-		*/
+		 * Loads a previously selected build, or creates one if none are selected
+		 */
         loadBuild(): Promise<Build> {
             const that = this;
             const username = User.get.entry.username;
@@ -145,10 +143,10 @@ namespace Animate {
         }
 
         /**
-		* Internal function to create a resource wrapper
-		* @param entry The database entry
-        * @param type The type of resource to create
-		*/
+		 * Internal function to create a resource wrapper
+		 * @param entry The database entry
+         * @param type The type of resource to create
+		 */
         private createResourceInstance<T extends Engine.IResource>( entry: T, type?: ResourceType ): ProjectResource<T> {
             let resource: ProjectResource<any>;
 
@@ -179,9 +177,9 @@ namespace Animate {
         }
 
         /**
-		* This function is used to fetch the project resources associated with a project.
-		* @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-		*/
+		 * This function is used to fetch the project resources associated with a project.
+		 * @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+	 	 */
         loadResources( type?: ResourceType ): Promise<Array<ProjectResource<Engine.IResource>>> {
 
             const arr: Array<Promise<Modepress.IGetArrayResponse<Engine.IResource>>> = [];
@@ -271,10 +269,10 @@ namespace Animate {
         }
 
         /**
-        * This function is used to fetch a project resource by Id
-        * @param id the Id of the resource to update
-        * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        */
+         * This function is used to fetch a project resource by Id
+         * @param id the Id of the resource to update
+         * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+         */
         refreshResource<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): Promise<T | Error> {
             const that = this;
             const paths = this._restPaths;
@@ -306,10 +304,10 @@ namespace Animate {
         }
 
         /**
-		* Use this to edit the properties of a resource
-		* @param id The id of the object we are editing.
-        * @param data The new data for the resource
-		*/
+		 * Use this to edit the properties of a resource
+		 * @param id The id of the object we are editing.
+         * @param data The new data for the resource
+		 */
         editResource<T>( id: string, data: T ): Promise<Modepress.IResponse | Error> {
             const that = this;
             const details = User.get.entry;
@@ -348,10 +346,10 @@ namespace Animate {
         }
 
         /**
-		* Use this to save the properties of a resource
-		* @param id The id of the object we are saving.
-        * @param type [Optional] The type of resource we are saving
-		*/
+		 * Use this to save the properties of a resource
+		 * @param id The id of the object we are saving.
+         * @param type [Optional] The type of resource we are saving
+		 */
         saveResource( id: string, type?: ResourceType ): Promise<boolean> {
             const paths = this._restPaths;
             const that = this;
@@ -377,9 +375,9 @@ namespace Animate {
         }
 
         /**
-		* Use this to edit the properties of a resource
-        * @param type The type of resource we are saving
-		*/
+		 * Use this to edit the properties of a resource
+         * @param type The type of resource we are saving
+		 */
         saveResources( type: ResourceType ): Promise<boolean> {
             const paths = this._restPaths;
             const promises: Array<Promise<boolean>> = [];
@@ -398,10 +396,10 @@ namespace Animate {
         }
 
         /**
-		* Use this to delete a resource by its Id
-		* @param id The id of the object we are deleting
-        * @param type The type of resource we are renaming
-		*/
+		 * Use this to delete a resource by its Id
+		 * @param id The id of the object we are deleting
+         * @param type The type of resource we are renaming
+		 */
         deleteResource( id: string, type: ResourceType ): Promise<boolean | Error> {
             const that = this;
             const details = User.get.entry;
@@ -437,10 +435,10 @@ namespace Animate {
         }
 
         /**
-        * Copies an existing resource and assigns a new ID to the cloned item
-        * @param id The id of the resource we are cloning from
-        * @param type [Optional] The type of resource to clone
-        */
+         * Copies an existing resource and assigns a new ID to the cloned item
+         * @param id The id of the resource we are cloning from
+         * @param type [Optional] The type of resource to clone
+         */
         copyResource<T extends Engine.IResource>( id: string, type?: ResourceType ): Promise<ProjectResource<T>> {
             const r = this.getResourceByID( id, type );
             const resource: ProjectResource<Engine.IResource> = r.resource;
@@ -454,9 +452,9 @@ namespace Animate {
         }
 
         /**
-		* Deletes several resources in 1 function call
-        * @param ids The ids An array of resource Ids
-		*/
+		 * Deletes several resources in 1 function call
+         * @param ids The ids An array of resource Ids
+		 */
         deleteResources( ids: Array<string> ): Promise<boolean> {
             const promises: Array<Promise<boolean>> = [];
             const paths = this._restPaths;
@@ -481,8 +479,8 @@ namespace Animate {
         }
 
         /**
-		* This function is used to all project resources
-		*/
+		 * This function is used to all project resources
+		 */
         saveAll() {
             const promises: Array<Promise<boolean>> = [];
             for ( const i in this._restPaths )
@@ -491,7 +489,6 @@ namespace Animate {
             return new Promise<boolean>( function ( resolve, reject ) {
                 Promise.all( promises ).then( function ( data ) {
                     resolve( true );
-
                 }).catch( function ( err: Error ) {
                     reject( err );
                 });
@@ -499,9 +496,9 @@ namespace Animate {
         }
 
         /**
-        * Creates a new project resource.
-        * @param type The type of resource we are renaming
-        */
+         * Creates a new project resource.
+         * @param type The type of resource we are renaming
+         */
         createResource<T extends Engine.IResource>( type: ResourceType, data: T ): Promise<ProjectResource<T>> {
             const details = User.get.entry;
             const projId = this._entry._id;
@@ -553,6 +550,9 @@ namespace Animate {
             this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
         }
 
+        /**
+         * Removes an editor from the active editor array
+         */
         removeEditor( editor : Editor ) {
             this.openEditors.splice( this.openEditors.indexOf(editor), 1 );
             this.emit<ProjectEvents, IEditorEvent>( 'editor-removed', { editor: editor });
@@ -565,8 +565,8 @@ namespace Animate {
         get groups(): Resources.GroupArray[] { return this._restPaths[ResourceType.GROUP].array as Resources.GroupArray[]; }
 
 		/**
-		* This will cleanup the project and remove all data associated with it.
-		*/
+		 * This will cleanup the project and remove all data associated with it.
+		 */
         reset() {
             this._entry = null;
             const pManager: PluginManager = PluginManager.getSingleton();
