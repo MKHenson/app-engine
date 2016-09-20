@@ -552,29 +552,27 @@ declare namespace Animate {
         disposed: boolean;
         constructor();
         /**
-         * Returns the list of {EventListener} that are currently attached to this dispatcher.
-         * @returns {Array<EventListener<string, any>>}
+         * Returns the list of event listeners that are currently attached to this dispatcher.
          */
         listeners: Array<EventListener<string, any>>;
         /**
          * Adds a new listener to the dispatcher class.
-         * @param {T} type The event type we are sending
-         * @param {TypedCallback<T, Y>} func The callback function
-         * @param {any} context [Optional] The context to call with
+         * @param type The event type we are sending
+         * @param func The callback function
+         * @param context [Optional] The context to call with
          */
         on<T extends string, Y>(type: T, func: TypedCallback<T, Y>, context?: any): void;
         /**
          * Adds a new listener to the dispatcher class.
-         * @param {T} type The event type we are sending
-         * @param {TypedCallback<T, Y>} func The callback function
-         * @param {any} context [Optional] The context to call with
+         * @param type The event type we are sending
+         * @param func The callback function
+         * @param context [Optional] The context to call with
          */
         off<T extends string, Y>(type: T, func: TypedCallback<T, Y>, context?: any): void;
         /**
          * Sends a message to all listeners based on the eventType provided.
-         * @param {T} type The event type we are sending
-         * @param {Event<T> | Y} data [Optional] The data to send with the emission
-         * @returns {any}
+         * @param type The event type we are sending
+         * @param data [Optional] The data to send with the emission
          */
         emit<T extends string, Y>(type: T, data?: Y): any;
         /**
@@ -694,12 +692,11 @@ declare namespace Animate {
         constructor(name: string, parent: AssetClass, imgURL: string, abstractClass?: boolean);
         /**
          * Gets an array of all classes that are possible from this
-         * @returns {AssetClass[]}
          */
         getClasses(): AssetClass[];
         /**
         * Creates an object of all the variables for an instance of this class.
-        * @returns {EditableSet} The variables we are editing
+        * @returns The variables we are editing
         */
         buildVariables(): EditableSet;
         /**
@@ -708,8 +705,8 @@ declare namespace Animate {
         findClass(name: string): AssetClass;
         /**
         * Adds a variable to the class.
-        * @param { Prop<any>} prop The property to add
-        * @returns {AssetClass} A reference to this AssetClass
+        * @param prop The property to add
+        * @returns A reference to this AssetClass
         */
         addVar(prop: Prop<any>): AssetClass;
         /**
@@ -718,36 +715,30 @@ declare namespace Animate {
         dispose(): void;
         /**
         * Gets a variable based on its name
-        * @param {string} name The name of the class
-        * @returns {Prop<T>}
+        * @param name The name of the class
         */
         getVariablesByName<T>(name: string): Prop<T>;
         /**
         * Gets the image URL of this template
-        * @returns {string}
         */
         imgURL: string;
         /**
         * Gets the variables associated with this template
-        * @returns {Array<Prop<any>>}
         */
         variables: Array<Prop<any>>;
         /**
         * Adds a class
-        * @param {string} name The name of the class
-        * @param {string} img The optional image of the class
-        * @param {boolean} abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
-        * @returns {AssetClass}
+        * @param name The name of the class
+        * @param img The optional image of the class
+        * @param abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
         */
         addClass(name: string, img: string, abstractClass: boolean): AssetClass;
         /**
         * Gets the name of the class
-        * @returns {string}
         */
         name: string;
         /**
         * Gets if this class is abstract or not
-        * @returns {boolean}
         */
         abstractClass: boolean;
     }
@@ -774,20 +765,17 @@ declare namespace Animate {
         static init(): void;
         /**
          * Checks a string to see if there is a validation error
-         * @param {string} val The string to check
-         * @param {ValidationType} validator The type of validations to check
+         * @param val The string to check
+         * @param validator The type of validations to check
          */
         static checkValidation(val: string, validator: ValidationType): string;
         /**
         * Generates a new shallow Id - an id that is unique only to this local session
-        * @param {number} reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
-        * @returns {number}
+        * @param reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
         */
         static generateLocalId(reference?: number): number;
         /**
          * Capitalizes the first character of a string
-         * @param {string} str
-         * @returns {string}
          */
         static capitalize(str: string): string;
         /**
@@ -808,14 +796,13 @@ declare namespace Animate {
         static delete<T>(url: string, data?: any): Promise<T>;
         /**
         * Creates a new property based on the dataset provided
-        * @param {PropertyType} type The type of property to create
+        * @param type The type of property to create
         */
         static createProperty(name: string, type: PropertyType): Prop<any>;
         /**
          * Gets the relative position of the mouse to the given element
-         * @param {React.MouseEvent} e
-         * @param {HTMLElement} elm The target element
-         * @returns {{ x: number, y : number }}
+         * @param e
+         * @param elm The target element
          */
         static getRelativePos(e: React.MouseEvent, elm: HTMLElement): {
             x: number;
@@ -823,19 +810,18 @@ declare namespace Animate {
         };
         /**
          * Gets a quadratically eased in/out value
-         * @param {number} startValue The initial value
-         * @param {number} delta The difference between the start value and its target
-         * @param {number} curTime Between 0 and duration
-         * @param {number} duration The total time
-         * @returns {number}
+         * @param startValue The initial value
+         * @param delta The difference between the start value and its target
+         * @param curTime Between 0 and duration
+         * @param duration The total time
          */
         static quadInOut(startValue: any, delta: any, curTime: any, duration: any): number;
         /**
          * Scrolls an element to the destination x and y for a given duration
-         * @param {{ x: number, y : number }} dest The target X & Y coordinates
-         * @param {HTMLElement} elm The element to scroll
-         * @param {number} duration The total amount of time to take to scroll
-         * @return {number} Returns setInterval
+         * @param dest The target X & Y coordinates
+         * @param elm The element to scroll
+         * @param duration The total amount of time to take to scroll
+         * @return Returns setInterval
          */
         static scrollTo(dest: {
             x: number;
@@ -843,15 +829,19 @@ declare namespace Animate {
         }, elm: HTMLElement, duration: number): number;
         /**
         * Use this function to check if a value contains characters that break things.
-        * @param {string} text The text to check
-        * @param {boolean} allowSpace If this is true, empty space will be allowed
-        * @returns {string} Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
+        * @param text The text to check
+        * @param allowSpace If this is true, empty space will be allowed
+        * @returns Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
         */
         static checkForSpecialChars(text: string, allowSpace?: boolean): string;
         /**
-        Tells us if a string is a valid email address
-        */
+         * Tells us if a string is a valid email address
+         */
         static validateEmail(email: string): boolean;
+        /**
+         * Returns the class name of the argument or undefined if
+         * it's not a valid JavaScript object.
+         */
         static getObjectClass(obj: any): any;
     }
 }
@@ -872,44 +862,42 @@ declare namespace Animate {
          * Attempts to download a plugin by its URL and insert it onto the page.
          * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
          * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-         * @param {IPlugin} pluginDefinition The plugin to load
-         * @returns {Promise<Engine.IPlugin>}
+         * @param pluginDefinition The plugin to load
          */
         loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>;
         /**
          * This funtcion is used to load a plugin.
-         * @param {IPlugin} pluginDefinition The IPlugin constructor that is to be created
-         * @param {boolean} createPluginReference Should we keep this constructor in memory? The default is true
+         * @param pluginDefinition The IPlugin constructor that is to be created
+         * @param createPluginReference Should we keep this constructor in memory? The default is true
          */
         preparePlugin(pluginDefinition: Engine.IPlugin, createPluginReference?: boolean): void;
         /**
          * Call this function to unload a plugin
-         * @param {IPlugin} plugin The IPlugin object that is to be loaded
+         * @param plugin The IPlugin object that is to be loaded
          */
         unloadPlugin(plugin: IPlugin): void;
         /**
          * Loops through each of the converters to see if a conversion is possible. If it is
          * it will return an array of conversion options, if not it returns false.
-         * @param {any} typeA The first type to check
-         * @param {any} typeB The second type to check
+         * @param typeA The first type to check
+         * @param typeB The second type to check
          */
         getConverters(typeA: any, typeB: any): any;
         /**
          * Gets a behaviour template by its name.
-         * @param {string} behaviorName The name of the behaviour template
+         * @param behaviorName The name of the behaviour template
          */
         getTemplate(behaviorName: string): BehaviourDefinition;
         /**
          * Use this function to select an asset in the tree view and property grid
-         * @param {Resources.Asset} asset The Asset object we need to select
-         * @param {boolean} panToNode When set to true, the treeview will bring the node into view
-         * @param {boolean} multiSelect When set to true, the treeview not clear any previous selections
+         * @param asset The Asset object we need to select
+         * @param panToNode When set to true, the treeview will bring the node into view
+         * @param multiSelect When set to true, the treeview not clear any previous selections
          */
         selectAsset(asset: Resources.Asset, panToNode?: boolean, multiSelect?: boolean): void;
         /**
          * Gets an asset class by its name
-         * @param {string} name The name of the asset class
-         * @param {AssetClass}
+         * @param name The name of the asset class
          */
         getAssetClass(name: string): AssetClass;
         /**
@@ -922,14 +910,12 @@ declare namespace Animate {
         projectReady(project: Project): void;
         /**
          * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
          */
         thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
         /**
          * This function generates a React Element that is used to preview a file
-         * @param {Engine.IFile} file The file we are looking to preview
-         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         * @param file The file we are looking to preview
+         * @returns If a React Element is returned is added in the File viewer preview
          */
         displayPreview(file: Engine.IFile): JSX.Element;
         assetTemplates: AssetTemplate[];
@@ -1021,11 +1007,9 @@ declare namespace Animate {
         properties: EditableSet;
         /**
         * Gets if this resource is saved
-        * @returns {boolean}
         */
         /**
         * Sets if this resource is saved
-        * @param {boolean} val
         */
         saved: boolean;
         dispose(): void;
@@ -1058,20 +1042,19 @@ declare namespace Animate {
         class Asset extends ProjectResource<Engine.IAsset> {
             class: AssetClass;
             /**
-            * @param {AssetClass} assetClass The name of the 'class' or 'template' that this asset belongs to
-            * @param {IAsset} entry [Optional] The asset database entry
+            * @param assetClass The name of the 'class' or 'template' that this asset belongs to
+            * @param entry [Optional] The asset database entry
             */
             constructor(assetClass: AssetClass, entry?: Engine.IAsset);
             /**
             * Writes this assset to a readable string
-            * @returns {string}
             */
             toString(): string;
             /**
             * Use this function to reset the asset properties
-            * @param {string} name The name of the asset
-            * @param {string} className The 'class' or 'template' name of the asset
-            * @param {any} json The JSON data of the asset.
+            * @param name The name of the asset
+            * @param className The 'class' or 'template' name of the asset
+            * @param json The JSON data of the asset.
             */
             update(name: string, className: string, json?: any): void;
             /**
@@ -1090,7 +1073,7 @@ declare namespace Animate {
         class Container extends ProjectResource<Engine.IContainer> {
             canvas: Canvas;
             /**
-             * @param {Engine.IContainer} entry The data associated with this container resource
+             * @param entry The data associated with this container resource
              */
             constructor(entry?: Engine.IContainer);
             /**
@@ -1115,17 +1098,17 @@ declare namespace Animate {
         */
         class GroupArray extends ProjectResource<Engine.IGroup> {
             /**
-            * @param {IGroup} entry [Optional] The database entry of the resource
+            * @param entry [Optional] The database entry of the resource
             */
             constructor(entry?: Engine.IGroup);
             /**
             * Adds a new reference to the group
-            * @param {number} shallowId
+            * @param shallowId
             */
             addReference(shallowId: number): void;
             /**
             * Removes a reference from the group
-            * @param {number} shallowId
+            * @param shallowId
             */
             removeReference(shallowId: number): void;
             /**
@@ -1143,7 +1126,7 @@ declare namespace Animate {
         */
         class File extends ProjectResource<Engine.IFile> {
             /**
-            * @param {IFile} entry The DB entry of this file
+            * @param entry The DB entry of this file
             */
             constructor(entry: Engine.IFile);
         }
@@ -1156,7 +1139,7 @@ declare namespace Animate {
         */
         class Script extends ProjectResource<Engine.IScript> {
             /**
-            * @param {IScript} entry The DB entry of this script
+            * @param entry The DB entry of this script
             */
             constructor(entry: Engine.IScript);
         }
@@ -1170,15 +1153,47 @@ declare namespace Animate {
      */
     abstract class Editor extends EventDispatcher {
         resource: ProjectResource<Engine.IResource>;
+        pastActions: Actions.EditorAction[];
+        currentAction: Actions.EditorAction;
+        futureActions: Actions.EditorAction[];
+        private _actionHistoryLength;
         /**
          * Creates an instance of the editor
          */
         constructor(resource: ProjectResource<Engine.IResource>);
         /**
-         * Called when the editor is closed and the contents need to be updated on the server.
-         * The returned value of this function is what's sent in the body of the PUT request.
+         * Gets if this editor has actions to undo
          */
-        abstract buildEditToken(): Engine.IResource;
+        hasUndos: boolean;
+        /**
+         * Gets if this editor has actions to redo
+         */
+        hasRedos: boolean;
+        /**
+         * Adds a new action to the editor and resets the undo history
+         */
+        doAction(action: Actions.EditorAction): void;
+        /**
+         * Undo the last history action
+         */
+        undo(): void;
+        /**
+         * Redo the last un-done action
+         */
+        redo(): void;
+        /**
+         * De-serializes the workspace from its JSON format
+         * @param scene The schema scene we are loading from
+         */
+        abstract deserialize<T>(scene: T): any;
+        /**
+         * Serializes the workspace into its JSON format
+         */
+        abstract serialize<T>(): T;
+        /**
+         * Triggers a change in the tree structure
+         */
+        invalidate(): void;
         /**
          * Closes the editor and optionally saves the edits to the database
          * @param updateDatabase If true, the editor will provide edits that must be saved to the datavase
@@ -1187,9 +1202,139 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        abstract class EditorAction {
+            abstract undo(editor: Animate.Editor): any;
+            abstract redo(editor: Animate.Editor): any;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class BehaviourCreated extends EditorAction {
+            definition: BehaviourDefinition;
+            instance: Behaviour;
+            options: Engine.Editor.IBehaviour;
+            resource: ProjectResource<Engine.IResource>;
+            constructor(definition: BehaviourDefinition, options: Engine.Editor.IBehaviour, resource?: ProjectResource<Engine.IResource>);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class PortalCreated extends EditorAction {
+            target: Behaviour;
+            instance: BehaviourPortal;
+            portal: Portal;
+            left: number;
+            top: number;
+            constructor(portal: Portal, target: Behaviour, left: number, top: number);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class BehavioursRemoved extends EditorAction {
+            instances: CanvasItem[];
+            clones: CanvasItem[];
+            constructor(instances: CanvasItem[]);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class SelectionChanged extends EditorAction {
+            selectionIds: number[];
+            previousSelection: number[];
+            constructor(selectionIds: number[]);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class SelectionMoved extends EditorAction {
+            positions: {
+                index: number;
+                x: number;
+                y: number;
+            }[];
+            previousPositions: {
+                index: number;
+                x: number;
+                y: number;
+            }[];
+            constructor(positions: {
+                index: number;
+                x: number;
+                y: number;
+            }[]);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class CommentCreated extends EditorAction {
+            instance: Comment;
+            left: number;
+            top: number;
+            constructor(left: number, top: number);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * The base class for all editor actions
+         */
+        class CommentResized extends EditorAction {
+            index: number;
+            width: number;
+            height: number;
+            prevWidth: number;
+            prevHeight: number;
+            constructor(index: number, width: number, height: number);
+            undo(editor: Animate.ContainerSchema): void;
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
     /**
      * An editor that represents the data of a container's inner behaviours and their relationships with eachother.
-     * This editor is visualised through a canvas schema.
+     * This editor is visualised through a schema component.
      */
     class ContainerSchema extends Editor {
         opened: boolean;
@@ -1200,56 +1345,40 @@ declare namespace Animate {
          */
         constructor(container: Resources.Container);
         /**
-         * Called when the editor is closed and the contents need to be updated on the server.
-         * The returned value of this function is what's sent in the body of the PUT request.
-         */
-        buildEditToken(): Engine.IResource;
-        /**
          * Returns all items of this store
-         * @returns {CanvasItem[]}
          */
         getItems(): CanvasItem[];
         /**
          * Returns the currrently selected items
-         * @returns {CanvasItem[]}
          */
         getSelection(): CanvasItem[];
         /**
          * Called whenever an item is clicked.
-         * @param {CanvasItem} node
-         * @param {boolean} shiftDown
          */
-        onNodeSelected(node: CanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        onNodeSelected(item: Engine.Editor.ICanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
         /**
-         * Called whenever the selection has changed
-         * @param {CanvasItem[]} selection
+         * Whenever we receive a context event on an item
          */
-        onSelectionChange(selection: CanvasItem[]): void;
+        onContext(item: Engine.Editor.ICanvasItem, e: React.MouseEvent): void;
         /**
          * Adds a canvas item to the canvas
-         * @param {CanvasItem} item
-         * @returns {CanvasItem}
+         * @param item The item to add
          */
         addItem(item: CanvasItem): CanvasItem;
         /**
          * Removes a canvas item from the canvas
-         * @param {CanvasItem} item
+         * @param item The item to remove
          */
         removeItem(item: CanvasItem): void;
         /**
          * De-serializes the workspace from its JSON format
-         * @param {Engine.Editor.IContainerWorkspace} scene
+         * @param scene The schema scene we are loading from
          */
         deserialize(scene: Engine.Editor.IContainerWorkspace): void;
         /**
          * Serializes the workspace into its JSON format
-         * @returns {Engine.Editor.IContainerWorkspace}
          */
         serialize(): Engine.Editor.IContainerWorkspace;
-        /**
-         * Triggers a change in the tree structure
-         */
-        invalidate(): void;
     }
 }
 declare namespace Animate {
@@ -1265,39 +1394,34 @@ declare namespace Animate {
     class CanvasItem extends EventDispatcher {
         top: number;
         left: number;
-        className: string;
         store: ContainerSchema;
         id: number;
-        private _selected;
+        selected: boolean;
         /**
          * Creates an instance
          */
         constructor();
         /**
+         * Clones the canvas item
+         */
+        clone(clone?: CanvasItem): CanvasItem;
+        /**
          * Called when we activate the context menu on the behaviour
          */
         onContext(e: React.MouseEvent): void;
         /**
-         * Gets or sets if the item is selected
-         * @param {boolean} val
-         * @returns {boolean}
-         */
-        selected(val?: boolean): boolean;
-        /**
          * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {ICanvasItem}
          */
         serialize(id: number): Engine.Editor.ICanvasItem;
         /**
          * De-serialize data from a JSON.
-         * @param {ICanvasItem} data The data to import from
+         * @param data The data to import from
          */
         deSerialize(data: Engine.Editor.ICanvasItem): void;
         /**
          * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-         * @param {number} originalId The original shallow ID of the item when it was tokenized.
-         * @param {LinkMap} items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
+         * @param originalId The original shallow ID of the item when it was tokenized.
+         * @param items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
          * or to get the token you can use items[originalId].token
          */
         link(originalId: number, items: LinkMap): void;
@@ -1320,56 +1444,50 @@ declare namespace Animate {
         alias: string;
         canGhost: boolean;
         behaviourType: string;
-        private _parameters;
-        private _products;
-        private _outputs;
-        private _inputs;
-        private _portals;
-        private _properties;
+        parameters: Portal[];
+        products: Portal[];
+        outputs: Portal[];
+        inputs: Portal[];
+        portals: Portal[];
+        properties: EditableSet;
+        template: BehaviourDefinition;
         /**
          * Creates an instance of the behaviour
          */
         constructor(template: BehaviourDefinition);
         /**
+         * Clones the canvas item
+         */
+        clone(clone?: Behaviour): Behaviour;
+        /**
          * Gets a portal by its name
-         * @param {string} name The portal name
-         * @returns {Portal}
+         * @param name The portal name
          */
         getPortal(name: string): Portal;
         /**
          * Adds a portal to this behaviour.
-         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-         * @param {Prop<any>} property
-         * @returns {Portal}
+         * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param property
          */
         addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
         /**
         * Removes a portal from this behaviour
-        * @param {Portal} toRemove The portal object we are removing
-        * @returns {Portal} The portal we have removed. This would be disposed if dispose was set to true.
+        * @param toRemove The portal object we are removing
         */
         removePortal(toRemove: Portal): Portal;
         /**
          * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IBehaviour}
          */
         serialize(id: number): Engine.Editor.IBehaviour;
         /**
          * De-Serializes data from a JSON.
-         * @param {IBehaviour} data The data to import from
+         * @param data The data to import from
          */
         deSerialize(data: Engine.Editor.IBehaviour): void;
         /**
          * Diposes and cleans up this component and its portals
          */
         dispose(): void;
-        properties: EditableSet;
-        parameters: Array<Portal>;
-        products: Array<Portal>;
-        outputs: Array<Portal>;
-        inputs: Array<Portal>;
-        portals: Array<Portal>;
     }
 }
 declare namespace Animate {
@@ -1377,28 +1495,29 @@ declare namespace Animate {
      * A behaviour for representing container portals
      */
     class BehaviourPortal extends Behaviour {
-        private _portalType;
+        portalType: HatcheryRuntime.PortalType;
         private _property;
         /**
          * Creates an instance
          */
-        constructor(property: Prop<any>, portalType?: HatcheryRuntime.PortalType);
+        constructor(property: Prop<any>, portalType: HatcheryRuntime.PortalType);
+        /**
+         * Clones the canvas item
+         */
+        clone(clone?: BehaviourPortal): BehaviourPortal;
         /**
          * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IBehaviourPortal}
          */
         serialize(id: number): Engine.Editor.IBehaviourPortal;
         /**
          * De-Serializes data from a JSON.
-         * @param {IBehaviourPortal} data The data to import from
+         * @param data The data to import from
          */
         deSerialize(data: Engine.Editor.IBehaviourPortal): void;
         /**
          * This will cleanup the component.
          */
         dispose(): void;
-        portaltype: HatcheryRuntime.PortalType;
         property: Prop<any>;
     }
 }
@@ -1413,19 +1532,21 @@ declare namespace Animate {
          */
         constructor(asset?: ProjectResource<Engine.IResource>);
         /**
+         * Clones the canvas item
+         */
+        clone(clone?: BehaviourAsset): BehaviourAsset;
+        /**
          * Clean up
          */
         dispose(): void;
         /**
          * Serializes the data into a JSON.
-         * @returns {IBehaviour}
          */
         serialize(id: number): Engine.Editor.IBehaviour;
         /**
          * Adds a portal to this behaviour.
-         * @param {PortalType} type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-         * @param {Prop<any>} property
-         * @returns {Portal}
+         * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
+         * @param property
          */
         addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
     }
@@ -1441,16 +1562,18 @@ declare namespace Animate {
         /**
          * Creates an instance
          */
-        constructor(label: string);
+        constructor(label?: string);
+        /**
+         * Clones the canvas item
+         */
+        clone(clone?: Comment): Comment;
         /**
          * Serializes the data into a JSON.
-         * @param {number} id
-         * @returns {IComment}
          */
         serialize(id: number): Engine.Editor.IComment;
         /**
          * De-Serializes data from a JSON.
-         * @param {IComment} data The data to import from
+         * @param data The data to import from
          */
         deSerialize(data: Engine.Editor.IComment): void;
     }
@@ -1467,20 +1590,24 @@ declare namespace Animate {
         property: Prop<any>;
         behaviour: Behaviour;
         /**
-        * @param {Behaviour} parent The parent component of the Portal
-        * @param {PortalType} type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-        * @param {Prop<any>} property The property associated with this portal
+        * @param parent The parent component of the Portal
+        * @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
+        * @param property The property associated with this portal
         */
         constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
+        /**
+         * Clones the canvas item
+         */
+        clone(): Portal;
         serialize(): Engine.Editor.IPortal;
         /**
         * Edits the portal variables
-        * @param {Prop<any>} property The new value of the property
+        * @param property The new value of the property
         */
         edit(property: Prop<any>): void;
         /**
          * This function will check if the source portal is an acceptable match with the current portal.
-         * @param {Portal} source The source panel we are checking against
+         * @param source The source panel we are checking against
          */
         checkPortalLink(source: Portal): boolean;
         /**
@@ -1489,12 +1616,12 @@ declare namespace Animate {
         dispose(): void;
         /**
          * Adds a link to the portal.
-         * @param {Link} link The link we are adding
+         * @param link The link we are adding
          */
         addLink(link: any): void;
         /**
          * Removes a link from the portal.
-         * @param {Link} link The link we are removing
+         * @param link The link we are removing
          */
         removeLink(link: any): any;
     }
@@ -1548,20 +1675,19 @@ declare namespace Animate {
         private plugin;
         classes: Array<AssetClass>;
         /**
-        * @param {IPlugin} plugin The plugin who created this template
+        * @param plugin The plugin who created this template
         */
         constructor(plugin: any);
         /**
         * Adds a class to this template
-        * @param {string} name The name of the class
-        * @param {string} img The optional image
-        * @param {boolean} abstractClass A boolean to define if this class is abstract or not.
-        * @returns {AssetClass}
+        * @param name The name of the class
+        * @param img The optional image
+        * @param abstractClass A boolean to define if this class is abstract or not
         */
         addClass(name: string, img: string, abstractClass: boolean): AssetClass;
         /**
         * Removes a class by name
-        * @param {string} name The name of the class to remove
+        * @param name The name of the class to remove
         */
         removeClass(name: string): void;
         /**
@@ -1583,13 +1709,13 @@ declare namespace Animate {
         private _portalTemplates;
         private _plugin;
         /**
-        * @param {string} behaviourName The name of the behaviour
-        * @param {Array<PortalTemplate>} portalTemplates
-        * @param {IPlugin} plugin The plugin this is associated with
-        * @param {boolean} canBuildInput
-        * @param {boolean} canBuildOutput
-        * @param {boolean} canBuildParameter
-        * @param {boolean} canBuildProduct
+        * @param  behaviourName The name of the behaviour
+        * @param portalTemplates
+        * @param plugin The plugin this is associated with
+        * @param canBuildInput
+        * @param canBuildOutput
+        * @param canBuildParameter
+        * @param canBuildProduct
         */
         constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
         dispose(): void;
@@ -1752,8 +1878,8 @@ declare namespace Animate {
         type: HatcheryRuntime.PortalType;
         property: Prop<any>;
         /**
-        * @param {Prop<any>} property The property associated with this portal
-        * @param {PortalType} type The type of portal this represents
+        * @param property The property associated with this portal
+        * @param type The type of portal this represents
         */
         constructor(property: Prop<any>, type: HatcheryRuntime.PortalType);
     }
@@ -1766,141 +1892,120 @@ declare namespace Animate {
         entry: Engine.IBuild;
         /**
         * Creates an intance of the build
-        * @param {Engine.IBuild} entry The entry token from the DB
+        * @param entry The entry token from the DB
         */
         constructor(entry: Engine.IBuild);
         /**
         * Attempts to update the build with new data
-        * @param {Engine.IBuild} token The update token data
+        * @param token The update token data
         */
         update(token: Engine.IBuild): Promise<boolean>;
     }
 }
 declare namespace Animate {
     /**
-    * A project class is an object that is owned by a user.
-    * The project has functions which are useful for comunicating data to the server when
-    * loading and saving data in the scene.
-    */
+     * A project is the logical container of all resources and functions related
+     * to a user's hatchery editor project.
+     */
     class Project extends EventDispatcher {
-        private _entry;
-        saved: boolean;
-        curBuild: Build;
-        private _containers;
-        private _assets;
-        private _files;
-        private _scripts;
-        private _groups;
-        private _restPaths;
         openEditors: Editor[];
+        curBuild: Build;
+        private _restPaths;
+        private _entry;
         /**
-        * @param{string} id The database id of this project
-        */
+         * @param id The database id of this project
+         */
         constructor();
         /**
          * Gets the DB entry associated with this project
-         * @returns {Engine.IProject}
          */
         /**
          * Sets the DB entry associated with this project
-         * @param {Engine.IProject}
          */
         entry: Engine.IProject;
         /**
-        * Gets a resource by its ID
-        * @param {string} id The ID of the resource
-        * @returns {ProjectResource<Engine.IResource>} The resource whose id matches the id parameter or null
-        */
+         * Gets a resource by its ID
+         * @param id The ID of the resource
+         * @returns The resource whose id matches the id parameter or null
+         */
         getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): {
             resource: T;
             type: ResourceType;
         };
         /**
-        * Gets a resource by its shallow ID
-        * @param {string} id The shallow ID of the resource
-        * @returns {ProjectResource<Engine.IResource>} The resource whose shallow id matches the id parameter or null
-        */
+         * Gets a resource by its shallow ID
+         * @param id The shallow ID of the resource
+         * @returns The resource whose shallow id matches the id parameter or null
+         */
         getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T;
         /**
-        * Attempts to update the project details base on the token provided
-        * @returns {Engine.IProject} The project token
-        * @returns {Promise<UsersInterface.IResponse>}
-        */
+         * Attempts to update the project details base on the token provided
+         * @returns The project token
+         */
         updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>;
         /**
-        * Loads a previously selected build, or creates one if none are selected
-        * @returns {Promise<Build>}
-        */
+         * Loads a previously selected build, or creates one if none are selected
+         */
         loadBuild(): Promise<Build>;
         /**
-        * Internal function to create a resource wrapper
-        * @param {T} entry The database entry
-        * @param {ResourceType} type The type of resource to create
-        * @returns {ProjectResource<T>}
-        */
+         * Internal function to create a resource wrapper
+         * @param entry The database entry
+         * @param type The type of resource to create
+         */
         private createResourceInstance<T>(entry, type?);
         /**
-        * This function is used to fetch the project resources associated with a project.
-        * @param {ResourceType} type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<Array<ProjectResource<Engine.IResource>>}
-        */
+         * This function is used to fetch the project resources associated with a project.
+         * @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+         */
         loadResources(type?: ResourceType): Promise<Array<ProjectResource<Engine.IResource>>>;
         /**
-        * This function is used to fetch a project resource by Id
-        * @param {string} id the Id of the resource to update
-        * @param {ResourceType} type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
-        * @returns {Promise<T | Error>}
-        */
+         * This function is used to fetch a project resource by Id
+         * @param id the Id of the resource to update
+         * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
+         */
         refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error>;
         /**
-        * Use this to edit the properties of a resource
-        * @param {string} id The id of the object we are editing.
-        * @param {T} data The new data for the resource
-        * @returns {Promise<Modepress.IResponse | Error>}
-        */
+         * Use this to edit the properties of a resource
+         * @param id The id of the object we are editing.
+         * @param data The new data for the resource
+         */
         editResource<T>(id: string, data: T): Promise<Modepress.IResponse | Error>;
         /**
-        * Use this to save the properties of a resource
-        * @param {string} id The id of the object we are saving.
-        * @param {ResourceType} type [Optional] The type of resource we are saving
-        * @returns {Promise<boolean>}
-        */
+         * Use this to save the properties of a resource
+         * @param id The id of the object we are saving.
+         * @param type [Optional] The type of resource we are saving
+         */
         saveResource(id: string, type?: ResourceType): Promise<boolean>;
         /**
-        * Use this to edit the properties of a resource
-        * @param {ResourceType} type The type of resource we are saving
-        * @returns {Promise<boolean>}
-        */
+         * Use this to edit the properties of a resource
+         * @param type The type of resource we are saving
+         */
         saveResources(type: ResourceType): Promise<boolean>;
         /**
-        * Use this to delete a resource by its Id
-        * @param {string} id The id of the object we are deleting
-        * @param {ResourceType} type The type of resource we are renaming
-        * @returns {Promise<boolean | Error>}
-        */
+         * Use this to delete a resource by its Id
+         * @param id The id of the object we are deleting
+         * @param type The type of resource we are renaming
+         */
         deleteResource(id: string, type: ResourceType): Promise<boolean | Error>;
         /**
-        * Copies an existing resource and assigns a new ID to the cloned item
-        * @param {string} id The id of the resource we are cloning from
-        * @param {ResourceType} type [Optional] The type of resource to clone
-        * @returns {Promise<ProjectResource<T>>}
-        */
+         * Copies an existing resource and assigns a new ID to the cloned item
+         * @param id The id of the resource we are cloning from
+         * @param type [Optional] The type of resource to clone
+         */
         copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>;
         /**
-        * Deletes several resources in 1 function call
-        * @param {Array<string>} ids The ids An array of resource Ids
-        * @returns {Promise<boolean>}
-        */
+         * Deletes several resources in 1 function call
+         * @param ids The ids An array of resource Ids
+         */
         deleteResources(ids: Array<string>): Promise<boolean>;
         /**
-        * This function is used to all project resources
-        */
+         * This function is used to all project resources
+         */
         saveAll(): Promise<boolean>;
         /**
-        * Creates a new project resource.
-        * @param {ResourceType} type The type of resource we are renaming
-        * @returns { Promise<ProjectResource<any>>}
-        */
+         * Creates a new project resource.
+         * @param type The type of resource we are renaming
+         */
         createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
          * This function is used to assign a new editor to a project resource. Editors are used by
@@ -1908,15 +2013,18 @@ declare namespace Animate {
          * @param resource The resource we are creating an editor for
          */
         assignEditor(resource: ProjectResource<Engine.IResource>): Editor;
-        removeEditor(editor: Editor): void;
-        containers: Array<Resources.Container>;
-        files: Array<Resources.File>;
-        scripts: Array<Resources.Script>;
-        assets: Array<Resources.Asset>;
-        groups: Array<Resources.GroupArray>;
         /**
-        * This will cleanup the project and remove all data associated with it.
-        */
+         * Removes an editor from the active editor array
+         */
+        removeEditor(editor: Editor): void;
+        containers: Resources.Container[];
+        files: Resources.File[];
+        scripts: Resources.Script[];
+        assets: Resources.Asset[];
+        groups: Resources.GroupArray[];
+        /**
+         * This will cleanup the project and remove all data associated with it.
+         */
         reset(): void;
         plugins: Array<Engine.IPlugin>;
     }
@@ -1952,77 +2060,65 @@ declare namespace Animate {
         /**
         * Checks if a user is logged in or not. This checks the server using
         * cookie and session data from the browser.
-        * @returns {Promise<boolean>}
         */
         authenticated(): Promise<boolean>;
         /**
         * Tries to log the user in asynchronously.
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {boolean} rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+        * @param user The username of the user.
+        * @param password The password of the user.
+        * @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
         */
         login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse>;
         /**
         * Tries to register a new user.
-        * @param {string} user The username of the user.
-        * @param {string} password The password of the user.
-        * @param {string} email The email of the user.
-        * @param {string} captcha The captcha of the login screen
-        * @returns {Promise<UsersInterface.IAuthenticationResponse>}
+        * @param user The username of the user.
+        * @param password The password of the user.
+        * @param email The email of the user.
+        * @param captcha The captcha of the login screen
         */
         register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse>;
         /**
         * This function is used to resend a user's activation code
-        * @param {string} user
-        * @returns {Promise<UsersInterface.IResponse>}
+        * @param user
         */
         resendActivation(user: string): Promise<UsersInterface.IResponse>;
         /**
         * This function is used to reset a user's password.
-        * @param {string} user
-        * @returns {Promise<UsersInterface.IResponse>}
+        * @param user
         */
         resetPassword(user: string): Promise<UsersInterface.IResponse>;
         /**
         * Attempts to log the user out
-        * @return {Promise<UsersInterface.IResponse>}
         */
         logout(): Promise<UsersInterface.IResponse>;
         /**
         * Fetches all the projects of a user. This only works if the user if logged in. If not
         * it will return null.
-        * @param {number} index The index to  fetching projects for
-        * @param {number} limit The limit of how many items to fetch
-        * @param {string} search Optional search text
-        * @return {Promise<ModepressAddons.IGetProjects>}
+        * @param index The index to  fetching projects for
+        * @param limit The limit of how many items to fetch
+        * @param search Optional search text
         */
         getProjectList(index: number, limit: number, search?: string): Promise<ModepressAddons.IGetProjects>;
         /**
         * Creates a new user projects
-        * @param {string} name The name of the project
-        * @param {Array<string>} plugins An array of plugin IDs to identify which plugins to use
-        * @param {string} description [Optional] A short description
-        * @return {Promise<ModepressAddons.ICreateProject>}
+        * @param name The name of the project
+        * @param plugins An array of plugin IDs to identify which plugins to use
+        * @param description [Optional] A short description
         */
         newProject(name: string, plugins: Array<string>, description?: string): Promise<ModepressAddons.ICreateProject>;
         /**
         * Removes a project by its id
-        * @param {string} pid The id of the project to remove
-        * @return {Promise<Modepress.IResponse>}
+        * @param pid The id of the project to remove
         */
         removeProject(pid: string): Promise<Modepress.IResponse>;
         /**
         * Attempts to update the user's details base on the token provided
-        * @returns {Engine.IUserMeta} The user details token
-        * @returns {Promise<UsersInterface.IResponse>}
+        * @returns The user details token
         */
         updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>;
         /**
-        * @type public mfunc copyProject
         * Use this function to duplicate a project
-        * @param {number} id The project ID we are copying
-        * @extends {User}
+        * @param id The project ID we are copying
         */
         copyProject(id: string): void;
         /**
@@ -2031,13 +2127,12 @@ declare namespace Animate {
         openProject(id: string): void;
         /**
         * This will delete a project from the database as well as remove it from the user.
-        * @param {string} id The id of the project we are removing.
+        * @param id The id of the project we are removing.
         */
         deleteProject(id: string): void;
         isLoggedIn: boolean;
         /**
         * Gets the singleton instance.
-        * @returns {User}
         */
         static get: User;
     }
@@ -2060,12 +2155,10 @@ declare namespace Animate {
         private _reConnect(e);
         /**
          * Called whenever we get a message from the users socket API
-         * @param {MessageEvent} e
          */
         onMessage(e: MessageEvent): void;
         /**
          * Called whenever an error occurs
-         * @param {Error} e
          */
         onError(e: Error): void;
         /**
@@ -2074,52 +2167,8 @@ declare namespace Animate {
         connect(): void;
         /**
          * Gets the singleton
-         * @returns {SocketManager}
          */
         static get: SocketManager;
-    }
-}
-declare namespace Animate {
-    /**
-    * Abstract class downloading content by pages
-    */
-    class PageLoader {
-        updateFunc: (index: number, limit: number) => void;
-        index: number;
-        limit: number;
-        last: number;
-        protected searchTerm: string;
-        constructor(updateFunction: (index: number, limit: number) => void);
-        /**
-        * Calls the update function
-        */
-        invalidate(): void;
-        /**
-        * Gets the current page number
-        * @returns {number}
-        */
-        getPageNum(): number;
-        /**
-        * Gets the total number of pages
-        * @returns {number}
-        */
-        getTotalPages(): number;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goFirst(): void;
-        /**
-        * Gets the last set of users
-        */
-        goLast(): void;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goNext(): void;
-        /**
-        * Sets the page search back to index = 0
-        */
-        goPrev(): void;
     }
 }
 declare namespace Animate {
@@ -2128,14 +2177,13 @@ declare namespace Animate {
         constructor();
         /**
          * Creates a thumbnail preview of the file
-         * @param {Engine.IFile} file
-         * @returns {Promise<HTMLCanvasElement>}
+         * @param file
          */
         thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
         /**
          * This function generates a React Element that is used to preview a file
-         * @param {Engine.IFile} file The file we are looking to preview
-         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
+         * @param file The file we are looking to preview
+         * @returns If a React Element is returned is added in the File viewer preview
          */
         generate(file: Engine.IFile): JSX.Element;
     }
@@ -2578,12 +2626,20 @@ declare namespace Animate {
         x: number;
         y: number;
         onMove?: (x: number, y: number) => void;
+        onDragComplete?: (start: {
+            x: number;
+            y: number;
+        }, end: {
+            x: number;
+            y: number;
+        }) => void;
     }
     class Draggable extends React.Component<IDraggableProps, any> {
         static defaultProps: IDraggableProps;
         private _upProxy;
         private _moveProxy;
         private _mouseDelta;
+        private _startPos;
         private _scrollInterval;
         constructor(props: IDraggableProps);
         /**
@@ -2592,22 +2648,19 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * When the mouse is down on the behaviour, we add the drag listeners
-         * @param {React.MouseEvent} e
          */
         onMouseDown(e: React.MouseEvent): void;
         /**
          * When the mouse is up we remove the events
-         * @param {React.MouseEvent} e
          */
         onMouseUp(e: React.MouseEvent): void;
+        private getPosition(e);
         /**
          * When the mouses moves we drag the behaviour
-         * @param {React.MouseEvent} e
          */
         onMouseMove(e: React.MouseEvent): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -2617,6 +2670,10 @@ declare namespace Animate {
         enabled?: boolean;
         target?: HTMLElement;
         onDragStart?(e: React.MouseEvent): boolean;
+        onResized?(size: {
+            width: number;
+            height: number;
+        }): void;
     }
     /**
      * A wrapper Component that adds handles to allow for resizing of its first child component.
@@ -2639,22 +2696,18 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * When the mouse is down on the component, we add the move and up listeners
-         * @param {React.MouseEvent} e
          */
         onMouseDown(e: React.MouseEvent, allowMouseX: boolean, allowMouseY: boolean): void;
         /**
          * When the mouse is up we remove the events
-         * @param {React.MouseEvent} e
          */
         onMouseUp(e: React.MouseEvent): void;
         /**
          * When the mouses moves we resize the component
-         * @param {React.MouseEvent} e
          */
         onMouseMove(e: React.MouseEvent): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -2805,31 +2858,26 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: ISplitPanelProps): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
           * This function is called when the mouse is down on the divider
-          * @param {React.MouseEvent} e
           */
         onDividerMouseDown(e: React.MouseEvent): void;
         /**
          * Recalculate the ratios on mouse up
-         * @param {MouseEvent} e
          */
         onStageMouseUp(e: MouseEvent): void;
         /**
          * This function is called when the mouse is up from the body of stage.
-         * @param {any} e The jQuery event object
          */
         onStageMouseMove(e: MouseEvent): void;
         /**
-         * Call this function to get the ratio of the panel. Values are from 0 to 1.
-         * @returns {number}
+         * Call this function to get the ratio of the panel. Values are from 0 to 1
          */
         /**
          * Call this function to set the ratio of the panel. Values are from 0 to 1.
-         * @param {number} val The ratio from 0 to 1 of where the divider should be
+         * @param val The ratio from 0 to 1 of where the divider should be
          */
         ratio: number;
     }
@@ -2948,13 +2996,12 @@ declare namespace Animate {
         constructor(props: T);
         /**
          * Shows a React window component to the user
-         * @param {React.ComponentClass<IReactWindowProps>} windowType The Class of Window to render.
-         * @param {IReactWindowProps} props The properties to use for the window component
+         * @param windowType The Class of Window to render.
+         * @param props The properties to use for the window component
          */
         static show(windowType: React.ComponentClass<IReactWindowProps>, props?: IReactWindowProps): number;
         /**
          * Hides/Removes a window component by id
-         * @param {number} id
          */
         static hide(id: number): void;
         /**
@@ -2996,7 +3043,6 @@ declare namespace Animate {
         getContent(): React.ReactNode;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -3041,7 +3087,6 @@ declare namespace Animate {
         private drawMenuItems(item, level, index);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
@@ -3058,12 +3103,11 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * Shows a React context menu component to the user
-         * @param {IReactContextMenuProps} props The properties to use for the context menu component
+         * @param props The properties to use for the context menu component
          */
         static show(props: IReactContextMenuProps): number;
         /**
          * Hides/Removes a context menu component by id
-         * @param {number} id
          */
         static hide(id: number): void;
     }
@@ -3077,7 +3121,7 @@ declare namespace Animate {
         selectedIndex: number;
     }
     /**
-     * A Tab Component for organising pages of content into separate labelled tabs/folders
+     * A Tab Component for organising pages of content into separate labelled tabs/components
      */
     class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
         private _panes;
@@ -3089,6 +3133,14 @@ declare namespace Animate {
          * When the props are reset we remove all the existing panes and create the new ones
          */
         componentWillReceiveProps(nextProps: ITabProps): void;
+        /**
+         * Check if we need to notify the onSelect event
+         */
+        componentDidMount(): void;
+        /**
+         * Check if the index changes so we can notify the onSelect event
+         */
+        componentDidUpdate(prevProps: T, prevState: Y): void;
         /**
          * Removes a pane from from the tab
          * @param index The index of the selected tab
@@ -3156,9 +3208,10 @@ declare namespace Animate {
         onDispose?: (paneIndex: number, prop: ITabPaneProps) => void;
         canSelect?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
         canClose?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
+        onSelect?: (paneIndex: number) => void;
     }
     /**
-     * A single page/pane/folder pair for use in a Tab
+     * A single page/pane/folder pane for use in a Tab
      */
     class TabPane extends React.Component<ITabPaneProps, any> {
         static defaultProps: ITabPaneProps;
@@ -3262,7 +3315,6 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: IListProps): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         componentDidUpdate(prevProps: IListProps): void;
@@ -3274,10 +3326,10 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ISchemaProps {
-        store: ContainerSchema;
+        editor: ContainerSchema;
     }
     class Schema extends React.Component<ISchemaProps, {
-        items: CanvasItem[];
+        workspace: Engine.Editor.IContainerWorkspace;
     }> {
         private static _openCanvases;
         constructor(props: ISchemaProps);
@@ -3290,7 +3342,6 @@ declare namespace Animate {
          * When the store changes, we update the state
          */
         invalidate(): void;
-        renderBehaviour(behaviour: Behaviour, index: number): JSX.Element;
         /**
          * Called when a draggable object is dropped onto the canvas.
          * @param {React.MouseEvent} e
@@ -3298,17 +3349,18 @@ declare namespace Animate {
          */
         onObjectDropped(e: React.MouseEvent, json: IDragDropToken): void;
         /**
-        * This will create a canvas node based on the template given
-        * @param {BehaviourDefinition} template The definition of the node
-        * @param {number} x The x position of where the node shoule be placed
-        * @param {number} y The y position of where the node shoule be placed
-        * @param {Container} container This is only applicable if we are dropping a node that represents another behaviour container. This last parameter
-        * is the actual behaviour container
-        * @param {string} name The name of the node
-        * @returns {Behaviour}
+        * This will create a new behaviour based on the template given
+        * @param template The definition of the behaviour we're creating
+        * @param x The x position of where the node shoule be placed
+        * @param y The y position of where the node shoule be placed
+        * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
+        * @param name The alias of the behaviour
         */
-        createNode(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): Behaviour;
-        createPortal(type: HatcheryRuntime.PortalType): void;
+        addBehaviour(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): void;
+        createPortal(type: HatcheryRuntime.PortalType, pos: {
+            x: number;
+            y: number;
+        }): void;
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
@@ -3323,7 +3375,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IBehaviourComponentProps {
-        behaviour: Behaviour;
+        editor: ContainerSchema;
+        behaviour: Engine.Editor.IBehaviour;
     }
     /**
      * A visual representation of a Behaviour
@@ -3336,14 +3389,14 @@ declare namespace Animate {
         onLinkStart(e: React.MouseEvent): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
 }
 declare namespace Animate {
     interface ICommentComponentProps {
-        comment: Animate.Comment;
+        comment: Engine.Editor.IComment;
+        editor: ContainerSchema;
     }
     interface ICommentComponentState {
         editMode?: boolean;
@@ -3372,7 +3425,6 @@ declare namespace Animate {
         onUp(e: React.MouseEvent): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -3415,7 +3467,6 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -3435,7 +3486,6 @@ declare namespace Animate {
         constructor(props: ITreeNodeProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -3808,8 +3858,6 @@ declare namespace Animate {
         constructor();
         /**
          * Gets or sets the icon of the node
-         * @param {JSX.Element} val
-         * @returns {JSX.Element}
          */
         icon(val?: JSX.Element): JSX.Element;
         /**
@@ -3837,7 +3885,6 @@ declare namespace Animate {
         constructor();
         /**
          * Called whenever the node receives a context event
-         * @param {React.MouseEvent} e
          */
         onContext(e: React.MouseEvent): void;
     }
@@ -3885,8 +3932,7 @@ declare namespace Animate {
         onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
         /**
          * This will get all instance nodes of a particular class name(s)
-         * @param {string | string[]} classNames The class name of the asset, or an array of class names
-         * @returns {TreeNodeAssetInstance[]}
+         * @param classNames The class name of the asset, or an array of class names
          */
         getInstances(classNames: string | string[]): TreeNodeAssetInstance[];
     }
@@ -3903,8 +3949,6 @@ declare namespace Animate {
         constructor(assetClass: AssetClass, asset: Resources.Asset);
         /**
          * When we click ok on the portal form
-         * @param {string} type
-         * @param {EditEvent} data
          */
         onAssetEdited(type: string, data: IResourceEvent): void;
         /**
@@ -3945,8 +3989,8 @@ declare namespace Animate {
         /**
          * Called whenever we drop an item on this element. This is only called if canDrop is true.
          * Use it to set drag data, eg: e.dataTransfer.getData("text");
-         * @param {React.DragEvent} e
-         * @param {IDragDropToken} json The unserialized data
+         * @param e
+         * @param json The unserialized data
          */
         onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
     }
@@ -3968,8 +4012,6 @@ declare namespace Animate {
         onContext(e: React.MouseEvent): void;
         /**
          * Gets or sets the label of the node
-         * @param {string} val
-         * @returns {string}
          */
         label(val?: string): string;
         /**
@@ -3992,8 +4034,6 @@ declare namespace Animate {
         /**
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
-         * @param {React.DragEvent} e
-         * @returns {IDragDropToken} Return data to serialize
          */
         onDragStart(e: React.DragEvent): IDragDropToken;
         /**
@@ -4367,7 +4407,6 @@ declare namespace Animate {
         constructor(props: IGroupProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -4659,7 +4698,6 @@ declare namespace Animate {
         constructor(props: IButtonProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -4723,7 +4761,6 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: IImagePreviewProps): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -4756,7 +4793,6 @@ declare namespace Animate {
         pickProjectPick(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -4782,7 +4818,6 @@ declare namespace Animate {
         constructor(props: IToolbarButtonProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
@@ -4792,11 +4827,9 @@ declare namespace Animate {
         onClick(e: any): void;
         /**
          * Get if the component is selected
-         * @return {boolean}
          */
         /**
          * Set if the component is selected
-         * @param {boolean}
          */
         selected: boolean;
     }
@@ -5019,7 +5052,6 @@ declare namespace Animate {
         constructor(props: IOptionsBuildProps);
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5043,7 +5075,7 @@ declare namespace Animate {
         constructor(props: IOptionsUserProps);
         /**
          * Updates the user bio information
-         * @param {string} bio The new bio data
+         * @param bio The new bio data
          */
         updateBio(bio: string): void;
         /**
@@ -5052,7 +5084,6 @@ declare namespace Animate {
         setAvatarUrl(file: any): void;
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5077,17 +5108,15 @@ declare namespace Animate {
         constructor(props: IOptionsProjectProps);
         /**
          * Sets the project image url
-         * @param {Engine.IFile} file
          */
         setProjectImageUrl(file: Engine.IFile): void;
         /**
          * Attempts to update the project
-         * @param {any} project details
+         * @param project details
          */
         updateDetails(json: any): void;
         /**
          * Draws the options JSX
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5151,7 +5180,6 @@ declare namespace Animate {
         onFileUploaded(err: Error, files: UsersInterface.IUploadToken[]): void;
         /**
          * When the scope changes we update the viewable contents
-         * @param {SelectValue} option
          */
         onScopeChange(option: SelectValue): void;
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element;
@@ -5166,7 +5194,6 @@ declare namespace Animate {
         invalidate(): void;
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element;
         /**
@@ -5175,8 +5202,6 @@ declare namespace Animate {
         selectMode(type: FileSearchType): void;
         /**
          * Sets the selected status of a file or folder
-         * @param {React.MouseEvent} e
-         * @param {IViewerFile} entity
          */
         selectEntity(e: React.MouseEvent, entity: IViewerFile): void;
         /**
@@ -5190,7 +5215,6 @@ declare namespace Animate {
         onFileChange(e: React.FormEvent): boolean;
         /**
          * Checks if a file list is one of the approved props extensions
-         * @return {boolean}
          */
         checkIfAllowed(files: FileList): boolean;
         /**
@@ -5199,8 +5223,7 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * Makes sure we only view the file types specified in the props exensions array
-         * @param {IViewerFile[]} files The file array we are filtering
-         * @returns {IViewerFile[]}
+         * @param files The file array we are filtering
          */
         filterByExtensions(files: IViewerFile[]): IViewerFile[];
         /**
@@ -5218,13 +5241,13 @@ declare namespace Animate {
         onDrop(e: React.DragEvent): void;
         /**
          * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-         * @param {IViewerFile} file The target file we are setting the preview for
-         * @param {HTMLCanvasElement | HTMLImageElement} preview The image we are using as a preview
+         * @param file The target file we are setting the preview for
+         * @param preview The image we are using as a preview
          */
         uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement): void;
         /**
          * Attempts to update the selected file
-         * @param {IFile} token The file token to update with
+         * @param token The file token to update with
          */
         updateFile(token: Engine.IFile): void;
     }
@@ -5274,7 +5297,6 @@ declare namespace Animate {
         getContent(): React.ReactNode;
         /**
          * Hide the window when ok is clicked.
-         * @param {any} e The jQuery event object
          */
         onButtonClick(e: React.MouseEvent, button: string): void;
         /**
@@ -5464,7 +5486,6 @@ declare namespace Animate {
         getContent(): React.ReactNode;
         /**
          * When the input text changes we go through each list item and select the one that is the closest match
-         * @param {React.KeyboardEvent} e
          */
         onKeyUp(e: React.KeyboardEvent): void;
     }
@@ -5551,7 +5572,6 @@ declare namespace Animate {
         onLogsChanged(type: LoggerEvents): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5596,13 +5616,13 @@ declare namespace Animate {
         onMouseleave(e: React.MouseEvent): void;
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element;
     }
 }
 declare namespace Animate {
     interface IToolbarProps {
+        containerEditor: ContainerSchema;
     }
     interface IToolbarState {
     }
@@ -5616,7 +5636,6 @@ declare namespace Animate {
         constructor(props?: IToolbarProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
@@ -5658,26 +5677,25 @@ declare namespace Animate {
         onDelete(): void;
         /**
         * This function is used to create a new group on the toolbar
-        * @param {string} text The text of the new tab
-        * @param {boolean} text The text of the new tab
-        * @returns {Component} Returns the {Component} object representing the tab
+        * @param text The text of the new tab
+        * @param text The text of the new tab
+        * @returns Returns the {Component} object representing the tab
         */
         createTab(text: string, isSelected?: boolean): Component;
         saveAll(): void;
         /**
         * Called when the key is pushed down
-        * @param {any} event
         */
         onKeyDown(event: any): void;
         /**
         * Removes a tab by its name
-        * @param {string} text The name of the tab
+        * @param text The name of the tab
         */
         removeTab(text: string): void;
         /**
         * This function is used to create a new group on the toolbar
-        * @param {Component} tab The {Component} tab object which represents the parent of this group.
-        * @returns {Component} Returns the {Component} object representing the group
+        * @param tab The {Component} tab object which represents the parent of this group.
+        * @returns Returns the {Component} object representing the group
         */
         createGroup(tab: Component): Component;
         /**
@@ -5751,12 +5769,10 @@ declare namespace Animate {
         invalidate(): void;
         /**
         * Gets the current page number
-        * @returns {number}
         */
         getPageNum(): number;
         /**
         * Gets the total number of pages
-        * @returns {number}
         */
         getTotalPages(): number;
         /**
@@ -5777,7 +5793,6 @@ declare namespace Animate {
         goPrev(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5817,7 +5832,6 @@ declare namespace Animate {
         onBlur(e: React.FormEvent): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5845,7 +5859,6 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: IAttentionProps): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5920,22 +5933,19 @@ declare namespace Animate {
         highlightError: boolean;
         /**
          * Checks the selected option
-         * @returns {string} An error string or null if there are no errors
+         * @returns An error string or null if there are no errors
          */
         validate(val: string | number): string;
         /**
          * Called whenever the value changes
-         * @param {React.FormEvent} e
          */
         private onChange(e);
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         pristine: boolean;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -5956,7 +5966,6 @@ declare namespace Animate {
         constructor(props: IVCheckboxProps);
         /**
          * Called whenever the checkbox input changes
-         * @param {React.FormEvent} e
          */
         onChange(e: React.FormEvent): void;
         /**
@@ -5965,17 +5974,14 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Gets the current checked state of the input
-         * @returns {boolean}
          */
         checked: boolean;
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         pristine: boolean;
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element;
     }
@@ -6041,7 +6047,6 @@ declare namespace Animate {
         constructor(props: any);
         /**
          * Gets the current value of the input
-         * @returns {string}
          */
         value: string;
         /**
@@ -6059,7 +6064,7 @@ declare namespace Animate {
         highlightError: boolean;
         /**
          * Checks the string against all validators.
-         * @returns {string} An error string or null if there are no errors
+         * @returns An error string or null if there are no errors
          */
         getValidationErrorMsg(val: string): string;
         /**
@@ -6076,17 +6081,14 @@ declare namespace Animate {
         private onKeyDown(e);
         /**
          * Called whenever the value changes
-         * @param {React.FormEvent} e
          */
         private onChange(e);
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         pristine: boolean;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6147,7 +6149,6 @@ declare namespace Animate {
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
         /**
          * Gets the current value of the input
-         * @returns {string}
          */
         value: string;
         /**
@@ -6157,22 +6158,19 @@ declare namespace Animate {
         highlightError: boolean;
         /**
          * Checks the string against all validators.
-         * @returns {string} An error string or null if there are no errors
+         * @returns An error string or null if there are no errors
          */
         getValidationErrorMsg(val: string): string;
         /**
          * Called whenever the value changes
-         * @param {React.FormEvent} e
          */
         private onChange(e);
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
-         * @returns {boolean}
          */
         pristine: boolean;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6228,7 +6226,6 @@ declare namespace Animate {
         /**
          * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
          * This can be disabled with the preventDefault property.
-         * @param {React.FormEvent} e
          */
         onSubmit(e: React.FormEvent): void;
         /**
@@ -6237,23 +6234,20 @@ declare namespace Animate {
         initiateSubmit(): void;
         /**
          * Called whenever any of the inputs fire a change event
-         * @param {React.FormEvent} e
          */
         onChange(e: React.FormEvent): void;
         /**
          * Called if any of the validated inputs reported or resolved an error
-         * @param {Error} e The error that occurred
-         * @param {VGeneric} target The input that triggered the error
+         * @param e The error that occurred
+         * @param target The input that triggered the error
          */
         onError(e: Error, target: VGeneric): void;
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
-         * @returns {boolean}
          */
         pristine: boolean;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6290,7 +6284,6 @@ declare namespace Animate {
         componentWillMount(): void;
         /**
          * Gets the currently selected plugins
-         * @returns {IPluginPlus[]}
          */
         selectedPlugins: IPluginPlus[];
         selectPlugin(plugin: IPluginPlus): void;
@@ -6298,8 +6291,6 @@ declare namespace Animate {
         showVersions(plugin: Engine.IPlugin): void;
         /**
          * Once the plugins are loaded from the DB
-         * @param {Array<Engine.IPlugin>} plugins
-         * @returns {PluginMap}
          */
         onPluginsLoaded(plugins: Array<Engine.IPlugin>): PluginMap;
         /**
@@ -6308,7 +6299,6 @@ declare namespace Animate {
         createPluginHierarchy(): JSX.Element[];
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6344,14 +6334,13 @@ declare namespace Animate {
         constructor(props: any);
         /**
          * Removes a project from the list
-         * @param {IInteractiveProject} p The project to remove
+         * @param p The project to remove
          */
         removeProject(p: IInteractiveProject): void;
         selectProject(project: IInteractiveProject, doubleClick: boolean): void;
         fetchProjects(index: number, limit: number): Promise<number>;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6379,7 +6368,6 @@ declare namespace Animate {
         componentWillMount(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6422,7 +6410,6 @@ declare namespace Animate {
         login(json: any): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6452,7 +6439,7 @@ declare namespace Animate {
         /**
          * Called when the captcha div has been mounted and is ready
          * to be rendered
-         * @param {HTMLDivElement} div The div being rendered
+         * @param div The div being rendered
          */
         mountCaptcha(div: HTMLDivElement): void;
         /**
@@ -6461,7 +6448,6 @@ declare namespace Animate {
         componentWillUnmount(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6486,7 +6472,6 @@ declare namespace Animate {
         switchState(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
     }
@@ -6518,7 +6503,6 @@ declare namespace Animate {
         constructor(props: ISplashProps);
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         show(): void;
@@ -6530,7 +6514,6 @@ declare namespace Animate {
         logout(): void;
         /**
         * Gets the singleton reference of this class.
-        * @returns {Splash}
         */
         static get: Splash;
     }
@@ -6557,12 +6540,10 @@ declare namespace Animate {
         constructor(props: any);
         /**
          * Creates a new user project
-         * @param {any} json
          */
         newProject(json: any): void;
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element;
     }
@@ -6590,7 +6571,6 @@ declare namespace Animate {
         removeProject(messageBoxAnswer: string): void;
         /**
         * Creates the component elements
-        * @returns {JSX.Element}
         */
         render(): JSX.Element;
     }
@@ -6598,6 +6578,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface IWorkspaceProps extends ITabProps {
         project: Project;
+        onSchemaActivated: (schema: ContainerSchema) => void;
     }
     /**
      * The main workspace area of the application.
@@ -6609,7 +6590,8 @@ declare namespace Animate {
         constructor(props: IWorkspaceProps);
         componentWillMount(): void;
         componentWillUnmount(): void;
-        onEditorCreated(type: ProjectEvents, event: IEditorEvent): void;
+        onSchemaRemoved(type: ProjectEvents, event: IEditorEvent): void;
+        onSchemaCreated(type: ProjectEvents, event: IEditorEvent): void;
         canContainerClose(editor: Editor): boolean | Promise<boolean>;
         /**
          * Creates the component elements
@@ -6629,6 +6611,7 @@ declare namespace Animate {
         static bodyComponent: Component;
         private _focusObj;
         private _sceneStore;
+        private _currentSchema;
         constructor(props: React.HTMLAttributes);
         /**
          * Log the first welcome message
@@ -6636,17 +6619,15 @@ declare namespace Animate {
         componentDidMount(): void;
         /**
          * Creates the component elements
-         * @returns {JSX.Element}
          */
         render(): JSX.Element;
         /**
         * Deals with the focus changes
-        * @param {object} e The jQuery event object
         */
         onMouseDown(e: any): void;
         /**
         * Sets a component to be focused.
-        * @param {Component} comp The component to focus on.
+        * @param comp The component to focus on.
         */
         setFocus(comp: Component): void;
         /**
@@ -6668,16 +6649,14 @@ declare const __plugins: {
 declare let __newPlugin: Animate.IPlugin;
 /**
  * Goes through each of the plugins and returns the one with the matching ID
- * @param {string} id The ID of the plugin to fetch
+ * @param id The ID of the plugin to fetch
  */
 declare function getPluginByID(id: string): Engine.IPlugin;
 /**
  * Once the plugins are loaded from the DB
- * @param {Array<Engine.IPlugin>} plugins
  */
 declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
 /**
  * Returns a formatted byte string
- * @returns {string}
  */
 declare function byteFilter(bytes: any, precision?: number): string;
