@@ -5,19 +5,20 @@ namespace Animate {
         x: number;
         y: number;
         onMove?: ( x: number, y: number ) => void;
+        onDragComplete?: ( start: { x: number, y: number }, end: { x: number, y: number }) => void;
     }
 
     export class Draggable extends React.Component<IDraggableProps, any> {
         static defaultProps: IDraggableProps = {
             enabled: true,
             x: 0,
-            y: 0,
-            onMove: null
+            y: 0
         };
 
         private _upProxy;
         private _moveProxy;
         private _mouseDelta: { x: number, y: number };
+        private _startPos: { x: number, y: number };
         private _scrollInterval: number;
 
         constructor( props: IDraggableProps ) {
@@ -26,6 +27,7 @@ namespace Animate {
             this._upProxy = this.onMouseUp.bind( this );
             this._moveProxy = this.onMouseMove.bind( this );
             this._mouseDelta = null;
+            this._startPos = null;
             this.state = {
                 x: props.x,
                 y: props.y
@@ -36,7 +38,6 @@ namespace Animate {
          * When unmounting, we remove any listeners
          */
         componentWillUnmount() {
-            ;
             window.removeEventListener( 'mouseup', this._upProxy );
             window.removeEventListener( 'mousemove', this._moveProxy );
         }
@@ -49,6 +50,7 @@ namespace Animate {
                 return;
 
             this._mouseDelta = Utils.getRelativePos( e, this.refs[ 'draggable' ] as HTMLElement );
+            this._startPos = this.getPosition( e );
             e.preventDefault();
             window.addEventListener( 'mouseup', this._upProxy );
             window.addEventListener( 'mousemove', this._moveProxy );
@@ -60,6 +62,18 @@ namespace Animate {
         onMouseUp( e: React.MouseEvent ) {
             window.removeEventListener( 'mouseup', this._upProxy );
             window.removeEventListener( 'mousemove', this._moveProxy );
+
+            let endPosition = this.getPosition( e );
+            if ( this.props.onDragComplete )
+                this.props.onDragComplete( this._startPos, endPosition );
+        }
+
+        private getPosition( e: React.MouseEvent ): { x: number; y: number; } {
+            const elm = this.refs[ 'draggable' ] as HTMLElement;
+            const pos = Utils.getRelativePos( e, elm.parentElement );
+            pos.x -= this._mouseDelta.x;
+            pos.y -= this._mouseDelta.y;
+            return pos;
         }
 
         /**
@@ -67,19 +81,21 @@ namespace Animate {
          */
         onMouseMove( e: React.MouseEvent ) {
             const elm = this.refs[ 'draggable' ] as HTMLElement;
-            const pos = Utils.getRelativePos( e, elm.parentElement );
+            const pos = this.getPosition( e );
+
             const xBuffer = 10;
             const yBuffer = 10;
             let targetScrollX = elm.parentElement.scrollLeft;
             let targetScrollY = elm.parentElement.scrollTop;
 
-            pos.x -= this._mouseDelta.x;
-            pos.y -= this._mouseDelta.y;
-
+            // Set the position of the element
             elm.style.left = pos.x + 'px';
             elm.style.top = pos.y + 'px';
-            this.props.onMove( pos.x, pos.y );
 
+            if ( this.props.onMove )
+                this.props.onMove( pos.x, pos.y );
+
+            // Scroll the node into view
             const bounds = elm.getBoundingClientRect();
 
             if ( pos.x + ( bounds.width + xBuffer ) > elm.parentElement.offsetWidth + elm.parentElement.scrollLeft )
@@ -96,8 +112,6 @@ namespace Animate {
                 window.clearInterval( this._scrollInterval );
                 this._scrollInterval = Utils.scrollTo( { x: targetScrollX, y: targetScrollY }, elm.parentElement, 250 );
             }
-
-
         }
 
         /**
