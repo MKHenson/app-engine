@@ -6,10 +6,11 @@ namespace Animate {
         onDispose?: ( paneIndex: number, prop: ITabPaneProps ) => void;
         canSelect?: ( paneIndex: number, prop: ITabPaneProps ) => boolean | Promise<boolean>;
         canClose?: ( paneIndex: number, prop: ITabPaneProps ) => boolean | Promise<boolean>;
+        onSelect?: ( paneIndex: number ) => void;
     }
 
 	/**
-	 * A single page/pane/folder pair for use in a Tab
+	 * A single page/pane/folder pane for use in a Tab
 	 */
     export class TabPane extends React.Component<ITabPaneProps, any> {
         static defaultProps: ITabPaneProps = {

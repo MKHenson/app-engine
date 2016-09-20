@@ -2,6 +2,7 @@ namespace Animate {
 
     export interface IWorkspaceProps extends ITabProps {
         project: Project;
+        onSchemaActivated: ( schema: ContainerSchema ) => void;
     }
 
 	/**
@@ -19,15 +20,22 @@ namespace Animate {
         componentWillMount() {
 
             // add project events
-            this.props.project.on<ProjectEvents, IEditorEvent>( 'editor-created', this.onEditorCreated, this );
+            this.props.project.on<ProjectEvents, IEditorEvent>( 'editor-created', this.onSchemaCreated, this );
+            this.props.project.on<ProjectEvents, IEditorEvent>( 'editor-removed', this.onSchemaRemoved, this );
         }
 
         componentWillUnmount() {
             // remove project events
-            this.props.project.off<ProjectEvents, IEditorEvent>( 'editor-created', this.onEditorCreated, this );
+            this.props.project.off<ProjectEvents, IEditorEvent>( 'editor-created', this.onSchemaCreated, this );
+            this.props.project.off<ProjectEvents, IEditorEvent>( 'editor-removed', this.onSchemaRemoved, this );
         }
 
-        onEditorCreated( type: ProjectEvents, event: IEditorEvent ) {
+        onSchemaRemoved( type: ProjectEvents, event: IEditorEvent ) {
+            if ( this.props.project.openEditors.length == 0 )
+                this.props.onSchemaActivated( null );
+        }
+
+        onSchemaCreated( type: ProjectEvents, event: IEditorEvent ) {
             this.forceUpdate();
         }
 
@@ -72,18 +80,21 @@ namespace Animate {
 
                         </div>
                     ) : (
-                            <Tab panes={ editors.map(( editor, index ) => {
-                                return (
-                                    <TabPane
-                                        key={'pane-' + index}
-                                        canClose={ ( i, props ) => {
-                                            return this.canContainerClose( editor );
-                                        } }
-                                        label={ ( editor.resource.saved ? '' : '* ' ) + editor.resource.entry.name}>
-                                        <Schema store={editor as ContainerSchema} />
-                                    </TabPane>
-                                )
-                            }) } />
+                            <Tab
+                                panes={ editors.map(( editor, index ) => {
+                                    return (
+                                        <TabPane
+                                            onSelect={ ( index ) => { this.props.onSchemaActivated( editor as ContainerSchema ) } }
+                                            key={'pane-' + index}
+                                            canClose={ ( i, props ) => {
+                                                return this.canContainerClose( editor );
+                                            } }
+
+                                            label={ ( editor.resource.saved ? '' : '* ' ) + editor.resource.entry.name}>
+                                            <Schema editor={editor as ContainerSchema} />
+                                        </TabPane>
+                                    )
+                                }) } />
                         ) ) }
                 </div>
             );

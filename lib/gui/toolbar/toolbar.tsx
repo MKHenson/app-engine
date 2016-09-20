@@ -1,6 +1,6 @@
 namespace Animate {
     export interface IToolbarProps {
-
+        containerEditor: ContainerSchema;
     }
 
     export interface IToolbarState {
@@ -55,6 +55,8 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
+            const editor = this.props.containerEditor;
+
             return <div className="toolbar">
                 <Tab
                     panes={[
@@ -68,6 +70,10 @@ namespace Animate {
                                 <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png"  disabled={!this.$itemSelected} />
                                 <ToolbarButton onChange={( e ) => { this.onPaste() } } label="Paste" imgUrl="media/paste.png"  disabled={!this._copyPasteToken} />
                                 <ToolbarButton onChange={( e ) => { this.onDelete() } } label="Delete" imgUrl="media/delete.png"  disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={( e ) => { editor.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
+                                    disabled={!editor} />
+                                <ToolbarButton onChange={( e ) => { editor.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
+                                    disabled={!editor} />
                             </div>
                             <div className="tool-bar-group">
                                 <ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Animate.Canvas.snapping}

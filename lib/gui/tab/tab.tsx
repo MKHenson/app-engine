@@ -10,7 +10,7 @@ namespace Animate {
     }
 
 	/**
-	 * A Tab Component for organising pages of content into separate labelled tabs/folders
+	 * A Tab Component for organising pages of content into separate labelled tabs/components
 	 */
     export class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
 
@@ -23,7 +23,7 @@ namespace Animate {
             super( props );
             this._panes = props.panes || [];
             this.state = {
-                selectedIndex: 0
+                selectedIndex: props.panes.length > 0 ? 0 : -1
             } as Y;
         }
 
@@ -36,6 +36,23 @@ namespace Animate {
                 this._panes = nextProps.panes || [];
                 this.setState( { selectedIndex: ( this.state.selectedIndex < this._panes.length ? this.state.selectedIndex : 0 ) } as Y );
             }
+        }
+
+        /**
+         * Check if we need to notify the onSelect event
+         */
+        componentDidMount() {
+            if ( this.state.selectedIndex == 0 && this._panes[ this.state.selectedIndex ].props.onSelect )
+                this._panes[ this.state.selectedIndex ].props.onSelect( this.state.selectedIndex );
+        }
+
+        /**
+         * Check if the index changes so we can notify the onSelect event
+         */
+        componentDidUpdate( prevProps: T, prevState: Y ) {
+            if ( prevState.selectedIndex !== this.state.selectedIndex )
+                if ( this._panes[ this.state.selectedIndex ].props.onSelect )
+                    this._panes[ this.state.selectedIndex ].props.onSelect( this.state.selectedIndex );
         }
 
 		/**
@@ -67,7 +84,7 @@ namespace Animate {
                 this._panes.splice( index, 1 );
                 this.setState( {
                     selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
-                } as Y);
+                } as Y );
             });
         }
 
@@ -78,8 +95,8 @@ namespace Animate {
 
             const children = this._panes;
 
-            return <div className={'tab' + (this.props.className ? ' ' + this.props.className : '' ) +
-                    ( children.length > 0 ? ' has-panes' : ' no-panes' ) }>
+            return <div className={'tab' + ( this.props.className ? ' ' + this.props.className : '' ) +
+                ( children.length > 0 ? ' has-panes' : ' no-panes' ) }>
                 <div className="tab-labels">
 
                     {( children.length > 0 ?
@@ -141,7 +158,7 @@ namespace Animate {
                 if ( !result )
                     return;
 
-                this.setState( { selectedIndex: index } as Y)
+                this.setState( { selectedIndex: index } as Y )
             });
         }
 
@@ -200,7 +217,7 @@ namespace Animate {
                 x: e.pageX, y: e.pageY, items: items, onChange: ( item ) => {
                     for ( let i = 0, l = panes.length; i < l; i++ )
                         if ( panes[ i ].props.label === item.label )
-                            return this.setState( { selectedIndex: i } as Y);
+                            return this.setState( { selectedIndex: i } as Y );
                 }
             });
         }
@@ -211,15 +228,15 @@ namespace Animate {
         addTab( pane: React.ReactElement<ITabPaneProps> ) {
             this._panes.push( pane );
             this.setState( {
-                selectedIndex: this.state.selectedIndex
-            } as Y);
+                selectedIndex: this._panes.length - 1
+            } as Y );
         }
 
         removeTabByLabel( label: string ) {
             let panes = this._panes;
             for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.label === label )
-                    return this.removePane(i, panes[ i ].props);
+                    return this.removePane( i, panes[ i ].props );
 
             throw new Error( 'Could not find pane with that label' );
         }
@@ -262,7 +279,7 @@ namespace Animate {
             this._panes.splice( 0, this._panes.length );
             this.setState( {
                 selectedIndex: 0
-            } as Y);
+            } as Y );
         }
 
 		/**

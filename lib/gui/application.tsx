@@ -12,6 +12,7 @@ namespace Animate {
         public static bodyComponent: Component;
         private _focusObj: Component;
         private _sceneStore: TreeViewScene;
+        private _currentSchema: ContainerSchema;
 
         constructor( props: React.HTMLAttributes ) {
             super( props );
@@ -21,6 +22,7 @@ namespace Animate {
             new LoggerStore();
             User.get;
             this._sceneStore = new TreeViewScene();
+            this._currentSchema = null;
             this.state = {
                 showSplash: true
             }
@@ -44,14 +46,17 @@ namespace Animate {
                 {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
                 <div id="main-view" style={{ display: this.state.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
-                        <Toolbar />
+                        <Toolbar containerEditor={this._currentSchema} />
                     </div>
                     <div id="stage">
                         <SplitPanel ratio={0.7} left={
                             <SplitPanel
                                 ratio={0.8}
                                 orientation={SplitOrientation.HORIZONTAL}
-                                top={<Workspace project={project} />}
+                                top={<Workspace project={project} onSchemaActivated={( schema ) => {
+                                    this._currentSchema = schema;
+                                    this.forceUpdate();
+                                } } />}
                                 bottom={<Logger store={LoggerStore.get} />} />
                         } right={
                             <SplitPanel
