@@ -73,28 +73,28 @@
     fill: #8e8e8e;
 }
 
-.behaviour-portal, .portal.output.active svg polygon, .portal.input.active svg polygon  {
+.behaviour.portal, .portal.output.active svg polygon, .portal.input.active svg polygon  {
     background: #9D5BAF;
     fill: #9D5BAF;
 }
-.behaviour-portal:hover, .portal.output.active svg polygon:hover, .portal.input.active svg polygon:hover {
+.behaviour.portal:hover, .portal.output.active svg polygon:hover, .portal.input.active svg polygon:hover {
     background: #8a509a;
     fill: #8a509a;
 }
-.behaviour-portal:active, .portal.output.active svg polygon:active, .portal.input.active svg polygon:active {
+.behaviour.portal:active, .portal.output.active svg polygon:active, .portal.input.active svg polygon:active {
     background: #774685;
     fill: #774685;
 }
 
-.behaviour-asset, .behaviour.product, .behaviour.parameter, .portal.parameter.active svg polygon, .portal.product.active svg polygon {
+.behaviour.asset, .behaviour.product, .behaviour.parameter, .portal.parameter.active svg polygon, .portal.product.active svg polygon {
     background: #E2B31F;
     fill: #E2B31F;
 }
-.behaviour-asset:hover, .behaviour.product:hover, .behaviour.parameter:hover, .portal.parameter.active svg polygon:hover, .portal.product.active svg polygon:hover {
+.behaviour.asset:hover, .behaviour.product:hover, .behaviour.parameter:hover, .portal.parameter.active svg polygon:hover, .portal.product.active svg polygon:hover {
     background: #d1a61e;
     fill: #d1a61e;
 }
-.behaviour-asset:active, .behaviour.product:active, .behaviour.parameter:active, .portal.parameter.active svg polygon:active, .portal.product.active svg polygon:active {
+.behaviour.asset:active, .behaviour.product:active, .behaviour.parameter:active, .portal.parameter.active svg polygon:active, .portal.product.active svg polygon:active {
     background: #bb951b;
     fill: #bb951b;
 }
