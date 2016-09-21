@@ -14,6 +14,10 @@ namespace Animate {
                 super();
                 this.selectionIds = selectionIds;
                 this.previousSelection = [];
+
+                for ( const id of selectionIds )
+                    if (id === -1)
+                        throw new Error("Cannot have -1")
             }
 
             /**
