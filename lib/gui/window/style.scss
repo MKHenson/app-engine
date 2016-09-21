@@ -19,6 +19,18 @@
 .window-view {
     .resizable {
         position: absolute;
+        z-index: 1;
+
+        &.animated {
+            transition: transform 0.5s, opacity 0.5s;
+            transform: translate(0, -200px);
+            opacity: 0;
+
+            &.shown {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+        }
     }
 }
 

@@ -21,7 +21,8 @@ namespace Animate {
             controlBox: false,
             canResize: false,
             autoCenter: false,
-            modal: false
+            modal: false,
+            animated: false
         }
 
         private _onUpProxy: any;

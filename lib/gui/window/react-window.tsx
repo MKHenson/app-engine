@@ -13,6 +13,7 @@ namespace Animate {
         _closing?: () => void;
         x?: number;
         y?: number;
+        animated?: boolean;
     }
 
     export interface IReactWindowState {
@@ -39,7 +40,8 @@ namespace Animate {
             showCloseButton: true,
             title: null,
             autoCenter: true,
-            canResize: true
+            canResize: true,
+            animated: true
         };
 
         private _resizeProxy: any;
@@ -170,6 +172,8 @@ namespace Animate {
                 elm.style.left = ( this.props.x || 0 ) + 'px';
                 elm.style.top = ( this.props.y || 0 ) + 'px';
             }
+
+            setTimeout( function () { elm.className = elm.className + ' shown'; }, 30 );
         }
 
         /**
@@ -214,6 +218,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             let controlBox: JSX.Element;
+            const animated = this.props.animated === undefined ? true : this.props.animated;
 
             if ( this.props.controlBox ) {
                 controlBox = <div className="window-control-box" onMouseDown={( e ) => { this.onHeaderDown( e ) } }>
@@ -225,7 +230,7 @@ namespace Animate {
             }
             return <div>
                 {( this.props.modal ? <div className="modal-backdrop" onClick={() => { this.onModalClick(); } }></div> : null ) }
-                <Resizable ref="resizable" enabled={this.props.canResize}>
+                <Resizable ref="resizable" enabled={this.props.canResize} className={animated ? 'animated' : ''}>
                     <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' ) } ref="window">
                         {controlBox}
                         <div className={'window-content' + ( !this.props.controlBox ? ' no-control' : '' ) }>

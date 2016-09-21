@@ -70,7 +70,8 @@ namespace Animate {
                 message: message,
                 buttons: buttons,
                 onChange: callback,
-                type: AttentionType.SUCCESS
+                type: AttentionType.SUCCESS,
+                autoCenter: true
             } as IMessageBoxProps )
         }
 
@@ -85,7 +86,8 @@ namespace Animate {
                 message: message,
                 buttons: buttons,
                 onChange: callback,
-                type: AttentionType.WARNING
+                type: AttentionType.WARNING,
+                autoCenter: true
             } as IMessageBoxProps )
         }
 
@@ -100,7 +102,8 @@ namespace Animate {
                 message: message,
                 buttons: buttons,
                 onChange: callback,
-                type: AttentionType.ERROR
+                type: AttentionType.ERROR,
+                autoCenter: true
             } as IMessageBoxProps )
         }
     }
