@@ -11,8 +11,6 @@ namespace Animate {
         private static _singleton: Application;
         public static bodyComponent: Component;
         private _focusObj: Component;
-        private _sceneStore: TreeViewScene;
-        private _currentSchema: ContainerSchema;
 
         constructor( props: React.HTMLAttributes ) {
             super( props );
@@ -21,8 +19,6 @@ namespace Animate {
             Utils.init();
             new LoggerStore();
             User.get;
-            this._sceneStore = new TreeViewScene();
-            this._currentSchema = null;
             this.state = {
                 showSplash: true
             }
@@ -46,17 +42,14 @@ namespace Animate {
                 {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
                 <div id="main-view" style={{ display: this.state.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
-                        <Toolbar containerEditor={this._currentSchema} />
+                        <Toolbar project={project} />
                     </div>
                     <div id="stage">
                         <SplitPanel ratio={0.7} left={
                             <SplitPanel
                                 ratio={0.8}
                                 orientation={SplitOrientation.HORIZONTAL}
-                                top={<Workspace project={project} onSchemaActivated={( schema ) => {
-                                    this._currentSchema = schema;
-                                    this.forceUpdate();
-                                } } />}
+                                top={<Workspace project={project} />}
                                 bottom={<Logger store={LoggerStore.get} />} />
                         } right={
                             <SplitPanel
@@ -64,7 +57,7 @@ namespace Animate {
                                 orientation={SplitOrientation.HORIZONTAL}
                                 top={<h2>Property editor goes here</h2>}
                                 bottom={
-                                    <TreeView nodeStore={this._sceneStore} />
+                                    <TreeViewScene project={project}  />
                                 } />
                         } />
                     </div>
@@ -110,7 +103,7 @@ namespace Animate {
             // TODO: Figure out what to do with resets?
             PropertyGrid.getSingleton().projectReset();
             LoggerStore.get.clear();
-            TreeViewScene.getSingleton().projectReset( user.project );
+            // TreeViewScene.getSingleton().projectReset( user.project );
             // CanvasTab.getSingleton().projectReset();
 
             // Must be called after reset
