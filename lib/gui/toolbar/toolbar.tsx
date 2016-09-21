@@ -1,6 +1,6 @@
 namespace Animate {
     export interface IToolbarProps {
-        containerEditor: ContainerSchema;
+        project: Project;
     }
 
     export interface IToolbarState {
@@ -51,11 +51,23 @@ namespace Animate {
             // this._topMenu.element.on("click", jQuery.proxy(this.onMajorTab, this));
         }
 
+        componentWillMount() {
+            this.props.project.on<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
+        }
+
+        componentWillUnmount() {
+            this.props.project.off<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
+        }
+
+        onProjectUpdated( type: ProjectEvents ) {
+            this.forceUpdate();
+        }
+
 		/**
          * Creates the component elements
          */
         render(): JSX.Element {
-            const editor = this.props.containerEditor;
+            const editor = this.props.project.activeEditor;
 
             return <div className="toolbar">
                 <Tab
@@ -71,9 +83,9 @@ namespace Animate {
                                 <ToolbarButton onChange={( e ) => { this.onPaste() } } label="Paste" imgUrl="media/paste.png"  disabled={!this._copyPasteToken} />
                                 <ToolbarButton onChange={( e ) => { this.onDelete() } } label="Delete" imgUrl="media/delete.png"  disabled={!this.$itemSelected} />
                                 <ToolbarButton onChange={( e ) => { editor.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
-                                    disabled={!editor} />
+                                    disabled={!editor || !editor.hasUndos} />
                                 <ToolbarButton onChange={( e ) => { editor.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
-                                    disabled={!editor} />
+                                    disabled={!editor || !editor.hasRedos} />
                             </div>
                             <div className="tool-bar-group">
                                 <ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Animate.Canvas.snapping}
