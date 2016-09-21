@@ -41,6 +41,7 @@
     "lib/core/editors/container-schema/actions/selection-moved.ts",
     "lib/core/editors/container-schema/actions/comment-created.ts",
     "lib/core/editors/container-schema/actions/comment-resized.ts",
+    "lib/core/editors/container-schema/actions/comment-editted.ts",
     "lib/core/editors/container-schema/container-schema.ts",
     "lib/core/editors/container-schema/items/canvas-item.ts",
     "lib/core/editors/container-schema/items/behaviour.ts",

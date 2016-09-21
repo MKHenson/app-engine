@@ -15,6 +15,7 @@ namespace Animate {
      */
     export class CommentComponent extends React.Component<ICommentComponentProps, ICommentComponentState> {
         private _onUp: any;
+        private _wasDownOnInput;
 
         /**
          * Creates an instance of the component
@@ -22,6 +23,7 @@ namespace Animate {
         constructor( props: ICommentComponentProps ) {
             super( props );
             this._onUp = this.onUp.bind( this );
+            this._wasDownOnInput = false;
             this.state = {
                 editMode: false,
                 newLabel: props.comment.label
@@ -56,8 +58,16 @@ namespace Animate {
          * When the mouse is up, we remove the listeners and set the label
          */
         onUp( e: React.MouseEvent ) {
-            const comment = this.props.comment;
             const input = this.refs[ 'input' ] as HTMLTextAreaElement;
+
+            if ( e.target !== input && this._wasDownOnInput) {
+                e.preventDefault();
+                this._wasDownOnInput = false;
+                return;
+            }
+
+            const comment = this.props.comment;
+
             let ref = e.target as HTMLElement;
 
             while ( ref )
@@ -67,7 +77,7 @@ namespace Animate {
                     ref = ref.parentElement;
 
             window.removeEventListener( 'mouseup', this._onUp );
-            comment.label = input.value;
+            this.props.editor.doAction( new Actions.CommentEditted( this.props.comment.id, input.value ) );
             this.setState( { editMode: false });
         }
 
@@ -120,6 +130,7 @@ namespace Animate {
                             >
                             { this.state.editMode ?
                                 <textarea ref="input"
+                                    onMouseDown={ () => this._wasDownOnInput = true }
                                     onKeyDown={( e ) => {
                                         // Esc
                                         if ( e.keyCode === 27 )
@@ -128,7 +139,7 @@ namespace Animate {
                                         // Enter
                                         if ( e.keyCode === 13 ) {
                                             this.setState( { editMode: false });
-                                            comment.label = ( e.target as HTMLTextAreaElement ).value;
+                                            editor.doAction( new Actions.CommentEditted( this.props.comment.id, ( e.target as HTMLTextAreaElement ).value ) );
                                         }
                                     } }
                                     value={this.state.newLabel}
