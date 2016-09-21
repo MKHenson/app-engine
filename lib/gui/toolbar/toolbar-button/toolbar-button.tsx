@@ -36,7 +36,7 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-            let className = 'toolbar-button';
+            let className = 'toolbar-button unselectable';
             if ( this.state.selected )
                 className += ' selected';
             if ( this.props.disabled )
