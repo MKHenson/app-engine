@@ -12,8 +12,8 @@ namespace Animate {
         /**
          * Creates an instance of the canvas store
          */
-        constructor( container: Resources.Container ) {
-            super( container );
+        constructor( container: Resources.Container, project: Project ) {
+            super( container, project );
             this._items = [];
             this._selection = [];
             this.opened = false;
@@ -95,6 +95,7 @@ namespace Animate {
         onNodeSelected( item: Engine.Editor.ICanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
             let clearSelection = false;
+            const prevSelection = this._selection.slice();
             let previousNumSelected = this._selection.length;
             let selection = this._selection;
             let node: CanvasItem = null;
@@ -125,13 +126,25 @@ namespace Animate {
                     selection.push( node );
             }
 
+            // Do nothing if no changes
             if ( previousNumSelected === 0 && selection.length === 0 )
                 return;
+
+            let selectionChanged = ( previousNumSelected !== selection.length ? true : false );
+
+            if (!selectionChanged) {
+                for ( let i = 0, l = prevSelection.length; i < l; i++ )
+                    if ( prevSelection[ i ] !== selection[ i ] ) {
+                        selectionChanged = true;
+                        break;
+                    }
+            }
 
             for ( const item of selection )
                 selectedIds.push( items.indexOf( item ) );
 
-            this.doAction( new Actions.SelectionChanged( selectedIds ) );
+            if ( selectionChanged )
+                this.doAction( new Actions.SelectionChanged( selectedIds ) );
         }
 
         /**
