@@ -42,7 +42,7 @@ namespace Animate {
      * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
      * with the VForm.
      */
-    export class VTextarea extends React.Component<IVTextareaProps, { error?: string, value?: string, highlightError?: boolean, className?: string }> {
+    export class VTextarea extends React.Component<IVTextareaProps, { error?: string, value?: string, highlightError?: boolean, className?: string, focussed?: boolean }> {
         private _pristine: boolean;
 
         /**
@@ -55,6 +55,7 @@ namespace Animate {
                 value: props.value || '',
                 error: null,
                 highlightError: false,
+                focussed: false,
                 className: ( props.className ? props.className + ' v-textarea' : 'v-textarea' )
             };
         }
@@ -170,15 +171,20 @@ namespace Animate {
             if ( !this._pristine )
                 className += ' dirty';
 
-            return <textarea
-                {...divProps}
-                onFocus={( e ) => {
-                    this._pristine = false;
-                } }
-                className={className}
-                value={this.state.value}
-                onChange={( e ) => { this.onChange( e ); } }
-                />;
+            return <span className={ 'v-textarea-outer ' + (this.state.focussed ? 'focussed' : '')}>
+                    <textarea
+                        {...divProps}
+                        onFocus={( e ) => {
+                            this._pristine = false;
+                            this.setState({ focussed: true });
+                        } }
+                        onBlur={(e) => { this.setState({ focussed: false }); }}
+                        className={className}
+                        value={this.state.value}
+                        onChange={( e ) => { this.onChange( e ); } }
+                        />
+                    <div className="input-highlighter"></div>
+                </span>;
         }
     }
 }

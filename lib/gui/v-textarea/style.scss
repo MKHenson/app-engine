@@ -1,3 +1,7 @@
+textarea {
+    vertical-align: top
+}
+
 textarea.v-textarea.bad-input.dirty {
     background: $input-error !important;
 }
@@ -5,5 +9,17 @@ textarea.v-textarea.bad-input.dirty {
 textarea.v-textarea {
     &.highlight-error {
         border-color : $input-highlight;
+    }
+}
+
+.v-textarea-outer {
+    .input-highlighter {
+        border-top:1px solid $ps-blue;
+        margin: 0 auto;
+        width: 0%;
+        transition: width 1s;
+    }
+    &.focussed .input-highlighter {
+        width: 100%;
     }
 }

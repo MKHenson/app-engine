@@ -55,7 +55,7 @@ namespace Animate {
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
      * with the VForm.
      */
-    export class VInput extends React.Component<IVInputProps, { error?: string, value?: string, highlightError?: boolean }> {
+    export class VInput extends React.Component<IVInputProps, { error?: string, value?: string, highlightError?: boolean, focussed?: boolean }> {
         static defaultProps: IVInputProps = {
             selectOnClick: true
         }
@@ -77,7 +77,8 @@ namespace Animate {
             this.state = {
                 value: props.value || '',
                 error: null,
-                highlightError: false
+                highlightError: false,
+                focussed: false
             };
         }
 
@@ -244,19 +245,24 @@ namespace Animate {
             if ( !this._pristine )
                 className += ' dirty';
 
-            return <input
-                {...divProps}
-                onKeyDown={( e ) => { this.onKeyDown( e ) } }
-                onKeyUp={ ( e ) => { this.onKeyUp( e ) } }
-                onFocus={( e ) => {
-                    this._pristine = false;
-                    if ( this.props.selectOnClick )
-                        ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
-                } }
-                className={className}
-                value={this.state.value}
-                onChange={( e ) => { this.onChange( e ); } }
-                />;
+            return <span className={ 'v-input-outer ' + (this.state.focussed ? 'focussed' : '')}>
+                    <input
+                    {...divProps}
+                    onKeyDown={( e ) => { this.onKeyDown( e ) } }
+                    onKeyUp={ ( e ) => { this.onKeyUp( e ) } }
+                    onBlur={(e) => { this.setState({ focussed: false }); }}
+                    onFocus={( e ) => {
+                        this._pristine = false;
+                        this.setState({ focussed: true });
+                        if ( this.props.selectOnClick )
+                            ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
+                    } }
+                    className={className}
+                    value={this.state.value}
+                    onChange={( e ) => { this.onChange( e ); } }
+                    />
+                    <div className="input-highlighter"></div>
+                </span>;
         }
     }
 }
