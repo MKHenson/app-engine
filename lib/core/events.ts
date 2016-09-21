@@ -10,6 +10,7 @@
 
     // TODO: Can probably be refactored
     export type ProjectEvents  =
+        'change' |
         'editor-created' |
         'editor-removed' |
         'resource-created' |

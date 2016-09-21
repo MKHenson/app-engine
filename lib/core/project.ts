@@ -7,6 +7,7 @@ namespace Animate {
     export class Project extends EventDispatcher {
 
         public openEditors: Editor[];
+        public activeEditor: Editor;
         public curBuild: Build;
         private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
         private _entry: Engine.IProject;
@@ -18,12 +19,22 @@ namespace Animate {
             super();
 
             this.openEditors = [];
+            this.activeEditor = null;
             this._restPaths = {};
             this._restPaths[ ResourceType.FILE ] = { url: `files`, array: [] };
             this._restPaths[ ResourceType.ASSET ] = { url: `assets`, array: [] };
             this._restPaths[ ResourceType.CONTAINER ] = { url: `containers`, array: [] };
             this._restPaths[ ResourceType.GROUP ] = { url: `groups`, array: [] };
             this._restPaths[ ResourceType.SCRIPT ] = { url: `scripts`, array: [] };
+        }
+
+        activateEditor( editor: Editor ) {
+            if (this.activeEditor)
+                this.activeEditor.active = false;
+
+            this.activeEditor = editor;
+            this.activeEditor.active = true;
+            this.invalidate();
         }
 
 		/**
@@ -544,10 +555,11 @@ namespace Animate {
 
             let editor: Editor;
             if ( resource instanceof Resources.Container )
-                editor = new ContainerSchema( resource );
+                editor = new ContainerSchema( resource, this );
 
             this.openEditors.push( editor );
             this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
+            this.invalidate();
         }
 
         /**
@@ -556,6 +568,14 @@ namespace Animate {
         removeEditor( editor : Editor ) {
             this.openEditors.splice( this.openEditors.indexOf(editor), 1 );
             this.emit<ProjectEvents, IEditorEvent>( 'editor-removed', { editor: editor });
+            this.invalidate();
+        }
+
+        /**
+         * Triggers a change event
+         */
+        invalidate() {
+            this.emit<ProjectEvents, void>( 'change');
         }
 
         get containers(): Resources.Container[] { return this._restPaths[ResourceType.CONTAINER].array as Resources.Container[]; }
