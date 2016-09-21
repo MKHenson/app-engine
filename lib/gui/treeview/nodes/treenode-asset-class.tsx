@@ -5,11 +5,12 @@ namespace Animate {
 	 */
     export class TreeNodeAssetClass extends TreeNodeModel {
         public assetClass: AssetClass;
+        private _project: Project;
 
 		/**
 		 * Creates an instance of node
 		 */
-        constructor( assetClass: AssetClass ) {
+        constructor( assetClass: AssetClass, project: Project ) {
             super( assetClass.name, <i className="fa fa-leaf" aria-hidden="true"></i> );
 
             this.selectable( false );
@@ -18,18 +19,20 @@ namespace Animate {
             // Add the sub-class nodes
             for ( let ii = 0; ii < assetClass.classes.length; ii++ ) {
                 const c = assetClass.classes[ ii ];
-                const toRet = new TreeNodeAssetClass( c );
+                const toRet = new TreeNodeAssetClass( c, project );
                 this.addNode( toRet );
             }
 
-            User.get.project.on<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
+            this._project = project;
+            this._project.on<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
         }
 
 		/**
          * Clean up
          */
         dispose() {
-            User.get.project.off<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
+            this._project.off<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
+            this._project = null;
             this.assetClass = null;
             super.dispose();
         }

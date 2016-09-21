@@ -6,14 +6,16 @@ namespace Animate {
     export class TreeViewNodeGroups extends TreeNodeModel {
 
         private _loading: boolean;
+        private _project: Project;
 
         /**
          * Creates an instance of the node
          */
-        constructor() {
+        constructor( project: Project ) {
             super( 'Groups', <i className="fa fa-th" aria-hidden="true"></i> );
             this._loading = false;
-            User.get.project.on<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project = project;
+            this._project.on<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -34,7 +36,8 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            User.get.project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project = null;
         }
 
         /**

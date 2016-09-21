@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface ITreeViewProps {
-        nodeStore: TreeNodeStore;
+        nodeStore?: TreeNodeStore;
     }
 
     export interface ITreeViewState {
@@ -12,13 +12,16 @@ namespace Animate {
 	/**
 	 * A component visually represents a TreeNodeStore and its nodes
 	 */
-    export class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
+    export class TreeView<T extends ITreeViewProps> extends React.Component<T, ITreeViewState> {
+        private _isMounted: boolean;
 
         /**
          * Creates a new instance of the treenode
          */
-        constructor( props: ITreeViewProps ) {
+        constructor( props: T ) {
             super( props );
+
+            this._isMounted = false;
 
             // Set the initial state
             this.state = {
@@ -41,7 +44,8 @@ namespace Animate {
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
         onChange( type: TreeviewEvents ) {
-            this.setState( { nodes: this.props.nodeStore.getNodes() });
+            if ( this._isMounted )
+                this.setState( { nodes: this.props.nodeStore.getNodes() });
         }
 
         /**
@@ -71,6 +75,13 @@ namespace Animate {
             this.setState( {
                 nodes: nextProps.nodeStore.getNodes()
             });
+        }
+
+        /**
+         * Set the mounted variable so we dont get warnings
+         */
+        componentDidMount() {
+            this._isMounted = true;
         }
 
         /**

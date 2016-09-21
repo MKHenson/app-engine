@@ -8,7 +8,7 @@ namespace Animate {
         /**
          * Creates an instance of the node
          */
-        constructor() {
+        constructor( project: Project ) {
             super( 'Assets', <i className="fa fa-leaf" aria-hidden="true"></i> );
 
             // Add all the asset nodes
@@ -16,7 +16,7 @@ namespace Animate {
 
             for ( let template of assetTemplates )
                 for ( let assetClass of template.classes )
-                    this.addNode( new TreeNodeAssetClass( assetClass ) );
+                    this.addNode( new TreeNodeAssetClass( assetClass, project ) );
         }
 
         /**

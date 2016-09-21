@@ -1,9 +1,18 @@
 namespace Animate {
 
+    export interface ITreeViewSceneProps extends ITreeViewProps {
+        project: Project;
+    }
+
 	/**
-	* An implementation of the tree view for the scene.
-	*/
-    export class TreeViewScene extends TreeNodeStore {
+	 * An implementation of the tree view for the scene.
+	 */
+    export class TreeViewScene extends TreeView<ITreeViewSceneProps> {
+        static defaultProps: ITreeViewSceneProps = {
+            project: null,
+            nodeStore: new TreeNodeStore()
+        }
+
         private static _singleton: TreeViewScene;
 
         // private _contextMenu: ContextMenu;
@@ -19,16 +28,14 @@ namespace Animate {
 
         // private _context : IReactContextMenuItem[];
 
-        constructor() {
-            super();
+        constructor(props: ITreeViewSceneProps) {
+            super(props);
+            this.props.nodeStore.addNode( new TreeViewNodeContainers( props.project ) );
+            this.props.nodeStore.addNode( new TreeViewNodeAssets( props.project ) );
+            this.props.nodeStore.addNode( new TreeViewNodeGroups( props.project ) );
+            this.props.nodeStore.addNode( new TreeViewNodeBehaviours() );
 
-            this.addNode( new TreeViewNodeContainers() );
-            this.addNode( new TreeViewNodeAssets() );
-            this.addNode( new TreeViewNodeGroups() );
-            this.addNode( new TreeViewNodeBehaviours() );
 
-
-            TreeViewScene._singleton = this;
 
             // this._context = [
             //     { label: 'Delete', prefix: <i className='fa fa-times' aria-hidden='true'></i>, onSelect: (e) => this.onDelete() }
@@ -68,6 +75,27 @@ namespace Animate {
             // this._quickCopy.element.detach();
             // //this._resourceCreated = this.onResourceCreated.bind(this);
             // RenameForm.get.on('renaming', this.onRenameCheck, this );
+        }
+
+        /**
+         * Bind any project related events
+         */
+        componentWillMount() {
+            this.props.project.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        }
+
+        /**
+         * Unbind any project related events
+         */
+        componentWillUnmount() {
+            this.props.project.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        }
+
+        /**
+         * Update the workspace
+         */
+        onProjectChanged( type: ProjectEvents ) {
+            this.forceUpdate();
         }
 
         // onContext(e: React.MouseEvent, n: TreeNodeModel) {
@@ -117,7 +145,7 @@ namespace Animate {
 		* Called when the project is loaded and ready.
 		*/
         projectReady( project: Project ) {
-            project.on( 'resource-created', this.onResourceCreated, this );
+            // project.on( 'resource-created', this.onResourceCreated, this );
 
 
             //this._curProj = User.get.project;

@@ -6,17 +6,19 @@ namespace Animate {
     export class TreeViewNodeContainers extends TreeNodeModel {
 
         private _context: IReactContextMenuItem[];
+        private _project: Project;
 
         /**
          * Creates an instance of the node
          */
-        constructor() {
+        constructor( project: Project ) {
             super( 'Containers', <i className="fa fa-cubes" aria-hidden="true"></i> );
             this._context = [
                 { label: 'New Container', prefix: <i className="fa fa-cube" aria-hidden="true"></i> }
             ];
 
-            User.get.project.on<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project = project;
+            this._project.on<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
         }
 
         /**
@@ -24,7 +26,8 @@ namespace Animate {
          */
         dispose() {
             super.dispose();
-            User.get.project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
+            this._project = null;
         }
 
         /**
@@ -41,7 +44,7 @@ namespace Animate {
         onResourceCreated( type: ProjectEvents, event: IResourceEvent ) {
             let r = event.resource;
             if ( r instanceof Resources.Container )
-                this.addNode( new TreeNodeContainerInstance( r ) );
+                this.addNode( new TreeNodeContainerInstance( r, this._project ) );
         }
     }
 }
