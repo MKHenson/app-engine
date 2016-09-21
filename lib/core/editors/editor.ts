@@ -7,22 +7,26 @@ namespace Animate {
 	 */
     export abstract class Editor extends EventDispatcher {
 
+        public active: boolean;
         public resource: ProjectResource<Engine.IResource>;
         public pastActions: Actions.EditorAction[];
         public currentAction: Actions.EditorAction;
         public futureActions: Actions.EditorAction[];
         private _actionHistoryLength: number;
+        private _project: Project;
 
         /**
          * Creates an instance of the editor
          */
-        constructor( resource: ProjectResource<Engine.IResource> ) {
+        constructor( resource: ProjectResource<Engine.IResource>, project: Project ) {
             super();
+            this.active = false;
             this.resource = resource;
             this.pastActions = [];
             this.currentAction = null;
             this.futureActions = [];
             this._actionHistoryLength = 20;
+            this._project = project;
         }
 
         /**
@@ -100,6 +104,7 @@ namespace Animate {
 		 */
         invalidate() {
             this.emit<EditorEvents, void>( 'change' );
+            this._project.invalidate();
         }
 
         /**
@@ -107,10 +112,9 @@ namespace Animate {
          * @param updateDatabase If true, the editor will provide edits that must be saved to the datavase
          */
         collapse( updateDatabase: boolean = false ) {
-            const project = User.get.project;
-            project.removeEditor( this );
+            this._project.removeEditor( this );
             if ( updateDatabase )
-                project.editResource( this.resource.entry._id, this.serialize() );
+                this._project.editResource( this.resource.entry._id, this.serialize() );
 
             // Cleanup
             this.dispose();
