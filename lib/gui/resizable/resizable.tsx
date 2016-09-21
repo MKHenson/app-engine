@@ -4,7 +4,8 @@ namespace Animate {
         enabled?: boolean;
         target?: HTMLElement;
         onDragStart?( e: React.MouseEvent ): boolean;
-        onResized?( size: { width: number; height: number; } ): void;
+        onResized?( size: { width: number; height: number; }): void;
+        className?: string;
     }
 
     /**
@@ -12,7 +13,8 @@ namespace Animate {
      */
     export class Resizable extends React.Component<IResizableProps, any> {
         static defaultProps: IResizableProps = {
-            enabled: true
+            enabled: true,
+            className: ''
         };
 
         private _upProxy;
@@ -94,6 +96,13 @@ namespace Animate {
 
             elm.style.width = this._ghost.style.width;
             elm.style.height = this._ghost.style.height;
+
+            const bounds = elm.getBoundingClientRect();
+            const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
+            const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
+
+            if ( this.props.onResized )
+                this.props.onResized( { width: w, height: h } );
         }
 
         /**
@@ -106,9 +115,6 @@ namespace Animate {
             const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
             this._ghost.style.width = ( w ) + 'px';
             this._ghost.style.height = ( h ) + 'px';
-
-            if ( this.props.onResized )
-                this.props.onResized({ width: w, height: h });
         }
 
         /**
@@ -116,7 +122,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div ref="resizable"
-                className="resizable">
+                className={'resizable' + ( this.props.className ? ' ' + this.props.className : '' ) }>
                 {this.props.children}
                 <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) } } />
                 <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) } } />
