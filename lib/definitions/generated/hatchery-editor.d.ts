@@ -586,7 +586,7 @@ declare namespace Animate {
      * Events related to the web socket communication API
      */
     type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
-    type ProjectEvents = 'editor-created' | 'editor-removed' | 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
+    type ProjectEvents = 'change' | 'editor-created' | 'editor-removed' | 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
     /**
      * Events related to project resources
      */
@@ -1152,15 +1152,17 @@ declare namespace Animate {
      * the base resource.
      */
     abstract class Editor extends EventDispatcher {
+        active: boolean;
         resource: ProjectResource<Engine.IResource>;
         pastActions: Actions.EditorAction[];
         currentAction: Actions.EditorAction;
         futureActions: Actions.EditorAction[];
         private _actionHistoryLength;
+        private _project;
         /**
          * Creates an instance of the editor
          */
-        constructor(resource: ProjectResource<Engine.IResource>);
+        constructor(resource: ProjectResource<Engine.IResource>, project: Project);
         /**
          * Gets if this editor has actions to undo
          */
@@ -1207,7 +1209,13 @@ declare namespace Animate {
          * The base class for all editor actions
          */
         abstract class EditorAction {
+            /**
+             * Undo the last history action
+             */
             abstract undo(editor: Animate.Editor): any;
+            /**
+             * Redo the next action
+             */
             abstract redo(editor: Animate.Editor): any;
         }
     }
@@ -1215,7 +1223,7 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for the creation of behaviours within a container
          */
         class BehaviourCreated extends EditorAction {
             definition: BehaviourDefinition;
@@ -1223,7 +1231,13 @@ declare namespace Animate {
             options: Engine.Editor.IBehaviour;
             resource: ProjectResource<Engine.IResource>;
             constructor(definition: BehaviourDefinition, options: Engine.Editor.IBehaviour, resource?: ProjectResource<Engine.IResource>);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1231,7 +1245,7 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for the creation of portals
          */
         class PortalCreated extends EditorAction {
             target: Behaviour;
@@ -1240,7 +1254,13 @@ declare namespace Animate {
             left: number;
             top: number;
             constructor(portal: Portal, target: Behaviour, left: number, top: number);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1248,13 +1268,19 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for removing behaviours from a container
          */
         class BehavioursRemoved extends EditorAction {
             instances: CanvasItem[];
             clones: CanvasItem[];
             constructor(instances: CanvasItem[]);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1262,13 +1288,19 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for when the selection changes on a container schema
          */
         class SelectionChanged extends EditorAction {
             selectionIds: number[];
             previousSelection: number[];
             constructor(selectionIds: number[]);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1276,7 +1308,7 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for when a selection is moved in a container schema
          */
         class SelectionMoved extends EditorAction {
             positions: {
@@ -1294,7 +1326,13 @@ declare namespace Animate {
                 x: number;
                 y: number;
             }[]);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1302,14 +1340,20 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for the creation of a user comment in a container schema
          */
         class CommentCreated extends EditorAction {
             instance: Comment;
             left: number;
             top: number;
             constructor(left: number, top: number);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1317,7 +1361,7 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
-         * The base class for all editor actions
+         * An action for when comments are resized in a container schema
          */
         class CommentResized extends EditorAction {
             index: number;
@@ -1326,7 +1370,34 @@ declare namespace Animate {
             prevWidth: number;
             prevHeight: number;
             constructor(index: number, width: number, height: number);
+            /**
+             * Undo the last history action
+             */
             undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
+         * An action for when comment text is editted
+         */
+        class CommentEditted extends EditorAction {
+            index: number;
+            prevLabel: string;
+            label: string;
+            constructor(index: number, label: string);
+            /**
+             * Undo the last history action
+             */
+            undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
             redo(editor: Animate.ContainerSchema): void;
         }
     }
@@ -1343,7 +1414,7 @@ declare namespace Animate {
         /**
          * Creates an instance of the canvas store
          */
-        constructor(container: Resources.Container);
+        constructor(container: Resources.Container, project: Project);
         /**
          * Returns all items of this store
          */
@@ -1909,6 +1980,7 @@ declare namespace Animate {
      */
     class Project extends EventDispatcher {
         openEditors: Editor[];
+        activeEditor: Editor;
         curBuild: Build;
         private _restPaths;
         private _entry;
@@ -1916,6 +1988,7 @@ declare namespace Animate {
          * @param id The database id of this project
          */
         constructor();
+        activateEditor(editor: Editor): void;
         /**
          * Gets the DB entry associated with this project
          */
@@ -2017,6 +2090,10 @@ declare namespace Animate {
          * Removes an editor from the active editor array
          */
         removeEditor(editor: Editor): void;
+        /**
+         * Triggers a change event
+         */
+        invalidate(): void;
         containers: Resources.Container[];
         files: Resources.File[];
         scripts: Resources.Script[];
@@ -2674,6 +2751,7 @@ declare namespace Animate {
             width: number;
             height: number;
         }): void;
+        className?: string;
     }
     /**
      * A wrapper Component that adds handles to allow for resizing of its first child component.
@@ -2973,6 +3051,7 @@ declare namespace Animate {
         _closing?: () => void;
         x?: number;
         y?: number;
+        animated?: boolean;
     }
     interface IReactWindowState {
         centered?: boolean;
@@ -3125,6 +3204,8 @@ declare namespace Animate {
      */
     class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
         private _panes;
+        private _disposed;
+        private _waitingOnPromise;
         /**
          * Creates a new instance of the tab
          */
@@ -3137,6 +3218,7 @@ declare namespace Animate {
          * Check if we need to notify the onSelect event
          */
         componentDidMount(): void;
+        componentWillUnmount(): void;
         /**
          * Check if the index changes so we can notify the onSelect event
          */
@@ -3147,6 +3229,10 @@ declare namespace Animate {
          * @param props props of the selected tab
          */
         private removePane(index, prop);
+        /**
+         * Internal function that removes the pane reference, disposes it and sets a new index
+         */
+        private disposePane(index, prop);
         /**
          * Creates the component elements
          */
@@ -3407,6 +3493,7 @@ declare namespace Animate {
      */
     class CommentComponent extends React.Component<ICommentComponentProps, ICommentComponentState> {
         private _onUp;
+        private _wasDownOnInput;
         /**
          * Creates an instance of the component
          */
@@ -3431,7 +3518,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ITreeViewProps {
-        nodeStore: TreeNodeStore;
+        nodeStore?: TreeNodeStore;
     }
     interface ITreeViewState {
         nodes?: TreeNodeModel[];
@@ -3440,11 +3527,12 @@ declare namespace Animate {
     /**
      * A component visually represents a TreeNodeStore and its nodes
      */
-    class TreeView extends React.Component<ITreeViewProps, ITreeViewState> {
+    class TreeView<T extends ITreeViewProps> extends React.Component<T, ITreeViewState> {
+        private _isMounted;
         /**
          * Creates a new instance of the treenode
          */
-        constructor(props: ITreeViewProps);
+        constructor(props: T);
         /**
          * Called whenever a node is focussed
          */
@@ -3461,6 +3549,10 @@ declare namespace Animate {
          * Make sure that any new node store has the appropriate event handlers
          */
         componentWillReceiveProps(nextProps: ITreeViewProps): void;
+        /**
+         * Set the mounted variable so we dont get warnings
+         */
+        componentDidMount(): void;
         /**
          * Cleans up the component
          */
@@ -3668,15 +3760,31 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    interface ITreeViewSceneProps extends ITreeViewProps {
+        project: Project;
+    }
     /**
-    * An implementation of the tree view for the scene.
-    */
-    class TreeViewScene extends TreeNodeStore {
+     * An implementation of the tree view for the scene.
+     */
+    class TreeViewScene extends TreeView<ITreeViewSceneProps> {
+        static defaultProps: ITreeViewSceneProps;
         private static _singleton;
         private _quickCopy;
         private _quickAdd;
         private _shortcutProxy;
-        constructor();
+        constructor(props: ITreeViewSceneProps);
+        /**
+         * Bind any project related events
+         */
+        componentWillMount(): void;
+        /**
+         * Unbind any project related events
+         */
+        componentWillUnmount(): void;
+        /**
+         * Update the workspace
+         */
+        onProjectChanged(type: ProjectEvents): void;
         onShortcutClick(e: any): void;
         onMouseMove(e: any): void;
         /**
@@ -3828,10 +3936,11 @@ declare namespace Animate {
      */
     class TreeViewNodeContainers extends TreeNodeModel {
         private _context;
+        private _project;
         /**
          * Creates an instance of the node
          */
-        constructor();
+        constructor(project: Project);
         /**
          * Clean up
          */
@@ -3852,10 +3961,11 @@ declare namespace Animate {
      */
     class TreeViewNodeGroups extends TreeNodeModel {
         private _loading;
+        private _project;
         /**
          * Creates an instance of the node
          */
-        constructor();
+        constructor(project: Project);
         /**
          * Gets or sets the icon of the node
          */
@@ -3882,7 +3992,7 @@ declare namespace Animate {
         /**
          * Creates an instance of the node
          */
-        constructor();
+        constructor(project: Project);
         /**
          * Called whenever the node receives a context event
          */
@@ -3918,10 +4028,11 @@ declare namespace Animate {
      */
     class TreeNodeAssetClass extends TreeNodeModel {
         assetClass: AssetClass;
+        private _project;
         /**
          * Creates an instance of node
          */
-        constructor(assetClass: AssetClass);
+        constructor(assetClass: AssetClass, project: Project);
         /**
          * Clean up
          */
@@ -3962,14 +4073,22 @@ declare namespace Animate {
      * Treenode that contains a reference to an asset
      */
     class TreeNodeContainerInstance extends TreeViewNodeResource<Resources.Container> {
+        private _project;
         /**
          * Creates an instance of the node
          */
-        constructor(container: Resources.Container);
+        constructor(container: Resources.Container, project: Project);
+        /**
+         * Gets or sets the label of the node
+         * @param {string} val
+         * @returns {string}
+         */
+        label(val?: string): string;
         /**
          * Called whenever the node is double clicked
          */
         onDoubleClick(e: React.MouseEvent): void;
+        dispose(): void;
     }
 }
 declare namespace Animate {
@@ -5622,7 +5741,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IToolbarProps {
-        containerEditor: ContainerSchema;
+        project: Project;
     }
     interface IToolbarState {
     }
@@ -5634,6 +5753,9 @@ declare namespace Animate {
         private $itemSelected;
         private _copyPasteToken;
         constructor(props?: IToolbarProps);
+        componentWillMount(): void;
+        componentWillUnmount(): void;
+        onProjectUpdated(type: ProjectEvents): void;
         /**
          * Creates the component elements
          */
@@ -6035,6 +6157,7 @@ declare namespace Animate {
         error?: string;
         value?: string;
         highlightError?: boolean;
+        focussed?: boolean;
     }> {
         static defaultProps: IVInputProps;
         private _pristine;
@@ -6133,6 +6256,7 @@ declare namespace Animate {
         value?: string;
         highlightError?: boolean;
         className?: string;
+        focussed?: boolean;
     }> {
         private _pristine;
         /**
@@ -6578,20 +6702,28 @@ declare namespace Animate {
 declare namespace Animate {
     interface IWorkspaceProps extends ITabProps {
         project: Project;
-        onSchemaActivated: (schema: ContainerSchema) => void;
     }
     /**
      * The main workspace area of the application.
      */
     class Workspace extends React.Component<IWorkspaceProps, any> {
+        private _previousEditor;
         /**
          * Creates an instance of the workspace
          */
         constructor(props: IWorkspaceProps);
+        /**
+         * Bind any project related events
+         */
         componentWillMount(): void;
+        /**
+         * Unbind any project related events
+         */
         componentWillUnmount(): void;
-        onSchemaRemoved(type: ProjectEvents, event: IEditorEvent): void;
-        onSchemaCreated(type: ProjectEvents, event: IEditorEvent): void;
+        /**
+         * Update the workspace
+         */
+        onProjectChanged(type: ProjectEvents): void;
         canContainerClose(editor: Editor): boolean | Promise<boolean>;
         /**
          * Creates the component elements
@@ -6610,8 +6742,6 @@ declare namespace Animate {
         private static _singleton;
         static bodyComponent: Component;
         private _focusObj;
-        private _sceneStore;
-        private _currentSchema;
         constructor(props: React.HTMLAttributes);
         /**
          * Log the first welcome message
