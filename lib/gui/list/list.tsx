@@ -118,15 +118,15 @@ namespace Animate {
             else
                 selected = item;
 
-            if ( !doubleClick && this.props.onSelected )
-                this.props.onSelected( selected, index );
-            else if ( doubleClick && this.props.onDSelected )
-                this.props.onDSelected( selected, index );
-
             this.setState( {
                 selected: selected,
                 selectedIndex: index
             });
+
+            if ( !doubleClick && this.props.onSelected )
+                this.props.onSelected( selected, index );
+            else if ( doubleClick && this.props.onDSelected )
+                this.props.onDSelected( selected, index );
         }
     }
 }

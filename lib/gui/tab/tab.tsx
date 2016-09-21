@@ -15,6 +15,8 @@ namespace Animate {
     export class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
 
         private _panes: React.ReactElement<ITabPaneProps>[];
+        private _disposed: boolean;
+        private _waitingOnPromise: boolean;
 
 		/**
 		 * Creates a new instance of the tab
@@ -22,6 +24,8 @@ namespace Animate {
         constructor( props: T ) {
             super( props );
             this._panes = props.panes || [];
+            this._disposed = false;
+            this._waitingOnPromise = false;
             this.state = {
                 selectedIndex: props.panes.length > 0 ? 0 : -1
             } as Y;
@@ -32,6 +36,11 @@ namespace Animate {
          */
         componentWillReceiveProps( nextProps: ITabProps ) {
             if ( this._panes !== nextProps.panes ) {
+
+                // Cancel any existing promises
+                if (this._waitingOnPromise)
+                    this._waitingOnPromise = false;
+
                 this.clear();
                 this._panes = nextProps.panes || [];
                 this.setState( { selectedIndex: ( this.state.selectedIndex < this._panes.length ? this.state.selectedIndex : 0 ) } as Y );
@@ -44,6 +53,10 @@ namespace Animate {
         componentDidMount() {
             if ( this.state.selectedIndex == 0 && this._panes[ this.state.selectedIndex ].props.onSelect )
                 this._panes[ this.state.selectedIndex ].props.onSelect( this.state.selectedIndex );
+        }
+
+        componentWillUnmount() {
+            this._disposed = true;
         }
 
         /**
@@ -62,30 +75,49 @@ namespace Animate {
 		 */
         private removePane( index: number, prop: ITabPaneProps ) {
 
-            let canClose: Promise<boolean>;
+            let canClose: Promise<boolean> | boolean;
             if ( prop.canClose ) {
-                let query = prop.canClose( index, prop );
-                if ( typeof ( query ) === 'boolean' )
-                    canClose = Promise.resolve( query );
-                else
-                    canClose = query as Promise<boolean>;
+                canClose = prop.canClose( index, prop );
             }
             else
-                canClose = Promise.resolve( true );
+                canClose = true;
 
-            canClose.then(( result ) => {
-                if ( !result )
-                    return;
+            if ( typeof( canClose ) === 'boolean' ) {
+                if ( canClose )
+                    this.disposePane(index, prop);
+            }
+            else {
+                this._waitingOnPromise = true;
+                (canClose as Promise<boolean>).then(( result ) => {
 
-                // Notify of its removal
-                if ( prop.onDispose )
-                    prop.onDispose( index, prop );
+                    // Its possible the wait was cancelled externally while waiting (props could have been reset).
+                    // In that case we just exit
+                    if (!this._waitingOnPromise)
+                        return;
 
-                this._panes.splice( index, 1 );
-                this.setState( {
-                    selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
-                } as Y );
-            });
+                    this._waitingOnPromise = false;
+                    if ( result )
+                        this.disposePane(index, prop);
+                });
+            }
+        }
+
+        /**
+         * Internal function that removes the pane reference, disposes it and sets a new index
+         */
+        private disposePane( index : number, prop: ITabPaneProps ) {
+            this._panes.splice( index, 1 );
+
+            // Notify of its removal
+            if ( prop.onDispose )
+                prop.onDispose( index, prop );
+
+            if (this._disposed)
+                return;
+
+            this.setState( {
+                selectedIndex: ( this.state.selectedIndex === this._panes.length && index > 0 ? index - 1 : this.state.selectedIndex )
+            } as Y );
         }
 
 		/**
