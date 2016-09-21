@@ -66,7 +66,8 @@ namespace Animate {
             const onEye = function ( e: JQueryEventObject ) {
                 const val = parseFloat( selector.val() );
                 const group = project.getResourceByShallowID( val, ResourceType.GROUP );
-                TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
+                // TODO: This needs to be checked with update to TSX
+                // TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
             };
 
             //Add listeners

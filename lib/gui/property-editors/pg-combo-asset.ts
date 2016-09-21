@@ -67,10 +67,14 @@ namespace Animate {
             const onEye = function ( e: JQueryEventObject ) {
                 const val = parseInt( selector.val() );
                 const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
-                if ( asset )
-                    TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', asset ) );
-                else
-                    TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'className', classNames[ 0 ] ) );
+
+                // TODO: This needs to be checked with update to TSX
+                // ================================================
+                // if ( asset )
+                //     TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', asset ) );
+                // else
+                //     TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'className', classNames[ 0 ] ) );
+                // =================================================
             };
 
             // Add listeners

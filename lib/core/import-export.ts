@@ -300,9 +300,11 @@ namespace Animate {
                     const group = <Resources.GroupArray>assetVars[ i ].getVal();
 
                     if ( group ) {
-                        const groupNode: any = TreeViewScene.getSingleton().findNode( 'resource', group );
                         // TODO: This needs to be checked with update to TSX
-                        this.referenceCheckGroup( groupNode, container );
+                        // ================================================
+                        // const groupNode: any = TreeViewScene.getSingleton().findNode( 'resource', group );
+                        // this.referenceCheckGroup( groupNode, container );
+                        // ================================================
                     }
                 }
             }

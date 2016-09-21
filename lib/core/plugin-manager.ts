@@ -208,8 +208,11 @@ namespace Animate {
 		 * @param multiSelect When set to true, the treeview not clear any previous selections
 		 */
         selectAsset( asset: Resources.Asset, panToNode: boolean = true, multiSelect: boolean = false ) {
-            Animate.TreeViewScene.getSingleton().selectNode(
-                Animate.TreeViewScene.getSingleton().findNode( 'resource', asset ) );
+            // TODO: This needs to be checked with update to TSX
+            // ================================================
+            // Animate.TreeViewScene.getSingleton().selectNode(
+            //     Animate.TreeViewScene.getSingleton().findNode( 'resource', asset ) );
+            // ================================================
         }
 
 		/**

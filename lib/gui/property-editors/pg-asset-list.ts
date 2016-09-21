@@ -83,10 +83,13 @@ namespace Animate {
                 const val = parseInt( selector.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
 
-                if ( asset )
-                    TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', asset ) );
-                else
-                    TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'className', asset.class.name ) );
+                // TODO: This needs to be checked with update to TSX
+                // ================================================
+                // if ( asset )
+                //     TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', asset ) );
+                // else
+                //     TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'className', asset.class.name ) );
+                // ==================================================
             };
 
             // When we click on add button
