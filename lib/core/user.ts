@@ -44,26 +44,27 @@ namespace Animate {
 
             const that = this;
             return new Promise<boolean>( function ( resolve, reject ) {
-                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then( function ( data ) {
+                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then( function ( data ) : Promise<ModepressAddons.IGetDetails> {
+
                     if ( data.error )
-                        return reject( new Error( data.message ) );
+                        throw new Error( data.message );
 
                     if ( data.authenticated ) {
                         that.entry = <UsersInterface.IUserEntry>data.user;
                         that._isLoggedIn = true;
-                        return jQuery.getJSON( `${DB.API}/user-details/${data.user.username}` );
+                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user.username}` );
                     }
                     else {
                         that._isLoggedIn = false;
                         that.resetMeta();
-                        return resolve( false );
+                        return null;
                     }
 
                 }).then( function ( data: ModepressAddons.IGetDetails ) {
-                    if ( data.error )
+                    if ( data && data.error )
                         return reject( new Error( data.message ) );
 
-                    that.meta = data.data;
+                    that.meta = ( data ? data.data : null );
                     return resolve( true );
 
                 }).catch( function ( err: IAjaxError ) {
@@ -92,17 +93,17 @@ namespace Animate {
                 Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then( function ( data ) {
                     response = data;
                     if ( data.error )
-                        return reject( new Error( data.message ) );
+                        throw new Error( data.message );
 
                     if ( data.authenticated ) {
                         that._isLoggedIn = true;
                         that.entry = <UsersInterface.IUserEntry>data.user;
-                        return jQuery.getJSON( `${DB.API}/user-details/${data.user.username}` );
+                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user.username}` );
                     }
                     else {
                         that._isLoggedIn = false;
                         that.resetMeta();
-                        return resolve( data );
+                        return null;
                     }
 
                 }).then( function ( data: ModepressAddons.IGetDetails ) {
