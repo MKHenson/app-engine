@@ -9,12 +9,14 @@ input[type="text"].v-input, input[type="password"].v-input {
 }
 .v-input-outer {
     .input-highlighter {
-        border-top:1px solid $ps-blue;
+        border-top:1px solid $input;
         margin: 0 auto;
         width: 0%;
-        transition: width 1s;
+        height: 0;
+        transition: width 450ms cubic-bezier(0.23, 1, 0.32, 1);
     }
     &.focussed .input-highlighter {
         width: 100%;
+        border-top:1px solid $ps-blue;
     }
 }
