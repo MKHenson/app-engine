@@ -103,9 +103,8 @@ namespace Animate {
 		 */
         updateDetails( token: Engine.IProject ): Promise<UsersInterface.IResponse> {
             const entry = this._entry;
-            const that = this;
-            return new Promise<UsersInterface.IResponse>( function ( resolve, reject ) {
-                Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${that._entry.user}/projects/${that._entry._id}`, token ).then( function ( data ) {
+            return new Promise<UsersInterface.IResponse>( ( resolve, reject ) => {
+                Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then( ( data ) => {
                     if ( data.error )
                         return reject( new Error( data.message ) );
                     else {
@@ -117,9 +116,10 @@ namespace Animate {
                             entry.tags = [];
                     }
 
+                    this.invalidate();
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -129,25 +129,25 @@ namespace Animate {
 		 * Loads a previously selected build, or creates one if none are selected
 		 */
         loadBuild(): Promise<Build> {
-            const that = this;
             const username = User.get.entry.username;
-            return new Promise<Build>( function ( resolve, reject ) {
+            return new Promise<Build>( ( resolve, reject ) => {
                 let promise: Promise<any>;
 
                 // If the project has a build then load it - otherwise create a new one
-                if ( that._entry.build && that._entry.build !== '' )
-                    promise = Utils.get( `${DB.API}/users/${username}/projects/${that._entry._id}/builds/${that._entry.build}?verbose=true` );
+                if ( this._entry.build && this._entry.build !== '' )
+                    promise = Utils.get( `${DB.API}/users/${username}/projects/${this._entry._id}/builds/${this._entry.build}?verbose=true` );
                 else
-                    promise = Utils.post( `${DB.API}/users/${username}/projects/${that._entry._id}/builds?set-current=true`, null );
+                    promise = Utils.post( `${DB.API}/users/${username}/projects/${this._entry._id}/builds?set-current=true`, null );
 
-                promise.then( function ( data: ModepressAddons.IGetBuilds ) {
+                promise.then( ( data: ModepressAddons.IGetBuilds ) => {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
-                    that.curBuild = new Build( data.data[ 0 ] );
-                    return resolve( that.curBuild );
+                    this.curBuild = new Build( data.data[ 0 ] );
+                    this.invalidate();
+                    return resolve( this.curBuild );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -271,6 +271,7 @@ namespace Animate {
                         this.emit<ProjectEvents, IResourceEvent>( 'resource-created', event );
                     }
 
+                    this.invalidate();
                     return resolve( createdResources );
 
                 }).catch(( err: IAjaxError ) => {
@@ -285,15 +286,14 @@ namespace Animate {
          * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
          */
         refreshResource<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): Promise<T | Error> {
-            const that = this;
             const paths = this._restPaths;
 
             const r = this.getResourceByID<T>( id, type );
             if ( !r )
                 return Promise.reject<Error>( new Error( 'Could not find a resource with that ID' ) );
 
-            return new Promise<T>( function ( resolve, reject ) {
-                Utils.get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${that._entry.user}/projects/${that._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then( function ( response ) {
+            return new Promise<T>( ( resolve, reject ) => {
+                Utils.get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then( ( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
@@ -306,9 +306,10 @@ namespace Animate {
 
                     r.resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: r.resource });
                     r.resource.saved = true;
+                    this.invalidate();
                     return resolve( r.resource );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -320,7 +321,6 @@ namespace Animate {
          * @param data The new data for the resource
 		 */
         editResource<T>( id: string, data: T ): Promise<Modepress.IResponse | Error> {
-            const that = this;
             const details = User.get.entry;
             const projId = this._entry._id;
             const paths = this._restPaths;
@@ -338,8 +338,8 @@ namespace Animate {
             if ( !resource )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
-            return new Promise<UsersInterface.IResponse>( function ( resolve, reject ) {
-                Utils.put<Modepress.IResponse>( url, data ).then( function ( response ) {
+            return new Promise<UsersInterface.IResponse>( ( resolve, reject ) => {
+                Utils.put<Modepress.IResponse>( url, data ).then( ( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
@@ -348,9 +348,10 @@ namespace Animate {
                             resource.entry[ t ] = data[ t ];
 
                     resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: resource });
+                    this.invalidate();
                     return resolve( response );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -363,7 +364,6 @@ namespace Animate {
 		 */
         saveResource( id: string, type?: ResourceType ): Promise<boolean> {
             const paths = this._restPaths;
-            const that = this;
             const details = User.get.entry;
             const projId = this._entry._id;
             const r = this.getResourceByID( id, type );
@@ -371,15 +371,16 @@ namespace Animate {
             const resource: ProjectResource<Engine.IResource> = r.resource;
             resource.onSaving();
 
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Utils.put<Modepress.IResponse>( url, resource.entry ).then( function ( response ) {
+            return new Promise<boolean>( ( resolve, reject ) => {
+                Utils.put<Modepress.IResponse>( url, resource.entry ).then( ( response ) => {
                     if ( response.error )
                         return reject( new Error( `Could not save ${ResourceType[ type ].toLowerCase()} resource [${resource.entry._id}]: '${response.message}'` ) );
 
                     resource.saved = true;
+                    this.invalidate();
                     return resolve( true );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -396,10 +397,9 @@ namespace Animate {
             for ( let i = 0, arr = paths[ type ].array, l = arr.length; i < l; i++ )
                 promises.push( this.saveResource( arr[ i ].entry._id, type ) );
 
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Promise.all( promises ).then( function ( data ) {
+            return new Promise<boolean>( ( resolve, reject ) => {
+                Promise.all( promises ).then( ( data ) => {
                     resolve( true );
-
                 }).catch( function ( err: Error ) {
                     reject( err );
                 });
@@ -412,7 +412,6 @@ namespace Animate {
          * @param type The type of resource we are renaming
 		 */
         deleteResource( id: string, type: ResourceType ): Promise<boolean | Error> {
-            const that = this;
             const details = User.get.entry;
             const projId = this._entry._id;
             const paths = this._restPaths;
@@ -429,17 +428,19 @@ namespace Animate {
             if ( !resource )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Utils.delete<Modepress.IResponse>( url ).then( function ( response ) {
+            return new Promise<boolean>( ( resolve, reject ) => {
+                Utils.delete<Modepress.IResponse>( url ).then( ( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
                     array.splice( array.indexOf( resource ), 1 );
-                    that.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
                     resource.dispose();
+
+                    this.removeEditor( this.getEditorByResource( resource ) );
                     return resolve( true );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( ( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -479,11 +480,11 @@ namespace Animate {
                         }
                     }
 
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Promise.all( promises ).then( function ( data ) {
+            return new Promise<boolean>( ( resolve, reject ) => {
+                Promise.all( promises ).then( ( data ) => {
                     resolve( true );
 
-                }).catch( function ( err: Error ) {
+                }).catch( ( err: Error ) => {
                     reject( err );
                 });
             });
@@ -497,10 +498,10 @@ namespace Animate {
             for ( const i in this._restPaths )
                 promises.push( this.saveResources( <ResourceType>parseInt( i ) ) );
 
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Promise.all( promises ).then( function ( data ) {
+            return new Promise<boolean>( ( resolve, reject ) => {
+                Promise.all( promises ).then( ( data ) => {
                     resolve( true );
-                }).catch( function ( err: Error ) {
+                }).catch( ( err: Error ) => {
                     reject( err );
                 });
             });
@@ -535,6 +536,7 @@ namespace Animate {
                         resource = this.createResourceInstance<T>( data.data, ResourceType.SCRIPT );
 
                     this.emit<ProjectEvents, IResourceEvent>( 'resource-created', { resource: resource });
+                    this.invalidate();
                     return resolve( resource );
 
                 }).catch(( err: IAjaxError ) => {
@@ -560,6 +562,17 @@ namespace Animate {
             this.openEditors.push( editor );
             this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
             this.invalidate();
+        }
+
+        /**
+         * Gets an editor by its resource
+         */
+        getEditorByResource( resource : ProjectResource<Engine.IResource> ): Editor {
+            for ( const editor of this.openEditors )
+                if (editor.resource === resource)
+                    return editor;
+
+            return null;
         }
 
         /**
