@@ -304,8 +304,8 @@ gulp.task('install-third-parties', function () {
         downloadClient("https://github.com/jquery/jquery-mousewheel/tarball/3.1.13", './third-party/jquery-mousewheel'),
         downloadClient("https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo'),
 
-        downloadFile("https://npmcdn.com/react@15.3.0/dist/react-with-addons.js", "./third-party/react/", "react-with-addons.js"),
-        downloadFile("https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js", "./third-party/react/", "react-dom.js")
+        downloadFile("https://unpkg.com/react@15.3.2/dist/react-with-addons.js", "./third-party/react/", "react-with-addons.js"),
+        downloadFile("https://unpkg.com/react-dom@15.3.2/dist/react-dom.js", "./third-party/react/", "react-dom.js")
     ]);
 });
 
