@@ -214,7 +214,7 @@ namespace Animate {
                     </a>
                     <br />
                     <div>
-                        {( this.state.errorMsg !== '' ?
+                        {( this.state.errorMsg ?
                             <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS}>
                                 {this.state.errorMsg}
                             </Attention>
