@@ -2087,6 +2087,10 @@ declare namespace Animate {
          */
         assignEditor(resource: ProjectResource<Engine.IResource>): Editor;
         /**
+         * Gets an editor by its resource
+         */
+        getEditorByResource(resource: ProjectResource<Engine.IResource>): Editor;
+        /**
          * Removes an editor from the active editor array
          */
         removeEditor(editor: Editor): void;
@@ -6532,6 +6536,7 @@ declare namespace Animate {
         * Attempts to log the user in
         */
         login(json: any): void;
+        randomStr(): string;
         /**
          * Creates the component elements
          */
