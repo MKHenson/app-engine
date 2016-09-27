@@ -6,6 +6,7 @@ namespace Animate {
      */
     export class ContainerSchema extends Editor {
         public opened: boolean;
+        protected _activeLink: Link;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
 
@@ -17,63 +18,33 @@ namespace Animate {
             this._items = [];
             this._selection = [];
             this.opened = false;
+            this._activeLink = null;
 
             this.deserialize( container.entry.json );
         }
 
-        // protected createItem( action: IBehaviourCreated ): Behaviour {
-        //     let toAdd: Behaviour;
+        /**
+         * Begins the process of creating a link between behaviours.
+         * This should be followed by a call to endLinkRouting when
+         * the process is completed
+         */
+        beginLinkRouting( portal : string, behaviour: number, pos: Point ) {
+            this._activeLink = new Link();
+            this._activeLink.startPortal = portal;
+            this._activeLink.startBehaviour = behaviour;
+            this._activeLink.top = pos.y;
+            this._activeLink.left = pos.x;
+            this.invalidate();
+        }
 
-        //     // if ( template.behaviourName === "Instance" ) {
-        //     // 	var nameOfBehaviour: string = "";
-        //     // 	var cyclic: boolean = this.isCyclicDependency( container, nameOfBehaviour );
-        //     // 	if ( cyclic ) {
-        //     // 		ReactWindow.show(MessageBox, { message : `You have a cylic dependency with the behaviour '${nameOfBehaviour}'` } as IMessageBoxProps);
-        //     // 		return null;
-        //     // 	}
-        //     // 	toAdd = new BehaviourInstance( this, container );
-        //     // }
-        //     if ( action.template.behaviourName === 'Asset' )
-        //         toAdd = new BehaviourAsset( action.resource );
-        //     // else if (template.behaviourName === "Script")
-        //     //     toAdd = new BehaviourScript(this, null, name );
-        //     else
-        //         toAdd = new Behaviour( action.template );
+        endLinkRouting( portal : string, behaviour: number ) {
+            this._items.push( this._activeLink.clone() );
+            this._activeLink.dispose();
+        }
 
-        //     this.addItem( toAdd );
-        //     toAdd.alias = ( action.edits as Engine.Editor.IBehaviour ).alias;
-        //     return toAdd
-        // }
-
-        // onAction( action: IContainerAction ): Engine.Editor.IContainerWorkspace {
-        //     let newItem: CanvasItem;
-
-        //     switch ( action.type ) {
-        //         case 'behaviour-created':
-        //             newItem = this.createItem( action as IBehaviourCreated );
-        //             break;
-        //         case 'comment-created':
-        //             newItem = new Animate.Comment();
-        //             this.addItem( newItem );
-        //             break;
-        //         case 'items-removed':
-        //             this.removeItem( this._items[(action as IItemRemoved).id] );
-        //             break;
-        //         case 'selection-changed':
-        //             // TODO:
-        //             for (const id of (action as ISelectionChanged).selectedIds)
-        //                 this._items[id].selected
-
-        //             throw new Error('Not implemented');
-        //     }
-
-        //     if ( newItem ) {
-        //         newItem.left = action.edits.left;
-        //         newItem.top = action.edits.top;
-        //     }
-
-        //     return this.serialize();
-        // }
+        get activeLink() : Link {
+            return this._activeLink;
+        }
 
         /**
          * Returns all items of this store
@@ -218,7 +189,8 @@ namespace Animate {
         serialize(): Engine.Editor.IContainerWorkspace {
             let toRet: Engine.Editor.IContainerWorkspace = {
                 items: [],
-                properties: {}
+                properties: {},
+                activeLink: ( this._activeLink ? this._activeLink.serialize( -1 ) : null )
             };
 
             for ( let i = 0, l = this._items.length; i < l; i++ ) {

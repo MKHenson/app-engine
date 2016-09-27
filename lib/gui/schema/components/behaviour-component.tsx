@@ -17,8 +17,27 @@ namespace Animate {
             super( props );
         }
 
-        onLinkStart( e: React.MouseEvent ) {
+        onLinkStart( e: React.MouseEvent, portal: string, behaviour: number ) {
+            e.preventDefault();
+            e.stopPropagation();
+            const p = Utils.getRelativePos( e, ( ReactDOM.findDOMNode( this.refs[ 'draggable' ] ) as HTMLElement ).parentElement );
+            this.props.editor.beginLinkRouting( portal, behaviour, p );
+        }
 
+        getPortalFromTarget( target: HTMLElement ) : Engine.Editor.IPortal {
+            let ref : Element | React.Component<any, any>;
+            let elm: HTMLElement;
+
+            for ( let i in this.refs ) {
+                ref = this.refs[i];
+                if ( ref instanceof PortalComponent ) {
+                    elm = ReactDOM.findDOMNode( ref ) as HTMLElement;
+                    if ( elm === target )
+                        return ref.props.portal;
+                }
+            }
+
+            return null;
         }
 
         /**
@@ -33,10 +52,10 @@ namespace Animate {
             const portalSpacing = 5;
             const padding = 10;
             const portals = behaviour.portals;
-            const params = [];
-            const products = [];
-            const inputs = [];
-            const outputs = [];
+            const params: Engine.Editor.IPortal[] = [];
+            const products: Engine.Editor.IPortal[] = [];
+            const inputs: Engine.Editor.IPortal[] = [];
+            const outputs: Engine.Editor.IPortal[] = [];
             const editor = this.props.editor;
 
             for ( const portal of portals )
@@ -49,10 +68,8 @@ namespace Animate {
                 else
                     outputs.push( portal );
 
-            const svgSize = 10;
-            const svgSizeHalf = svgSize * 0.5;
-            const svgBlockS = svgSize * 0.65;
-            const svgTriS = svgSize * 0.3;
+
+
             const maxHorPortals = ( products.length > params.length ? products.length : params.length );
             const maxVertPortals = ( inputs.length > outputs.length ? inputs.length : outputs.length );
             const totalPortalSpacing = portalSize + portalSpacing;
@@ -73,6 +90,7 @@ namespace Animate {
 
             return (
                 <Draggable
+                    ref="draggable"
                     x={this.props.behaviour.left}
                     y={this.props.behaviour.top}
                     onDragComplete={( start, end ) => {
@@ -98,48 +116,52 @@ namespace Animate {
                         } }
                         >
                         {params.map(( p, i ) => {
-                            return <div
+                            return <PortalComponent
+                                size={portalSize}
+                                spacing={portalSpacing}
+                                portal={p}
+                                index={i}
+                                ref={'param-' + i}
                                 key={'param-' + i}
-                                className={'portal parameter' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + 'px', top: -portalSize + 'px' }}
-                                >
-                                <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSizeHalf},${svgSize - svgBlockS} ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize}`} /></svg>
-                            </div>
+                                />
                         }
                         )
                         }
                         {products.map(( p, i ) => {
-                            return <div
+                            return <PortalComponent
+                                size={portalSize}
+                                spacing={portalSpacing}
+                                portal={p}
+                                index={i}
+                                ref={'product-' + i}
                                 key={'product-' + i}
-                                className={'portal product' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ left: ( ( portalSize + portalSpacing ) * i ) + 'px', top: '100%' }}
-                                onMouseDown={( e ) => this.onLinkStart( e ) }
-                                >
-                                <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSize},0 ${svgSize},${svgBlockS} ${svgSizeHalf},${svgSize} 0,${svgBlockS}`} /></svg>
-                            </div>
+                                onPortalDown={( e ) => this.onLinkStart( e, p.name, behaviour.id ) }
+                                />
                         }
                         )
                         }
                         {inputs.map(( p, i ) => {
-                            return <div
+                            return <PortalComponent
+                                size={portalSize}
+                                spacing={portalSpacing}
+                                portal={p}
+                                index={i}
+                                ref={'input-' + i}
                                 key={'input-' + i}
-                                className={'portal input' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + 'px', left: -portalSize + 'px' }}
-                                >
-                                <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgSize},0 ${svgSize},${svgSize} 0,${svgSize} ${svgSize - svgBlockS},${svgSizeHalf}`} /></svg>
-                            </div>
+                                />
                         }
                         )
                         }
                         {outputs.map(( p, i ) => {
-                            return <div
+                            return <PortalComponent
+                                size={portalSize}
+                                spacing={portalSpacing}
+                                portal={p}
+                                index={i}
+                                ref={'output-' + i}
                                 key={'output-' + i}
-                                className={'portal output' + ( p.links.length > 0 ? ' active' : '' ) }
-                                style={{ top: ( ( portalSize + portalSpacing ) * i ) + 'px', left: '100%' }}
-                                onMouseDown={( e ) => this.onLinkStart( e ) }
-                                >
-                                <svg height={svgSize} width={svgSize}><polygon points={`0,0 ${svgBlockS},0 ${svgSize},${svgSizeHalf} ${svgBlockS},${svgSize} 0,${svgSize}`} /></svg>
-                            </div>
+                                onPortalDown={( e ) => this.onLinkStart( e, p.name, behaviour.id ) }
+                                />
                         }
                         )
                         }

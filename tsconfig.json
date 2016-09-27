@@ -97,6 +97,8 @@
     "lib/gui/schema/schema.tsx",
     "lib/gui/schema/components/behaviour-component.tsx",
     "lib/gui/schema/components/comment-component.tsx",
+    "lib/gui/schema/components/link-component.tsx",
+    "lib/gui/schema/components/portal-component.tsx",
     "lib/gui/treeview/treeview.tsx",
     "lib/gui/treeview/treenode.tsx",
     "lib/gui/treeview/treenode-store.ts",

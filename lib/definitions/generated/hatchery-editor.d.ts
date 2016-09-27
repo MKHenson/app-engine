@@ -748,6 +748,10 @@ declare namespace Animate {
         message: string;
         status: number;
     }
+    interface Point {
+        x: number;
+        y: number;
+    }
     class Utils {
         private static _withCredentials;
         private static shallowIds;
@@ -804,10 +808,7 @@ declare namespace Animate {
          * @param e
          * @param elm The target element
          */
-        static getRelativePos(e: React.MouseEvent, elm: HTMLElement): {
-            x: number;
-            y: number;
-        };
+        static getRelativePos(e: React.MouseEvent | MouseEvent, elm: HTMLElement): Point;
         /**
          * Gets a quadratically eased in/out value
          * @param startValue The initial value
@@ -823,10 +824,7 @@ declare namespace Animate {
          * @param duration The total amount of time to take to scroll
          * @return Returns setInterval
          */
-        static scrollTo(dest: {
-            x: number;
-            y: number;
-        }, elm: HTMLElement, duration: number): number;
+        static scrollTo(dest: Point, elm: HTMLElement, duration: number): number;
         /**
         * Use this function to check if a value contains characters that break things.
         * @param text The text to check
@@ -1409,12 +1407,15 @@ declare namespace Animate {
      */
     class ContainerSchema extends Editor {
         opened: boolean;
+        protected _activeLink: Link;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
         /**
          * Creates an instance of the canvas store
          */
         constructor(container: Resources.Container, project: Project);
+        linkRouting(portal: string, behaviour: number, pos: Point): void;
+        activeLink: Link;
         /**
          * Returns all items of this store
          */
@@ -1695,6 +1696,45 @@ declare namespace Animate {
          * @param link The link we are removing
          */
         removeLink(link: any): any;
+    }
+}
+declare namespace Animate {
+    /**
+     * Links connect 2 behaviours to one another. Each link is connected by a start and end portal on both the origin
+     * and destination behaviours. Links are drawn on the schema as an SVG line.
+     */
+    class Link extends CanvasItem {
+        startPortal: string;
+        endPortal: string;
+        width: number;
+        height: number;
+        selected: boolean;
+        startBehaviour: number;
+        endBehaviour: number;
+        points: Point[];
+        private _properties;
+        /**
+         * Creates a new instance of a link
+         */
+        constructor();
+        /**
+         * Serializes the data into a JSON.
+         */
+        serialize(id: number): Engine.Editor.ILinkItem;
+        /**
+         * De-Serializes data from a JSON.
+         * @param data The data to import from
+         */
+        deSerialize(data: Engine.Editor.ILinkItem): void;
+        /**
+        * Gets the properties of this link
+        * @returns {EditableSet}
+        */
+        properties: EditableSet;
+        /**
+        * Cleanup the link
+        */
+        dispose(): void;
     }
 }
 declare namespace Animate {
@@ -2707,13 +2747,7 @@ declare namespace Animate {
         x: number;
         y: number;
         onMove?: (x: number, y: number) => void;
-        onDragComplete?: (start: {
-            x: number;
-            y: number;
-        }, end: {
-            x: number;
-            y: number;
-        }) => void;
+        onDragComplete?: (start: Point, end: Point) => void;
     }
     class Draggable extends React.Component<IDraggableProps, any> {
         static defaultProps: IDraggableProps;
@@ -3441,21 +3475,18 @@ declare namespace Animate {
         /**
         * This will create a new behaviour based on the template given
         * @param template The definition of the behaviour we're creating
-        * @param x The x position of where the node shoule be placed
-        * @param y The y position of where the node shoule be placed
+        * @param pos The x and y position of where the node shoule be placed
         * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
         * @param name The alias of the behaviour
         */
-        addBehaviour(template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string): void;
-        createPortal(type: HatcheryRuntime.PortalType, pos: {
-            x: number;
-            y: number;
-        }): void;
+        addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<Engine.IResource>, name?: string): void;
+        createPortal(type: HatcheryRuntime.PortalType, pos: Point): void;
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
          */
         onContext(e: React.MouseEvent): void;
+        getPortal(target: HTMLElement): Engine.Editor.IPortal;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3476,7 +3507,8 @@ declare namespace Animate {
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps);
-        onLinkStart(e: React.MouseEvent): void;
+        onLinkStart(e: React.MouseEvent, portal: string, behaviour: number): void;
+        getPortalFromTarget(target: HTMLElement): Engine.Editor.IPortal;
         /**
          * Creates the component elements
          */
@@ -3514,6 +3546,60 @@ declare namespace Animate {
          * When the mouse is up, we remove the listeners and set the label
          */
         onUp(e: React.MouseEvent): void;
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element;
+    }
+}
+declare namespace Animate {
+    interface ILinkComponentProps {
+        editor: ContainerSchema;
+        link: Engine.Editor.ILinkItem;
+        isRouting: boolean;
+        getPortal: (target: HTMLElement) => Engine.Editor.IPortal;
+    }
+    /**
+     * A visual representation of a Link. Represented on a schema as an SVG line between two behaviours
+     */
+    class LinkComponent extends React.Component<ILinkComponentProps, any> {
+        private _moveProxy;
+        private _upProxy;
+        /**
+         * Creates an instance of the component
+         */
+        constructor(props: ILinkComponentProps);
+        onMouseMove(e: MouseEvent): void;
+        /**
+         * Remove event listeners
+         */
+        onMouseUp(e: MouseEvent): void;
+        /**
+         * If this link is routing, we attach listeners for mouse up so we can detect when to stop routing
+         */
+        componentDidMount(): void;
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element;
+    }
+}
+declare namespace Animate {
+    interface IPortalComponentProps {
+        portal: Engine.Editor.IPortal;
+        index: number;
+        size: number;
+        spacing: number;
+        onPortalDown?: (e: React.MouseEvent) => void;
+    }
+    /**
+     * A visual representation of a Behaviour's portal
+     */
+    class PortalComponent extends React.Component<IPortalComponentProps, any> {
+        /**
+         * Creates an instance of the component
+         */
+        constructor(props: IPortalComponentProps);
         /**
          * Creates the component elements
          */
@@ -6536,7 +6622,6 @@ declare namespace Animate {
         * Attempts to log the user in
         */
         login(json: any): void;
-        randomStr(): string;
         /**
          * Creates the component elements
          */

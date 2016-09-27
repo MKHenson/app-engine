@@ -1,5 +1,6 @@
 ﻿namespace Animate {
     export interface IAjaxError { message: string; status: number; };
+    export interface Point { x: number; y: number; }
 
     export class Utils {
         private static _withCredentials: boolean = true;
@@ -290,7 +291,7 @@
          * @param e
          * @param elm The target element
          */
-        static getRelativePos( e: React.MouseEvent, elm: HTMLElement ): { x: number, y: number } {
+        static getRelativePos( e: React.MouseEvent | MouseEvent, elm: HTMLElement ): Point {
             let offsetX = elm.offsetLeft;
             let offsetY = elm.offsetTop;
             let scrollX = elm.scrollLeft;
@@ -332,7 +333,7 @@
          * @param duration The total amount of time to take to scroll
          * @return Returns setInterval
          */
-        static scrollTo( dest: { x: number, y: number }, elm: HTMLElement, duration: number ): number {
+        static scrollTo( dest: Point, elm: HTMLElement, duration: number ): number {
             let curTime = 0;
             let left = 0;
             let top = 0;

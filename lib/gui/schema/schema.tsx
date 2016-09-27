@@ -51,28 +51,27 @@ namespace Animate {
             if ( json.type === 'resource' ) {
                 const resource = User.get.project.getResourceByShallowID( json.id as number );
                 if ( resource instanceof Resources.Container )
-                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse.x, mouse.y, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse, resource );
                 else if ( resource instanceof Resources.Asset || resource instanceof Resources.GroupArray )
-                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse.x, mouse.y, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse, resource );
             }
             else if ( json.type === 'template' )
-                this.addBehaviour( PluginManager.getSingleton().getTemplate( json.id as string ), mouse.x, mouse.y );
+                this.addBehaviour( PluginManager.getSingleton().getTemplate( json.id as string ), mouse );
 
         }
 
         /**
 		* This will create a new behaviour based on the template given
 		* @param template The definition of the behaviour we're creating
-		* @param x The x position of where the node shoule be placed
-		* @param y The y position of where the node shoule be placed
+		* @param pos The x and y position of where the node shoule be placed
 		* @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
         * @param name The alias of the behaviour
 		*/
-        addBehaviour( template: BehaviourDefinition, x: number, y: number, resource?: ProjectResource<Engine.IResource>, name?: string ) {
-            x = x - x % 10;
-            y = y - y % 10;
+        addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<Engine.IResource>, name?: string ) {
+            pos.x = pos.x - pos.x % 10;
+            pos.y = pos.y - pos.y % 10;
 
-            this.props.editor.doAction( new Actions.BehaviourCreated( template, { left: x, top: y }, resource ) );
+            this.props.editor.doAction( new Actions.BehaviourCreated( template, { left : pos.x, top: pos.y }, resource ) );
         }
 
         // /**
@@ -110,7 +109,7 @@ namespace Animate {
         // 	return false;
         // }
 
-        createPortal( type: HatcheryRuntime.PortalType, pos: { x: number; y: number; } ) {
+        createPortal( type: HatcheryRuntime.PortalType, pos: Point ) {
             // Show the rename form
             ReactWindow.show( RenameForm, {
                 name: '',
@@ -185,6 +184,25 @@ namespace Animate {
             e.preventDefault();
         }
 
+        getPortal( target : HTMLElement) : Engine.Editor.IPortal {
+            let elm : HTMLElement;
+            let ref : React.Component<any, any> | Element;
+
+            for ( let i in this.refs ) {
+                ref = this.refs[i];
+                if ( ref instanceof BehaviourComponent ) {
+                    elm = ReactDOM.findDOMNode( ref ) as HTMLElement;
+
+                    // Check if the target parent is one of the behaviours
+                    if (elm === target.parentElement) {
+                        return ref.getPortalFromTarget( target )
+                    }
+                }
+            }
+
+            return null;
+        }
+
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -206,7 +224,7 @@ namespace Animate {
                             x: e.pageX,
                             y: e.pageY,
                             onTemplateSelected: ( template ) => {
-                                this.addBehaviour( template, mouse.x, mouse.y );
+                                this.addBehaviour( template, mouse );
                             }
                         } as IBehaviourPickerProps )
                     } }
@@ -226,9 +244,16 @@ namespace Animate {
                         }
                     } }
                     >
+                    {
+                        this.props.editor.activeLink ? <LinkComponent
+                            isRouting={true}
+                            getPortal={(target) => { return this.getPortal( target ) }}
+                            editor={this.props.editor}
+                            link={this.props.editor.activeLink}  /> : undefined
+                    }
                     {this.state.workspace.items.map(( item, index ) => {
                         if ( item.type === 'behaviour' || item.type === 'asset' || item.type === 'portal' )
-                            return <BehaviourComponent editor={this.props.editor} behaviour={item} key={'item-' + index} />;
+                            return <BehaviourComponent ref={'behaviour-' + index} editor={this.props.editor} behaviour={item} key={'item-' + index} />;
                         else if ( item.type === 'comment' )
                             return <CommentComponent editor={this.props.editor} comment={item} key={'item-' + index} />;
 

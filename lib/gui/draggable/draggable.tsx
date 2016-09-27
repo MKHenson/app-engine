@@ -5,7 +5,7 @@ namespace Animate {
         x: number;
         y: number;
         onMove?: ( x: number, y: number ) => void;
-        onDragComplete?: ( start: { x: number, y: number }, end: { x: number, y: number }) => void;
+        onDragComplete?: ( start: Point, end: Point) => void;
     }
 
     export class Draggable extends React.Component<IDraggableProps, any> {
@@ -17,8 +17,8 @@ namespace Animate {
 
         private _upProxy;
         private _moveProxy;
-        private _mouseDelta: { x: number, y: number };
-        private _startPos: { x: number, y: number };
+        private _mouseDelta: Point;
+        private _startPos: Point;
         private _scrollInterval: number;
 
         constructor( props: IDraggableProps ) {
@@ -68,7 +68,7 @@ namespace Animate {
                 this.props.onDragComplete( this._startPos, endPosition );
         }
 
-        private getPosition( e: React.MouseEvent ): { x: number; y: number; } {
+        private getPosition( e: React.MouseEvent ): Point {
             const elm = this.refs[ 'draggable' ] as HTMLElement;
             const pos = Utils.getRelativePos( e, elm.parentElement );
             pos.x -= this._mouseDelta.x;
