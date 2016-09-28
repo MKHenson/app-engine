@@ -185,18 +185,16 @@ namespace Animate {
         }
 
         getPortal( target : HTMLElement) : Engine.Editor.IPortal {
-            let elm : HTMLElement;
-            let ref : React.Component<any, any> | Element;
+            let elm: HTMLElement;
+            let ref: React.Component<any, any> | Element;
+            let portal: Engine.Editor.IPortal;
 
             for ( let i in this.refs ) {
                 ref = this.refs[i];
                 if ( ref instanceof BehaviourComponent ) {
-                    elm = ReactDOM.findDOMNode( ref ) as HTMLElement;
-
-                    // Check if the target parent is one of the behaviours
-                    if (elm === target.parentElement) {
-                        return ref.getPortalFromTarget( target )
-                    }
+                    portal = ref.getPortalFromTarget(target)
+                    if (portal)
+                        return portal;
                 }
             }
 
@@ -253,9 +251,22 @@ namespace Animate {
                     }
                     {this.state.workspace.items.map(( item, index ) => {
                         if ( item.type === 'behaviour' || item.type === 'asset' || item.type === 'portal' )
-                            return <BehaviourComponent ref={'behaviour-' + index} editor={this.props.editor} behaviour={item} key={'item-' + index} />;
+                            return <BehaviourComponent
+                                key={'item-' + index} ref={'behaviour-' + index}
+                                editor={this.props.editor}
+                                behaviour={item} />;
+                        else if ( item.type === 'link' )
+                            return <LinkComponent
+                                key={'item-' + index}
+                                editor={this.props.editor}
+                                isRouting={false}
+                                getPortal={null}
+                                link={item} />;
                         else if ( item.type === 'comment' )
-                            return <CommentComponent editor={this.props.editor} comment={item} key={'item-' + index} />;
+                            return <CommentComponent
+                                key={'item-' + index}
+                                editor={this.props.editor}
+                                comment={item} />;
 
                         return null;
                     }) }

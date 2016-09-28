@@ -36,6 +36,54 @@ namespace Animate {
             const portalTemplates = template.portalsTemplates();
             for ( const portal of portalTemplates )
                 this.addPortal( portal.type, portal.property.clone() );
+
+            this.calculateSize();
+        }
+
+        move( x: number, y: number ) {
+            this.left = x;
+            this.top = y;
+            for ( const portal of this.portals )
+                for ( const link of portal.links )
+                    link.calculateDimensions();
+
+            this.invalidate();
+        }
+
+        calculateSize() {
+            const fontSize = 5;
+            let tw = fontSize * this.alias.length + 20;
+            let th = fontSize + 20;
+            const portalSize = 10;
+            const portalSpacing = 5;
+            const padding = 10;
+
+            const maxHorPortals = ( this.products.length > this.parameters.length ? this.products.length : this.parameters.length );
+            const maxVertPortals = ( this.inputs.length > this.outputs.length ? this.inputs.length : this.outputs.length );
+            const totalPortalSpacing = portalSize + portalSpacing;
+            const maxHorSize = totalPortalSpacing * maxHorPortals;
+            const maxVertSize = totalPortalSpacing * maxVertPortals;
+
+            // If the portals increase the size - the update the dimensions
+            tw = tw + padding > maxHorSize ? tw + padding : maxHorSize;
+            th = th + padding > maxVertSize ? th + padding : maxVertSize;
+
+            // Round off to the nearest 10 and minus border. This is so that they line up nicely to the graph
+            tw = Math.ceil(( tw ) / 10 ) * 10;
+            th = Math.ceil(( th ) / 10 ) * 10;
+
+            this.width = tw;
+            this.height = th;
+
+            // Calculate portal positions
+            for ( let i = 0, params =this.parameters, l = params.length; i < l; i++ )
+                params[i].calculatePosition(i);
+            for ( let i = 0, products =this.products, l = products.length; i < l; i++ )
+                products[i].calculatePosition(i);
+            for ( let i = 0, outputs =this.outputs, l = outputs.length; i < l; i++ )
+                outputs[i].calculatePosition(i);
+            for ( let i = 0, inputs =this.inputs, l = inputs.length; i < l; i++ )
+                inputs[i].calculatePosition(i);
         }
 
         /**
@@ -92,6 +140,8 @@ namespace Animate {
             this.invalidate();
             return portal;
         }
+
+
 
 		/**
 		* Removes a portal from this behaviour
@@ -165,6 +215,8 @@ namespace Animate {
                 let newPortal = this.addPortal( portal.type, prop );
                 newPortal.custom = portal.custom;
             }
+
+            this.calculateSize();
         }
 
 		/**

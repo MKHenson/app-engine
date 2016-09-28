@@ -10,6 +10,8 @@
     export class CanvasItem extends EventDispatcher {
         public top: number;
         public left: number;
+        public width: number;
+        public height: number;
         public store: ContainerSchema;
         public id: number;
         public selected: boolean;
@@ -56,7 +58,9 @@
                 type: 'behaviour',
                 left: this.left,
                 top: this.top,
-                selected: this.selected
+                selected: this.selected,
+                width: this.width,
+                height: this.height
             };
 
             return toRet;
@@ -69,6 +73,8 @@
         deSerialize( data: Engine.Editor.ICanvasItem ) {
             this.top = data.top;
             this.left = data.left;
+            this.width = data.width;
+            this.height = data.height;
         }
 
         /**

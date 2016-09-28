@@ -28,18 +28,25 @@ namespace Animate {
          * This should be followed by a call to endLinkRouting when
          * the process is completed
          */
-        beginLinkRouting( portal : string, behaviour: number, pos: Point ) {
+        beginLinkRouting( portal : Engine.Editor.IPortal, pos: Point ) {
             this._activeLink = new Link();
-            this._activeLink.startPortal = portal;
-            this._activeLink.startBehaviour = behaviour;
+            this._activeLink.startPortal = portal.name;
+            this._activeLink.startBehaviour = portal.behaviour;
             this._activeLink.top = pos.y;
             this._activeLink.left = pos.x;
             this.invalidate();
         }
 
-        endLinkRouting( portal : string, behaviour: number ) {
-            this._items.push( this._activeLink.clone() );
+        /**
+         * Completes the process of linking two behaviours together
+         */
+        endLinkRouting( options: Engine.Editor.ILinkItem ) {
+            if ( options )
+                this.doAction( new Actions.LinkCreated( options) );
+
             this._activeLink.dispose();
+            this._activeLink = null;
+            this.invalidate();
         }
 
         get activeLink() : Link {

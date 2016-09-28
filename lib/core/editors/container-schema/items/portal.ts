@@ -5,11 +5,15 @@ namespace Animate {
 	*/
     export class Portal extends EventDispatcher {
         // TODO: Canvas TSX changes
-        public links: Array<any>; // Array<Link>;
+        public links: Link[];
         public custom: boolean;
         public type: HatcheryRuntime.PortalType;
         public property: Prop<any>;
         public behaviour: Behaviour;
+
+        public top: number;
+        public left: number;
+        public size: number;
 
 		/**
 		* @param parent The parent component of the Portal
@@ -25,6 +29,32 @@ namespace Animate {
             this.behaviour = parent;
             this.edit( property );
             this.custom = false;
+            this.size = 10;
+        }
+
+        calculatePosition( index: number ) {
+            const size = this.size;
+            const spacing = 10;
+
+            if ( this.type === 'parameter' ) {
+                this.left = ( ( size + spacing ) * index );
+                this.top = -size;
+            }
+            else if ( this.type === 'product' ) {
+                this.left = ( ( size + spacing ) * index );
+                this.top = this.behaviour.height;
+            }
+            else if ( this.type === 'input' ) {
+                this.top = ( ( size + spacing ) * index );
+                this.left = -size;
+            }
+            else if ( this.type === 'output' ) {
+                this.top = ( ( size + spacing ) * index );
+                this.left = this.behaviour.width;
+            }
+
+            for (const link of this.links)
+                link.calculateDimensions();
         }
 
         /**
@@ -42,7 +72,11 @@ namespace Animate {
                 custom: this.custom,
                 property: this.property.tokenize(),
                 type: this.type,
-                links: []
+                links: [],
+                behaviour: this.behaviour.id,
+                top: this.top,
+                left: this.left,
+                size: this.size
             };
         }
 

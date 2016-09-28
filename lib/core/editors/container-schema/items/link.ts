@@ -37,6 +37,7 @@ namespace Animate {
          */
         serialize( id: number ): Engine.Editor.ILinkItem {
             let toRet = <Engine.Editor.ILinkItem>super.serialize( id );
+            toRet.type = 'link';
             toRet.width = this.width;
             toRet.height = this.height;
             toRet.startBehaviour = this.startBehaviour;
@@ -68,7 +69,21 @@ namespace Animate {
             this.points.splice( 0, this.points.length );
             for ( const p of data.points )
                 this.points.push( { x: p.x, y: p.y });
+        }
 
+        calculateDimensions() {
+            // const items = this.store.getItems();
+            // const startBehaviour = items[this.startBehaviour] as Behaviour;
+            // const endBehaviour = items[this.endBehaviour] as Behaviour;
+            // const startPortal = startBehaviour.getPortal( this.startPortal );
+            // const endPortal = startBehaviour.getPortal( this.endPortal );
+            // const leftMostBehaviour = startBehaviour.left < endBehaviour.left ? startBehaviour : endBehaviour;
+            // const topMostBehaviour = startBehaviour.top < endBehaviour.top ? startBehaviour : endBehaviour;
+
+            // this.left = leftMostBehaviour.left + startPortal.left;
+            // this.top = topMostBehaviour.top + startPortal.top;
+            // this.width = leftMostBehaviour.left + startPortal.left;
+            // this.top = startBehaviour.top + startPortal.top;
         }
 
         // /**
