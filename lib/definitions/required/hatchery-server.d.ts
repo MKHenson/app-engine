@@ -7,11 +7,15 @@ declare module Engine {
         * A basic wrapper for a Portal interface
         */
         export interface IPortal {
+            behaviour?: number;
             name?: string;
             type?: HatcheryRuntime.PortalType;
             custom?: boolean;
             property?: any;
             links?: number[];
+            left?: number;
+            top?: number;
+            size?: number;
         }
 
         /**
@@ -22,6 +26,8 @@ declare module Engine {
             type?: ItemType;
             left?: number;
             top?: number;
+            width?: number;
+            height?: number;
             selected?: boolean;
         }
 
@@ -34,8 +40,6 @@ declare module Engine {
             endPortal?: string;
             startBehaviour?: number;
             endBehaviour?: number;
-            width?: number;
-            height?: number;
             points?: { x: number; y: number; }[];
         }
 
@@ -53,8 +57,6 @@ declare module Engine {
         */
         export interface IComment extends ICanvasItem {
             label?: string;
-            width?: number;
-            height?: number;
         }
 
         /**

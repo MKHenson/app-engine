@@ -1243,6 +1243,26 @@ declare namespace Animate {
 declare namespace Animate {
     namespace Actions {
         /**
+         * An action for the creation of links within a container
+         */
+        class LinkCreated extends EditorAction {
+            instance: Link;
+            options: Engine.Editor.ILinkItem;
+            constructor(options: Engine.Editor.ILinkItem);
+            /**
+             * Undo the last history action
+             */
+            undo(editor: Animate.ContainerSchema): void;
+            /**
+             * Redo the next action
+             */
+            redo(editor: Animate.ContainerSchema): void;
+        }
+    }
+}
+declare namespace Animate {
+    namespace Actions {
+        /**
          * An action for the creation of portals
          */
         class PortalCreated extends EditorAction {
@@ -1414,7 +1434,16 @@ declare namespace Animate {
          * Creates an instance of the canvas store
          */
         constructor(container: Resources.Container, project: Project);
-        linkRouting(portal: string, behaviour: number, pos: Point): void;
+        /**
+         * Begins the process of creating a link between behaviours.
+         * This should be followed by a call to endLinkRouting when
+         * the process is completed
+         */
+        beginLinkRouting(portal: Engine.Editor.IPortal, pos: Point): void;
+        /**
+         * Completes the process of linking two behaviours together
+         */
+        endLinkRouting(options: Engine.Editor.ILinkItem): void;
         activeLink: Link;
         /**
          * Returns all items of this store
@@ -1466,6 +1495,8 @@ declare namespace Animate {
     class CanvasItem extends EventDispatcher {
         top: number;
         left: number;
+        width: number;
+        height: number;
         store: ContainerSchema;
         id: number;
         selected: boolean;
@@ -1527,6 +1558,8 @@ declare namespace Animate {
          * Creates an instance of the behaviour
          */
         constructor(template: BehaviourDefinition);
+        move(x: number, y: number): void;
+        calculateSize(): void;
         /**
          * Clones the canvas item
          */
@@ -1656,17 +1689,21 @@ declare namespace Animate {
     * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
     */
     class Portal extends EventDispatcher {
-        links: Array<any>;
+        links: Link[];
         custom: boolean;
         type: HatcheryRuntime.PortalType;
         property: Prop<any>;
         behaviour: Behaviour;
+        top: number;
+        left: number;
+        size: number;
         /**
         * @param parent The parent component of the Portal
         * @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
         * @param property The property associated with this portal
         */
         constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
+        calculatePosition(index: number): void;
         /**
          * Clones the canvas item
          */
@@ -1726,6 +1763,7 @@ declare namespace Animate {
          * @param data The data to import from
          */
         deSerialize(data: Engine.Editor.ILinkItem): void;
+        calculateDimensions(): void;
         /**
         * Gets the properties of this link
         * @returns {EditableSet}
@@ -3507,7 +3545,7 @@ declare namespace Animate {
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps);
-        onLinkStart(e: React.MouseEvent, portal: string, behaviour: number): void;
+        onLinkStart(e: React.MouseEvent, portal: Engine.Editor.IPortal): void;
         getPortalFromTarget(target: HTMLElement): Engine.Editor.IPortal;
         /**
          * Creates the component elements
@@ -3569,6 +3607,12 @@ declare namespace Animate {
          * Creates an instance of the component
          */
         constructor(props: ILinkComponentProps);
+        calculateRect(pos: Point): {
+            left: number;
+            top: number;
+            height: number;
+            width: number;
+        };
         onMouseMove(e: MouseEvent): void;
         /**
          * Remove event listeners
@@ -3587,9 +3631,6 @@ declare namespace Animate {
 declare namespace Animate {
     interface IPortalComponentProps {
         portal: Engine.Editor.IPortal;
-        index: number;
-        size: number;
-        spacing: number;
         onPortalDown?: (e: React.MouseEvent) => void;
     }
     /**
