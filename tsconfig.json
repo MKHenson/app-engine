@@ -35,6 +35,7 @@
     "lib/core/editors/editor.ts",
     "lib/core/editors/editor-action.ts",
     "lib/core/editors/container-schema/actions/behaviour-created.ts",
+    "lib/core/editors/container-schema/actions/link-created.ts",
     "lib/core/editors/container-schema/actions/portal-created.ts",
     "lib/core/editors/container-schema/actions/behaviours-removed.ts",
     "lib/core/editors/container-schema/actions/selection-changed.ts",
