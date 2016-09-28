@@ -60,17 +60,23 @@
         left: 0;
         position: absolute;
         pointer-events:none;
+
+        polygon {
+            fill: #aaa;
+            &:hover {
+                fill: #969696;
+            }
+            &:active {
+                fill: #8e8e8e;
+            }
+        }
     }
 }
 
-.portal svg polygon {
-    fill: #aaa;
-}
-.portal svg polygon:hover {
-    fill: #969696;
-}
-.portal svg polygon:active {
-    fill: #8e8e8e;
+.link {
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    position:absolute;
 }
 
 .behaviour.portal, .portal.output.active svg polygon, .portal.input.active svg polygon  {
