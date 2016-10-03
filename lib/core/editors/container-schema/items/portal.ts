@@ -42,7 +42,7 @@ namespace Animate {
             }
             else if ( this.type === 'product' ) {
                 this.left = ( ( size + spacing ) * index );
-                this.top = this.behaviour.height;
+                this.top = this.behaviour.serializer.get('height');
             }
             else if ( this.type === 'input' ) {
                 this.top = ( ( size + spacing ) * index );
@@ -50,7 +50,7 @@ namespace Animate {
             }
             else if ( this.type === 'output' ) {
                 this.top = ( ( size + spacing ) * index );
-                this.left = this.behaviour.width;
+                this.left = this.behaviour.serializer.get('width');
             }
 
             for (const link of this.links)
@@ -73,7 +73,7 @@ namespace Animate {
                 property: this.property.tokenize(),
                 type: this.type,
                 links: [],
-                behaviour: this.behaviour.id,
+                behaviour: this.behaviour.serializer.get('id'),
                 top: this.top,
                 left: this.left,
                 size: this.size
@@ -146,7 +146,7 @@ namespace Animate {
 		 * @param link The link we are adding
 		 */
         // TODO: Canvas TSX changes
-        addLink( link: any ) {// Link ) {
+        addLink( link: Link ) {
 
             if ( this.links.indexOf( link ) === -1 )
                 this.links.push( link );

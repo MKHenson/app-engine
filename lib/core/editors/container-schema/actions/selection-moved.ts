@@ -25,8 +25,12 @@ namespace Animate {
 
                 // Go back to previous positions
                 for ( const position of positions ) {
-                    editorItems[ position.index ].left = position.x;
-                    editorItems[ position.index ].top = position.y;
+                    editorItems[ position.index ].update({
+                        left: position.x,
+                        top: position.y
+                    })
+                    // editorItems[ position.index ].left = position.x;
+                    // editorItems[ position.index ].top = position.y;
                 }
             }
 
@@ -42,12 +46,16 @@ namespace Animate {
                 for ( const position of positions ) {
                     this.previousPositions.push( {
                         index: position.index,
-                        x: editorItems[ position.index ].left,
-                        y: editorItems[ position.index ].top
+                        x: editorItems[ position.index ].serializer.get('left'),
+                        y: editorItems[ position.index ].serializer.get('top')
                     });
 
-                    editorItems[ position.index ].left = position.x;
-                    editorItems[ position.index ].top = position.y;
+                    // editorItems[ position.index ].left = position.x;
+                    // editorItems[ position.index ].top = position.y;
+                    editorItems[ position.index ].update({
+                        left: position.x,
+                        top: position.y
+                    })
                 }
             }
         }

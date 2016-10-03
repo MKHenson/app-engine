@@ -28,8 +28,12 @@ namespace Animate {
              */
             redo( editor : Animate.ContainerSchema ) {
                 this.instance = new Comment();
-                this.instance.left = this.left;
-                this.instance.top = this.top;
+                // this.instance.left = this.left;
+                // this.instance.top = this.top;
+                this.instance.update({
+                    left: this.left,
+                    top: this.top
+                });
                 editor.addItem( this.instance );
             }
         }

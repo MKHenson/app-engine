@@ -39,9 +39,14 @@ namespace Animate {
                     this.target.addPortal( this.portal.type, this.portal.property );
                 else {
                     this.instance = new BehaviourPortal( this.portal.property.clone(), this.portal.type );
-                    this.instance.left = this.left;
-                    this.instance.top = this.top;
-                    this.instance.alias = this.portal.property.name;
+                    // this.instance.left = this.left;
+                    // this.instance.top = this.top;
+                    // this.instance.alias = this.portal.property.name;
+                    this.instance.update({
+                        left: this.left,
+                        top: this.top,
+                        alias: this.portal.property.name
+                    } as Engine.Editor.IBehaviour);
                     editor.addItem( this.instance );
                 }
             }

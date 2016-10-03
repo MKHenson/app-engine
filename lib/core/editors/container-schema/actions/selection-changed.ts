@@ -28,10 +28,11 @@ namespace Animate {
                 const prevSelection = this.previousSelection;
 
                 for ( const item of editorItems )
-                    item.selected = false;
+                    item.update( { selected : false } );
 
                 for ( let i = 0, l = prevSelection.length; i < l; i++ )
-                    editorItems[ prevSelection[ i ] ].selected = true;
+                    // editorItems[ prevSelection[ i ] ].selected = true;
+                    editorItems[ prevSelection[ i ] ].update({ selected: true })
             }
 
             /**
@@ -43,14 +44,16 @@ namespace Animate {
 
                 for ( let i = 0, l = editorItems.length; i < l; i++ ) {
                     let item = editorItems[ i ];
-                    if ( item.selected )
+                    if ( item.serializer.get('selected') )
                         this.previousSelection.push( i );
 
-                    item.selected = false;
+                    // item.selected = false;
+                    item.update( { selected : false } );
                 }
 
                 for ( const index of this.selectionIds )
-                    editorItems[ index ].selected = true;
+                    // editorItems[ index ].selected = true;
+                    editorItems[ index ].update({ selected: true })
             }
         }
 

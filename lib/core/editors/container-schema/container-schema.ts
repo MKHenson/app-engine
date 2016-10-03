@@ -28,12 +28,17 @@ namespace Animate {
          * This should be followed by a call to endLinkRouting when
          * the process is completed
          */
-        beginLinkRouting( portal : Engine.Editor.IPortal, pos: Point ) {
-            this._activeLink = new Link();
-            this._activeLink.startPortal = portal.name;
-            this._activeLink.startBehaviour = portal.behaviour;
-            this._activeLink.top = pos.y;
-            this._activeLink.left = pos.x;
+        beginLinkRouting( portal: Engine.Editor.IPortal, pos: Point ) {
+            this._activeLink = new Link({
+                startPortal: portal.name,
+                startBehaviour: portal.behaviour,
+                top: pos.y,
+                left: pos.x
+            });
+            // this._activeLink.startPortal = portal.name;
+            // this._activeLink.startBehaviour = portal.behaviour;
+            // this._activeLink.top = pos.y;
+            // this._activeLink.left = pos.x;
             this.invalidate();
         }
 
@@ -42,14 +47,14 @@ namespace Animate {
          */
         endLinkRouting( options: Engine.Editor.ILinkItem ) {
             if ( options )
-                this.doAction( new Actions.LinkCreated( options) );
+                this.doAction( new Actions.LinkCreated( options ) );
 
             this._activeLink.dispose();
             this._activeLink = null;
             this.invalidate();
         }
 
-        get activeLink() : Link {
+        get activeLink(): Link {
             return this._activeLink;
         }
 
@@ -96,7 +101,7 @@ namespace Animate {
                     selection.push( node );
             }
             else if ( node ) {
-                let selected = ( toggleSelectedState ? !node.selected : node.selected );
+                let selected = ( toggleSelectedState ? !node.serializer.get('selected') : node.serializer.get('selected') );
 
                 if ( !selected && selection.indexOf( node ) !== -1 )
                     selection.splice( selection.indexOf( node ), 1 );
@@ -110,7 +115,7 @@ namespace Animate {
 
             let selectionChanged = ( previousNumSelected !== selection.length ? true : false );
 
-            if (!selectionChanged) {
+            if ( !selectionChanged ) {
                 for ( let i = 0, l = prevSelection.length; i < l; i++ )
                     if ( prevSelection[ i ] !== selection[ i ] ) {
                         selectionChanged = true;
@@ -171,21 +176,24 @@ namespace Animate {
 
             let canvasItem: CanvasItem;
             let manager = PluginManager.getSingleton();
+            let itemJson: Engine.Editor.ICanvasItem;
 
             for ( const item of scene.items ) {
-                switch ( item.type ) {
+                itemJson = item.toObject();
+                switch ( itemJson.type ) {
                     case 'comment':
-                        canvasItem = new Comment(( item as Engine.Editor.IComment ).label );
+                        canvasItem = new Comment(( itemJson as Engine.Editor.IComment ).label );
                         break;
                     case 'behaviour':
-                        canvasItem = new Behaviour( manager.getTemplate(( item as Engine.Editor.IBehaviour ).behaviourType ) );
+                        canvasItem = new Behaviour( manager.getTemplate(( itemJson as Engine.Editor.IBehaviour ).behaviourType ), itemJson );
                         break;
                     case 'asset':
                         canvasItem = new BehaviourAsset( null );
                         break;
                 }
 
-                canvasItem.deSerialize( item );
+                // canvasItem.deSerialize( item );
+                canvasItem.update( itemJson );
                 this.addItem( canvasItem );
             }
         }

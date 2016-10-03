@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface IBehaviourComponentProps {
         editor: ContainerSchema;
-        behaviour: Engine.Editor.IBehaviour;
+        behaviour: Serializable<Engine.Editor.IBehaviour>;
     }
 
     /**
@@ -21,7 +21,7 @@ namespace Animate {
             e.preventDefault();
             e.stopPropagation();
             const behaviour = this.props.behaviour;
-            const p = { x: behaviour.left + portal.left, y: behaviour.top + portal.top };
+            const p = { x: behaviour.get('left') + portal.left, y: behaviour.get('top') + portal.top };
             this.props.editor.beginLinkRouting( portal, p );
         }
 
@@ -41,47 +41,53 @@ namespace Animate {
             return null;
         }
 
+        shouldComponentUpdate( nextProps: IBehaviourComponentProps, nextState ) {
+            return !(nextProps.behaviour.immutable === this.props.behaviour.immutable );
+        }
+
+
         /**
          * Creates the component elements
          */
         render(): JSX.Element {
             const behaviour = this.props.behaviour;
-            const portals = behaviour.portals;
+            const json = behaviour.toObject() as Engine.Editor.IBehaviour;
+            const portals = json.portals;
             const editor = this.props.editor;
 
             let behaviourTypeClass = '';
-            if ( behaviour.type == 'portal' )
+            if ( json.type == 'portal' )
                 behaviourTypeClass += ( behaviour as Engine.Editor.IBehaviourPortal ).portal.type;
 
             return (
                 <Draggable
                     ref="draggable"
-                    x={this.props.behaviour.left}
-                    y={this.props.behaviour.top}
+                    x={json.left}
+                    y={json.top}
                     onMove={( x, y ) => {
                         const items = editor.getItems();
-                        (items[behaviour.id] as Behaviour).move(x, y);
+                        (items[json.id] as Behaviour).updateLocation(x, y);
                      } }
                     onDragComplete={( start, end ) => {
-                        editor.doAction( new Actions.SelectionMoved( [ { index: behaviour.id, x: end.x, y: end.y }] ) );
+                        editor.doAction( new Actions.SelectionMoved( [ { index: json.id, x: end.x, y: end.y }] ) );
                     } } >
                     <div
                         ref="behaviour"
                         className={'behaviour scale-in-animation unselectable' +
-                            ( this.props.behaviour.selected ? ' selected' : '' ) +
+                            ( json.selected ? ' selected' : '' ) +
                             ( behaviourTypeClass ? ' ' + behaviourTypeClass : '' ) +
-                            ' ' + this.props.behaviour.type}
+                            ' ' + json.type}
                         style={{
-                            width: behaviour.width + 'px',
-                            height: behaviour.height + 'px'
+                            width: json.width + 'px',
+                            height: json.height + 'px'
                         }}
                         onContextMenu={( e ) => {
-                            editor.onNodeSelected( behaviour, behaviour.selected ? true : false, false );
+                            editor.onNodeSelected( behaviour, json.selected ? true : false, false );
                             editor.onContext( behaviour, e );
                         } }
                         onClick={( e ) => {
                             e.stopPropagation();
-                            editor.onNodeSelected( this.props.behaviour, e.shiftKey )
+                            editor.onNodeSelected( json, e.shiftKey )
                         } }
                         >
                         {
@@ -95,7 +101,7 @@ namespace Animate {
                                     />
                             })
                         }
-                        <div className="text">{behaviour.alias}</div>
+                        <div className="text">{json.alias}</div>
                     </div>
                 </Draggable>
             )

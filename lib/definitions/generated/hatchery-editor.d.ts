@@ -10,6 +10,98 @@ declare module Engine {
         $error?: string;
         $instance?: Animate.IPlugin;
     }
+
+    // Extends the editor namespace with new data
+    export namespace Editor {
+
+        export type ItemType = HatcheryRuntime.ItemType | 'comment' | 'shortcut';
+
+        /**
+        * A basic wrapper for a Portal interface
+        */
+        export interface IPortal {
+            behaviour?: number;
+            name?: string;
+            type?: HatcheryRuntime.PortalType;
+            custom?: boolean;
+            property?: any;
+            links?: number[];
+            left?: number;
+            top?: number;
+            size?: number;
+        }
+
+        /**
+         * A basic wrapper for a CanvasItem interface
+         */
+        export interface ICanvasItem {
+            id?: number;
+            type?: ItemType;
+            left?: number;
+            top?: number;
+            width?: number;
+            height?: number;
+            selected?: boolean;
+        }
+
+        /**
+        * A basic wrapper for a Link interface
+        */
+        export interface ILinkItem extends ICanvasItem {
+            frameDelay?: number;
+            startPortal?: string;
+            endPortal?: string;
+            startBehaviour?: number;
+            endBehaviour?: number;
+            points?: { x: number; y: number; }[];
+        }
+
+        /**
+        * A basic wrapper for a Behaviour interface
+        */
+        export interface IBehaviour extends ICanvasItem {
+            alias?: string;
+            behaviourType?: string;
+            portals?: IPortal[];
+        }
+
+        /**
+        * A basic wrapper for a Comment interface
+        */
+        export interface IComment extends ICanvasItem {
+            label?: string;
+        }
+
+        /**
+        * A basic wrapper for a BehaviourPortal interface
+        */
+        export interface IBehaviourPortal extends IBehaviour {
+            portal?: IPortal;
+        }
+
+        /**
+        * A basic wrapper for a BehaviourScript interface
+        */
+        export interface IBehaviourScript extends IBehaviour {
+            scriptId?: string;
+        }
+
+        /**
+        * A basic wrapper for a BehaviourShortcut interface
+        */
+        export interface IBehaviourShortcut extends IBehaviour {
+            targetId?: number;
+        }
+
+        /**
+        * A basic interface for a container object
+        */
+        export interface IContainerWorkspace {
+            activeLink?: Animate.Serializable<ILinkItem>;
+            items: Animate.Serializable<ICanvasItem>[];
+            properties: any;
+        }
+    }
 }
 declare namespace Animate {
     /**
@@ -592,6 +684,10 @@ declare namespace Animate {
      */
     type ResourceEvents = 'edited' | 'refreshed' | 'modified';
     /**
+     * Events related to open schemas and the items within them
+     */
+    type SchemaEvents = 'link-routed';
+    /**
      * Events related to the resource editors
      */
     type EditorEvents = 'change';
@@ -603,6 +699,12 @@ declare namespace Animate {
      * Events dispatched by a treeview
      */
     type TreeviewEvents = 'change' | 'focus-node';
+    /**
+     * A generic event for schema resources
+     */
+    interface SchemaEvent<T> {
+        resource: T;
+    }
     /**
      * An event object dispatched by the PluginManager for template related events
      */
@@ -841,6 +943,7 @@ declare namespace Animate {
          * it's not a valid JavaScript object.
          */
         static getObjectClass(obj: any): any;
+        static shallowCompare(objA: any, objB: any): boolean;
     }
 }
 declare namespace Animate {
@@ -1202,6 +1305,15 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    class Serializable<T> {
+        immutable: Immutable.Map<any, any>;
+        constructor(data?: T);
+        update(data: T): void;
+        get(name: string): any;
+        toObject(): T;
+    }
+}
+declare namespace Animate {
     namespace Actions {
         /**
          * The base class for all editor actions
@@ -1493,17 +1605,17 @@ declare namespace Animate {
      * The base class for all canvas items
      */
     class CanvasItem extends EventDispatcher {
-        top: number;
-        left: number;
-        width: number;
-        height: number;
         store: ContainerSchema;
-        id: number;
-        selected: boolean;
+        protected _serializable: Serializable<Engine.Editor.ICanvasItem>;
         /**
          * Creates an instance
          */
-        constructor();
+        constructor(options: Engine.Editor.ICanvasItem);
+        serializer: Serializable<Engine.Editor.ICanvasItem>;
+        /**
+         * Updates the properties of the item and calls for an invalidation
+         */
+        update(options: Engine.Editor.ICanvasItem): void;
         /**
          * Clones the canvas item
          */
@@ -1515,12 +1627,7 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.ICanvasItem;
-        /**
-         * De-serialize data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize(data: Engine.Editor.ICanvasItem): void;
+        serialize(id: number): Serializable<Engine.Editor.ICanvasItem>;
         /**
          * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
          * @param originalId The original shallow ID of the item when it was tokenized.
@@ -1544,9 +1651,7 @@ declare namespace Animate {
      * that has been added to a container.
      */
     class Behaviour extends CanvasItem {
-        alias: string;
         canGhost: boolean;
-        behaviourType: string;
         parameters: Portal[];
         products: Portal[];
         outputs: Portal[];
@@ -1557,8 +1662,8 @@ declare namespace Animate {
         /**
          * Creates an instance of the behaviour
          */
-        constructor(template: BehaviourDefinition);
-        move(x: number, y: number): void;
+        constructor(template: BehaviourDefinition, options: Engine.Editor.IBehaviour);
+        updateLocation(x: number, y: number): void;
         calculateSize(): void;
         /**
          * Clones the canvas item
@@ -1569,6 +1674,7 @@ declare namespace Animate {
          * @param name The portal name
          */
         getPortal(name: string): Portal;
+        reCreatePortals(): void;
         /**
          * Adds a portal to this behaviour.
          * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
@@ -1580,15 +1686,6 @@ declare namespace Animate {
         * @param toRemove The portal object we are removing
         */
         removePortal(toRemove: Portal): Portal;
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize(id: number): Engine.Editor.IBehaviour;
-        /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IBehaviour): void;
         /**
          * Diposes and cleans up this component and its portals
          */
@@ -1610,15 +1707,6 @@ declare namespace Animate {
          * Clones the canvas item
          */
         clone(clone?: BehaviourPortal): BehaviourPortal;
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize(id: number): Engine.Editor.IBehaviourPortal;
-        /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IBehaviourPortal): void;
         /**
          * This will cleanup the component.
          */
@@ -1645,10 +1733,6 @@ declare namespace Animate {
          */
         dispose(): void;
         /**
-         * Serializes the data into a JSON.
-         */
-        serialize(id: number): Engine.Editor.IBehaviour;
-        /**
          * Adds a portal to this behaviour.
          * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
          * @param property
@@ -1661,9 +1745,6 @@ declare namespace Animate {
      * A user comment within the workspace
      */
     class Comment extends CanvasItem {
-        label: string;
-        width: number;
-        height: number;
         /**
          * Creates an instance
          */
@@ -1672,15 +1753,6 @@ declare namespace Animate {
          * Clones the canvas item
          */
         clone(clone?: Comment): Comment;
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize(id: number): Engine.Editor.IComment;
-        /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize(data: Engine.Editor.IComment): void;
     }
 }
 declare namespace Animate {
@@ -1727,7 +1799,7 @@ declare namespace Animate {
          * Adds a link to the portal.
          * @param link The link we are adding
          */
-        addLink(link: any): void;
+        addLink(link: Link): void;
         /**
          * Removes a link from the portal.
          * @param link The link we are removing
@@ -1741,28 +1813,23 @@ declare namespace Animate {
      * and destination behaviours. Links are drawn on the schema as an SVG line.
      */
     class Link extends CanvasItem {
-        startPortal: string;
-        endPortal: string;
-        width: number;
-        height: number;
-        selected: boolean;
-        startBehaviour: number;
-        endBehaviour: number;
-        points: Point[];
         private _properties;
         /**
          * Creates a new instance of a link
          */
-        constructor();
+        constructor(options: Engine.Editor.ILinkItem);
         /**
-         * Serializes the data into a JSON.
+         * Creates an array of points that define a path from the start portal to its end.
+         * The returned array is in Canvas space (so the coorindates at 0,0 are in the top
+         * left corner of the canvas)
          */
-        serialize(id: number): Engine.Editor.ILinkItem;
+        private createCanvasSpacePath(startBehaviour, endBehaviour, startPortal, endPortal);
         /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
+         * Sets the dimensions of the link from the points provided.
+         * The points must be in Canvas space (so the coorindates at 0,0 are in the top
+         * left corner of the canvas)
          */
-        deSerialize(data: Engine.Editor.ILinkItem): void;
+        dimensionsFromCanvasPoints(points: Point[]): this;
         calculateDimensions(): void;
         /**
         * Gets the properties of this link
@@ -2787,7 +2854,7 @@ declare namespace Animate {
         onMove?: (x: number, y: number) => void;
         onDragComplete?: (start: Point, end: Point) => void;
     }
-    class Draggable extends React.Component<IDraggableProps, any> {
+    class Draggable extends React.Component<IDraggableProps, Point> {
         static defaultProps: IDraggableProps;
         private _upProxy;
         private _moveProxy;
@@ -2795,6 +2862,7 @@ declare namespace Animate {
         private _startPos;
         private _scrollInterval;
         constructor(props: IDraggableProps);
+        componentWillReceiveProps(props: IDraggableProps): void;
         /**
          * When unmounting, we remove any listeners
          */
@@ -3535,7 +3603,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface IBehaviourComponentProps {
         editor: ContainerSchema;
-        behaviour: Engine.Editor.IBehaviour;
+        behaviour: Serializable<Engine.Editor.IBehaviour>;
     }
     /**
      * A visual representation of a Behaviour
@@ -3547,6 +3615,7 @@ declare namespace Animate {
         constructor(props: IBehaviourComponentProps);
         onLinkStart(e: React.MouseEvent, portal: Engine.Editor.IPortal): void;
         getPortalFromTarget(target: HTMLElement): Engine.Editor.IPortal;
+        shouldComponentUpdate(nextProps: IBehaviourComponentProps, nextState: any): boolean;
         /**
          * Creates the component elements
          */
@@ -3555,7 +3624,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ICommentComponentProps {
-        comment: Engine.Editor.IComment;
+        comment: Serializable<Engine.Editor.IComment>;
         editor: ContainerSchema;
     }
     interface ICommentComponentState {
@@ -3593,7 +3662,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface ILinkComponentProps {
         editor: ContainerSchema;
-        link: Engine.Editor.ILinkItem;
+        link: Serializable<Engine.Editor.ILinkItem>;
         isRouting: boolean;
         getPortal: (target: HTMLElement) => Engine.Editor.IPortal;
     }

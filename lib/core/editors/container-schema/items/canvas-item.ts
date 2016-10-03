@@ -8,36 +8,49 @@
      * The base class for all canvas items
      */
     export class CanvasItem extends EventDispatcher {
-        public top: number;
-        public left: number;
-        public width: number;
-        public height: number;
         public store: ContainerSchema;
-        public id: number;
-        public selected: boolean;
+        protected _serializable: Serializable<Engine.Editor.ICanvasItem>
 
         /**
          * Creates an instance
          */
-        constructor() {
+        constructor( options: Engine.Editor.ICanvasItem ) {
             super();
-            this.id = -1;
-            this.top = 0;
-            this.left = 0;
-            this.selected = false;
+
+            this._serializable = new Serializable<Engine.Editor.ICanvasItem>( {
+                id: -1,
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+                selected: false,
+                type: 'behaviour'
+            } as Engine.Editor.ICanvasItem );
+
+            if (options)
+                this._serializable.update(options);
+        }
+
+        get serializer() {
+            return this._serializable;
+        }
+
+        /**
+         * Updates the properties of the item and calls for an invalidation
+         */
+        update( options: Engine.Editor.ICanvasItem ) {
+            this._serializable.update( options );
+            this.invalidate();
         }
 
         /**
          * Clones the canvas item
          */
-        clone( clone?: CanvasItem ) : CanvasItem {
+        clone( clone?: CanvasItem ): CanvasItem {
             if ( !clone )
-                clone = new CanvasItem();
+                clone = new CanvasItem( this._serializable.toObject() );
 
-            clone.id = -1;
-            clone.top = this.top;
-            clone.left = this.left;
-            clone.selected = this.selected;
+            //clone._immutable = clone._immutable.mergeDeep( this._immutable.toJS() );
             return clone;
         }
 
@@ -51,30 +64,9 @@
         /**
          * Serializes the data into a JSON.
          */
-        serialize( id: number ): Engine.Editor.ICanvasItem {
-            this.id = id;
-            const toRet: Engine.Editor.ICanvasItem = {
-                id: id,
-                type: 'behaviour',
-                left: this.left,
-                top: this.top,
-                selected: this.selected,
-                width: this.width,
-                height: this.height
-            };
-
-            return toRet;
-        }
-
-        /**
-         * De-serialize data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize( data: Engine.Editor.ICanvasItem ) {
-            this.top = data.top;
-            this.left = data.left;
-            this.width = data.width;
-            this.height = data.height;
+        serialize( id: number ): Serializable<Engine.Editor.ICanvasItem> {
+            this.serializer.update( { id: id } as Engine.Editor.ICanvasItem );
+            return this.serializer;
         }
 
         /**

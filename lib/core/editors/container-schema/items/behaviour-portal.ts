@@ -11,9 +11,12 @@ namespace Animate {
          * Creates an instance
          */
         constructor( property: Prop<any>, portalType: HatcheryRuntime.PortalType ) {
-            super( PluginManager.getSingleton().getTemplate( 'Portal' ) );
+            super( PluginManager.getSingleton().getTemplate( 'Portal' ), {
+                alias: property.name,
+                type: 'portal'
+            } as Engine.Editor.IBehaviourPortal );
 
-            this.alias = property.name;
+            // this.alias = property.name;
             this.portalType = portalType;
             this._property = property;
 
@@ -40,26 +43,26 @@ namespace Animate {
             return clone;
         }
 
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize( id: number ): Engine.Editor.IBehaviourPortal {
-            const toRet = <Engine.Editor.IBehaviourPortal>super.serialize( id );
-            toRet.portal = { name: this._property.name, custom: true, type: this.portalType, property: this._property.tokenize() };
-            toRet.type = 'portal';
-            return toRet;
-        }
+        // /**
+        //  * Serializes the data into a JSON.
+        //  */
+        // serialize( id: number ): Engine.Editor.IBehaviourPortal {
+        //     const toRet = <Engine.Editor.IBehaviourPortal>super.serialize( id );
+        //     toRet.portal = { name: this._property.name, custom: true, type: this.portalType, property: this._property.tokenize() };
+        //     toRet.type = 'portal';
+        //     return toRet;
+        // }
 
-        /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
-         */
-        deSerialize( data: Engine.Editor.IBehaviourPortal ) {
-            super.deSerialize( data );
-            this.portalType = data.portal.type;
-            this._property = Utils.createProperty( data.portal.property.name, data.portal.property.type );
-            this._property.deTokenize( data );
-        }
+        // /**
+        //  * De-Serializes data from a JSON.
+        //  * @param data The data to import from
+        //  */
+        // deSerialize( data: Engine.Editor.IBehaviourPortal ) {
+        //     super.deSerialize( data );
+        //     this.portalType = data.portal.type;
+        //     this._property = Utils.createProperty( data.portal.property.name, data.portal.property.type );
+        //     this._property.deTokenize( data );
+        // }
 
 		/**
          * This will cleanup the component.

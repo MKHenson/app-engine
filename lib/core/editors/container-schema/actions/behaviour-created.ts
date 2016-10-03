@@ -39,13 +39,18 @@ namespace Animate {
                         this.instance = new BehaviourAsset( this.resource );
                         break;
                     default:
-                        this.instance = new Behaviour( this.definition );
+                        this.instance = new Behaviour( this.definition, {} );
                         break;
                 }
 
-                this.instance.left = this.options.left;
-                this.instance.top = this.options.top;
-                this.instance.alias = this.options.alias ? this.options.alias : this.instance.alias;
+                // this.instance.left = this.options.left;
+                // this.instance.top = this.options.top;
+                // this.instance.alias = this.options.alias ? this.options.alias : this.instance.alias;
+                this.instance.update({
+                    left: this.options.left,
+                    top: this.options.top,
+                    alias: this.options.alias ? this.options.alias : this.instance.serializer.get('alias')
+                } as Engine.Editor.IBehaviour );
                 editor.addItem( this.instance );
             }
         }

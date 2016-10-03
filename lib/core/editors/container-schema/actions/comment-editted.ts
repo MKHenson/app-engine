@@ -22,7 +22,10 @@ namespace Animate {
              */
             undo( editor: Animate.ContainerSchema ) {
                 const item = editor.getItems()[ this.index ] as Comment;
-                item.label = this.prevLabel;
+                //item.label = this.prevLabel;
+                item.update({
+                    label: this.prevLabel
+                } as Engine.Editor.IComment );
             }
 
             /**
@@ -30,8 +33,13 @@ namespace Animate {
              */
             redo( editor: Animate.ContainerSchema ) {
                 const item = editor.getItems()[ this.index ] as Comment;
-                this.prevLabel = item.label;
-                item.label = this.label;
+                // this.prevLabel = item.label;
+                // item.label = this.label;
+
+                this.prevLabel = item.serializer.get('label');
+                item.update({
+                    label: this.label
+                } as Engine.Editor.IComment);
             }
         }
 

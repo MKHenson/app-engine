@@ -24,8 +24,12 @@ namespace Animate {
              */
             undo( editor : Animate.ContainerSchema ) {
                 const item = editor.getItems()[ this.index ] as Comment;
-                item.height = this.prevHeight;
-                item.width = this.prevWidth;
+                // item.height = this.prevHeight;
+                // item.width = this.prevWidth;
+                item.update({
+                    width: this.prevWidth,
+                    height: this.prevHeight
+                });
             }
 
             /**
@@ -33,10 +37,17 @@ namespace Animate {
              */
             redo( editor : Animate.ContainerSchema ) {
                 const item = editor.getItems()[ this.index ] as Comment;
-                this.prevWidth = item.width;
-                this.prevHeight = item.height;
-                item.width = this.width;
-                item.height = this.height;
+                // this.prevWidth = item.width;
+                // this.prevHeight = item.height;
+                // item.width = this.width;
+                // item.height = this.height;
+
+                this.prevWidth = item.serializer.get('width');
+                this.prevHeight = item.serializer.get('height');
+                item.update({
+                    width: this.width,
+                    height: this.height
+                });
             }
         }
 

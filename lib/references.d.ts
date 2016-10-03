@@ -16,6 +16,8 @@
 /// <reference path="./definitions/required/react/react-global.d.ts" />
 /// <reference path="./definitions/required/hatchery-runtime.d.ts" />
 
+/// <reference path="./definitions/required/immutable.d.ts" />
+
 
 /// <reference path="./definitions/custom/ace.d.ts" />
 /// <reference path="./definitions/custom/jscolor.d.ts" />

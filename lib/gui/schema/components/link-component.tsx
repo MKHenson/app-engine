@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface ILinkComponentProps {
         editor: ContainerSchema;
-        link: Engine.Editor.ILinkItem;
+        link: Serializable<Engine.Editor.ILinkItem>;
         isRouting: boolean;
         getPortal: ( target: HTMLElement ) => Engine.Editor.IPortal;
     }
@@ -27,18 +27,21 @@ namespace Animate {
             const link = this.props.link;
             let top = 0;
             let left = 0;
-            let width = Math.abs( pos.x - link.left );
-            let height = Math.abs( pos.y - link.top );
+            const linkLeft: number = link.get('left');
+            const linkTop: number = link.get('top');
 
-            if (pos.x < link.left)
+            let width = Math.abs( pos.x - linkLeft );
+            let height = Math.abs( pos.y - linkTop );
+
+            if (pos.x < linkLeft )
                 left = pos.x;
             else
-                left = link.left;
+                left = linkLeft;
 
-            if (pos.y < link.top)
+            if (pos.y < linkTop)
                 top = pos.y;
             else
-                top = link.top;
+                top = linkTop;
 
             return {
                 left: left,
@@ -72,14 +75,15 @@ namespace Animate {
             const editor = this.props.editor;
             const link = this.props.link;
             const targetPortal = this.props.getPortal( e.target as HTMLElement );
-
+            const linkStartBehaviour: number = link.get('startBehaviour');
+            const linkStartPortal: string = link.get('startPortal');
 
             if ( targetPortal ) {
                 const items = editor.getItems();
                 const targetBehaviour = items[targetPortal.behaviour];
                 const rect = this.calculateRect({
-                    x: targetBehaviour.left + targetPortal.left + targetPortal.size,
-                    y: targetBehaviour.top + targetPortal.top + targetPortal.size
+                    x: targetBehaviour.serializer.get('left') + targetPortal.left + targetPortal.size,
+                    y: targetBehaviour.serializer.get('top') + targetPortal.top + targetPortal.size
                 });
 
                 editor.endLinkRouting( {
@@ -87,8 +91,8 @@ namespace Animate {
                     left: rect.left,
                     width: rect.width,
                     height: rect.height,
-                    startBehaviour: link.startBehaviour,
-                    startPortal: link.startPortal,
+                    startBehaviour: linkStartBehaviour,
+                    startPortal: linkStartPortal,
                     endPortal: targetPortal.name,
                     endBehaviour: targetPortal.behaviour
                 } );
@@ -117,13 +121,14 @@ namespace Animate {
         render(): JSX.Element {
             const link = this.props.link;
             const isRouting = this.props.isRouting;
+            const json = link.toObject() as Engine.Editor.ILinkItem;
 
             return (
                 <svg ref="svg" className="link" style={{
-                    left: link.left + 'px',
-                    top: link.top + 'px',
-                    width: link.width + 'px',
-                    height: link.height + 'px',
+                    left: json.left + 'px',
+                    top: json.top + 'px',
+                    width: json.width + 'px',
+                    height: json.height + 'px',
                     pointerEvents: ( this.props.isRouting ? 'none' : undefined )
                 }}>
                 </svg>

@@ -15,6 +15,7 @@
         'editor-removed' |
         'resource-created' |
         'resource-removed' |
+
         'saved' |
         'saved_all' |
         'failed' |
@@ -28,6 +29,12 @@
         'edited' |
         'refreshed' |
         'modified';
+
+    /**
+     * Events related to open schemas and the items within them
+     */
+    export type SchemaEvents =
+        'link-routed';
 
     /**
      * Events related to the resource editors
@@ -49,6 +56,13 @@
     export type TreeviewEvents =
         'change' |
         'focus-node';
+
+    /**
+     * A generic event for schema resources
+     */
+    export interface SchemaEvent<T> {
+        resource: T;
+    }
 
     /**
      * An event object dispatched by the PluginManager for template related events

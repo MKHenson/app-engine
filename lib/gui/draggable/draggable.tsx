@@ -8,7 +8,7 @@ namespace Animate {
         onDragComplete?: ( start: Point, end: Point) => void;
     }
 
-    export class Draggable extends React.Component<IDraggableProps, any> {
+    export class Draggable extends React.Component<IDraggableProps, Point> {
         static defaultProps: IDraggableProps = {
             enabled: true,
             x: 0,
@@ -32,6 +32,10 @@ namespace Animate {
                 x: props.x,
                 y: props.y
             };
+        }
+
+        componentWillReceiveProps( props : IDraggableProps ) {
+            this.setState( { x: props.x || this.state.x, y: props.y || this.state.y } );
         }
 
         /**
@@ -88,9 +92,10 @@ namespace Animate {
             let targetScrollX = elm.parentElement.scrollLeft;
             let targetScrollY = elm.parentElement.scrollTop;
 
-            // Set the position of the element
-            elm.style.left = pos.x + 'px';
-            elm.style.top = pos.y + 'px';
+            this.setState({
+                x: pos.x,
+                y: pos.y
+            })
 
             if ( this.props.onMove )
                 this.props.onMove( pos.x, pos.y );
@@ -119,7 +124,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div ref="draggable"
-                style={{ left: this.props.x + 'px', top: this.props.y + 'px' }}
+                style={{ left: this.state.x + 'px', top: this.state.y + 'px' }}
                 onMouseDown={( e ) => { this.onMouseDown( e ) } }
                 className="draggable">
                 {this.props.children}

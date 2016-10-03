@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface ICommentComponentProps {
-        comment: Engine.Editor.IComment;
+        comment: Serializable<Engine.Editor.IComment>;
         editor: ContainerSchema;
     }
 
@@ -26,7 +26,7 @@ namespace Animate {
             this._wasDownOnInput = false;
             this.state = {
                 editMode: false,
-                newLabel: props.comment.label
+                newLabel: props.comment.get('label')
             };
         }
 
@@ -77,7 +77,7 @@ namespace Animate {
                     ref = ref.parentElement;
 
             window.removeEventListener( 'mouseup', this._onUp );
-            this.props.editor.doAction( new Actions.CommentEditted( this.props.comment.id, input.value ) );
+            this.props.editor.doAction( new Actions.CommentEditted( this.props.comment.get('id'), input.value ) );
             this.setState( { editMode: false });
         }
 
@@ -87,23 +87,24 @@ namespace Animate {
         render(): JSX.Element {
             const comment = this.props.comment;
             const editor = this.props.editor;
+            const json = comment.toObject() as Engine.Editor.IComment;
 
             return (
                 <Draggable
-                    x={this.props.comment.left}
-                    y={this.props.comment.top}
+                    x={json.left}
+                    y={json.top}
                     enabled={( !this.state.editMode ) }
                     onDragComplete={( start, end ) => {
-                        editor.doAction( new Actions.SelectionMoved( [ { index: comment.id, x: end.x, y: end.y }] ) );
+                        editor.doAction( new Actions.SelectionMoved( [ { index: json.id, x: end.x, y: end.y }] ) );
                     } }>
                     <Resizable
-                        onResized={ ( size ) => { editor.doAction( new Actions.CommentResized( comment.id, size.width, size.height ) ) } }
+                        onResized={ ( size ) => { editor.doAction( new Actions.CommentResized( json.id, size.width, size.height ) ) } }
                         onDragStart={( e ) => { e.preventDefault(); e.stopPropagation(); return true; } }>
                         <div
                             onKeyUp={( e ) => {
                                 // F2
                                 if ( e.keyCode === 113 ) {
-                                    this.setState( { editMode: true, newLabel: comment.label });
+                                    this.setState( { editMode: true, newLabel: json.label });
                                 }
                             } }
                             onDoubleClick={( e ) => {
@@ -112,12 +113,12 @@ namespace Animate {
                                 e.stopPropagation();
                             } }
                             ref="comment"
-                            style={{ width: comment.width + 'px', height: comment.height + 'px' }}
+                            style={{ width: json.width + 'px', height: json.height + 'px' }}
                             className={'scale-in-animation comment' +
                                 ( !this.state.editMode ? ' unselectable' : '' ) +
-                                ( !this.state.editMode && this.props.comment.selected ? ' selected' : '' ) }
+                                ( !this.state.editMode && json.selected ? ' selected' : '' ) }
                             onContextMenu={( e ) => {
-                                editor.onNodeSelected( comment, comment.selected ? true : false, false );
+                                editor.onNodeSelected( comment, json.selected ? true : false, false );
                                 editor.onContext( comment, e );
                             } }
                             onClick={( e ) => {
@@ -125,7 +126,7 @@ namespace Animate {
                                     return;
 
                                 e.stopPropagation();
-                                editor.onNodeSelected( this.props.comment, e.shiftKey )
+                                editor.onNodeSelected( json, e.shiftKey )
                             } }
                             >
                             { this.state.editMode ?
@@ -134,19 +135,19 @@ namespace Animate {
                                     onKeyDown={( e ) => {
                                         // Esc
                                         if ( e.keyCode === 27 )
-                                            this.setState( { editMode: false, newLabel: comment.label });
+                                            this.setState( { editMode: false, newLabel: json.label });
 
                                         // Enter
                                         if ( e.keyCode === 13 ) {
                                             this.setState( { editMode: false });
-                                            editor.doAction( new Actions.CommentEditted( this.props.comment.id, ( e.target as HTMLTextAreaElement ).value ) );
+                                            editor.doAction( new Actions.CommentEditted( json.id, ( e.target as HTMLTextAreaElement ).value ) );
                                         }
                                     } }
                                     value={this.state.newLabel}
                                     onChange={( e ) => {
                                         this.setState( { newLabel: ( e.target as HTMLTextAreaElement ).value });
                                     } }/>
-                                : comment.label
+                                : json.label
                             }
                         </div>
                     </Resizable>

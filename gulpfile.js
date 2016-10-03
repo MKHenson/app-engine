@@ -59,7 +59,8 @@ gulp.task('deploy-third-party', function() {
         './third-party/ace/src-noconflict/snippets/html.js',
         './third-party/ace/src-noconflict/snippets/json.js',
         './polyfills/assign.js',
-        './polyfills/es6-promise.js'
+        './polyfills/es6-promise.js',
+        './third-party/immutable/immutable.js',
     ], { base: "." } )
         .pipe(gulp.dest(outDir));
 
@@ -305,7 +306,8 @@ gulp.task('install-third-parties', function () {
         downloadClient("https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo'),
 
         downloadFile("https://unpkg.com/react@15.3.2/dist/react-with-addons.js", "./third-party/react/", "react-with-addons.js"),
-        downloadFile("https://unpkg.com/react-dom@15.3.2/dist/react-dom.js", "./third-party/react/", "react-dom.js")
+        downloadFile("https://unpkg.com/react-dom@15.3.2/dist/react-dom.js", "./third-party/react/", "react-dom.js"),
+        downloadFile("https://raw.githubusercontent.com/facebook/immutable-js/v3.8.1/dist/immutable.min.js", "./third-party/immutable/", "immutable.js")
     ]);
 });
 
@@ -336,7 +338,8 @@ gulp.task('install-definitions', function () {
             downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts", "lib/definitions/required/", "hatchery-runtime.d.ts"),
             downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/app-engine.d.ts", "lib/definitions/required/", "hatchery-server.d.ts"),
             downloadFile("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
-            downloadFile("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts")
+            downloadFile("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts"),
+            downloadFile("https://raw.githubusercontent.com/facebook/immutable-js/v3.8.1/dist/immutable.d.ts", "lib/definitions/required/", "immutable.d.ts" )
          ]);
 });
 

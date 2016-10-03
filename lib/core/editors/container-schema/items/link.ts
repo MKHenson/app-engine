@@ -5,85 +5,179 @@ namespace Animate {
      * and destination behaviours. Links are drawn on the schema as an SVG line.
 	 */
     export class Link extends CanvasItem {
-        public startPortal: string;
-        public endPortal: string;
-        public width: number;
-        public height: number;
-        public selected: boolean;
-        public startBehaviour: number;
-        public endBehaviour: number;
-        public points: Point[];
+        // public startPortal: string;
+        // public endPortal: string;
+        // public width: number;
+        // public height: number;
+        // public selected: boolean;
+        // public startBehaviour: number;
+        // public endBehaviour: number;
+        // public points: Point[];
         private _properties: EditableSet;
 
 		/**
 		 * Creates a new instance of a link
 		 */
-        constructor() {
-            super();
-            this.startPortal = '';
-            this.endPortal = '';
-            this.selected = false;
-            this.startBehaviour = -1;
-            this.endBehaviour = -1;
-            this.points = [];
-            this.width = 0;
-            this.height = 0;
+        constructor( options: Engine.Editor.ILinkItem ) {
+            super({
+                startPortal : '',
+                endPortal : '',
+                startBehaviour : -1,
+                endBehaviour : -1,
+                points : []
+            } as Engine.Editor.ILinkItem);
+
+            this.serializer.update(options);
+            // this.startPortal = '';
+            // this.endPortal = '';
+            // this.selected = false;
+            // this.startBehaviour = -1;
+            // this.endBehaviour = -1;
+            // this.points = [];
+            // this.width = 0;
+            // this.height = 0;
             this._properties = new EditableSet( this );
             this._properties.addVar( new PropNum( 'Frame Delay', 1, 0, Number.MAX_VALUE, 0, 1 ) );
         }
 
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize( id: number ): Engine.Editor.ILinkItem {
-            let toRet = <Engine.Editor.ILinkItem>super.serialize( id );
-            toRet.type = 'link';
-            toRet.width = this.width;
-            toRet.height = this.height;
-            toRet.startBehaviour = this.startBehaviour;
-            toRet.endBehaviour = this.endBehaviour;
-            toRet.startPortal = this.startPortal;
-            toRet.endPortal = this.endPortal;
-            toRet.points = [];
+        // /**
+        //  * Serializes the data into a JSON.
+        //  */
+        // serialize( id: number ): Engine.Editor.ILinkItem {
+        //     let toRet = <Engine.Editor.ILinkItem>super.serialize( id );
+        //     toRet.type = 'link';
+        //     toRet.width = this.width;
+        //     toRet.height = this.height;
+        //     toRet.startBehaviour = this.startBehaviour;
+        //     toRet.endBehaviour = this.endBehaviour;
+        //     toRet.startPortal = this.startPortal;
+        //     toRet.endPortal = this.endPortal;
+        //     toRet.points = [];
 
-            for ( const p of this.points )
-                toRet.points.push( { x: p.x, y: p.y });
+        //     for ( const p of this.points )
+        //         toRet.points.push( { x: p.x, y: p.y });
+
+        //     return toRet;
+        // }
+
+        // /**
+        //  * De-Serializes data from a JSON.
+        //  * @param data The data to import from
+        //  */
+        // deSerialize( data: Engine.Editor.ILinkItem ) {
+        //     super.deSerialize( data );
+
+        //     this.width = data.width;
+        //     this.height = data.height;
+        //     this.startBehaviour = data.startBehaviour;
+        //     this.endBehaviour = data.endBehaviour;
+        //     this.startPortal = data.startPortal;
+        //     this.endPortal = data.endPortal;
+
+        //     this.points.splice( 0, this.points.length );
+        //     for ( const p of data.points )
+        //         this.points.push( { x: p.x, y: p.y });
+        // }
+
+        /**
+         * Creates an array of points that define a path from the start portal to its end.
+         * The returned array is in Canvas space (so the coorindates at 0,0 are in the top
+         * left corner of the canvas)
+         */
+        private createCanvasSpacePath( startBehaviour: Behaviour, endBehaviour: Behaviour, startPortal: Portal, endPortal: Portal ): Point[] {
+            const toRet: Point[] = [];
+            const pSize = endPortal.size;
+
+            // Create a point in middle of portal and one for just out of it
+            toRet.push( {
+                x: startBehaviour.serializer.get('left') + startPortal.left + pSize * 0.5,
+                y: startBehaviour.serializer.get('top') + startPortal.top + pSize * 0.5
+            });
+
+            if ( startPortal.type === 'output' ) {
+                toRet.push( {
+                    x: toRet[ 0 ].x + pSize * 2,
+                    y: toRet[ 0 ].y
+                });
+            }
+            else {
+                toRet.push( {
+                    x: toRet[ 0 ].x,
+                    y: toRet[ 0 ].y + pSize * 2
+                });
+            }
+
+            // Create a point just before the end portal
+            if ( endPortal.type === 'input' ) {
+                toRet.push( {
+                    x: ( endBehaviour.serializer.get('left') + endPortal.left + pSize * 0.5 ) - pSize * 2,
+                    y: endBehaviour.serializer.get('top') + endPortal.top + pSize * 0.5
+                });
+            }
+            else {
+                toRet.push( {
+                    x: endBehaviour.serializer.get('left') + endPortal.left + pSize * 0.5,
+                    y: ( endBehaviour.serializer.get('top') + endPortal.top + pSize * 0.5 ) - pSize * 2
+                });
+            }
+
+            // Create a point in middle of the end portal
+            toRet.push( {
+                x: endBehaviour.serializer.get('left') + endPortal.left + pSize * 0.5,
+                y: endBehaviour.serializer.get('top') + endPortal.top + pSize * 0.5
+            });
 
             return toRet;
         }
 
         /**
-         * De-Serializes data from a JSON.
-         * @param data The data to import from
+         * Sets the dimensions of the link from the points provided.
+         * The points must be in Canvas space (so the coorindates at 0,0 are in the top
+         * left corner of the canvas)
          */
-        deSerialize( data: Engine.Editor.ILinkItem ) {
-            super.deSerialize( data );
+        dimensionsFromCanvasPoints( points: Point[] ) {
 
-            this.width = data.width;
-            this.height = data.height;
-            this.startBehaviour = data.startBehaviour;
-            this.endBehaviour = data.endBehaviour;
-            this.startPortal = data.startPortal;
-            this.endPortal = data.endPortal;
+            let left = -1;
+            let top = -1;
+            let right = -1;
+            let bottom = -1;
 
-            this.points.splice( 0, this.points.length );
-            for ( const p of data.points )
-                this.points.push( { x: p.x, y: p.y });
+            for ( const p of points ) {
+                if ( p.x < left || left === -1 )
+                    left = p.x;
+                else if ( p.x > right || right === -1 )
+                    right = p.x;
+
+                if ( p.y < top || top === -1 )
+                    top = p.y;
+                else if ( p.y > bottom || bottom === -1 )
+                    bottom = p.y;
+            }
+
+            // this.left = left;
+            // this.top = top;
+            // this.height = bottom - top;
+            // this.width = right - left;
+            this.update({
+                left: left,
+                top: top,
+                height:  bottom - top,
+                width: right - left
+            } as Engine.Editor.ILinkItem);
+            return this;
         }
 
-        calculateDimensions() {
-            // const items = this.store.getItems();
-            // const startBehaviour = items[this.startBehaviour] as Behaviour;
-            // const endBehaviour = items[this.endBehaviour] as Behaviour;
-            // const startPortal = startBehaviour.getPortal( this.startPortal );
-            // const endPortal = startBehaviour.getPortal( this.endPortal );
-            // const leftMostBehaviour = startBehaviour.left < endBehaviour.left ? startBehaviour : endBehaviour;
-            // const topMostBehaviour = startBehaviour.top < endBehaviour.top ? startBehaviour : endBehaviour;
 
-            // this.left = leftMostBehaviour.left + startPortal.left;
-            // this.top = topMostBehaviour.top + startPortal.top;
-            // this.width = leftMostBehaviour.left + startPortal.left;
-            // this.top = startBehaviour.top + startPortal.top;
+        calculateDimensions() {
+            const items = this.store.getItems();
+            const startBehaviour = items[ this.serializer.get('startBehaviour') ] as Behaviour;
+            const endBehaviour = items[ this.serializer.get('endBehaviour') ] as Behaviour;
+            const startPortal = startBehaviour.getPortal( this.serializer.get('startPortal') );
+            const endPortal = startBehaviour.getPortal( this.serializer.get('endPortal') );
+
+            const points = this.createCanvasSpacePath( startBehaviour, endBehaviour, startPortal, endPortal );
+            this.dimensionsFromCanvasPoints( points );
+            this.store.emit<SchemaEvents, SchemaEvent<Link>>( 'link-routed', { resource: this });
         }
 
         // /**

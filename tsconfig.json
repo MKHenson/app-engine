@@ -33,6 +33,7 @@
     "lib/core/project-resources/file.ts",
     "lib/core/project-resources/script.ts",
     "lib/core/editors/editor.ts",
+    "lib/core/editors/serializable.ts",
     "lib/core/editors/editor-action.ts",
     "lib/core/editors/container-schema/actions/behaviour-created.ts",
     "lib/core/editors/container-schema/actions/link-created.ts",

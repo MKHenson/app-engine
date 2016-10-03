@@ -206,6 +206,8 @@ namespace Animate {
          * @returns {JSX.Element}
          */
         render(): JSX.Element {
+            let itemJson: Engine.Editor.ICanvasItem;
+
             return (
                 <div
                     onContextMenu={( e ) => { this.onContext( e ); } }
@@ -247,22 +249,23 @@ namespace Animate {
                             isRouting={true}
                             getPortal={(target) => { return this.getPortal( target ) }}
                             editor={this.props.editor}
-                            link={this.props.editor.activeLink}  /> : undefined
+                            link={this.props.editor.activeLink.serializer}  /> : undefined
                     }
                     {this.state.workspace.items.map(( item, index ) => {
-                        if ( item.type === 'behaviour' || item.type === 'asset' || item.type === 'portal' )
+                        const type = item.get('type') as string;
+                        if ( type === 'behaviour' || type === 'asset' || type === 'portal' )
                             return <BehaviourComponent
                                 key={'item-' + index} ref={'behaviour-' + index}
                                 editor={this.props.editor}
                                 behaviour={item} />;
-                        else if ( item.type === 'link' )
+                        else if ( itemJson.type === 'link' )
                             return <LinkComponent
                                 key={'item-' + index}
                                 editor={this.props.editor}
                                 isRouting={false}
                                 getPortal={null}
                                 link={item} />;
-                        else if ( item.type === 'comment' )
+                        else if ( itemJson.type === 'comment' )
                             return <CommentComponent
                                 key={'item-' + index}
                                 editor={this.props.editor}

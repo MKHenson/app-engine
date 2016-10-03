@@ -10,14 +10,17 @@ namespace Animate {
          * Creates an instance of the behaviour
          */
         constructor( asset?: ProjectResource<Engine.IResource> ) {
-            super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
+            super( PluginManager.getSingleton().getTemplate( 'Asset' ), {
+                type : 'asset',
+                alias : ( asset ? asset.entry.name : 'Asset' )
+             } );
             this.asset = asset || null;
 
             // Set the property if the asset was provided
             this.parameters[ 0 ].property.setVal( asset );
 
-            if ( asset )
-                this.alias = asset.entry.name;
+            // if ( asset )
+            //     this.alias = asset.entry.name;
         }
 
         /**
@@ -39,14 +42,14 @@ namespace Animate {
             super.dispose();
         }
 
-        /**
-         * Serializes the data into a JSON.
-         */
-        serialize( id: number ): Engine.Editor.IBehaviour {
-            let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
-            toRet.type = 'asset';
-            return toRet;
-        }
+        // /**
+        //  * Serializes the data into a JSON.
+        //  */
+        // serialize( id: number ): Engine.Editor.IBehaviour {
+        //     let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
+        //     toRet.type = 'asset';
+        //     return toRet;
+        // }
 
 		/**
 		 * Adds a portal to this behaviour.

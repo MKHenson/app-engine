@@ -397,5 +397,21 @@
 
             return undefined;
         }
+
+        static shallowCompare(objA, objB): boolean {
+            for ( let i in objA ) {
+                if ( objB[i] === undefined )
+                    return false;
+
+                if (objA[i] !== objB[i])
+                    return false;
+            }
+
+            for ( let i in objB )
+                if ( objA[i] === undefined )
+                    return false;
+
+            return true;
+        }
     }
 }
