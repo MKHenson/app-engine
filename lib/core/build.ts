@@ -4,13 +4,13 @@ namespace Animate {
 	* A wrapper for project builds
 	*/
     export class Build {
-        public entry: Engine.IBuild;
+        public entry: HatcheryServer.IBuild;
 
         /**
 	    * Creates an intance of the build
         * @param entry The entry token from the DB
 	    */
-        constructor( entry: Engine.IBuild ) {
+        constructor( entry: HatcheryServer.IBuild ) {
             this.entry = entry;
         }
 
@@ -18,7 +18,7 @@ namespace Animate {
 	    * Attempts to update the build with new data
         * @param token The update token data
 	    */
-        update( token: Engine.IBuild ): Promise<boolean> {
+        update( token: HatcheryServer.IBuild ): Promise<boolean> {
             const entry = this.entry;
             const that = this;
             return new Promise<boolean>( function ( resolve, reject ) {

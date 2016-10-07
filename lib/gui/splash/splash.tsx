@@ -13,7 +13,7 @@
     export interface ISplashStats {
         mode?: SplashMode
         loading?: boolean;
-        project?: Engine.IProject;
+        project?: HatcheryServer.IProject;
         theme?: string;
     }
 

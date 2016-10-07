@@ -54,11 +54,11 @@ namespace Animate {
          * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
 		 * @param pluginDefinition The plugin to load
 		 */
-        loadPlugin( pluginDefinition: Engine.IPlugin ): Promise<Engine.IPlugin> {
+        loadPlugin( pluginDefinition: HatcheryServer.IPlugin ): Promise<HatcheryServer.IPlugin> {
             if ( pluginDefinition.$loaded )
                 return Promise.resolve( null );
 
-            return new Promise<Engine.IPlugin>( function ( resolve, reject ) {
+            return new Promise<HatcheryServer.IPlugin>( function ( resolve, reject ) {
                 const script = document.createElement( 'script' );
                 script.onerror = function ( ev ) {
                     pluginDefinition.$loaded = false;
@@ -85,7 +85,7 @@ namespace Animate {
 		 * @param pluginDefinition The IPlugin constructor that is to be created
 		 * @param createPluginReference Should we keep this constructor in memory? The default is true
 		 */
-        preparePlugin( pluginDefinition: Engine.IPlugin, createPluginReference: boolean = true ) {
+        preparePlugin( pluginDefinition: HatcheryServer.IPlugin, createPluginReference: boolean = true ) {
             const plugin: Animate.IPlugin = pluginDefinition.$instance;
             this._plugins.push( plugin );
 
@@ -254,7 +254,7 @@ namespace Animate {
         /**
          * Creates a thumbnail preview of the file
          */
-        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement> {
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> {
             let toRet;
             const factories = this._previewVisualizers;
             for ( let i = 0, l = factories.length; i < l; i++ ) {
@@ -272,7 +272,7 @@ namespace Animate {
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        displayPreview( file: Engine.IFile ): JSX.Element {
+        displayPreview( file: HatcheryServer.IFile ): JSX.Element {
             let toRet;
             const factories = this._previewVisualizers;
             for ( let i = 0, l = factories.length; i < l; i++ ) {

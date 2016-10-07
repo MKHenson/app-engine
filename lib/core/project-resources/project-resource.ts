@@ -2,7 +2,7 @@
 	/**
 	* A base class for all project resources
 	*/
-    export abstract class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
+    export abstract class ProjectResource<T extends HatcheryServer.IResource> extends EventDispatcher {
         public entry: T;
         private _saved: boolean;
         protected _properties: EditableSet;
@@ -12,7 +12,7 @@
             super();
 
             this.entry = entry;
-            const resource: Engine.IResource = <Engine.IResource>entry;
+            const resource: HatcheryServer.IResource = <HatcheryServer.IResource>entry;
             resource.shallowId = Utils.generateLocalId( resource.shallowId );
             this._saved = true;
             this._options = {};

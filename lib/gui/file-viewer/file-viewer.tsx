@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export interface IViewerFile extends Engine.IFile {
+    export interface IViewerFile extends HatcheryServer.IFile {
         selected?: boolean;
         loadingPreview?: boolean;
     }
@@ -8,7 +8,7 @@ namespace Animate {
     export interface IFileViewerProps {
         multiSelect: boolean;
         extensions: Array<string>;
-        onFilesSelected?: ( files: Engine.IFile[] ) => void;
+        onFilesSelected?: ( files: HatcheryServer.IFile[] ) => void;
         onClose?: () => void;
         readOnly?: boolean;
     }
@@ -729,7 +729,7 @@ namespace Animate {
 		 * Attempts to update the selected file
          * @param token The file token to update with
 		 */
-        updateFile( token: Engine.IFile ) {
+        updateFile( token: HatcheryServer.IFile ) {
             let details = User.get.entry;
 
             this.setState( {

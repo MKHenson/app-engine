@@ -5,12 +5,12 @@ namespace Animate {
 		/**
 		* A wrapper for DB script instances
 		*/
-        export class Script extends ProjectResource<Engine.IScript> {
+        export class Script extends ProjectResource<HatcheryServer.IScript> {
 
 			/**
 			* @param entry The DB entry of this script
 			*/
-            constructor( entry: Engine.IScript ) {
+            constructor( entry: HatcheryServer.IScript ) {
                 super( entry );
             }
         }

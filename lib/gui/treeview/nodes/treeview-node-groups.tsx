@@ -55,7 +55,7 @@ namespace Animate {
                         this.disabled( true );
                         this._loading = true;
 
-                        project.createResource<Engine.IGroup>( ResourceType.GROUP, { name: 'New Group' }).then(() => {
+                        project.createResource<HatcheryServer.IGroup>( ResourceType.GROUP, { name: 'New Group' }).then(() => {
                             this._loading = false;
                             this.disabled( false );
                         }).catch(( err: Error ) => {

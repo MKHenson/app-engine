@@ -5,7 +5,7 @@ namespace Animate {
     }
 
 
-    export class Schema extends React.Component<ISchemaProps, { workspace: Engine.Editor.IContainerWorkspace }> {
+    export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryServer.IContainerWorkspace }> {
 
         // We keep a list of all open canvases
         private static _openCanvases = [];
@@ -14,7 +14,7 @@ namespace Animate {
             super( props );
 
             this.state = {
-                workspace: props.editor.serialize() || { items: [] } as Engine.Editor.IContainerWorkspace
+                workspace: props.editor.serialize() || { items: [] } as HatcheryServer.IContainerWorkspace
             }
 
             props.editor.on<EditorEvents, void>( 'change', this.invalidate, this );
@@ -67,7 +67,7 @@ namespace Animate {
 		* @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
         * @param name The alias of the behaviour
 		*/
-        addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<Engine.IResource>, name?: string ) {
+        addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>, name?: string ) {
             pos.x = pos.x - pos.x % 10;
             pos.y = pos.y - pos.y % 10;
 
@@ -184,10 +184,10 @@ namespace Animate {
             e.preventDefault();
         }
 
-        getPortal( target : HTMLElement) : Engine.Editor.IPortal {
+        getPortal( target : HTMLElement) : IPortal {
             let elm: HTMLElement;
             let ref: React.Component<any, any> | Element;
-            let portal: Engine.Editor.IPortal;
+            let portal: IPortal;
 
             for ( let i in this.refs ) {
                 ref = this.refs[i];
@@ -266,7 +266,7 @@ namespace Animate {
                             return <CommentComponent
                                 key={'item-' + index}
                                 editor={this.props.editor}
-                                comment={item} />;
+                                comment={item as IComment} />;
 
                         return null;
                     }) }

@@ -33,7 +33,7 @@ namespace Animate {
         /**
          * Sets the project image url
          */
-        setProjectImageUrl( file: Engine.IFile ) {
+        setProjectImageUrl( file: HatcheryServer.IFile ) {
 
             const project = User.get.project;
             this.setState( {

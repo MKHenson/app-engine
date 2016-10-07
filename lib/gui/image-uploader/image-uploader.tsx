@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface IImageUploaderProps {
-        onImage?: ( file: Engine.IFile ) => void;
+        onImage?: ( file: HatcheryServer.IFile ) => void;
         src: string;
         label: string;
         onError?: ( e: Error ) => void;

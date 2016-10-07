@@ -5,12 +5,12 @@
         /**
         * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
         */
-        export class GroupArray extends ProjectResource<Engine.IGroup> {
+        export class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
 
             /**
             * @param entry [Optional] The database entry of the resource
             */
-            constructor( entry?: Engine.IGroup ) {
+            constructor( entry?: HatcheryServer.IGroup ) {
                 super( entry );
             }
 

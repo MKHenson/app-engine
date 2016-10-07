@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface INewProjectProps {
         onCancel: () => void;
-        onProjectCreated: ( project: Engine.IProject ) => void;
+        onProjectCreated: ( project: HatcheryServer.IProject ) => void;
     }
 
     export interface INewProjectState {

@@ -1,12 +1,12 @@
 declare let _cache: string;
-const __plugins: { [ name: string ]: Array<Engine.IPlugin> } = {};
+const __plugins: { [ name: string ]: Array<HatcheryServer.IPlugin> } = {};
 let __newPlugin: Animate.IPlugin = null;
 
 /**
  * Goes through each of the plugins and returns the one with the matching ID
  * @param id The ID of the plugin to fetch
  */
-function getPluginByID( id: string ): Engine.IPlugin {
+function getPluginByID( id: string ): HatcheryServer.IPlugin {
     for ( const pluginName in __plugins ) {
         for ( let i = 0, l = __plugins[ pluginName ].length; i < l; i++ )
             if ( __plugins[ pluginName ][ i ]._id === id )
@@ -19,7 +19,7 @@ function getPluginByID( id: string ): Engine.IPlugin {
 /**
  * Once the plugins are loaded from the DB
  */
-function onPluginsLoaded( plugins: Array<Engine.IPlugin> ) {
+function onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ) {
     for ( let i = 0, l = plugins.length; i < l; i++ ) {
         if ( !__plugins[ plugins[ i ].name ] )
             __plugins[ plugins[ i ].name ] = [];

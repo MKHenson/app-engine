@@ -10,7 +10,7 @@
          * Creates a thumbnail preview of the file
          * @param file
          */
-        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement> {
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> {
 
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
                 return new Promise<HTMLCanvasElement>(( resolve, reject ) => {
@@ -63,7 +63,7 @@
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        generate( file: Engine.IFile ): JSX.Element {
+        generate( file: HatcheryServer.IFile ): JSX.Element {
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
                 return React.createElement( ImagePreview, { src: file.url } as IImagePreviewProps );
             }

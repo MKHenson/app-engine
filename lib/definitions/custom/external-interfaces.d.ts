@@ -46,7 +46,7 @@
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
-        onDisplayPreview( file: Engine.IFile, previewComponent: Component ): boolean;
+        onDisplayPreview( file: HatcheryServer.IFile, previewComponent: Component ): boolean;
 
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
@@ -86,14 +86,14 @@
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate( file: Engine.IFile ): JSX.Element;
+        generate( file: HatcheryServer.IFile ): JSX.Element;
 
         /**
         * Creates a thumbnail preview of the file
         * @param {Engine.IFile} file
         * @returns {Promise<HTMLCanvasElement>}
         */
-        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement>;
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {

@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface ICommentComponentProps {
-        comment: Engine.Editor.IComment;
+        comment: IComment;
         editor: ContainerSchema;
     }
 

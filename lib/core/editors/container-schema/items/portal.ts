@@ -66,7 +66,7 @@ namespace Animate {
             return clone;
         }
 
-        serialize(): Engine.Editor.IPortal {
+        serialize(): IPortal {
             return {
                 name: this.property.name,
                 custom: this.custom,

@@ -2,9 +2,9 @@ namespace Animate {
 
     export interface ILinkComponentProps {
         editor: ContainerSchema;
-        link: Engine.Editor.ILinkItem;
+        link: ILinkItem;
         isRouting: boolean;
-        getPortal: ( target: HTMLElement ) => Engine.Editor.IPortal;
+        getPortal: ( target: HTMLElement ) => IPortal;
     }
 
     /**

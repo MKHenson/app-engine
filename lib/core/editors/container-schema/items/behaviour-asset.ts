@@ -4,12 +4,12 @@ namespace Animate {
      * A behaviour that contains an asset/resource reference
      */
     export class BehaviourAsset extends Behaviour {
-        public asset: ProjectResource<Engine.IResource>;
+        public asset: ProjectResource<HatcheryServer.IResource>;
 
         /**
          * Creates an instance of the behaviour
          */
-        constructor( asset?: ProjectResource<Engine.IResource> ) {
+        constructor( asset?: ProjectResource<HatcheryServer.IResource> ) {
             super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
             this.asset = asset || null;
 
@@ -42,8 +42,8 @@ namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize( id: number ): Engine.Editor.IBehaviour {
-            let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
+        serialize( id: number ): IBehaviour {
+            let toRet = <IBehaviour>super.serialize( id );
             toRet.type = 'asset';
             return toRet;
         }

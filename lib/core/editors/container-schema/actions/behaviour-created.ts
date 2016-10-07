@@ -9,10 +9,10 @@ namespace Animate {
 
             definition : BehaviourDefinition;
             instance: Behaviour;
-            options: Engine.Editor.IBehaviour;
-            resource: ProjectResource<Engine.IResource>;
+            options: IBehaviour;
+            resource: ProjectResource<HatcheryServer.IResource>;
 
-            constructor(definition: BehaviourDefinition, options: Engine.Editor.IBehaviour, resource? : ProjectResource<Engine.IResource> ) {
+            constructor(definition: BehaviourDefinition, options: IBehaviour, resource? : ProjectResource<HatcheryServer.IResource> ) {
                 super();
                 this.definition = definition;
                 this.resource = resource;

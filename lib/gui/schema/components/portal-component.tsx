@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface IPortalComponentProps {
-        portal: Engine.Editor.IPortal;
+        portal: IPortal;
         onPortalDown?: ( e: React.MouseEvent ) => void;
     }
 

@@ -3,7 +3,7 @@ namespace Animate {
     /**
      *  Extends the project with a selected attribute
      */
-    export interface IInteractiveProject extends Engine.IProject {
+    export interface IInteractiveProject extends HatcheryServer.IProject {
         selected?: boolean;
     }
 

@@ -1,4 +1,4 @@
-﻿declare module Engine {
+﻿declare module HatcheryServer {
     // Extends the IProject interface to include additional data
     export interface IProject {
         $plugins?: Array<IPlugin>;

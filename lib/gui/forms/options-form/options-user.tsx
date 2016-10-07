@@ -38,7 +38,7 @@ namespace Animate {
                 bioUpdateErr: null
             });
 
-            User.get.updateDetails( { bio: bio } as Engine.IUserMeta ).catch(( err: Error ) => {
+            User.get.updateDetails( { bio: bio } as HatcheryServer.IUserMeta ).catch(( err: Error ) => {
                 this.setState( {
                     bioUpdateErr: err.message
                 });

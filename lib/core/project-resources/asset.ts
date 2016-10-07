@@ -8,14 +8,14 @@ namespace Animate {
 		* called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
 		* the plugin.
 		*/
-        export class Asset extends ProjectResource<Engine.IAsset> {
+        export class Asset extends ProjectResource<HatcheryServer.IAsset> {
             public class: AssetClass;
 
 			/**
 			* @param assetClass The name of the 'class' or 'template' that this asset belongs to
 			* @param entry [Optional] The asset database entry
 			*/
-            constructor( assetClass: AssetClass, entry?: Engine.IAsset ) {
+            constructor( assetClass: AssetClass, entry?: HatcheryServer.IAsset ) {
                 super( entry );
 
                 this.class = assetClass;

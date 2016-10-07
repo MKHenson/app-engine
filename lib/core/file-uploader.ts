@@ -60,7 +60,7 @@
          * @param meta [Optional] Any additional meta to be associated with the upload
          * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
          */
-        upload2DElement( img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string ) {
+        upload2DElement( img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: HatcheryServer.IFileMeta, parentFile?: string ) {
             let canvas: HTMLCanvasElement;
 
             if ( img instanceof HTMLImageElement ) {

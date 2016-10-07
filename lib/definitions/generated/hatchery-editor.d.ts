@@ -1,4 +1,4 @@
-declare module Engine {
+declare module HatcheryServer {
     // Extends the IProject interface to include additional data
     export interface IProject {
         $plugins?: Array<IPlugin>;
@@ -59,7 +59,7 @@ declare namespace Animate {
 		* @param {Component} previewComponent The component which will act as the parent div of the preview.
 		* @returns {boolean} Return true if this is handled or false if not.
 		*/
-        onDisplayPreview( file: Engine.IFile, previewComponent: Component ): boolean;
+        onDisplayPreview( file: HatcheryServer.IFile, previewComponent: Component ): boolean;
 
 		/**
 		* This function is called by Animate to get an array of TypeConverters. TypeConverter objects define if one type can be translated to another. They also define what the process of conversion will be.
@@ -99,14 +99,14 @@ declare namespace Animate {
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate( file: Engine.IFile ): JSX.Element;
+        generate( file: HatcheryServer.IFile ): JSX.Element;
 
         /**
         * Creates a thumbnail preview of the file
         * @param {Engine.IFile} file
         * @returns {Promise<HTMLCanvasElement>}
         */
-        thumbnail( file: Engine.IFile ): Promise<HTMLCanvasElement>;
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement>;
     }
 
     export interface ISettingsPage extends IComponent {
@@ -190,6 +190,293 @@ declare let config: {
     'userServiceUrl': string;
     'host': string;
 };
+declare namespace Animate {
+    namespace EventTypes {
+        const PORTAL_ADDED: string;
+        const PORTAL_REMOVED: string;
+        const PORTAL_EDITED: string;
+        const CONTAINER_DELETED: string;
+        const CONTAINER_SELECTED: string;
+        const CONTAINER_CREATED: string;
+    }
+    /**
+     * The type of attention message to display
+     */
+    enum AttentionType {
+        WARNING = 0,
+        SUCCESS = 1,
+        ERROR = 2,
+    }
+    /**
+     * An enum to describe the different types of validation
+     * */
+    enum ValidationType {
+        /** The value must be a valid email format */
+        EMAIL = 1,
+        /** The value must be a number */
+        NUMBER = 2,
+        /** The value must only have alphanumeric characters */
+        ALPHANUMERIC = 4,
+        /** The value must not be empty */
+        NOT_EMPTY = 8,
+        /** The value cannot contain html */
+        NO_HTML = 16,
+        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
+        ALPHANUMERIC_PLUS = 32,
+        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
+        ALPHA_EMAIL = 64,
+    }
+    /**
+    * Defines which types of files to search through
+    */
+    enum FileSearchType {
+        Global = 0,
+        User = 1,
+        Project = 2,
+    }
+    enum UserPlan {
+        Free = 1,
+        Bronze = 2,
+        Silver = 3,
+        Gold = 4,
+        Platinum = 5,
+        Custom = 6,
+    }
+    enum ResourceType {
+        GROUP = 1,
+        ASSET = 2,
+        CONTAINER = 3,
+        FILE = 4,
+        SCRIPT = 5,
+    }
+    /**
+    * Describes the type of access users have to a project
+    */
+    enum PrivilegeType {
+        NONE = 0,
+        READ = 1,
+        WRITE = 2,
+        ADMIN = 3,
+    }
+    /**
+    * Describes the category of a project
+    */
+    enum Category {
+        Other = 1,
+        Artistic = 2,
+        Gaming = 3,
+        Informative = 4,
+        Musical = 5,
+        Technical = 6,
+        Promotional = 7,
+    }
+    /**
+    * Describes a property type
+    */
+    enum PropertyType {
+        ASSET = 0,
+        ASSET_LIST = 1,
+        NUMBER = 2,
+        COLOR = 3,
+        GROUP = 4,
+        FILE = 5,
+        STRING = 6,
+        OBJECT = 7,
+        BOOL = 8,
+        ENUM = 9,
+        HIDDEN = 10,
+        HIDDEN_FILE = 11,
+        OPTIONS = 12,
+    }
+}
+declare namespace Animate {
+    /**
+    * A basic wrapper for a Portal interface
+    */
+    interface IPortal {
+        name: string;
+        type: HatcheryRuntime.PortalType;
+        custom: boolean;
+        property: any;
+        left?: number;
+        top?: number;
+        size?: number;
+        behaviour?: number;
+        links?: ILinkItem[];
+    }
+    /**
+     * A basic wrapper for a CanvasItem interface
+     */
+    interface ICanvasItem {
+        id?: number;
+        type?: HatcheryRuntime.ItemType | 'comment' | 'shortcut';
+        left?: number;
+        top?: number;
+        selected?: boolean;
+        width?: number;
+        height?: number;
+    }
+    /**
+    * A basic wrapper for a Link interface
+    */
+    interface ILinkItem extends ICanvasItem {
+        frameDelay?: number;
+        startPortal?: string;
+        endPortal?: string;
+        startBehaviour?: number;
+        endBehaviour?: number;
+        points?: Point[];
+    }
+    /**
+    * A basic wrapper for a Behaviour interface
+    */
+    interface IBehaviour extends ICanvasItem {
+        alias?: string;
+        behaviourType?: string;
+        portals?: IPortal[];
+    }
+    /**
+    * A basic wrapper for a Comment interface
+    */
+    interface IComment extends ICanvasItem {
+        label: string;
+    }
+    /**
+    * A basic wrapper for a BehaviourPortal interface
+    */
+    interface IBehaviourPortal extends IBehaviour {
+        portal: IPortal;
+    }
+    /**
+    * A basic wrapper for a BehaviourScript interface
+    */
+    interface IBehaviourScript extends IBehaviour {
+        scriptId: string;
+    }
+    /**
+    * A basic wrapper for a BehaviourShortcut interface
+    */
+    interface IBehaviourShortcut extends IBehaviour {
+        targetId: number;
+    }
+}
+declare namespace Animate {
+    /**
+     * Events related to the web socket communication API
+     */
+    type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
+    type ProjectEvents = 'change' | 'editor-created' | 'editor-removed' | 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
+    /**
+     * Events related to project resources
+     */
+    type ResourceEvents = 'edited' | 'refreshed' | 'modified';
+    /**
+     * Events related to the resource editors
+     */
+    type EditorEvents = 'change';
+    /**
+     * Events related to the plugin manager
+     */
+    type PluginManagerEvents = 'template-created' | 'template-removed' | 'editor-ready';
+    /**
+     * Events dispatched by a treeview
+     */
+    type TreeviewEvents = 'change' | 'focus-node';
+    /**
+     * An event object dispatched by the PluginManager for template related events
+     */
+    interface ITemplateEvent {
+        template: BehaviourDefinition;
+    }
+    /**
+     * An event token for events dispatched by changes to or from resources
+     */
+    interface IResourceEvent {
+        resource: ProjectResource<HatcheryServer.IResource>;
+    }
+    /**
+     * An event token for events dispatched by changes to or from project containers
+     */
+    interface IContainerEvent {
+        container: Resources.Container;
+    }
+    /**
+     * An event token for events dispatched by changes to or from project editors
+     */
+    interface IEditorEvent {
+        editor: Editor;
+    }
+    /**
+     * TODO: Can probably be removed
+     * Valid response codes for requests made to the Animate server
+     */
+    type AnimateLoaderResponses = 'success' | 'error';
+    /**
+     * TODO: Can probably be removed
+     * Valid response codes for xhr binary requests
+     */
+    type BinaryLoaderResponses = 'binary_success' | 'binary_error';
+    /**
+     * Event types for logger based events
+     */
+    type LoggerEvents = 'change';
+    /**
+     * Basic set of loader events shared by all loaders
+     * TODO: Can probably be removed
+     */
+    type LoaderEvents = 'complete' | 'failed';
+    /**
+     * An event token for TreeNodeModel related events
+     */
+    interface INodeEvent {
+        node: TreeNodeModel;
+    }
+    /**
+     * An event token for socket API related events
+     */
+    interface ISocketEvent {
+        error?: Error;
+        json?: UsersInterface.SocketTokens.IToken;
+    }
+    /**
+     * TODO: Can probably be removed
+     * Events associated with xhr binary requests
+     */
+    interface BinaryLoaderEvent {
+        buffer: ArrayBuffer;
+        message: string;
+    }
+    /**
+     * TODO: Can probably be removed
+     * Events associated with requests made to the animate servers
+     */
+    interface AnimateLoaderEvent {
+        message: string;
+        return_type: AnimateLoaderResponses;
+        data: any;
+        tag: any;
+    }
+}
+declare namespace Animate {
+    class DataToken {
+        category: string;
+        command: string;
+        projectID: string;
+    }
+}
+declare namespace Animate {
+    class DB {
+        static USERS: string;
+        static USERS_SOCKET: string;
+        static HOST: string;
+        static API: string;
+        static PLAN_FREE: string;
+        static PLAN_BRONZE: string;
+        static PLAN_SILVER: string;
+        static PLAN_GOLD: string;
+        static PLAN_PLATINUM: string;
+    }
+}
 declare namespace Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
@@ -405,105 +692,6 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    namespace EventTypes {
-        const PORTAL_ADDED: string;
-        const PORTAL_REMOVED: string;
-        const PORTAL_EDITED: string;
-        const CONTAINER_DELETED: string;
-        const CONTAINER_SELECTED: string;
-        const CONTAINER_CREATED: string;
-    }
-    /**
-     * The type of attention message to display
-     */
-    enum AttentionType {
-        WARNING = 0,
-        SUCCESS = 1,
-        ERROR = 2,
-    }
-    /**
-     * An enum to describe the different types of validation
-     * */
-    enum ValidationType {
-        /** The value must be a valid email format */
-        EMAIL = 1,
-        /** The value must be a number */
-        NUMBER = 2,
-        /** The value must only have alphanumeric characters */
-        ALPHANUMERIC = 4,
-        /** The value must not be empty */
-        NOT_EMPTY = 8,
-        /** The value cannot contain html */
-        NO_HTML = 16,
-        /** The value must only alphanumeric characters as well as '_', '-' and '!' */
-        ALPHANUMERIC_PLUS = 32,
-        /** The value must be alphanumeric characters as well as '_', '-' and '@' */
-        ALPHA_EMAIL = 64,
-    }
-    /**
-    * Defines which types of files to search through
-    */
-    enum FileSearchType {
-        Global = 0,
-        User = 1,
-        Project = 2,
-    }
-    enum UserPlan {
-        Free = 1,
-        Bronze = 2,
-        Silver = 3,
-        Gold = 4,
-        Platinum = 5,
-        Custom = 6,
-    }
-    enum ResourceType {
-        GROUP = 1,
-        ASSET = 2,
-        CONTAINER = 3,
-        FILE = 4,
-        SCRIPT = 5,
-    }
-    /**
-    * Describes the type of access users have to a project
-    */
-    enum PrivilegeType {
-        NONE = 0,
-        READ = 1,
-        WRITE = 2,
-        ADMIN = 3,
-    }
-    /**
-    * Describes the category of a project
-    */
-    enum Category {
-        Other = 1,
-        Artistic = 2,
-        Gaming = 3,
-        Informative = 4,
-        Musical = 5,
-        Technical = 6,
-        Promotional = 7,
-    }
-    /**
-    * Describes a property type
-    */
-    enum PropertyType {
-        ASSET = 0,
-        ASSET_LIST = 1,
-        NUMBER = 2,
-        COLOR = 3,
-        GROUP = 4,
-        FILE = 5,
-        STRING = 6,
-        OBJECT = 7,
-        BOOL = 8,
-        ENUM = 9,
-        HIDDEN = 10,
-        HIDDEN_FILE = 11,
-        OPTIONS = 12,
-    }
-}
-declare namespace Animate {
     /**
     * A simple interface for property grid editors
     */
@@ -579,103 +767,6 @@ declare namespace Animate {
          * This will cleanup the component by nullifying all its variables and clearing up all memory.
          */
         dispose(): void;
-    }
-}
-declare namespace Animate {
-    /**
-     * Events related to the web socket communication API
-     */
-    type SocketEvents = 'Error' | UsersInterface.SocketTokens.ClientInstructionType;
-    type ProjectEvents = 'change' | 'editor-created' | 'editor-removed' | 'resource-created' | 'resource-removed' | 'saved' | 'saved_all' | 'failed' | 'build_selected' | 'build_saved';
-    /**
-     * Events related to project resources
-     */
-    type ResourceEvents = 'edited' | 'refreshed' | 'modified';
-    /**
-     * Events related to the resource editors
-     */
-    type EditorEvents = 'change';
-    /**
-     * Events related to the plugin manager
-     */
-    type PluginManagerEvents = 'template-created' | 'template-removed' | 'editor-ready';
-    /**
-     * Events dispatched by a treeview
-     */
-    type TreeviewEvents = 'change' | 'focus-node';
-    /**
-     * An event object dispatched by the PluginManager for template related events
-     */
-    interface ITemplateEvent {
-        template: BehaviourDefinition;
-    }
-    /**
-     * An event token for events dispatched by changes to or from resources
-     */
-    interface IResourceEvent {
-        resource: ProjectResource<Engine.IResource>;
-    }
-    /**
-     * An event token for events dispatched by changes to or from project containers
-     */
-    interface IContainerEvent {
-        container: Resources.Container;
-    }
-    /**
-     * An event token for events dispatched by changes to or from project editors
-     */
-    interface IEditorEvent {
-        editor: Editor;
-    }
-    /**
-     * TODO: Can probably be removed
-     * Valid response codes for requests made to the Animate server
-     */
-    type AnimateLoaderResponses = 'success' | 'error';
-    /**
-     * TODO: Can probably be removed
-     * Valid response codes for xhr binary requests
-     */
-    type BinaryLoaderResponses = 'binary_success' | 'binary_error';
-    /**
-     * Event types for logger based events
-     */
-    type LoggerEvents = 'change';
-    /**
-     * Basic set of loader events shared by all loaders
-     * TODO: Can probably be removed
-     */
-    type LoaderEvents = 'complete' | 'failed';
-    /**
-     * An event token for TreeNodeModel related events
-     */
-    interface INodeEvent {
-        node: TreeNodeModel;
-    }
-    /**
-     * An event token for socket API related events
-     */
-    interface ISocketEvent {
-        error?: Error;
-        json?: UsersInterface.SocketTokens.IToken;
-    }
-    /**
-     * TODO: Can probably be removed
-     * Events associated with xhr binary requests
-     */
-    interface BinaryLoaderEvent {
-        buffer: ArrayBuffer;
-        message: string;
-    }
-    /**
-     * TODO: Can probably be removed
-     * Events associated with requests made to the animate servers
-     */
-    interface AnimateLoaderEvent {
-        message: string;
-        return_type: AnimateLoaderResponses;
-        data: any;
-        tag: any;
     }
 }
 declare namespace Animate {
@@ -862,13 +953,13 @@ declare namespace Animate {
          * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
          * @param pluginDefinition The plugin to load
          */
-        loadPlugin(pluginDefinition: Engine.IPlugin): Promise<Engine.IPlugin>;
+        loadPlugin(pluginDefinition: HatcheryServer.IPlugin): Promise<HatcheryServer.IPlugin>;
         /**
          * This funtcion is used to load a plugin.
          * @param pluginDefinition The IPlugin constructor that is to be created
          * @param createPluginReference Should we keep this constructor in memory? The default is true
          */
-        preparePlugin(pluginDefinition: Engine.IPlugin, createPluginReference?: boolean): void;
+        preparePlugin(pluginDefinition: HatcheryServer.IPlugin, createPluginReference?: boolean): void;
         /**
          * Call this function to unload a plugin
          * @param plugin The IPlugin object that is to be loaded
@@ -909,13 +1000,13 @@ declare namespace Animate {
         /**
          * Creates a thumbnail preview of the file
          */
-        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement>;
         /**
          * This function generates a React Element that is used to preview a file
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        displayPreview(file: Engine.IFile): JSX.Element;
+        displayPreview(file: HatcheryServer.IFile): JSX.Element;
         assetTemplates: AssetTemplate[];
         loadedPlugins: IPlugin[];
         behaviourTemplates: BehaviourDefinition[];
@@ -980,7 +1071,7 @@ declare namespace Animate {
     /**
     * A base class for all project resources
     */
-    abstract class ProjectResource<T extends Engine.IResource> extends EventDispatcher {
+    abstract class ProjectResource<T extends HatcheryServer.IResource> extends EventDispatcher {
         entry: T;
         private _saved;
         protected _properties: EditableSet;
@@ -1037,13 +1128,13 @@ declare namespace Animate {
         * called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
         * the plugin.
         */
-        class Asset extends ProjectResource<Engine.IAsset> {
+        class Asset extends ProjectResource<HatcheryServer.IAsset> {
             class: AssetClass;
             /**
             * @param assetClass The name of the 'class' or 'template' that this asset belongs to
             * @param entry [Optional] The asset database entry
             */
-            constructor(assetClass: AssetClass, entry?: Engine.IAsset);
+            constructor(assetClass: AssetClass, entry?: HatcheryServer.IAsset);
             /**
             * Writes this assset to a readable string
             */
@@ -1068,12 +1159,12 @@ declare namespace Animate {
          * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
          * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
          */
-        class Container extends ProjectResource<Engine.IContainer> {
+        class Container extends ProjectResource<HatcheryServer.IContainer> {
             canvas: Canvas;
             /**
              * @param entry The data associated with this container resource
              */
-            constructor(entry?: Engine.IContainer);
+            constructor(entry?: HatcheryServer.IContainer);
             /**
             * This function is called just before the entry is saved to the database.
             */
@@ -1094,11 +1185,11 @@ declare namespace Animate {
         /**
         * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
         */
-        class GroupArray extends ProjectResource<Engine.IGroup> {
+        class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
             /**
             * @param entry [Optional] The database entry of the resource
             */
-            constructor(entry?: Engine.IGroup);
+            constructor(entry?: HatcheryServer.IGroup);
             /**
             * Adds a new reference to the group
             * @param shallowId
@@ -1122,11 +1213,11 @@ declare namespace Animate {
         * A wrapper for DB file instances
         * @events deleted, refreshed
         */
-        class File extends ProjectResource<Engine.IFile> {
+        class File extends ProjectResource<HatcheryServer.IFile> {
             /**
             * @param entry The DB entry of this file
             */
-            constructor(entry: Engine.IFile);
+            constructor(entry: HatcheryServer.IFile);
         }
     }
 }
@@ -1135,11 +1226,11 @@ declare namespace Animate {
         /**
         * A wrapper for DB script instances
         */
-        class Script extends ProjectResource<Engine.IScript> {
+        class Script extends ProjectResource<HatcheryServer.IScript> {
             /**
             * @param entry The DB entry of this script
             */
-            constructor(entry: Engine.IScript);
+            constructor(entry: HatcheryServer.IScript);
         }
     }
 }
@@ -1151,7 +1242,7 @@ declare namespace Animate {
      */
     abstract class Editor extends EventDispatcher {
         active: boolean;
-        resource: ProjectResource<Engine.IResource>;
+        resource: ProjectResource<HatcheryServer.IResource>;
         pastActions: Actions.EditorAction[];
         currentAction: Actions.EditorAction;
         futureActions: Actions.EditorAction[];
@@ -1160,7 +1251,7 @@ declare namespace Animate {
         /**
          * Creates an instance of the editor
          */
-        constructor(resource: ProjectResource<Engine.IResource>, project: Project);
+        constructor(resource: ProjectResource<HatcheryServer.IResource>, project: Project);
         /**
          * Gets if this editor has actions to undo
          */
@@ -1226,9 +1317,9 @@ declare namespace Animate {
         class BehaviourCreated extends EditorAction {
             definition: BehaviourDefinition;
             instance: Behaviour;
-            options: Engine.Editor.IBehaviour;
-            resource: ProjectResource<Engine.IResource>;
-            constructor(definition: BehaviourDefinition, options: Engine.Editor.IBehaviour, resource?: ProjectResource<Engine.IResource>);
+            options: IBehaviour;
+            resource: ProjectResource<HatcheryServer.IResource>;
+            constructor(definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource>);
             /**
              * Undo the last history action
              */
@@ -1247,8 +1338,8 @@ declare namespace Animate {
          */
         class LinkCreated extends EditorAction {
             instance: Link;
-            options: Engine.Editor.ILinkItem;
-            constructor(options: Engine.Editor.ILinkItem);
+            options: ILinkItem;
+            constructor(options: ILinkItem);
             /**
              * Undo the last history action
              */
@@ -1439,11 +1530,11 @@ declare namespace Animate {
          * This should be followed by a call to endLinkRouting when
          * the process is completed
          */
-        beginLinkRouting(portal: Engine.Editor.IPortal, pos: Point): void;
+        beginLinkRouting(portal: IPortal, pos: Point): void;
         /**
          * Completes the process of linking two behaviours together
          */
-        endLinkRouting(options: Engine.Editor.ILinkItem): void;
+        endLinkRouting(options: ILinkItem): void;
         activeLink: Link;
         /**
          * Returns all items of this store
@@ -1456,11 +1547,11 @@ declare namespace Animate {
         /**
          * Called whenever an item is clicked.
          */
-        onNodeSelected(item: Engine.Editor.ICanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        onNodeSelected(item: ICanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
         /**
          * Whenever we receive a context event on an item
          */
-        onContext(item: Engine.Editor.ICanvasItem, e: React.MouseEvent): void;
+        onContext(item: ICanvasItem, e: React.MouseEvent): void;
         /**
          * Adds a canvas item to the canvas
          * @param item The item to add
@@ -1475,18 +1566,18 @@ declare namespace Animate {
          * De-serializes the workspace from its JSON format
          * @param scene The schema scene we are loading from
          */
-        deserialize(scene: Engine.Editor.IContainerWorkspace): void;
+        deserialize(scene: HatcheryServer.IContainerWorkspace): void;
         /**
          * Serializes the workspace into its JSON format
          */
-        serialize(): Engine.Editor.IContainerWorkspace;
+        serialize(): HatcheryServer.IContainerWorkspace;
     }
 }
 declare namespace Animate {
     type LinkMap = {
         [shallowId: number]: {
             item: CanvasItem;
-            token: Engine.Editor.ICanvasItem;
+            token: ICanvasItem;
         };
     };
     /**
@@ -1515,12 +1606,12 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.ICanvasItem;
+        serialize(id: number): ICanvasItem;
         /**
          * De-serialize data from a JSON.
          * @param data The data to import from
          */
-        deSerialize(data: Engine.Editor.ICanvasItem): void;
+        deSerialize(data: ICanvasItem): void;
         /**
          * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
          * @param originalId The original shallow ID of the item when it was tokenized.
@@ -1583,12 +1674,12 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.IBehaviour;
+        serialize(id: number): IBehaviour;
         /**
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize(data: Engine.Editor.IBehaviour): void;
+        deSerialize(data: IBehaviour): void;
         /**
          * Diposes and cleans up this component and its portals
          */
@@ -1613,12 +1704,12 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.IBehaviourPortal;
+        serialize(id: number): IBehaviourPortal;
         /**
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize(data: Engine.Editor.IBehaviourPortal): void;
+        deSerialize(data: IBehaviourPortal): void;
         /**
          * This will cleanup the component.
          */
@@ -1631,11 +1722,11 @@ declare namespace Animate {
      * A behaviour that contains an asset/resource reference
      */
     class BehaviourAsset extends Behaviour {
-        asset: ProjectResource<Engine.IResource>;
+        asset: ProjectResource<HatcheryServer.IResource>;
         /**
          * Creates an instance of the behaviour
          */
-        constructor(asset?: ProjectResource<Engine.IResource>);
+        constructor(asset?: ProjectResource<HatcheryServer.IResource>);
         /**
          * Clones the canvas item
          */
@@ -1647,7 +1738,7 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.IBehaviour;
+        serialize(id: number): IBehaviour;
         /**
          * Adds a portal to this behaviour.
          * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
@@ -1675,12 +1766,12 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.IComment;
+        serialize(id: number): IComment;
         /**
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize(data: Engine.Editor.IComment): void;
+        deSerialize(data: IComment): void;
     }
 }
 declare namespace Animate {
@@ -1708,7 +1799,7 @@ declare namespace Animate {
          * Clones the canvas item
          */
         clone(): Portal;
-        serialize(): Engine.Editor.IPortal;
+        serialize(): IPortal;
         /**
         * Edits the portal variables
         * @param property The new value of the property
@@ -1757,12 +1848,12 @@ declare namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize(id: number): Engine.Editor.ILinkItem;
+        serialize(id: number): ILinkItem;
         /**
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize(data: Engine.Editor.ILinkItem): void;
+        deSerialize(data: ILinkItem): void;
         calculateDimensions(): void;
         /**
         * Gets the properties of this link
@@ -1875,26 +1966,6 @@ declare namespace Animate {
         portalsTemplates(): Array<PortalTemplate>;
         behaviourName: string;
         plugin: IPlugin;
-    }
-}
-declare namespace Animate {
-    class DataToken {
-        category: string;
-        command: string;
-        projectID: string;
-    }
-}
-declare namespace Animate {
-    class DB {
-        static USERS: string;
-        static USERS_SOCKET: string;
-        static HOST: string;
-        static API: string;
-        static PLAN_FREE: string;
-        static PLAN_BRONZE: string;
-        static PLAN_SILVER: string;
-        static PLAN_GOLD: string;
-        static PLAN_PLATINUM: string;
     }
 }
 declare namespace Animate {
@@ -2038,17 +2109,17 @@ declare namespace Animate {
     * A wrapper for project builds
     */
     class Build {
-        entry: Engine.IBuild;
+        entry: HatcheryServer.IBuild;
         /**
         * Creates an intance of the build
         * @param entry The entry token from the DB
         */
-        constructor(entry: Engine.IBuild);
+        constructor(entry: HatcheryServer.IBuild);
         /**
         * Attempts to update the build with new data
         * @param token The update token data
         */
-        update(token: Engine.IBuild): Promise<boolean>;
+        update(token: HatcheryServer.IBuild): Promise<boolean>;
     }
 }
 declare namespace Animate {
@@ -2073,13 +2144,13 @@ declare namespace Animate {
         /**
          * Sets the DB entry associated with this project
          */
-        entry: Engine.IProject;
+        entry: HatcheryServer.IProject;
         /**
          * Gets a resource by its ID
          * @param id The ID of the resource
          * @returns The resource whose id matches the id parameter or null
          */
-        getResourceByID<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): {
+        getResourceByID<T extends ProjectResource<HatcheryServer.IResource>>(id: string, type?: ResourceType): {
             resource: T;
             type: ResourceType;
         };
@@ -2088,12 +2159,12 @@ declare namespace Animate {
          * @param id The shallow ID of the resource
          * @returns The resource whose shallow id matches the id parameter or null
          */
-        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>(id: number, type?: ResourceType): T;
+        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>(id: number, type?: ResourceType): T;
         /**
          * Attempts to update the project details base on the token provided
          * @returns The project token
          */
-        updateDetails(token: Engine.IProject): Promise<UsersInterface.IResponse>;
+        updateDetails(token: HatcheryServer.IProject): Promise<UsersInterface.IResponse>;
         /**
          * Loads a previously selected build, or creates one if none are selected
          */
@@ -2108,13 +2179,13 @@ declare namespace Animate {
          * This function is used to fetch the project resources associated with a project.
          * @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
          */
-        loadResources(type?: ResourceType): Promise<Array<ProjectResource<Engine.IResource>>>;
+        loadResources(type?: ResourceType): Promise<Array<ProjectResource<HatcheryServer.IResource>>>;
         /**
          * This function is used to fetch a project resource by Id
          * @param id the Id of the resource to update
          * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
          */
-        refreshResource<T extends ProjectResource<Engine.IResource>>(id: string, type?: ResourceType): Promise<T | Error>;
+        refreshResource<T extends ProjectResource<HatcheryServer.IResource>>(id: string, type?: ResourceType): Promise<T | Error>;
         /**
          * Use this to edit the properties of a resource
          * @param id The id of the object we are editing.
@@ -2143,7 +2214,7 @@ declare namespace Animate {
          * @param id The id of the resource we are cloning from
          * @param type [Optional] The type of resource to clone
          */
-        copyResource<T extends Engine.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>;
+        copyResource<T extends HatcheryServer.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>;
         /**
          * Deletes several resources in 1 function call
          * @param ids The ids An array of resource Ids
@@ -2157,17 +2228,17 @@ declare namespace Animate {
          * Creates a new project resource.
          * @param type The type of resource we are renaming
          */
-        createResource<T extends Engine.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
+        createResource<T extends HatcheryServer.IResource>(type: ResourceType, data: T): Promise<ProjectResource<T>>;
         /**
          * This function is used to assign a new editor to a project resource. Editors are used by
          * GUI components to interact with the resource the editor wraps.
          * @param resource The resource we are creating an editor for
          */
-        assignEditor(resource: ProjectResource<Engine.IResource>): Editor;
+        assignEditor(resource: ProjectResource<HatcheryServer.IResource>): Editor;
         /**
          * Gets an editor by its resource
          */
-        getEditorByResource(resource: ProjectResource<Engine.IResource>): Editor;
+        getEditorByResource(resource: ProjectResource<HatcheryServer.IResource>): Editor;
         /**
          * Removes an editor from the active editor array
          */
@@ -2185,7 +2256,7 @@ declare namespace Animate {
          * This will cleanup the project and remove all data associated with it.
          */
         reset(): void;
-        plugins: Array<Engine.IPlugin>;
+        plugins: Array<HatcheryServer.IPlugin>;
     }
 }
 declare namespace Animate {
@@ -2208,7 +2279,7 @@ declare namespace Animate {
     class User extends EventDispatcher {
         private static _singleton;
         entry: UsersInterface.IUserEntry;
-        meta: Engine.IUserMeta;
+        meta: HatcheryServer.IUserMeta;
         project: Project;
         private _isLoggedIn;
         constructor();
@@ -2274,7 +2345,7 @@ declare namespace Animate {
         * Attempts to update the user's details base on the token provided
         * @returns The user details token
         */
-        updateDetails(token: Engine.IUserMeta): Promise<UsersInterface.IResponse>;
+        updateDetails(token: HatcheryServer.IUserMeta): Promise<UsersInterface.IResponse>;
         /**
         * Use this function to duplicate a project
         * @param id The project ID we are copying
@@ -2338,13 +2409,13 @@ declare namespace Animate {
          * Creates a thumbnail preview of the file
          * @param file
          */
-        thumbnail(file: Engine.IFile): Promise<HTMLCanvasElement>;
+        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement>;
         /**
          * This function generates a React Element that is used to preview a file
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        generate(file: Engine.IFile): JSX.Element;
+        generate(file: HatcheryServer.IFile): JSX.Element;
     }
 }
 declare namespace Animate {
@@ -2359,7 +2430,7 @@ declare namespace Animate {
         constructor(onComp?: CompleteCallback, onProg?: ProgressCallback);
         numDownloads: number;
         uploadFile(files: File[], meta?: any, parentFile?: string): void;
-        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: Engine.IFileMeta, parentFile?: string): void;
+        upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: HatcheryServer.IFileMeta, parentFile?: string): void;
         uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
         uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string): void;
         upload(form: FormData, url: string, parentFile?: string): void;
@@ -2645,7 +2716,7 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropAsset extends Prop<ProjectResource<Engine.IResource>> {
+    class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource>> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -2655,7 +2726,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: ProjectResource<Engine.IResource>, classNames?: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: ProjectResource<HatcheryServer.IResource>, classNames?: Array<string>, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2709,7 +2780,7 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropAssetList extends Prop<Array<ProjectResource<Engine.IResource>>> {
+    class PropAssetList extends Prop<Array<ProjectResource<HatcheryServer.IResource>>> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -2719,7 +2790,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: Array<ProjectResource<Engine.IResource>>, classNames: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: Array<ProjectResource<HatcheryServer.IResource>>, classNames: Array<string>, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -3491,7 +3562,7 @@ declare namespace Animate {
         editor: ContainerSchema;
     }
     class Schema extends React.Component<ISchemaProps, {
-        workspace: Engine.Editor.IContainerWorkspace;
+        workspace: HatcheryServer.IContainerWorkspace;
     }> {
         private static _openCanvases;
         constructor(props: ISchemaProps);
@@ -3517,14 +3588,14 @@ declare namespace Animate {
         * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
         * @param name The alias of the behaviour
         */
-        addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<Engine.IResource>, name?: string): void;
+        addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>, name?: string): void;
         createPortal(type: HatcheryRuntime.PortalType, pos: Point): void;
         /**
          * Opens the canvas context menu
          * @param {React.MouseEvent} e
          */
         onContext(e: React.MouseEvent): void;
-        getPortal(target: HTMLElement): Engine.Editor.IPortal;
+        getPortal(target: HTMLElement): IPortal;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3535,7 +3606,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface IBehaviourComponentProps {
         editor: ContainerSchema;
-        behaviour: Engine.Editor.IBehaviour;
+        behaviour: IBehaviour;
     }
     /**
      * A visual representation of a Behaviour
@@ -3545,8 +3616,8 @@ declare namespace Animate {
          * Creates an instance of the component
          */
         constructor(props: IBehaviourComponentProps);
-        onLinkStart(e: React.MouseEvent, portal: Engine.Editor.IPortal): void;
-        getPortalFromTarget(target: HTMLElement): Engine.Editor.IPortal;
+        onLinkStart(e: React.MouseEvent, portal: IPortal): void;
+        getPortalFromTarget(target: HTMLElement): IPortal;
         /**
          * Creates the component elements
          */
@@ -3555,7 +3626,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ICommentComponentProps {
-        comment: Engine.Editor.IComment;
+        comment: IComment;
         editor: ContainerSchema;
     }
     interface ICommentComponentState {
@@ -3593,9 +3664,9 @@ declare namespace Animate {
 declare namespace Animate {
     interface ILinkComponentProps {
         editor: ContainerSchema;
-        link: Engine.Editor.ILinkItem;
+        link: ILinkItem;
         isRouting: boolean;
-        getPortal: (target: HTMLElement) => Engine.Editor.IPortal;
+        getPortal: (target: HTMLElement) => IPortal;
     }
     /**
      * A visual representation of a Link. Represented on a schema as an SVG line between two behaviours
@@ -3630,7 +3701,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IPortalComponentProps {
-        portal: Engine.Editor.IPortal;
+        portal: IPortal;
         onPortalDown?: (e: React.MouseEvent) => void;
     }
     /**
@@ -3983,7 +4054,7 @@ declare namespace Animate {
     /**
      * A model for referencing a project resource
      */
-    class TreeViewNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNodeModel {
+    class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IResource>> extends TreeNodeModel {
         resource: T;
         private _loading;
         /**
@@ -4255,7 +4326,7 @@ declare namespace Animate {
         /**
          * Creates an instance of the node
          */
-        constructor(resource: ProjectResource<Engine.IResource>, group: Resources.GroupArray);
+        constructor(resource: ProjectResource<HatcheryServer.IResource>, group: Resources.GroupArray);
         /**
          * Show a context menu of resource options
          */
@@ -5017,7 +5088,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IImageUploaderProps {
-        onImage?: (file: Engine.IFile) => void;
+        onImage?: (file: HatcheryServer.IFile) => void;
         src: string;
         label: string;
         onError?: (e: Error) => void;
@@ -5359,7 +5430,7 @@ declare namespace Animate {
         /**
          * Sets the project image url
          */
-        setProjectImageUrl(file: Engine.IFile): void;
+        setProjectImageUrl(file: HatcheryServer.IFile): void;
         /**
          * Attempts to update the project
          * @param project details
@@ -5390,14 +5461,14 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IViewerFile extends Engine.IFile {
+    interface IViewerFile extends HatcheryServer.IFile {
         selected?: boolean;
         loadingPreview?: boolean;
     }
     interface IFileViewerProps {
         multiSelect: boolean;
         extensions: Array<string>;
-        onFilesSelected?: (files: Engine.IFile[]) => void;
+        onFilesSelected?: (files: HatcheryServer.IFile[]) => void;
         onClose?: () => void;
         readOnly?: boolean;
     }
@@ -5499,7 +5570,7 @@ declare namespace Animate {
          * Attempts to update the selected file
          * @param token The file token to update with
          */
-        updateFile(token: Engine.IFile): void;
+        updateFile(token: HatcheryServer.IFile): void;
     }
 }
 declare namespace Animate {
@@ -5507,7 +5578,7 @@ declare namespace Animate {
         extensions?: string[];
         multiselect?: boolean;
         readOnly?: boolean;
-        onFilesSelected?: (file: Engine.IFile[]) => void;
+        onFilesSelected?: (file: HatcheryServer.IFile[]) => void;
     }
     /**
      * A form uploading and selecting files
@@ -6511,7 +6582,7 @@ declare namespace Animate {
     type PluginMap = {
         [name: string]: IPluginPlus[];
     };
-    interface IPluginPlus extends Engine.IPlugin {
+    interface IPluginPlus extends HatcheryServer.IPlugin {
         expanded?: boolean;
     }
     interface IPluginsWidgetProps {
@@ -6543,11 +6614,11 @@ declare namespace Animate {
         selectedPlugins: IPluginPlus[];
         selectPlugin(plugin: IPluginPlus): void;
         mustShowPluginTick(plugin: any, index: number): boolean;
-        showVersions(plugin: Engine.IPlugin): void;
+        showVersions(plugin: HatcheryServer.IPlugin): void;
         /**
          * Once the plugins are loaded from the DB
          */
-        onPluginsLoaded(plugins: Array<Engine.IPlugin>): PluginMap;
+        onPluginsLoaded(plugins: Array<HatcheryServer.IPlugin>): PluginMap;
         /**
          * Generates the React code for displaying the plugins
          */
@@ -6562,7 +6633,7 @@ declare namespace Animate {
     /**
      *  Extends the project with a selected attribute
      */
-    interface IInteractiveProject extends Engine.IProject {
+    interface IInteractiveProject extends HatcheryServer.IProject {
         selected?: boolean;
     }
     interface IProjectListProps extends React.HTMLAttributes {
@@ -6604,7 +6675,7 @@ declare namespace Animate {
     interface IOpenProjectProps {
         onCancel: () => void;
         onComplete: () => void;
-        project: Engine.IProject;
+        project: HatcheryServer.IProject;
     }
     interface IOpenProjectState {
         message?: string;
@@ -6744,7 +6815,7 @@ declare namespace Animate {
     interface ISplashStats {
         mode?: SplashMode;
         loading?: boolean;
-        project?: Engine.IProject;
+        project?: HatcheryServer.IProject;
         theme?: string;
     }
     /**
@@ -6776,7 +6847,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface INewProjectProps {
         onCancel: () => void;
-        onProjectCreated: (project: Engine.IProject) => void;
+        onProjectCreated: (project: HatcheryServer.IProject) => void;
     }
     interface INewProjectState {
         plugins?: IPluginPlus[];
@@ -6806,7 +6877,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface IProjectsOverviewProps extends React.HTMLAttributes {
         onCreateProject: () => void;
-        onOpenProject: (project: Engine.IProject) => void;
+        onOpenProject: (project: HatcheryServer.IProject) => void;
     }
     interface IProjectsOverviewState {
         loading?: boolean;
@@ -6905,18 +6976,18 @@ declare namespace Animate {
 }
 declare let _cache: string;
 declare const __plugins: {
-    [name: string]: Array<Engine.IPlugin>;
+    [name: string]: Array<HatcheryServer.IPlugin>;
 };
 declare let __newPlugin: Animate.IPlugin;
 /**
  * Goes through each of the plugins and returns the one with the matching ID
  * @param id The ID of the plugin to fetch
  */
-declare function getPluginByID(id: string): Engine.IPlugin;
+declare function getPluginByID(id: string): HatcheryServer.IPlugin;
 /**
  * Once the plugins are loaded from the DB
  */
-declare function onPluginsLoaded(plugins: Array<Engine.IPlugin>): void;
+declare function onPluginsLoaded(plugins: Array<HatcheryServer.IPlugin>): void;
 /**
  * Returns a formatted byte string
  */

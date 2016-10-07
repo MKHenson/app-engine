@@ -8,9 +8,9 @@ namespace Animate {
         export class LinkCreated extends EditorAction {
 
             instance: Link;
-            options: Engine.Editor.ILinkItem;
+            options: ILinkItem;
 
-            constructor( options: Engine.Editor.ILinkItem ) {
+            constructor( options: ILinkItem ) {
                 super();
                 this.options = options;
             }

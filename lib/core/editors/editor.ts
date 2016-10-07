@@ -8,7 +8,7 @@ namespace Animate {
     export abstract class Editor extends EventDispatcher {
 
         public active: boolean;
-        public resource: ProjectResource<Engine.IResource>;
+        public resource: ProjectResource<HatcheryServer.IResource>;
         public pastActions: Actions.EditorAction[];
         public currentAction: Actions.EditorAction;
         public futureActions: Actions.EditorAction[];
@@ -18,7 +18,7 @@ namespace Animate {
         /**
          * Creates an instance of the editor
          */
-        constructor( resource: ProjectResource<Engine.IResource>, project: Project ) {
+        constructor( resource: ProjectResource<HatcheryServer.IResource>, project: Project ) {
             super();
             this.active = false;
             this.resource = resource;

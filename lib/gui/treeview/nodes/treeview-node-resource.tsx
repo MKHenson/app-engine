@@ -3,7 +3,7 @@ namespace Animate {
     /**
      * A model for referencing a project resource
      */
-    export class TreeViewNodeResource<T extends ProjectResource<Engine.IResource>> extends TreeNodeModel {
+    export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IResource>> extends TreeNodeModel {
         public resource: T;
         private _loading: boolean;
 
@@ -204,7 +204,7 @@ namespace Animate {
 		 */
         private onDeleteClick() {
             let project = User.get.project;
-            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<Engine.IResource>>[];
+            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
             if ( selection.length === 0 )
                 selection.push( this );
 
@@ -217,7 +217,7 @@ namespace Animate {
 		 */
         private onSaveClick() {
             let project = User.get.project;
-            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<Engine.IResource>>[];
+            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
             if ( selection.length === 0 )
                 selection.push( this );
 
@@ -229,7 +229,7 @@ namespace Animate {
          * Called when the refresh context item is clicked
          */
         private onRefreshClick() {
-            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<Engine.IResource>>[];
+            let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
             let message = false;
             let project = User.get.project;
 
@@ -268,7 +268,7 @@ namespace Animate {
         /**
          * Handles the completion of project requests
          */
-        private handleNodePromise( promise: Promise<any>, node: TreeViewNodeResource<ProjectResource<Engine.IResource>> ) {
+        private handleNodePromise( promise: Promise<any>, node: TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>> ) {
             node.loading( true );
 
             promise.then(() => {

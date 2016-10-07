@@ -14,11 +14,12 @@
 /// <reference path="./definitions/required/react/react-addons-css-transition-group.d.ts" />
 /// <reference path="./definitions/required/react/react-dom.d.ts" />
 /// <reference path="./definitions/required/react/react-global.d.ts" />
+/// <reference path="./definitions/required/redux.d.ts" />
 /// <reference path="./definitions/required/hatchery-runtime.d.ts" />
-
 
 /// <reference path="./definitions/custom/ace.d.ts" />
 /// <reference path="./definitions/custom/jscolor.d.ts" />
 /// <reference path="./definitions/custom/export-token.d.ts" />
 /// <reference path="./definitions/custom/engine-definitions.d.ts" />
 /// <reference path="./definitions/custom/external-interfaces.d.ts" />
+/// <reference path="./definitions/custom/hatchery-server.d.ts" />

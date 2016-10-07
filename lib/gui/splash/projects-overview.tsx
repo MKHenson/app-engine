@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface IProjectsOverviewProps extends React.HTMLAttributes {
         onCreateProject: () => void;
-        onOpenProject: ( project: Engine.IProject ) => void;
+        onOpenProject: ( project: HatcheryServer.IProject ) => void;
     }
 
     export interface IProjectsOverviewState {
@@ -51,7 +51,7 @@ namespace Animate {
         */
         render(): JSX.Element {
             let projectInfo: JSX.Element;
-            const project: Engine.IProject = ( this.state.selectedProject ? this.state.selectedProject : null );
+            const project: HatcheryServer.IProject = ( this.state.selectedProject ? this.state.selectedProject : null );
 
             // If we have a project
             if ( this.state.selectedProject ) {

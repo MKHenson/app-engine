@@ -6,13 +6,13 @@ namespace Animate {
          * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
          * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
          */
-        export class Container extends ProjectResource<Engine.IContainer> {
+        export class Container extends ProjectResource<HatcheryServer.IContainer> {
             public canvas: Canvas;
 
             /**
              * @param entry The data associated with this container resource
              */
-            constructor( entry?: Engine.IContainer ) {
+            constructor( entry?: HatcheryServer.IContainer ) {
                 super( entry );
 
                 this.canvas = null;

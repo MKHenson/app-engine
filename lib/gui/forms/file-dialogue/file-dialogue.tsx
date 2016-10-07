@@ -4,7 +4,7 @@ namespace Animate {
         extensions?: string[],
         multiselect?: boolean;
         readOnly?: boolean;
-        onFilesSelected?: ( file: Engine.IFile[] ) => void;
+        onFilesSelected?: ( file: HatcheryServer.IFile[] ) => void;
     }
 
 	/**

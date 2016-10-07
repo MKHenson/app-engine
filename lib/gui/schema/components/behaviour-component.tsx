@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface IBehaviourComponentProps {
         editor: ContainerSchema;
-        behaviour: Engine.Editor.IBehaviour;
+        behaviour: IBehaviour;
     }
 
     /**
@@ -17,7 +17,7 @@ namespace Animate {
             super( props );
         }
 
-        onLinkStart( e: React.MouseEvent, portal: Engine.Editor.IPortal ) {
+        onLinkStart( e: React.MouseEvent, portal: IPortal ) {
             e.preventDefault();
             e.stopPropagation();
             const behaviour = this.props.behaviour;
@@ -25,7 +25,7 @@ namespace Animate {
             this.props.editor.beginLinkRouting( portal, p );
         }
 
-        getPortalFromTarget( target: HTMLElement ): Engine.Editor.IPortal {
+        getPortalFromTarget( target: HTMLElement ): IPortal {
             let ref: Element | React.Component<any, any>;
             let elm: HTMLElement;
 
@@ -51,7 +51,7 @@ namespace Animate {
 
             let behaviourTypeClass = '';
             if ( behaviour.type == 'portal' )
-                behaviourTypeClass += ( behaviour as Engine.Editor.IBehaviourPortal ).portal.type;
+                behaviourTypeClass += ( behaviour as IBehaviourPortal ).portal.type;
 
             return (
                 <Draggable

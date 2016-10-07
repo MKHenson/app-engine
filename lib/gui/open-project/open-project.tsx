@@ -3,7 +3,7 @@ namespace Animate {
     export interface IOpenProjectProps {
         onCancel: () => void;
         onComplete: () => void;
-        project: Engine.IProject;
+        project: HatcheryServer.IProject;
     }
 
     export interface IOpenProjectState {
@@ -96,7 +96,7 @@ namespace Animate {
         componentWillMount() {
 
             let numLoaded = 0;
-            let project: Engine.IProject = this.props.project;
+            let project: HatcheryServer.IProject = this.props.project;
             this.setState({
                 mode: AttentionType.SUCCESS,
                 loading: true

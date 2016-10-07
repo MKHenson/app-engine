@@ -6,7 +6,7 @@ namespace Animate {
     export class User extends EventDispatcher {
         private static _singleton = null;
         public entry: UsersInterface.IUserEntry;
-        public meta: Engine.IUserMeta;
+        public meta: HatcheryServer.IUserMeta;
         public project: Project;
         private _isLoggedIn: boolean;
 
@@ -27,7 +27,7 @@ namespace Animate {
 		* Resets the meta data
 		*/
         resetMeta() {
-            this.meta = <Engine.IUserMeta>{
+            this.meta = <HatcheryServer.IUserMeta>{
                 bio: '',
                 plan: UserPlan.Free,
                 imgURL: 'media/blank-user.png',
@@ -209,7 +209,7 @@ namespace Animate {
                         return reject( new Error( data.message ) );
 
                     that.entry = { username: '' };
-                    that.meta = <Engine.IUserMeta>{
+                    that.meta = <HatcheryServer.IUserMeta>{
                         bio: '',
                         plan: UserPlan.Free,
                         imgURL: 'media/blank-user.png',
@@ -243,7 +243,7 @@ namespace Animate {
                     // Assign the actual plugins
                     for ( let i = 0, l = data.data.length; i < l; i++ ) {
                         const project = data.data[ i ];
-                        const plugins: Array<Engine.IPlugin> = [];
+                        const plugins: Array<HatcheryServer.IPlugin> = [];
                         for ( let ii = 0, il = project.plugins.length; ii < il; ii++ )
                             plugins.push( getPluginByID( project.plugins[ ii ] ) );
 
@@ -266,7 +266,7 @@ namespace Animate {
 		*/
         newProject( name: string, plugins: Array<string>, description: string = '' ): Promise<ModepressAddons.ICreateProject> {
             const that = this,
-                token: Engine.IProject = {
+                token: HatcheryServer.IProject = {
                     name: name,
                     description: description,
                     plugins: plugins
@@ -279,7 +279,7 @@ namespace Animate {
 
                     // Assign the actual plugins
                     const project = data.data;
-                    const plugins: Array<Engine.IPlugin> = [];
+                    const plugins: Array<HatcheryServer.IPlugin> = [];
                     for ( let ii = 0, il = project.plugins.length; ii < il; ii++ )
                         plugins.push( getPluginByID( project.plugins[ ii ] ) );
 
@@ -318,7 +318,7 @@ namespace Animate {
 		* Attempts to update the user's details base on the token provided
         * @returns The user details token
 		*/
-        updateDetails( token: Engine.IUserMeta ): Promise<UsersInterface.IResponse> {
+        updateDetails( token: HatcheryServer.IUserMeta ): Promise<UsersInterface.IResponse> {
             const meta = this.meta;
             const that = this;
 

@@ -28,7 +28,7 @@ namespace Animate {
          * This should be followed by a call to endLinkRouting when
          * the process is completed
          */
-        beginLinkRouting( portal : Engine.Editor.IPortal, pos: Point ) {
+        beginLinkRouting( portal : IPortal, pos: Point ) {
             this._activeLink = new Link();
             this._activeLink.startPortal = portal.name;
             this._activeLink.startBehaviour = portal.behaviour;
@@ -40,7 +40,7 @@ namespace Animate {
         /**
          * Completes the process of linking two behaviours together
          */
-        endLinkRouting( options: Engine.Editor.ILinkItem ) {
+        endLinkRouting( options: ILinkItem ) {
             if ( options )
                 this.doAction( new Actions.LinkCreated( options) );
 
@@ -70,7 +70,7 @@ namespace Animate {
         /**
          * Called whenever an item is clicked.
          */
-        onNodeSelected( item: Engine.Editor.ICanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
+        onNodeSelected( item: ICanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
             let clearSelection = false;
             const prevSelection = this._selection.slice();
@@ -128,7 +128,7 @@ namespace Animate {
         /**
          * Whenever we receive a context event on an item
          */
-        onContext( item: Engine.Editor.ICanvasItem, e: React.MouseEvent ) {
+        onContext( item: ICanvasItem, e: React.MouseEvent ) {
             let node = this._items[ item.id ];
             node.onContext( e );
         }
@@ -161,7 +161,7 @@ namespace Animate {
          * De-serializes the workspace from its JSON format
          * @param scene The schema scene we are loading from
          */
-        deserialize( scene: Engine.Editor.IContainerWorkspace ) {
+        deserialize( scene: HatcheryServer.IContainerWorkspace ) {
 
             for ( const item of this._items )
                 item.dispose();
@@ -175,10 +175,10 @@ namespace Animate {
             for ( const item of scene.items ) {
                 switch ( item.type ) {
                     case 'comment':
-                        canvasItem = new Comment(( item as Engine.Editor.IComment ).label );
+                        canvasItem = new Comment(( item as IComment ).label );
                         break;
                     case 'behaviour':
-                        canvasItem = new Behaviour( manager.getTemplate(( item as Engine.Editor.IBehaviour ).behaviourType ) );
+                        canvasItem = new Behaviour( manager.getTemplate(( item as IBehaviour ).behaviourType ) );
                         break;
                     case 'asset':
                         canvasItem = new BehaviourAsset( null );
@@ -193,8 +193,8 @@ namespace Animate {
         /**
          * Serializes the workspace into its JSON format
          */
-        serialize(): Engine.Editor.IContainerWorkspace {
-            let toRet: Engine.Editor.IContainerWorkspace = {
+        serialize(): HatcheryServer.IContainerWorkspace {
+            let toRet: HatcheryServer.IContainerWorkspace = {
                 items: [],
                 properties: {},
                 activeLink: ( this._activeLink ? this._activeLink.serialize( -1 ) : null )

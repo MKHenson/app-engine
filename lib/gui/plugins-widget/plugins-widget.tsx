@@ -1,7 +1,7 @@
 namespace Animate {
     export type PluginMap = { [ name: string ]: IPluginPlus[] };
 
-    export interface IPluginPlus extends Engine.IPlugin {
+    export interface IPluginPlus extends HatcheryServer.IPlugin {
         expanded?: boolean;
     }
 
@@ -47,7 +47,7 @@ namespace Animate {
             });
 
             // Donwload the plugins available to this user
-            Utils.get<Modepress.IGetArrayResponse<Engine.IPlugin>>( `${Animate.DB.API}/plugins` ).then(( response: ModepressAddons.IGetProjects ) => {
+            Utils.get<Modepress.IGetArrayResponse<HatcheryServer.IPlugin>>( `${Animate.DB.API}/plugins` ).then(( response: ModepressAddons.IGetProjects ) => {
                 const plugins = this.onPluginsLoaded( response.data );
                 this.setState( {
                     loading: false,
@@ -126,7 +126,7 @@ namespace Animate {
         * Toggles if a plugin should show all its versions or not
         * @param The plugin to toggle
         */
-        showVersions( plugin: Engine.IPlugin ) {
+        showVersions( plugin: HatcheryServer.IPlugin ) {
             for ( const n in this.state.plugins )
                 for ( let i = 0, l = this.state.plugins[ n ].length; i < l; i++ ) {
                     if ( this.state.plugins[ n ][ i ].name === plugin.name ) {
@@ -140,7 +140,7 @@ namespace Animate {
         /**
          * Once the plugins are loaded from the DB
          */
-        onPluginsLoaded( plugins: Array<Engine.IPlugin> ): PluginMap {
+        onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ): PluginMap {
 
             const toRet: PluginMap = {};
 

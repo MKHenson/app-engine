@@ -1,7 +1,7 @@
 ﻿namespace Animate {
 
     export type LinkMap = {
-        [ shallowId: number ]: { item: CanvasItem; token: Engine.Editor.ICanvasItem; }
+        [ shallowId: number ]: { item: CanvasItem; token: ICanvasItem; }
     };
 
     /**
@@ -51,9 +51,9 @@
         /**
          * Serializes the data into a JSON.
          */
-        serialize( id: number ): Engine.Editor.ICanvasItem {
+        serialize( id: number ): ICanvasItem {
             this.id = id;
-            const toRet: Engine.Editor.ICanvasItem = {
+            const toRet: ICanvasItem = {
                 id: id,
                 type: 'behaviour',
                 left: this.left,
@@ -70,7 +70,7 @@
          * De-serialize data from a JSON.
          * @param data The data to import from
          */
-        deSerialize( data: Engine.Editor.ICanvasItem ) {
+        deSerialize( data: ICanvasItem ) {
             this.top = data.top;
             this.left = data.left;
             this.width = data.width;

@@ -33,7 +33,7 @@ namespace Animate {
 
             // Add each of the node references
             for ( let item of group.entry.items ) {
-                let resource = project.getResourceByShallowID<ProjectResource<Engine.IResource>>( item );
+                let resource = project.getResourceByShallowID<ProjectResource<HatcheryServer.IResource>>( item );
                 this.addNode( new TreeNodeGroupInstance( resource, group ) );
             }
         }

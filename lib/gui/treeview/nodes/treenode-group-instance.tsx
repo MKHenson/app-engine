@@ -4,13 +4,13 @@ namespace Animate {
 	 * This node represents a group instance
 	 */
     export class TreeNodeGroupInstance extends TreeNodeModel {
-        private _resource: ProjectResource<Engine.IResource>;
+        private _resource: ProjectResource<HatcheryServer.IResource>;
         private _group: Resources.GroupArray;
 
 		/**
 		 * Creates an instance of the node
 		 */
-        constructor( resource: ProjectResource<Engine.IResource>, group: Resources.GroupArray ) {
+        constructor( resource: ProjectResource<HatcheryServer.IResource>, group: Resources.GroupArray ) {
             super( name, <i className="fa fa-square resource" aria-hidden="true"></i> );
             this._resource = resource;
             this._group = group;

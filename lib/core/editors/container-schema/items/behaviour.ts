@@ -180,11 +180,11 @@ namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize( id: number ): Engine.Editor.IBehaviour {
-            let toRet = <Engine.Editor.IBehaviour>super.serialize( id );
+        serialize( id: number ): IBehaviour {
+            let toRet = <IBehaviour>super.serialize( id );
             let portals = this.portals;
 
-            toRet.portals = <Array<Engine.Editor.IPortal>>[];
+            toRet.portals = <Array<IPortal>>[];
 
             for ( let portal of portals )
                 toRet.portals.push( portal.serialize() );
@@ -198,7 +198,7 @@ namespace Animate {
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize( data: Engine.Editor.IBehaviour ) {
+        deSerialize( data: IBehaviour ) {
             super.deSerialize( data );
 
             // Remove all existing portals

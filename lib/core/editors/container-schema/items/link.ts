@@ -35,8 +35,8 @@ namespace Animate {
         /**
          * Serializes the data into a JSON.
          */
-        serialize( id: number ): Engine.Editor.ILinkItem {
-            let toRet = <Engine.Editor.ILinkItem>super.serialize( id );
+        serialize( id: number ): ILinkItem {
+            let toRet = <ILinkItem>super.serialize( id );
             toRet.type = 'link';
             toRet.width = this.width;
             toRet.height = this.height;
@@ -56,7 +56,7 @@ namespace Animate {
          * De-Serializes data from a JSON.
          * @param data The data to import from
          */
-        deSerialize( data: Engine.Editor.ILinkItem ) {
+        deSerialize( data: ILinkItem ) {
             super.deSerialize( data );
 
             this.width = data.width;

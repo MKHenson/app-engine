@@ -9,8 +9,8 @@ namespace Animate {
         public openEditors: Editor[];
         public activeEditor: Editor;
         public curBuild: Build;
-        private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<Engine.IResource>> }; }
-        private _entry: Engine.IProject;
+        private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<HatcheryServer.IResource>> }; }
+        private _entry: HatcheryServer.IProject;
 
 		/**
 		 * @param id The database id of this project
@@ -40,14 +40,14 @@ namespace Animate {
 		/**
 		 * Gets the DB entry associated with this project
 		 */
-        get entry(): Engine.IProject {
+        get entry(): HatcheryServer.IProject {
             return this._entry;
         }
 
 		/**
 		 * Sets the DB entry associated with this project
 		 */
-        set entry( val: Engine.IProject ) {
+        set entry( val: HatcheryServer.IProject ) {
             this._entry = val;
             if ( typeof ( this._entry.tags ) === 'string' )
                 this._entry.tags = [];
@@ -58,16 +58,16 @@ namespace Animate {
 		 * @param id The ID of the resource
 		 * @returns The resource whose id matches the id parameter or null
 		 */
-        getResourceByID<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } {
+        getResourceByID<T extends ProjectResource<HatcheryServer.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } {
             const types = this._restPaths;
             if ( type ) {
-                for ( let i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[ type ].array, l = arr.length; i < l; i++ )
+                for ( let i = 0, arr: Array<ProjectResource<HatcheryServer.IResource>> = types[ type ].array, l = arr.length; i < l; i++ )
                     if ( arr[ i ].entry._id === id )
                         return { resource: <T>arr[ i ], type: type };
             }
             else {
                 for ( const t in types )
-                    for ( let i = 0, arr: Array<ProjectResource<Engine.IResource>> = types[ t ].array, l = arr.length; i < l; i++ )
+                    for ( let i = 0, arr: Array<ProjectResource<HatcheryServer.IResource>> = types[ t ].array, l = arr.length; i < l; i++ )
                         if ( arr[ i ].entry._id === id )
                             return { resource: <T>arr[ i ], type: <ResourceType>parseInt( t ) };
             }
@@ -80,7 +80,7 @@ namespace Animate {
 		 * @param id The shallow ID of the resource
 		 * @returns The resource whose shallow id matches the id parameter or null
 		 */
-        getResourceByShallowID<T extends ProjectResource<Engine.IResource>>( id: number, type?: ResourceType ): T {
+        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>( id: number, type?: ResourceType ): T {
             const types = this._restPaths;
             if ( type ) {
                 for ( let i = 0, arr = types[ type ].array, l = arr.length; i < l; i++ )
@@ -101,7 +101,7 @@ namespace Animate {
 		 * Attempts to update the project details base on the token provided
          * @returns The project token
 		 */
-        updateDetails( token: Engine.IProject ): Promise<UsersInterface.IResponse> {
+        updateDetails( token: HatcheryServer.IProject ): Promise<UsersInterface.IResponse> {
             const entry = this._entry;
             return new Promise<UsersInterface.IResponse>( ( resolve, reject ) => {
                 Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then( ( data ) => {
@@ -158,11 +158,11 @@ namespace Animate {
 		 * @param entry The database entry
          * @param type The type of resource to create
 		 */
-        private createResourceInstance<T extends Engine.IResource>( entry: T, type?: ResourceType ): ProjectResource<T> {
+        private createResourceInstance<T extends HatcheryServer.IResource>( entry: T, type?: ResourceType ): ProjectResource<T> {
             let resource: ProjectResource<any>;
 
             if ( type === ResourceType.ASSET ) {
-                const aClass = PluginManager.getSingleton().getAssetClass(( <Engine.IAsset>entry ).className );
+                const aClass = PluginManager.getSingleton().getAssetClass(( <HatcheryServer.IAsset>entry ).className );
                 resource = new Resources.Asset( aClass, entry );
                 this._restPaths[type].array.push( <Resources.Asset>resource );
             }
@@ -191,9 +191,9 @@ namespace Animate {
 		 * This function is used to fetch the project resources associated with a project.
 		 * @param type [Optional] You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
 	 	 */
-        loadResources( type?: ResourceType ): Promise<Array<ProjectResource<Engine.IResource>>> {
+        loadResources( type?: ResourceType ): Promise<Array<ProjectResource<HatcheryServer.IResource>>> {
 
-            const arr: Array<Promise<Modepress.IGetArrayResponse<Engine.IResource>>> = [];
+            const arr: Array<Promise<Modepress.IGetArrayResponse<HatcheryServer.IResource>>> = [];
             const paths = this._restPaths;
 
             if ( !type ) {
@@ -226,8 +226,8 @@ namespace Animate {
                 paths[ type ].array.splice( 0, paths[ type ].array.length );
             }
 
-            return new Promise<Array<ProjectResource<Engine.IResource>>>(( resolve, reject ) => {
-                Promise.all<Modepress.IGetArrayResponse<Engine.IResource>>( arr ).then(( data ) => {
+            return new Promise<Array<ProjectResource<HatcheryServer.IResource>>>(( resolve, reject ) => {
+                Promise.all<Modepress.IGetArrayResponse<HatcheryServer.IResource>>( arr ).then(( data ) => {
                     // Check for any errors
                     for ( let i = 0, l = data.length; i < l; i++ )
                         if ( data[ i ].error )
@@ -237,32 +237,32 @@ namespace Animate {
 
                     if ( !type ) {
                         for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                            createdResources.push( this.createResourceInstance<Engine.IFile>( data[ 0 ].data[ i ], ResourceType.FILE ) );
+                            createdResources.push( this.createResourceInstance<HatcheryServer.IFile>( data[ 0 ].data[ i ], ResourceType.FILE ) );
                         for ( let i = 0, l = data[ 1 ].data.length; i < l; i++ )
-                            createdResources.push( this.createResourceInstance<Engine.IAsset>( data[ 1 ].data[ i ], ResourceType.ASSET ) );
+                            createdResources.push( this.createResourceInstance<HatcheryServer.IAsset>( data[ 1 ].data[ i ], ResourceType.ASSET ) );
                         for ( let i = 0, l = data[ 2 ].data.length; i < l; i++ )
-                            createdResources.push( this.createResourceInstance<Engine.IContainer>( data[ 2 ].data[ i ], ResourceType.CONTAINER ) );
+                            createdResources.push( this.createResourceInstance<HatcheryServer.IContainer>( data[ 2 ].data[ i ], ResourceType.CONTAINER ) );
                         for ( let i = 0, l = data[ 3 ].data.length; i < l; i++ )
-                            createdResources.push( this.createResourceInstance<Engine.IGroup>( data[ 3 ].data[ i ], ResourceType.GROUP ) );
+                            createdResources.push( this.createResourceInstance<HatcheryServer.IGroup>( data[ 3 ].data[ i ], ResourceType.GROUP ) );
                         for ( let i = 0, l = data[ 4 ].data.length; i < l; i++ )
-                            createdResources.push( this.createResourceInstance<Engine.IScript>( data[ 4 ].data[ i ], ResourceType.SCRIPT ) );
+                            createdResources.push( this.createResourceInstance<HatcheryServer.IScript>( data[ 4 ].data[ i ], ResourceType.SCRIPT ) );
                     }
                     else {
                         if ( type === ResourceType.FILE )
                             for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                                createdResources.push( this.createResourceInstance<Engine.IFile>( data[ 0 ].data[ i ], ResourceType.FILE ) );
+                                createdResources.push( this.createResourceInstance<HatcheryServer.IFile>( data[ 0 ].data[ i ], ResourceType.FILE ) );
                         else if ( type === ResourceType.ASSET )
                             for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                                createdResources.push( this.createResourceInstance<Engine.IAsset>( data[ 0 ].data[ i ], ResourceType.ASSET ) );
+                                createdResources.push( this.createResourceInstance<HatcheryServer.IAsset>( data[ 0 ].data[ i ], ResourceType.ASSET ) );
                         else if ( type === ResourceType.CONTAINER )
                             for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                                createdResources.push( this.createResourceInstance<Engine.IContainer>( data[ 0 ].data[ i ], ResourceType.CONTAINER ) );
+                                createdResources.push( this.createResourceInstance<HatcheryServer.IContainer>( data[ 0 ].data[ i ], ResourceType.CONTAINER ) );
                         else if ( type === ResourceType.GROUP )
                             for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                                createdResources.push( this.createResourceInstance<Engine.IGroup>( data[ 0 ].data[ i ], ResourceType.GROUP ) );
+                                createdResources.push( this.createResourceInstance<HatcheryServer.IGroup>( data[ 0 ].data[ i ], ResourceType.GROUP ) );
                         else if ( type === ResourceType.SCRIPT )
                             for ( let i = 0, l = data[ 0 ].data.length; i < l; i++ )
-                                createdResources.push( this.createResourceInstance<Engine.IScript>( data[ 0 ].data[ i ], ResourceType.SCRIPT ) );
+                                createdResources.push( this.createResourceInstance<HatcheryServer.IScript>( data[ 0 ].data[ i ], ResourceType.SCRIPT ) );
                     }
 
                     let event: IResourceEvent = { resource: null };
@@ -285,7 +285,7 @@ namespace Animate {
          * @param id the Id of the resource to update
          * @param type You can specify to load only a subset of the resources (Useful for updating if someone else is editing)
          */
-        refreshResource<T extends ProjectResource<Engine.IResource>>( id: string, type?: ResourceType ): Promise<T | Error> {
+        refreshResource<T extends ProjectResource<HatcheryServer.IResource>>( id: string, type?: ResourceType ): Promise<T | Error> {
             const paths = this._restPaths;
 
             const r = this.getResourceByID<T>( id, type );
@@ -325,7 +325,7 @@ namespace Animate {
             const projId = this._entry._id;
             const paths = this._restPaths;
             let url: string;
-            let resource: ProjectResource<Engine.IResource>;
+            let resource: ProjectResource<HatcheryServer.IResource>;
 
             for ( const p in paths )
                 for ( const r of paths[p].array )
@@ -368,7 +368,7 @@ namespace Animate {
             const projId = this._entry._id;
             const r = this.getResourceByID( id, type );
             const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ r.type ].url}/${id}`;
-            const resource: ProjectResource<Engine.IResource> = r.resource;
+            const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
             resource.onSaving();
 
             return new Promise<boolean>( ( resolve, reject ) => {
@@ -417,7 +417,7 @@ namespace Animate {
             const paths = this._restPaths;
             const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}/${id}`;
             const array = paths[ type ].array;
-            let resource: ProjectResource<Engine.IResource>;
+            let resource: ProjectResource<HatcheryServer.IResource>;
 
             for ( let i = 0, l = array.length; i < l; i++ )
                 if ( array[ i ].entry._id === id ) {
@@ -451,9 +451,9 @@ namespace Animate {
          * @param id The id of the resource we are cloning from
          * @param type [Optional] The type of resource to clone
          */
-        copyResource<T extends Engine.IResource>( id: string, type?: ResourceType ): Promise<ProjectResource<T>> {
+        copyResource<T extends HatcheryServer.IResource>( id: string, type?: ResourceType ): Promise<ProjectResource<T>> {
             const r = this.getResourceByID( id, type );
-            const resource: ProjectResource<Engine.IResource> = r.resource;
+            const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
 
             // Clone the resource and assign a new id
             const dataClone: T = JSON.parse( JSON.stringify( resource ) );
@@ -511,7 +511,7 @@ namespace Animate {
          * Creates a new project resource.
          * @param type The type of resource we are renaming
          */
-        createResource<T extends Engine.IResource>( type: ResourceType, data: T ): Promise<ProjectResource<T>> {
+        createResource<T extends HatcheryServer.IResource>( type: ResourceType, data: T ): Promise<ProjectResource<T>> {
             const details = User.get.entry;
             const projId = this._entry._id;
             const paths = this._restPaths;
@@ -550,7 +550,7 @@ namespace Animate {
          * GUI components to interact with the resource the editor wraps.
          * @param resource The resource we are creating an editor for
          */
-        assignEditor( resource: ProjectResource<Engine.IResource> ): Editor {
+        assignEditor( resource: ProjectResource<HatcheryServer.IResource> ): Editor {
             for ( const editor of this.openEditors )
                 if ( editor.resource == resource )
                     return editor;
@@ -567,7 +567,7 @@ namespace Animate {
         /**
          * Gets an editor by its resource
          */
-        getEditorByResource( resource : ProjectResource<Engine.IResource> ): Editor {
+        getEditorByResource( resource : ProjectResource<HatcheryServer.IResource> ): Editor {
             for ( const editor of this.openEditors )
                 if (editor.resource === resource)
                     return editor;
@@ -616,6 +616,6 @@ namespace Animate {
             }
         }
 
-        get plugins(): Array<Engine.IPlugin> { return this._entry.$plugins; }
+        get plugins(): Array<HatcheryServer.IPlugin> { return this._entry.$plugins; }
     }
 }
