@@ -1,6 +1,5 @@
 ﻿namespace Animate {
 
-
     /**
      * Events related to the web socket communication API
      */
@@ -61,7 +60,7 @@
      * An event token for events dispatched by changes to or from resources
      */
     export interface IResourceEvent {
-        resource: ProjectResource<Engine.IResource>;
+        resource: ProjectResource<HatcheryServer.IResource>;
     }
 
     /**
