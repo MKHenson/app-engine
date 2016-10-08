@@ -17,9 +17,19 @@ function getPluginByID( id: string ): HatcheryServer.IPlugin {
 }
 
 /**
- * Once the plugins are loaded from the DB
+ * Returns a formatted byte string
  */
-function onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ) {
+function byteFilter( bytes, precision: number = 1 ): string {
+    if ( isNaN( parseFloat( bytes ) ) || !isFinite( bytes ) ) return '-';
+    const units = [ 'bytes', 'kB', 'MB', 'GB', 'TB', 'PB' ],
+        num = Math.floor( Math.log( bytes ) / Math.log( 1024 ) );
+    return ( bytes / Math.pow( 1024, Math.floor( num ) ) ).toFixed( precision ) + ' ' + units[ num ];
+}
+
+/**
+ * Sorts the plugins based on their versions
+ */
+function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
     for ( let i = 0, l = plugins.length; i < l; i++ ) {
         if ( !__plugins[ plugins[ i ].name ] )
             __plugins[ plugins[ i ].name ] = [];
@@ -64,20 +74,18 @@ function onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ) {
             return 0;
         });
     }
+}
+
+/**
+ * Once the plugins are loaded from the DB
+ */
+function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
+    sortPlugins( plugins );
 
     // Create the application element
     ReactDOM.render( <Animate.Application />, document.getElementById( 'main' ) );
 }
 
-/**
- * Returns a formatted byte string
- */
-function byteFilter( bytes, precision: number = 1 ): string {
-    if ( isNaN( parseFloat( bytes ) ) || !isFinite( bytes ) ) return '-';
-    const units = [ 'bytes', 'kB', 'MB', 'GB', 'TB', 'PB' ],
-        num = Math.floor( Math.log( bytes ) / Math.log( 1024 ) );
-    return ( bytes / Math.pow( 1024, Math.floor( num ) ) ).toFixed( precision ) + ' ' + units[ num ];
-}
 
 // Once the document is ready we begin
 jQuery( document ).ready( function () {

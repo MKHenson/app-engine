@@ -6985,10 +6985,14 @@ declare let __newPlugin: Animate.IPlugin;
  */
 declare function getPluginByID(id: string): HatcheryServer.IPlugin;
 /**
- * Once the plugins are loaded from the DB
- */
-declare function onPluginsLoaded(plugins: Array<HatcheryServer.IPlugin>): void;
-/**
  * Returns a formatted byte string
  */
 declare function byteFilter(bytes: any, precision?: number): string;
+/**
+ * Sorts the plugins based on their versions
+ */
+declare function sortPlugins(plugins: HatcheryServer.IPlugin[]): void;
+/**
+ * Once the plugins are loaded from the DB
+ */
+declare function onPluginsLoaded(plugins: HatcheryServer.IPlugin[]): void;

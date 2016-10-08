@@ -179,6 +179,8 @@
     "lib/gui/splash/projects-overview.tsx",
     "lib/gui/workspace/workspace.tsx",
     "lib/gui/application.tsx",
+    "lib/reducers/main.ts",
+    "lib/store.ts",
     "lib/main.tsx"
   ]
 }
