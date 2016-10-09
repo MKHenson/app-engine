@@ -179,6 +179,8 @@
     "lib/components/splash/projects-overview.tsx",
     "lib/components/workspace/workspace.tsx",
     "lib/components/application.tsx",
+    "lib/actions/project.ts",
+    "lib/reducers/project-reducer.ts",
     "lib/reducers/main.ts",
     "lib/store.ts",
     "lib/main.tsx"

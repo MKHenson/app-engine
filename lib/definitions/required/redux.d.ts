@@ -100,6 +100,7 @@ declare namespace Redux {
      * before passing them to the next middleware.
      */
     interface Dispatch<S> {
+        <A extends Action>( callback:( dispatch: Dispatch<S>, getState: Function ) => void ): void;
         <A extends Action>(action: A): A;
     }
 
