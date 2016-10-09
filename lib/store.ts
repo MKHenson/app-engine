@@ -16,9 +16,9 @@ store.subscribe(() => {
     console.log( "store changed", store.getState() )
 });
 
-store.dispatch(
-    (dispatch, getState) => {
-        const todos: string[] = getState().todos;
-        dispatch({type: 'ADD_TODO'})
-    }
-)
+// store.dispatch(
+//     (dispatch, getState) => {
+//         const todos: string[] = getState().todos;
+//         dispatch({type: 'ADD_TODO'})
+//     }
+// )

@@ -6974,6 +6974,12 @@ declare namespace Animate {
         focusObj: Component;
     }
 }
+declare const userReducer: Redux.Reducer<any>;
+declare const tweetReducer: Redux.Reducer<any>;
+declare const reducers: <A extends Redux.Action>(state: {}, action: A) => {};
+declare function createThunkMiddleware(extraArgument?: any): any;
+declare const thunk: any;
+declare const store: Redux.Store<any>;
 declare let _cache: string;
 declare const __plugins: {
     [name: string]: Array<HatcheryServer.IPlugin>;
