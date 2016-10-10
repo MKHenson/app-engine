@@ -20,9 +20,9 @@
         private startPos: number;
 
 
-        private label: IComponent;
-        private leftArrow: IComponent;
-        private rightArrow: IComponent;
+        private label: Component;
+        private leftArrow: Component;
+        private rightArrow: Component;
 
         // Proxies
         private stageUpPoxy: any;
@@ -38,7 +38,7 @@
         constructor( parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta: number = 1 ) {
             super( '<div class=\'toolbar-button tooltip scrolling-number\'></div>', parent );
 
-            const container: IComponent = this.addChild( '<div class=\'number-holder\'></div>' );
+            const container: Component = this.addChild( '<div class=\'number-holder\'></div>' );
             this.addChild( '<div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div>' );
 
             this.defaultVal = defaultVal;

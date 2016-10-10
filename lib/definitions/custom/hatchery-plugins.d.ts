@@ -1,32 +1,4 @@
 ﻿declare namespace Animate {
-    /**
-    * A simple interface for any component
-    */
-    export interface IComponent {
-        element: JQuery;
-        parent: IComponent;
-        dispose(): void;
-        addChild( child: string ): IComponent;
-        addChild( child: IComponent ): IComponent;
-        addChild( child: any ): IComponent;
-        removeChild( child: IComponent ): IComponent
-        update(): void;
-        selected: boolean;
-        savedID: string;
-        id: string;
-        children: Array<IComponent>;
-        clear(): void;
-        disposed: boolean;
-        onDelete(): void;
-    }
-
-    /**
-     * Describes the base type used in drag and drop communication
-     */
-    export interface IDragDropToken {
-        type: 'resource' | 'template' | 'container' | 'other';
-        id?: string | number;
-    }
 
     /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
@@ -96,7 +68,7 @@
         thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement>;
     }
 
-    export interface ISettingsPage extends IComponent {
+    export interface ISettingsPage {
         onShow( project: Project, user: User );
         name: string;
         onTab(): void;

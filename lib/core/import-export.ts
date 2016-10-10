@@ -265,7 +265,7 @@ namespace Animate {
 		* @param {ContainerToken} container The container to add refernces on
 		* @returns {any}
 		*/
-        referenceCheckAsset( asset: Resources.Asset, container: ContainerToken ) {
+        referenceCheckAsset( asset: Resources.Asset, container: any ) {
             if ( asset === null )
                 return;
 
@@ -317,7 +317,7 @@ namespace Animate {
 		* @param {ContainerToken} container The container to add refernces on
 		* @returns {any}
 		*/
-        referenceCheckGroup( group: TreeNodeGroup, container: ContainerToken ) {
+        referenceCheckGroup( group: TreeNodeGroup, container: any ) {
             if ( group === null )
                 return;
 

@@ -5,11 +5,11 @@ namespace Animate {
 	* The base class for all visual elements in the application. The {Component} class
 	* contains a reference of a jQuery object that points to the {Component}'s DOM representation.
 	*/
-    export class Component extends EventDispatcher implements IComponent {
+    export class Component extends EventDispatcher {
         public static idCounter: number = 0;
 
         private _element: JQuery;
-        private _children: Array<IComponent>;
+        private _children: Array<Component>;
         private _layouts: Array<any>;
         private _id: string;
         private _parent: Component;
@@ -67,7 +67,7 @@ namespace Animate {
                 return;
 
             this._tooltip = null;
-            const children: Array<IComponent> = this._children;
+            const children: Array<Component> = this._children;
 
             // Dispose method will remove child from parent and also the array
             while ( children.length !== 0 )
@@ -102,7 +102,7 @@ namespace Animate {
                 layouts[ i ].update( this );
 
             if ( updateChildren ) {
-                const children: Array<IComponent> = this._children;
+                const children: Array<Component> = this._children;
                 i = children.length;
                 while ( i-- )
                     children[ i ].update();
@@ -144,10 +144,10 @@ namespace Animate {
 		* Use this function to add a child to this component.
 		* This has the same effect of adding some HTML as a child of another piece of HTML.
 		* It uses the jQuery append function to achieve this functionality.
-		* @param {string | IComponent | JQuery} child The child component we want to add
-		* @returns {IComponent} The added component
+		* @param {string | Component | JQuery} child The child component we want to add
+		* @returns {Component} The added component
 		*/
-        addChild( child: string | IComponent | JQuery ): IComponent {
+        addChild( child: string | Component | JQuery ): Component {
             // Remove from previous parent
             let parent: Component;
             let toAdd: Component = null;
@@ -172,11 +172,11 @@ namespace Animate {
 
             // If already in this component then do nothing
             if ( jQuery.inArray( child, this._children ) !== -1 )
-                return ( <IComponent>child );
+                return ( <Component>child );
 
             // If it had an existing parent - then remove it
             if ( parent )
-                parent.removeChild(( <IComponent>toAdd ) );
+                parent.removeChild(( <Component>toAdd ) );
 
 
             toAdd._parent = this;
@@ -187,10 +187,10 @@ namespace Animate {
 
         /**
 		* Checks to see if a component is a child of this one
-		* @param {IComponent} child The {IComponent} to check
+		* @param {Component} child The {Component} to check
 		* @returns {boolean} true if the component is a child
 		*/
-        contains( child: IComponent ): boolean {
+        contains( child: Component ): boolean {
             if ( this._children.indexOf( child ) === -1 )
                 return false;
             return true;
@@ -199,10 +199,10 @@ namespace Animate {
 		/**
 		* Use this function to remove a child from this component.
 		* It uses the {JQuery} detach function to achieve this functionality.
-		* @param {IComponent} child The {IComponent} to remove from this {IComponent}'s children
-		* @returns {IComponent} The {IComponent} we have removed
+		* @param {Component} child The {Component} to remove from this {Component}'s children
+		* @returns {Component} The {Component} we have removed
 		*/
-        removeChild( child: IComponent ): IComponent {
+        removeChild( child: Component ): Component {
             //Determine if the child is pure html or a component
             if ( jQuery.inArray( child, this._children ) === -1 )
                 return child;
@@ -218,7 +218,7 @@ namespace Animate {
 		* Removes all child nodes
 		*/
         clear(): void {
-            const children: Array<IComponent> = this._children;
+            const children: Array<Component> = this._children;
             let i = children.length;
             while ( i-- )
                 children[ i ].dispose();
@@ -228,9 +228,9 @@ namespace Animate {
 
 		/**
 		* Returns the array of Child {Component}s
-		* @returns {Array{IComponent}} An array of child {IComponent} objects
+		* @returns {Array{Component}} An array of child {Component} objects
 		*/
-        get children(): Array<IComponent> { return this._children; }
+        get children(): Array<Component> { return this._children; }
 
 		/**
 		* Gets the jQuery wrapper

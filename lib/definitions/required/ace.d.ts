@@ -35,8 +35,6 @@ declare namespace AceAjax {
 
         addCommand(command:EditorCommand): void;
 
-        removeCommand(command:EditorCommand | string): void;
-
         exec(name: string, editor: Editor, args: any): void;
     }
 
@@ -78,9 +76,6 @@ declare namespace AceAjax {
         onCommandKey(e: any, hashId: any, keyCode: any): void;
 
         onTextInput(text: any): void;
-    }
-    var KeyBinding: {
-        new(editor: Editor): KeyBinding;
     }
 
     export interface TextMode {
@@ -1039,11 +1034,10 @@ declare namespace AceAjax {
     **/
     export interface Editor {
 
+        on(ev: string, callback: (e: any) => any): void;
+
         addEventListener(ev: 'change', callback: (ev: EditorChangeEvent) => any): void;
         addEventListener(ev: string, callback: Function): void;
-        removeEventListener(ev: 'change', callback: (ev: EditorChangeEvent) => any): void;
-        removeEventListener(ev: string, callback: Function): void;
-        removeAllListeners(ev: string): void;
 
         inMultiSelectMode: boolean;
 

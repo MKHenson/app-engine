@@ -339,7 +339,8 @@ gulp.task('install-definitions', function () {
             downloadFile("https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts", "lib/definitions/required/", "hatchery-server.d.ts"),
             downloadFile("https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts"),
             downloadFile("https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts"),
-            downloadFile("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts", "lib/definitions/required/", "redux.d.ts")
+            downloadFile("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts", "lib/definitions/required/", "redux.d.ts"),
+            downloadFile("https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts", "lib/definitions/required/", "ace.d.ts")
          ]);
 });
 
