@@ -42,7 +42,6 @@ namespace Animate {
             onSubmitted: null
         };
 
-        private _proxyInputProblem: any;
         private _className: string;
 
         private _values: {
@@ -88,7 +87,6 @@ namespace Animate {
                 else if ( this.refs[ i ] instanceof VCheckbox ) {
 
                     let component = this.refs[ i ] as VCheckbox;
-                    let domNode = ReactDOM.findDOMNode( this.refs[ i ] ) as HTMLInputElement;
 
                     // Set the initial values of checkbox
                     this._values[ component.props.name ] = { value: component.checked, error: null };
@@ -96,7 +94,6 @@ namespace Animate {
                 else if ( this.refs[ i ] instanceof VSelect ) {
 
                     let component = this.refs[ i ] as VSelect;
-                    let domNode = ReactDOM.findDOMNode( this.refs[ i ] ) as HTMLSelectElement;
 
                     // Set the initial values of checkbox
                     this._values[ component.props.name ] = { value: ( component.value ? component.value.value : null ), error: null };

@@ -7,12 +7,12 @@ namespace Animate {
          */
         export class BehaviourCreated extends EditorAction {
 
-            definition : BehaviourDefinition;
+            definition: BehaviourDefinition;
             instance: Behaviour;
             options: IBehaviour;
             resource: ProjectResource<HatcheryServer.IResource>;
 
-            constructor(definition: BehaviourDefinition, options: IBehaviour, resource? : ProjectResource<HatcheryServer.IResource> ) {
+            constructor( definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource> ) {
                 super();
                 this.definition = definition;
                 this.resource = resource;
@@ -22,7 +22,7 @@ namespace Animate {
             /**
              * Undo the last history action
              */
-            undo( editor : Animate.ContainerSchema ) {
+            undo( editor: Animate.ContainerSchema ) {
                 editor.removeItem( this.instance );
                 this.instance = null;
             }
@@ -30,9 +30,7 @@ namespace Animate {
             /**
              * Redo the next action
              */
-            redo( editor : Animate.ContainerSchema ) {
-
-                let project = User.get.project;
+            redo( editor: Animate.ContainerSchema ) {
 
                 switch ( this.definition.behaviourName ) {
                     case 'Asset':

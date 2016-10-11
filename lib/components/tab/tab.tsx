@@ -38,7 +38,7 @@ namespace Animate {
             if ( this._panes !== nextProps.panes ) {
 
                 // Cancel any existing promises
-                if (this._waitingOnPromise)
+                if ( this._waitingOnPromise )
                     this._waitingOnPromise = false;
 
                 this.clear();
@@ -82,22 +82,22 @@ namespace Animate {
             else
                 canClose = true;
 
-            if ( typeof( canClose ) === 'boolean' ) {
+            if ( typeof ( canClose ) === 'boolean' ) {
                 if ( canClose )
-                    this.disposePane(index, prop);
+                    this.disposePane( index, prop );
             }
             else {
                 this._waitingOnPromise = true;
-                (canClose as Promise<boolean>).then(( result ) => {
+                ( canClose as Promise<boolean> ).then(( result ) => {
 
                     // Its possible the wait was cancelled externally while waiting (props could have been reset).
                     // In that case we just exit
-                    if (!this._waitingOnPromise)
+                    if ( !this._waitingOnPromise )
                         return;
 
                     this._waitingOnPromise = false;
                     if ( result )
-                        this.disposePane(index, prop);
+                        this.disposePane( index, prop );
                 });
             }
         }
@@ -105,14 +105,14 @@ namespace Animate {
         /**
          * Internal function that removes the pane reference, disposes it and sets a new index
          */
-        private disposePane( index : number, prop: ITabPaneProps ) {
+        private disposePane( index: number, prop: ITabPaneProps ) {
             this._panes.splice( index, 1 );
 
             // Notify of its removal
             if ( prop.onDispose )
                 prop.onDispose( index, prop );
 
-            if (this._disposed)
+            if ( this._disposed )
                 return;
 
             this.setState( {
@@ -128,7 +128,7 @@ namespace Animate {
             const children = this._panes;
 
             return <div className={'tab' + ( this.props.className ? ' ' + this.props.className : '' ) +
-                ( children.length > 0 ? ' has-panes' : ' no-panes' ) }>
+                ( children.length > 0 ? ' has-panes' : ' no-panes' )}>
                 <div className="tab-labels">
 
                     {( children.length > 0 ?
@@ -137,12 +137,12 @@ namespace Animate {
                         } }>
                             <i className="fa fa-arrow-circle-down" aria-hidden="true"></i>
                         </div> : null
-                    ) }
+                    )}
                     {
                         children.map(( pane, index ) => {
                             return <div key={'tab-' + index}
                                 className={'tab-label' +
-                                    ( index === this.state.selectedIndex ? ' selected' : '' ) }
+                                    ( index === this.state.selectedIndex ? ' selected' : '' )}
                                 onClick={() =>
                                     this.onTabSelected( index, pane.props )
                                 }
@@ -160,10 +160,10 @@ namespace Animate {
                                         </div> : null
                                 }
                             </div>
-                        }) }
+                        })}
                 </div>
                 <div className="tab-panes">
-                    { children.length > 0 ? children[ this.state.selectedIndex ] : null }
+                    {children.length > 0 ? children[ this.state.selectedIndex ] : null}
                 </div>
             </div>
         }
@@ -280,7 +280,7 @@ namespace Animate {
 		 */
         getPaneByLabel( label: string ): ITabPaneProps {
             const panes = this._panes;
-            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+            for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.label === label )
                     return panes[ i ].props;
 
@@ -292,7 +292,7 @@ namespace Animate {
 		 */
         componentwillunmount() {
             const panes = this._panes;
-            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+            for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.onDispose )
                     panes[ i ].props.onDispose( i, panes[ i ].props );
         }
@@ -304,7 +304,7 @@ namespace Animate {
 
             // Notify of each pane's removal
             const panes = this._panes;
-            for ( let i = 0, l = panes.length; i < panes.length; i++ )
+            for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.onDispose )
                     panes[ i ].props.onDispose( i, panes[ i ].props );
 
@@ -318,7 +318,7 @@ namespace Animate {
 		 * Gets an array of all the tab props
 		 */
         get panes(): ITabPaneProps[] {
-            return this._panes.map( function ( pane ) {
+            return this._panes.map( function( pane ) {
                 return pane.props;
             });
         }

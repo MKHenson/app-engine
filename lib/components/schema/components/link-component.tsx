@@ -23,19 +23,19 @@ namespace Animate {
             this._upProxy = this.onMouseUp.bind( this );
         }
 
-        calculateRect( pos: Point ) : { left: number; top: number; height: number; width: number; } {
+        calculateRect( pos: Point ): { left: number; top: number; height: number; width: number; } {
             const link = this.props.link;
             let top = 0;
             let left = 0;
             let width = Math.abs( pos.x - link.left );
             let height = Math.abs( pos.y - link.top );
 
-            if (pos.x < link.left)
+            if ( pos.x < link.left )
                 left = pos.x;
             else
                 left = link.left;
 
-            if (pos.y < link.top)
+            if ( pos.y < link.top )
                 top = pos.y;
             else
                 top = link.top;
@@ -49,12 +49,11 @@ namespace Animate {
         }
 
         onMouseMove( e: MouseEvent ) {
-            const link = this.props.link;
             const targetPortal = this.props.getPortal( e.target as HTMLElement );
             const svg = this.refs[ 'svg' ] as SVGAElement;
             const canvas = svg.parentElement;
             const pos = Utils.getRelativePos( e, canvas );
-            const rect = this.calculateRect(pos);
+            const rect = this.calculateRect( pos );
 
             svg.style.left = rect.left + 'px';
             svg.style.top = rect.top + 'px';
@@ -76,8 +75,8 @@ namespace Animate {
 
             if ( targetPortal ) {
                 const items = editor.getItems();
-                const targetBehaviour = items[targetPortal.behaviour];
-                const rect = this.calculateRect({
+                const targetBehaviour = items[ targetPortal.behaviour ];
+                const rect = this.calculateRect( {
                     x: targetBehaviour.left + targetPortal.left + targetPortal.size,
                     y: targetBehaviour.top + targetPortal.top + targetPortal.size
                 });
@@ -91,10 +90,10 @@ namespace Animate {
                     startPortal: link.startPortal,
                     endPortal: targetPortal.name,
                     endBehaviour: targetPortal.behaviour
-                } );
+                });
             }
-             else
-                editor.endLinkRouting(null);
+            else
+                editor.endLinkRouting( null );
 
             window.document.removeEventListener( 'mousemove', this._moveProxy );
             window.removeEventListener( 'mouseup', this._upProxy );
@@ -116,7 +115,6 @@ namespace Animate {
          */
         render(): JSX.Element {
             const link = this.props.link;
-            const isRouting = this.props.isRouting;
 
             return (
                 <svg ref="svg" className="link" style={{

@@ -34,7 +34,6 @@ namespace Animate {
             const items: JQuery = jQuery( 'select.asset-list-select', editor );
             const add: JQuery = jQuery( '.add', editor );
             const remove: JQuery = jQuery( '.remove', editor );
-            const that = this;
             let assetId: number;
             let asset: Resources.Asset;
             const assets = p.getVal();
@@ -42,7 +41,7 @@ namespace Animate {
             let nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
 
             // Sort alphabetically
-            nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
+            nodes = nodes.sort( function( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
                 const textA = a.resource.entry.name.toUpperCase();
                 const textB = b.resource.entry.name.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -67,19 +66,19 @@ namespace Animate {
             }
 
             // When we select an asset
-            const onSelect = function ( e: JQueryEventObject ) {
+            const onSelect = function( e: JQueryEventObject ) {
                 assetId = parseInt( selector.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( assetId, ResourceType.ASSET );
             };
 
 
             // When we select an asset in the list, select that in the drop down
-            const onItemSelect = function ( e: JQueryEventObject ) {
+            const onItemSelect = function( e: JQueryEventObject ) {
                 selector.val( items.val() );
             };
 
             // When we click on the eye selector
-            const onEye = function ( e: JQueryEventObject ) {
+            const onEye = function( e: JQueryEventObject ) {
                 const val = parseInt( selector.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
 
@@ -93,7 +92,7 @@ namespace Animate {
             };
 
             // When we click on add button
-            const onAdd = function ( e: JQueryEventObject ) {
+            const onAdd = function( e: JQueryEventObject ) {
                 if ( asset && assets.indexOf( asset ) === -1 ) {
                     assets.push( asset );
                     items.append( `<option title='${assetId + ' : ' + asset.entry.className}' value='${asset.entry.shallowId}'>${asset.entry.name}</option>` );
@@ -102,7 +101,7 @@ namespace Animate {
             }
 
             // When we click on remove button
-            const onRemove = function ( e: JQueryEventObject ) {
+            const onRemove = function( e: JQueryEventObject ) {
                 const toRemove: number = parseInt( items.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( toRemove, ResourceType.ASSET );
 

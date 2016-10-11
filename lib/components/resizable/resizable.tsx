@@ -97,12 +97,11 @@ namespace Animate {
             elm.style.width = this._ghost.style.width;
             elm.style.height = this._ghost.style.height;
 
-            const bounds = elm.getBoundingClientRect();
             const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
             const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
 
             if ( this.props.onResized )
-                this.props.onResized( { width: w, height: h } );
+                this.props.onResized( { width: w, height: h });
         }
 
         /**
@@ -110,7 +109,7 @@ namespace Animate {
          */
         onMouseMove( e: React.MouseEvent ) {
             const elm = this.refs[ 'resizable' ] as HTMLElement;
-            const bounds = elm.getBoundingClientRect();
+            elm.getBoundingClientRect();
             const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
             const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
             this._ghost.style.width = ( w ) + 'px';
@@ -122,7 +121,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div ref="resizable"
-                className={'resizable' + ( this.props.className ? ' ' + this.props.className : '' ) }>
+                className={'resizable' + ( this.props.className ? ' ' + this.props.className : '' )}>
                 {this.props.children}
                 <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) } } />
                 <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) } } />

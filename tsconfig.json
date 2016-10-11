@@ -13,7 +13,7 @@
         "jsx": "react",
         "experimentalDecorators": true,
         "noUnusedParameters": false,
-        "noUnusedLocals": false,
+        "noUnusedLocals": true,
         "strictNullChecks": false
     },
     "files": [

@@ -49,7 +49,6 @@ namespace Animate {
         constructor( props: IFileViewerProps ) {
             super( props );
 
-            const that = this;
             this._selectedEntities = [];
             this._entries = [];
             this._searchType = FileSearchType.User;
@@ -660,7 +659,6 @@ namespace Animate {
             e.stopPropagation();
 
             let files = e.dataTransfer.files;
-            let details = User.get.entry;
             this.setState( { highlightDropZone: false });
 
             if ( files.length > 0 ) {

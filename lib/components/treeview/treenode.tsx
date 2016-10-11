@@ -9,8 +9,6 @@ namespace Animate {
 	 */
     export class TreeNode extends React.Component<ITreeNodeProps, any> {
 
-        private _dropProxy: any;
-
         /**
          * Creates an instance
          */
@@ -30,7 +28,7 @@ namespace Animate {
                         ( node.expanded() ? ' expanded' : ' collapsed' ) +
                         ( node.selectable() ? ' selectable' : '' ) +
                         ( node.disabled() ? ' disabled' : '' ) +
-                        ( node.focussed ? ' focussed' : '' ) }>
+                        ( node.focussed ? ' focussed' : '' )}>
                     <div className="node-header">
                         <div className="expand-button unselectable"
                             onClick={( e ) => {
@@ -40,16 +38,16 @@ namespace Animate {
                                 node.expanded( !node.expanded() );
                             } }
                             style={{ visibility: ( this.props.node.children.length === 0 ? 'hidden' : '' ) }}>
-                            {( node.expanded() ? '-' : '+' ) }
+                            {( node.expanded() ? '-' : '+' )}
                         </div>
                         <div draggable={node.canDrag}
-                            onDragStart={ ( e ) => {
+                            onDragStart={( e ) => {
                                 let json = node.onDragStart( e );
                                 if ( json )
                                     e.dataTransfer.setData( 'text', JSON.stringify( json ) );
 
                             } }
-                            onDragOver={ ( node.canDrop ? ( e ) => { e.preventDefault(); } : null ) }
+                            onDragOver={( node.canDrop ? ( e ) => { e.preventDefault(); } : null )}
                             onDrop={( node.canDrop ? ( e ) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -64,8 +62,8 @@ namespace Animate {
                                 catch ( e ) {
                                 }
 
-                            } : null ) }
-                            className={'label unselectable' + ( node.selected() ? ' selected' : '' ) }
+                            } : null )}
+                            className={'label unselectable' + ( node.selected() ? ' selected' : '' )}
                             onContextMenu={( e ) => {
                                 if ( node.disabled() )
                                     return;
@@ -90,17 +88,17 @@ namespace Animate {
                                     return;
 
                                 if ( node.selectable() ) {
-                                    node.onDoubleClick(e);
+                                    node.onDoubleClick( e );
                                 }
                             } }>
-                            {node.icon() }
-                            {node.label() }
+                            {node.icon()}
+                            {node.label()}
                         </div>
                     </div>
                     <div className="child-nodes">
-                        {this.props.node.children && this.props.node.children.map( function ( n, index ) {
+                        {this.props.node.children && this.props.node.children.map( function( n, index ) {
                             return <TreeNode key={'node-' + index} node={n} />
-                        }) }
+                        })}
                     </div>
                 </div>
             )

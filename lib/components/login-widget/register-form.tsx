@@ -32,8 +32,6 @@ namespace Animate {
         * Attempts to register a new user
         */
         register( json: any ) {
-            const that = this;
-
             if ( this.props.onLoadingChange )
                 this.props.onLoadingChange( true );
 
@@ -129,10 +127,10 @@ namespace Animate {
                                 {this.state.errorMsg}
                             </Attention>
                             : null
-                        ) }
+                        )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode() }>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode()}>
                             <span className="fa-chevron-left fa" /> Login
                         </ButtonPrimary>
                     </div>

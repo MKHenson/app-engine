@@ -29,7 +29,7 @@ namespace Animate {
         }
 
         activateEditor( editor: Editor ) {
-            if (this.activeEditor)
+            if ( this.activeEditor )
                 this.activeEditor.active = false;
 
             this.activeEditor = editor;
@@ -103,8 +103,8 @@ namespace Animate {
 		 */
         updateDetails( token: HatcheryServer.IProject ): Promise<UsersInterface.IResponse> {
             const entry = this._entry;
-            return new Promise<UsersInterface.IResponse>( ( resolve, reject ) => {
-                Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then( ( data ) => {
+            return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
+                Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then(( data ) => {
                     if ( data.error )
                         return reject( new Error( data.message ) );
                     else {
@@ -119,7 +119,7 @@ namespace Animate {
                     this.invalidate();
                     return resolve( data );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -130,7 +130,7 @@ namespace Animate {
 		 */
         loadBuild(): Promise<Build> {
             const username = User.get.entry.username;
-            return new Promise<Build>( ( resolve, reject ) => {
+            return new Promise<Build>(( resolve, reject ) => {
                 let promise: Promise<any>;
 
                 // If the project has a build then load it - otherwise create a new one
@@ -139,7 +139,7 @@ namespace Animate {
                 else
                     promise = Utils.post( `${DB.API}/users/${username}/projects/${this._entry._id}/builds?set-current=true`, null );
 
-                promise.then( ( data: ModepressAddons.IGetBuilds ) => {
+                promise.then(( data: ModepressAddons.IGetBuilds ) => {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
@@ -147,7 +147,7 @@ namespace Animate {
                     this.invalidate();
                     return resolve( this.curBuild );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -164,23 +164,23 @@ namespace Animate {
             if ( type === ResourceType.ASSET ) {
                 const aClass = PluginManager.getSingleton().getAssetClass(( <HatcheryServer.IAsset>entry ).className );
                 resource = new Resources.Asset( aClass, entry );
-                this._restPaths[type].array.push( <Resources.Asset>resource );
+                this._restPaths[ type ].array.push( <Resources.Asset>resource );
             }
             else if ( type === ResourceType.SCRIPT ) {
                 resource = new Resources.Script( <any>entry );
-                this._restPaths[type].array.push( resource );
+                this._restPaths[ type ].array.push( resource );
             }
             else if ( type === ResourceType.CONTAINER ) {
                 resource = new Resources.Container( entry );
-                this._restPaths[type].array.push( <Resources.Container>resource );
+                this._restPaths[ type ].array.push( <Resources.Container>resource );
             }
             else if ( type === ResourceType.GROUP ) {
                 resource = new Resources.GroupArray( entry );
-                this._restPaths[type].array.push( <Resources.GroupArray>resource );
+                this._restPaths[ type ].array.push( <Resources.GroupArray>resource );
             }
             else if ( type === ResourceType.FILE ) {
                 resource = new Resources.File( entry );
-                this._restPaths[type].array.push( resource );
+                this._restPaths[ type ].array.push( resource );
             }
 
             resource.initialize();
@@ -205,7 +205,7 @@ namespace Animate {
                         resource.dispose();
                     }
 
-                    paths[t].array.splice( paths[t].array.length );
+                    paths[ t ].array.splice( paths[ t ].array.length );
                 }
 
                 arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.FILE ].url}?verbose=true` ) );
@@ -292,8 +292,8 @@ namespace Animate {
             if ( !r )
                 return Promise.reject<Error>( new Error( 'Could not find a resource with that ID' ) );
 
-            return new Promise<T>( ( resolve, reject ) => {
-                Utils.get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then( ( response ) => {
+            return new Promise<T>(( resolve, reject ) => {
+                Utils.get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then(( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
@@ -309,7 +309,7 @@ namespace Animate {
                     this.invalidate();
                     return resolve( r.resource );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -328,18 +328,18 @@ namespace Animate {
             let resource: ProjectResource<HatcheryServer.IResource>;
 
             for ( const p in paths )
-                for ( const r of paths[p].array )
+                for ( const r of paths[ p ].array )
                     if ( r.entry._id == id ) {
                         resource = r;
-                        url = `${DB.API}/users/${details.username}/projects/${projId}/${paths[p].url}/${id}`;
+                        url = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ p ].url}/${id}`;
                         break;
                     }
 
             if ( !resource )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
-            return new Promise<UsersInterface.IResponse>( ( resolve, reject ) => {
-                Utils.put<Modepress.IResponse>( url, data ).then( ( response ) => {
+            return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
+                Utils.put<Modepress.IResponse>( url, data ).then(( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
@@ -351,7 +351,7 @@ namespace Animate {
                     this.invalidate();
                     return resolve( response );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -371,8 +371,8 @@ namespace Animate {
             const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
             resource.onSaving();
 
-            return new Promise<boolean>( ( resolve, reject ) => {
-                Utils.put<Modepress.IResponse>( url, resource.entry ).then( ( response ) => {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Utils.put<Modepress.IResponse>( url, resource.entry ).then(( response ) => {
                     if ( response.error )
                         return reject( new Error( `Could not save ${ResourceType[ type ].toLowerCase()} resource [${resource.entry._id}]: '${response.message}'` ) );
 
@@ -380,7 +380,7 @@ namespace Animate {
                     this.invalidate();
                     return resolve( true );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -397,10 +397,10 @@ namespace Animate {
             for ( let i = 0, arr = paths[ type ].array, l = arr.length; i < l; i++ )
                 promises.push( this.saveResource( arr[ i ].entry._id, type ) );
 
-            return new Promise<boolean>( ( resolve, reject ) => {
-                Promise.all( promises ).then( ( data ) => {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Promise.all( promises ).then(( data ) => {
                     resolve( true );
-                }).catch( function ( err: Error ) {
+                }).catch( function( err: Error ) {
                     reject( err );
                 });
             });
@@ -428,8 +428,8 @@ namespace Animate {
             if ( !resource )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
-            return new Promise<boolean>( ( resolve, reject ) => {
-                Utils.delete<Modepress.IResponse>( url ).then( ( response ) => {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Utils.delete<Modepress.IResponse>( url ).then(( response ) => {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
@@ -440,7 +440,7 @@ namespace Animate {
                     this.removeEditor( this.getEditorByResource( resource ) );
                     return resolve( true );
 
-                }).catch( ( err: IAjaxError ) => {
+                }).catch(( err: IAjaxError ) => {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -480,11 +480,11 @@ namespace Animate {
                         }
                     }
 
-            return new Promise<boolean>( ( resolve, reject ) => {
-                Promise.all( promises ).then( ( data ) => {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Promise.all( promises ).then(( data ) => {
                     resolve( true );
 
-                }).catch( ( err: Error ) => {
+                }).catch(( err: Error ) => {
                     reject( err );
                 });
             });
@@ -498,10 +498,10 @@ namespace Animate {
             for ( const i in this._restPaths )
                 promises.push( this.saveResources( <ResourceType>parseInt( i ) ) );
 
-            return new Promise<boolean>( ( resolve, reject ) => {
-                Promise.all( promises ).then( ( data ) => {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Promise.all( promises ).then(( data ) => {
                     resolve( true );
-                }).catch( ( err: Error ) => {
+                }).catch(( err: Error ) => {
                     reject( err );
                 });
             });
@@ -567,9 +567,9 @@ namespace Animate {
         /**
          * Gets an editor by its resource
          */
-        getEditorByResource( resource : ProjectResource<HatcheryServer.IResource> ): Editor {
+        getEditorByResource( resource: ProjectResource<HatcheryServer.IResource> ): Editor {
             for ( const editor of this.openEditors )
-                if (editor.resource === resource)
+                if ( editor.resource === resource )
                     return editor;
 
             return null;
@@ -578,8 +578,8 @@ namespace Animate {
         /**
          * Removes an editor from the active editor array
          */
-        removeEditor( editor : Editor ) {
-            this.openEditors.splice( this.openEditors.indexOf(editor), 1 );
+        removeEditor( editor: Editor ) {
+            this.openEditors.splice( this.openEditors.indexOf( editor ), 1 );
             this.emit<ProjectEvents, IEditorEvent>( 'editor-removed', { editor: editor });
             this.invalidate();
         }
@@ -588,21 +588,20 @@ namespace Animate {
          * Triggers a change event
          */
         invalidate() {
-            this.emit<ProjectEvents, void>( 'change');
+            this.emit<ProjectEvents, void>( 'change' );
         }
 
-        get containers(): Resources.Container[] { return this._restPaths[ResourceType.CONTAINER].array as Resources.Container[]; }
-        get files(): Resources.File[] { return this._restPaths[ResourceType.FILE].array as Resources.File[]; }
-        get scripts(): Resources.Script[] { return this._restPaths[ResourceType.SCRIPT].array as Resources.Script[]; }
-        get assets(): Resources.Asset[] { return this._restPaths[ResourceType.ASSET].array as Resources.Asset[]; }
-        get groups(): Resources.GroupArray[] { return this._restPaths[ResourceType.GROUP].array as Resources.GroupArray[]; }
+        get containers(): Resources.Container[] { return this._restPaths[ ResourceType.CONTAINER ].array as Resources.Container[]; }
+        get files(): Resources.File[] { return this._restPaths[ ResourceType.FILE ].array as Resources.File[]; }
+        get scripts(): Resources.Script[] { return this._restPaths[ ResourceType.SCRIPT ].array as Resources.Script[]; }
+        get assets(): Resources.Asset[] { return this._restPaths[ ResourceType.ASSET ].array as Resources.Asset[]; }
+        get groups(): Resources.GroupArray[] { return this._restPaths[ ResourceType.GROUP ].array as Resources.GroupArray[]; }
 
 		/**
 		 * This will cleanup the project and remove all data associated with it.
 		 */
         reset() {
             this._entry = null;
-            const pManager: PluginManager = PluginManager.getSingleton();
 
             // Dispose each of the resources saved
             const paths = this._restPaths;

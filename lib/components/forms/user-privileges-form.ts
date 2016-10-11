@@ -16,7 +16,7 @@ namespace Animate {
             UserPrivilegesForm._singleton = this;
 
             this.content.element.addClass( "user-privileges-content" );
-            const top: Component = <Component>this.content.addChild( "<div class='top'></div>" );
+            // const top: Component = <Component>this.content.addChild( "<div class='top'></div>" );
             const bottom: Component = <Component>this.content.addChild( "<div class='bottom'></div>" );
 
             //this.mSave = new Button( "Save", bottom );
@@ -30,7 +30,6 @@ namespace Animate {
             this.mMenu.addColumn( "Username" );
             this.mMenu.addColumn( "Access Rights" );
 
-            const width = this.element.width();
             this.mMenu.setColumnWidth( 0, 185 );
             this.mMenu.setColumnWidth( 1, 255 );
 

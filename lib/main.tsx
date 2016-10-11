@@ -133,8 +133,6 @@ jQuery( document ).ready( function() {
         xhrFields: { withCredentials: true }
     });
 
-    const that = this;
-
     // Show the loading animation
     Animate.LoaderBase.showLoader();
 

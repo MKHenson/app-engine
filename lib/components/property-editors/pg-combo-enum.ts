@@ -43,10 +43,8 @@ namespace Animate {
             for ( let i: number = 0; i < len; i++ )
                 selector.append( `<option value='${vars[ i ]}' ${( selectedValue === vars[ i ] ? 'selected=\'selected\'' : '' )}>${vars[ i ]}</option>` );
 
-            const that = this;
-
             // Functions to deal with user interactions with JQuery
-            const onSelect = function ( e: JQueryEventObject ) {
+            const onSelect = function( e: JQueryEventObject ) {
                 const val = selector.val();
                 p.setVal( val );
             };

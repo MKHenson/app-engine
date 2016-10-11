@@ -39,10 +39,8 @@ namespace Animate {
             // Add to DOM
             container.element.append( editor );
 
-            const that = this;
-
             // Function to deal with user interactions with JQuery
-            const valueEdited = function ( e: JQueryEventObject ) {
+            const valueEdited = function( e: JQueryEventObject ) {
                 let val: number = parseFloat( jQuery( 'input', editor ).val() );
                 if ( isNaN( val ) )
                     val = 0;

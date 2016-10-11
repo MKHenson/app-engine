@@ -22,14 +22,14 @@ namespace Animate {
         // private _contextSave: ContextMenuItem;
         // private _contextRefresh: ContextMenuItem;
         // private _contextAddGroup: ContextMenuItem;
-        private _quickCopy: Component;
-        private _quickAdd: Component;
-        private _shortcutProxy: any;
+        // private _quickCopy: Component;
+        // private _quickAdd: Component;
+        // private _shortcutProxy: any;
 
         // private _context : IReactContextMenuItem[];
 
-        constructor(props: ITreeViewSceneProps) {
-            super(props);
+        constructor( props: ITreeViewSceneProps ) {
+            super( props );
             this.props.nodeStore.addNode( new TreeViewNodeContainers( props.project ) );
             this.props.nodeStore.addNode( new TreeViewNodeAssets( props.project ) );
             this.props.nodeStore.addNode( new TreeViewNodeGroups( props.project ) );

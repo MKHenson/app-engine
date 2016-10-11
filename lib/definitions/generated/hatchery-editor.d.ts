@@ -530,7 +530,6 @@ declare namespace Animate {
      * Base class for all custom enums
      */
     class ENUM {
-        private static allEnums;
         value: string;
         constructor(v: string);
         toString(): string;
@@ -1691,19 +1690,8 @@ declare namespace Animate {
         static lastSelectedItem: any;
         static snapping: boolean;
         name: string;
-        private _upProxy;
-        private _downProxy;
-        private _contextProxy;
-        private _keyProxy;
-        private _contextNode;
-        private _x;
-        private _y;
         private _container;
         private _containerReferences;
-        private _proxyMoving;
-        private _proxyStartDrag;
-        private _proxyStopDrag;
-        private _loadingScene;
         /**
         * @param {Component} parent The parent component to add this canvas to
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
@@ -3377,7 +3365,6 @@ declare namespace Animate {
     class Schema extends React.Component<ISchemaProps, {
         workspace: HatcheryServer.IContainerWorkspace;
     }> {
-        private static _openCanvases;
         constructor(props: ISchemaProps);
         componentWillReceiveProps(nextProps: ISchemaProps): void;
         /**
@@ -3586,7 +3573,6 @@ declare namespace Animate {
      * This visual representation of a TreeNodeModel
      */
     class TreeNode extends React.Component<ITreeNodeProps, any> {
-        private _dropProxy;
         /**
          * Creates an instance
          */
@@ -3784,9 +3770,6 @@ declare namespace Animate {
     class TreeViewScene extends TreeView<ITreeViewSceneProps> {
         static defaultProps: ITreeViewSceneProps;
         private static _singleton;
-        private _quickCopy;
-        private _quickAdd;
-        private _shortcutProxy;
         constructor(props: ITreeViewSceneProps);
         /**
          * Bind any project related events
@@ -5470,14 +5453,8 @@ declare namespace Animate {
     class PortalForm extends ReactWindow<IPortalFormProps, IPortalFormStats> {
         static defaultProps: IPortalFormProps;
         private _portalType;
-        private _value;
-        private _fromOk;
         private _newProperty;
-        private _formElm;
-        private _nameVerifier;
         private $name;
-        private $class;
-        private $errorMsg;
         constructor(props: IPortalFormProps);
         /**
          * Gets the content JSX for the window.
@@ -6358,7 +6335,6 @@ declare namespace Animate {
         pristine?: boolean;
     }> {
         static defaultProps: IVFormProps;
-        private _proxyInputProblem;
         private _className;
         private _values;
         /**
@@ -6729,7 +6705,6 @@ declare namespace Animate {
      * The main workspace area of the application.
      */
     class Workspace extends React.Component<IWorkspaceProps, any> {
-        private _previousEditor;
         /**
          * Creates an instance of the workspace
          */

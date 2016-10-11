@@ -130,8 +130,6 @@ namespace Animate {
          * @returns An error string or null if there are no errors
          */
         getValidationErrorMsg( val: string ): string {
-            let validators = Utils.validators;
-            let validator = null;
             let errorMsg: string = null;
 
             val = ( val !== undefined ? val : this.state.value );
@@ -197,7 +195,6 @@ namespace Animate {
                 this.props.onValidationResolved( this );
 
             if ( this.props.hint && this._allowHint ) {
-                let isMatching = true;
                 let index = this.props.hint.toLowerCase().indexOf( val.toLowerCase() );
 
                 if ( index === 0 ) {

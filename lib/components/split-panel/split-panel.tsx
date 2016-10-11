@@ -100,10 +100,10 @@ namespace Animate {
                 };
             }
 
-            return <div className={'split-panel ' + ( orientation === SplitOrientation.VERTICAL ? 'vertical' : 'horizontal' ) } >
+            return <div className={'split-panel ' + ( orientation === SplitOrientation.VERTICAL ? 'vertical' : 'horizontal' )} >
                 <div className="panel1" style={panel1Style}>
-                    { this.state.dragging ? <div className="panel-input"></div> : null }
-                    { this.props.left || this.props.top }
+                    {this.state.dragging ? <div className="panel-input"></div> : null}
+                    {this.props.left || this.props.top}
                 </div>
                 <div ref="divider" onMouseDown={( e ) => { this.onDividerMouseDown( e ) } }
                     style={dividerStyle}
@@ -113,10 +113,10 @@ namespace Animate {
                     className="split-panel-divider-dragging"
                     style={{
                         display: ( !this.state.dragging ? 'none' : '' )
-                    }}/>
+                    }} />
                 <div className="panel2" style={panel2Style}>
-                    { this.state.dragging ? <div className="panel-input"></div> : null }
-                    { this.props.right || this.props.bottom }
+                    {this.state.dragging ? <div className="panel-input"></div> : null}
+                    {this.props.right || this.props.bottom}
                 </div>
                 <div className="fix"></div>
             </div>
@@ -130,7 +130,6 @@ namespace Animate {
             this.setState( { dragging: true });
             let ratio = this.state.ratio;
             let orientation = this.props.orientation;
-            let divider = this.refs[ 'divider' ] as HTMLElement;
             let scrubber = this.refs[ 'scrubber' ] as HTMLElement;
             let dividerSizeHalf = this.props.dividerSize * 0.5;
 

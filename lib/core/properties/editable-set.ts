@@ -98,7 +98,6 @@
         * @param {any} data The data to import from
         */
         deTokenize( data: any ) {
-            const toRet: any = {};
             const items = this._variables;
             items.splice( 0, items.length );
 

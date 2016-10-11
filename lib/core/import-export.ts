@@ -270,7 +270,6 @@ namespace Animate {
                 return;
 
             const assetVars = asset.properties.variables;
-            const project = User.get.project;
 
             //Check all the assets properties. If it contains another assest, then we need to make sure its added to the container
             for ( let i = 0, l = assetVars.length; i < l; i++ ) {
@@ -413,7 +412,7 @@ namespace Animate {
 		* This is the resonse from the server
 		*/
         onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-            const loader: AnimateLoader = <AnimateLoader>sender;
+            // const loader: AnimateLoader = <AnimateLoader>sender;
             // if ( response === LoaderEvents.COMPLETE ) {
             //     if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
             //         if ( loader.url === '/export/compile' ) {

@@ -29,13 +29,11 @@ namespace Animate {
 
             // Create HTML
             const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><input type='text' class='PropTextbox' value = '${p.getVal().toString()}' /></div><div class='fix'></div>` );
-            const that = this;
-
             // Add to DOM
             container.element.append( editor );
 
             //Function to deal with user interactions with JQuery
-            const valueEdited = function ( e: JQueryEventObject ) {
+            const valueEdited = function( e: JQueryEventObject ) {
                 p.setVal( jQuery( 'input', editor ).val() );
             };
 

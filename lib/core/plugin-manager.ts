@@ -227,7 +227,6 @@ namespace Animate {
         getAssetClass( name: string ): AssetClass {
             // Assign any of the options / missing variables for classes that are updated in code but not in the DB
             const assetTemplates: Array<AssetTemplate> = this._assetTemplates;
-            let classFound: boolean = false;
             for ( let i = 0, l = assetTemplates.length; i < l; i++ ) {
                 const assetClass: AssetClass = assetTemplates[ i ].findClass( name );
                 if ( assetClass )

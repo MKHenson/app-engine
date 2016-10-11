@@ -31,15 +31,15 @@ namespace Animate {
         //private _warning: Label;
         private _portalType: HatcheryRuntime.PortalType;
         //private _item: Component;
-        private _value: any;
-        private _fromOk: boolean;
+        // private _value: any;
+        // private _fromOk: boolean;
         private _newProperty: Prop<any>;
 
-        private _formElm: JQuery;
-        private _nameVerifier: ( name: string ) => boolean;
+        // private _formElm: JQuery;
+        // private _nameVerifier: ( name: string ) => boolean;
         private $name: string;
-        private $class: string;
-        private $errorMsg: string;
+        // private $class: string;
+        // private $errorMsg: string;
 
 
         constructor( props: IPortalFormProps ) {

@@ -41,7 +41,7 @@ namespace Animate {
             let groups = project.groups.slice( 0, project.groups.length );
 
             //Sort alphabetically
-            groups = groups.sort( function ( a: Resources.GroupArray, b: Resources.GroupArray ) {
+            groups = groups.sort( function( a: Resources.GroupArray, b: Resources.GroupArray ) {
                 const textA = a.entry.name;
                 const textB = b.entry.name;
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -53,19 +53,16 @@ namespace Animate {
             for ( let i = 0; i < groups.length; i++ )
                 selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? 'selected=\'selected\'' : '' )}>${groups[ i ].entry.name}</option>` );
 
-
-            const that = this;
-
             // Functions to deal with user interactions with JQuery
-            const onSelect = function ( e: JQueryEventObject ) {
+            const onSelect = function( e: JQueryEventObject ) {
                 const val = parseFloat( selector.val() );
                 const group = <Resources.GroupArray>project.getResourceByShallowID( val, ResourceType.GROUP );
                 p.setVal( group );
             };
 
-            const onEye = function ( e: JQueryEventObject ) {
-                const val = parseFloat( selector.val() );
-                const group = project.getResourceByShallowID( val, ResourceType.GROUP );
+            const onEye = function( e: JQueryEventObject ) {
+                // const val = parseFloat( selector.val() );
+                // const group = project.getResourceByShallowID( val, ResourceType.GROUP );
                 // TODO: This needs to be checked with update to TSX
                 // TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
             };

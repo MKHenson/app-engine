@@ -7,9 +7,6 @@ namespace Animate {
 
     export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryServer.IContainerWorkspace }> {
 
-        // We keep a list of all open canvases
-        private static _openCanvases = [];
-
         constructor( props: ISchemaProps ) {
             super( props );
 
@@ -71,7 +68,7 @@ namespace Animate {
             pos.x = pos.x - pos.x % 10;
             pos.y = pos.y - pos.y % 10;
 
-            this.props.editor.doAction( new Actions.BehaviourCreated( template, { left : pos.x, top: pos.y }, resource ) );
+            this.props.editor.doAction( new Actions.BehaviourCreated( template, { left: pos.x, top: pos.y }, resource ) );
         }
 
         // /**
@@ -114,15 +111,15 @@ namespace Animate {
             ReactWindow.show( RenameForm, {
                 name: '',
                 onOk: ( newName ) => {
-                    this.props.editor.doAction( new Actions.PortalCreated( new Portal( null, type, new PropBool( newName, false ) ), null, pos.x, pos.y )  );
+                    this.props.editor.doAction( new Actions.PortalCreated( new Portal( null, type, new PropBool( newName, false ) ), null, pos.x, pos.y ) );
                 },
                 onRenaming: ( newName, prevName ): Error => {
                     // Do not allow for duplicate portal names
                     const items = this.props.editor.getItems();
                     for ( const item of items )
                         if ( item instanceof BehaviourPortal )
-                            if ( item.portals[0].property.name == newName )
-                                return new Error(`A portal with the name '${newName}' already exists`);
+                            if ( item.portals[ 0 ].property.name == newName )
+                                return new Error( `A portal with the name '${newName}' already exists` );
 
                     return null;
                 }
@@ -145,30 +142,30 @@ namespace Animate {
             const items: IReactContextMenuItem[] = [
                 {
                     label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" />, onSelect: ( e ) => {
-                        this.props.editor.doAction( new Actions.CommentCreated(mouse.x, mouse.y));
+                        this.props.editor.doAction( new Actions.CommentCreated( mouse.x, mouse.y ) );
                     }
                 },
                 {
                     label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [ {
-                            label: 'Create Input',
-                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                            onSelect: ( e ) => { this.createPortal( 'input', mouse ); }
-                        },
-                        {
-                            label: 'Create Output',
-                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                            onSelect: ( e ) => { this.createPortal( 'output', mouse ); }
-                        },
-                        {
-                            label: 'Create Parameter',
-                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                            onSelect: ( e ) => { this.createPortal( 'parameter', mouse ); }
-                        },
-                        {
-                            label: 'Create Product',
-                            prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                            onSelect: ( e ) => { this.createPortal( 'product', mouse ); }
-                        }
+                        label: 'Create Input',
+                        prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                        onSelect: ( e ) => { this.createPortal( 'input', mouse ); }
+                    },
+                    {
+                        label: 'Create Output',
+                        prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                        onSelect: ( e ) => { this.createPortal( 'output', mouse ); }
+                    },
+                    {
+                        label: 'Create Parameter',
+                        prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                        onSelect: ( e ) => { this.createPortal( 'parameter', mouse ); }
+                    },
+                    {
+                        label: 'Create Product',
+                        prefix: <i className="fa fa-plus" aria-hidden="true" />,
+                        onSelect: ( e ) => { this.createPortal( 'product', mouse ); }
+                    }
                     ]
                 }
             ];
@@ -184,16 +181,15 @@ namespace Animate {
             e.preventDefault();
         }
 
-        getPortal( target : HTMLElement) : IPortal {
-            let elm: HTMLElement;
+        getPortal( target: HTMLElement ): IPortal {
             let ref: React.Component<any, any> | Element;
             let portal: IPortal;
 
             for ( let i in this.refs ) {
-                ref = this.refs[i];
+                ref = this.refs[ i ];
                 if ( ref instanceof BehaviourComponent ) {
-                    portal = ref.getPortalFromTarget(target)
-                    if (portal)
+                    portal = ref.getPortalFromTarget( target )
+                    if ( portal )
                         return portal;
                 }
             }
@@ -211,8 +207,8 @@ namespace Animate {
                     onContextMenu={( e ) => { this.onContext( e ); } }
                     ref="canvas"
                     className="canvas"
-                    onClick={( e ) => this.props.editor.onNodeSelected( null, false ) }
-                    onDragOver={( e ) => e.preventDefault() }
+                    onClick={( e ) => this.props.editor.onNodeSelected( null, false )}
+                    onDragOver={( e ) => e.preventDefault()}
                     onDoubleClick={( e ) => {
                         e.preventDefault();
                         const elm = this.refs[ 'canvas' ] as HTMLElement;
@@ -245,9 +241,9 @@ namespace Animate {
                     {
                         this.props.editor.activeLink ? <LinkComponent
                             isRouting={true}
-                            getPortal={(target) => { return this.getPortal( target ) }}
+                            getPortal={( target ) => { return this.getPortal( target ) } }
                             editor={this.props.editor}
-                            link={this.props.editor.activeLink}  /> : undefined
+                            link={this.props.editor.activeLink} /> : undefined
                     }
                     {this.state.workspace.items.map(( item, index ) => {
                         if ( item.type === 'behaviour' || item.type === 'asset' || item.type === 'portal' )
@@ -269,7 +265,7 @@ namespace Animate {
                                 comment={item as IComment} />;
 
                         return null;
-                    }) }
+                    })}
                 </div>
             );
         }

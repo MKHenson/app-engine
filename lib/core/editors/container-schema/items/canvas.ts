@@ -1,13 +1,4 @@
 namespace Animate {
-    class ShortCutHelper {
-        // public item: BehaviourShortcut;
-        // public datum: any;
-
-        // constructor( item: BehaviourShortcut, datum: any ) {
-        // 	this.item = item;
-        // 	this.datum = datum;
-        // }
-    }
 
     export class CanvasEvents extends ENUM {
         constructor( v: string ) { super( v ); }
@@ -22,19 +13,19 @@ namespace Animate {
         public static lastSelectedItem = null;
         public static snapping: boolean = false;
         public name: string;
-        private _upProxy: any;
-        private _downProxy: any;
-        private _contextProxy: any;
-        private _keyProxy: any;
-        private _contextNode: Component;
-        private _x: number;
-        private _y: number;
+        // private _upProxy: any;
+        // private _downProxy: any;
+        // private _contextProxy: any;
+        // private _keyProxy: any;
+        // private _contextNode: Component;
+        // private _x: number;
+        // private _y: number;
         private _container: Resources.Container;
         private _containerReferences: { groups: Array<number>; assets: Array<number>; };
-        private _proxyMoving: any;
-        private _proxyStartDrag: any;
-        private _proxyStopDrag: any;
-        private _loadingScene: boolean;
+        // private _proxyMoving: any;
+        // private _proxyStartDrag: any;
+        // private _proxyStopDrag: any;
+        // private _loadingScene: boolean;
 
 		/**
 		* @param {Component} parent The parent component to add this canvas to

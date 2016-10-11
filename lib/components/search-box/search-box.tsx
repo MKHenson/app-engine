@@ -79,7 +79,6 @@ namespace Animate {
          */
         render(): JSX.Element {
             let props: ISearchBoxProps = Object.assign( {}, this.props );
-            let text = this.state.value;
             delete props.id;
             delete props.name;
             delete props.placeholder;
@@ -88,14 +87,14 @@ namespace Animate {
 
             return <div {...props} className={'search-box ' +
                 ( props.className ? props.className : '' ) +
-                ( props.disabled ? ' disabled' : '' ) }>
+                ( props.disabled ? ' disabled' : '' )}>
                 <input
                     onKeyUp={( e ) => {
                         if ( e.keyCode === 13 && this.props.onSearch )
                             this.props.onSearch( e, this.state.value || '' );
                     } }
-                    onBlur={( e ) => this.onBlur( e ) }
-                    onChange={( e ) => this.onChange( e ) }
+                    onBlur={( e ) => this.onBlur( e )}
+                    onChange={( e ) => this.onChange( e )}
                     type="text"
                     id={this.props.id}
                     placeholder={this.props.placeholder}

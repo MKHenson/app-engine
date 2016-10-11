@@ -43,8 +43,8 @@ namespace Animate {
             this._isLoggedIn = false;
 
             const that = this;
-            return new Promise<boolean>( function ( resolve, reject ) {
-                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then( function ( data ) : Promise<ModepressAddons.IGetDetails> {
+            return new Promise<boolean>( function( resolve, reject ) {
+                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then( function( data ): Promise<ModepressAddons.IGetDetails> {
 
                     if ( data.error )
                         throw new Error( data.message );
@@ -60,14 +60,14 @@ namespace Animate {
                         return null;
                     }
 
-                }).then( function ( data: ModepressAddons.IGetDetails ) {
+                }).then( function( data: ModepressAddons.IGetDetails ) {
                     if ( data && data.error )
                         return reject( new Error( data.message ) );
 
                     that.meta = ( data ? data.data : null );
                     return resolve( true );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -89,8 +89,8 @@ namespace Animate {
             let response: UsersInterface.IAuthenticationResponse;
 
             const that = this;
-            return new Promise<UsersInterface.IAuthenticationResponse>( function ( resolve, reject ) {
-                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then( function ( data ) {
+            return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
+                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then( function( data ) {
                     response = data;
                     if ( data.error )
                         throw new Error( data.message );
@@ -106,14 +106,14 @@ namespace Animate {
                         return null;
                     }
 
-                }).then( function ( data: ModepressAddons.IGetDetails ) {
+                }).then( function( data: ModepressAddons.IGetDetails ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
                     that.meta = data.data;
                     return resolve( response );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     that._isLoggedIn = false;
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
@@ -137,8 +137,8 @@ namespace Animate {
                 };
 
 
-            return new Promise<UsersInterface.IAuthenticationResponse>( function ( resolve, reject ) {
-                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function ( data ) {
+            return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
+                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
@@ -151,7 +151,7 @@ namespace Animate {
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -162,16 +162,14 @@ namespace Animate {
 		* @param user
 		*/
         resendActivation( user: string ): Promise<UsersInterface.IResponse> {
-            const that = this;
-
-            return new Promise<UsersInterface.IResponse>( function ( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function ( data ) {
+            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -182,16 +180,14 @@ namespace Animate {
 		* @param user
 		*/
         resetPassword( user: string ): Promise<UsersInterface.IResponse> {
-            const that = this;
-
-            return new Promise<UsersInterface.IResponse>( function ( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function ( data ) {
+            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -203,8 +199,8 @@ namespace Animate {
         logout(): Promise<UsersInterface.IResponse> {
             const that = this;
 
-            return new Promise<UsersInterface.IResponse>( function ( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function ( data ) {
+            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
@@ -219,7 +215,7 @@ namespace Animate {
                     that._isLoggedIn = false;
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -235,8 +231,8 @@ namespace Animate {
         getProjectList( index: number, limit: number, search: string = '' ): Promise<ModepressAddons.IGetProjects> {
             const that = this;
 
-            return new Promise<ModepressAddons.IGetProjects>( function ( resolve, reject ) {
-                Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}&search=${search}` ).then( function ( data ) {
+            return new Promise<ModepressAddons.IGetProjects>( function( resolve, reject ) {
+                Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}&search=${search}` ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
@@ -252,7 +248,7 @@ namespace Animate {
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -265,15 +261,14 @@ namespace Animate {
         * @param description [Optional] A short description
 		*/
         newProject( name: string, plugins: Array<string>, description: string = '' ): Promise<ModepressAddons.ICreateProject> {
-            const that = this,
-                token: HatcheryServer.IProject = {
-                    name: name,
-                    description: description,
-                    plugins: plugins
-                };
+            const token: HatcheryServer.IProject = {
+                name: name,
+                description: description,
+                plugins: plugins
+            };
 
-            return new Promise<ModepressAddons.ICreateProject>( function ( resolve, reject ) {
-                Utils.post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function ( data ) {
+            return new Promise<ModepressAddons.ICreateProject>( function( resolve, reject ) {
+                Utils.post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
@@ -287,7 +282,7 @@ namespace Animate {
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -300,14 +295,14 @@ namespace Animate {
         removeProject( pid: string ): Promise<Modepress.IResponse> {
             const that = this;
 
-            return new Promise<Modepress.IResponse>( function ( resolve, reject ) {
-                Utils.delete<Modepress.IResponse>( `${DB.API}/users/${that.entry.username}/projects/${pid}` ).then( function ( data ) {
+            return new Promise<Modepress.IResponse>( function( resolve, reject ) {
+                Utils.delete<Modepress.IResponse>( `${DB.API}/users/${that.entry.username}/projects/${pid}` ).then( function( data ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -322,8 +317,8 @@ namespace Animate {
             const meta = this.meta;
             const that = this;
 
-            return new Promise<Modepress.IResponse>( function ( resolve, reject ) {
-                Utils.put( `${DB.API}/user-details/${that.entry.username}`, token ).then( function ( data: UsersInterface.IResponse ) {
+            return new Promise<Modepress.IResponse>( function( resolve, reject ) {
+                Utils.put( `${DB.API}/user-details/${that.entry.username}`, token ).then( function( data: UsersInterface.IResponse ) {
                     if ( data.error )
                         return reject( new Error( data.message ) );
                     else {
@@ -334,7 +329,7 @@ namespace Animate {
 
                     return resolve( data );
 
-                }).catch( function ( err: IAjaxError ) {
+                }).catch( function( err: IAjaxError ) {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -345,14 +340,14 @@ namespace Animate {
 		* @param id The project ID we are copying
 		*/
         copyProject( id: string ) {
-            throw new Error('not implemented');
+            throw new Error( 'not implemented' );
         }
 
 		/**
 		* This function is used to open an existing project.
 		*/
         openProject( id: string ) {
-            throw new Error('not implemented');
+            throw new Error( 'not implemented' );
         }
 
 		/**
@@ -360,7 +355,7 @@ namespace Animate {
 		* @param id The id of the project we are removing.
 		*/
         deleteProject( id: string ) {
-            throw new Error('not implemented');
+            throw new Error( 'not implemented' );
         }
 
         get isLoggedIn(): boolean { return this._isLoggedIn; }

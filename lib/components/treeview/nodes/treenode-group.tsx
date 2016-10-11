@@ -11,7 +11,6 @@ namespace Animate {
          */
         constructor( group: Resources.GroupArray ) {
             super( group );
-            let project = User.get.project;
             this.canDrop = true;
             this.icon( <i className="fa fa-object-group" aria-hidden="true" /> );
             this.onRefreshed();
@@ -48,7 +47,7 @@ namespace Animate {
             if ( json.type === 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID( json.id as number );
                 let entry = resource.entry;
-                let added = this.addNode( new TreeNodeGroupInstance( resource, this.resource ) );
+                this.addNode( new TreeNodeGroupInstance( resource, this.resource ) );
                 this.expanded();
                 this.resource.addReference( entry.shallowId );
             }

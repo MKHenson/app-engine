@@ -8,7 +8,6 @@ namespace Animate {
 	 * The main workspace area of the application.
 	 */
     export class Workspace extends React.Component<IWorkspaceProps, any> {
-        private _previousEditor: Editor;
 
         /**
          * Creates an instance of the workspace
@@ -41,7 +40,7 @@ namespace Animate {
         canContainerClose( editor: Editor ): boolean | Promise<boolean> {
 
             if ( !editor.resource.saved || editor.hasUndos ) {
-                return new Promise<Boolean>( function ( resolve, reject ) {
+                return new Promise<Boolean>( function( resolve, reject ) {
                     MessageBox.warn(
                         `'${editor.resource.entry.name}' is not saved. Do you want to save it before closing?`,
                         [ 'Yes', 'No' ],
@@ -79,23 +78,23 @@ namespace Animate {
                         </div>
                     ) : (
                             <Tab
-                                panes={ editors.map(( editor, index ) => {
+                                panes={editors.map(( editor, index ) => {
                                     return (
                                         <TabPane
-                                            onSelect={ ( index ) => {
+                                            onSelect={( index ) => {
                                                 this.props.project.activateEditor( editor );
                                             } }
                                             key={'pane-' + index}
-                                            canClose={ ( i, props ) => {
+                                            canClose={( i, props ) => {
                                                 return this.canContainerClose( editor );
                                             } }
 
-                                            label={ ( !editor.resource.saved || editor.hasUndos ? '* ' : '' ) + editor.resource.entry.name}>
+                                            label={( !editor.resource.saved || editor.hasUndos ? '* ' : '' ) + editor.resource.entry.name}>
                                             <Schema editor={editor as ContainerSchema} />
                                         </TabPane>
                                     )
-                                }) } />
-                        ) ) }
+                                })} />
+                        ) )}
                 </div>
             );
         }

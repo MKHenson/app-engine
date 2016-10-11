@@ -171,7 +171,6 @@ namespace Animate {
 
             // Make sure the tree node is expanded
             let p = node.parent;
-            const scroll = 0;
             while ( p ) {
                 if ( !p.expanded )
                     p.expanded( true );
@@ -180,7 +179,7 @@ namespace Animate {
             }
 
             node.focussed = true;
-            this.emit<TreeviewEvents, INodeEvent>( 'focus-node', { node: node } );
+            this.emit<TreeviewEvents, INodeEvent>( 'focus-node', { node: node });
         }
 
 		/**

@@ -8,23 +8,23 @@ namespace Animate {
     export class Component extends EventDispatcher {
         public static idCounter: number = 0;
 
-        private _element: JQuery;
-        private _children: Array<Component>;
-        private _layouts: Array<any>;
+        private _element: JQuery | null;
+        private _children: Array<Component> | null;
+        private _layouts: Array<any> | null;
         private _id: string;
-        private _parent: Component;
+        private _parent: Component | null;
 
 
         //This is used in the saving process. Leave alone.
         //private _savedID : string = null;
-        private _tooltip: string = null;
+        private _tooltip: string | null = null;
         private _enabled: boolean = true;
 
         public tag: any;
 
-        public savedID: string;
+        public savedID: string | null;
 
-        constructor( html: string | JQuery, parent: Component = null ) {
+        constructor( html: string | JQuery, parent: Component | null = null ) {
             super();
 
             if ( !html )
@@ -67,7 +67,7 @@ namespace Animate {
                 return;
 
             this._tooltip = null;
-            const children: Array<Component> = this._children;
+            const children: Array<Component> = this._children!;
 
             // Dispose method will remove child from parent and also the array
             while ( children.length !== 0 )
@@ -80,11 +80,11 @@ namespace Animate {
             if ( this._parent !== null )
                 this._parent.removeChild( this );
 
-            this.element.data( 'id', null );
-            this.element.data( 'component', null );
-            this.element.remove();
+            this.element!.data( 'id', null );
+            this.element!.data( 'component', null );
+            this.element!.remove();
 
-            this.element = null;
+            this._element = null;
 
             // Call super
             EventDispatcher.prototype.dispose.call( this );
@@ -96,13 +96,13 @@ namespace Animate {
 		* @param {boolean} updateChildren Set this to true if you want the update to proliferate to all the children components.
 		*/
         update( updateChildren: boolean = true ) {
-            const layouts: Array<any> = this._layouts;
+            const layouts: Array<any> = this._layouts!;
             let i = layouts.length;
             while ( i-- )
                 layouts[ i ].update( this );
 
             if ( updateChildren ) {
-                const children: Array<Component> = this._children;
+                const children: Array<Component> = this._children!;
                 i = children.length;
                 while ( i-- )
                     children[ i ].update();
@@ -117,7 +117,7 @@ namespace Animate {
 		* @returns {ILayout} The layout that was added
 		*/
         addLayout( layout: any ): any {
-            this._layouts.push( layout );
+            this._layouts!.push( layout );
             return layout;
         }
 
@@ -127,10 +127,10 @@ namespace Animate {
 		* @returns {ILayout} The layout that was removed
 		*/
         removeLayout( layout: any ): any {
-            if ( jQuery.inArray( layout, this._layouts ) === -1 )
+            if ( jQuery.inArray( layout, this._layouts! ) === -1 )
                 return null;
 
-            this._layouts.splice( jQuery.inArray( layout, this._layouts ), 1 );
+            this._layouts!.splice( jQuery.inArray( layout, this._layouts! ), 1 );
             return layout;
         }
 
@@ -138,7 +138,7 @@ namespace Animate {
 		* Gets the ILayouts for this component
 		* {returns} Array<ILayout>
 		*/
-        get layouts(): Array<any> { return this._layouts; }
+        get layouts(): Array<any> | null { return this._layouts; }
 
 		/**
 		* Use this function to add a child to this component.
@@ -149,12 +149,12 @@ namespace Animate {
 		*/
         addChild( child: string | Component | JQuery ): Component {
             // Remove from previous parent
-            let parent: Component;
-            let toAdd: Component = null;
+            let parent: Component | undefined;
+            let toAdd: Component;
 
             if ( child instanceof Component ) {
                 toAdd = child;
-                parent = child.parent;
+                parent = child.parent!;
             }
             else {
                 if ( typeof child === 'string' )
@@ -171,7 +171,7 @@ namespace Animate {
             }
 
             // If already in this component then do nothing
-            if ( jQuery.inArray( child, this._children ) !== -1 )
+            if ( jQuery.inArray( child, this._children! ) !== -1 )
                 return ( <Component>child );
 
             // If it had an existing parent - then remove it
@@ -180,8 +180,8 @@ namespace Animate {
 
 
             toAdd._parent = this;
-            this._children.push( toAdd );
-            this._element.append( toAdd._element );
+            this._children!.push( toAdd );
+            this._element!.append( toAdd._element! );
             return toAdd;
         }
 
@@ -191,7 +191,7 @@ namespace Animate {
 		* @returns {boolean} true if the component is a child
 		*/
         contains( child: Component ): boolean {
-            if ( this._children.indexOf( child ) === -1 )
+            if ( this._children!.indexOf( child ) === -1 )
                 return false;
             return true;
         }
@@ -204,12 +204,12 @@ namespace Animate {
 		*/
         removeChild( child: Component ): Component {
             //Determine if the child is pure html or a component
-            if ( jQuery.inArray( child, this._children ) === -1 )
+            if ( jQuery.inArray( child, this._children! ) === -1 )
                 return child;
 
             ( <Component>child )._parent = null;
-            child.element.detach();
-            this._children.splice( jQuery.inArray( child, this._children ), 1 );
+            child.element!.detach();
+            this._children!.splice( jQuery.inArray( child, this._children! ), 1 );
             return child;
         }
 
@@ -218,7 +218,7 @@ namespace Animate {
 		* Removes all child nodes
 		*/
         clear(): void {
-            const children: Array<Component> = this._children;
+            const children: Array<Component> = this._children!;
             let i = children.length;
             while ( i-- )
                 children[ i ].dispose();
@@ -230,27 +230,27 @@ namespace Animate {
 		* Returns the array of Child {Component}s
 		* @returns {Array{Component}} An array of child {Component} objects
 		*/
-        get children(): Array<Component> { return this._children; }
+        get children(): Array<Component> | null { return this._children; }
 
 		/**
 		* Gets the jQuery wrapper
 		*/
-        get element(): JQuery { return this._element; }
+        get element(): JQuery | null { return this._element; }
 
 		/**
 		* Gets the jQuery parent
 		*/
-        get parent(): Component { return this._parent; }
+        get parent(): Component | null { return this._parent; }
 
 		/**
 		* Gets the tooltip for this {Component}
 		*/
-        get tooltip(): string { return this._tooltip; }
+        get tooltip(): string | null { return this._tooltip; }
 
 		/**
 		* Sets the tooltip for this {Component}
 		*/
-        set tooltip( val: string ) { this._tooltip = val; }
+        set tooltip( val: string | null ) { this._tooltip = val; }
 
 		/**
 		* Get or Set if the component is enabled and recieves mouse events
@@ -265,9 +265,9 @@ namespace Animate {
                 return;
 
             if ( !val )
-                this.element.addClass( 'disabled' );
+                this.element!.addClass( 'disabled' );
             else
-                this.element.removeClass( 'disabled' );
+                this.element!.removeClass( 'disabled' );
 
             this._enabled = val;
 
@@ -282,7 +282,7 @@ namespace Animate {
 		* Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
 		*/
         get selected(): boolean {
-            if ( this._element.hasClass( 'selected' ) )
+            if ( this._element!.hasClass( 'selected' ) )
                 return true;
             else
                 return false;
@@ -293,9 +293,9 @@ namespace Animate {
 		*/
         set selected( val: boolean ) {
             if ( val )
-                this._element.addClass( 'selected' );
+                this._element!.addClass( 'selected' );
             else
-                this._element.removeClass( 'selected' );
+                this._element!.removeClass( 'selected' );
         }
     }
 }

@@ -338,7 +338,7 @@
                 cont = callback.call( e, e );
 
                 if ( cont !== false ) {
-                    let  prevL = e.childNodes.length;
+                    let prevL = e.childNodes.length;
                     for ( let i = 0; i < e.childNodes.length; i++ ) {
                         prevL = e.childNodes.length;
                         search( e.childNodes[ i ] );
@@ -367,7 +367,7 @@
             appNode.$events = null;
 
             // Cleanup kids
-            Compiler.traverse( appNode, function ( child: AppNode ) {
+            Compiler.traverse( appNode, function( child: AppNode ) {
                 if ( appNode === child )
                     return;
 
@@ -385,14 +385,11 @@
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
         static expand( root: RootNode, ctrl: any, includeSubTemplates: boolean = false ): Element {
-            const toRemove: Array<Element> = [];
-            const mostRecentRoot: RootNode = root;
-
             const references = {};
             for ( const i in root.$commentReferences )
                 references[ i ] = root.$commentReferences[ i ];
 
-            Compiler.traverse( root, function ( child: Node ) {
+            Compiler.traverse( root, function( child: Node ) {
                 // Join any comment references
                 if ( ( <RootNode><Node>child ).$ctrl ) {
                     const subRoot = <RootNode><Node>child;
@@ -450,7 +447,7 @@
 
                             // Go through each child node and assign the context variables
                             if ( newNode.$ctxValues.length > 0 ) {
-                                Compiler.traverse( newNode, function ( c: AppNode ) {
+                                Compiler.traverse( newNode, function( c: AppNode ) {
                                     if ( c === newNode )
                                         return;
 
@@ -839,7 +836,7 @@
 
             // First go through each of the nodes and find any elements that will potentially grow or shrink
             // Traverse each element
-            Compiler.traverse( rootNode, function ( elem: Element ) {
+            Compiler.traverse( rootNode, function( elem: Element ) {
                 if ( !includeSubTemplates && ( <RootNode><Node>elem ).$ctrl && ( <RootNode><Node>elem ).$ctrl !== ctrl )
                     return false;
 
@@ -856,7 +853,7 @@
                     attrs.push(( <Element>elem ).attributes[ i ] );
 
                 // Go through each element's attributes
-                jQuery.each( attrs, function ( i, attrib ) {
+                jQuery.each( attrs, function( i, attrib ) {
                     if ( !attrib ) return;
 
                     const name = attrib.name;

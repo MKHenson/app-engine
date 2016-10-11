@@ -4,8 +4,6 @@ namespace Animate {
 	 * Base class for all custom enums
 	 */
     export class ENUM {
-        private static allEnums: any;
-
         public value: string;
         constructor( v: string ) {
             this.value = v;

@@ -44,7 +44,7 @@ namespace Animate {
             selector.append( `<option value='' ${( !selectedID ? 'selected=\'selected\'' : '' )}></option>` );
 
             // Sort alphabetically
-            nodes = nodes.sort( function ( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
+            nodes = nodes.sort( function( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
                 const textA = a.resource.entry.name.toUpperCase();
                 const textB = b.resource.entry.name.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -54,19 +54,17 @@ namespace Animate {
             for ( let i = 0; i < len; i++ )
                 selector.append( `<option title='${nodes[ i ].resource.entry.shallowId + ' : ' + nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( selectedID === nodes[ i ].resource.entry.shallowId ? 'selected=\'selected\'' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
 
-            const that = this;
-
             // When we select a new asset
-            const onSelect = function ( e: JQueryEventObject ) {
+            const onSelect = function( e: JQueryEventObject ) {
                 const val = parseFloat( selector.val() );
                 const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
                 p.setVal( asset );
             };
 
             // When we click on the target
-            const onEye = function ( e: JQueryEventObject ) {
-                const val = parseInt( selector.val() );
-                const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
+            const onEye = function( e: JQueryEventObject ) {
+                // const val = parseInt( selector.val() );
+                // const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
 
                 // TODO: This needs to be checked with update to TSX
                 // ================================================

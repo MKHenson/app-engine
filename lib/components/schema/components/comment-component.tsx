@@ -44,7 +44,6 @@ namespace Animate {
 
             if ( !prevState.editMode && this.state.editMode ) {
                 const input = this.refs[ 'input' ] as HTMLTextAreaElement;
-                const comment = this.refs[ 'comment' ] as HTMLElement;
                 window.removeEventListener( 'mouseup', this._onUp );
                 window.addEventListener( 'mouseup', this._onUp );
                 input.focus();
@@ -60,13 +59,11 @@ namespace Animate {
         onUp( e: React.MouseEvent ) {
             const input = this.refs[ 'input' ] as HTMLTextAreaElement;
 
-            if ( e.target !== input && this._wasDownOnInput) {
+            if ( e.target !== input && this._wasDownOnInput ) {
                 e.preventDefault();
                 this._wasDownOnInput = false;
                 return;
             }
-
-            const comment = this.props.comment;
 
             let ref = e.target as HTMLElement;
 
@@ -92,12 +89,12 @@ namespace Animate {
                 <Draggable
                     x={this.props.comment.left}
                     y={this.props.comment.top}
-                    enabled={( !this.state.editMode ) }
+                    enabled={( !this.state.editMode )}
                     onDragComplete={( start, end ) => {
                         editor.doAction( new Actions.SelectionMoved( [ { index: comment.id, x: end.x, y: end.y }] ) );
                     } }>
                     <Resizable
-                        onResized={ ( size ) => { editor.doAction( new Actions.CommentResized( comment.id, size.width, size.height ) ) } }
+                        onResized={( size ) => { editor.doAction( new Actions.CommentResized( comment.id, size.width, size.height ) ) } }
                         onDragStart={( e ) => { e.preventDefault(); e.stopPropagation(); return true; } }>
                         <div
                             onKeyUp={( e ) => {
@@ -115,7 +112,7 @@ namespace Animate {
                             style={{ width: comment.width + 'px', height: comment.height + 'px' }}
                             className={'scale-in-animation comment' +
                                 ( !this.state.editMode ? ' unselectable' : '' ) +
-                                ( !this.state.editMode && this.props.comment.selected ? ' selected' : '' ) }
+                                ( !this.state.editMode && this.props.comment.selected ? ' selected' : '' )}
                             onContextMenu={( e ) => {
                                 editor.onNodeSelected( comment, comment.selected ? true : false, false );
                                 editor.onContext( comment, e );
@@ -128,9 +125,9 @@ namespace Animate {
                                 editor.onNodeSelected( this.props.comment, e.shiftKey )
                             } }
                             >
-                            { this.state.editMode ?
+                            {this.state.editMode ?
                                 <textarea ref="input"
-                                    onMouseDown={ () => this._wasDownOnInput = true }
+                                    onMouseDown={() => this._wasDownOnInput = true}
                                     onKeyDown={( e ) => {
                                         // Esc
                                         if ( e.keyCode === 27 )
@@ -145,7 +142,7 @@ namespace Animate {
                                     value={this.state.newLabel}
                                     onChange={( e ) => {
                                         this.setState( { newLabel: ( e.target as HTMLTextAreaElement ).value });
-                                    } }/>
+                                    } } />
                                 : comment.label
                             }
                         </div>
