@@ -187,8 +187,6 @@
         "lib/actions/editor.ts",
         "lib/reducers/project-reducer.ts",
         "lib/reducers/editor-reducer.ts",
-        "lib/reducers/main.ts",
-        "lib/store.ts",
         "lib/main.tsx"
     ]
 }

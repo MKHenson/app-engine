@@ -1,27 +1,34 @@
 namespace Animate {
 
-    export interface IApplicationState {
-        showSplash?: boolean;
+    export interface IApplicationState extends HatcheryProps {
+        editorState?: IEditorState;
+        project?: IProject;
+        user?: IUser;
     }
 
-	/**
-	* The main GUI component of the application.
-	*/
-    export class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
+    @ReactRedux.connect<IStore, IApplicationState>(( state ) => {
+        return {
+            editorState: state.editorState,
+            project: state.project,
+            user: state.user
+        }
+    })
+
+    /**
+	 * The main GUI component of the application.
+	 */
+    export class Application extends React.Component<IApplicationState, void> {
         private static _singleton: Application;
         public static bodyComponent: Component;
         private _focusObj: Component;
 
-        constructor( props: React.HTMLAttributes ) {
+        constructor( props: IApplicationState ) {
             super( props );
 
             Application._singleton = this;
             Utils.init();
             new LoggerStore();
             User.get;
-            this.state = {
-                showSplash: true
-            }
         }
 
         /**
@@ -37,10 +44,11 @@ namespace Animate {
         render(): JSX.Element {
 
             let project = User.get.project;
+            const editorState = this.props.editorState;
 
             return <div id="application">
-                {( this.state.showSplash ? <Animate.Splash onClose={() => this.setState( { showSplash: false }) } /> : null ) }
-                <div id="main-view" style={{ display: this.state.showSplash ? 'none' : '' }}>
+                {( editorState.showSplash ? <Animate.Splash onClose={() => this.props.dispatch( toggleSplash( false ) )} /> : null )}
+                <div id="main-view" style={{ display: editorState.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
                         <Toolbar project={project} />
                     </div>
@@ -57,7 +65,7 @@ namespace Animate {
                                 orientation={SplitOrientation.HORIZONTAL}
                                 top={<h2>Property editor goes here</h2>}
                                 bottom={
-                                    <TreeViewScene project={project}  />
+                                    <TreeViewScene project={project} />
                                 } />
                         } />
                     </div>

@@ -77,18 +77,56 @@ function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
 }
 
 /**
+ * Creates the redux store for the application
+ */
+function createStore(): Redux.Store<any> {
+
+    // Creates the thunk middleware so that we can return
+    // functions to redux dispatch actions
+    function createThunkMiddleware( extraArgument?): any {
+        return ( { dispatch, getState }) => next => action => {
+            if ( typeof action === 'function' )
+                return action( dispatch, getState, extraArgument );
+
+            return next( action );
+        };
+    }
+
+    const thunk = createThunkMiddleware();
+    thunk.withExtraArgument = createThunkMiddleware;
+
+
+    // Create the reducers object
+    const reducers = Redux.combineReducers( {
+        project: Animate.projectReducer,
+        editorState: Animate.editorReducer
+    });
+
+    // Creat the store
+    const store = Redux.createStore( reducers, thunk );
+    store.subscribe(() => {
+        console.log( "store changed", store.getState() )
+    });
+
+    return store;
+}
+
+/**
  * Once the plugins are loaded from the DB
  */
 function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     sortPlugins( plugins );
 
     // Create the application element
-    ReactDOM.render( <Animate.Application />, document.getElementById( 'main' ) );
+    ReactDOM.render((
+        <ReactRedux.Provider store={createStore()}>
+            <Animate.Application />
+        </ReactRedux.Provider> ), document.getElementById( 'main' ) );
 }
 
 
 // Once the document is ready we begin
-jQuery( document ).ready( function () {
+jQuery( document ).ready( function() {
     // Make sure we call ajax with credentials on
     jQuery.ajaxSetup( {
         crossDomain: true,
@@ -101,11 +139,11 @@ jQuery( document ).ready( function () {
     Animate.LoaderBase.showLoader();
 
     // Donwload the plugins available to this user
-    jQuery.getJSON( `${Animate.DB.API}/plugins` ).done( function ( response: ModepressAddons.IGetProjects ) {
+    jQuery.getJSON( `${Animate.DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
         onPluginsLoaded( response.data );
-    }).fail( function ( err: JQueryXHR ) {
+    }).fail( function( err: JQueryXHR ) {
         document.write( `An error occurred while connecting to the server. ${err.status}: ${err.responseText}` );
-    }).always( function () {
+    }).always( function() {
         Animate.LoaderBase.hideLoader();
     });
 });

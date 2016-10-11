@@ -6795,15 +6795,23 @@ declare namespace Animate {
     function createProject(projectData: any): (dispatch: Redux.Dispatch<IProjectAction>, getState: () => IProjectAction) => void;
 }
 declare namespace Animate {
+    type EditorActionType = 'TOGGLE_SPLASH';
+    interface IEditorAction extends Redux.Action {
+        type: EditorActionType;
+    }
+    interface IToggleSplash extends IEditorAction {
+        visible: boolean;
+    }
+    function toggleSplash(visible: boolean): IToggleSplash;
+}
+declare namespace Animate {
     function projectReducer(state: any, action: IProjectAction): any;
 }
 declare namespace Animate {
-    const reducers: <A extends Redux.Action>(state: {}, action: A) => {};
+    function editorReducer(state: IEditorState, action: IProjectAction): any;
 }
-declare namespace Redux {
-    interface Dispatch<S> {
-        <A extends Action>(callback: (dispatch: Dispatch<S>, getState: Function) => void): void;
-    }
+declare namespace Animate {
+    const reducers: <A extends Redux.Action>(state: {}, action: A) => {};
 }
 declare namespace Animate {
 }

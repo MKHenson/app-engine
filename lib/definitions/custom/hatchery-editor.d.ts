@@ -8,10 +8,18 @@ declare namespace Animate {
     }
 
     /**
+     * The base interface for Hatchery props
+     */
+    export interface HatcheryProps {
+        dispatch?: Redux.Dispatch<any>;
+    }
+
+    /**
      * Describes the state of the editor
      */
     export interface IEditorState {
         showSplash?: boolean;
+        logs?: string[];
     }
 
     /**
