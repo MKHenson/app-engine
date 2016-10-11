@@ -13,7 +13,8 @@
 /// <reference path="./definitions/required/react/react-addons-css-transition-group.d.ts" />
 /// <reference path="./definitions/required/react/react-dom.d.ts" />
 /// <reference path="./definitions/required/react/react-global.d.ts" />
-/// <reference path="./definitions/required/redux.d.ts" />
+/// <reference path="./definitions/required/redux/redux.d.ts" />
+/// <reference path="./definitions/required/react-redux/react-redux.d.ts" />
 /// <reference path="./definitions/required/hatchery-runtime.d.ts" />
 /// <reference path="./definitions/required/ace.d.ts" />
 
