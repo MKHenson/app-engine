@@ -10,7 +10,7 @@ namespace Animate {
         public active: boolean;
         public resource: ProjectResource<HatcheryServer.IResource>;
         public pastActions: Actions.EditorAction[];
-        public currentAction: Actions.EditorAction;
+        public currentAction: Actions.EditorAction | null;
         public futureActions: Actions.EditorAction[];
         private _actionHistoryLength: number;
         private _project: Project;
@@ -67,7 +67,7 @@ namespace Animate {
             if ( this.currentAction ) {
                 this.currentAction.undo( this );
                 this.futureActions.splice( 0, 0, this.currentAction );
-                this.currentAction = this.pastActions.pop();
+                this.currentAction = this.pastActions.pop() || null;
                 this.invalidate();
             }
         }

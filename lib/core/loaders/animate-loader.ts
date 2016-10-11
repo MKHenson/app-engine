@@ -97,7 +97,7 @@ namespace Animate {
 		*/
         onData( data, textStatus, jqXHR ) {
             LoaderBase.hideLoader();
-            let e: AnimateLoaderEvent;
+            // let e: AnimateLoaderEvent;
 
             // if ( this.dataType === 'text' )
             //     e = { message: 'Script Loaded', return_type: 'success', data: null };
@@ -106,7 +106,7 @@ namespace Animate {
             // else
             //     e = { message: 'Loaded', return_type: 'success', data: data };
 
-            this.emit<LoaderEvents, AnimateLoaderEvent>( 'complete', e );
+            this.emit<LoaderEvents, AnimateLoaderEvent>( 'complete', null );
             this.dispose();
         }
 

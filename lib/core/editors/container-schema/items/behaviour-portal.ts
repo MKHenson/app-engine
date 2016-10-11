@@ -5,13 +5,13 @@ namespace Animate {
      */
     export class BehaviourPortal extends Behaviour {
         public portalType: HatcheryRuntime.PortalType;
-        private _property: Prop<any>;
+        private _property: Prop<any> | null;
 
         /**
          * Creates an instance
          */
         constructor( property: Prop<any>, portalType: HatcheryRuntime.PortalType ) {
-            super( PluginManager.getSingleton().getTemplate( 'Portal' ) );
+            super( PluginManager.getSingleton().getTemplate( 'Portal' ) ! );
 
             this.alias = property.name;
             this.portalType = portalType;
@@ -32,11 +32,11 @@ namespace Animate {
         /**
          * Clones the canvas item
          */
-        clone( clone?: BehaviourPortal ) : BehaviourPortal {
+        clone( clone?: BehaviourPortal ): BehaviourPortal {
             if ( !clone )
-                clone = new BehaviourPortal( this._property.clone(), this.portalType );
+                clone = new BehaviourPortal( this._property!.clone(), this.portalType );
 
-            super.clone(clone);
+            super.clone( clone );
             return clone;
         }
 
@@ -45,7 +45,7 @@ namespace Animate {
          */
         serialize( id: number ): IBehaviourPortal {
             const toRet = <IBehaviourPortal>super.serialize( id );
-            toRet.portal = { name: this._property.name, custom: true, type: this.portalType, property: this._property.tokenize() };
+            toRet.portal = { name: this._property!.name, custom: true, type: this.portalType, property: this._property!.tokenize() };
             toRet.type = 'portal';
             return toRet;
         }
@@ -69,6 +69,6 @@ namespace Animate {
             super.dispose();
         }
 
-        get property(): Prop<any> { return this._property; }
+        get property(): Prop<any> { return this._property!; }
     }
 }

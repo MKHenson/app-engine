@@ -12,7 +12,7 @@
         public left: number;
         public width: number;
         public height: number;
-        public store: ContainerSchema;
+        public store: ContainerSchema | null;
         public id: number;
         public selected: boolean;
 
@@ -30,7 +30,7 @@
         /**
          * Clones the canvas item
          */
-        clone( clone?: CanvasItem ) : CanvasItem {
+        clone( clone?: CanvasItem ): CanvasItem {
             if ( !clone )
                 clone = new CanvasItem();
 
@@ -71,10 +71,10 @@
          * @param data The data to import from
          */
         deSerialize( data: ICanvasItem ) {
-            this.top = data.top;
-            this.left = data.left;
-            this.width = data.width;
-            this.height = data.height;
+            this.top = data.top!;
+            this.left = data.left!;
+            this.width = data.width!;
+            this.height = data.height!;
         }
 
         /**

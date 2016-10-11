@@ -13,7 +13,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor( name: string, value: ProjectResource<HatcheryServer.IResource>, classNames: Array<string> = [], category?: string, options?: any ) {
+        constructor( name: string, value: ProjectResource<HatcheryServer.IResource> | null, classNames: Array<string> = [], category?: string, options?: any ) {
             super( name, value, category, options, PropertyType.ASSET );
             this.classNames = classNames;
         }

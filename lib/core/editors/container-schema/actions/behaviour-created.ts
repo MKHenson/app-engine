@@ -8,14 +8,14 @@ namespace Animate {
         export class BehaviourCreated extends EditorAction {
 
             definition: BehaviourDefinition;
-            instance: Behaviour;
+            instance: Behaviour | null;
             options: IBehaviour;
-            resource: ProjectResource<HatcheryServer.IResource>;
+            resource: ProjectResource<HatcheryServer.IResource> | null;
 
             constructor( definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource> ) {
                 super();
                 this.definition = definition;
-                this.resource = resource;
+                this.resource = resource || null;
                 this.options = options;
             }
 
@@ -23,7 +23,7 @@ namespace Animate {
              * Undo the last history action
              */
             undo( editor: Animate.ContainerSchema ) {
-                editor.removeItem( this.instance );
+                editor.removeItem( this.instance! );
                 this.instance = null;
             }
 
@@ -34,17 +34,17 @@ namespace Animate {
 
                 switch ( this.definition.behaviourName ) {
                     case 'Asset':
-                        this.instance = new BehaviourAsset( this.resource );
+                        this.instance = new BehaviourAsset( this.resource! );
                         break;
                     default:
                         this.instance = new Behaviour( this.definition );
                         break;
                 }
-
-                this.instance.left = this.options.left;
-                this.instance.top = this.options.top;
-                this.instance.alias = this.options.alias ? this.options.alias : this.instance.alias;
-                editor.addItem( this.instance );
+                const instance = this.instance!;
+                instance.left = this.options.left;
+                instance.top = this.options.top;
+                instance.alias = this.options.alias ? this.options.alias : instance.alias;
+                editor.addItem( instance );
             }
         }
 

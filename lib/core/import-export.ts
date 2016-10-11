@@ -9,9 +9,7 @@ namespace Animate {
 	*/
     export class ImportExport extends EventDispatcher {
         private static _singleton: ImportExport;
-
         private runWhenDone: boolean;
-        private mRequest: string;
 
         constructor() {
             // Call super-class constructor
@@ -21,8 +19,6 @@ namespace Animate {
                 throw new Error( 'The ImportExport class is a singleton. You need to call the ImportExport.getSingleton() function.' );
 
             ImportExport._singleton = this;
-
-            this.mRequest = null;
             this.runWhenDone = false;
         }
 
@@ -328,9 +324,9 @@ namespace Animate {
 
 
             //Check all the group properties. If it contains another group, then we need to make sure its added to the container
-            for ( let ii = 0; ii < group.children.length; ii++ )
-                if ( ( <TreeNodeGroupInstance>group.children[ ii ] ).shallowId ) {
-                    const assetID: number = ( <TreeNodeGroupInstance>group.children[ ii ] ).shallowId;
+            for ( let ii = 0; ii < group.children!.length; ii++ )
+                if ( ( <TreeNodeGroupInstance>group.children![ ii ] ).shallowId ) {
+                    const assetID: number = ( <TreeNodeGroupInstance>group.children![ ii ] ).shallowId;
 
                     //Check if the asset was added to the container
                     if ( container.assets.indexOf( assetID ) === -1 ) {

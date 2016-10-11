@@ -235,7 +235,7 @@ namespace Animate {
 		/**
 		* Gets the jQuery wrapper
 		*/
-        get element(): JQuery | null { return this._element; }
+        get element(): JQuery { return this._element!; }
 
 		/**
 		* Gets the jQuery parent

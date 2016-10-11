@@ -18,7 +18,7 @@
         * @param {InstanceNode} The current instance
         * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
         */
-        expand( expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode ): Array<AppNode> {
+        expand( expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode ): Array<AppNode> | null {
             let mustRebuild = false;
             const parsedExp = Compiler.parse( expression, ctrl, null, desc, instance.$ctxValues );
             this._returnVal.splice( 0, this._returnVal.length );

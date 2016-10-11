@@ -36,9 +36,8 @@ namespace Animate {
                 LoaderBase.loaderBackdrop = LoaderBase.createLoaderModal();
 
             this.domain = ( domain !== undefined ? domain : DB.HOST );
-            this.url = null
             this.data = null;
-            this.numTries = null;
+            this.numTries = 0;
 
             this._getQuery = '';
             this.getVariables = null;

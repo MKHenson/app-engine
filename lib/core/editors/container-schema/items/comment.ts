@@ -21,14 +21,14 @@ namespace Animate {
         /**
          * Clones the canvas item
          */
-        clone( clone?: Comment ) : Comment {
+        clone( clone?: Comment ): Comment {
             if ( !clone )
                 clone = new Comment( this.label );
 
             clone.width = this.width;
             clone.height = this.height;
 
-            super.clone(clone);
+            super.clone( clone );
             return clone;
         }
 
@@ -50,8 +50,8 @@ namespace Animate {
          */
         deSerialize( data: IComment ) {
             super.deSerialize( data );
-            this.width = data.width;
-            this.height = data.height;
+            this.width = data.width!;
+            this.height = data.height!;
             this.label = data.label;
         }
     }

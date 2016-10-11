@@ -66,8 +66,8 @@ namespace Animate {
          * Draws each of the submenu items
          */
         private drawMenuItems( item: IReactContextMenuItem, level: number, index: number ): JSX.Element {
-            let children: JSX.Element;
-            let prefix: JSX.Element;
+            let children: JSX.Element | undefined;
+            let prefix: JSX.Element | undefined;
 
             if ( item.items ) {
                 children = <div className="sub-menu">
@@ -99,7 +99,7 @@ namespace Animate {
         render(): JSX.Element {
             return <div ref="context" className={'context-menu ' + ( this.props.className || '' )}>
                 {
-                    this.props.items.map(( item, index ) => {
+                    this.props.items!.map(( item, index ) => {
                         return this.drawMenuItems( item, 0, index );
                     })
                 }

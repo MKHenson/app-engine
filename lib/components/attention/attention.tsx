@@ -44,7 +44,7 @@ namespace Animate {
             delete props.showIcon;
             delete props.className;
             delete props.allowClose;
-            let icon: JSX.Element;
+            let icon: JSX.Element | undefined;
             let className = ( props.className ? props.className + ' attention' : 'attention' )
 
             if ( this.props.mode === AttentionType.ERROR ) {
@@ -66,7 +66,7 @@ namespace Animate {
             if ( this.props.showIcon )
                 className += ' with-icon';
 
-            let content: JSX.Element;
+            let content: JSX.Element | undefined;
             if ( !this.state.isClosed ) {
                 content = <div key="attention"  {...props} className={className}>
                     {icon}

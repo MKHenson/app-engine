@@ -4,7 +4,7 @@
 	* Class used to download contents from a server into an ArrayBuffer
 	*/
     export class BinaryLoader extends LoaderBase {
-        private _xhr: XMLHttpRequest;
+        private _xhr: XMLHttpRequest | null;
         private _onBuffers: any;
         private _onError: any;
 
@@ -50,14 +50,14 @@
 		* If an error occurs
 		*/
         onError( event ) {
-            let fullURL: string;
+            let fullURL: string = '';
             if ( this.numTries > 0 ) {
                 if ( this.numTries > 0 )
                     this.numTries--;
 
                 fullURL = this.domain + this.url + this._getQuery;
-                this._xhr.open( 'GET', fullURL, true );
-                this._xhr.send( null );
+                this._xhr!.open( 'GET', fullURL, true );
+                this._xhr!.send( null );
             }
             else {
                 LoaderBase.hideLoader();
@@ -70,8 +70,8 @@
 		* Cleans up and removes references for GC
 		*/
         dispose() {
-            this._xhr.removeEventListener( 'load', this._onBuffers, false );
-            this._xhr.removeEventListener( 'error', this._onError, false );
+            this._xhr!.removeEventListener( 'load', this._onBuffers, false );
+            this._xhr!.removeEventListener( 'error', this._onError, false );
             this._xhr = null;
             super.dispose();
         }
@@ -80,7 +80,7 @@
 		* Called when the buffers have been loaded
 		*/
         onBuffersLoaded() {
-            const xhr = this._xhr;
+            const xhr = this._xhr!;
             let buffer: ArrayBuffer = xhr.response;
 
             // IEWEBGL needs this

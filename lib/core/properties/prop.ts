@@ -5,7 +5,7 @@
     */
     export class Prop<T> {
         public name: string;
-        protected _value: T;
+        protected _value: T | null;
         public category: string;
         public options: any;
         public set: EditableSet;
@@ -19,12 +19,11 @@
         * @param {any} options [Optional] Any optional data to be associated with the property
         * @param {PropertyType} type [Optional] Define the type of property
         */
-        constructor( name: string, value: T, category?: string, options?: any, type: PropertyType = PropertyType.OBJECT ) {
+        constructor( name: string, value: T | null, category?: string, options?: any, type: PropertyType = PropertyType.OBJECT ) {
             this.name = name;
             this._value = value;
             this.category = category || 'General Properties';
             this.options = options;
-            this.set = null;
             this.type = type;
         }
 
@@ -40,7 +39,7 @@
         * Attempts to fetch the value of this property
         * @returns {T}
         */
-        getVal(): T {
+        getVal(): T | null {
             return this._value;
         }
 
@@ -81,9 +80,7 @@
         * Cleans up the class
         */
         dispose() {
-            this.name = null;
             this._value = null;
-            this.category = null;
             this.options = null;
         }
 
@@ -91,7 +88,7 @@
         * Writes this portal out to a string
         */
         toString(): string {
-            const typeString = PropertyType[ this.type ].replace( /\w\S*/g, function ( txt ) { return txt.charAt( 0 ).toUpperCase() + txt.substr( 1 ).toLowerCase(); });
+            const typeString = PropertyType[ this.type ].replace( /\w\S*/g, function( txt ) { return txt.charAt( 0 ).toUpperCase() + txt.substr( 1 ).toLowerCase(); });
             return `${this.name} : ${typeString} - ${( this._value !== undefined && this._value !== null ? this._value.toString() : '' )}`;
         }
     }
@@ -105,7 +102,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor( name: string, value: boolean, category?: string, options?: any ) {
+        constructor( name: string, value: boolean | null, category?: string, options?: any ) {
             super( name, value, category, options, PropertyType.BOOL );
         }
 
@@ -127,7 +124,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor( name: string, value: string, category?: string, options?: any ) {
+        constructor( name: string, value: string | null, category?: string, options?: any ) {
             super( name, value, category, options, PropertyType.STRING );
         }
 

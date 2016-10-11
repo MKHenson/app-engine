@@ -18,7 +18,7 @@
         * @param {InstanceNode} The current instance
         * @return A null return signifies that nothing should be done - an array returned will reformat the HTML
         */
-        expand( expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode ): Array<AppNode> {
+        expand( expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode ): Array<AppNode> | null {
             const e = expression.split( 'as' );
             if ( e.length < 1 )
                 throw new Error( `Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?` );

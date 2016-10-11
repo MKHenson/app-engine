@@ -93,7 +93,7 @@ namespace Animate {
 
         getFileDetails( selectedFile: IViewerFile, editMode: boolean ): JSX.Element {
             let preview = PluginManager.getSingleton().displayPreview( selectedFile );
-            let fileToken = this.state.fileToken;
+            let fileToken = this.state.fileToken!;
 
             if ( !editMode ) {
                 return (

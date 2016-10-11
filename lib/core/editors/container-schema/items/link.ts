@@ -59,15 +59,15 @@ namespace Animate {
         deSerialize( data: ILinkItem ) {
             super.deSerialize( data );
 
-            this.width = data.width;
-            this.height = data.height;
-            this.startBehaviour = data.startBehaviour;
-            this.endBehaviour = data.endBehaviour;
-            this.startPortal = data.startPortal;
-            this.endPortal = data.endPortal;
+            this.width = data.width!;
+            this.height = data.height!;
+            this.startBehaviour = data.startBehaviour!;
+            this.endBehaviour = data.endBehaviour!;
+            this.startPortal = data.startPortal!;
+            this.endPortal = data.endPortal!;
 
             this.points.splice( 0, this.points.length );
-            for ( const p of data.points )
+            for ( const p of data.points! )
                 this.points.push( { x: p.x, y: p.y });
         }
 

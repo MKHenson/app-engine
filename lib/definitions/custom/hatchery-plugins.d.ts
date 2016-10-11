@@ -58,14 +58,14 @@
         * @param {Engine.IFile} file The file we are looking to preview
         * @returns {JSX.Element} If a React Element is returned is added in the File viewer preview
         */
-        generate( file: HatcheryServer.IFile ): JSX.Element;
+        generate( file: HatcheryServer.IFile ): JSX.Element | null;
 
         /**
         * Creates a thumbnail preview of the file
         * @param {Engine.IFile} file
         * @returns {Promise<HTMLCanvasElement>}
         */
-        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement>;
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null;
     }
 
     export interface ISettingsPage {

@@ -4,8 +4,8 @@ namespace Animate {
 	 * A node that represents an Asset Class
 	 */
     export class TreeNodeAssetClass extends TreeNodeModel {
-        public assetClass: AssetClass;
-        private _project: Project;
+        public assetClass: AssetClass | null;
+        private _project: Project | null;
 
 		/**
 		 * Creates an instance of node
@@ -31,7 +31,7 @@ namespace Animate {
          * Clean up
          */
         dispose() {
-            this._project.off<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
+            this._project!.off<ProjectEvents, IResourceEvent>( "resource-created", this.onResourceCreated, this );
             this._project = null;
             this.assetClass = null;
             super.dispose();
@@ -47,7 +47,7 @@ namespace Animate {
                 if ( r.class === this.assetClass )
                     return;
 
-                const instanceNode = new TreeNodeAssetInstance( this.assetClass, r );
+                const instanceNode = new TreeNodeAssetInstance( this.assetClass!, r );
                 this.addNode( instanceNode );
             }
         }
@@ -57,23 +57,22 @@ namespace Animate {
 		 * @param classNames The class name of the asset, or an array of class names
 		 */
         getInstances( classNames: string | string[] ): TreeNodeAssetInstance[] {
-            let toRet: TreeNodeAssetInstance[] = null;
+            let toRet: TreeNodeAssetInstance[] = [];
             let children = this.children;
             let names: string[];
 
             if ( !classNames )
-                names = [ null ];
+                names = [];
             else if ( typeof ( classNames ) === 'string' )
                 names = [ classNames as string ];
             else
                 names = classNames as string[];
 
-            toRet = [];
 
             for ( let name of names ) {
 
                 // If name matches this classs
-                if ( name === null || name === this.assetClass.name || name === '' ) {
+                if ( name === null || name === this.assetClass!.name || name === '' ) {
                     for ( let node of children ) {
                         if ( node instanceof TreeNodeAssetInstance )
                             toRet.push( node );

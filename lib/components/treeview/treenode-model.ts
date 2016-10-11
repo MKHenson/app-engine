@@ -1,15 +1,15 @@
 namespace Animate {
 
     export class TreeNodeModel {
-        private _icon: JSX.Element;
+        private _icon: JSX.Element | undefined;
         private _label: string;
         private _selected: boolean;
         private _expanded: boolean;
         private _disabled: boolean;
         private _selectable: boolean;
-        public children: TreeNodeModel[];
-        protected _parent: TreeNodeModel;
-        public store: TreeNodeStore;
+        public children: TreeNodeModel[] | null;
+        protected _parent: TreeNodeModel | null;
+        public store: TreeNodeStore | null;
         public focussed: boolean;
         public canDrag: boolean;
         public canDrop: boolean;
@@ -35,7 +35,7 @@ namespace Animate {
          * Gets the parent node
          * @returns
          */
-        get parent(): TreeNodeModel {
+        get parent(): TreeNodeModel | null {
             return this._parent;
         }
 
@@ -58,7 +58,7 @@ namespace Animate {
          * @param e
          * @returns Return data to serialize
          */
-        onDragStart( e: React.DragEvent ): IDragDropToken {
+        onDragStart( e: React.DragEvent ): IDragDropToken | null {
             return null;
         }
 
@@ -132,7 +132,7 @@ namespace Animate {
          * Gets or sets the icon of the node
          * @param val
          */
-        icon( val?: JSX.Element ): JSX.Element {
+        icon( val?: JSX.Element ): JSX.Element | undefined {
 
             if ( val === undefined )
                 return this._icon;
@@ -155,7 +155,7 @@ namespace Animate {
          * @param node
          */
         addNode( node: TreeNodeModel ): TreeNodeModel {
-            this.children.push( node );
+            this.children!.push( node );
             node._parent = this;
             node.store = this.store;
             this.invalidate();
@@ -173,7 +173,7 @@ namespace Animate {
                     selectedNodes.splice( selectedNodes.indexOf( this ), 1 );
             }
 
-            this.children.splice( this.children.indexOf( node ), 1 );
+            this.children!.splice( this.children!.indexOf( node ), 1 );
             node.dispose();
             this.invalidate();
         }
@@ -183,7 +183,7 @@ namespace Animate {
          * @param e
          */
         onContext( e: React.MouseEvent ) {
-            this.store.onContext( e, this );
+            this.store!.onContext( e, this );
         }
 
         /**
@@ -199,23 +199,25 @@ namespace Animate {
 		 * @param property The Javascript property on the node that we are evaluating
 		 * @param value The value of the property we are comparing.
 		 */
-        findNode( property: string, value: any ): TreeNodeModel {
+        findNode( property: string, value: any ): TreeNodeModel | null {
             if ( this[ property ] === value )
                 return this;
 
-            let children = this.children;
+            let children = this.children!;
             for ( let child of children ) {
                 const n = child.findNode( property, value );
                 if ( n !== null )
                     return n;
             }
+
+            return null;
         }
 
         /**
 		 * This will cleanup the model
 		 */
         dispose() {
-            for ( let node of this.children )
+            for ( let node of this.children! )
                 this.removeNode( node );
 
             this.children = null;

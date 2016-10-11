@@ -33,7 +33,7 @@ namespace Animate {
      * A simple class that allows for the adding, removing and dispatching of events.
      */
     export class EventDispatcher {
-        private _listeners: Array<EventListener<string, any>>;
+        private _listeners: Array<EventListener<string, any>> | null;
         public disposed: boolean;
 
         constructor() {
@@ -46,7 +46,7 @@ namespace Animate {
          * Returns the list of event listeners that are currently attached to this dispatcher.
          */
         get listeners(): Array<EventListener<string, any>> {
-            return this._listeners;
+            return this._listeners!;
         }
 
         /**
@@ -59,7 +59,7 @@ namespace Animate {
             if ( !func )
                 throw new Error( 'You cannot have an undefined function.' );
 
-            this._listeners.push( new EventListener( type, func, context ) );
+            this._listeners!.push( new EventListener( type, func, context ) );
         }
 
         /**
@@ -91,13 +91,13 @@ namespace Animate {
          * @param type The event type we are sending
          * @param data [Optional] The data to send with the emission
          */
-        emit<T extends string, Y>( type: T, data?: Y ): any {
-            if ( this._listeners.length === 0 )
+        emit<T extends string, Y>( type: T, data?: Y | null ): any {
+            if ( this._listeners!.length === 0 )
                 return null;
 
             let listeners = this._listeners;
             let toRet: any = null;
-            for ( let listener of listeners ) {
+            for ( let listener of listeners! ) {
                 if ( listener.type === type ) {
                     if ( !listener.func )
                         throw new Error( `A listener was added for ${type}, but the function is not defined.` );

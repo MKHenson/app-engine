@@ -10,7 +10,7 @@
          * Creates a thumbnail preview of the file
          * @param file
          */
-        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> {
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null {
 
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
                 return new Promise<HTMLCanvasElement>(( resolve, reject ) => {
@@ -23,8 +23,8 @@
                         const img = document.createElement( 'img' );
                         k.appendChild( img );
                         img.crossOrigin = 'Anonymous';
-                        img.src = file.url;
-                        img.onload = function ( e ) {
+                        img.src = file.url!;
+                        img.onload = function( e ) {
                             // Resize the image
                             const canvas = document.createElement( 'canvas' );
                             let width = img.naturalWidth,
@@ -45,7 +45,7 @@
 
                             canvas.width = width;
                             canvas.height = height;
-                            canvas.getContext( '2d' ).drawImage( img, 0, 0, width, height );
+                            canvas.getContext( '2d' ) !.drawImage( img, 0, 0, width, height );
                             canvas.toDataURL( 'image/png' );
 
                             // Once the image is loaded - we upload a preview of the image
@@ -63,7 +63,7 @@
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        generate( file: HatcheryServer.IFile ): JSX.Element {
+        generate( file: HatcheryServer.IFile ): JSX.Element | null {
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
                 return React.createElement( ImagePreview, { src: file.url } as IImagePreviewProps );
             }

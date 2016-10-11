@@ -8,7 +8,7 @@
         UsersInterface.SocketTokens.ClientInstructionType;
 
     // TODO: Can probably be refactored
-    export type ProjectEvents  =
+    export type ProjectEvents =
         'change' |
         'editor-created' |
         'editor-removed' |
@@ -103,7 +103,7 @@
 	 * Basic set of loader events shared by all loaders
      * TODO: Can probably be removed
 	 */
-    export type LoaderEvents  =
+    export type LoaderEvents =
         'complete' |
         'failed';
 
@@ -127,7 +127,7 @@
 	 * Events associated with xhr binary requests
 	 */
     export interface BinaryLoaderEvent {
-        buffer: ArrayBuffer;
+        buffer: ArrayBuffer | null;
         message: string;
     }
 

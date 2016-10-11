@@ -44,10 +44,10 @@ namespace Animate {
         render(): JSX.Element {
 
             let project = User.get.project;
-            const editorState = this.props.editorState;
+            const editorState = this.props.editorState!;
 
             return <div id="application">
-                {( editorState.showSplash ? <Animate.Splash onClose={() => this.props.dispatch( toggleSplash( false ) )} /> : null )}
+                {( editorState.showSplash ? <Animate.Splash onClose={() => this.props.dispatch!( toggleSplash( false ) )} /> : null )}
                 <div id="main-view" style={{ display: editorState.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
                         <Toolbar project={project} />

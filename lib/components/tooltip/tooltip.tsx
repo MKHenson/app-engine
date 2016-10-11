@@ -91,9 +91,9 @@ namespace Animate {
             tooltipParent.style.top = y + 'px';
 
             // Add CSS classes for animation
-            setTimeout( function () {
+            setTimeout( function() {
                 tooltipParent.className = className + ' enter';
-                setTimeout( function () {
+                setTimeout( function() {
                     tooltipParent.className = className + ' enter active';
                 }, 20 );
             }, 20 );
@@ -109,7 +109,7 @@ namespace Animate {
         /**
          * When the mouse leaves we remove the tooltip
          */
-        onMouseleave( e: React.MouseEvent ) {
+        onMouseleave( e: React.MouseEvent | null ) {
             const tooltipParent = Tooltip._tooltip;
 
             if ( !document.body.contains( tooltipParent ) )
@@ -142,8 +142,8 @@ namespace Animate {
             }
 
             return <span
-                onMouseEnter={( e ) => this.onMouseEnter( e ) }
-                onMouseLeave={( e ) => this.onMouseleave( e ) }
+                onMouseEnter={( e ) => this.onMouseEnter( e )}
+                onMouseLeave={( e ) => this.onMouseleave( e )}
                 >
                 {this.props.children}
             </span>;

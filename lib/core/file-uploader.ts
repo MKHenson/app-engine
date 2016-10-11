@@ -1,6 +1,6 @@
 ﻿namespace Animate {
     export type ProgressCallback = ( percent: number ) => void;
-    export type CompleteCallback = ( err?: Error, files?: Array<UsersInterface.IUploadToken> ) => void;
+    export type CompleteCallback = ( err?: Error | null, files?: Array<UsersInterface.IUploadToken> | null ) => void;
 
     /*
     * A class that assembles data & files into a form and sends it as an XHR request to a server
@@ -10,8 +10,8 @@
         private _downloads: Array<{ id: number; total: number; loaded: number; }>;
         public percent: number;
 
-        private _onProg: ProgressCallback;
-        private _onComplete: CompleteCallback;
+        private _onProg: ProgressCallback | undefined;
+        private _onComplete: CompleteCallback | undefined;
 
         /*
          * Creates an instance of the class
@@ -71,7 +71,7 @@
 
                 // Copy the image contents to the canvas
                 const ctx = canvas.getContext( '2d' );
-                ctx.drawImage( img, 0, 0 );
+                ctx!.drawImage( img, 0, 0 );
             }
             else
                 canvas = <HTMLCanvasElement>img;
@@ -158,7 +158,7 @@
         * @param url The URL to use
         * @param parentFile [Optional] Sets the parent file of the upload. If the parent file is deleted - then this file is deleted as well
         */
-        upload( form: FormData, url: string, parentFile?: string ) {
+        upload( form: FormData, url: string | null, parentFile?: string ) {
             if ( !url ) {
                 const details = User.get.entry;
                 url = `${DB.USERS}/buckets/${details.username}-bucket/upload` + ( parentFile ? '/' + parentFile : '' );
@@ -169,12 +169,12 @@
             const id = that._dCount++;
             const cb = that._onProg;
             const comp = that._onComplete;
-            let errorMsg: string = null;
+            let errorMsg: string | null = null;
 
             // Add the download token
             that._downloads.push( { id: id, loaded: 0, total: 0 });
 
-            const calcProgress = function () {
+            const calcProgress = function() {
                 if ( !cb )
                     return;
 
@@ -195,7 +195,7 @@
                 cb( that.percent );
             }
 
-            xhr.onerror = function ( ev ) {
+            xhr.onerror = function( ev ) {
                 // Remove the download from the array
                 for ( let i = 0, l = that._downloads.length; i < l; i++ )
                     if ( that._downloads[ i ].id === id ) {
@@ -208,7 +208,7 @@
             };
 
             if ( cb && xhr.upload ) {
-                xhr.upload.onprogress = function ( e ) {
+                xhr.upload.onprogress = function( e ) {
                     for ( let i = 0, l = that._downloads.length; i < l; i++ )
                         if ( that._downloads[ i ].id === id ) {
                             that._downloads[ i ].total = e.total;
@@ -220,7 +220,7 @@
                 };
             }
 
-            xhr.onreadystatechange = function () {
+            xhr.onreadystatechange = function() {
                 // Every thing ok, file uploaded
                 if ( xhr.readyState === 4 ) {
                     // Remove the download from the array
@@ -247,7 +247,8 @@
                             for ( let token of data.tokens )
                                 errorMsg += ( token.error ? `${token.errorMsg} \r\n` : '' );
 
-                            comp( new Error( errorMsg ), null );
+                            if ( comp )
+                                comp( new Error( errorMsg ), null );
                         }
                         else {
                             if ( that._downloads.length === 0 ) {

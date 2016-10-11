@@ -8,8 +8,8 @@ namespace Animate {
         private _canBuildInput: boolean;
         private _canBuildParameter: boolean;
         private _canBuildProduct: boolean;
-        private _portalTemplates: Array<PortalTemplate>;
-        private _plugin: IPlugin;
+        private _portalTemplates: Array<PortalTemplate> | null;
+        private _plugin: IPlugin | null;
 
 		/**
 		* @param  behaviourName The name of the behaviour
@@ -20,7 +20,7 @@ namespace Animate {
 		* @param canBuildParameter
 		* @param canBuildProduct
 		*/
-        constructor( behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput: boolean = false, canBuildOutput: boolean = false, canBuildParameter: boolean = false, canBuildProduct: boolean = false ) {
+        constructor( behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin | null, canBuildInput: boolean = false, canBuildOutput: boolean = false, canBuildParameter: boolean = false, canBuildProduct: boolean = false ) {
             for ( let i = 0; i < portalTemplates.length; i++ )
                 for ( let ii = 0; ii < portalTemplates.length; ii++ )
                     if ( ii !== i && portalTemplates[ i ].property.name === portalTemplates[ ii ].property.name )
@@ -41,11 +41,6 @@ namespace Animate {
 		* also define what the process of conversion will be.
         */
         dispose() {
-            this._behaviourName = null;
-            this._canBuildOutput = null;
-            this._canBuildInput = null;
-            this._canBuildParameter = null;
-            this._canBuildProduct = null;
             this._portalTemplates = null;
             this._plugin = null;
         }
@@ -87,10 +82,10 @@ namespace Animate {
 		* has to provide the behaviour with an array of PortalTemplates.
         */
         portalsTemplates(): Array<PortalTemplate> {
-            return this._portalTemplates;
+            return this._portalTemplates!;
         }
 
         get behaviourName(): string { return this._behaviourName; }
-        get plugin(): IPlugin { return this._plugin; }
+        get plugin(): IPlugin { return this._plugin!; }
     }
 }

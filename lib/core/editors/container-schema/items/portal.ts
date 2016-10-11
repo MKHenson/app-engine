@@ -5,11 +5,11 @@ namespace Animate {
 	*/
     export class Portal extends EventDispatcher {
         // TODO: Canvas TSX changes
-        public links: Link[];
+        public links: Link[] | null;
         public custom: boolean;
         public type: HatcheryRuntime.PortalType;
-        public property: Prop<any>;
-        public behaviour: Behaviour;
+        public property: Prop<any> | null;
+        public behaviour: Behaviour | null;
 
         public top: number;
         public left: number;
@@ -42,7 +42,7 @@ namespace Animate {
             }
             else if ( this.type === 'product' ) {
                 this.left = ( ( size + spacing ) * index );
-                this.top = this.behaviour.height;
+                this.top = this.behaviour!.height;
             }
             else if ( this.type === 'input' ) {
                 this.top = ( ( size + spacing ) * index );
@@ -50,30 +50,30 @@ namespace Animate {
             }
             else if ( this.type === 'output' ) {
                 this.top = ( ( size + spacing ) * index );
-                this.left = this.behaviour.width;
+                this.left = this.behaviour!.width;
             }
 
-            for (const link of this.links)
+            for ( const link of this.links! )
                 link.calculateDimensions();
         }
 
         /**
          * Clones the canvas item
          */
-        clone() : Portal {
-            const clone = new Portal( this.behaviour, this.type, this.property.clone() );
+        clone(): Portal {
+            const clone = new Portal( this.behaviour!, this.type, this.property!.clone() );
             clone.custom = this.custom;
             return clone;
         }
 
         serialize(): IPortal {
             return {
-                name: this.property.name,
+                name: this.property!.name,
                 custom: this.custom,
-                property: this.property.tokenize(),
+                property: this.property!.tokenize(),
                 type: this.type,
                 links: [],
-                behaviour: this.behaviour.id,
+                behaviour: this.behaviour!.id,
                 top: this.top,
                 left: this.left,
                 size: this.size
@@ -105,11 +105,11 @@ namespace Animate {
             if ( source.type === 'output' && this.type === 'input' )
                 return true;
             else if ( source.type === 'product' && this.type === 'parameter' ) {
-                if ( this.property.type === null || this.property.type === PropertyType.OBJECT )
+                if ( this.property!.type === null || this.property!.type === PropertyType.OBJECT )
                     return true;
-                else if ( this.property.type === this.property.type )
+                else if ( this.property!.type === this.property!.type )
                     return true;
-                else if ( PluginManager.getSingleton().getConverters( source.property.type, this.property.type ) === null )
+                else if ( PluginManager.getSingleton().getConverters( source.property!.type, this.property!.type ) === null )
                     return false;
                 else
                     return true;
@@ -123,7 +123,7 @@ namespace Animate {
 		 */
         dispose() {
 
-            for ( let link of this.links )
+            for ( let link of this.links! )
                 link.dispose();
 
             this.links = null;
@@ -148,8 +148,8 @@ namespace Animate {
         // TODO: Canvas TSX changes
         addLink( link: any ) {// Link ) {
 
-            if ( this.links.indexOf( link ) === -1 )
-                this.links.push( link );
+            if ( this.links!.indexOf( link ) === -1 )
+                this.links!.push( link );
         }
 
 		/**
@@ -158,10 +158,10 @@ namespace Animate {
 		 */
         // TODO: Canvas TSX changes
         removeLink( link: any ): any { // Link ) : Link {
-            if ( this.links.indexOf( link ) === -1 )
+            if ( this.links!.indexOf( link ) === -1 )
                 return link;
 
-            this.links.splice( this.links.indexOf( link ), 1 );
+            this.links!.splice( this.links!.indexOf( link ), 1 );
             return link;
         }
 
