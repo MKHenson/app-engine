@@ -25,13 +25,13 @@ declare interface ObjectConstructor {
 // ===============================
 declare namespace AceAjax {
     export interface CommandManager {
-        removeCommand(command:EditorCommand | string): void;
+        removeCommand( command: EditorCommand | string ): void;
     }
 
     export interface Editor {
-        removeEventListener(ev: 'change', callback: (ev: EditorChangeEvent) => any): void;
-        removeEventListener(ev: string, callback: Function): void;
-        removeAllListeners(ev: string): void;
+        removeEventListener( ev: 'change', callback: ( ev: EditorChangeEvent ) => any ): void;
+        removeEventListener( ev: string, callback: Function ): void;
+        removeAllListeners( ev: string ): void;
     }
 }
 
@@ -45,6 +45,14 @@ declare namespace AceAjax {
 // ===============================
 declare namespace Redux {
     interface Dispatch<S> {
-        <A extends Action>( callback:( dispatch: Dispatch<S>, getState: Function ) => void ): void;
+        <A extends Action>( callback: ( dispatch: Dispatch<S>, getState: Function ) => void ): void;
     }
+}
+
+// ===============================
+// REACT REDUX
+// -    Bug fix: Could not get the react redux connect function to work with TS decorators
+// ===============================
+declare namespace ReactRedux {
+    export function connect<S, P>( stateToParams: ( state: S ) => P ): React.ComponentClass<P>;
 }
