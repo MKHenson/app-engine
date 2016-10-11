@@ -16,7 +16,7 @@ declare var jscolor: JSColor;
 //          conversion to es6
 // ===============================
 declare interface ObjectConstructor {
-    assign( target: any, ...sources: any[] ): any;
+    assign<T>( target: any, ...sources: T[] ): T;
 }
 
 // ===============================
