@@ -22,8 +22,6 @@ namespace Animate {
 
         /** Cleans up the object. */
         dispose() {
-            this.typeA = null;
-            this.typeB = null;
             this.conversionOptions = null;
             this.plugin = null;
         }

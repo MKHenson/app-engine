@@ -191,17 +191,17 @@ namespace Animate {
                 className += ' dirty';
 
             return <select {...props}
-                value={this.state.selected ? this.state.selected.value : '' }
+                value={this.state.selected ? this.state.selected.value.toString() : ''}
                 className={className}
                 onFocus={( e ) => { this._pristine = false; } }
                 onChange={( e ) => { this.onChange( e ); } }
                 >
-                {( this.props.createEmptyOption ? <option value=""></option> : null ) }
+                {( this.props.createEmptyOption ? <option value=""></option> : null )}
                 {
                     this.props.options.map(( option, index ) => {
                         return <option
                             key={'option-' + index}
-                            value={option.value.toString() }>
+                            value={option.value.toString()}>
                             {option.label}
                         </option>
                     })

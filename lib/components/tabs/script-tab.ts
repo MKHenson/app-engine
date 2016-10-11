@@ -144,7 +144,7 @@ namespace Animate {
                     mac: 'Command-S',
                     sender: 'editor|cli'
                 },
-                exec: function () { Toolbar.getSingleton().saveAll() }
+                exec: function() { Toolbar.getSingleton().saveAll() }
             });
 
 
@@ -153,9 +153,9 @@ namespace Animate {
             const tab: ScriptTab = this;
 
             //When we return from the server
-            const onServer = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+            const onServer = function( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
                 //When we come back from the server
-                if ( response === 'LoaderEvents.COMPLETE' ) {
+                if ( response === 'complete' ) {
                     let data: any = event.tag.script;
                     if ( !data )
                         data = {};
@@ -174,7 +174,7 @@ namespace Animate {
             };
 
             //When the text changes we save the data to the local function
-            const onChange = function () {
+            const onChange = function() {
                 if ( !tab.userDefinedChange )
                     return;
 
@@ -188,8 +188,8 @@ namespace Animate {
             editor.addEventListener( 'change', onChange );
 
             //Get the current scripts
-            loader.on( 'LoaderEvents.COMPLETE', onServer );
-            loader.on( 'LoaderEvents.FAILED', onServer );
+            loader.on( 'complete', onServer );
+            loader.on( 'failed', onServer );
             loader.load( '/project/get-behaviour-scripts', { projectId: User.get.project.entry._id, _id: scriptId });
 
             this.onSelected();
@@ -201,7 +201,7 @@ namespace Animate {
 		* @param <object> data
 		*/
         onServer( response: ProjectEvents, event: any ) {
-            if ( response === 'ProjectEvents.FAILED' ) {
+            if ( response === 'failed' ) {
                 this.saved = false;
                 //MessageBox.show('Problem saving the data, server responded with:'' + event.message + ''', Array<string>('Ok'), null, null );
             }
@@ -284,7 +284,7 @@ namespace Animate {
             helpers.html( toAdd );
 
             const editor: AceAjax.Editor = this._editor;
-            jQuery( '.script-helper', helpers ).on( 'click', function ( e ) {
+            jQuery( '.script-helper', helpers ).on( 'click', function( e ) {
                 editor.insert( scripts[ jQuery( e.currentTarget ).attr( 'script' ) ] );
                 editor.focus();
             });
@@ -353,9 +353,9 @@ namespace Animate {
             const tab = this;
 
             // When we return from the save
-            const onSave = function ( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
-                if ( response === 'LoaderEvents.COMPLETE' ) {
-                    if ( event.return_type === 'AnimateLoaderResponses.ERROR' ) {
+            const onSave = function( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+                if ( response === 'complete' ) {
+                    if ( event.return_type === 'error' ) {
                         MessageBox.error( `There was an error saving the script: '${event.message}'` );
                         return;
                     }
@@ -372,8 +372,8 @@ namespace Animate {
 
             // Try to create the database entry of this node
             const loader = new AnimateLoader();
-            loader.on(' LoaderEvents.COMPLETE', onSave );
-            loader.on(' LoaderEvents.FAILED', onSave );
+            loader.on( 'complete', onSave );
+            loader.on( 'failed', onSave );
             loader.load( '/project/save-behaviour-script', {
                 projectId: User.get.project.entry._id,
                 onEnter: this.onEnter,

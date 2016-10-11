@@ -555,7 +555,7 @@ declare namespace Animate {
         /**
          * Returns the list of event listeners that are currently attached to this dispatcher.
          */
-        listeners: Array<EventListener<string, any>>;
+        readonly listeners: Array<EventListener<string, any>>;
         /**
          * Adds a new listener to the dispatcher class.
          * @param type The event type we are sending
@@ -625,11 +625,11 @@ declare namespace Animate {
         /**
         * Gets the image URL of this template
         */
-        imgURL: string;
+        readonly imgURL: string;
         /**
         * Gets the variables associated with this template
         */
-        variables: Array<Prop<any>>;
+        readonly variables: Array<Prop<any>>;
         /**
         * Adds a class
         * @param name The name of the class
@@ -640,11 +640,11 @@ declare namespace Animate {
         /**
         * Gets the name of the class
         */
-        name: string;
+        readonly name: string;
         /**
         * Gets if this class is abstract or not
         */
-        abstractClass: boolean;
+        readonly abstractClass: boolean;
     }
 }
 declare namespace Animate {
@@ -820,9 +820,9 @@ declare namespace Animate {
          * @returns If a React Element is returned is added in the File viewer preview
          */
         displayPreview(file: HatcheryServer.IFile): JSX.Element;
-        assetTemplates: AssetTemplate[];
-        loadedPlugins: IPlugin[];
-        behaviourTemplates: BehaviourDefinition[];
+        readonly assetTemplates: AssetTemplate[];
+        readonly loadedPlugins: IPlugin[];
+        readonly behaviourTemplates: BehaviourDefinition[];
         /**
          * Gets the singleton instance.
          */
@@ -1068,11 +1068,11 @@ declare namespace Animate {
         /**
          * Gets if this editor has actions to undo
          */
-        hasUndos: boolean;
+        readonly hasUndos: boolean;
         /**
          * Gets if this editor has actions to redo
          */
-        hasRedos: boolean;
+        readonly hasRedos: boolean;
         /**
          * Adds a new action to the editor and resets the undo history
          */
@@ -1348,7 +1348,7 @@ declare namespace Animate {
          * Completes the process of linking two behaviours together
          */
         endLinkRouting(options: ILinkItem): void;
-        activeLink: Link;
+        readonly activeLink: Link;
         /**
          * Returns all items of this store
          */
@@ -1527,7 +1527,7 @@ declare namespace Animate {
          * This will cleanup the component.
          */
         dispose(): void;
-        property: Prop<any>;
+        readonly property: Prop<any>;
     }
 }
 declare namespace Animate {
@@ -1672,7 +1672,7 @@ declare namespace Animate {
         * Gets the properties of this link
         * @returns {EditableSet}
         */
-        properties: EditableSet;
+        readonly properties: EditableSet;
         /**
         * Cleanup the link
         */
@@ -1709,8 +1709,8 @@ declare namespace Animate {
         * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
         */
         constructor(parent: Component, container: Resources.Container);
-        container: Resources.Container;
-        containerReferences: {
+        readonly container: Resources.Container;
+        readonly containerReferences: {
             groups: Array<number>;
             assets: Array<number>;
         };
@@ -1777,8 +1777,8 @@ declare namespace Animate {
         canBuildProduct(behaviour: Behaviour): boolean;
         canBuildParameter(behaviour: Behaviour): boolean;
         portalsTemplates(): Array<PortalTemplate>;
-        behaviourName: string;
-        plugin: IPlugin;
+        readonly behaviourName: string;
+        readonly plugin: IPlugin;
     }
 }
 declare namespace Animate {
@@ -2060,16 +2060,16 @@ declare namespace Animate {
          * Triggers a change event
          */
         invalidate(): void;
-        containers: Resources.Container[];
-        files: Resources.File[];
-        scripts: Resources.Script[];
-        assets: Resources.Asset[];
-        groups: Resources.GroupArray[];
+        readonly containers: Resources.Container[];
+        readonly files: Resources.File[];
+        readonly scripts: Resources.Script[];
+        readonly assets: Resources.Asset[];
+        readonly groups: Resources.GroupArray[];
         /**
          * This will cleanup the project and remove all data associated with it.
          */
         reset(): void;
-        plugins: Array<HatcheryServer.IPlugin>;
+        readonly plugins: Array<HatcheryServer.IPlugin>;
     }
 }
 declare namespace Animate {
@@ -2173,11 +2173,11 @@ declare namespace Animate {
         * @param id The id of the project we are removing.
         */
         deleteProject(id: string): void;
-        isLoggedIn: boolean;
+        readonly isLoggedIn: boolean;
         /**
         * Gets the singleton instance.
         */
-        static get: User;
+        static readonly get: User;
     }
 }
 declare namespace Animate {
@@ -2211,7 +2211,7 @@ declare namespace Animate {
         /**
          * Gets the singleton
          */
-        static get: SocketManager;
+        static readonly get: SocketManager;
     }
 }
 declare namespace Animate {
@@ -2241,7 +2241,7 @@ declare namespace Animate {
         private _onProg;
         private _onComplete;
         constructor(onComp?: CompleteCallback, onProg?: ProgressCallback);
-        numDownloads: number;
+        readonly numDownloads: number;
         uploadFile(files: File[], meta?: any, parentFile?: string): void;
         upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: HatcheryServer.IFileMeta, parentFile?: string): void;
         uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
@@ -2301,7 +2301,7 @@ declare namespace Animate {
        * Tokenizes the data into a JSON.
        * @returns {Array<Prop<any>>}
        */
-        variables: Array<Prop<any>>;
+        readonly variables: Array<Prop<any>>;
         /**
          * Cleans up and removes the references
          */
@@ -2765,8 +2765,8 @@ declare namespace Animate {
         private _tooltip;
         private _enabled;
         tag: any;
-        savedID: string;
-        constructor(html: string | JQuery, parent?: Component);
+        savedID: string | null;
+        constructor(html: string | JQuery, parent?: Component | null);
         /**
         * Diposes and cleans up this component and all its child {Component}s
         */
@@ -2793,7 +2793,7 @@ declare namespace Animate {
         * Gets the ILayouts for this component
         * {returns} Array<ILayout>
         */
-        layouts: Array<any>;
+        readonly layouts: Array<any> | null;
         /**
         * Use this function to add a child to this component.
         * This has the same effect of adding some HTML as a child of another piece of HTML.
@@ -2824,22 +2824,22 @@ declare namespace Animate {
         * Returns the array of Child {Component}s
         * @returns {Array{Component}} An array of child {Component} objects
         */
-        children: Array<Component>;
+        readonly children: Array<Component> | null;
         /**
         * Gets the jQuery wrapper
         */
-        element: JQuery;
+        readonly element: JQuery | null;
         /**
         * Gets the jQuery parent
         */
-        parent: Component;
+        readonly parent: Component | null;
         /**
         * Gets the tooltip for this {Component}
         */
         /**
         * Sets the tooltip for this {Component}
         */
-        tooltip: string;
+        tooltip: string | null;
         /**
         * Get or Set if the component is enabled and recieves mouse events
         */
@@ -2850,7 +2850,7 @@ declare namespace Animate {
         /**
         * Gets the ID of thi component
         */
-        id: string;
+        readonly id: string;
         /**
         * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
         */
@@ -2987,10 +2987,10 @@ declare namespace Animate {
         */
         onStageClick(e: any): void;
         /** Gets the content component */
-        content: Component;
-        visible: boolean;
+        readonly content: Component;
+        readonly visible: boolean;
         headerText: string;
-        modalBackdrop: JQuery;
+        readonly modalBackdrop: JQuery;
         /**
         * This will cleanup the component.
         */
@@ -3244,7 +3244,7 @@ declare namespace Animate {
         /**
          * Gets an array of all the tab props
          */
-        panes: ITabPaneProps[];
+        readonly panes: ITabPaneProps[];
     }
 }
 declare namespace Animate {
@@ -3693,7 +3693,7 @@ declare namespace Animate {
          * Gets the parent node
          * @returns
          */
-        parent: TreeNodeModel;
+        readonly parent: TreeNodeModel;
         /**
          * Gets or sets the label of the node
          * @param val
@@ -4152,7 +4152,7 @@ declare namespace Animate {
          * This will cleanup the component
          */
         dispose(): void;
-        shallowId: number;
+        readonly shallowId: number;
     }
 }
 declare namespace Animate {
@@ -4178,7 +4178,7 @@ declare namespace Animate {
          * This will cleanup the component
          */
         dispose(): void;
-        template: BehaviourDefinition;
+        readonly template: BehaviourDefinition;
     }
 }
 declare namespace Animate {
@@ -4208,7 +4208,7 @@ declare namespace Animate {
         /**
         * @returns {Canvas}
         */
-        canvas: Canvas;
+        readonly canvas: Canvas;
     }
 }
 declare namespace Animate {
@@ -4269,7 +4269,7 @@ declare namespace Animate {
         * Gets the ace editor
         * @returns {AceAjax.Editor}
         */
-        editor: AceAjax.Editor;
+        readonly editor: AceAjax.Editor;
     }
 }
 declare namespace Animate {
@@ -4524,7 +4524,7 @@ declare namespace Animate {
         * @returns {TabPair} The tab pair object
         */
         addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair;
-        currentCanvas: Canvas;
+        readonly currentCanvas: Canvas;
     }
 }
 declare namespace Animate {
@@ -4804,7 +4804,7 @@ declare namespace Animate {
         * @returns <PropertyGrid>
         */
         static getSingleton(parent?: Component): PropertyGrid;
-        currentObject: any;
+        readonly currentObject: any;
     }
 }
 declare namespace Animate {
@@ -4865,7 +4865,7 @@ declare namespace Animate {
         src: string;
         defaultSrc?: string;
         label: string;
-        labelIcon?: React.ReactDOM;
+        labelIcon?: JSX.Element;
         className?: string;
         selected?: boolean;
         onLabelClick?: (e: React.MouseEvent) => void;
@@ -5504,10 +5504,10 @@ declare namespace Animate {
         * and pass the text either for the ok or cancel buttons.
         */
         ok(json: any): void;
-        name: string;
-        portalType: HatcheryRuntime.PortalType;
-        value: any;
-        parameterType: PropertyType;
+        readonly name: string;
+        readonly portalType: HatcheryRuntime.PortalType;
+        readonly value: any;
+        readonly parameterType: PropertyType;
     }
 }
 declare namespace Animate {
@@ -5654,7 +5654,7 @@ declare namespace Animate {
          * Gets global logger store instance
          * @returns {LoggerStore}
          */
-        static get: LoggerStore;
+        static readonly get: LoggerStore;
         /**
          * Logs an error message
          * @param {string} msg
@@ -6058,7 +6058,7 @@ declare namespace Animate {
          * Gets the current selected option
          * @returns {SelectValue}
          */
-        value: SelectValue;
+        readonly value: SelectValue;
         /**
          * Called when the component is about to be mounted.
          */
@@ -6080,7 +6080,7 @@ declare namespace Animate {
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          */
-        pristine: boolean;
+        readonly pristine: boolean;
         /**
          * Creates the component elements
          */
@@ -6112,11 +6112,11 @@ declare namespace Animate {
         /**
          * Gets the current checked state of the input
          */
-        checked: boolean;
+        readonly checked: boolean;
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          */
-        pristine: boolean;
+        readonly pristine: boolean;
         /**
         * Creates the component elements
         */
@@ -6124,7 +6124,7 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IVInputProps extends React.HTMLAttributes {
+    interface IVInputProps {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
          * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
@@ -6162,7 +6162,14 @@ declare namespace Animate {
          */
         selectOnClick?: boolean;
         onChange?(e: React.FormEvent, newString: string): void;
-        onChange?(e: React.FormEvent): void;
+        onKeyUp?(e: React.KeyboardEvent): void;
+        autoFocus?: boolean;
+        readOnly?: boolean;
+        autoComplete?: string;
+        name?: string;
+        type?: string;
+        placeholder?: string;
+        className?: string;
     }
     /**
      * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
@@ -6186,7 +6193,7 @@ declare namespace Animate {
         /**
          * Gets the current value of the input
          */
-        value: string;
+        readonly value: string;
         /**
          * Called when the component is about to be mounted.
          */
@@ -6224,7 +6231,7 @@ declare namespace Animate {
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          */
-        pristine: boolean;
+        readonly pristine: boolean;
         /**
          * Creates the component elements
          */
@@ -6289,7 +6296,7 @@ declare namespace Animate {
         /**
          * Gets the current value of the input
          */
-        value: string;
+        readonly value: string;
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
          * can be used to bring attention to the component
@@ -6307,7 +6314,7 @@ declare namespace Animate {
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          */
-        pristine: boolean;
+        readonly pristine: boolean;
         /**
          * Creates the component elements
          */
@@ -6384,7 +6391,7 @@ declare namespace Animate {
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
          */
-        pristine: boolean;
+        readonly pristine: boolean;
         /**
          * Creates the component elements
          */
@@ -6424,7 +6431,7 @@ declare namespace Animate {
         /**
          * Gets the currently selected plugins
          */
-        selectedPlugins: IPluginPlus[];
+        readonly selectedPlugins: IPluginPlus[];
         selectPlugin(plugin: IPluginPlus): void;
         mustShowPluginTick(plugin: any, index: number): boolean;
         showVersions(plugin: HatcheryServer.IPlugin): void;
@@ -6654,7 +6661,7 @@ declare namespace Animate {
         /**
         * Gets the singleton reference of this class.
         */
-        static get: Splash;
+        static readonly get: Splash;
     }
 }
 declare namespace Animate {
@@ -6747,17 +6754,16 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IApplicationState {
-        showSplash?: boolean;
+    interface IApplicationState extends HatcheryProps {
+        editorState?: IEditorState;
+        project?: IProject;
+        user?: IUser;
     }
-    /**
-    * The main GUI component of the application.
-    */
-    class Application extends React.Component<React.HTMLAttributes, IApplicationState> {
+    class Application extends React.Component<IApplicationState, void> {
         private static _singleton;
         static bodyComponent: Component;
         private _focusObj;
-        constructor(props: React.HTMLAttributes);
+        constructor(props: IApplicationState);
         /**
          * Log the first welcome message
          */
@@ -6784,36 +6790,52 @@ declare namespace Animate {
          * @returns {Application}
          */
         static getInstance(domElement?: string): Application;
-        focusObj: Component;
+        readonly focusObj: Component;
     }
 }
 declare namespace Animate {
+    /**
+     * Describes each of the project action types
+     */
     type ProjectActionType = 'NEW_PROJECT' | 'OPEN_PROJECT';
+    /**
+     * A base interface for describing project related actions
+     */
     interface IProjectAction extends Redux.Action {
         type: ProjectActionType;
     }
+    /**
+     * Creates a new project in the backend, and dispatches an event on its success or failure
+     */
     function createProject(projectData: any): (dispatch: Redux.Dispatch<IProjectAction>, getState: () => IProjectAction) => void;
 }
 declare namespace Animate {
-    type EditorActionType = 'TOGGLE_SPLASH';
-    interface IEditorAction extends Redux.Action {
+    /**
+     * Describes the different types of editor action types
+     */
+    type EditorActionType = 'EA_TOGGLE_SPLASH' | 'EA_ADD_LOG_MESSAGE' | 'EA_CLEAR_LOG_MESSAGES';
+    /**
+     * An interface for describing  editor actions
+     */
+    interface IEditorAction extends Redux.Action, IEditorState {
         type: EditorActionType;
     }
-    interface IToggleSplash extends IEditorAction {
-        visible: boolean;
-    }
-    function toggleSplash(visible: boolean): IToggleSplash;
+    /**
+     * Creates an action that toggles the splash screen visiblility
+     */
+    function toggleSplash(visible: boolean): IEditorAction;
 }
 declare namespace Animate {
-    function projectReducer(state: any, action: IProjectAction): any;
+    /**
+     * A reducer for processing project actions
+     */
+    function projectReducer(state: any, action: IProjectAction): {};
 }
 declare namespace Animate {
-    function editorReducer(state: IEditorState, action: IProjectAction): any;
-}
-declare namespace Animate {
-    const reducers: <A extends Redux.Action>(state: {}, action: A) => {};
-}
-declare namespace Animate {
+    /**
+     * A reducer that processes state changes of the editor
+     */
+    function editorReducer(state: IEditorState, action: IEditorAction): IEditorState;
 }
 declare let _cache: string;
 declare const __plugins: {
@@ -6833,6 +6855,10 @@ declare function byteFilter(bytes: any, precision?: number): string;
  * Sorts the plugins based on their versions
  */
 declare function sortPlugins(plugins: HatcheryServer.IPlugin[]): void;
+/**
+ * Creates the redux store for the application
+ */
+declare function createStore(): Redux.Store<any>;
 /**
  * Once the plugins are loaded from the DB
  */

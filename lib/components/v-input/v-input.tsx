@@ -1,6 +1,6 @@
 namespace Animate {
 
-    export interface IVInputProps extends React.HTMLAttributes {
+    export interface IVInputProps {
         /**
          * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
          * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
@@ -47,7 +47,14 @@ namespace Animate {
         selectOnClick?: boolean;
 
         onChange?( e: React.FormEvent, newString: string ): void;
-        onChange?( e: React.FormEvent ): void;
+        onKeyUp?( e: React.KeyboardEvent ): void;
+        autoFocus?: boolean;
+        readOnly?: boolean;
+        autoComplete?: string;
+        name?: string;
+        type?: string;
+        placeholder?: string;
+        className?: string;
     }
 
 
@@ -245,15 +252,21 @@ namespace Animate {
             if ( !this._pristine )
                 className += ' dirty';
 
-            return <span className={ 'v-input-outer ' + (this.state.focussed ? 'focussed' : '')}>
-                    <input
+            return <span className={'v-input-outer ' + ( this.state.focussed ? 'focussed' : '' )}>
+                <input
                     {...divProps}
+                    autoFocus={divProps.autoFocus}
+                    readOnly={divProps.readOnly}
+                    autoComplete={divProps.autoComplete}
+                    name={divProps.name}
+                    type={divProps.type}
+                    placeholder={divProps.placeholder}
                     onKeyDown={( e ) => { this.onKeyDown( e ) } }
-                    onKeyUp={ ( e ) => { this.onKeyUp( e ) } }
-                    onBlur={(e) => { this.setState({ focussed: false }); }}
+                    onKeyUp={( e ) => { this.onKeyUp( e ) } }
+                    onBlur={( e ) => { this.setState( { focussed: false }); } }
                     onFocus={( e ) => {
                         this._pristine = false;
-                        this.setState({ focussed: true });
+                        this.setState( { focussed: true });
                         if ( this.props.selectOnClick )
                             ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
                     } }
@@ -261,8 +274,8 @@ namespace Animate {
                     value={this.state.value}
                     onChange={( e ) => { this.onChange( e ); } }
                     />
-                    <div className="input-highlighter"></div>
-                </span>;
+                <div className="input-highlighter"></div>
+            </span>;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace Animate {
         dispose() {
             PluginManager.getSingleton().off<PluginManagerEvents, ITemplateEvent>( 'template-removed', this.onTemplateRemoved, this );
             this._template.dispose();
-            this.template = null;
+            this._template = null;
             super.dispose();
         }
 

@@ -21,7 +21,7 @@
         expand( expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode ): Array<AppNode> {
             const e = expression.split( 'as' );
             if ( e.length < 1 )
-                throw new Error( 'Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?' );
+                throw new Error( `Please use the syntax [iterable] 'as' [iterable name], [iterable index name]?` );
 
             const loopExpression = e[ 0 ];
             const ctxParts = e[ 1 ].split( ',' );

@@ -180,7 +180,7 @@ namespace Animate {
                     <VInput
                         autoComplete="off"
                         placeholder="Email or Username"
-                        autoFocus=""
+                        autoFocus={true}
                         type="text"
                         name="username"
                         onChange={( e, newText ) => { this.setState( { username: newText }) } }
@@ -191,14 +191,14 @@ namespace Animate {
                     <VInput
                         autoComplete="off"
                         placeholder="Password"
-                        autoFocus=""
+                        autoFocus={false}
                         type="password"
                         name="password"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
 
-                    <a id="forgot-pass" className={( this.state.loading ? 'disabled' : null ) }
-                        onClick={( e ) => this.resetPassword() }>
+                    <a id="forgot-pass" className={( this.state.loading ? 'disabled' : null )}
+                        onClick={( e ) => this.resetPassword()}>
                         Forgot
                     </a>
                     <VCheckbox
@@ -208,8 +208,8 @@ namespace Animate {
                         />
                     <br />
                     <a
-                        className={( this.state.loading ? 'disabled' : '' ) }
-                        onClick={( e ) => this.resendActivation() }>
+                        className={( this.state.loading ? 'disabled' : '' )}
+                        onClick={( e ) => this.resendActivation()}>
                         Resend Activation Email
                     </a>
                     <br />
@@ -219,10 +219,10 @@ namespace Animate {
                                 {this.state.errorMsg}
                             </Attention>
                             : null
-                        ) }
+                        )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary  type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode() }>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode()}>
                             Register <span className="fa fa-user" />
                         </ButtonPrimary>
                     </div>

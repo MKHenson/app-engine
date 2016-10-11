@@ -103,7 +103,7 @@ function createStore(): Redux.Store<any> {
     });
 
     // Creat the store
-    const store = Redux.createStore( reducers, thunk );
+    const store = Redux.createStore( reducers, Redux.applyMiddleware( thunk ) );
     store.subscribe(() => {
         console.log( "store changed", store.getState() )
     });

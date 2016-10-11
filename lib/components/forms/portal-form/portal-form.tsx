@@ -95,11 +95,11 @@ namespace Animate {
             portalTypes.push( { label: 'Input', value: 'input' as HatcheryRuntime.PortalType });
 
             // Add default all value for classes
-            assetClasses.push( { label: 'All', value: 'all' as HatcheryRuntime.PortalType, selected: true });
+            assetClasses.push( { label: 'All', value: 'all', selected: true });
 
             // Get and sort all asset classes
             let classes: AssetClass[] = TreeViewScene.getSingleton().getAssetClasses();
-            classes = classes.sort( function ( a, b ) {
+            classes = classes.sort( function( a, b ) {
                 const textA = a.name.toUpperCase();
                 const textB = b.name.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
@@ -123,7 +123,7 @@ namespace Animate {
                             <i className="fa fa-check" aria-hidden="true"></i> OK
                         </ButtonSuccess>
                         <ButtonLink
-                            onClick={ ( e ) => {
+                            onClick={( e ) => {
                                 this.onClose();
                                 if ( this.props.onCancel )
                                     this.props.onCancel();

@@ -4,7 +4,7 @@ namespace Animate {
         src: string;
         defaultSrc?: string;
         label: string;
-        labelIcon?: React.ReactDOM;
+        labelIcon?: JSX.Element;
         className?: string;
         selected?: boolean;
         onLabelClick?: ( e: React.MouseEvent ) => void;
@@ -81,7 +81,7 @@ namespace Animate {
 
             if ( !this.props.showLoadingIcon ) {
                 if ( !this.state.loading )
-                    img = <img ref="img" className="vert-align" src={this._imgLoader.src}/>
+                    img = <img ref="img" className="vert-align" src={this._imgLoader.src} />
             }
 
             let className = 'image-preview unselectable' + ( this.props.className ? ' ' + this.props.className : '' );
@@ -94,7 +94,7 @@ namespace Animate {
                     </div>
                 </div>
                 <div
-                    className={'item-name' + ( this.props.selected ? ' selected' : '' ) }
+                    className={'item-name' + ( this.props.selected ? ' selected' : '' )}
                     onClick={( e ) => {
                         if ( this.props.onLabelClick )
                             this.props.onLabelClick( e );

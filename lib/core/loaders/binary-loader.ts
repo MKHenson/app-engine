@@ -85,7 +85,7 @@
 
             // IEWEBGL needs this
             if ( buffer === undefined )
-                buffer = ( new Uint8Array( xhr.responseBody ) ).buffer;
+                buffer = ( new Uint8Array( 0 ) ).buffer;
 
             // Buffer not loaded, so manually fill it by converting the string data to bytes
             if ( buffer.byteLength === 0 ) {
@@ -100,7 +100,7 @@
             // Array buffer now filled
             LoaderBase.hideLoader();
 
-            const e: BinaryLoaderEvent = { buffer: buffer, message : '' };
+            const e: BinaryLoaderEvent = { buffer: buffer, message: '' };
             this.emit<BinaryLoaderResponses, BinaryLoaderEvent>( 'binary_success', e );
             this.dispose();
         }

@@ -51,7 +51,7 @@ namespace Animate {
 		* @param {any} e The jQuery event object
 		*/
         onCloseClicked( e ) {
-            const event: any = { cancel : false, text: 'Cancel' };
+            const event: any = { cancel: false, text: 'Cancel' };
             this.emit<any, any>( 'ok_cancel_confirm', event );
             if ( event.cancel === false )
                 this.hide();
@@ -63,7 +63,7 @@ namespace Animate {
 		* @param {any} e The jQuery event
 		*/
         OnButtonClick( e ) {
-            const event: any = { cancel : false, text: jQuery( e.target ).text() };
+            const event: any = { cancel: false, text: jQuery( e.target ).text() };
             this.emit<any, any>( 'ok_cancel_confirm', event );
 
             if ( event.cancel === false )
@@ -87,7 +87,6 @@ namespace Animate {
             this.mCancel.element.off();
             jQuery( 'body' ).off( 'keydown', this.keyProxy );
 
-            this.content = null;
             this.mButtonContainer = null;
             this.mOk = null;
             this.mCancel = null;

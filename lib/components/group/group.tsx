@@ -20,7 +20,7 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-            const props: IVInputProps = Object.assign( {}, this.props );
+            const props: React.HTMLAttributes = Object.assign( {}, this.props );
             let className = 'group' + ( this.props.className ? ( ' ' + this.props.className ) : '' );
             return <div {...props} className={className}>
                 <div className="group-header">{this.props.label}</div>

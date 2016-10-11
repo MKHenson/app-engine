@@ -1,5 +1,7 @@
 namespace Animate {
 
+    declare var __newPlugin: Animate.IPlugin;
+
     /**
 	 * The plugin manager is used to load and manage external Animate plugins.
 	 */
@@ -58,13 +60,16 @@ namespace Animate {
             if ( pluginDefinition.$loaded )
                 return Promise.resolve( null );
 
-            return new Promise<HatcheryServer.IPlugin>( function ( resolve, reject ) {
+            return new Promise<HatcheryServer.IPlugin>( function( resolve, reject ) {
                 const script = document.createElement( 'script' );
-                script.onerror = function ( ev ) {
+                script.onerror = function( ev ) {
                     pluginDefinition.$loaded = false;
                     return reject( new Error( `'${pluginDefinition.name}' could not be downloaded` ) );
                 }
-                script.onload = function ( ev ) {
+                script.onload = function( ev ) {
+
+                    // TODO: The __newPlugin way of doing things is terrible - we need something better
+
                     if ( !__newPlugin )
                         return reject( new Error( `'${pluginDefinition.name}' could not be downloaded or __newPlugin not set` ) );
 
@@ -99,7 +104,7 @@ namespace Animate {
                     this._behaviourTemplates.push( template );
                     // 	BehaviourPicker.getSingleton().list.addItem( btemplates[i].behaviourName );
                     // 	TreeViewScene.getSingleton().addPluginBehaviour( btemplates[i] );
-                    this.emit<PluginManagerEvents, ITemplateEvent>( 'template-created', { template: template } );
+                    this.emit<PluginManagerEvents, ITemplateEvent>( 'template-created', { template: template });
                 }
                 // ===================================================
             }
@@ -144,7 +149,7 @@ namespace Animate {
                 // 	TreeViewScene.getSingleton().removePluginBehaviour( toRemove[i].behaviourName );
 
                 this._behaviourTemplates.splice( this._behaviourTemplates.indexOf( toRemove[ i ] ), 1 );
-                this.emit<PluginManagerEvents, ITemplateEvent>( 'template-removed', { template : toRemove[ i ] } );
+                this.emit<PluginManagerEvents, ITemplateEvent>( 'template-removed', { template: toRemove[ i ] });
             }
             // ==================================================
 

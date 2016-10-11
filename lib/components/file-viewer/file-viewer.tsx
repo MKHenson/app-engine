@@ -106,8 +106,8 @@ namespace Animate {
                                 <span className="td">{selectedFile.user}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-calendar" aria-hidden="true"/> Created On: </span>
-                                <span className="td">{new Date( selectedFile.createdOn ).toLocaleDateString() } {new Date( selectedFile.createdOn ).toLocaleTimeString() }</span>
+                                <span className="td"><i className="fa fa-calendar" aria-hidden="true" /> Created On: </span>
+                                <span className="td">{new Date( selectedFile.createdOn ).toLocaleDateString()} {new Date( selectedFile.createdOn ).toLocaleTimeString()}</span>
                             </div>
                             <div className="tr">
                                 <span className="td"><div className="info-divider background-view-light" /></span>
@@ -118,32 +118,32 @@ namespace Animate {
                                 <span className="td"><a href={selectedFile.url} target="_blank">Open in Window</a></span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-code" aria-hidden="true"/> Url: </span>
+                                <span className="td"><i className="fa fa-code" aria-hidden="true" /> Url: </span>
                                 <span className="td"><VInput type="text" value={selectedFile.url} readOnly={true} /></span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-file-o" aria-hidden="true"/> Size: </span>
-                                <span className="td">{byteFilter( selectedFile.size ) }</span>
+                                <span className="td"><i className="fa fa-file-o" aria-hidden="true" /> Size: </span>
+                                <span className="td">{byteFilter( selectedFile.size )}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-ellipsis-h" aria-hidden="true"/> Extension: </span>
+                                <span className="td"><i className="fa fa-ellipsis-h" aria-hidden="true" /> Extension: </span>
                                 <span className="td">{selectedFile.extension}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-tags" aria-hidden="true"/> Tags: </span>
+                                <span className="td"><i className="fa fa-tags" aria-hidden="true" /> Tags: </span>
                                 <span className="td">{selectedFile.tags.join( ', ' ) || '-'}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-globe" aria-hidden="true"/> Global: </span>
-                                <span className="td">{selectedFile.global.toString() }</span>
+                                <span className="td"><i className="fa fa-globe" aria-hidden="true" /> Global: </span>
+                                <span className="td">{selectedFile.global.toString()}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-star" aria-hidden="true"/> Favourite: </span>
-                                <span className="td">{selectedFile.favourite.toString() }</span>
+                                <span className="td"><i className="fa fa-star" aria-hidden="true" /> Favourite: </span>
+                                <span className="td">{selectedFile.favourite.toString()}</span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-calendar" aria-hidden="true"/> Last Modified On: </span>
-                                <span className="td">{new Date( selectedFile.lastModified ).toLocaleDateString() } {new Date( selectedFile.lastModified ).toLocaleTimeString() }</span>
+                                <span className="td"><i className="fa fa-calendar" aria-hidden="true" /> Last Modified On: </span>
+                                <span className="td">{new Date( selectedFile.lastModified ).toLocaleDateString()} {new Date( selectedFile.lastModified ).toLocaleTimeString()}</span>
                             </div>
                         </div>
                     </div>
@@ -155,7 +155,7 @@ namespace Animate {
                         <div className="info-divider background-view-light"></div>
                         <div className="table">
                             <div className="tr">
-                                <span className="td"><i className="fa fa-file-o" aria-hidden="true"/> Name: </span>
+                                <span className="td"><i className="fa fa-file-o" aria-hidden="true" /> Name: </span>
                                 <span className="td">
                                     <VInput type="text" value={fileToken.name} onChange={( e, newText ) => {
                                         fileToken.name = newText;
@@ -164,37 +164,37 @@ namespace Animate {
                                 </span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-tags" aria-hidden="true"/> Tags: </span>
+                                <span className="td"><i className="fa fa-tags" aria-hidden="true" /> Tags: </span>
                                 <span className="td">
-                                    <VInput type="text" value={fileToken.tags.join( ',' ) }
+                                    <VInput type="text" value={fileToken.tags.join( ',' )}
                                         onChange={( e, newText ) => {
                                             fileToken.tags = newText.trim().split( ',' );
                                             for ( let t = 0, l = fileToken.tags.length; t < l; t++ )
                                                 fileToken.tags[ t ] = fileToken.tags[ t ].trim();
 
                                             this.setState( { fileToken: fileToken });
-                                        } }/>
+                                        } } />
                                 </span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-globe" aria-hidden="true"/> Global: </span>
+                                <span className="td"><i className="fa fa-globe" aria-hidden="true" /> Global: </span>
                                 <span className="td">
                                     <VCheckbox onChecked={( e ) => {
                                         fileToken.global = !fileToken.global;
                                         this.setState( { fileToken: fileToken });
                                     } }
-                                        label={( fileToken.global ? 'YES' : 'NO' ) }
+                                        label={( fileToken.global ? 'YES' : 'NO' )}
                                         checked={fileToken.global} />
                                 </span>
                             </div>
                             <div className="tr">
-                                <span className="td"><i className="fa fa-star" aria-hidden="true"/> Favourite: </span>
+                                <span className="td"><i className="fa fa-star" aria-hidden="true" /> Favourite: </span>
                                 <span className="td">
                                     <VCheckbox onChecked={( e ) => {
                                         fileToken.favourite = !fileToken.favourite;
                                         this.setState( { fileToken: fileToken });
                                     } }
-                                        label={( fileToken.favourite ? 'YES' : 'NO' ) }
+                                        label={( fileToken.favourite ? 'YES' : 'NO' )}
                                         checked={fileToken.favourite} />
                                 </span>
                             </div>
@@ -232,7 +232,7 @@ namespace Animate {
                         <ButtonLink onClick={( e ) => { this.setState( { editMode: false }) } }>
                             CANCEL
                         </ButtonLink>
-                        <ButtonPrimary onClick={ ( e ) => this.updateFile( this.state.fileToken ) }>
+                        <ButtonPrimary onClick={( e ) => this.updateFile( this.state.fileToken )}>
                             UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
                         </ButtonPrimary>
                     </div>
@@ -257,7 +257,7 @@ namespace Animate {
                                     this.props.onFilesSelected( this._selectedEntities );
                             }
                             }>OPEN <i className="fa fa-check" aria-hidden="true"></i></ButtonSuccess>
-                        ) }
+                        )}
                     </div>
                 );
             }
@@ -285,14 +285,14 @@ namespace Animate {
 
             if ( this.state.errorMsg ) {
                 errMsg = (
-                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.errorMsg ? 'opened' : '' ) }>
-                        { this.state.errorMsg }
+                    <Attention mode={AttentionType.ERROR} allowClose={false} className={( this.state.errorMsg ? 'opened' : '' )}>
+                        {this.state.errorMsg}
                     </Attention>
                 )
             }
 
             return (
-                <div className={'file-viewer' + ( selectedFile ? ' file-selected' : '' ) } >
+                <div className={'file-viewer' + ( selectedFile ? ' file-selected' : '' )} >
                     <div className="toolbar">
                         <ButtonPrimary
                             onClick={( e ) => { jQuery( '#upload-new-file' ).trigger( 'click' ) } }
@@ -318,29 +318,29 @@ namespace Animate {
                             ]} />
                         </div>
 
-                        <div className={'tool-bar-group' + ( this._selectedEntities.length === 0 ? ' disabled' : '' ) }>
-                            <ToolbarButton onChange={( e ) => { this.confirmDelete() } } label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true"/>} />
+                        <div className={'tool-bar-group' + ( this._selectedEntities.length === 0 ? ' disabled' : '' )}>
+                            <ToolbarButton onChange={( e ) => { this.confirmDelete() } } label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true" />} />
                         </div>
 
-                        <SearchBox disabled={state.loading} onSearch={( e, term ) => { this._search = term; this.invalidate(); } }/>
+                        <SearchBox disabled={state.loading} onSearch={( e, term ) => { this._search = term; this.invalidate(); } } />
 
-                        <input type="file" id="upload-new-file" multiple="multiple" onChange={( e ) => { this.onFileChange( e ) } } />
+                        <input type="file" id="upload-new-file" multiple={true} onChange={( e ) => { this.onFileChange( e ) } } />
                         <div className="fix"></div>
                     </div>
                     <div className="files-view background-view animate-all">
                         <Pager ref="pager" onUpdate={( index, limit ) => { return this.updateContent( index, limit ) } }>
-                            <div className={'file-items' + ( state.highlightDropZone ? ' drag-here' : '' ) }
+                            <div className={'file-items' + ( state.highlightDropZone ? ' drag-here' : '' )}
                                 onClick={( e ) => { this.selectEntity( e, null ) } }
-                                onDragExit={( e ) => this.onDragLeave( e ) }
-                                onDragLeave={( e ) => this.onDragLeave( e ) }
-                                onDragOver={( e ) => this.onDragOver( e ) }
-                                onDrop={( e ) => this.onDrop( e ) }
+                                onDragExit={( e ) => this.onDragLeave( e )}
+                                onDragLeave={( e ) => this.onDragLeave( e )}
+                                onDragOver={( e ) => this.onDragOver( e )}
+                                onDrop={( e ) => this.onDrop( e )}
                                 >
                                 <div className="progress" style={{
                                     display: ( this._uploader.numDownloads > 0 ? '' : 'none' ),
                                     width: this._uploader.percent + '%'
                                 }}>
-                                    {this._uploader.percent}%[ {this._uploader.numDownloads}]
+                                    {this._uploader.percent} %[ {this._uploader.numDownloads} ]
                                 </div>
                                 {errMsg}
                                 <div>
@@ -352,18 +352,18 @@ namespace Animate {
                                                 key={'file-' + index}
                                                 label={file.name}
                                                 selected={file.selected}
-                                                labelIcon={( file.favourite ? <i className="fa fa-star" aria-hidden="true"></i> : null ) }
+                                                labelIcon={( file.favourite ? <i className="fa fa-star" aria-hidden="true"></i> : null )}
                                                 onClick={( e ) => { this.selectEntity( e, file ) } }
                                                 className="file-item" />
                                         })
                                     }
                                 </div>
-                                {( this._entries.length === 0 ? <div className="no-items unselectable">No files uploaded</div> : null ) }
+                                {( this._entries.length === 0 ? <div className="no-items unselectable">No files uploaded</div> : null )}
                             </div>
-                            {( state.loading ? <div className="loading">{loadingSymbol}</div> : null ) }
+                            {( state.loading ? <div className="loading">{loadingSymbol}</div> : null )}
                         </Pager>
                     </div>
-                    <div className={'file-info background animate-all' + ( selectedFile ? ' open' : '' ) }>
+                    <div className={'file-info background animate-all' + ( selectedFile ? ' open' : '' )}>
                         {( selectedFile ? (
                             <div className="fade-in" style={{ height: '100%' }}>
                                 <div className="file-details">
@@ -373,12 +373,12 @@ namespace Animate {
                                         <i className="fa fa-pencil" aria-hidden="true"></i>
                                     </ButtonLink>
                                     <h2>{selectedFile.name}</h2>
-                                    {this.getFileDetails( selectedFile, state.editMode ) }
+                                    {this.getFileDetails( selectedFile, state.editMode )}
                                     <div className="fix"></div>
                                 </div>
-                                {this.renderPanelButtons( state.editMode ) }
+                                {this.renderPanelButtons( state.editMode )}
                             </div>
-                        ) : null ) }
+                        ) : null )}
                     </div>
                 </div> )
         }

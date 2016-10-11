@@ -77,11 +77,11 @@ namespace Animate {
                 <input onChange={( e ) => {
                     this.onChange( e )
                 } }
-                    id={( this.props.id ? this.props.id : null ) }
-                    name={( this.props.name ? this.props.name : null ) }
+                    id={( this.props.id ? this.props.id : null )}
+                    name={( this.props.name ? this.props.name : null )}
                     type="checkbox"
                     ref="check"
-                    checked={this.state.checked} value={this.state.checked} />
+                    checked={this.state.checked} />
                 <label
                     onClick={( e ) => {
                         if ( this.props.noInteractions )
@@ -99,7 +99,7 @@ namespace Animate {
                         }
                     } }
                     className="unselectable"
-                    htmlFor={( this.props.id ? this.props.id : null ) }>
+                    htmlFor={( this.props.id ? this.props.id : null )}>
                     {this.props.children}
                     {this.props.label}
                 </label>

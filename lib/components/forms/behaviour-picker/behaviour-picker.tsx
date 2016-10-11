@@ -77,13 +77,13 @@ namespace Animate {
             let items: IListItem[];
             let templates = PluginManager.getSingleton().behaviourTemplates.slice();
 
-            templates = templates.sort( function ( a, b ) {
+            templates = templates.sort( function( a, b ) {
                 const textA = a.behaviourName.toUpperCase();
                 const textB = b.behaviourName.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
             });
 
-            items = templates.map( function ( t ) {
+            items = templates.map( function( t ) {
                 return { label: t.behaviourName, prefix: <i className="fa fa-cube" aria-hidden="true" /> } as IListItem;
             });
 
