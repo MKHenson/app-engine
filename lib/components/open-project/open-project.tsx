@@ -51,7 +51,7 @@ namespace Animate {
                 message: message
             });
 
-            LoggerStore.success( message );
+            store.dispatch( LogActions.message( message ) );
 
             // Attempts to load all the project resources
             project.loadResources().then(( resources ) => {
@@ -60,7 +60,7 @@ namespace Animate {
                     message: message
                 });
 
-                LoggerStore.success( message );
+                store.dispatch( LogActions.message( message ) );
                 return project.loadBuild();
 
             }).then(( build ) => {
@@ -71,13 +71,13 @@ namespace Animate {
                     message: message
                 });
 
-                LoggerStore.success( message );
+                store.dispatch( LogActions.message( message ) );
 
                 // Make sure the title tells us which project is open
                 document.title = `Hatchery: ${project.entry.name} ${project.entry._id}`;
 
                 // Log
-                LoggerStore.success( `Project '${this.props.project.name}' has successfully been opened` );
+                store.dispatch( LogActions.message( `Project '${this.props.project.name}' has successfully been opened` ) );
 
                 // Everything done
                 this.props.onComplete();

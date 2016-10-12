@@ -1,4 +1,13 @@
 declare namespace Animate {
+
+    /**
+	 * Describes the type of log message
+	 */
+    export type LogType =
+        'message' |
+        'warning' |
+        'error';
+
     /**
      * Describes the base type used in drag and drop communication
      */
@@ -6,6 +15,17 @@ declare namespace Animate {
         type: 'resource' | 'template' | 'container' | 'other';
         id?: string | number;
     }
+
+    /**
+     * Describes the log messages that are displayed in the logger component
+     */
+    export interface ILogMessage {
+        type: LogType;
+        message: string;
+        tag: any;
+    }
+
+
 
     /**
      * The base interface for Hatchery props
@@ -19,7 +39,6 @@ declare namespace Animate {
      */
     export interface IEditorState {
         showSplash?: boolean;
-        logs?: string[];
     }
 
     /**
@@ -50,5 +69,6 @@ declare namespace Animate {
         editorState: IEditorState;
         project: IProject;
         user: IUser;
+        logs: ILogMessage[];
     }
 }

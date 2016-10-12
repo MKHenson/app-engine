@@ -60,7 +60,7 @@ namespace Animate {
                         }).catch(( err: Error ) => {
                             this._loading = false;
                             this.disabled( false );
-                            LoggerStore.error( err.message );
+                            store.dispatch( LogActions.error( err.message ) );
                         })
                     }
                 }]

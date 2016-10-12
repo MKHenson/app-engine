@@ -160,7 +160,6 @@
         "lib/components/forms/rename-form/rename-form.tsx",
         "lib/components/forms/user-privileges-form.ts",
         "lib/components/forms/behaviour-picker/behaviour-picker.tsx",
-        "lib/components/logger/logger-store.ts",
         "lib/components/logger/logger.tsx",
         "lib/components/tooltip/tooltip.tsx",
         "lib/components/toolbar/toolBar.tsx",
@@ -185,7 +184,9 @@
         "lib/components/application.tsx",
         "lib/actions/project.ts",
         "lib/actions/editor.ts",
+        "lib/actions/logger.ts",
         "lib/reducers/project-reducer.ts",
+        "lib/reducers/logger-reducer.ts",
         "lib/reducers/editor-reducer.ts",
         "lib/main.tsx"
     ]

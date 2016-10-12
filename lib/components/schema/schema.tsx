@@ -238,7 +238,7 @@ namespace Animate {
                             this.onObjectDropped( e, json );
                         }
                         catch ( e ) {
-                            LoggerStore.error( e.message );
+                            store.dispatch( LogActions.error( e.message ) );
                         }
                     } }
                     >

@@ -32,7 +32,7 @@ namespace Animate {
 
             }).catch( function( err: Error ) {
                 that.loading( false );
-                LoggerStore.error( `Could not update the build CSS: '${err.message}'` );
+                store.dispatch( LogActions.error( `Could not update the build CSS: '${err.message}'` ) );
             });
         }
 

@@ -27,7 +27,6 @@ namespace Animate {
 
             Application._singleton = this;
             Utils.init();
-            new LoggerStore();
             User.get;
         }
 
@@ -35,7 +34,7 @@ namespace Animate {
          * Log the first welcome message
          */
         componentDidMount() {
-            LoggerStore.logMessage( 'Welcome to the Hatchery!', null, LogType.MESSAGE );
+            this.props.dispatch!( LogActions.message( 'Welcome to the Hatchery!' ) );
         }
 
 		/**
@@ -58,7 +57,7 @@ namespace Animate {
                                 ratio={0.8}
                                 orientation={SplitOrientation.HORIZONTAL}
                                 top={<Workspace project={project} />}
-                                bottom={<Logger store={LoggerStore.get} />} />
+                                bottom={<Logger />} />
                         } right={
                             <SplitPanel
                                 ratio={0.6}
@@ -110,7 +109,7 @@ namespace Animate {
 
             // TODO: Figure out what to do with resets?
             PropertyGrid.getSingleton().projectReset();
-            LoggerStore.get.clear();
+            // LoggerStore.get.clear();
             // TreeViewScene.getSingleton().projectReset( user.project );
             // CanvasTab.getSingleton().projectReset();
 

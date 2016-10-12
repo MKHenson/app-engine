@@ -5596,85 +5596,14 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    /**
-     * Describes the type of log message
-     */
-    enum LogType {
-        MESSAGE = 0,
-        WARNING = 1,
-        ERROR = 2,
+    interface ILoggerProps extends HatcheryProps {
+        messages?: ILogMessage[];
     }
-    interface ILogMessage {
-        type: LogType;
-        message: string;
-        tag: any;
-    }
-    class LoggerStore extends EventDispatcher {
-        private static _singleton;
-        private _logs;
-        /**
-         * Creates an instance of the logger store
-         */
-        constructor();
-        /**
-         * Gests all currently logged messages
-         * @returns {ILogMessage[]}
-         */
-        getLogs(): ILogMessage[];
-        /**
-         * Gets global logger store instance
-         * @returns {LoggerStore}
-         */
-        static readonly get: LoggerStore;
-        /**
-         * Logs an error message
-         * @param {string} msg
-         */
-        static error(msg: string): void;
-        /**
-         * Logs a warning message
-         * @param {string} msg
-         */
-        static warn(msg: string): void;
-        /**
-         * Logs a success message
-         * @param {string} msg
-         */
-        static success(msg: string): void;
-        /**
-         * Adds a new log item
-         */
-        add(message: string, type: LogType, tag: any): void;
-        /**
-         * Removes all logs
-         */
-        clear(): void;
-        /**
-         * Logs a message to the logger
-         * @param {string} val The text to show on the logger.
-         * @param {any} tag An optional tag to associate with the log.
-         * @param {string} type The type of icon to associate with the log. By default its Logger.MESSAGE
-         */
-        static logMessage(val: string, tag: any, type?: LogType): void;
-    }
-}
-declare namespace Animate {
-    interface ILoggerProps {
-        store: LoggerStore;
-    }
-    /**
-     * The Logger is a singleton class used to write message's to Animate's log window.
-     */
-    class Logger extends React.Component<ILoggerProps, {
-        items: ILogMessage[];
-    }> {
+    class Logger extends React.Component<ILoggerProps, any> {
         /**
          * Creates an instance of the logger
          */
         constructor(props: ILoggerProps);
-        componentWillMount(): void;
-        componentWillUnmount(): void;
-        onLogsChanged(type: LoggerEvents): void;
         /**
          * Creates the component elements
          */
@@ -6796,6 +6725,37 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+     * Describes each of the project action types
+     */
+    type LoggerActionType = 'LOGGER_ADD_ITEM' | 'LOGGER_CLEAR_ITEMS';
+    /**
+     * A base interface for describing logger related actions
+     */
+    interface ILoggerAction extends Redux.Action {
+        type: LoggerActionType;
+        item?: ILogMessage;
+    }
+    namespace LogActions {
+        /**
+         * Creates an action to clear all log items
+         */
+        function clear(): ILoggerAction;
+        /**
+         * Creates an action for adding a log message in the log window
+         */
+        function message(message: string): ILoggerAction;
+        /**
+         * Creates an action for adding a warning log message in the log window
+         */
+        function warning(message: string): ILoggerAction;
+        /**
+         * Creates an action for adding an error log message in the log window
+         */
+        function error(message: string): ILoggerAction;
+    }
+}
+declare namespace Animate {
+    /**
      * A reducer for processing project actions
      */
     function projectReducer(state: any, action: IProjectAction): {};
@@ -6804,7 +6764,16 @@ declare namespace Animate {
     /**
      * A reducer that processes state changes of the editor
      */
+    function loggerReducer(state: ILogMessage[], action: ILoggerAction): ILogMessage[];
+}
+declare namespace Animate {
+    /**
+     * A reducer that processes state changes of the editor
+     */
     function editorReducer(state: IEditorState, action: IEditorAction): IEditorState;
+}
+declare namespace Animate {
+    var store: Redux.Store<any>;
 }
 declare let _cache: string;
 declare const __plugins: {

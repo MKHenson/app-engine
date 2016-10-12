@@ -1,8 +1,7 @@
 namespace Animate {
 
     const defaultState: IEditorState = {
-        showSplash: true,
-        logs: []
+        showSplash: true
     }
 
     /**

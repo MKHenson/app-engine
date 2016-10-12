@@ -259,7 +259,7 @@ namespace Animate {
                         // tabPair.name = resource.entry.name;
 
                     }).catch(( err: Error ) => {
-                        LoggerStore.error( err.message );
+                        store.dispatch( LogActions.error( err.message ) );
                         MessageBox.error(
                             err.message,
                             [ 'Ok' ],

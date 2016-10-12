@@ -1,3 +1,7 @@
+namespace Animate {
+    export var store: Redux.Store<any>;
+}
+
 declare let _cache: string;
 const __plugins: { [ name: string ]: Array<HatcheryServer.IPlugin> } = {};
 let __newPlugin: Animate.IPlugin | null = null;
@@ -99,7 +103,8 @@ function createStore(): Redux.Store<any> {
     // Create the reducers object
     const reducers = Redux.combineReducers( {
         project: Animate.projectReducer,
-        editorState: Animate.editorReducer
+        editorState: Animate.editorReducer,
+        logs: Animate.loggerReducer
     });
 
     // Creat the store
@@ -117,9 +122,11 @@ function createStore(): Redux.Store<any> {
 function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     sortPlugins( plugins );
 
+    Animate.store = createStore();
+
     // Create the application element
     ReactDOM.render((
-        <ReactRedux.Provider store={createStore()}>
+        <ReactRedux.Provider store={Animate.store}>
             <Animate.Application />
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }

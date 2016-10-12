@@ -1,36 +1,25 @@
 namespace Animate {
 
-    export interface ILoggerProps {
-        store: LoggerStore;
+    export interface ILoggerProps extends HatcheryProps {
+        messages?: ILogMessage[];
     }
+
+    @ReactRedux.connect<IStore, ILoggerProps>(( state ) => {
+        return {
+            messages: state.logs!
+        }
+    })
 
 	/**
 	 * The Logger is a singleton class used to write message's to Animate's log window.
 	 */
-    export class Logger extends React.Component<ILoggerProps, { items: ILogMessage[] }> {
+    export class Logger extends React.Component<ILoggerProps, any> {
 
 		/**
 		 * Creates an instance of the logger
 		 */
         constructor( props: ILoggerProps ) {
             super( props );
-            this.state = {
-                items: props.store.getLogs()
-            }
-        }
-
-        componentWillMount() {
-            this.props.store.on<LoggerEvents, void>( 'change', this.onLogsChanged, this );
-        }
-
-        componentWillUnmount() {
-            this.props.store.off<LoggerEvents, void>( 'change', this.onLogsChanged, this );
-        }
-
-        onLogsChanged( type: LoggerEvents ) {
-            this.setState( {
-                items: this.props.store.getLogs()
-            });
         }
 
 		/**
@@ -45,21 +34,21 @@ namespace Animate {
                         x: e.pageX, y: e.pageY, items: [ {
                             label: 'Clear',
                             prefix: <i className="fa fa-times" aria-hidden="true"></i>,
-                            onSelect: ( item ) => { this.props.store.clear(); }
+                            onSelect: ( item ) => { this.props.dispatch!( LogActions.clear() ) }
                         }]
                     });
                 } }
                     className="logger"
                     >
-                    <List items={this.state.items.map( function ( m ) {
+                    <List items={this.props.messages!.map( function( m ) {
                         let icon: JSX.Element;
                         let iconClass: string;
 
-                        if ( m.type === LogType.MESSAGE ) {
+                        if ( m.type === 'message' ) {
                             icon = <span className="success"><i className="fa fa-check" aria-hidden="true"></i></span>;
                             iconClass = 'success';
                         }
-                        else if ( m.type === LogType.ERROR ) {
+                        else if ( m.type === 'error' ) {
                             icon = <span className="error"><i className="fa fa-exclamation-circle" aria-hidden="true"></i></span>;
                             iconClass = 'error';
                         }
@@ -70,12 +59,12 @@ namespace Animate {
 
                         let prefix = (
                             <span>
-                                {icon}<span className="date">{new Date( Date.now() ).toLocaleDateString() } {new Date( Date.now() ).toLocaleTimeString() }</span>
+                                {icon}<span className="date">{new Date( Date.now() ).toLocaleDateString()} {new Date( Date.now() ).toLocaleTimeString()}</span>
                             </span>
                         );
 
                         return { prefix: prefix, label: m.message };
-                    }) } />
+                    })} />
                 </div>
             )
         }

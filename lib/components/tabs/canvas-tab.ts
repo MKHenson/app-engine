@@ -127,7 +127,7 @@ namespace Animate {
                     that.closingTabPair = null;
 
                 }).catch( function( err: Error ) {
-                    LoggerStore.error( err.message );
+                    store.dispatch( LogActions.error( err.message ) );
                 });
 
                 //Now get the project to save it.

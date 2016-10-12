@@ -273,7 +273,7 @@ namespace Animate {
                 node.loading( false );
             }).catch(( err: Error ) => {
                 node.loading( false );
-                LoggerStore.error( err.message );
+                store.dispatch( LogActions.error( err.message ) );
             });
         }
     }
