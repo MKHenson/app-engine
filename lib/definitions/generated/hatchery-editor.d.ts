@@ -6535,16 +6535,15 @@ declare namespace Animate {
         mode?: SplashMode;
         loading?: boolean;
         project?: HatcheryServer.IProject;
-        theme?: string;
     }
     /**
-    * The splash screen when starting the app
-    */
+     * The splash screen when starting the app
+     */
     class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton;
         /**
-        * Creates an instance of the splash screen
-        */
+         * Creates an instance of the splash screen
+         */
         constructor(props: ISplashProps);
         /**
          * Creates the component elements

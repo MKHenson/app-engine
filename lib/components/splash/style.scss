@@ -1,11 +1,6 @@
 
 #splash{
-    &.welcome-blue {
-        background-image:url("../media/aurora.png");
-    }
-    &.welcome-pink {
-        background-image:url("../media/aurora2.png");
-    }
+    background: linear-gradient(141deg, #e29494, #262440);
 }
 
 #splash-welcome {

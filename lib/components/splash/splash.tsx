@@ -14,24 +14,22 @@
         mode?: SplashMode
         loading?: boolean;
         project?: HatcheryServer.IProject;
-        theme?: string;
     }
 
     /**
-    * The splash screen when starting the app
-    */
+     * The splash screen when starting the app
+     */
     export class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton: Splash;
 
         /**
-        * Creates an instance of the splash screen
-        */
+         * Creates an instance of the splash screen
+         */
         constructor( props: ISplashProps ) {
             super( props );
             this.state = {
                 mode: SplashMode.LOGIN,
-                loading: true,
-                theme: ( Math.random() < 0.4 ? 'welcome-blue' : 'welcome-pink' )
+                loading: true
             };
         }
 
@@ -83,7 +81,7 @@
                     } }
                     />;
 
-            return <div id="splash" className={this.state.theme}>
+            return <div id="splash">
                 <div className="logo">
                     {( User.get.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null )}
                     <h2>Hatchery</h2>
