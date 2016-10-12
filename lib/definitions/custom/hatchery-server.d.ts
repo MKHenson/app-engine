@@ -10,7 +10,7 @@ declare namespace HatcheryServer {
     // Extends the IPlugin interface to include additional data
     export interface IPlugin {
         $loaded?: boolean;
-        $error?: string;
+        $error?: string | null;
         $instance?: Animate.IPlugin;
     }
 
@@ -21,6 +21,6 @@ declare namespace HatcheryServer {
     export interface IContainerWorkspace {
         items: Animate.ICanvasItem[];
         properties: any;
-        activeLink: Animate.ILinkItem;
+        activeLink: Animate.ILinkItem | null;
     }
 }

@@ -5,10 +5,10 @@ namespace Animate {
 	*/
     export class Portal extends EventDispatcher {
         // TODO: Canvas TSX changes
-        public links: Link[] | null;
+        public links: Link[];
         public custom: boolean;
         public type: HatcheryRuntime.PortalType;
-        public property: Prop<any> | null;
+        public property: Prop<any>;
         public behaviour: Behaviour | null;
 
         public top: number;
@@ -20,7 +20,7 @@ namespace Animate {
 		* @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
 		* @param property The property associated with this portal
 		*/
-        constructor( parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any> ) {
+        constructor( parent: Behaviour | null, type: HatcheryRuntime.PortalType, property: Prop<any> ) {
             super();
 
             this.links = [];
@@ -53,7 +53,7 @@ namespace Animate {
                 this.left = this.behaviour!.width;
             }
 
-            for ( const link of this.links! )
+            for ( const link of this.links )
                 link.calculateDimensions();
         }
 
@@ -61,16 +61,16 @@ namespace Animate {
          * Clones the canvas item
          */
         clone(): Portal {
-            const clone = new Portal( this.behaviour!, this.type, this.property!.clone() );
+            const clone = new Portal( this.behaviour, this.type, this.property.clone() );
             clone.custom = this.custom;
             return clone;
         }
 
         serialize(): IPortal {
             return {
-                name: this.property!.name,
+                name: this.property.name,
                 custom: this.custom,
-                property: this.property!.tokenize(),
+                property: this.property.tokenize(),
                 type: this.type,
                 links: [],
                 behaviour: this.behaviour!.id,
@@ -123,12 +123,9 @@ namespace Animate {
 		 */
         dispose() {
 
-            for ( let link of this.links! )
+            for ( let link of this.links )
                 link.dispose();
 
-            this.links = null;
-            this.behaviour = null;
-            this.property = null;
             super.dispose();
         }
 
@@ -148,8 +145,8 @@ namespace Animate {
         // TODO: Canvas TSX changes
         addLink( link: any ) {// Link ) {
 
-            if ( this.links!.indexOf( link ) === -1 )
-                this.links!.push( link );
+            if ( this.links.indexOf( link ) === -1 )
+                this.links.push( link );
         }
 
 		/**
@@ -158,10 +155,10 @@ namespace Animate {
 		 */
         // TODO: Canvas TSX changes
         removeLink( link: any ): any { // Link ) : Link {
-            if ( this.links!.indexOf( link ) === -1 )
+            if ( this.links.indexOf( link ) === -1 )
                 return link;
 
-            this.links!.splice( this.links!.indexOf( link ), 1 );
+            this.links.splice( this.links.indexOf( link ), 1 );
             return link;
         }
 

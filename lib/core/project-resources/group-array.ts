@@ -10,7 +10,7 @@
             /**
             * @param entry [Optional] The database entry of the resource
             */
-            constructor( entry?: HatcheryServer.IGroup ) {
+            constructor( entry: HatcheryServer.IGroup ) {
                 super( entry );
             }
 
@@ -19,7 +19,7 @@
             * @param shallowId
             */
             addReference( shallowId: number ) {
-                this.entry.items.push( shallowId );
+                this.entry.items!.push( shallowId );
                 this.saved = false;
             }
 
@@ -28,8 +28,8 @@
             * @param shallowId
             */
             removeReference( shallowId: number ) {
-                if ( this.entry.items.indexOf( shallowId ) !== -1 )
-                    this.entry.items.splice( this.entry.items.indexOf( shallowId ), 1 );
+                if ( this.entry.items!.indexOf( shallowId ) !== -1 )
+                    this.entry.items!.splice( this.entry.items!.indexOf( shallowId ), 1 );
 
                 this.saved = false;
             }

@@ -20,7 +20,7 @@ namespace Animate {
             modal: true,
             className: 'file-viewer-window',
             extensions: [],
-            onFilesSelected: null,
+            onFilesSelected: undefined,
             multiselect: false,
             readOnly: false
         }
@@ -38,8 +38,8 @@ namespace Animate {
         getContent(): React.ReactNode {
             return <FileViewer
                 readOnly={this.props.readOnly}
-                multiSelect={this.props.multiselect}
-                extensions={this.props.extensions}
+                multiSelect={this.props.multiselect!}
+                extensions={this.props.extensions!}
                 onClose={() => { this.onClose() } }
                 onFilesSelected={( f ) => {
                     if ( this.props.onFilesSelected )

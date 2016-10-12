@@ -1,12 +1,12 @@
 declare let _cache: string;
 const __plugins: { [ name: string ]: Array<HatcheryServer.IPlugin> } = {};
-let __newPlugin: Animate.IPlugin = null;
+let __newPlugin: Animate.IPlugin | null = null;
 
 /**
  * Goes through each of the plugins and returns the one with the matching ID
  * @param id The ID of the plugin to fetch
  */
-function getPluginByID( id: string ): HatcheryServer.IPlugin {
+function getPluginByID( id: string ): HatcheryServer.IPlugin | null {
     for ( const pluginName in __plugins ) {
         for ( let i = 0, l = __plugins[ pluginName ].length; i < l; i++ )
             if ( __plugins[ pluginName ][ i ]._id === id )
@@ -31,12 +31,12 @@ function byteFilter( bytes, precision: number = 1 ): string {
  */
 function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
     for ( let i = 0, l = plugins.length; i < l; i++ ) {
-        if ( !__plugins[ plugins[ i ].name ] )
-            __plugins[ plugins[ i ].name ] = [];
+        if ( !__plugins[ plugins[ i ].name! ] )
+            __plugins[ plugins[ i ].name! ] = [];
         else
             continue;
 
-        let pluginArray = __plugins[ plugins[ i ].name ];
+        let pluginArray = __plugins[ plugins[ i ].name! ];
 
         for ( let ii = 0; ii < l; ii++ )
             if ( plugins[ ii ].name === plugins[ i ].name )
@@ -47,8 +47,8 @@ function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
             if ( a === b )
                 return 0;
 
-            const a_components = a.version.split( '.' );
-            const b_components = b.version.split( '.' );
+            const a_components = a.version!.split( '.' );
+            const b_components = b.version!.split( '.' );
 
             const len = Math.min( a_components.length, b_components.length );
 
@@ -105,7 +105,7 @@ function createStore(): Redux.Store<any> {
     // Creat the store
     const store = Redux.createStore( reducers, Redux.applyMiddleware( thunk ) );
     store.subscribe(() => {
-        console.log( "store changed", store.getState() )
+        console.log( 'store changed', store.getState() )
     });
 
     return store;
@@ -121,7 +121,7 @@ function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     ReactDOM.render((
         <ReactRedux.Provider store={createStore()}>
             <Animate.Application />
-        </ReactRedux.Provider> ), document.getElementById( 'main' ) );
+        </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }
 
 

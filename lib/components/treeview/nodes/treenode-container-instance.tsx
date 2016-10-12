@@ -32,7 +32,7 @@ namespace Animate {
                 if ( !this.resource.saved || hasChanges )
                     return '* ' + this.resource.entry.name;
                 else
-                    return this.resource.entry.name;
+                    return this.resource.entry.name!;
             }
 
             return super.label( val );
@@ -47,7 +47,6 @@ namespace Animate {
 
         dispose() {
             super.dispose();
-            this._project = null;
         }
     }
 }

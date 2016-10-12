@@ -58,8 +58,8 @@ namespace Animate {
                     onFileSelected: function( file ) {
 
                         jQuery( '.file-name', editor ).text(( file ? file.name : '' ) );
-                        fileResource.entry = file;
-                        p.setVal( fileResource );
+                        fileResource!.entry = file;
+                        p.setVal( fileResource! );
                     }
                 } as IFileDialogueProps );
 

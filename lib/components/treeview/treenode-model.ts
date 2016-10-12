@@ -7,9 +7,9 @@ namespace Animate {
         private _expanded: boolean;
         private _disabled: boolean;
         private _selectable: boolean;
-        public children: TreeNodeModel[] | null;
+        public children: TreeNodeModel[];
         protected _parent: TreeNodeModel | null;
-        public store: TreeNodeStore | null;
+        public store: TreeNodeStore;
         public focussed: boolean;
         public canDrag: boolean;
         public canDrop: boolean;
@@ -25,7 +25,6 @@ namespace Animate {
             this._selected = false;
             this._disabled = false;
             this.children = children || [];
-            this.store = null;
             this.focussed = false;
             this.canDrag = false;
             this.canDrop = false;
@@ -68,7 +67,7 @@ namespace Animate {
          * @param e
          * @param json The unserialized data
          */
-        onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
+        onDragDrop( e: React.DragEvent, json: IDragDropToken | null ) {
 
         }
 
@@ -155,7 +154,7 @@ namespace Animate {
          * @param node
          */
         addNode( node: TreeNodeModel ): TreeNodeModel {
-            this.children!.push( node );
+            this.children.push( node );
             node._parent = this;
             node.store = this.store;
             this.invalidate();
@@ -173,7 +172,7 @@ namespace Animate {
                     selectedNodes.splice( selectedNodes.indexOf( this ), 1 );
             }
 
-            this.children!.splice( this.children!.indexOf( node ), 1 );
+            this.children.splice( this.children.indexOf( node ), 1 );
             node.dispose();
             this.invalidate();
         }
@@ -183,7 +182,7 @@ namespace Animate {
          * @param e
          */
         onContext( e: React.MouseEvent ) {
-            this.store!.onContext( e, this );
+            this.store.onContext( e, this );
         }
 
         /**
@@ -203,7 +202,7 @@ namespace Animate {
             if ( this[ property ] === value )
                 return this;
 
-            let children = this.children!;
+            let children = this.children;
             for ( let child of children ) {
                 const n = child.findNode( property, value );
                 if ( n !== null )
@@ -217,12 +216,10 @@ namespace Animate {
 		 * This will cleanup the model
 		 */
         dispose() {
-            for ( let node of this.children! )
+            for ( let node of this.children )
                 this.removeNode( node );
 
-            this.children = null;
             this._parent = null;
-            this.store = null;
         }
     }
 }

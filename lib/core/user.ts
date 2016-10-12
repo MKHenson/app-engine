@@ -4,9 +4,9 @@ namespace Animate {
 	* This class is used to represent the user who is logged into Animate.
 	*/
     export class User extends EventDispatcher {
-        private static _singleton = null;
+        private static _singleton: User;
         public entry: UsersInterface.IUserEntry;
-        public meta: HatcheryServer.IUserMeta;
+        public meta: HatcheryServer.IUserMeta | null;
         public project: Project;
         private _isLoggedIn: boolean;
 
@@ -42,32 +42,31 @@ namespace Animate {
         authenticated(): Promise<boolean> {
             this._isLoggedIn = false;
 
-            const that = this;
-            return new Promise<boolean>( function( resolve, reject ) {
-                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then( function( data ): Promise<ModepressAddons.IGetDetails> {
+            return new Promise<boolean>(( resolve, reject ) => {
+                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( data ): Promise<ModepressAddons.IGetDetails | null> => {
 
                     if ( data.error )
                         throw new Error( data.message );
 
                     if ( data.authenticated ) {
-                        that.entry = <UsersInterface.IUserEntry>data.user;
-                        that._isLoggedIn = true;
-                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user.username}` );
+                        this.entry = <UsersInterface.IUserEntry>data.user;
+                        this._isLoggedIn = true;
+                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
                     }
                     else {
-                        that._isLoggedIn = false;
-                        that.resetMeta();
-                        return null;
+                        this._isLoggedIn = false;
+                        this.resetMeta();
+                        return Promise.resolve( null );
                     }
 
-                }).then( function( data: ModepressAddons.IGetDetails ) {
+                }).then(( data: ModepressAddons.IGetDetails | null ) => {
                     if ( data && data.error )
                         return reject( new Error( data.message ) );
 
-                    that.meta = ( data ? data.data : null );
+                    this.meta = ( data ? data.data : null );
                     return resolve( true );
 
-                }).catch( function( err: IAjaxError ) {
+                }).catch(( err: IAjaxError ) => {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
@@ -88,33 +87,32 @@ namespace Animate {
             };
             let response: UsersInterface.IAuthenticationResponse;
 
-            const that = this;
-            return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
-                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then( function( data ) {
+            return new Promise<UsersInterface.IAuthenticationResponse>(( resolve, reject ) => {
+                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( data ) => {
                     response = data;
                     if ( data.error )
                         throw new Error( data.message );
 
                     if ( data.authenticated ) {
-                        that._isLoggedIn = true;
-                        that.entry = <UsersInterface.IUserEntry>data.user;
-                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user.username}` );
+                        this._isLoggedIn = true;
+                        this.entry = <UsersInterface.IUserEntry>data.user;
+                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
                     }
                     else {
-                        that._isLoggedIn = false;
-                        that.resetMeta();
-                        return null;
+                        this._isLoggedIn = false;
+                        this.resetMeta();
+                        return Promise.resolve( null );
                     }
 
-                }).then( function( data: ModepressAddons.IGetDetails ) {
-                    if ( data.error )
+                }).then(( data: ModepressAddons.IGetDetails | null ) => {
+                    if ( data && data.error )
                         return reject( new Error( data.message ) );
 
-                    that.meta = data.data;
+                    this.meta = ( data ? data.data : null );
                     return resolve( response );
 
-                }).catch( function( err: IAjaxError ) {
-                    that._isLoggedIn = false;
+                }).catch(( err: IAjaxError ) => {
+                    this._isLoggedIn = false;
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 })
             });
@@ -240,8 +238,8 @@ namespace Animate {
                     for ( let i = 0, l = data.data.length; i < l; i++ ) {
                         const project = data.data[ i ];
                         const plugins: Array<HatcheryServer.IPlugin> = [];
-                        for ( let ii = 0, il = project.plugins.length; ii < il; ii++ )
-                            plugins.push( getPluginByID( project.plugins[ ii ] ) );
+                        for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
+                            plugins.push( getPluginByID( project.plugins![ ii ] ) ! );
 
                         project.$plugins = plugins;
                     }
@@ -275,8 +273,8 @@ namespace Animate {
                     // Assign the actual plugins
                     const project = data.data;
                     const plugins: Array<HatcheryServer.IPlugin> = [];
-                    for ( let ii = 0, il = project.plugins.length; ii < il; ii++ )
-                        plugins.push( getPluginByID( project.plugins[ ii ] ) );
+                    for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
+                        plugins.push( getPluginByID( project.plugins![ ii ] ) ! );
 
                     project.$plugins = plugins;
 
@@ -314,7 +312,7 @@ namespace Animate {
         * @returns The user details token
 		*/
         updateDetails( token: HatcheryServer.IUserMeta ): Promise<UsersInterface.IResponse> {
-            const meta = this.meta;
+            const meta = this.meta!;
             const that = this;
 
             return new Promise<Modepress.IResponse>( function( resolve, reject ) {

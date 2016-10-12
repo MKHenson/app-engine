@@ -45,8 +45,8 @@ namespace Animate {
 
             // Sort alphabetically
             nodes = nodes.sort( function( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
-                const textA = a.resource.entry.name.toUpperCase();
-                const textB = b.resource.entry.name.toUpperCase();
+                const textA = a.resource.entry.name!.toUpperCase();
+                const textB = b.resource.entry.name!.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
             });
 
@@ -57,7 +57,7 @@ namespace Animate {
             // When we select a new asset
             const onSelect = function( e: JQueryEventObject ) {
                 const val = parseFloat( selector.val() );
-                const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
+                const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET ) !;
                 p.setVal( asset );
             };
 

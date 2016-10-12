@@ -175,7 +175,7 @@
             this.defaultVal = parseFloat( this.defaultVal.toFixed( 2 ) );
 
             this.label.element.text( this.defaultVal.toString() );
-           // this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
+            // this.emit( new ToolbarNumberEvent( ToolbarNumberEvents.CHANGED, this.defaultVal ) );
         }
 
         onKeyDown( e ) {
@@ -252,17 +252,9 @@
             this.label.element.off( 'click', this.clickProxy );
             this.downProxy = null;
             this.clickProxy = null;
-            this.defaultVal = null;
-            this.minValue = null;
-            this.maxValue = null;
-            this.delta = null;
-            this.label = null;
-            this.leftArrow = null;
-            this.rightArrow = null;
             this.wheelProxy = null;
             this.stageUpPoxy = null;
             this.stageMovePoxy = null;
-            this.startPos = null;
 
             ToolbarNumber.numInstances--;
             if ( ToolbarNumber.numInstances <= 0 ) {

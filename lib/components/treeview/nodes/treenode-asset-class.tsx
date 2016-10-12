@@ -56,7 +56,7 @@ namespace Animate {
 		 * This will get all instance nodes of a particular class name(s)
 		 * @param classNames The class name of the asset, or an array of class names
 		 */
-        getInstances( classNames: string | string[] ): TreeNodeAssetInstance[] {
+        getInstances( classNames: string | string[] | null ): TreeNodeAssetInstance[] {
             let toRet: TreeNodeAssetInstance[] = [];
             let children = this.children;
             let names: string[];

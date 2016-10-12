@@ -4,8 +4,8 @@ namespace Animate {
     }
 
     export interface IOptionsProjectState {
-        infoServerMsg?: string;
-        imageUploadErr?: string;
+        infoServerMsg?: string | null;
+        imageUploadErr?: string | null;
         loading?: boolean;
         error?: boolean;
     }
@@ -41,7 +41,7 @@ namespace Animate {
                 imageUploadErr: null
             });
 
-            project.updateDetails( { image: ( file ? file.url : null ) }).then(() => {
+            project.updateDetails( { image: ( file ? file.url : undefined ) }).then(() => {
                 this.setState( {
                     loading: false
                 });
@@ -89,7 +89,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             let project = User.get.project.entry;
-            let loadingSymbol: JSX.Element;
+            let loadingSymbol: JSX.Element | undefined;
 
             if ( this.state.loading )
                 loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
@@ -105,7 +105,7 @@ namespace Animate {
                         <VInput value={project.name} name="name" type="text" placeholder="My Project" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />
 
                         <h4>Tags: </h4>
-                        <VInput value={project.tags.join( ', ' ) } name="tags" type="text" placeholder="Keywords to describe the project"/>
+                        <VInput value={project.tags!.join( ', ' )} name="tags" type="text" placeholder="Keywords to describe the project" />
 
                         <h4>Description: </h4>
                         <VTextarea value={project.description} name="description" placeholder="A project description"></VTextarea>
@@ -123,11 +123,11 @@ namespace Animate {
                             { label: 'Musical', value: 5, selected: project.category === 5 },
                             { label: 'Technical', value: 6, selected: project.category === 6 },
                             { label: 'Promotional', value: 7, selected: project.category === 7 },
-                        ]}/>
+                        ]} />
                         <p className="info"><i>Optionally provide a project category.The default is 'Other'</i></p>
 
                         {( this.state.infoServerMsg ?
-                            <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS} allowClose={false}>{this.state.infoServerMsg}</Attention> : null ) }
+                            <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS} allowClose={false}>{this.state.infoServerMsg}</Attention> : null )}
 
                         <div className="fix" />
                         <ButtonPrimary preventDefault={false} type="submit" disabled={this.state.loading}>
@@ -141,12 +141,12 @@ namespace Animate {
                     <div className="img-data">
                         <div className="info">
                             Upload an image for the project; this image will show up in the Animate gallery for others to see.
-                            <br/><br/><span className="nb">Your application must have an image in order to be shown in the gallery.</span><br/><br/>
+                            <br /><br /><span className="nb">Your application must have an image in order to be shown in the gallery.</span><br /><br />
                             Your project image should be either a.png or.jpg image that is 200 by 200 pixels.
                         </div>
-                        {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null ) }
+                        {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null )}
                     </div>
-                    <ImageUploader label="Upload Image" src={project.image} onImage={( f ) => { this.setProjectImageUrl( f ); } } />
+                    <ImageUploader label="Upload Image" src={project.image!} onImage={( f ) => { this.setProjectImageUrl( f ); } } />
                     <div className="fix"></div>
                 </Group>
             </div>

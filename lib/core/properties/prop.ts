@@ -5,7 +5,7 @@
     */
     export class Prop<T> {
         public name: string;
-        protected _value: T | null;
+        protected _value: T;
         public category: string;
         public options: any;
         public set: EditableSet;
@@ -19,7 +19,7 @@
         * @param {any} options [Optional] Any optional data to be associated with the property
         * @param {PropertyType} type [Optional] Define the type of property
         */
-        constructor( name: string, value: T | null, category?: string, options?: any, type: PropertyType = PropertyType.OBJECT ) {
+        constructor( name: string, value: T, category?: string, options?: any, type: PropertyType = PropertyType.OBJECT ) {
             this.name = name;
             this._value = value;
             this.category = category || 'General Properties';
@@ -80,7 +80,6 @@
         * Cleans up the class
         */
         dispose() {
-            this._value = null;
             this.options = null;
         }
 
@@ -102,7 +101,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor( name: string, value: boolean | null, category?: string, options?: any ) {
+        constructor( name: string, value: boolean, category?: string, options?: any ) {
             super( name, value, category, options, PropertyType.BOOL );
         }
 
@@ -124,7 +123,7 @@
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor( name: string, value: string | null, category?: string, options?: any ) {
+        constructor( name: string, value: string, category?: string, options?: any ) {
             super( name, value, category, options, PropertyType.STRING );
         }
 

@@ -20,9 +20,6 @@ namespace Animate {
 		* This function is used to clean up the PropertyGridGroup
 		*/
         dispose() {
-            this.name = null;
-            this.content = null;
-
             //Call super
             super.dispose();
         }

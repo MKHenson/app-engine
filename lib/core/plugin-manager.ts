@@ -1,6 +1,6 @@
 namespace Animate {
 
-    declare var __newPlugin: Animate.IPlugin;
+    declare var __newPlugin: Animate.IPlugin | null;
 
     /**
 	 * The plugin manager is used to load and manage external Animate plugins.
@@ -58,7 +58,7 @@ namespace Animate {
 		 */
         loadPlugin( pluginDefinition: HatcheryServer.IPlugin ): Promise<HatcheryServer.IPlugin> {
             if ( pluginDefinition.$loaded )
-                return Promise.resolve( null );
+                return Promise.resolve();
 
             return new Promise<HatcheryServer.IPlugin>( function( resolve, reject ) {
                 const script = document.createElement( 'script' );
@@ -80,7 +80,7 @@ namespace Animate {
                 }
 
                 script.async = true;
-                script.src = pluginDefinition.url;
+                script.src = pluginDefinition.url!;
                 document.head.appendChild( script );
             });
         }
@@ -91,7 +91,7 @@ namespace Animate {
 		 * @param createPluginReference Should we keep this constructor in memory? The default is true
 		 */
         preparePlugin( pluginDefinition: HatcheryServer.IPlugin, createPluginReference: boolean = true ) {
-            const plugin: Animate.IPlugin = pluginDefinition.$instance;
+            const plugin: Animate.IPlugin = pluginDefinition.$instance!;
             this._plugins.push( plugin );
 
             // Get behaviour definitions
@@ -175,8 +175,8 @@ namespace Animate {
 		 * @param typeA The first type to check
 		 * @param typeB The second type to check
 		 */
-        getConverters( typeA: any, typeB: any ) {
-            let toRet = null;
+        getConverters( typeA: any, typeB: any ): string[] | null {
+            let toRet: string[] | null = null;
 
             let i = this._converters.length;
             while ( i-- ) {
@@ -224,11 +224,11 @@ namespace Animate {
 		 * Gets an asset class by its name
 		 * @param name The name of the asset class
 		 */
-        getAssetClass( name: string ): AssetClass {
+        getAssetClass( name: string ): AssetClass | null {
             // Assign any of the options / missing variables for classes that are updated in code but not in the DB
             const assetTemplates: Array<AssetTemplate> = this._assetTemplates;
             for ( let i = 0, l = assetTemplates.length; i < l; i++ ) {
-                const assetClass: AssetClass = assetTemplates[ i ].findClass( name );
+                const assetClass: AssetClass | null = assetTemplates[ i ].findClass( name );
                 if ( assetClass )
                     return assetClass;
             }
@@ -258,7 +258,7 @@ namespace Animate {
         /**
          * Creates a thumbnail preview of the file
          */
-        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> {
+        thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null {
             let toRet;
             const factories = this._previewVisualizers;
             for ( let i = 0, l = factories.length; i < l; i++ ) {
@@ -276,7 +276,7 @@ namespace Animate {
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        displayPreview( file: HatcheryServer.IFile ): JSX.Element {
+        displayPreview( file: HatcheryServer.IFile ): JSX.Element | null {
             let toRet;
             const factories = this._previewVisualizers;
             for ( let i = 0, l = factories.length; i < l; i++ ) {

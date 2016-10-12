@@ -13,8 +13,8 @@ namespace Animate {
     export interface IPluginsWidgetState {
         loading?: boolean;
         plugins?: PluginMap,
-        selectedPlugin?: IPluginPlus,
-        activePlugin?: IPluginPlus,
+        selectedPlugin?: IPluginPlus | null,
+        activePlugin?: IPluginPlus | null,
         selectedPlugins?: IPluginPlus[]
     }
 
@@ -66,7 +66,7 @@ namespace Animate {
          * Gets the currently selected plugins
          */
         get selectedPlugins(): IPluginPlus[] {
-            return this.state.selectedPlugins;
+            return this.state.selectedPlugins!;
         }
 
         /*
@@ -75,28 +75,30 @@ namespace Animate {
         */
         selectPlugin( plugin: IPluginPlus ) {
 
+            const selectedPlugins = this.state.selectedPlugins!;
+
             // If this plugin is not selected
-            if ( this.state.selectedPlugins.indexOf( plugin ) === -1 ) {
+            if ( selectedPlugins.indexOf( plugin ) === -1 ) {
 
                 // Make sure if another version is selected, that its de-selected
-                for ( let i = 0, l = this.state.selectedPlugins.length; i < l; i++ )
-                    if ( this.state.selectedPlugins[ i ].name === plugin.name ) {
-                        this.state.selectedPlugins.splice( i, 1 );
+                for ( let i = 0, l = selectedPlugins.length; i < l; i++ )
+                    if ( selectedPlugins[ i ].name === plugin.name ) {
+                        selectedPlugins.splice( i, 1 );
                         break;
                     }
 
-                this.state.selectedPlugins.push( plugin );
+                selectedPlugins.push( plugin );
             }
             else
-                this.state.selectedPlugins.splice( this.state.selectedPlugins.indexOf( plugin ), 1 );
+                selectedPlugins.splice( selectedPlugins.indexOf( plugin ), 1 );
 
             // Set the active selected plugin
-            if ( this.state.selectedPlugins.length > 0 )
-                this.setState( { selectedPlugin: this.state.selectedPlugins[ this.state.selectedPlugins.length - 1 ] });
+            if ( selectedPlugins.length > 0 )
+                this.setState( { selectedPlugin: selectedPlugins[ selectedPlugins.length - 1 ] });
             else
                 this.setState( { selectedPlugin: null });
 
-            this.props.onChange( this.state.selectedPlugins );
+            this.props.onChange( selectedPlugins );
         }
 
         /*
@@ -104,18 +106,18 @@ namespace Animate {
         * @param The plugin to check
         */
         mustShowPluginTick( plugin, index: number ): boolean {
-
+            const selectedPlugins = this.state.selectedPlugins!;
             if ( index === 0 ) {
                 // Make sure if another version is selected, that its de-selected
-                for ( let i = 0, l = this.state.selectedPlugins.length; i < l; i++ )
-                    if ( this.state.selectedPlugins[ i ].name === plugin.name ) {
+                for ( let i = 0, l = selectedPlugins.length; i < l; i++ )
+                    if ( selectedPlugins[ i ].name === plugin.name ) {
                         return true;
                     }
 
                 return false;
             }
             else {
-                if ( this.state.selectedPlugins.indexOf( plugin ) !== -1 )
+                if ( selectedPlugins.indexOf( plugin ) !== -1 )
                     return true;
                 else
                     return false;
@@ -127,14 +129,15 @@ namespace Animate {
         * @param The plugin to toggle
         */
         showVersions( plugin: HatcheryServer.IPlugin ) {
-            for ( const n in this.state.plugins )
-                for ( let i = 0, l = this.state.plugins[ n ].length; i < l; i++ ) {
-                    if ( this.state.plugins[ n ][ i ].name === plugin.name ) {
-                        this.state.plugins[ n ][ i ].expanded = !this.state.plugins[ n ][ i ].expanded;
+            const plugins = this.state.plugins!;
+            for ( const n in plugins )
+                for ( let i = 0, l = plugins[ n ].length; i < l; i++ ) {
+                    if ( plugins[ n ][ i ].name === plugin.name ) {
+                        plugins[ n ][ i ].expanded = !plugins[ n ][ i ].expanded;
                     }
                 }
 
-            this.setState( { plugins: this.state.plugins });
+            this.setState( { plugins: plugins });
         }
 
         /**
@@ -145,12 +148,12 @@ namespace Animate {
             const toRet: PluginMap = {};
 
             for ( let i = 0, l = plugins.length; i < l; i++ ) {
-                if ( !toRet[ plugins[ i ].name ] )
-                    toRet[ plugins[ i ].name ] = [];
+                if ( !toRet[ plugins[ i ].name! ] )
+                    toRet[ plugins[ i ].name! ] = [];
                 else
                     continue;
 
-                let pluginArray = toRet[ plugins[ i ].name ];
+                let pluginArray = toRet[ plugins[ i ].name! ];
 
                 for ( let ii = 0; ii < l; ii++ )
                     if ( plugins[ ii ].name === plugins[ i ].name )
@@ -161,8 +164,8 @@ namespace Animate {
                     if ( a === b )
                         return 0;
 
-                    const a_components = a.version.split( '.' );
-                    const b_components = b.version.split( '.' );
+                    const a_components = a.version!.split( '.' );
+                    const b_components = b.version!.split( '.' );
 
                     const len = Math.min( a_components.length, b_components.length );
 
@@ -198,7 +201,7 @@ namespace Animate {
          * Generates the React code for displaying the plugins
          */
         createPluginHierarchy(): JSX.Element[] {
-            const pluginArray = this.state.plugins;
+            const pluginArray = this.state.plugins!;
             const arr: { name: string; array: IPluginPlus[] }[] = [];
             for ( const i in pluginArray )
                 arr.push( { name: i, array: pluginArray[ i ] });
@@ -211,11 +214,11 @@ namespace Animate {
                             const isLatestPlugin: boolean = index === 0;
                             const moreThanOnePlugin: boolean = pluginGrp.array.length > 1;
                             const showTick = this.mustShowPluginTick( plugin, index );
-                            const isSelected = this.state.selectedPlugins.indexOf( plugin ) !== -1;
+                            const isSelected = this.state.selectedPlugins!.indexOf( plugin ) !== -1;
 
                             return <div
                                 key={plugin._id}
-                                className={ 'plugin unselectable' +
+                                className={'plugin unselectable' +
                                     ( this.state.activePlugin === plugin ? ' background-view-light' : '' ) +
                                     ( isLatestPlugin ? ' primary-plugin' : ' secondary-plugin' ) +
                                     ( moreThanOnePlugin ? '' : ' no-other-versions' ) +
@@ -225,18 +228,18 @@ namespace Animate {
                                     this.setState( { activePlugin: plugin });
                                 } }>
                                 <VCheckbox
-                                    className={ (
-                                        showTick && !isSelected ? 'not-directly-selected' : '' ) }
+                                    className={(
+                                        showTick && !isSelected ? 'not-directly-selected' : '' )}
                                     onChecked={( e ) => {
                                         this.selectPlugin( plugin );
                                     } }
                                     id={`cb-${plugin._id}`}
                                     checked={showTick}
-                                    label={( isLatestPlugin ? `${pluginGrp.name} ${plugin.version}` : plugin.version ) }>
-                                    {( isLatestPlugin ? <img src={plugin.image} /> : <span className="fa fa-caret-right" /> ) }
+                                    label={( isLatestPlugin ? `${pluginGrp.name} ${plugin.version}` : plugin.version )}>
+                                    {( isLatestPlugin ? <img src={plugin.image} /> : <span className="fa fa-caret-right" /> )}
                                 </VCheckbox>
                                 <span
-                                    className={ 'more fa ' + ( plugin.expanded ? 'fa-minus-circle' : 'fa-plus-circle' ) }
+                                    className={'more fa ' + ( plugin.expanded ? 'fa-minus-circle' : 'fa-plus-circle' )}
                                     onClick={() => { this.showVersions( plugin ); } }
                                     />
                             </div>
@@ -251,13 +254,13 @@ namespace Animate {
          */
         render(): JSX.Element {
 
-            let previewContent: JSX.Element;
+            let previewContent: JSX.Element | undefined;
 
             if ( this.state.activePlugin ) {
                 previewContent = <div className="plugin-info background-view-light"
                     style={{ display: ( this.state.activePlugin ? '' : 'none' ) }}>
-                    <h2>{( this.state.activePlugin ? this.state.activePlugin.name : '' ) }</h2>
-                    {( this.state.activePlugin ? this.state.activePlugin.description : '' ) }
+                    <h2>{( this.state.activePlugin ? this.state.activePlugin.name : '' )}</h2>
+                    {( this.state.activePlugin ? this.state.activePlugin.description : '' )}
                 </div>
             }
 
@@ -269,7 +272,7 @@ namespace Animate {
                 <div className="double-column">
                     <h2><i className="fa fa-puzzle-piece" aria-hidden="true"></i>Choose Plugins<i className="fa fa-cog fa-spin fa-3x fa-fw"></i></h2>
                     <div className="plugins">
-                        {this.createPluginHierarchy() }
+                        {this.createPluginHierarchy()}
                     </div>
                 </div>
                 <div className="double-column">

@@ -35,12 +35,6 @@ namespace Animate {
 
             this.saved = true;
             this.close = false;
-            this._editor = null;
-            this.onEnter = null;
-            this.onFrame = null;
-            this.onInitialize = null;
-            this.onDispose = null;
-            this.curFunction = null;
             this.userDefinedChange = true;
             this.scripts = {};
         }
@@ -328,15 +322,7 @@ namespace Animate {
             this._editor.removeAllListeners( 'change' );
 
             this._editor.destroy();
-            this._editor = null;
-            this.right = null;
             this.proxyFunctionClick = null;
-            this._editor = null;
-            this.onEnter = null;
-            this.onInitialize = null;
-            this.onDispose = null;
-            this.onFrame = null;
-            this._editorComponent = null;
             this.scriptNode = null;
             this.scripts = null;
         }

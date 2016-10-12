@@ -34,7 +34,6 @@ namespace Animate {
             this._moveProxy = this.onMouseMove.bind( this );
             this._allowMouseX = false;
             this._allowMouseY = false;
-            this._originRect = null;
             this._ghost = document.createElement( 'div' );
             this._ghost.className = 'resizable ghost';
         }

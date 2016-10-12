@@ -133,7 +133,7 @@
         * of key object pairs that are translated into variables for use in the script.
         * @returns {CompiledEval}
         */
-        private static compileEval( script: string, elm: AppNode, $ctxValues?: Array<any> ): CompiledEval {
+        private static compileEval( script: string, elm: AppNode, $ctxValues?: Array<any> | null ): CompiledEval {
             const contexts = {};
             const ctxValues = $ctxValues || elm.$ctxValues;
             if ( ctxValues ) {
@@ -159,7 +159,7 @@
         * @returns {CompiledEval}
         * @return {any}
         */
-        public static parse( script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any> ): any {
+        public static parse( script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any> | null ): any {
             const contexts = {};
             const ctxValues = $ctxValues || elm.$ctxValues;
             if ( ctxValues ) {
@@ -357,14 +357,9 @@
         * @param {DescriptorNode} sourceNode The parent node from which we are removing clones from
         */
         static cleanupNode( appNode: AppNode ) {
-            appNode.$ctxValues = null;
-            appNode.$compliledEval = null;
-            appNode.$ieTextNodes = null;
-            ( <InstanceNode>appNode ).$clonedElements = null;
-            ( <DescriptorNode>appNode ).$originalNode = null;
+
             appNode.$clonedData = null;
             Compiler.removeEvents( <Element><Node>appNode );
-            appNode.$events = null;
 
             // Cleanup kids
             Compiler.traverse( appNode, function( child: AppNode ) {
@@ -402,14 +397,14 @@
 
 
                 let comment: JQuery;
-                let commentElement: DescriptorNode;
-                const commentReferenceNumbers = child.nodeValue.match( /\d+/gi );
+                let commentElement: DescriptorNode | undefined;
+                const commentReferenceNumbers = ( child.nodeValue ? child.nodeValue.match( /\d+/gi ) : 0 );
 
                 // Get the comment reference number - and look it up in the root node registered comments
                 if ( child.nodeType === 8 && commentReferenceNumbers ) {
                     const id = commentReferenceNumbers[ 0 ];
                     commentElement = references[ id ];
-                    comment = jQuery( commentElement );
+                    comment = jQuery( commentElement! );
                 }
 
                 // If the comment matches a root node flagged comment

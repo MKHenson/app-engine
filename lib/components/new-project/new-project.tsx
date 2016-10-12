@@ -7,7 +7,7 @@ namespace Animate {
 
     export interface INewProjectState {
         plugins?: IPluginPlus[];
-        errorMsg?: string;
+        errorMsg?: string | null;
         error?: boolean;
         loading?: boolean;
     }
@@ -38,8 +38,8 @@ namespace Animate {
          */
         newProject( json ) {
 
-            const plugins = this.state.plugins;
-            const ids = plugins.map<string>( function ( value ) { return value._id; });
+            const plugins = this.state.plugins!;
+            const ids = plugins.map<string>( function( value ) { return value._id; });
             this.setState( {
                 loading: true,
                 error: false,
@@ -108,16 +108,16 @@ namespace Animate {
                         this.state.errorMsg ?
                             <Attention
                                 showIcon={this.state.error}
-                                mode={( this.state.error ? AttentionType.ERROR : AttentionType.WARNING ) }>
+                                mode={( this.state.error ? AttentionType.ERROR : AttentionType.WARNING )}>
                                 {this.state.errorMsg}
                             </Attention>
                             : null
-                    ) }
+                    )}
                     <ButtonPrimary onClick={( e ) => { this.props.onCancel() } }>
                         Back
                     </ButtonPrimary>
-                    <ButtonPrimary disabled={this.state.loading}  onClick={() => { ( this.refs[ 'newProjectForm' ] as VForm ).initiateSubmit(); } }>
-                        Next <span className="fa fa-chevron-right"/>
+                    <ButtonPrimary disabled={this.state.loading} onClick={() => { ( this.refs[ 'newProjectForm' ] as VForm ).initiateSubmit(); } }>
+                        Next <span className="fa fa-chevron-right" />
                     </ButtonPrimary>
                 </div>
 

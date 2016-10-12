@@ -27,7 +27,7 @@ namespace Animate {
         edit( prop: Prop<any>, container: Component ) {
             const p = <PropGroup>prop;
             const group = <Resources.GroupArray>p.getVal();
-            const groupId = ( group ? p.getVal().entry.shallowId : '' );
+            const groupId = ( group ? p.getVal() !.entry.shallowId! : '' );
 
             //Create HTML
             const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>` );

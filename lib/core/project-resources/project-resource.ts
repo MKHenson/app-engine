@@ -59,16 +59,13 @@
         */
         set saved( val: boolean ) {
             this._saved = val;
-            this.emit<ResourceEvents, IResourceEvent>( 'modified', { resource : this } );
+            this.emit<ResourceEvents, IResourceEvent>( 'modified', { resource: this });
         }
 
 
 
         dispose() {
             super.dispose();
-            this._properties.dispose();
-            this._properties = null;
-            this._options = null;
         }
 
         /**

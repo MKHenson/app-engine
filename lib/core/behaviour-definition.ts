@@ -8,7 +8,7 @@ namespace Animate {
         private _canBuildInput: boolean;
         private _canBuildParameter: boolean;
         private _canBuildProduct: boolean;
-        private _portalTemplates: Array<PortalTemplate> | null;
+        private _portalTemplates: Array<PortalTemplate>;
         private _plugin: IPlugin | null;
 
 		/**
@@ -41,7 +41,6 @@ namespace Animate {
 		* also define what the process of conversion will be.
         */
         dispose() {
-            this._portalTemplates = null;
             this._plugin = null;
         }
 
@@ -82,7 +81,7 @@ namespace Animate {
 		* has to provide the behaviour with an array of PortalTemplates.
         */
         portalsTemplates(): Array<PortalTemplate> {
-            return this._portalTemplates!;
+            return this._portalTemplates;
         }
 
         get behaviourName(): string { return this._behaviourName; }

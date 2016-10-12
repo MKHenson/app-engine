@@ -12,11 +12,10 @@ namespace Animate {
         private _savedSpan: JQuery;
         private _modified: boolean;
 
-        constructor( selector: Component, page: Component, name: string ) {
-            this.tab = null;
-            this.tabSelector = selector;
+        constructor( selector: Component | null, page: Component | null, name: string ) {
+            this.tabSelector = selector!;
             this._modified = false;
-            this.page = page;
+            this.page = page!;
             this.name = name;
             this._savedSpan = jQuery( '<span class="modified">*</span>' );
         }
@@ -89,11 +88,6 @@ namespace Animate {
             this.tabSelector.dispose();
             this.page.dispose();
             this._savedSpan.remove();
-
-            this.tabSelector = null;
-            this.page = null;
-            this.name = null;
-            this._savedSpan = null;
         }
     }
 }

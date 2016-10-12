@@ -19,8 +19,8 @@ namespace Animate {
     export class Pager extends React.Component<IPagerProps, IPagerState> {
         static defaultProps: IPagerProps = {
             limit: 10,
-            onUpdate: null
-        };
+            onUpdate: ( index: number, limit: number ) => { throw new Error( 'onUpdate not implemented' ) }
+        } as IPagerProps;
 
         /**
          * Creates an instance of the pager
@@ -38,7 +38,7 @@ namespace Animate {
          * When the component is mounted - load the projects
          */
         componentWillMount() {
-            this.props.onUpdate( this.state.index, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( this.state.index!, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             });
         }
@@ -47,7 +47,7 @@ namespace Animate {
         * Calls the update function
         */
         invalidate() {
-            this.props.onUpdate( this.state.index, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( this.state.index!, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             });
         }
@@ -71,7 +71,7 @@ namespace Animate {
 		*/
         goFirst() {
             this.setState( { index: 0 });
-            this.props.onUpdate( 0, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( 0, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             })
         }
@@ -91,7 +91,7 @@ namespace Animate {
                 index = 0;
 
             this.setState( { index: index });
-            this.props.onUpdate( index, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             });
         }
@@ -103,7 +103,7 @@ namespace Animate {
             let index = this.state.index + this.state.limit;
             this.setState( { index: index });
 
-            this.props.onUpdate( index, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             });
         }
@@ -117,7 +117,7 @@ namespace Animate {
                 index = 0;
 
             this.setState( { index: index });
-            this.props.onUpdate( index, this.state.limit ).then(( last ) => {
+            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
                 this.setState( { last: last });
             });
         }
@@ -129,7 +129,7 @@ namespace Animate {
             const props: IPagerProps = Object.assign( {}, this.props );
             delete props.onUpdate;
             delete props.limit;
-            let navbar: JSX.Element;
+            let navbar: JSX.Element | undefined;
             let needsNavigation = this.state.last === 1 || this.state.last === 0 ? false : true;
 
             if ( needsNavigation )
@@ -140,7 +140,7 @@ namespace Animate {
                             <a style={{ display: ( this.state.index ? '' : 'none' ) }} onClick={() => { this.goPrev() } }>Prev {'<'}</a>
                         </div>
                         <div className="navigation-column index">
-                            {this.getPageNum() } of {this.getTotalPages() }
+                            {this.getPageNum()} of {this.getTotalPages()}
                         </div>
                         <div className="navigation-column next">
                             <a style={{ display: ( this.state.index + this.state.limit < this.state.last ? '' : 'none' ) }} onClick={() => { this.goNext() } }>{'>'} Next</a>
@@ -151,7 +151,7 @@ namespace Animate {
 
             return <div
                 {...props}
-                className={'pager ' + ( needsNavigation ? ' with-navigator' : '' ) + ( this.props.className || '' ) }>
+                className={'pager ' + ( needsNavigation ? ' with-navigator' : '' ) + ( this.props.className || '' )}>
                 <div className="content">
                     {this.props.children}
                 </div>

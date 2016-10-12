@@ -4,11 +4,11 @@ namespace Animate {
         name?: string;
         onRenaming?: ( newName: string, prevName: string ) => Error;
         onCancel?: () => void;
-        onOk: ( newName: string ) => void;
+        onOk?: ( newName: string ) => void;
     }
 
     export interface IRenameFormState extends IReactWindowState {
-        $errorMsg?: string;
+        $errorMsg?: string | null;
     }
 
 	/**
@@ -23,8 +23,7 @@ namespace Animate {
             autoCenter: true,
             title: 'Please Enter a Name',
             modal: true,
-            className: 'rename-form',
-            onOk: null
+            className: 'rename-form'
         }
 
         /**
@@ -59,7 +58,7 @@ namespace Animate {
                         validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML}
                         value={this.props.name}
                         />
-                    { this.state.$errorMsg ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.$errorMsg}</Attention> : null }
+                    {this.state.$errorMsg ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.$errorMsg}</Attention> : null}
                     <div className="buttons-container">
                         <ButtonLink type="button" onClick={( e ) => { e.preventDefault(); this.onCancel(); } }>
                             CANCEL
@@ -78,7 +77,7 @@ namespace Animate {
         ok( name: string ) {
             let curName: string = name;
             let prevName = ( this.props.name ? this.props.name : '' );
-            let error: Error = null;
+            let error: Error | null = null;
 
             if ( this.props.onRenaming )
                 error = this.props.onRenaming( curName, prevName );
@@ -86,7 +85,9 @@ namespace Animate {
             if ( error )
                 return this.setState( { $errorMsg: error.message });
 
-            this.props.onOk( name );
+            if ( this.props.onOk )
+                this.props.onOk( name );
+
             this.onClose();
         }
     }

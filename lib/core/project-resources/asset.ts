@@ -15,7 +15,7 @@ namespace Animate {
 			* @param assetClass The name of the 'class' or 'template' that this asset belongs to
 			* @param entry [Optional] The asset database entry
 			*/
-            constructor( assetClass: AssetClass, entry?: HatcheryServer.IAsset ) {
+            constructor( assetClass: AssetClass, entry: HatcheryServer.IAsset ) {
                 super( entry );
 
                 this.class = assetClass;
@@ -49,7 +49,6 @@ namespace Animate {
 			*/
             dispose() {
                 super.dispose();
-                this.class = null;
             }
         }
     }

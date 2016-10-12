@@ -10,7 +10,7 @@ namespace Animate {
         private _editors: Array<PropertyGridEditor>;
         //private _docker: Docker;
         private _groups: Array<PropertyGridGroup>;
-        private _object: EditableSet;
+        private _object: EditableSet | null;
 
         constructor( parent: Component ) {
             // Call super-class constructor
@@ -89,7 +89,7 @@ namespace Animate {
 		* @param {string} img An optional image string
 		* @returns {any} Returns the object we are currently editing
 		*/
-        editableObject( object: EditableSet, name: string, img: string = '' ) {
+        editableObject( object: EditableSet | null, name: string, img: string = '' ) {
             if ( !this.enabled )
                 return;
 
@@ -112,7 +112,7 @@ namespace Animate {
                     const property = variables[ i ];
 
                     // Check if a group exists
-                    let pGroup: PropertyGridGroup = null;
+                    let pGroup: PropertyGridGroup | null = null;
                     for ( let gi = 0, gl = groups.length; gi < gl; gi++ )
                         if ( groups[ gi ].name === property.category ) {
                             pGroup = groups[ gi ];
@@ -129,7 +129,7 @@ namespace Animate {
                 }
 
                 // Sort by the groups by name
-                sortable.sort( function ( a, b ) {
+                sortable.sort( function( a, b ) {
                     const textA = a.group.name.toUpperCase();
                     const textB = b.group.name.toUpperCase();
                     return ( textA > textB ) ? -1 : ( textA < textB ) ? 1 : 0;
@@ -141,7 +141,7 @@ namespace Animate {
                         this.addChild( sortable[ i ].group );
 
                 // Now sort each of the variables by name
-                sortable.sort( function ( a, b ) {
+                sortable.sort( function( a, b ) {
                     const textA = a.prop.name.toUpperCase();
                     const textB = b.prop.name.toUpperCase();
                     return ( textA > textB ) ? 1 : ( textA < textB ) ? -1 : 0;
@@ -233,7 +233,7 @@ namespace Animate {
 		*/
         static getSingleton( parent?: Component ): PropertyGrid {
             if ( !PropertyGrid._singleton )
-                new PropertyGrid( parent );
+                new PropertyGrid( parent! );
 
             return PropertyGrid._singleton;
         }

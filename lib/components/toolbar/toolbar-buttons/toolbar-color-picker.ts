@@ -35,7 +35,6 @@ namespace Animate {
 		*/
         dispose(): void {
             this.picker = null;
-            this.numberInput = null;
         }
     }
 }

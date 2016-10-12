@@ -87,11 +87,9 @@ namespace Animate {
             this.mCancel.element.off();
             jQuery( 'body' ).off( 'keydown', this.keyProxy );
 
-            this.mButtonContainer = null;
             this.mOk = null;
             this.mCancel = null;
             this.keyProxy = null;
-            this.okCancelContent = null;
 
             //Call super
             super.dispose();
@@ -105,7 +103,7 @@ namespace Animate {
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-        show( parent: Component = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
+        show( parent: Component | null = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
             //var x = jQuery( 'body' ).width() / 2 - this.element.width() / 2;
             //var y = jQuery( 'body' ).height() / 2 - this.element.height() / 2;
 

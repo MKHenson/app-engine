@@ -2,7 +2,7 @@ namespace Animate {
 
     export interface ISearchBoxProps extends React.HTMLAttributes {
 
-        onSearch( e: React.FormEvent, searchText: string );
+        onSearch: ( e: React.FormEvent, searchText: string ) => void;
 
         /**
          * Only call onSearch when the input loses focus
@@ -17,7 +17,7 @@ namespace Animate {
      */
     export class SearchBox extends React.Component<ISearchBoxProps, { value: string }> {
         static defaultProps: ISearchBoxProps = {
-            onSearch: null,
+            onSearch: function( e: React.FormEvent, searchText: string ) { throw new Error( 'onSearch not implemented' ) },
             triggerOnBlur: true
         };
 

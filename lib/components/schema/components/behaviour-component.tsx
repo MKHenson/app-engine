@@ -25,7 +25,7 @@ namespace Animate {
             this.props.editor.beginLinkRouting( portal, p );
         }
 
-        getPortalFromTarget( target: HTMLElement ): IPortal {
+        getPortalFromTarget( target: HTMLElement ): IPortal | null {
             let ref: Element | React.Component<any, any>;
             let elm: HTMLElement;
 
@@ -46,7 +46,7 @@ namespace Animate {
          */
         render(): JSX.Element {
             const behaviour = this.props.behaviour;
-            const portals = behaviour.portals;
+            const portals = behaviour.portals!;
             const editor = this.props.editor;
 
             let behaviourTypeClass = '';
@@ -56,14 +56,14 @@ namespace Animate {
             return (
                 <Draggable
                     ref="draggable"
-                    x={this.props.behaviour.left}
-                    y={this.props.behaviour.top}
+                    x={this.props.behaviour.left!}
+                    y={this.props.behaviour.top!}
                     onMove={( x, y ) => {
                         const items = editor.getItems();
-                        (items[behaviour.id] as Behaviour).move(x, y);
-                     } }
+                        ( items[ behaviour.id! ] as Behaviour ).move( x, y );
+                    } }
                     onDragComplete={( start, end ) => {
-                        editor.doAction( new Actions.SelectionMoved( [ { index: behaviour.id, x: end.x, y: end.y }] ) );
+                        editor.doAction( new Actions.SelectionMoved( [ { index: behaviour.id!, x: end.x, y: end.y }] ) );
                     } } >
                     <div
                         ref="behaviour"
@@ -88,10 +88,10 @@ namespace Animate {
                             portals.map(( p, i ) => {
                                 return <PortalComponent
                                     portal={p}
-                                    ref={ p.type + '-' + i }
-                                    key={ p.type + '-' + i }
-                                    onPortalDown={ ( p.type === 'product' || p.type === 'output' ?
-                                        ( e ) => this.onLinkStart( e, p ) : undefined ) }
+                                    ref={p.type + '-' + i}
+                                    key={p.type + '-' + i}
+                                    onPortalDown={( p.type === 'product' || p.type === 'output' ?
+                                        ( e ) => this.onLinkStart( e, p ) : undefined )}
                                     />
                             })
                         }

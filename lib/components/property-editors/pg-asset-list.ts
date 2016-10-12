@@ -35,15 +35,15 @@ namespace Animate {
             const add: JQuery = jQuery( '.add', editor );
             const remove: JQuery = jQuery( '.remove', editor );
             let assetId: number;
-            let asset: Resources.Asset;
-            const assets = p.getVal();
+            let asset: Resources.Asset | null;
+            const assets = p.getVal() !;
             const classNames = p.classNames;
             let nodes: Array<TreeNodeAssetInstance> = TreeViewScene.getSingleton().getAssets( classNames );
 
             // Sort alphabetically
             nodes = nodes.sort( function( a: TreeNodeAssetInstance, b: TreeNodeAssetInstance ) {
-                const textA = a.resource.entry.name.toUpperCase();
-                const textB = b.resource.entry.name.toUpperCase();
+                const textA = a.resource.entry.name!.toUpperCase();
+                const textB = b.resource.entry.name!.toUpperCase();
                 return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
             });
 
@@ -51,7 +51,7 @@ namespace Animate {
             // Fill the select with assets
             for ( let i = 0, l: number = nodes.length; i < l; i++ ) {
                 if ( i === 0 ) {
-                    assetId = nodes[ i ].resource.entry.shallowId;
+                    assetId = nodes[ i ].resource.entry.shallowId!;
                     asset = nodes[ i ].resource;
                 }
 
@@ -60,7 +60,7 @@ namespace Animate {
 
             // Fill the already selected items
             for ( let i = 0, l: number = assets.length; i < l; i++ ) {
-                const selectedAsset = User.get.project.getResourceByShallowID<Resources.Asset>( assets[ i ].entry.shallowId, ResourceType.ASSET );
+                const selectedAsset = User.get.project.getResourceByShallowID<Resources.Asset>( assets[ i ].entry.shallowId!, ResourceType.ASSET );
                 if ( selectedAsset )
                     items.append( `<option title='${assets[ i ] + ' : ' + selectedAsset.entry.className}' value='${selectedAsset.entry.shallowId}'>${selectedAsset.entry.name}</option>` );
             }
@@ -105,7 +105,7 @@ namespace Animate {
                 const toRemove: number = parseInt( items.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( toRemove, ResourceType.ASSET );
 
-                if ( assets.indexOf( asset ) !== -1 ) {
+                if ( asset && assets.indexOf( asset ) !== -1 ) {
                     assets.splice( assets.indexOf( asset ), 1 );
                     jQuery( 'option:selected', items ).remove();
                     p.setVal( assets );

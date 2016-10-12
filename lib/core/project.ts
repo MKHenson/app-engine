@@ -7,7 +7,7 @@ namespace Animate {
     export class Project extends EventDispatcher {
 
         public openEditors: Editor[];
-        public activeEditor: Editor;
+        public activeEditor: Editor | null;
         public curBuild: Build;
         private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<HatcheryServer.IResource>> }; }
         private _entry: HatcheryServer.IProject;
@@ -58,7 +58,7 @@ namespace Animate {
 		 * @param id The ID of the resource
 		 * @returns The resource whose id matches the id parameter or null
 		 */
-        getResourceByID<T extends ProjectResource<HatcheryServer.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } {
+        getResourceByID<T extends ProjectResource<HatcheryServer.IResource>>( id: string, type?: ResourceType ): { resource: T, type: ResourceType } | null {
             const types = this._restPaths;
             if ( type ) {
                 for ( let i = 0, arr: Array<ProjectResource<HatcheryServer.IResource>> = types[ type ].array, l = arr.length; i < l; i++ )
@@ -80,7 +80,7 @@ namespace Animate {
 		 * @param id The shallow ID of the resource
 		 * @returns The resource whose shallow id matches the id parameter or null
 		 */
-        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>( id: number, type?: ResourceType ): T {
+        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>( id: number, type?: ResourceType ): T | null {
             const types = this._restPaths;
             if ( type ) {
                 for ( let i = 0, arr = types[ type ].array, l = arr.length; i < l; i++ )
@@ -162,12 +162,16 @@ namespace Animate {
             let resource: ProjectResource<any>;
 
             if ( type === ResourceType.ASSET ) {
-                const aClass = PluginManager.getSingleton().getAssetClass(( <HatcheryServer.IAsset>entry ).className );
+                const className = ( <HatcheryServer.IAsset>entry ).className!;
+                const aClass = PluginManager.getSingleton().getAssetClass( className );
+                if ( !aClass )
+                    throw new Error( `Could not find asset class ${className}` );
+
                 resource = new Resources.Asset( aClass, entry );
                 this._restPaths[ type ].array.push( <Resources.Asset>resource );
             }
             else if ( type === ResourceType.SCRIPT ) {
-                resource = new Resources.Script( <any>entry );
+                resource = new Resources.Script( entry );
                 this._restPaths[ type ].array.push( resource );
             }
             else if ( type === ResourceType.CONTAINER ) {
@@ -178,9 +182,9 @@ namespace Animate {
                 resource = new Resources.GroupArray( entry );
                 this._restPaths[ type ].array.push( <Resources.GroupArray>resource );
             }
-            else if ( type === ResourceType.FILE ) {
+            else {
                 resource = new Resources.File( entry );
-                this._restPaths[ type ].array.push( resource );
+                this._restPaths[ ResourceType.FILE ].array.push( resource );
             }
 
             resource.initialize();
@@ -265,7 +269,7 @@ namespace Animate {
                                 createdResources.push( this.createResourceInstance<HatcheryServer.IScript>( data[ 0 ].data[ i ], ResourceType.SCRIPT ) );
                     }
 
-                    let event: IResourceEvent = { resource: null };
+                    let event = {} as IResourceEvent;
                     for ( let resource of createdResources ) {
                         event.resource = resource;
                         this.emit<ProjectEvents, IResourceEvent>( 'resource-created', event );
@@ -325,7 +329,7 @@ namespace Animate {
             const projId = this._entry._id;
             const paths = this._restPaths;
             let url: string;
-            let resource: ProjectResource<HatcheryServer.IResource>;
+            let resource: ProjectResource<HatcheryServer.IResource> | undefined;
 
             for ( const p in paths )
                 for ( const r of paths[ p ].array )
@@ -335,7 +339,7 @@ namespace Animate {
                         break;
                     }
 
-            if ( !resource )
+            if ( resource === undefined )
                 return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
             return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
@@ -344,10 +348,10 @@ namespace Animate {
                         return reject( new Error( response.message ) );
 
                     for ( const t in data )
-                        if ( resource.entry.hasOwnProperty( t ) )
-                            resource.entry[ t ] = data[ t ];
+                        if ( resource!.entry.hasOwnProperty( t ) )
+                            resource!.entry[ t ] = data[ t ];
 
-                    resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: resource });
+                    resource!.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: resource! });
                     this.invalidate();
                     return resolve( response );
 
@@ -367,6 +371,10 @@ namespace Animate {
             const details = User.get.entry;
             const projId = this._entry._id;
             const r = this.getResourceByID( id, type );
+
+            if ( !r )
+                throw new Error( `Could not find the resource ${id}` );
+
             const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ r.type ].url}/${id}`;
             const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
             resource.onSaving();
@@ -374,7 +382,7 @@ namespace Animate {
             return new Promise<boolean>(( resolve, reject ) => {
                 Utils.put<Modepress.IResponse>( url, resource.entry ).then(( response ) => {
                     if ( response.error )
-                        return reject( new Error( `Could not save ${ResourceType[ type ].toLowerCase()} resource [${resource.entry._id}]: '${response.message}'` ) );
+                        return reject( new Error( `Could not save resource [${resource.entry._id}]: '${response.message}'` ) );
 
                     resource.saved = true;
                     this.invalidate();
@@ -417,7 +425,7 @@ namespace Animate {
             const paths = this._restPaths;
             const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}/${id}`;
             const array = paths[ type ].array;
-            let resource: ProjectResource<HatcheryServer.IResource>;
+            let resource: ProjectResource<HatcheryServer.IResource> | undefined;
 
             for ( let i = 0, l = array.length; i < l; i++ )
                 if ( array[ i ].entry._id === id ) {
@@ -433,11 +441,15 @@ namespace Animate {
                     if ( response.error )
                         return reject( new Error( response.message ) );
 
-                    array.splice( array.indexOf( resource ), 1 );
-                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource });
-                    resource.dispose();
+                    array.splice( array.indexOf( resource! ), 1 );
+                    this.emit<ProjectEvents, IResourceEvent>( 'resource-removed', { resource: resource! });
+                    resource!.dispose();
 
-                    this.removeEditor( this.getEditorByResource( resource ) );
+                    const editor = this.getEditorByResource( resource! );
+                    if ( !editor )
+                        throw new Error( `Could not find editor for resource ${resource!.entry._id}` );
+
+                    this.removeEditor( editor );
                     return resolve( true );
 
                 }).catch(( err: IAjaxError ) => {
@@ -451,8 +463,11 @@ namespace Animate {
          * @param id The id of the resource we are cloning from
          * @param type [Optional] The type of resource to clone
          */
-        copyResource<T extends HatcheryServer.IResource>( id: string, type?: ResourceType ): Promise<ProjectResource<T>> {
+        copyResource<T extends HatcheryServer.IResource>( id: string, type: ResourceType ): Promise<ProjectResource<T>> {
             const r = this.getResourceByID( id, type );
+            if ( !r )
+                throw new Error( `Could not find the resource ${id}` );
+
             const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
 
             // Clone the resource and assign a new id
@@ -532,7 +547,7 @@ namespace Animate {
                         resource = this.createResourceInstance<T>( data.data, ResourceType.CONTAINER );
                     else if ( type === ResourceType.GROUP )
                         resource = this.createResourceInstance<T>( data.data, ResourceType.GROUP );
-                    else if ( type === ResourceType.SCRIPT )
+                    else
                         resource = this.createResourceInstance<T>( data.data, ResourceType.SCRIPT );
 
                     this.emit<ProjectEvents, IResourceEvent>( 'resource-created', { resource: resource });
@@ -550,24 +565,28 @@ namespace Animate {
          * GUI components to interact with the resource the editor wraps.
          * @param resource The resource we are creating an editor for
          */
-        assignEditor( resource: ProjectResource<HatcheryServer.IResource> ): Editor {
+        assignEditor( resource: ProjectResource<HatcheryServer.IResource> ): Editor | null {
             for ( const editor of this.openEditors )
                 if ( editor.resource == resource )
                     return editor;
 
-            let editor: Editor;
+            let editor: Editor | null = null;
             if ( resource instanceof Resources.Container )
                 editor = new ContainerSchema( resource, this );
 
-            this.openEditors.push( editor );
-            this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
-            this.invalidate();
+            if ( editor ) {
+                this.openEditors.push( editor );
+                this.emit<ProjectEvents, IEditorEvent>( 'editor-created', { editor: editor });
+                this.invalidate();
+            }
+
+            return editor;
         }
 
         /**
          * Gets an editor by its resource
          */
-        getEditorByResource( resource: ProjectResource<HatcheryServer.IResource> ): Editor {
+        getEditorByResource( resource: ProjectResource<HatcheryServer.IResource> ): Editor | null {
             for ( const editor of this.openEditors )
                 if ( editor.resource === resource )
                     return editor;
@@ -601,8 +620,6 @@ namespace Animate {
 		 * This will cleanup the project and remove all data associated with it.
 		 */
         reset() {
-            this._entry = null;
-
             // Dispose each of the resources saved
             const paths = this._restPaths;
             for ( const t in paths ) {
@@ -615,6 +632,6 @@ namespace Animate {
             }
         }
 
-        get plugins(): Array<HatcheryServer.IPlugin> { return this._entry.$plugins; }
+        get plugins(): Array<HatcheryServer.IPlugin> { return this._entry.$plugins!; }
     }
 }

@@ -25,7 +25,7 @@ namespace Animate {
     export class ToolbarDropDown extends Component {
         public items: Array<ToolbarItem>;
         private _popupContainer: Component;
-        private _selectedItem: ToolbarItem;
+        private _selectedItem: ToolbarItem | null;
         private _clickProxy: any;
         private _stageDownProxy: any;
 
@@ -132,7 +132,7 @@ namespace Animate {
 		* @returns {ToolbarItem}
 		*/
         get selectedItem(): ToolbarItem {
-            return this._selectedItem;
+            return this._selectedItem!;
         }
 
 		/**
@@ -186,8 +186,6 @@ namespace Animate {
             this._popupContainer.dispose();
             this.element.off( 'click', this._clickProxy );
             this._clickProxy = null;
-            this.items = null;
-            this._popupContainer = null;
             this._selectedItem = null;
 
             //Call super

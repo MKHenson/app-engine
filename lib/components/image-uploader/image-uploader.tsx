@@ -2,13 +2,13 @@ namespace Animate {
 
     export interface IImageUploaderProps {
         onImage?: ( file: HatcheryServer.IFile ) => void;
-        src: string;
+        src: string | undefined;
         label: string;
         onError?: ( e: Error ) => void;
     }
 
     export interface IImageUploaderState {
-        src: string;
+        src: string | undefined;
     }
 
     /**
@@ -45,7 +45,7 @@ namespace Animate {
                 multiselect: false,
                 onFilesSelected: ( files ) => {
                     this.setState( {
-                        src: ( files ? files[ 0 ].url : null )
+                        src: ( files ? files[ 0 ].url : undefined )
                     });
 
                     if ( this.props.onImage )

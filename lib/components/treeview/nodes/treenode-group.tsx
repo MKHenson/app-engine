@@ -31,8 +31,10 @@ namespace Animate {
             const group = this.resource;
 
             // Add each of the node references
-            for ( let item of group.entry.items ) {
+            for ( let item of group.entry.items! ) {
                 let resource = project.getResourceByShallowID<ProjectResource<HatcheryServer.IResource>>( item );
+                if ( !resource )
+                    throw new Error( `Could not find resource ${item}` )
                 this.addNode( new TreeNodeGroupInstance( resource, group ) );
             }
         }
@@ -46,10 +48,13 @@ namespace Animate {
         onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
             if ( json.type === 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID( json.id as number );
+                if ( !resource )
+                    throw new Error( `Could not find resource ${json.id}` )
+
                 let entry = resource.entry;
                 this.addNode( new TreeNodeGroupInstance( resource, this.resource ) );
                 this.expanded();
-                this.resource.addReference( entry.shallowId );
+                this.resource.addReference( entry.shallowId! );
             }
         }
     }

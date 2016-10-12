@@ -83,7 +83,7 @@ namespace Animate {
          * @param node
          * @param shiftDown
          */
-        onNodeSelected( node: TreeNodeModel, shiftDown: boolean, toggleSelectedState: boolean = true ) {
+        onNodeSelected( node: TreeNodeModel | null, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
             let clearSelection = false;
             let selection = this._selectedNodes;
@@ -92,7 +92,7 @@ namespace Animate {
                 clearSelection = true;
             else if ( this._multiSelect && !shiftDown )
                 clearSelection = true;
-            else if ( this._onlySimilarNodeSelection && selection.length > 0 && selection[ 0 ].constructor !== node.constructor )
+            else if ( this._onlySimilarNodeSelection && selection.length > 0 && node && selection[ 0 ].constructor !== node.constructor )
                 clearSelection = true;
 
             // Deselect all nodes if either not multi select mode or shiftkey was not pressed
@@ -151,13 +151,15 @@ namespace Animate {
 		 * @param property The name property we are evaluating
 		 * @param value The object we should be comparing against
 		 */
-        findNode( property: string, value: any ): TreeNodeModel {
+        findNode( property: string, value: any ): TreeNodeModel | null {
             let children = this._children;
             for ( let child of children ) {
                 const n = child.findNode( property, value );
                 if ( n !== null )
                     return n;
             }
+
+            return null;
         }
 
 		/**

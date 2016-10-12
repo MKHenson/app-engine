@@ -1,9 +1,9 @@
 namespace Animate {
 
     export interface IImagePreviewProps extends React.HTMLAttributes {
-        src: string;
+        src: string | undefined;
         defaultSrc?: string;
-        label: string;
+        label?: string;
         labelIcon?: JSX.Element;
         className?: string;
         selected?: boolean;
@@ -18,8 +18,7 @@ namespace Animate {
 
         static defaultProps: IImagePreviewProps = {
             selected: false,
-            src: null,
-            label: null,
+            src: undefined,
             defaultSrc: './media/appling.png',
             showLoadingIcon: false
         }
@@ -49,7 +48,7 @@ namespace Animate {
          * When the preview is added we start the loading process
          */
         componentDidMount() {
-            this._imgLoader.src = this.props.src || this.props.defaultSrc;
+            this._imgLoader.src = this.props.src! || this.props.defaultSrc!;
             this.setState( { loading: true });
         }
 
@@ -60,7 +59,7 @@ namespace Animate {
             let nextSrc = nextProps.src || nextProps.defaultSrc;
             let curSrc = this.props.src || this.props.defaultSrc;
             if ( nextSrc !== curSrc ) {
-                this._imgLoader.src = nextSrc;
+                this._imgLoader.src = nextSrc!;
                 this.setState( { loading: true });
             }
         }

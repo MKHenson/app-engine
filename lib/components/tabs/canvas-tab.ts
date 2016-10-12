@@ -16,8 +16,8 @@ namespace Animate {
         private static _singleton: CanvasTab;
 
         private _currentCanvas: Canvas;
-        private welcomeTab: TabPair;
-        private closingTabPair: TabPair;
+        // private welcomeTab: TabPair;
+        private closingTabPair: TabPair | null;
         //private mDocker: Docker;
 
         constructor( parent: Component ) {
@@ -121,12 +121,12 @@ namespace Animate {
 
             // Save the canvas
             if ( choice === 'Yes' ) {
-                User.get.project.saveResource( canvas.container.entry._id, ResourceType.CONTAINER ).then( function () {
+                User.get.project.saveResource( canvas.container.entry._id, ResourceType.CONTAINER ).then( function() {
                     // TODO: Commented out due to update to TSX
                     // that.removeTab(this.closingTabPair, true);
                     that.closingTabPair = null;
 
-                }).catch( function ( err: Error ) {
+                }).catch( function( err: Error ) {
                     LoggerStore.error( err.message );
                 });
 
@@ -195,7 +195,7 @@ namespace Animate {
 		* @param {number} behaviourID The local id of the container
 		* @returns {Canvas} The returned tab's canvas or null
 		*/
-        getTabCanvas( behaviourID: string ): Canvas {
+        getTabCanvas( behaviourID: string ): Canvas | null {
 
             // TODO: This no longer makes sense in TSX
             //=========================================
@@ -289,8 +289,8 @@ namespace Animate {
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
         projectReset() {
-            this._currentCanvas = null;
-            this.welcomeTab = null;
+            // this._currentCanvas = null;
+            // this.welcomeTab = null;
             this.clear();
         }
 
@@ -320,7 +320,7 @@ namespace Animate {
 		*/
         static getSingleton( parent?: Component ): CanvasTab {
             if ( !CanvasTab._singleton )
-                new CanvasTab( parent );
+                new CanvasTab( parent! );
 
             return CanvasTab._singleton;
         }
@@ -331,7 +331,7 @@ namespace Animate {
 		* @param {string} newName The new name of the tab
 		* @returns {TabPair} Returns the tab pair
 		*/
-        renameTab( oldName: string, newName: string ): TabPair {
+        renameTab( oldName: string, newName: string ): TabPair | null {
 
             // TODO: Update required from upgrade to TSX
             // =========================================
@@ -407,7 +407,7 @@ namespace Animate {
 		* @param {any} tabContent Data associated with the tab
 		* @returns {TabPair} The tab pair object
 		*/
-        addSpecialTab( text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent: any = null ): TabPair {
+        addSpecialTab( text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent: any = null ): TabPair | null {
             // TODO: Update required from upgrade to TSX
 
             // var pManager: PluginManager = PluginManager.getSingleton();

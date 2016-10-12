@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface ITabPaneProps {
-        label: string;
+        label: string | null;
         showCloseButton?: boolean;
         onDispose?: ( paneIndex: number, prop: ITabPaneProps ) => void;
         canSelect?: ( paneIndex: number, prop: ITabPaneProps ) => boolean | Promise<boolean>;
@@ -16,9 +16,9 @@ namespace Animate {
         static defaultProps: ITabPaneProps = {
             label: null,
             showCloseButton: true,
-            canClose: null,
-            canSelect: null,
-            onDispose: null
+            canClose: undefined,
+            canSelect: undefined,
+            onDispose: undefined
         }
 
         /**

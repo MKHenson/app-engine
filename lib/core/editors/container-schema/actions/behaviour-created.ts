@@ -41,8 +41,8 @@ namespace Animate {
                         break;
                 }
                 const instance = this.instance!;
-                instance.left = this.options.left;
-                instance.top = this.options.top;
+                instance.left = this.options.left!;
+                instance.top = this.options.top!;
                 instance.alias = this.options.alias ? this.options.alias : instance.alias;
                 editor.addItem( instance );
             }

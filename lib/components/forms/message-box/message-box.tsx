@@ -37,7 +37,7 @@ namespace Animate {
                     <p>{this.props.message}</p>
                     <div className="buttons">
                         {
-                            this.props && this.props.buttons.map(( button, index ) => {
+                            this.props && this.props.buttons!.map(( button, index ) => {
                                 return <ButtonPrimary key={'button-' + index} onClick={( e ) => { this.onButtonClick( e, button ) } }>
                                     {button}
                                 </ButtonPrimary>
@@ -56,7 +56,8 @@ namespace Animate {
             if ( this.props.onChange )
                 this.props.onChange( button );
 
-            this.props._closing();
+            if ( this.props._closing )
+                this.props._closing();
         }
 
         /**
@@ -65,7 +66,7 @@ namespace Animate {
          * @param buttons An array of strings that represent the button choices for the modal
          * @param callback An optional callback function for when a button is clicked
          */
-        static success( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+        static success( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
             ReactWindow.show( MessageBox, {
                 message: message,
                 buttons: buttons,
@@ -81,7 +82,7 @@ namespace Animate {
          * @param buttons An array of strings that represent the button choices for the modal
          * @param callback An optional callback function for when a button is clicked
          */
-        static warn( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+        static warn( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
             ReactWindow.show( MessageBox, {
                 message: message,
                 buttons: buttons,
@@ -97,7 +98,7 @@ namespace Animate {
          * @param buttons An array of strings that represent the button choices for the modal
          * @param callback An optional callback function for when a button is clicked
          */
-        static error( message: string, buttons: string[] = ['Ok'], callback?: (button) => void ) {
+        static error( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
             ReactWindow.show( MessageBox, {
                 message: message,
                 buttons: buttons,

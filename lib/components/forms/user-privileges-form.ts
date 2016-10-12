@@ -120,8 +120,8 @@ namespace Animate {
             else {
                 //Get all the updated users
                 const project = User.get.project;
-                const ids = [];
-                const access = [];
+                const ids: any[] = [];
+                const access: any[] = [];
 
                 //Create a multidimension array and pass each of the user dependencies
                 for ( let i = 0; i < this.mMenu.items.length; i++ ) {

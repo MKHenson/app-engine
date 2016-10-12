@@ -50,7 +50,7 @@ namespace Animate {
         findClass( name: string ) {
             const classes: Array<AssetClass> = this.classes;
             for ( let i = 0, l = classes.length; i < l; i++ ) {
-                const aClass: AssetClass = classes[ i ].findClass( name );
+                const aClass: AssetClass | null = classes[ i ].findClass( name );
                 if ( aClass )
                     return aClass;
             }

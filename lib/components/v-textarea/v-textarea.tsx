@@ -42,7 +42,7 @@ namespace Animate {
      * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
      * with the VForm.
      */
-    export class VTextarea extends React.Component<IVTextareaProps, { error?: string, value?: string, highlightError?: boolean, className?: string, focussed?: boolean }> {
+    export class VTextarea extends React.Component<IVTextareaProps, { error?: string | null, value?: string, highlightError?: boolean, className?: string, focussed?: boolean }> {
         private _pristine: boolean;
 
         /**
@@ -64,7 +64,7 @@ namespace Animate {
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void {
-            const err = this.getValidationErrorMsg( this.props.value );
+            const err = this.getValidationErrorMsg( this.props.value! );
 
             // Call the optional error callback
             if ( err && !this._pristine && this.props.onValidationError )
@@ -86,7 +86,7 @@ namespace Animate {
         /**
          * Gets the current value of the input
          */
-        get value(): string { return this.state.value; }
+        get value(): string { return this.state.value!; }
 
         /**
          * Sets the highlight error state. This state adds a 'highlight-error' class which
@@ -101,9 +101,9 @@ namespace Animate {
          * @returns An error string or null if there are no errors
          */
         getValidationErrorMsg( val: string ): string {
-            let errorMsg: string = null;
+            let errorMsg: string | null = null;
 
-            val = ( val !== undefined ? val : this.state.value );
+            val = ( val !== undefined ? val : this.state.value! );
 
             if ( this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
                 errorMsg = `You have too few characters`;
@@ -111,9 +111,9 @@ namespace Animate {
                 errorMsg = `You have too many characters`;
 
             if ( !errorMsg )
-                errorMsg = Utils.checkValidation( val, this.props.validator )
+                errorMsg = Utils.checkValidation( val, this.props.validator! )
 
-            return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
+            return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg! );
         }
 
         /**

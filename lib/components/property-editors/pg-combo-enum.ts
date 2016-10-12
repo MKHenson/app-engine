@@ -35,7 +35,7 @@ namespace Animate {
             container.element.append( editor );
 
             // Enums
-            const selectedValue: string = p.getVal();
+            const selectedValue: string = p.getVal() !;
             let vars = p.choices;
             vars = vars.sort();
 

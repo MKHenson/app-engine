@@ -11,7 +11,7 @@ namespace Animate {
          * Creates an instance of the node
          */
         constructor( resource: T ) {
-            super( resource.entry.name, <i className="fa fa-square resource" aria-hidden="true"></i> );
+            super( resource.entry.name!, <i className="fa fa-square resource" aria-hidden="true"></i> );
             this.resource = resource;
             this._loading = false;
 
@@ -100,7 +100,7 @@ namespace Animate {
                 if ( !this.resource.saved )
                     return '* ' + this.resource.entry.name;
                 else
-                    return this.resource.entry.name;
+                    return this.resource.entry.name!;
             }
 
 
@@ -112,7 +112,7 @@ namespace Animate {
          * @param {JSX.Element} val
          * @returns {JSX.Element}
          */
-        icon( val?: JSX.Element ): JSX.Element {
+        icon( val?: JSX.Element ): JSX.Element | undefined {
             if ( val === undefined ) {
                 if ( this._loading )
                     return <i className="fa fa-cog fa-spin fa-fw"></i>;
@@ -132,16 +132,14 @@ namespace Animate {
             resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
             resource.off<ResourceEvents, IResourceEvent>( 'refreshed', this.onModified, this );
 
-            this.resource = null;
-
             super.dispose();
         }
 
         /**
          * Called whenever the resource is modified
          */
-        protected onDeleted(type: ProjectEvents, event: IResourceEvent) {
-            if (event.resource !== this.resource)
+        protected onDeleted( type: ProjectEvents, event: IResourceEvent ) {
+            if ( event.resource !== this.resource )
                 return;
 
             if ( this._parent )
@@ -171,7 +169,7 @@ namespace Animate {
             let p = User.get.project;
 
             let onOk = ( type: ResourceType, newName: string ) => {
-                this.handleNodePromise( p.editResource( resource.entry._id, { name: newName } ), this );
+                this.handleNodePromise( p.editResource( resource.entry._id, { name: newName }), this );
             };
 
             if ( resource instanceof Resources.GroupArray ) {
@@ -183,7 +181,7 @@ namespace Animate {
                 ReactWindow.show( RenameForm, {
                     name: resource.entry.name,
                     onOk: ( newName ) => { onOk( ResourceType.CONTAINER, newName ) },
-                    onRenaming: ( newName, prevName ): Error => {
+                    onRenaming: ( newName, prevName ): Error | null => {
 
                         // Make sure no other container exists with the same name
                         let containers = User.get.project.containers;
@@ -242,7 +240,7 @@ namespace Animate {
                     MessageBox.warn(
                         'You have unsaved work are you sure you want to refresh?',
                         [ 'Yes', 'No' ],
-                        function ( button ) {
+                        function( button ) {
                             if ( button === 'Yes' ) {
                                 for ( let node of selection )
                                     this.handleNodePromise( project.refreshResource( node.resource.entry._id ), node );

@@ -12,10 +12,9 @@ namespace Animate {
             /**
              * @param entry The data associated with this container resource
              */
-            constructor( entry?: HatcheryServer.IContainer ) {
+            constructor( entry: HatcheryServer.IContainer ) {
                 super( entry );
 
-                this.canvas = null;
                 this._properties.addVar( new PropBool( 'Start On Load', true, 'Container Properties' ) );
                 this._properties.addVar( new PropBool( 'Unload On Exit', true, 'Container Properties' ) );
             }
@@ -38,7 +37,7 @@ namespace Animate {
              * Use this function to initialize the resource. This called just after the resource is created and its entry set.
              */
             initialize() {
-                const containerToken = this.entry.json;
+                const containerToken = this.entry.json!;
                 if ( containerToken.properties )
                     this._properties.deTokenize( containerToken.properties );
             }
@@ -48,7 +47,6 @@ namespace Animate {
              */
             dispose() {
                 super.dispose();
-                this.canvas = null;
             }
         }
 

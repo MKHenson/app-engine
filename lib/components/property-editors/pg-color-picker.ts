@@ -27,8 +27,8 @@ namespace Animate {
         edit( prop: Prop<any>, container: Component ) {
             const p = <PropColor>prop;
 
-            const color = p.getVal().color;
-            const alpha = p.getVal().alpha;
+            const color = p.getVal() !.color;
+            const alpha = p.getVal() !.alpha;
 
             const _id1 = 'c' + Component.idCounter++;
             const _id2 = 'c' + Component.idCounter++;

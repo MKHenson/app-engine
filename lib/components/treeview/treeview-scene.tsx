@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface ITreeViewSceneProps extends ITreeViewProps {
-        project: Project;
+        project: Project | null;
     }
 
 	/**
@@ -30,10 +30,10 @@ namespace Animate {
 
         constructor( props: ITreeViewSceneProps ) {
             super( props );
-            this.props.nodeStore.addNode( new TreeViewNodeContainers( props.project ) );
-            this.props.nodeStore.addNode( new TreeViewNodeAssets( props.project ) );
-            this.props.nodeStore.addNode( new TreeViewNodeGroups( props.project ) );
-            this.props.nodeStore.addNode( new TreeViewNodeBehaviours() );
+            this.props.nodeStore!.addNode( new TreeViewNodeContainers( props.project! ) );
+            this.props.nodeStore!.addNode( new TreeViewNodeAssets( props.project! ) );
+            this.props.nodeStore!.addNode( new TreeViewNodeGroups( props.project! ) );
+            this.props.nodeStore!.addNode( new TreeViewNodeBehaviours() );
 
 
 
@@ -81,14 +81,14 @@ namespace Animate {
          * Bind any project related events
          */
         componentWillMount() {
-            this.props.project.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+            this.props.project!.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
         }
 
         /**
          * Unbind any project related events
          */
         componentWillUnmount() {
-            this.props.project.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+            this.props.project!.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
         }
 
         /**
@@ -667,7 +667,7 @@ namespace Animate {
             // }
 
             // return toRet;
-            return null;
+            return [];
         }
 
 		/**
@@ -690,7 +690,7 @@ namespace Animate {
             // }
 
             // return toRet;
-            return null;
+            return [];
         }
 
 		/**

@@ -21,10 +21,7 @@
             this._proxyChange = jQuery.proxy( this.onChange, this );
             this._proxyMessageBox = jQuery.proxy( this.onMessage, this );
             this._loadingGif = jQuery( '<img src="media/buffering-gray.png" class="rotate-360" />' );
-
-
             this._close = false;
-            this._editor = null;
         }
 
 		/**
@@ -81,10 +78,8 @@
 
             this._editor.removeEventListener( 'change', this._proxyChange );
             this._editor.destroy();
-            this._editor = null;
             this._proxyChange = null;
             this._proxyMessageBox = null;
-            this._editor = null;
         }
 
 		/**
@@ -126,7 +121,7 @@
                     mac: 'Command-S',
                     sender: 'editor|cli'
                 },
-                exec: function () { that.save(); }
+                exec: function() { that.save(); }
             });
 
             editor.addEventListener( 'change', this._proxyChange );

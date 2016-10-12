@@ -3,7 +3,7 @@ namespace Animate {
 	* A tab pair that manages the build HTML
 	*/
     export class HTMLTab extends EditorPair {
-        public static singleton: HTMLTab;
+        public static singleton: HTMLTab | null;
 
 		/**
 		* @param {string} name The name of the tab
@@ -22,7 +22,7 @@ namespace Animate {
             this.loading( true );
 
             // Update the build html
-            User.get.project.curBuild.update( { html: editor.getValue() }).then( function () {
+            User.get.project.curBuild.update( { html: editor.getValue() }).then( function() {
                 that.loading( false );
                 that.modified = false;
 
@@ -30,7 +30,7 @@ namespace Animate {
                 // if (that._close)
                 //     CanvasTab.getSingleton().removeTab(that, true);
 
-            }).catch( function ( err: Error ) {
+            }).catch( function( err: Error ) {
                 that.loading( false );
                 LoggerStore.error( `Could not update the build HTML: '${err.message}'` );
             });
@@ -39,7 +39,7 @@ namespace Animate {
         /**
          * Gets the script initial values
          */
-        initialize() { return { content: User.get.project.curBuild.entry.html, contentType: 'ace/mode/html' }; }
+        initialize() { return { content: User.get.project.curBuild.entry.html!, contentType: 'ace/mode/html' }; }
 
         /**
 		* Called when the pair has been added to the tab. The ace editor is added and initialized

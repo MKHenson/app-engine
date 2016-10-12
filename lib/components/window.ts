@@ -33,10 +33,10 @@ namespace Animate {
             //If we have a control box we add the title and close button
             if ( this._controlBox ) {
                 this._header = <Component>this.addChild( `<div class='window-control-box background-haze'></div>` );
-                this._headerText = <Component>this._header.addChild( `<div class='window-header'>` + title +`</div>` );
+                this._headerText = <Component>this._header.addChild( `<div class='window-header'>` + title + `</div>` );
                 this._headerCloseBut = <Component>this._header.addChild( `<div class='close-but black-tint'>X</div>` );
                 this.addChild( `<div class='fix'></div>` );
-                this._content = <Component>this.addChild( `<div class='window-content'></div>`);
+                this._content = <Component>this.addChild( `<div class='window-content'></div>` );
             }
             else
                 this._content = <Component>this.addChild( `<div class='window-content no-control'></div>` );
@@ -115,7 +115,7 @@ namespace Animate {
 		* @param {boolean} isModal Does this window block all other user operations?
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
-        show( parent: Component = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false ) {
+        show( parent: Component | null = null, x: number = NaN, y: number = NaN, isModal: boolean = false, isPopup: boolean = false ) {
             this._isVisible = true;
 
             // TODO: was previously added to Application.getInstance() now NULL
@@ -231,10 +231,6 @@ namespace Animate {
 
             this._modalBackdrop.detach();
             this._resizeProxy = null;
-            this._modalBackdrop = null;
-            this._headerText = null;
-            this._headerCloseBut = null;
-            this._header = null;
 
             //Call super
             super.dispose();

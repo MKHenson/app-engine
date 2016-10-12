@@ -21,7 +21,7 @@ namespace Animate {
         // private _tabHomeContainer: Component;
         // private _currentContainer: Component;
         // private _currentTab: Component;
-        private _copyPasteToken: HatcheryServer.IContainerWorkspace;
+        private _copyPasteToken: HatcheryServer.IContainerWorkspace | null;
 
         constructor( props?: IToolbarProps ) {
             super( props );
@@ -38,7 +38,7 @@ namespace Animate {
 
             // Set a few defaults
             this.$itemSelected = false;
-            this._copyPasteToken = null;
+            // this._copyPasteToken = null;
             // this._currentContainer = this._tabHomeContainer;
             // this._currentTab = this._tabHomeContainer.element.data( "tab" ).element.data( "component" );
 
@@ -79,12 +79,12 @@ namespace Animate {
                             </div>
                             <div className="tool-bar-group">
                                 <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png"  disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { this.onPaste() } } label="Paste" imgUrl="media/paste.png"  disabled={!this._copyPasteToken} />
-                                <ToolbarButton onChange={( e ) => { this.onDelete() } } label="Delete" imgUrl="media/delete.png"  disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { editor.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
+                                <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png" disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={( e ) => { this.onPaste() } } label="Paste" imgUrl="media/paste.png" disabled={!this._copyPasteToken} />
+                                <ToolbarButton onChange={( e ) => { this.onDelete() } } label="Delete" imgUrl="media/delete.png" disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={( e ) => { editor!.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
                                     disabled={!editor || !editor.hasUndos} />
-                                <ToolbarButton onChange={( e ) => { editor.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
+                                <ToolbarButton onChange={( e ) => { editor!.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
                                     disabled={!editor || !editor.hasRedos} />
                             </div>
                             <div className="tool-bar-group">
@@ -97,7 +97,7 @@ namespace Animate {
                             <div className="tool-bar-group">
                                 <ToolbarButton onChange={( e ) => {
                                     this.onRun()
-                                } } label="Run" imgUrl="media/play.png"  />
+                                } } label="Run" imgUrl="media/play.png" />
                                 <ToolbarButton onChange={( e ) => {
                                     ReactWindow.show( OptionsForm, {} as IOptionsForm );
                                 } } label="Settings" imgUrl="media/build.png" />
@@ -271,7 +271,7 @@ namespace Animate {
                         );
                     });
                 },
-                onRenaming: ( newName, prevName ): Error => {
+                onRenaming: ( newName, prevName ): Error | null => {
 
                     // Make sure no other container exists with the same name
                     let containers = User.get.project.containers;
@@ -306,7 +306,7 @@ namespace Animate {
 		* @param text The text of the new tab
 		* @returns Returns the {Component} object representing the tab
 		*/
-        createTab( text: string, isSelected: boolean = false ): Component {
+        createTab( text: string, isSelected: boolean = false ): Component | null {
             // var topTab = this._topMenu.addChild("<div className='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>" + text + "</div>" );
             // var btmContainer: Component = <Component>this._bottomMenu.addChild( "<div className='tab-container'></div>" );
 
@@ -364,7 +364,7 @@ namespace Animate {
 		* @param tab The {Component} tab object which represents the parent of this group.
 		* @returns Returns the {Component} object representing the group
 		*/
-        createGroup( tab: Component ): Component {
+        createGroup( tab: Component ): Component | null {
             // return <Component>tab.addChild( "<div className='tool-bar-group background-view-light'></div>" );
             return null;
         }
@@ -378,7 +378,7 @@ namespace Animate {
 		* @param {Component} group The Component object representing the group
 		* @returns {ToolbarNumber}
 		*/
-        createGroupNumber( text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component = null ): ToolbarNumber {
+        createGroupNumber( text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component | null = null ): ToolbarNumber | null {
             // var toRet: ToolbarNumber = new ToolbarNumber( group, text, defaultVal, min, max, delta );
             // group.addChild( <IComponent>toRet );
             // return toRet;
@@ -393,7 +393,7 @@ namespace Animate {
 		* @param {boolean} isPushButton If true, the button will remain selected when clicked.
 		* @returns {Component} Returns the Component object representing the button
 		*/
-        createGroupButton( text: string, image: string = null, group: Component = null, isPushButton: boolean = false ): ToolbarButton {
+        createGroupButton( text: string, image: string | null = null, group: Component | null = null, isPushButton: boolean = false ): ToolbarButton | null {
             // var toRet: ToolBarButton = new ToolBarButton( text, image, isPushButton, group )
             // group.addChild( <IComponent>toRet );
             // return toRet;
@@ -406,7 +406,7 @@ namespace Animate {
 		* @param {Array<ToolbarItem>} items An array of items to list
 		* @returns {ToolbarDropDown} Returns the Component object representing the button
 		*/
-        createDropDownButton( parent: Component, items: Array<ToolbarItem> ): ToolbarDropDown {
+        createDropDownButton( parent: Component, items: Array<ToolbarItem> ): ToolbarDropDown | null {
             // var toRet = new ToolbarDropDown( parent, items )
             // return toRet;
             return null;
@@ -419,7 +419,7 @@ namespace Animate {
 		* @param {string} color The hex colour as a string
 		* @returns {ToolbarColorPicker} Returns the ToolbarColorPicker object representing the button
 		*/
-        createColorButton( parent: Component, text: string, color: string ): ToolbarColorPicker {
+        createColorButton( parent: Component, text: string, color: string ): ToolbarColorPicker | null {
             // var toRet = new ToolbarColorPicker( parent, text, color );
             // return toRet;
             return null;

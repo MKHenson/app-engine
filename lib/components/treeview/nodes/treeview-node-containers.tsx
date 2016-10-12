@@ -27,7 +27,6 @@ namespace Animate {
         dispose() {
             super.dispose();
             this._project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
-            this._project = null;
         }
 
         /**
@@ -35,7 +34,7 @@ namespace Animate {
          */
         onContext( e: React.MouseEvent ) {
             e.preventDefault();
-            ReactContextMenu.show({ x: e.pageX, y: e.pageY, items: this._context });
+            ReactContextMenu.show( { x: e.pageX, y: e.pageY, items: this._context });
         }
 
         /**

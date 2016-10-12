@@ -2,7 +2,7 @@
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    export class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource>> {
+    export class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource> | null> {
         public classNames: Array<string>;
 
         /**

@@ -6,12 +6,12 @@ namespace Animate {
     export class AssetClass {
         private _abstractClass: boolean;
         private _name: string;
-        public parentClass: AssetClass;
+        public parentClass: AssetClass | null;
         private _imgURL: string;
         private _variables: Array<Prop<any>>;
         public classes: Array<AssetClass>;
 
-        constructor( name: string, parent: AssetClass, imgURL: string, abstractClass: boolean = false ) {
+        constructor( name: string, parent: AssetClass | null, imgURL: string, abstractClass: boolean = false ) {
             this._abstractClass = abstractClass;
             this._name = name;
             this.parentClass = parent;
@@ -25,7 +25,7 @@ namespace Animate {
 		 */
         getClasses(): AssetClass[] {
             let toRet: AssetClass[] = [];
-            let classes = this.classes;
+            let classes = this.classes!;
 
             for ( let childClass of classes ) {
                 toRet.push( childClass );
@@ -41,11 +41,11 @@ namespace Animate {
 		*/
         buildVariables(): EditableSet {
             const toRet: EditableSet = new EditableSet( null );
-            let topClass: AssetClass = this;
+            let topClass: AssetClass | null = this;
             while ( topClass !== null ) {
                 //Add all the variables to the object we are returning
-                for ( let i = 0; i < topClass._variables.length; i++ ) {
-                    const variable = topClass._variables[ i ];
+                for ( let i = 0; i < topClass._variables!.length; i++ ) {
+                    const variable = topClass._variables![ i ];
 
                     // If the variable is added by a child class - then do not add it from the parent
                     // this essentially makes sure child class variables hold top priority
@@ -62,13 +62,13 @@ namespace Animate {
 		/**
 		* Finds a class by its name. Returns null if nothing is found
 		*/
-        findClass( name: string ): AssetClass {
+        findClass( name: string ): AssetClass | null {
             if ( this._name === name )
                 return this;
 
             const classes: Array<AssetClass> = this.classes;
             for ( let i = 0, l = classes.length; i < l; i++ ) {
-                const aClass: AssetClass = classes[ i ].findClass( name );
+                const aClass: AssetClass | null = classes[ i ].findClass( name );
                 if ( aClass )
                     return aClass;
             }
@@ -96,19 +96,14 @@ namespace Animate {
             for ( let i = 0, l = this.classes.length; i < l; i++ )
                 this.classes[ i ].dispose();
 
-            this._abstractClass = null;
-            this._name = null;
             this.parentClass = null;
-            this._variables = null;
-            this._imgURL = null;
-            this.classes = null;
         }
 
 		/**
 		* Gets a variable based on its name
 		* @param name The name of the class
 		*/
-        getVariablesByName<T>( name: string ): Prop<T> {
+        getVariablesByName<T>( name: string ): Prop<T> | null {
             for ( let i = 0, l = this._variables.length; i < l; i++ )
                 if ( this._variables[ i ].name === name )
                     return this._variables[ i ];

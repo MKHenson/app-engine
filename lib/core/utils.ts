@@ -83,9 +83,9 @@
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         static post<T>( url: string, data: any ): Promise<T> {
-            return new Promise( function ( resolve, reject ) {
+            return new Promise( function( resolve, reject ) {
                 const xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
+                xhttp.onreadystatechange = function() {
                     if ( xhttp.readyState === 4 ) {
                         if ( xhttp.status === 200 ) {
                             const json = JSON.parse( xhttp.responseText );
@@ -117,9 +117,9 @@
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         static get<T>( url: string ): Promise<T> {
-            return new Promise( function ( resolve, reject ) {
+            return new Promise( function( resolve, reject ) {
                 const xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
+                xhttp.onreadystatechange = function() {
                     if ( xhttp.readyState === 4 ) {
                         if ( xhttp.status === 200 ) {
                             const json = JSON.parse( xhttp.responseText );
@@ -140,9 +140,9 @@
         * A predefined shorthand method for calling put methods that use JSON communication
         */
         static put<T>( url: string, data: any ): Promise<T> {
-            return new Promise( function ( resolve, reject ) {
+            return new Promise( function( resolve, reject ) {
                 const xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
+                xhttp.onreadystatechange = function() {
                     if ( xhttp.readyState === 4 ) {
                         if ( xhttp.status === 200 ) {
                             const json = JSON.parse( xhttp.responseText );
@@ -175,9 +175,9 @@
         * A predefined shorthand method for calling deleta methods that use JSON communication
         */
         static delete<T>( url: string, data?: any ): Promise<T> {
-            return new Promise( function ( resolve, reject ) {
+            return new Promise( function( resolve, reject ) {
                 const xhttp = new XMLHttpRequest();
-                xhttp.onreadystatechange = function () {
+                xhttp.onreadystatechange = function() {
                     if ( xhttp.readyState === 4 ) {
                         if ( xhttp.status === 200 ) {
                             const json = JSON.parse( xhttp.responseText );
@@ -239,8 +239,8 @@
         * Creates a new property based on the dataset provided
         * @param type The type of property to create
         */
-        static createProperty( name: string, type: PropertyType ): Prop<any> {
-            let prop: Prop<any>;
+        static createProperty( name: string, type: PropertyType ): Prop<any> | null {
+            let prop: Prop<any> | null = null;
             switch ( type ) {
                 case PropertyType.ASSET:
                     prop = new PropAsset( name, null );
@@ -362,7 +362,7 @@
 		* @param allowSpace If this is true, empty space will be allowed
 		* @returns Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
 		*/
-        static checkForSpecialChars( text: string, allowSpace: boolean = false ): string {
+        static checkForSpecialChars( text: string, allowSpace: boolean = false ): string | null {
             if ( allowSpace === false && jQuery.trim( text ) === '' )
                 return 'Text cannot be an empty string';
 

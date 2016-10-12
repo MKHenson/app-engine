@@ -154,8 +154,8 @@ namespace Animate {
             let scrubber = this.refs[ 'scrubber' ] as HTMLElement;
 
             // Get the new ratio
-            let left = parseFloat( scrubber.style.left.split( 'px' )[ 0 ] );
-            let top = parseFloat( scrubber.style.top.split( 'px' )[ 0 ] );
+            let left = parseFloat( scrubber.style.left!.split( 'px' )[ 0 ] );
+            let top = parseFloat( scrubber.style.top!.split( 'px' )[ 0 ] );
             let w = scrubber.parentElement.clientWidth;
             let h = scrubber.parentElement.clientHeight;
             let ratio = 0;
@@ -197,7 +197,7 @@ namespace Animate {
 		 * Call this function to get the ratio of the panel. Values are from 0 to 1
 		 */
         get ratio(): number {
-            return this.state.ratio;
+            return this.state.ratio!;
         }
 
 		/**

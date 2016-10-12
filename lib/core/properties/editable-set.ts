@@ -5,13 +5,13 @@
     */
     export class EditableSet {
         private _variables: Array<Prop<any>>;
-        parent: EventDispatcher;
+        parent: EventDispatcher | null;
 
         /**
         * Creates an instance
         * @param {EventDispatcher} parent The owner of this set. Can be null. If not null, the parent will receive events when the properties are edited.
         */
-        constructor( parent: EventDispatcher ) {
+        constructor( parent: EventDispatcher | null ) {
             this._variables = [];
             this.parent = parent;
         }
@@ -35,7 +35,7 @@
         * @param {string} name
         * @returns {Prop<T>}
         */
-        getVar<T>( name: string ): Prop<T> {
+        getVar<T>( name: string ): Prop<T> | null {
             const items = this._variables;
             for ( let i = 0, l = items.length; i < l; i++ )
                 if ( items[ i ].name === name )
@@ -52,7 +52,6 @@
             const items = this._variables;
             for ( let i = 0, l = items.length; i < l; i++ )
                 if ( items[ i ].name === name ) {
-                    items[ i ].set = null;
                     items[ i ].dispose();
                     items.splice( i, 1 );
                 }
@@ -69,7 +68,7 @@
         * Updates a variable with a new value
         * @returns {T}
         */
-        updateValue<T>( name: string, value: T ): T {
+        updateValue<T>( name: string, value: T ): T | null {
             const items = this._variables;
             for ( let i = 0, l = items.length; i < l; i++ )
                 if ( items[ i ].name === name ) {
@@ -102,7 +101,9 @@
             items.splice( 0, items.length );
 
             for ( const t in data ) {
-                const prop: Prop<any> = Utils.createProperty( data[ t ].name, data[ t ].type );
+                const prop: Prop<any> | null = Utils.createProperty( data[ t ].name, data[ t ].type );
+                if ( !prop )
+                    throw new Error( `Could not create property ${data[ t ].name}` )
                 prop.set = this;
                 prop.deTokenize( data[ t ] );
                 items.push( prop );
@@ -114,13 +115,5 @@
        * @returns {Array<Prop<any>>}
        */
         get variables(): Array<Prop<any>> { return this._variables; }
-
-        /**
-         * Cleans up and removes the references
-         */
-        dispose() {
-            this._variables = null;
-            this.parent = null;
-        }
     }
 }

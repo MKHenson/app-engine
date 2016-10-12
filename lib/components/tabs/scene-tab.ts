@@ -49,7 +49,7 @@ namespace Animate {
         /** Gets the singleton instance. */
         static getSingleton( parent?: Component ): SceneTab {
             if ( !SceneTab._singleton )
-                new SceneTab( parent );
+                new SceneTab( parent! );
 
             return SceneTab._singleton;
         }

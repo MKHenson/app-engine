@@ -27,7 +27,7 @@ namespace Animate {
             const left = portal.left;
             const svgSizeHalf = size * 0.5;
             const svgBlockS = size * 0.65;
-            let svg: JSX.Element;
+            let svg: JSX.Element | undefined;
 
             if ( portal.type === 'parameter' ) {
                 svg = <svg height={size} width={size}><polygon points={`0,0 ${svgSizeHalf},${size - svgBlockS} ${size},0 ${size},${size} 0,${size}`} /></svg>;
@@ -44,8 +44,8 @@ namespace Animate {
 
             return (
                 <div
-                    onMouseDown={this.props.onPortalDown ? ( e ) => { this.props.onPortalDown( e ); } : undefined}
-                    className={'portal ' + portal.type + ( portal.links.length > 0 ? ' active' : '' )}
+                    onMouseDown={this.props.onPortalDown ? ( e ) => { this.props.onPortalDown!( e ); } : undefined}
+                    className={'portal ' + portal.type + ( portal.links!.length > 0 ? ' active' : '' )}
                     style={{ top: top + 'px', left: left + 'px' }}
                     >
                     {svg}

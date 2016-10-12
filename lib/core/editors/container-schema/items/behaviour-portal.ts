@@ -5,7 +5,7 @@ namespace Animate {
      */
     export class BehaviourPortal extends Behaviour {
         public portalType: HatcheryRuntime.PortalType;
-        private _property: Prop<any> | null;
+        private _property: Prop<any>;
 
         /**
          * Creates an instance
@@ -57,7 +57,7 @@ namespace Animate {
         deSerialize( data: IBehaviourPortal ) {
             super.deSerialize( data );
             this.portalType = data.portal.type;
-            this._property = Utils.createProperty( data.portal.property.name, data.portal.property.type );
+            this._property = Utils.createProperty( data.portal.property.name, data.portal.property.type ) !;
             this._property.deTokenize( data );
         }
 
@@ -65,7 +65,6 @@ namespace Animate {
          * This will cleanup the component.
          */
         dispose() {
-            this._property = null;
             super.dispose();
         }
 

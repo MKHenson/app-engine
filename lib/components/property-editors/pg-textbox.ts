@@ -28,7 +28,7 @@ namespace Animate {
             const p = <PropText>prop;
 
             // Create HTML
-            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><input type='text' class='PropTextbox' value = '${p.getVal().toString()}' /></div><div class='fix'></div>` );
+            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><input type='text' class='PropTextbox' value = '${p.getVal() !.toString()}' /></div><div class='fix'></div>` );
             // Add to DOM
             container.element.append( editor );
 
@@ -38,7 +38,7 @@ namespace Animate {
             };
 
             // Add listeners
-            jQuery( 'input', editor ).val( p.getVal() );
+            jQuery( 'input', editor ).val( p.getVal() ! );
             jQuery( 'input', editor ).on( 'keyup', valueEdited );
         }
     }

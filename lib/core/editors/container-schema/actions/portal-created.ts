@@ -6,13 +6,13 @@ namespace Animate {
          * An action for the creation of portals
          */
         export class PortalCreated extends EditorAction {
-            target: Behaviour;
+            target: Behaviour | null;
             instance: BehaviourPortal;
             portal: Portal;
             left: number;
             top: number;
 
-            constructor( portal: Portal, target: Behaviour, left: number, top: number ) {
+            constructor( portal: Portal, target: Behaviour | null, left: number, top: number ) {
                 super();
                 this.target = target;
                 this.portal = portal;
@@ -23,9 +23,9 @@ namespace Animate {
             /**
              * Undo the last history action
              */
-            undo( editor : Animate.ContainerSchema ) {
-                if (this.target)
-                    this.target.removePortal( this.target.getPortal( this.portal.property.name ) );
+            undo( editor: Animate.ContainerSchema ) {
+                if ( this.target )
+                    this.target.removePortal( this.target.getPortal( this.portal.property.name ) ! );
                 else {
                     editor.removeItem( this.instance );
                 }
@@ -34,8 +34,8 @@ namespace Animate {
             /**
              * Redo the next action
              */
-            redo( editor : Animate.ContainerSchema ) {
-                if (this.target)
+            redo( editor: Animate.ContainerSchema ) {
+                if ( this.target )
                     this.target.addPortal( this.portal.type, this.portal.property );
                 else {
                     this.instance = new BehaviourPortal( this.portal.property.clone(), this.portal.type );

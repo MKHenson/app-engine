@@ -37,17 +37,17 @@ namespace Animate {
     export class VForm extends React.Component<IVFormProps, { error?: boolean, pristine?: boolean }> {
         public static defaultProps: IVFormProps = {
             preventDefault: true,
-            onValidationError: null,
-            onValidationsResolved: null,
-            onSubmitted: null
+            onValidationError: function( e: ValidationError[], form: VForm ) { throw new Error( 'onSubmitted not implemented' ) },
+            onValidationsResolved: function( form: VForm ) { throw new Error( 'onSubmitted not implemented' ) },
+            onSubmitted: function( json: any, form: VForm ) { throw new Error( 'onSubmitted not implemented' ) }
         };
 
         private _className: string;
 
         private _values: {
             [ name: string ]: {
-                error: string,
-                value: string | boolean | number
+                error: string | null,
+                value: string | boolean | number | null
             }
         };
 
@@ -89,14 +89,14 @@ namespace Animate {
                     let component = this.refs[ i ] as VCheckbox;
 
                     // Set the initial values of checkbox
-                    this._values[ component.props.name ] = { value: component.checked, error: null };
+                    this._values[ component.props.name! ] = { value: component.checked, error: null };
                 }
                 else if ( this.refs[ i ] instanceof VSelect ) {
 
                     let component = this.refs[ i ] as VSelect;
 
                     // Set the initial values of checkbox
-                    this._values[ component.props.name ] = { value: ( component.value ? component.value.value : null ), error: null };
+                    this._values[ component.props.name! ] = { value: ( component.value ? component.value.value : null ), error: null };
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Animate {
          */
         initiateSubmit() {
             let error = false;
-            let firstInputWithError: VInput | VTextarea | VSelect;
+            let firstInputWithError: VInput | VTextarea | VSelect | undefined;
             let textInput: VInput | VTextarea;
             let select: VSelect;
 
@@ -149,7 +149,7 @@ namespace Animate {
 
             this.setState( { pristine: false, error: error });
 
-            if ( firstInputWithError )
+            if ( firstInputWithError && firstInputWithError.state.error )
                 this.onError( new Error( firstInputWithError.state.error ), firstInputWithError );
 
             if ( error )
@@ -175,7 +175,7 @@ namespace Animate {
          * @param e The error that occurred
          * @param target The input that triggered the error
          */
-        onError( e: Error, target: VGeneric ) {
+        onError( e: Error | null, target: VGeneric ) {
             let pristine = this.state.pristine;
             if ( !target.pristine )
                 pristine = false;
@@ -192,15 +192,15 @@ namespace Animate {
 
             // Check there are any subsequent errors
             if ( target instanceof VInput || target instanceof VTextarea )
-                this._values[ target.props.name ] = { value: target.state.value, error: ( e ? e.message : null ) };
+                this._values[ target.props.name! ] = { value: target.state.value!, error: ( e ? e.message : null ) };
             else if ( target instanceof VCheckbox )
-                this._values[ target.props.name ] = { value: target.state.checked, error: ( e ? e.message : null ) };
+                this._values[ target.props.name! ] = { value: target.state.checked!, error: ( e ? e.message : null ) };
             else if ( target instanceof VSelect )
-                this._values[ target.props.name ] = { value: ( target.state.selected ? target.state.selected.value : null ), error: ( e ? e.message : null ) };
+                this._values[ target.props.name! ] = { value: ( target.state.selected ? target.state.selected.value : null ), error: ( e ? e.message : null ) };
 
             for ( let i in this._values )
                 if ( this._values[ i ].error )
-                    errors.push( { name: i, error: this._values[ i ].error });
+                    errors.push( { name: i, error: this._values[ i ].error! });
 
             // Notify any events
             if ( this.props.onValidationError && errors.length > 0 )
@@ -215,7 +215,7 @@ namespace Animate {
          * Gets if this form has not been touched by the user. False is returned if it has been,
          */
         get pristine(): boolean {
-            return this.state.pristine;
+            return this.state.pristine!;
         }
 
         /**
@@ -241,7 +241,7 @@ namespace Animate {
                 {...props}
                 className={className}
                 onSubmit={( e ) => { this.onSubmit( e ); } }> {
-                    React.Children.map( this.props.children, ( i: React.ReactElement<any>, index ) => {
+                    React.Children.map( this.props.children!, ( i: React.ReactElement<any>, index ) => {
                         if ( !i )
                             return null;
 
@@ -270,6 +270,7 @@ namespace Animate {
                         else if ( i.type === VSelect ) {
                             return React.cloneElement( i, {
                                 ref: index.toString(),
+                                options: i.props.options,
                                 onOptionSelected: ( option, element ) => {
                                     this._values[ element.name ] = { value: ( option ? option.value : null ), error: null };
                                 }

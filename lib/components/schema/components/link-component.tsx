@@ -4,7 +4,7 @@ namespace Animate {
         editor: ContainerSchema;
         link: ILinkItem;
         isRouting: boolean;
-        getPortal: ( target: HTMLElement ) => IPortal;
+        getPortal: ( ( target: HTMLElement ) => IPortal | null ) | null;
     }
 
     /**
@@ -33,12 +33,12 @@ namespace Animate {
             if ( pos.x < link.left )
                 left = pos.x;
             else
-                left = link.left;
+                left = link.left!;
 
             if ( pos.y < link.top )
                 top = pos.y;
             else
-                top = link.top;
+                top = link.top!;
 
             return {
                 left: left,
@@ -49,7 +49,9 @@ namespace Animate {
         }
 
         onMouseMove( e: MouseEvent ) {
-            const targetPortal = this.props.getPortal( e.target as HTMLElement );
+            const targetPortal: IPortal | null = null;
+            if ( this.props.getPortal )
+                this.props.getPortal( e.target as HTMLElement );
             const svg = this.refs[ 'svg' ] as SVGAElement;
             const canvas = svg.parentElement;
             const pos = Utils.getRelativePos( e, canvas );
@@ -70,12 +72,15 @@ namespace Animate {
         onMouseUp( e: MouseEvent ) {
             const editor = this.props.editor;
             const link = this.props.link;
-            const targetPortal = this.props.getPortal( e.target as HTMLElement );
+            let targetPortal: IPortal | null = null;
+
+            if ( this.props.getPortal )
+                targetPortal = this.props.getPortal( e.target as HTMLElement );
 
 
             if ( targetPortal ) {
                 const items = editor.getItems();
-                const targetBehaviour = items[ targetPortal.behaviour ];
+                const targetBehaviour = items[ targetPortal.behaviour! ];
                 const rect = this.calculateRect( {
                     x: targetBehaviour.left + targetPortal.left + targetPortal.size,
                     y: targetBehaviour.top + targetPortal.top + targetPortal.size

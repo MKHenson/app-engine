@@ -7,8 +7,8 @@ namespace Animate {
 
     export interface IProjectsOverviewState {
         loading?: boolean;
-        selectedProject?: IInteractiveProject;
-        errorMsg?: string;
+        selectedProject?: IInteractiveProject | null;
+        errorMsg?: string | null;
     }
 
     /**
@@ -39,9 +39,9 @@ namespace Animate {
             if ( messageBoxAnswer === 'No' )
                 return;
 
-            this._user.removeProject( this.state.selectedProject._id ).then(() => {
-                this._list.removeProject( this.state.selectedProject );
-            }).catch( function ( err: Error ) {
+            this._user.removeProject( this.state.selectedProject!._id ).then(() => {
+                this._list.removeProject( this.state.selectedProject! );
+            }).catch( function( err: Error ) {
                 MessageBox.error( err.message );
             });
         }
@@ -50,18 +50,18 @@ namespace Animate {
         * Creates the component elements
         */
         render(): JSX.Element {
-            let projectInfo: JSX.Element;
-            const project: HatcheryServer.IProject = ( this.state.selectedProject ? this.state.selectedProject : null );
+            let projectInfo: JSX.Element | undefined;
+            const project: HatcheryServer.IProject | null = ( this.state.selectedProject ? this.state.selectedProject : null );
 
             // If we have a project
-            if ( this.state.selectedProject ) {
+            if ( project ) {
                 projectInfo = <div className="fade-in project-details">
                     <div>
                         <h2>{project.name}</h2>
                         <p><span className="info">Created By: </span><span className="detail"><b>{project.user}</b></span></p>
-                        <p><span className="info">Created On: </span><span className="detail">{new Date( project.createdOn ).toLocaleDateString() }</span></p>
-                        <p><span className="info">Last Modified On: </span><span className="detail">{new Date( project.lastModified ).toLocaleDateString() }</span></p>
-                        <p><span className="info">No.Plugins: </span><span className="detail">{this.state.selectedProject.plugins.length}</span></p>
+                        <p><span className="info">Created On: </span><span className="detail">{new Date( project.createdOn! ).toLocaleDateString()}</span></p>
+                        <p><span className="info">Last Modified On: </span><span className="detail">{new Date( project.lastModified! ).toLocaleDateString()}</span></p>
+                        <p><span className="info">No.Plugins: </span><span className="detail">{project.plugins!.length}</span></p>
                         <div className="fix"></div>
                         <p>{project.description}</p>
                     </div>
@@ -75,7 +75,7 @@ namespace Animate {
                         } }>
                             REMOVE
                         </ButtonLink>
-                        <ButtonSuccess onClick={() => { this.props.onOpenProject( this.state.selectedProject ); } }>
+                        <ButtonSuccess onClick={() => { this.props.onOpenProject( project ); } }>
                             OPEN <span className="fa fa-chevron-right" />
                         </ButtonSuccess>
                     </div>

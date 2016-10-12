@@ -256,7 +256,7 @@ declare namespace Animate {
      * Events associated with xhr binary requests
      */
     interface BinaryLoaderEvent {
-        buffer: ArrayBuffer;
+        buffer: ArrayBuffer | null;
         message: string;
     }
     /**
@@ -293,7 +293,7 @@ declare namespace Animate {
 declare namespace Animate {
     type CompiledEval = (ctrl, event, elm, contexts) => any;
     interface IDirective {
-        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode> | null;
     }
     interface AppNode extends Node {
         $ieTextNodes: Array<AppNode>;
@@ -405,7 +405,7 @@ declare namespace Animate {
         * @returns {CompiledEval}
         * @return {any}
         */
-        static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any>): any;
+        static parse(script: string, ctrl: any, event: any, elm: AppNode, $ctxValues?: Array<any> | null): any;
         /**
         * Evaluates an expression and assigns new CSS styles based on the object returned
         */
@@ -494,14 +494,14 @@ declare namespace Animate {
     class Repeater implements IDirective {
         private _returnVal;
         constructor();
-        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode> | null;
     }
 }
 declare namespace Animate {
     class If implements IDirective {
         private _returnVal;
         constructor();
-        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode>;
+        expand(expression: string, ctrl: any, desc: DescriptorNode, instance: InstanceNode): Array<AppNode> | null;
     }
 }
 declare namespace Animate {
@@ -521,7 +521,7 @@ declare namespace Animate {
         * @param {Prop<any>} prop The property being edited
         * @param {Component} container The container acting as this editors parent
         */
-        edit(prop: Prop<any>, container: Component): any;
+        edit(prop: Prop<any>, container: Component): void | null;
         cleanup(): void;
     }
 }
@@ -574,7 +574,7 @@ declare namespace Animate {
          * @param type The event type we are sending
          * @param data [Optional] The data to send with the emission
          */
-        emit<T extends string, Y>(type: T, data?: Y): any;
+        emit<T extends string, Y>(type: T, data?: Y | null): any;
         /**
          * This will cleanup the component by nullifying all its variables and clearing up all memory.
          */
@@ -588,11 +588,11 @@ declare namespace Animate {
     class AssetClass {
         private _abstractClass;
         private _name;
-        parentClass: AssetClass;
+        parentClass: AssetClass | null;
         private _imgURL;
         private _variables;
         classes: Array<AssetClass>;
-        constructor(name: string, parent: AssetClass, imgURL: string, abstractClass?: boolean);
+        constructor(name: string, parent: AssetClass | null, imgURL: string, abstractClass?: boolean);
         /**
          * Gets an array of all classes that are possible from this
          */
@@ -605,7 +605,7 @@ declare namespace Animate {
         /**
         * Finds a class by its name. Returns null if nothing is found
         */
-        findClass(name: string): AssetClass;
+        findClass(name: string): AssetClass | null;
         /**
         * Adds a variable to the class.
         * @param prop The property to add
@@ -620,7 +620,7 @@ declare namespace Animate {
         * Gets a variable based on its name
         * @param name The name of the class
         */
-        getVariablesByName<T>(name: string): Prop<T>;
+        getVariablesByName<T>(name: string): Prop<T> | null;
         /**
         * Gets the image URL of this template
         */
@@ -675,7 +675,7 @@ declare namespace Animate {
          * @param val The string to check
          * @param validator The type of validations to check
          */
-        static checkValidation(val: string, validator: ValidationType): string;
+        static checkValidation(val: string, validator: ValidationType): string | null;
         /**
         * Generates a new shallow Id - an id that is unique only to this local session
         * @param reference Pass a reference id to make sure the one generated is still valid. Any ID that's imported can potentially offset this counter.
@@ -705,7 +705,7 @@ declare namespace Animate {
         * Creates a new property based on the dataset provided
         * @param type The type of property to create
         */
-        static createProperty(name: string, type: PropertyType): Prop<any>;
+        static createProperty(name: string, type: PropertyType): Prop<any> | null;
         /**
          * Gets the relative position of the mouse to the given element
          * @param e
@@ -734,7 +734,7 @@ declare namespace Animate {
         * @param allowSpace If this is true, empty space will be allowed
         * @returns Returns null or string. If it returns null then everything is fine. Otherwise a message is returned with what's wrong.
         */
-        static checkForSpecialChars(text: string, allowSpace?: boolean): string;
+        static checkForSpecialChars(text: string, allowSpace?: boolean): string | null;
         /**
          * Tells us if a string is a valid email address
          */
@@ -783,12 +783,12 @@ declare namespace Animate {
          * @param typeA The first type to check
          * @param typeB The second type to check
          */
-        getConverters(typeA: any, typeB: any): any;
+        getConverters(typeA: any, typeB: any): string[] | null;
         /**
          * Gets a behaviour template by its name.
          * @param behaviorName The name of the behaviour template
          */
-        getTemplate(behaviorName: string): BehaviourDefinition;
+        getTemplate(behaviorName: string): BehaviourDefinition | null;
         /**
          * Use this function to select an asset in the tree view and property grid
          * @param asset The Asset object we need to select
@@ -800,7 +800,7 @@ declare namespace Animate {
          * Gets an asset class by its name
          * @param name The name of the asset class
          */
-        getAssetClass(name: string): AssetClass;
+        getAssetClass(name: string): AssetClass | null;
         /**
          * Called when the project is reset by either creating a new one or opening an older one.
          */
@@ -812,13 +812,13 @@ declare namespace Animate {
         /**
          * Creates a thumbnail preview of the file
          */
-        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement>;
+        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
         /**
          * This function generates a React Element that is used to preview a file
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        displayPreview(file: HatcheryServer.IFile): JSX.Element;
+        displayPreview(file: HatcheryServer.IFile): JSX.Element | null;
         readonly assetTemplates: AssetTemplate[];
         readonly loadedPlugins: IPlugin[];
         readonly behaviourTemplates: BehaviourDefinition[];
@@ -839,7 +839,6 @@ declare namespace Animate {
     class ImportExport extends EventDispatcher {
         private static _singleton;
         private runWhenDone;
-        private mRequest;
         constructor();
         /**
         * @type public mfunc run
@@ -946,7 +945,7 @@ declare namespace Animate {
             * @param assetClass The name of the 'class' or 'template' that this asset belongs to
             * @param entry [Optional] The asset database entry
             */
-            constructor(assetClass: AssetClass, entry?: HatcheryServer.IAsset);
+            constructor(assetClass: AssetClass, entry: HatcheryServer.IAsset);
             /**
             * Writes this assset to a readable string
             */
@@ -976,7 +975,7 @@ declare namespace Animate {
             /**
              * @param entry The data associated with this container resource
              */
-            constructor(entry?: HatcheryServer.IContainer);
+            constructor(entry: HatcheryServer.IContainer);
             /**
             * This function is called just before the entry is saved to the database.
             */
@@ -1001,7 +1000,7 @@ declare namespace Animate {
             /**
             * @param entry [Optional] The database entry of the resource
             */
-            constructor(entry?: HatcheryServer.IGroup);
+            constructor(entry: HatcheryServer.IGroup);
             /**
             * Adds a new reference to the group
             * @param shallowId
@@ -1056,7 +1055,7 @@ declare namespace Animate {
         active: boolean;
         resource: ProjectResource<HatcheryServer.IResource>;
         pastActions: Actions.EditorAction[];
-        currentAction: Actions.EditorAction;
+        currentAction: Actions.EditorAction | null;
         futureActions: Actions.EditorAction[];
         private _actionHistoryLength;
         private _project;
@@ -1128,9 +1127,9 @@ declare namespace Animate {
          */
         class BehaviourCreated extends EditorAction {
             definition: BehaviourDefinition;
-            instance: Behaviour;
+            instance: Behaviour | null;
             options: IBehaviour;
-            resource: ProjectResource<HatcheryServer.IResource>;
+            resource: ProjectResource<HatcheryServer.IResource> | null;
             constructor(definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource>);
             /**
              * Undo the last history action
@@ -1149,7 +1148,7 @@ declare namespace Animate {
          * An action for the creation of links within a container
          */
         class LinkCreated extends EditorAction {
-            instance: Link;
+            instance: Link | null;
             options: ILinkItem;
             constructor(options: ILinkItem);
             /**
@@ -1169,12 +1168,12 @@ declare namespace Animate {
          * An action for the creation of portals
          */
         class PortalCreated extends EditorAction {
-            target: Behaviour;
+            target: Behaviour | null;
             instance: BehaviourPortal;
             portal: Portal;
             left: number;
             top: number;
-            constructor(portal: Portal, target: Behaviour, left: number, top: number);
+            constructor(portal: Portal, target: Behaviour | null, left: number, top: number);
             /**
              * Undo the last history action
              */
@@ -1330,7 +1329,7 @@ declare namespace Animate {
      */
     class ContainerSchema extends Editor {
         opened: boolean;
-        protected _activeLink: Link;
+        protected _activeLink: Link | null;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
         /**
@@ -1346,8 +1345,8 @@ declare namespace Animate {
         /**
          * Completes the process of linking two behaviours together
          */
-        endLinkRouting(options: ILinkItem): void;
-        readonly activeLink: Link;
+        endLinkRouting(options: ILinkItem | null): void;
+        readonly activeLink: Link | null;
         /**
          * Returns all items of this store
          */
@@ -1359,7 +1358,7 @@ declare namespace Animate {
         /**
          * Called whenever an item is clicked.
          */
-        onNodeSelected(item: ICanvasItem, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        onNodeSelected(item: ICanvasItem | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
         /**
          * Whenever we receive a context event on an item
          */
@@ -1400,7 +1399,7 @@ declare namespace Animate {
         left: number;
         width: number;
         height: number;
-        store: ContainerSchema;
+        store: ContainerSchema | null;
         id: number;
         selected: boolean;
         /**
@@ -1471,7 +1470,7 @@ declare namespace Animate {
          * Gets a portal by its name
          * @param name The portal name
          */
-        getPortal(name: string): Portal;
+        getPortal(name: string): Portal | null;
         /**
          * Adds a portal to this behaviour.
          * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
@@ -1534,11 +1533,11 @@ declare namespace Animate {
      * A behaviour that contains an asset/resource reference
      */
     class BehaviourAsset extends Behaviour {
-        asset: ProjectResource<HatcheryServer.IResource>;
+        asset: ProjectResource<HatcheryServer.IResource> | null;
         /**
          * Creates an instance of the behaviour
          */
-        constructor(asset?: ProjectResource<HatcheryServer.IResource>);
+        constructor(asset: ProjectResource<HatcheryServer.IResource> | null);
         /**
          * Clones the canvas item
          */
@@ -1596,7 +1595,7 @@ declare namespace Animate {
         custom: boolean;
         type: HatcheryRuntime.PortalType;
         property: Prop<any>;
-        behaviour: Behaviour;
+        behaviour: Behaviour | null;
         top: number;
         left: number;
         size: number;
@@ -1605,7 +1604,7 @@ declare namespace Animate {
         * @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
         * @param property The property associated with this portal
         */
-        constructor(parent: Behaviour, type: HatcheryRuntime.PortalType, property: Prop<any>);
+        constructor(parent: Behaviour | null, type: HatcheryRuntime.PortalType, property: Prop<any>);
         calculatePosition(index: number): void;
         /**
          * Clones the canvas item
@@ -1687,7 +1686,7 @@ declare namespace Animate {
     * The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
     */
     class Canvas {
-        static lastSelectedItem: any;
+        static lastSelectedItem: null;
         static snapping: boolean;
         name: string;
         private _container;
@@ -1734,7 +1733,7 @@ declare namespace Animate {
         /**
         * Finds a class by its name. Returns null if nothing is found
         */
-        findClass(name: string): AssetClass;
+        findClass(name: string): AssetClass | null;
     }
 }
 declare namespace Animate {
@@ -1758,7 +1757,7 @@ declare namespace Animate {
         * @param canBuildParameter
         * @param canBuildProduct
         */
-        constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
+        constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin | null, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
         dispose(): void;
         canBuildOutput(behaviour: Behaviour): boolean;
         canBuildInput(behaviour: Behaviour): boolean;
@@ -1930,7 +1929,7 @@ declare namespace Animate {
      */
     class Project extends EventDispatcher {
         openEditors: Editor[];
-        activeEditor: Editor;
+        activeEditor: Editor | null;
         curBuild: Build;
         private _restPaths;
         private _entry;
@@ -1954,13 +1953,13 @@ declare namespace Animate {
         getResourceByID<T extends ProjectResource<HatcheryServer.IResource>>(id: string, type?: ResourceType): {
             resource: T;
             type: ResourceType;
-        };
+        } | null;
         /**
          * Gets a resource by its shallow ID
          * @param id The shallow ID of the resource
          * @returns The resource whose shallow id matches the id parameter or null
          */
-        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>(id: number, type?: ResourceType): T;
+        getResourceByShallowID<T extends ProjectResource<HatcheryServer.IResource>>(id: number, type?: ResourceType): T | null;
         /**
          * Attempts to update the project details base on the token provided
          * @returns The project token
@@ -2015,7 +2014,7 @@ declare namespace Animate {
          * @param id The id of the resource we are cloning from
          * @param type [Optional] The type of resource to clone
          */
-        copyResource<T extends HatcheryServer.IResource>(id: string, type?: ResourceType): Promise<ProjectResource<T>>;
+        copyResource<T extends HatcheryServer.IResource>(id: string, type: ResourceType): Promise<ProjectResource<T>>;
         /**
          * Deletes several resources in 1 function call
          * @param ids The ids An array of resource Ids
@@ -2035,11 +2034,11 @@ declare namespace Animate {
          * GUI components to interact with the resource the editor wraps.
          * @param resource The resource we are creating an editor for
          */
-        assignEditor(resource: ProjectResource<HatcheryServer.IResource>): Editor;
+        assignEditor(resource: ProjectResource<HatcheryServer.IResource>): Editor | null;
         /**
          * Gets an editor by its resource
          */
-        getEditorByResource(resource: ProjectResource<HatcheryServer.IResource>): Editor;
+        getEditorByResource(resource: ProjectResource<HatcheryServer.IResource>): Editor | null;
         /**
          * Removes an editor from the active editor array
          */
@@ -2080,7 +2079,7 @@ declare namespace Animate {
     class User extends EventDispatcher {
         private static _singleton;
         entry: UsersInterface.IUserEntry;
-        meta: HatcheryServer.IUserMeta;
+        meta: HatcheryServer.IUserMeta | null;
         project: Project;
         private _isLoggedIn;
         constructor();
@@ -2210,18 +2209,18 @@ declare namespace Animate {
          * Creates a thumbnail preview of the file
          * @param file
          */
-        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement>;
+        thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
         /**
          * This function generates a React Element that is used to preview a file
          * @param file The file we are looking to preview
          * @returns If a React Element is returned is added in the File viewer preview
          */
-        generate(file: HatcheryServer.IFile): JSX.Element;
+        generate(file: HatcheryServer.IFile): JSX.Element | null;
     }
 }
 declare namespace Animate {
     type ProgressCallback = (percent: number) => void;
-    type CompleteCallback = (err?: Error, files?: Array<UsersInterface.IUploadToken>) => void;
+    type CompleteCallback = (err?: Error | null, files?: Array<UsersInterface.IUploadToken> | null) => void;
     class FileUploader {
         private _dCount;
         private _downloads;
@@ -2234,7 +2233,7 @@ declare namespace Animate {
         upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: HatcheryServer.IFileMeta, parentFile?: string): void;
         uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
         uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string): void;
-        upload(form: FormData, url: string, parentFile?: string): void;
+        upload(form: FormData, url: string | null, parentFile?: string): void;
     }
 }
 declare namespace Animate {
@@ -2244,12 +2243,12 @@ declare namespace Animate {
     */
     class EditableSet {
         private _variables;
-        parent: EventDispatcher;
+        parent: EventDispatcher | null;
         /**
         * Creates an instance
         * @param {EventDispatcher} parent The owner of this set. Can be null. If not null, the parent will receive events when the properties are edited.
         */
-        constructor(parent: EventDispatcher);
+        constructor(parent: EventDispatcher | null);
         /**
         * Adds a variable to the set
         * @param {Prop<any>} prop
@@ -2260,7 +2259,7 @@ declare namespace Animate {
         * @param {string} name
         * @returns {Prop<T>}
         */
-        getVar<T>(name: string): Prop<T>;
+        getVar<T>(name: string): Prop<T> | null;
         /**
         * Removes a variable
         * @param {string} prop
@@ -2274,7 +2273,7 @@ declare namespace Animate {
         * Updates a variable with a new value
         * @returns {T}
         */
-        updateValue<T>(name: string, value: T): T;
+        updateValue<T>(name: string, value: T): T | null;
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage
@@ -2290,10 +2289,6 @@ declare namespace Animate {
        * @returns {Array<Prop<any>>}
        */
         readonly variables: Array<Prop<any>>;
-        /**
-         * Cleans up and removes the references
-         */
-        dispose(): void;
     }
 }
 declare namespace Animate {
@@ -2326,7 +2321,7 @@ declare namespace Animate {
         * Attempts to fetch the value of this property
         * @returns {T}
         */
-        getVal(): T;
+        getVal(): T | null;
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2420,8 +2415,8 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropFileResource extends Prop<Resources.File> {
-        extensions: Array<string>;
+    class PropFileResource extends Prop<Resources.File | null> {
+        extensions: Array<string> | null;
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -2430,7 +2425,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options [Optional] Any optional data to be associated with the property
         */
-        constructor(name: string, value: Resources.File, extensions: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: Resources.File | null, extensions: Array<string> | null, category?: string, options?: any);
         /**
         * Attempts to clone the property
         * @returns {PropFileResource}
@@ -2517,7 +2512,7 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource>> {
+    class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource> | null> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -2527,7 +2522,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: ProjectResource<HatcheryServer.IResource>, classNames?: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: ProjectResource<HatcheryServer.IResource> | null, classNames?: Array<string>, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2550,7 +2545,7 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropGroup extends Prop<Resources.GroupArray> {
+    class PropGroup extends Prop<Resources.GroupArray | null> {
         /**
         * Creates a new instance
         * @param {string} name The name of the property
@@ -2558,7 +2553,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: Resources.GroupArray, category?: string, options?: any);
+        constructor(name: string, value: Resources.GroupArray | null, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2581,7 +2576,7 @@ declare namespace Animate {
     /**
     * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
     */
-    class PropAssetList extends Prop<Array<ProjectResource<HatcheryServer.IResource>>> {
+    class PropAssetList extends Prop<Array<ProjectResource<HatcheryServer.IResource>> | null> {
         classNames: Array<string>;
         /**
         * Creates a new instance
@@ -2591,7 +2586,7 @@ declare namespace Animate {
         * @param {string} category [Optional] An optional category to describe this property's function
         * @param {any} options Any optional data to be associated with the property
         */
-        constructor(name: string, value: Array<ProjectResource<HatcheryServer.IResource>>, classNames: Array<string>, category?: string, options?: any);
+        constructor(name: string, value: Array<ProjectResource<HatcheryServer.IResource>> | null, classNames: Array<string>, category?: string, options?: any);
         /**
         * Tokenizes the data into a JSON.
         * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2816,7 +2811,7 @@ declare namespace Animate {
         /**
         * Gets the jQuery wrapper
         */
-        readonly element: JQuery | null;
+        readonly element: JQuery;
         /**
         * Gets the jQuery parent
         */
@@ -2958,7 +2953,7 @@ declare namespace Animate {
         * @param {boolean} isModal Does this window block all other user operations?
         * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
         */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        show(parent?: Component | null, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
         /**
         * When we click the modal window we flash the window
         * @param {object} e The jQuery event object
@@ -3067,7 +3062,7 @@ declare namespace Animate {
          * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
          * in derived classes
          */
-        getContent(): React.ReactNode;
+        getContent(): {} | undefined;
         /**
          * Creates the component elements
          */
@@ -3220,7 +3215,7 @@ declare namespace Animate {
          * @param val The label text of the tab
          * @returns The tab pair containing both the label and page {Component}s
          */
-        getPaneByLabel(label: string): ITabPaneProps;
+        getPaneByLabel(label: string): ITabPaneProps | null;
         /**
          * Called when the component is unmounted
          */
@@ -3237,7 +3232,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ITabPaneProps {
-        label: string;
+        label: string | null;
         showCloseButton?: boolean;
         onDispose?: (paneIndex: number, prop: ITabPaneProps) => void;
         canSelect?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
@@ -3272,7 +3267,7 @@ declare namespace Animate {
         name: string;
         private _savedSpan;
         private _modified;
-        constructor(selector: Component, page: Component, name: string);
+        constructor(selector: Component | null, page: Component | null, name: string);
         /**
         * Gets if this tab pair has been modified or not
         * @returns {boolean}
@@ -3323,14 +3318,14 @@ declare namespace Animate {
         prefix?: JSX.Element;
     }
     interface IListProps {
-        items: IListItem[];
+        items: IListItem[] | null;
         onSelected?: (item: IListItem, index: number) => void;
         onDSelected?: (item: IListItem, index: number) => void;
         selectedIndex?: number;
         canDeselect?: boolean;
     }
     interface IListState {
-        selected?: IListItem;
+        selected?: IListItem | null;
         selectedIndex?: number;
     }
     /**
@@ -3380,7 +3375,7 @@ declare namespace Animate {
          * @param {React.MouseEvent} e
          * @param {IDragDropToken} json
          */
-        onObjectDropped(e: React.MouseEvent, json: IDragDropToken): void;
+        onObjectDropped(e: React.MouseEvent, json: IDragDropToken | null): void;
         /**
         * This will create a new behaviour based on the template given
         * @param template The definition of the behaviour we're creating
@@ -3395,7 +3390,7 @@ declare namespace Animate {
          * @param {React.MouseEvent} e
          */
         onContext(e: React.MouseEvent): void;
-        getPortal(target: HTMLElement): IPortal;
+        getPortal(target: HTMLElement): IPortal | null;
         /**
          * Creates the component elements
          * @returns {JSX.Element}
@@ -3417,7 +3412,7 @@ declare namespace Animate {
          */
         constructor(props: IBehaviourComponentProps);
         onLinkStart(e: React.MouseEvent, portal: IPortal): void;
-        getPortalFromTarget(target: HTMLElement): IPortal;
+        getPortalFromTarget(target: HTMLElement): IPortal | null;
         /**
          * Creates the component elements
          */
@@ -3466,7 +3461,7 @@ declare namespace Animate {
         editor: ContainerSchema;
         link: ILinkItem;
         isRouting: boolean;
-        getPortal: (target: HTMLElement) => IPortal;
+        getPortal: ((target: HTMLElement) => IPortal | null) | null;
     }
     /**
      * A visual representation of a Link. Represented on a schema as an SVG line between two behaviours
@@ -3524,7 +3519,7 @@ declare namespace Animate {
     }
     interface ITreeViewState {
         nodes?: TreeNodeModel[];
-        focussedNode?: TreeNodeModel;
+        focussedNode?: TreeNodeModel | null;
     }
     /**
      * A component visually represents a TreeNodeStore and its nodes
@@ -3624,7 +3619,7 @@ declare namespace Animate {
          * @param node
          * @param shiftDown
          */
-        onNodeSelected(node: TreeNodeModel, shiftDown: boolean, toggleSelectedState?: boolean): void;
+        onNodeSelected(node: TreeNodeModel | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
         /**
          * Sets the store of the node and all its children to be this store
          */
@@ -3642,7 +3637,7 @@ declare namespace Animate {
          * @param property The name property we are evaluating
          * @param value The object we should be comparing against
          */
-        findNode(property: string, value: any): TreeNodeModel;
+        findNode(property: string, value: any): TreeNodeModel | null;
         /**
          * Selects a node manually. This will also bring the focus into node
          */
@@ -3666,7 +3661,7 @@ declare namespace Animate {
         private _disabled;
         private _selectable;
         children: TreeNodeModel[];
-        protected _parent: TreeNodeModel;
+        protected _parent: TreeNodeModel | null;
         store: TreeNodeStore;
         focussed: boolean;
         canDrag: boolean;
@@ -3679,7 +3674,7 @@ declare namespace Animate {
          * Gets the parent node
          * @returns
          */
-        readonly parent: TreeNodeModel;
+        readonly parent: TreeNodeModel | null;
         /**
          * Gets or sets the label of the node
          * @param val
@@ -3691,14 +3686,14 @@ declare namespace Animate {
          * @param e
          * @returns Return data to serialize
          */
-        onDragStart(e: React.DragEvent): IDragDropToken;
+        onDragStart(e: React.DragEvent): IDragDropToken | null;
         /**
          * Called whenever we drop an item on this element. This is only called if canDrop is true.
          * Use it to set drag data, eg: e.dataTransfer.getData("text");
          * @param e
          * @param json The unserialized data
          */
-        onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
+        onDragDrop(e: React.DragEvent, json: IDragDropToken | null): void;
         /**
          * Gets or sets if the node is selected
          * @param val
@@ -3723,7 +3718,7 @@ declare namespace Animate {
          * Gets or sets the icon of the node
          * @param val
          */
-        icon(val?: JSX.Element): JSX.Element;
+        icon(val?: JSX.Element): JSX.Element | undefined;
         /**
          * Attempts to trigger a change event on the store
          */
@@ -3753,7 +3748,7 @@ declare namespace Animate {
          * @param property The Javascript property on the node that we are evaluating
          * @param value The value of the property we are comparing.
          */
-        findNode(property: string, value: any): TreeNodeModel;
+        findNode(property: string, value: any): TreeNodeModel | null;
         /**
          * This will cleanup the model
          */
@@ -3762,7 +3757,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ITreeViewSceneProps extends ITreeViewProps {
-        project: Project;
+        project: Project | null;
     }
     /**
      * An implementation of the tree view for the scene.
@@ -3885,7 +3880,7 @@ declare namespace Animate {
          * @param {JSX.Element} val
          * @returns {JSX.Element}
          */
-        icon(val?: JSX.Element): JSX.Element;
+        icon(val?: JSX.Element): JSX.Element | undefined;
         /**
          * This will cleanup the model
          */
@@ -3967,7 +3962,7 @@ declare namespace Animate {
         /**
          * Gets or sets the icon of the node
          */
-        icon(val?: JSX.Element): JSX.Element;
+        icon(val?: JSX.Element): JSX.Element | undefined;
         /**
          * Clean up
          */
@@ -4025,7 +4020,7 @@ declare namespace Animate {
      * A node that represents an Asset Class
      */
     class TreeNodeAssetClass extends TreeNodeModel {
-        assetClass: AssetClass;
+        assetClass: AssetClass | null;
         private _project;
         /**
          * Creates an instance of node
@@ -4043,7 +4038,7 @@ declare namespace Animate {
          * This will get all instance nodes of a particular class name(s)
          * @param classNames The class name of the asset, or an array of class names
          */
-        getInstances(classNames: string | string[]): TreeNodeAssetInstance[];
+        getInstances(classNames: string | string[] | null): TreeNodeAssetInstance[];
     }
 }
 declare namespace Animate {
@@ -4260,7 +4255,7 @@ declare namespace Animate {
     * A tab pair that manages the build HTML
     */
     class HTMLTab extends EditorPair {
-        static singleton: HTMLTab;
+        static singleton: HTMLTab | null;
         /**
         * @param {string} name The name of the tab
         */
@@ -4292,7 +4287,7 @@ declare namespace Animate {
     * A tab pair that manages the build CSS
     */
     class CSSTab extends EditorPair {
-        static singleton: CSSTab;
+        static singleton: CSSTab | null;
         /**
         * @param {string} name The name of the tab
         */
@@ -4419,7 +4414,6 @@ declare namespace Animate {
     class CanvasTab extends Tab<any, any> {
         private static _singleton;
         private _currentCanvas;
-        private welcomeTab;
         private closingTabPair;
         constructor(parent: Component);
         /**
@@ -4461,7 +4455,7 @@ declare namespace Animate {
         * @param {number} behaviourID The local id of the container
         * @returns {Canvas} The returned tab's canvas or null
         */
-        getTabCanvas(behaviourID: string): Canvas;
+        getTabCanvas(behaviourID: string): Canvas | null;
         /**
          * When we select a tab
          * @param {number} index The index of the selected tab
@@ -4493,7 +4487,7 @@ declare namespace Animate {
         * @param {string} newName The new name of the tab
         * @returns {TabPair} Returns the tab pair
         */
-        renameTab(oldName: string, newName: string): TabPair;
+        renameTab(oldName: string, newName: string): TabPair | null;
         removeTab(index: number, prop: ITabPaneProps): void;
         /**
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
@@ -4506,7 +4500,7 @@ declare namespace Animate {
         * @param {any} tabContent Data associated with the tab
         * @returns {TabPair} The tab pair object
         */
-        addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair;
+        addSpecialTab(text: string, type?: CanvasTabType, tabContent?: any): TabPair | null;
         readonly currentCanvas: Canvas;
     }
 }
@@ -4599,7 +4593,7 @@ declare namespace Animate {
         * @param {Prop<any>} prop The property being edited
         * @param {Component} container The container acting as this editors parent
         */
-        edit(prop: Prop<any>, container: Component): JQuery;
+        edit(prop: Prop<any>, container: Component): void;
     }
 }
 declare namespace Animate {
@@ -4760,7 +4754,7 @@ declare namespace Animate {
         * @param {string} img An optional image string
         * @returns {any} Returns the object we are currently editing
         */
-        editableObject(object: EditableSet, name: string, img?: string): EditableSet;
+        editableObject(object: EditableSet | null, name: string, img?: string): EditableSet | null | undefined;
         /**
         * called when we reset the project
         * @returns <object>
@@ -4777,7 +4771,7 @@ declare namespace Animate {
         * @param {PropertyGridEditor} editor The PropertyGridEditor object to remove.
         * @returns {PropertyGridEditor} The editor or null
         */
-        removeEditor(editor: PropertyGridEditor): PropertyGridEditor;
+        removeEditor(editor: PropertyGridEditor): PropertyGridEditor | null;
         /**
         * This will cleanup the component.
         */
@@ -4845,9 +4839,9 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IImagePreviewProps extends React.HTMLAttributes {
-        src: string;
+        src: string | undefined;
         defaultSrc?: string;
-        label: string;
+        label?: string;
         labelIcon?: JSX.Element;
         className?: string;
         selected?: boolean;
@@ -4885,12 +4879,12 @@ declare namespace Animate {
 declare namespace Animate {
     interface IImageUploaderProps {
         onImage?: (file: HatcheryServer.IFile) => void;
-        src: string;
+        src: string | undefined;
         label: string;
         onError?: (e: Error) => void;
     }
     interface IImageUploaderState {
-        src: string;
+        src: string | undefined;
     }
     /**
      * A small utility class for uploading and previewing an image
@@ -4916,10 +4910,10 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IToolbarButtonProps {
-        onChange: (val: boolean) => void;
+        onChange?: (val: boolean) => void | null;
         pushButton?: boolean;
         selected?: boolean;
-        label: string;
+        label: string | null;
         imgUrl?: string;
         prefix?: JSX.Element;
         disabled?: boolean;
@@ -5145,7 +5139,7 @@ declare namespace Animate {
         * @param {boolean} isModal Does this window block all other user operations?
         * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
         */
-        show(parent?: Component, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
+        show(parent?: Component | null, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
         /**
         * Catch the key down events.
         * @param {any} e The jQuery event object
@@ -5177,8 +5171,8 @@ declare namespace Animate {
     interface IOptionsUserProps {
     }
     interface IOptionsUserStats {
-        bioUpdateErr?: string;
-        imageUploadErr?: string;
+        bioUpdateErr?: string | null;
+        imageUploadErr?: string | null;
         loading?: boolean;
     }
     /**
@@ -5209,8 +5203,8 @@ declare namespace Animate {
     interface IOptionsProjectProps extends IReactWindowProps {
     }
     interface IOptionsProjectState {
-        infoServerMsg?: string;
-        imageUploadErr?: string;
+        infoServerMsg?: string | null;
+        imageUploadErr?: string | null;
         loading?: boolean;
         error?: boolean;
     }
@@ -5269,8 +5263,8 @@ declare namespace Animate {
         readOnly?: boolean;
     }
     interface IFileViewerState {
-        selectedEntity?: IViewerFile;
-        errorMsg?: string;
+        selectedEntity?: IViewerFile | null;
+        errorMsg?: string | null;
         loading?: boolean;
         editMode?: boolean;
         highlightDropZone?: boolean;
@@ -5298,7 +5292,7 @@ declare namespace Animate {
         /**
          * When the scope changes we update the viewable contents
          */
-        onScopeChange(option: SelectValue): void;
+        onScopeChange(option: SelectValue | null): void;
         getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element;
         /**
          * Shows a message box that the user must confirm or deny if the selected files must be removed
@@ -5320,7 +5314,7 @@ declare namespace Animate {
         /**
          * Sets the selected status of a file or folder
          */
-        selectEntity(e: React.MouseEvent, entity: IViewerFile): void;
+        selectEntity(e: React.MouseEvent, entity: IViewerFile | null): void;
         /**
          * Removes the selected entities
          */
@@ -5329,7 +5323,7 @@ declare namespace Animate {
         /**
          * Whenever the file input changes we check the file is valid and then attempt to upload it
          */
-        onFileChange(e: React.FormEvent): boolean;
+        onFileChange(e: React.FormEvent): boolean | undefined;
         /**
          * Checks if a file list is one of the approved props extensions
          */
@@ -5444,8 +5438,8 @@ declare namespace Animate {
         onCancel?: () => void;
     }
     interface IPortalFormStats extends IReactWindowState {
-        errorMsg?: string;
-        portal: Portal;
+        errorMsg?: string | null;
+        portal: Portal | null;
     }
     /**
      * This form is used to create or edit Portals.
@@ -5464,7 +5458,7 @@ declare namespace Animate {
         * Creates a new property from the data chosen
         * @param {Prop<any>}
         */
-        getProperty(): Prop<any>;
+        getProperty(): Prop<any> | null;
         /**
         * Shows the window by adding it to a parent.
         * @param {Component} item The item we are editing
@@ -5484,7 +5478,7 @@ declare namespace Animate {
         readonly name: string;
         readonly portalType: HatcheryRuntime.PortalType;
         readonly value: any;
-        readonly parameterType: PropertyType;
+        readonly parameterType: PropertyType | undefined;
     }
 }
 declare namespace Animate {
@@ -5492,10 +5486,10 @@ declare namespace Animate {
         name?: string;
         onRenaming?: (newName: string, prevName: string) => Error;
         onCancel?: () => void;
-        onOk: (newName: string) => void;
+        onOk?: (newName: string) => void;
     }
     interface IRenameFormState extends IReactWindowState {
-        $errorMsg?: string;
+        $errorMsg?: string | null;
     }
     /**
      * This form is used to rename objects
@@ -5560,7 +5554,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IBehaviourPickerProps extends IReactWindowProps {
-        onTemplateSelected?: (template: BehaviourDefinition) => void;
+        onTemplateSelected?: (template: BehaviourDefinition | null) => void;
     }
     interface IBehaviourPickerState extends IReactWindowState {
         items?: IListItem[];
@@ -5724,7 +5718,7 @@ declare namespace Animate {
         /**
          * When the mouse leaves we remove the tooltip
          */
-        onMouseleave(e: React.MouseEvent): void;
+        onMouseleave(e: React.MouseEvent | null): void;
         /**
         * Creates the component elements
         */
@@ -5795,7 +5789,7 @@ declare namespace Animate {
         * @param text The text of the new tab
         * @returns Returns the {Component} object representing the tab
         */
-        createTab(text: string, isSelected?: boolean): Component;
+        createTab(text: string, isSelected?: boolean): Component | null;
         saveAll(): void;
         /**
         * Called when the key is pushed down
@@ -5811,7 +5805,7 @@ declare namespace Animate {
         * @param tab The {Component} tab object which represents the parent of this group.
         * @returns Returns the {Component} object representing the group
         */
-        createGroup(tab: Component): Component;
+        createGroup(tab: Component): Component | null;
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button
@@ -5821,7 +5815,7 @@ declare namespace Animate {
         * @param {Component} group The Component object representing the group
         * @returns {ToolbarNumber}
         */
-        createGroupNumber(text: string, defaultVal: number, min?: number, max?: number, delta?: number, group?: Component): ToolbarNumber;
+        createGroupNumber(text: string, defaultVal: number, min?: number, max?: number, delta?: number, group?: Component | null): ToolbarNumber | null;
         /**
         * Use this function to create a group button for the toolbar
         * @param {string} text The text for the button
@@ -5830,14 +5824,14 @@ declare namespace Animate {
         * @param {boolean} isPushButton If true, the button will remain selected when clicked.
         * @returns {Component} Returns the Component object representing the button
         */
-        createGroupButton(text: string, image?: string, group?: Component, isPushButton?: boolean): ToolbarButton;
+        createGroupButton(text: string, image?: string | null, group?: Component | null, isPushButton?: boolean): ToolbarButton | null;
         /**
         * Use this function to create a group button for the toolbar
         * @param {Component} parent The parent that will contain the drop down
         * @param {Array<ToolbarItem>} items An array of items to list
         * @returns {ToolbarDropDown} Returns the Component object representing the button
         */
-        createDropDownButton(parent: Component, items: Array<ToolbarItem>): ToolbarDropDown;
+        createDropDownButton(parent: Component, items: Array<ToolbarItem>): ToolbarDropDown | null;
         /**
         * Use this function to create a group button for the toolbar
         * @param {Component} parent The parent that will contain the drop down
@@ -5845,7 +5839,7 @@ declare namespace Animate {
         * @param {string} color The hex colour as a string
         * @returns {ToolbarColorPicker} Returns the ToolbarColorPicker object representing the button
         */
-        createColorButton(parent: Component, text: string, color: string): ToolbarColorPicker;
+        createColorButton(parent: Component, text: string, color: string): ToolbarColorPicker | null;
         /**
         * Gets the singleton instance
         */
@@ -5913,7 +5907,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ISearchBoxProps extends React.HTMLAttributes {
-        onSearch(e: React.FormEvent, searchText: string): any;
+        onSearch: (e: React.FormEvent, searchText: string) => void;
         /**
          * Only call onSearch when the input loses focus
          */
@@ -5989,11 +5983,11 @@ declare namespace Animate {
          * @param {SelectValue} option
          * @param {HTMLSelectElement} element
          */
-        onOptionSelected?: (option: SelectValue, element: HTMLSelectElement) => void;
+        onOptionSelected?: (option: SelectValue | null, element: HTMLSelectElement) => void;
         /**
          * An array of options to use with the select
          */
-        options?: SelectValue[];
+        options: SelectValue[];
         /**
          * If true, then an empty option will be added
          */
@@ -6022,8 +6016,8 @@ declare namespace Animate {
      * with the VForm.
      */
     class VSelect extends React.Component<IVSelectProps, {
-        error?: string;
-        selected?: SelectValue;
+        error?: string | null;
+        selected?: SelectValue | null;
         highlightError?: boolean;
     }> {
         private _pristine;
@@ -6035,7 +6029,7 @@ declare namespace Animate {
          * Gets the current selected option
          * @returns {SelectValue}
          */
-        readonly value: SelectValue;
+        readonly value: SelectValue | null;
         /**
          * Called when the component is about to be mounted.
          */
@@ -6153,7 +6147,7 @@ declare namespace Animate {
      * with the VForm.
      */
     class VInput extends React.Component<IVInputProps, {
-        error?: string;
+        error?: string | null;
         value?: string;
         highlightError?: boolean;
         focussed?: boolean;
@@ -6251,7 +6245,7 @@ declare namespace Animate {
      * with the VForm.
      */
     class VTextarea extends React.Component<IVTextareaProps, {
-        error?: string;
+        error?: string | null;
         value?: string;
         highlightError?: boolean;
         className?: string;
@@ -6363,7 +6357,7 @@ declare namespace Animate {
          * @param e The error that occurred
          * @param target The input that triggered the error
          */
-        onError(e: Error, target: VGeneric): void;
+        onError(e: Error | null, target: VGeneric): void;
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
          */
@@ -6388,8 +6382,8 @@ declare namespace Animate {
     interface IPluginsWidgetState {
         loading?: boolean;
         plugins?: PluginMap;
-        selectedPlugin?: IPluginPlus;
-        activePlugin?: IPluginPlus;
+        selectedPlugin?: IPluginPlus | null;
+        activePlugin?: IPluginPlus | null;
         selectedPlugins?: IPluginPlus[];
     }
     /**
@@ -6440,8 +6434,8 @@ declare namespace Animate {
     interface IProjectListState {
         loading?: boolean;
         searchText?: string;
-        selectedProject?: IInteractiveProject;
-        errorMsg?: string;
+        selectedProject?: IInteractiveProject | null;
+        errorMsg?: string | null;
         projects?: IInteractiveProject[];
     }
     /**
@@ -6459,7 +6453,7 @@ declare namespace Animate {
          * @param p The project to remove
          */
         removeProject(p: IInteractiveProject): void;
-        selectProject(project: IInteractiveProject, doubleClick: boolean): void;
+        selectProject(project: IInteractiveProject | null, doubleClick: boolean): void;
         fetchProjects(index: number, limit: number): Promise<number>;
         /**
          * Creates the component elements
@@ -6474,7 +6468,7 @@ declare namespace Animate {
         project: HatcheryServer.IProject;
     }
     interface IOpenProjectState {
-        message?: string;
+        message?: string | null;
         mode?: AttentionType;
         loading?: boolean;
     }
@@ -6647,7 +6641,7 @@ declare namespace Animate {
     }
     interface INewProjectState {
         plugins?: IPluginPlus[];
-        errorMsg?: string;
+        errorMsg?: string | null;
         error?: boolean;
         loading?: boolean;
     }
@@ -6677,8 +6671,8 @@ declare namespace Animate {
     }
     interface IProjectsOverviewState {
         loading?: boolean;
-        selectedProject?: IInteractiveProject;
-        errorMsg?: string;
+        selectedProject?: IInteractiveProject | null;
+        errorMsg?: string | null;
     }
     /**
      * A component for viewing projects, displaying their stats, removing, adding or opening them.
@@ -6816,12 +6810,12 @@ declare let _cache: string;
 declare const __plugins: {
     [name: string]: Array<HatcheryServer.IPlugin>;
 };
-declare let __newPlugin: Animate.IPlugin;
+declare let __newPlugin: Animate.IPlugin | null;
 /**
  * Goes through each of the plugins and returns the one with the matching ID
  * @param id The ID of the plugin to fetch
  */
-declare function getPluginByID(id: string): HatcheryServer.IPlugin;
+declare function getPluginByID(id: string): HatcheryServer.IPlugin | null;
 /**
  * Returns a formatted byte string
  */

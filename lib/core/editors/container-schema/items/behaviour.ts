@@ -76,20 +76,20 @@ namespace Animate {
             this.height = th;
 
             // Calculate portal positions
-            for ( let i = 0, params =this.parameters, l = params.length; i < l; i++ )
-                params[i].calculatePosition(i);
-            for ( let i = 0, products =this.products, l = products.length; i < l; i++ )
-                products[i].calculatePosition(i);
-            for ( let i = 0, outputs =this.outputs, l = outputs.length; i < l; i++ )
-                outputs[i].calculatePosition(i);
-            for ( let i = 0, inputs =this.inputs, l = inputs.length; i < l; i++ )
-                inputs[i].calculatePosition(i);
+            for ( let i = 0, params = this.parameters, l = params.length; i < l; i++ )
+                params[ i ].calculatePosition( i );
+            for ( let i = 0, products = this.products, l = products.length; i < l; i++ )
+                products[ i ].calculatePosition( i );
+            for ( let i = 0, outputs = this.outputs, l = outputs.length; i < l; i++ )
+                outputs[ i ].calculatePosition( i );
+            for ( let i = 0, inputs = this.inputs, l = inputs.length; i < l; i++ )
+                inputs[ i ].calculatePosition( i );
         }
 
         /**
          * Clones the canvas item
          */
-        clone( clone?: Behaviour ) : Behaviour {
+        clone( clone?: Behaviour ): Behaviour {
             if ( !clone )
                 clone = new Behaviour( this.template );
 
@@ -100,7 +100,7 @@ namespace Animate {
             // TODO: This should be deep cloned
             clone.properties = this.properties;
 
-            super.clone(clone);
+            super.clone( clone );
             return clone;
         }
 
@@ -108,7 +108,7 @@ namespace Animate {
 		 * Gets a portal by its name
 		 * @param name The portal name
 		 */
-        getPortal( name: string ): Portal {
+        getPortal( name: string ): Portal | null {
             let portals = this.portals
             for ( let portal of portals )
                 if ( portal.property.name === name )
@@ -203,13 +203,16 @@ namespace Animate {
 
             // Remove all existing portals
             while ( this.portals.length > 0 )
-                this.portals.pop().dispose();
+                this.portals.pop() !.dispose();
 
-            this.alias = data.alias;
-            this.behaviourType = data.behaviourType;
+            this.alias = data.alias!;
+            this.behaviourType = data.behaviourType!;
 
-            for ( let portal of data.portals ) {
-                let prop: Prop<any> = Utils.createProperty( portal.property.name, portal.property.type );
+            for ( let portal of data.portals! ) {
+                let prop: Prop<any> | null = Utils.createProperty( portal.property.name, portal.property.type );
+                if ( !prop )
+                    throw new Error( `Could not create property ${portal.property.name}` );
+
                 prop.deTokenize( portal.property );
 
                 let newPortal = this.addPortal( portal.type, prop );
@@ -226,11 +229,11 @@ namespace Animate {
             for ( let i = 0; i < this.portals.length; i++ )
                 this.portals[ i ].dispose();
 
-            this.parameters = null;
-            this.products = null;
-            this.outputs = null;
-            this.inputs = null;
-            this.portals = null;
+            this.parameters.splice( 0, this.parameters.length );
+            this.products.splice( 0, this.products.length );
+            this.outputs.splice( 0, this.outputs.length );
+            this.inputs.splice( 0, this.inputs.length );
+            this.portals.splice( 0, this.portals.length );
 
             // Call super
             super.dispose();

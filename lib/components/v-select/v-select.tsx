@@ -9,12 +9,12 @@ namespace Animate {
          * @param {SelectValue} option
          * @param {HTMLSelectElement} element
          */
-        onOptionSelected?: ( option: SelectValue, element: HTMLSelectElement ) => void;
+        onOptionSelected?: ( option: SelectValue | null, element: HTMLSelectElement ) => void;
 
         /**
          * An array of options to use with the select
          */
-        options?: SelectValue[];
+        options: SelectValue[];
 
         /**
          * If true, then an empty option will be added
@@ -49,7 +49,7 @@ namespace Animate {
      * A verified select box is an one that can optionally have its value verified. The select must be used in conjunction
      * with the VForm.
      */
-    export class VSelect extends React.Component<IVSelectProps, { error?: string, selected?: SelectValue, highlightError?: boolean }> {
+    export class VSelect extends React.Component<IVSelectProps, { error?: string | null, selected?: SelectValue | null, highlightError?: boolean }> {
 
         private _pristine: boolean;
 
@@ -70,15 +70,15 @@ namespace Animate {
          * Gets the current selected option
          * @returns {SelectValue}
          */
-        get value(): SelectValue {
-            return this.state.selected;
+        get value(): SelectValue | null {
+            return this.state.selected!;
         }
 
         /**
          * Called when the component is about to be mounted.
          */
         componentWillMount(): void {
-            let selected: SelectValue = null;
+            let selected: SelectValue | null = null;
             for ( let option of this.props.options )
                 if ( option.selected ) {
                     selected = option;
@@ -88,7 +88,7 @@ namespace Animate {
             if ( !selected && !this.props.createEmptyOption )
                 selected = ( this.props.options.length > 0 ? this.props.options[ 0 ] : null );
 
-            const err = this.validate( selected && selected.value );
+            const err = this.validate( selected! && selected!.value );
 
             // Call the optional error callback
             if ( err && !this._pristine && this.props.onValidationError )
@@ -113,7 +113,7 @@ namespace Animate {
          * @returns An error string or null if there are no errors
          */
         validate( val: string | number ): string {
-            let errorMsg: string = null;
+            let errorMsg: string | null = null;
 
             if ( val !== undefined )
                 val = val;
@@ -124,7 +124,7 @@ namespace Animate {
                 errorMsg = 'Selection is required'
             }
 
-            return ( errorMsg && this.props.errorMsg ? this.props.errorMsg : errorMsg );
+            return ( errorMsg && this.props.errorMsg! ? this.props.errorMsg! : errorMsg! );
         }
 
         /**
@@ -135,7 +135,7 @@ namespace Animate {
             const val = ( e.target as HTMLSelectElement ).value;
             const err = this.validate( val );
 
-            let selected: SelectValue = null;
+            let selected: SelectValue | null = null;
             for ( let option of this.props.options )
                 if ( option.value.toString() === val ) {
                     selected = option;

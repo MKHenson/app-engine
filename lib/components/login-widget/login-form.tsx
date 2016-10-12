@@ -101,7 +101,7 @@ namespace Animate {
                 this.props.onLoadingChange( true );
 
             this.setState( { loading: true });
-            this._user.resetPassword( this.state.username )
+            this._user.resetPassword( this.state.username! )
                 .then( this.loginSuccess.bind( that ) )
                 .catch( this.loginError.bind( that ) );
         }
@@ -110,7 +110,7 @@ namespace Animate {
          * Attempts to resend the activation code
          */
         resendActivation() {
-            const user = this.state.username;
+            const user = this.state.username!;
             const that = this;
 
             if ( user === '' ) {
@@ -197,7 +197,7 @@ namespace Animate {
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
                         />
 
-                    <a id="forgot-pass" className={( this.state.loading ? 'disabled' : null )}
+                    <a id="forgot-pass" className={( this.state.loading ? 'disabled' : undefined )}
                         onClick={( e ) => this.resetPassword()}>
                         Forgot
                     </a>

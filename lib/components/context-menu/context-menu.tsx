@@ -59,7 +59,9 @@ namespace Animate {
                 this.props.onChange( item );
 
             item.onSelect && item.onSelect( item );
-            this.props._closing();
+
+            if ( this.props._closing )
+                this.props._closing();
         }
 
         /**
@@ -110,7 +112,8 @@ namespace Animate {
          * When the mouse is up we remove the dragging event listeners
          */
         private onMouseUp( e: MouseEvent ) {
-            this.props._closing();
+            if ( this.props._closing )
+                this.props._closing();
             window.removeEventListener( 'mouseup', this._mouseUpProxy );
         }
 
@@ -150,7 +153,7 @@ namespace Animate {
             props._closing = () => {
                 ReactContextMenu._menus[ id ].menu.remove();
                 ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );
-                ReactContextMenu._menus[ id ] = null;
+                delete ReactContextMenu._menus[ id ];
             };
 
             let component = React.createElement<IReactContextMenuProps>( ReactContextMenu, props );
@@ -170,7 +173,7 @@ namespace Animate {
          */
         static hide( id: number ) {
             ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );
-            ReactContextMenu._menus[ id ] = null;
+            delete ReactContextMenu._menus[ id ];
         }
     }
 }

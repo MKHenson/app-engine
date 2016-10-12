@@ -334,7 +334,7 @@ namespace Animate {
 
                         //It can also the be case that assets reference other assets. In those
                         //situations you will want the container to keep adding to all the assets
-                        this.referenceCheckAsset( project.getResourceByShallowID<Resources.Asset>( assetID, ResourceType.ASSET ), container );
+                        this.referenceCheckAsset( project.getResourceByShallowID<Resources.Asset>( assetID, ResourceType.ASSET ) !, container );
                     }
                 }
         }

@@ -1,10 +1,10 @@
 namespace Animate {
 
     export interface IToolbarButtonProps {
-        onChange: ( val: boolean ) => void;
+        onChange?: ( val: boolean ) => void | null;
         pushButton?: boolean;
         selected?: boolean;
-        label: string;
+        label: string | null;
         imgUrl?: string;
         prefix?: JSX.Element;
         disabled?: boolean;
@@ -19,7 +19,7 @@ namespace Animate {
 	 */
     export class ToolbarButton extends React.Component<IToolbarButtonProps, IToolbarButtonState> {
         static defaultProps: IToolbarButtonProps = {
-            onChange: null,
+            onChange: undefined,
             label: null,
             pushButton: false,
             disabled: false
@@ -28,7 +28,7 @@ namespace Animate {
         constructor( props: IToolbarButtonProps ) {
             super( props );
             this.state = {
-                selected: props.selected
+                selected: props.selected!
             };
         }
 
@@ -42,12 +42,12 @@ namespace Animate {
             if ( this.props.disabled )
                 className += ' disabled';
 
-            return <Tooltip tooltip={this.props.label} position={TooltipPosition.BOTTOM} offset={0} disabled={this.props.disabled}>
+            return <Tooltip tooltip={this.props.label!} position={TooltipPosition.BOTTOM} offset={0} disabled={this.props.disabled}>
                 <div
                     className={className}
-                    onClick={( e ) => this.onClick( e ) }>
-                    {( this.props.prefix ? this.props.prefix : null ) }
-                    {( this.props.imgUrl ? <img src={this.props.imgUrl} /> : null ) }
+                    onClick={( e ) => this.onClick( e )}>
+                    {( this.props.prefix ? this.props.prefix : null )}
+                    {( this.props.imgUrl ? <img src={this.props.imgUrl} /> : null )}
                 </div>
             </Tooltip>
         }
@@ -57,7 +57,7 @@ namespace Animate {
         */
         componentWillReceiveProps( nextProps: IVCheckboxProps ) {
             if ( nextProps.selected !== this.state.selected )
-                this.setState( { selected: nextProps.selected });
+                this.setState( { selected: nextProps.selected! });
         }
 
         onClick( e ) {
@@ -66,7 +66,7 @@ namespace Animate {
 
             if ( this.props.pushButton )
                 this.selected = !this.state.selected;
-            else
+            else if ( this.props.onChange )
                 this.props.onChange( true );
         }
 
@@ -74,7 +74,7 @@ namespace Animate {
 		 * Set if the component is selected
 		 */
         set selected( val: boolean ) {
-            if ( val !== this.state.selected )
+            if ( val !== this.state.selected && this.props.onChange )
                 this.props.onChange( val );
 
             this.setState( {

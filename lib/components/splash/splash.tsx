@@ -39,7 +39,7 @@
          * Creates the component elements
          */
         render(): JSX.Element {
-            let mainView: JSX.Element;
+            let mainView: JSX.Element | undefined;
             if ( this.state.mode === SplashMode.LOGIN )
                 mainView = <LoginWidget
                     onLogin={() => {
@@ -74,7 +74,7 @@
                     />;
             else if ( this.state.mode === SplashMode.OPENING )
                 mainView = <OpenProject
-                    project={this.state.project}
+                    project={this.state.project!}
                     onComplete={() => {
                         this.props.onClose();
                     } }
@@ -85,12 +85,12 @@
 
             return <div id="splash" className={this.state.theme}>
                 <div className="logo">
-                    {( User.get.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout() }><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null ) }
+                    {( User.get.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null )}
                     <h2>Hatchery</h2>
                 </div>
                 <div
                     id="splash-view"
-                    className={ this.splashDimensions() + ' background fade-in' }>
+                    className={this.splashDimensions() + ' background fade-in'}>
                     {mainView}
                 </div>
             </div>

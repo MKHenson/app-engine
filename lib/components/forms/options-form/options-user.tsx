@@ -4,8 +4,8 @@ namespace Animate {
     }
 
     export interface IOptionsUserStats {
-        bioUpdateErr?: string;
-        imageUploadErr?: string;
+        bioUpdateErr?: string | null;
+        imageUploadErr?: string | null;
         loading?: boolean;
     }
 
@@ -78,7 +78,7 @@ namespace Animate {
         render(): JSX.Element {
             let user = User.get.entry;
             let meta = User.get.meta;
-            let loadingSymbol: JSX.Element;
+            let loadingSymbol: JSX.Element | undefined;
 
             if ( this.state.loading )
                 loadingSymbol = <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>;
@@ -95,27 +95,27 @@ namespace Animate {
                     </div>
                     <div className="tr">
                         <div className="td">Joined On: </div>
-                        <div className="td">{new Date( user.createdOn ).toLocaleDateString() } {new Date( user.createdOn ).toLocaleTimeString() }</div>
+                        <div className="td">{new Date( user.createdOn! ).toLocaleDateString()} {new Date( user.createdOn! ).toLocaleTimeString()}</div>
                     </div>
                     <div className="tr">
                         <div className="td">Last Logged In: </div>
-                        <div className="td">{new Date( user.lastLoggedIn ).toLocaleDateString() } {new Date( user.lastLoggedIn ).toLocaleTimeString() }</div>
+                        <div className="td">{new Date( user.lastLoggedIn! ).toLocaleDateString()} {new Date( user.lastLoggedIn! ).toLocaleTimeString()}</div>
                     </div>
                 </Group>
                 <Group label="Avatar">
-                    <ImageUploader label="Upload Image" src={meta ? meta.image : null} onImage={( f ) => { this.setAvatarUrl( f ); } } />
+                    <ImageUploader label="Upload Image" src={meta ? meta.image! : undefined} onImage={( f ) => { this.setAvatarUrl( f ); } } />
                     <div className="img-data">
                         <div className="info">Your avatar is the image others see you as.Use the upload button to change your profile picture.</div>
-                        {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null ) }
+                        {( this.state.imageUploadErr ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.imageUploadErr}</Attention> : null )}
                     </div>
                     <div className="fix"></div>
                 </Group>
                 <Group label="User Information">
                     <h3>Bio</h3>
-                    <VTextarea ref="bio" className="background-view-light" value={meta ? meta.bio : null} />
+                    <VTextarea ref="bio" className="background-view-light" value={meta ? meta.bio! : undefined} />
                     <div className="info">Use the above pad to write about yourself.This will show up on Webinate next to your projects.</div>
 
-                    {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null ) }
+                    {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
 
                     <ButtonPrimary disabled={this.state.loading} onClick={( e ) => { this.updateBio(( this.refs[ 'bio' ] as VTextarea ).value ); } }>
                         Update Information

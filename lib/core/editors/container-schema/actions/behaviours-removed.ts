@@ -24,7 +24,7 @@ namespace Animate {
                     editor.addItem( item );
 
                 this.instances = this.clones;
-                this.clones = null;
+                this.clones.splice( 0, this.clones.length );
             }
 
             /**

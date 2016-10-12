@@ -11,7 +11,7 @@ namespace Animate {
             super( props );
 
             this.state = {
-                workspace: props.editor.serialize() || { items: [] } as HatcheryServer.IContainerWorkspace
+                workspace: props.editor.serialize() || { items: [], properties: {}, activeLink: null } as HatcheryServer.IContainerWorkspace
             }
 
             props.editor.on<EditorEvents, void>( 'change', this.invalidate, this );
@@ -41,20 +41,24 @@ namespace Animate {
 		 * @param {React.MouseEvent} e
          * @param {IDragDropToken} json
 		 */
-        onObjectDropped( e: React.MouseEvent, json: IDragDropToken ) {
+        onObjectDropped( e: React.MouseEvent, json: IDragDropToken | null ) {
             const elm = this.refs[ 'canvas' ] as HTMLElement;
             const mouse = Utils.getRelativePos( e, elm );
 
-            if ( json.type === 'resource' ) {
+            if ( json && json.type === 'resource' ) {
                 const resource = User.get.project.getResourceByShallowID( json.id as number );
                 if ( resource instanceof Resources.Container )
-                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ), mouse, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ) !, mouse, resource );
                 else if ( resource instanceof Resources.Asset || resource instanceof Resources.GroupArray )
-                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Asset' ), mouse, resource );
+                    this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Asset' ) !, mouse, resource );
             }
-            else if ( json.type === 'template' )
-                this.addBehaviour( PluginManager.getSingleton().getTemplate( json.id as string ), mouse );
+            else if ( json && json.type === 'template' ) {
+                const def = PluginManager.getSingleton().getTemplate( json.id as string );
+                if ( !def )
+                    throw new Error( `Could not find template ${json.id}` );
 
+                this.addBehaviour( def, mouse );
+            }
         }
 
         /**
@@ -113,7 +117,7 @@ namespace Animate {
                 onOk: ( newName ) => {
                     this.props.editor.doAction( new Actions.PortalCreated( new Portal( null, type, new PropBool( newName, false ) ), null, pos.x, pos.y ) );
                 },
-                onRenaming: ( newName, prevName ): Error => {
+                onRenaming: ( newName, prevName ): Error | null => {
                     // Do not allow for duplicate portal names
                     const items = this.props.editor.getItems();
                     for ( const item of items )
@@ -181,9 +185,9 @@ namespace Animate {
             e.preventDefault();
         }
 
-        getPortal( target: HTMLElement ): IPortal {
+        getPortal( target: HTMLElement ): IPortal | null {
             let ref: React.Component<any, any> | Element;
-            let portal: IPortal;
+            let portal: IPortal | null;
 
             for ( let i in this.refs ) {
                 ref = this.refs[ i ];
@@ -218,7 +222,7 @@ namespace Animate {
                             x: e.pageX,
                             y: e.pageY,
                             onTemplateSelected: ( template ) => {
-                                this.addBehaviour( template, mouse );
+                                this.addBehaviour( template!, mouse );
                             }
                         } as IBehaviourPickerProps )
                     } }
@@ -226,7 +230,7 @@ namespace Animate {
                         e.preventDefault();
                         e.stopPropagation();
                         try {
-                            let json: IDragDropToken;
+                            let json: IDragDropToken | null = null;
                             const data = e.dataTransfer.getData( 'text' );
                             if ( data && data !== '' )
                                 json = JSON.parse( data );

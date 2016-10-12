@@ -21,7 +21,7 @@ namespace Animate {
         /**
          * Attempts to reconnect when the socket loses its connection
          */
-        private _reConnect( e: CloseEvent ) {
+        private _reConnect( e: CloseEvent | null ) {
             setTimeout(() => {
                 this.connect();
             }, 5000 );
@@ -35,16 +35,16 @@ namespace Animate {
                 let json: UsersInterface.SocketTokens.IToken = JSON.parse( e.data );
                 if ( json.error ) {
                     let type: SocketEvents = 'Error';
-                    this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( json.error ) } );
+                    this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( json.error ) });
                 }
                 else {
                     let type = json.type as SocketEvents;
-                    this.emit<SocketEvents, ISocketEvent>( type, { json : json } );
+                    this.emit<SocketEvents, ISocketEvent>( type, { json: json });
                 }
             }
             catch ( e ) {
                 let type: SocketEvents = 'Error';
-                this.emit<SocketEvents, ISocketEvent>( type, { error : e } );
+                this.emit<SocketEvents, ISocketEvent>( type, { error: e });
             }
         }
 
@@ -54,7 +54,7 @@ namespace Animate {
         onError( e: Error ) {
             this._reConnect( null );
             let type: SocketEvents = 'Error';
-            this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( 'An error occurred while connecting to the Users socket API' ) } );
+            this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( 'An error occurred while connecting to the Users socket API' ) });
         }
 
         /**
@@ -62,9 +62,9 @@ namespace Animate {
          */
         connect() {
             if ( this._usersSocket ) {
-                this._usersSocket.onerror = null;
-                this._usersSocket.onclose = null;
-                this._usersSocket.onmessage = null;
+                ( this._usersSocket as any ).onerror = null;
+                ( this._usersSocket as any ).onclose = null;
+                ( this._usersSocket as any ).onmessage = null;
             }
 
             this._usersSocket = new WebSocket( DB.USERS_SOCKET );

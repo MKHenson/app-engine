@@ -47,12 +47,12 @@ namespace Animate {
                                     e.dataTransfer.setData( 'text', JSON.stringify( json ) );
 
                             } }
-                            onDragOver={( node.canDrop ? ( e ) => { e.preventDefault(); } : null )}
+                            onDragOver={( node.canDrop ? ( e ) => { e.preventDefault(); } : undefined )}
                             onDrop={( node.canDrop ? ( e ) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 try {
-                                    let json: IDragDropToken;
+                                    let json: IDragDropToken | null = null;
                                     let data = e.dataTransfer.getData( 'text' );
                                     if ( data && data !== '' )
                                         json = JSON.parse( data );
@@ -62,7 +62,7 @@ namespace Animate {
                                 catch ( e ) {
                                 }
 
-                            } : null )}
+                            } : undefined )}
                             className={'label unselectable' + ( node.selected() ? ' selected' : '' )}
                             onContextMenu={( e ) => {
                                 if ( node.disabled() )

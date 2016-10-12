@@ -16,8 +16,8 @@ namespace Animate {
     export interface IProjectListState {
         loading?: boolean;
         searchText?: string;
-        selectedProject?: IInteractiveProject;
-        errorMsg?: string;
+        selectedProject?: IInteractiveProject | null;
+        errorMsg?: string | null;
         projects?: IInteractiveProject[];
     }
 
@@ -52,8 +52,8 @@ namespace Animate {
          */
         removeProject( p: IInteractiveProject ) {
             const projects = this.state.projects;
-            if ( projects.indexOf( p ) !== -1 ) {
-                projects.splice( projects.indexOf( p ), 1 );
+            if ( projects!.indexOf( p ) !== -1 ) {
+                projects!.splice( projects!.indexOf( p ), 1 );
                 this.setState( { projects: projects });
             }
         }
@@ -62,7 +62,7 @@ namespace Animate {
          * Called when we select a project
          * @param project The project to select
          */
-        selectProject( project: IInteractiveProject, doubleClick: boolean ) {
+        selectProject( project: IInteractiveProject | null, doubleClick: boolean ) {
 
             if ( this.state.selectedProject && this.state.selectedProject !== project )
                 this.state.selectedProject.selected = false;
@@ -77,7 +77,7 @@ namespace Animate {
             if ( this.props.onProjectSelected ) {
                 this.props.onProjectSelected( project );
 
-                if ( doubleClick )
+                if ( doubleClick && this.props.onProjectDClicked )
                     this.props.onProjectDClicked( project );
             }
         }
@@ -119,29 +119,29 @@ namespace Animate {
             delete props.onProjectSelected;
             delete props.onProjectDClicked;
 
-            return <div {...props} className={'project-list ' + ( props.className || '' ) }>
+            return <div {...props} className={'project-list ' + ( props.className || '' )}>
                 <div className="projects-toolbar background">
                     {this.props.children}
                     <SearchBox placeholder="Keywords" onSearch={( e, text ) => {
                         this.state.searchText = text;
                         ( this.refs[ 'pager' ] as Pager ).invalidate();
                     } } />
-                    {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null }
+                    {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null}
                 </div>
                 <div className="projects-container" onClick={( e ) => { this.selectProject( null, false ) } }>
-                    <Pager onUpdate={this.fetchProjects.bind( this ) } limit={6} ref="pager">
+                    <Pager onUpdate={this.fetchProjects.bind( this )} limit={6} ref="pager">
                         <div className="project-items">
                             <div className="error bad-input" style={{ display: ( this.state.errorMsg ? 'block' : '' ) }}>
                                 {this.state.errorMsg || ''}
                             </div>
                             {
-                                this.state.projects.map(( p, index ) => {
+                                this.state.projects!.map(( p, index ) => {
                                     return <ImagePreview key={p._id}
                                         className="project-item"
                                         selected={p.selected}
                                         src={p.image}
                                         label={p.name}
-                                        labelIcon={<span className="fa fa-file"/>}
+                                        labelIcon={<span className="fa fa-file" />}
                                         onDoubleClick={( e ) => {
                                             this.selectProject( p, true );
                                             e.stopPropagation();
@@ -151,8 +151,8 @@ namespace Animate {
                                             e.stopPropagation();
                                         } }
                                         />
-                                }) }
-                            <div className="no-items unselectable" style={{ display: ( this.state.projects.length ? 'none' : '' ) }}>
+                                })}
+                            <div className="no-items unselectable" style={{ display: ( this.state.projects!.length ? 'none' : '' ) }}>
                                 {this.props.noProjectMessage}
                             </div>
                         </div>

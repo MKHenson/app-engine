@@ -5,7 +5,7 @@ namespace Animate {
         x: number;
         y: number;
         onMove?: ( x: number, y: number ) => void;
-        onDragComplete?: ( start: Point, end: Point) => void;
+        onDragComplete?: ( start: Point, end: Point ) => void;
     }
 
     export class Draggable extends React.Component<IDraggableProps, any> {
@@ -26,8 +26,6 @@ namespace Animate {
 
             this._upProxy = this.onMouseUp.bind( this );
             this._moveProxy = this.onMouseMove.bind( this );
-            this._mouseDelta = null;
-            this._startPos = null;
             this.state = {
                 x: props.x,
                 y: props.y

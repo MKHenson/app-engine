@@ -48,13 +48,13 @@ namespace Animate {
         /**
          * Gets the current checked state of the input
          */
-        get checked(): boolean { return this.state.checked; }
+        get checked(): boolean { return this.state.checked!; }
 
         /**
          * Gets if this input has not been touched by the user. False is returned if it has been
          */
         get pristine(): boolean {
-            return this.state.pristine;
+            return this.state.pristine!;
         }
 
         /**
@@ -77,8 +77,8 @@ namespace Animate {
                 <input onChange={( e ) => {
                     this.onChange( e )
                 } }
-                    id={( this.props.id ? this.props.id : null )}
-                    name={( this.props.name ? this.props.name : null )}
+                    id={( this.props.id ? this.props.id : undefined )}
+                    name={( this.props.name ? this.props.name : undefined )}
                     type="checkbox"
                     ref="check"
                     checked={this.state.checked} />
@@ -99,7 +99,7 @@ namespace Animate {
                         }
                     } }
                     className="unselectable"
-                    htmlFor={( this.props.id ? this.props.id : null )}>
+                    htmlFor={( this.props.id ? this.props.id : undefined )}>
                     {this.props.children}
                     {this.props.label}
                 </label>

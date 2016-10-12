@@ -6,7 +6,7 @@ namespace Animate {
      */
     export class ContainerSchema extends Editor {
         public opened: boolean;
-        protected _activeLink: Link;
+        protected _activeLink: Link | null;
         protected _items: CanvasItem[];
         protected _selection: CanvasItem[];
 
@@ -20,7 +20,7 @@ namespace Animate {
             this.opened = false;
             this._activeLink = null;
 
-            this.deserialize( container.entry.json );
+            this.deserialize( container.entry.json! );
         }
 
         /**
@@ -28,10 +28,10 @@ namespace Animate {
          * This should be followed by a call to endLinkRouting when
          * the process is completed
          */
-        beginLinkRouting( portal : IPortal, pos: Point ) {
+        beginLinkRouting( portal: IPortal, pos: Point ) {
             this._activeLink = new Link();
             this._activeLink.startPortal = portal.name;
-            this._activeLink.startBehaviour = portal.behaviour;
+            this._activeLink.startBehaviour = portal.behaviour!;
             this._activeLink.top = pos.y;
             this._activeLink.left = pos.x;
             this.invalidate();
@@ -40,16 +40,16 @@ namespace Animate {
         /**
          * Completes the process of linking two behaviours together
          */
-        endLinkRouting( options: ILinkItem ) {
+        endLinkRouting( options: ILinkItem | null ) {
             if ( options )
-                this.doAction( new Actions.LinkCreated( options) );
+                this.doAction( new Actions.LinkCreated( options ) );
 
-            this._activeLink.dispose();
+            this._activeLink!.dispose();
             this._activeLink = null;
             this.invalidate();
         }
 
-        get activeLink() : Link {
+        get activeLink(): Link | null {
             return this._activeLink;
         }
 
@@ -70,19 +70,19 @@ namespace Animate {
         /**
          * Called whenever an item is clicked.
          */
-        onNodeSelected( item: ICanvasItem, shiftDown: boolean, toggleSelectedState: boolean = true ) {
+        onNodeSelected( item: ICanvasItem | null, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
             let clearSelection = false;
             const prevSelection = this._selection.slice();
             let previousNumSelected = this._selection.length;
             let selection = this._selection;
-            let node: CanvasItem = null;
-            const selectedIds = [];
+            let node: CanvasItem | null = null;
+            const selectedIds: number[] = [];
             const items = this._items;
 
             // Check if the item exists
             if ( item )
-                node = this._items[ item.id ];
+                node = this._items[ item.id! ];
 
             if ( !shiftDown )
                 clearSelection = true;
@@ -110,7 +110,7 @@ namespace Animate {
 
             let selectionChanged = ( previousNumSelected !== selection.length ? true : false );
 
-            if (!selectionChanged) {
+            if ( !selectionChanged ) {
                 for ( let i = 0, l = prevSelection.length; i < l; i++ )
                     if ( prevSelection[ i ] !== selection[ i ] ) {
                         selectionChanged = true;
@@ -129,7 +129,7 @@ namespace Animate {
          * Whenever we receive a context event on an item
          */
         onContext( item: ICanvasItem, e: React.MouseEvent ) {
-            let node = this._items[ item.id ];
+            let node = this._items[ item.id! ];
             node.onContext( e );
         }
 
@@ -169,7 +169,7 @@ namespace Animate {
             if ( !scene.items )
                 scene.items = [];
 
-            let canvasItem: CanvasItem;
+            let canvasItem: CanvasItem | undefined;
             let manager = PluginManager.getSingleton();
 
             for ( const item of scene.items ) {
@@ -178,15 +178,15 @@ namespace Animate {
                         canvasItem = new Comment(( item as IComment ).label );
                         break;
                     case 'behaviour':
-                        canvasItem = new Behaviour( manager.getTemplate(( item as IBehaviour ).behaviourType ) );
+                        canvasItem = new Behaviour( manager.getTemplate(( item as IBehaviour ).behaviourType! ) ! );
                         break;
                     case 'asset':
                         canvasItem = new BehaviourAsset( null );
                         break;
                 }
 
-                canvasItem.deSerialize( item );
-                this.addItem( canvasItem );
+                canvasItem!.deSerialize( item );
+                this.addItem( canvasItem! );
             }
         }
 

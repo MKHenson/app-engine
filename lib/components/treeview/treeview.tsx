@@ -6,7 +6,7 @@ namespace Animate {
 
     export interface ITreeViewState {
         nodes?: TreeNodeModel[];
-        focussedNode?: TreeNodeModel;
+        focussedNode?: TreeNodeModel | null;
     }
 
 	/**
@@ -25,12 +25,12 @@ namespace Animate {
 
             // Set the initial state
             this.state = {
-                nodes: props.nodeStore.getNodes(),
+                nodes: props.nodeStore!.getNodes(),
                 focussedNode: null
             };
 
-            props.nodeStore.on<TreeviewEvents, void>( 'change', this.onChange, this );
-            props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            props.nodeStore!.on<TreeviewEvents, void>( 'change', this.onChange, this );
+            props.nodeStore!.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**
@@ -45,7 +45,7 @@ namespace Animate {
          */
         onChange( type: TreeviewEvents ) {
             if ( this._isMounted )
-                this.setState( { nodes: this.props.nodeStore.getNodes() });
+                this.setState( { nodes: this.props.nodeStore!.getNodes() });
         }
 
         /**
@@ -66,14 +66,17 @@ namespace Animate {
             if ( nextProps.nodeStore === this.props.nodeStore )
                 return;
 
-            this.props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
-            this.props.nodeStore.off<TreeviewEvents, void>( 'change', this.onChange, this );
+            const store = this.props.nodeStore!;
+            const nextStore = nextProps.nodeStore!;
 
-            nextProps.nodeStore.on<TreeviewEvents, void>( 'change', this.onChange, this );
-            nextProps.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            store.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            store.off<TreeviewEvents, void>( 'change', this.onChange, this );
+
+            nextStore.on<TreeviewEvents, void>( 'change', this.onChange, this );
+            nextStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
 
             this.setState( {
-                nodes: nextProps.nodeStore.getNodes()
+                nodes: nextStore.getNodes()
             });
         }
 
@@ -88,8 +91,9 @@ namespace Animate {
          * Cleans up the component
          */
         componentWillUnmount() {
-            this.props.nodeStore.off<TreeviewEvents, void>( 'change', this.onChange, this );
-            this.props.nodeStore.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
+            const store = this.props.nodeStore!;
+            store.off<TreeviewEvents, void>( 'change', this.onChange, this );
+            store.on<TreeviewEvents, INodeEvent>( 'focus-node', this.onFocusNodeChange, this );
         }
 
         /**
@@ -97,9 +101,9 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div className="treeview" >
-                { this.state.nodes.map(( node, index ) => {
+                {this.state.nodes!.map(( node, index ) => {
                     return <TreeNode key={'node-0-' + index} node={node} />
-                }) }
+                })}
             </div>
         }
     }

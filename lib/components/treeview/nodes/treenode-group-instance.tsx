@@ -27,7 +27,7 @@ namespace Animate {
                         label: 'Delete',
                         prefix: <i className="fa fa-times" aria-hidden="true"></i>,
                         onSelect: ( e ) => {
-                            this.parent.removeNode( this );
+                            this.parent!.removeNode( this );
                         }
                     }
                 ]
@@ -42,7 +42,7 @@ namespace Animate {
                 if ( !this._resource.saved )
                     return '* ' + this._resource.entry.name;
                 else
-                    return this._resource.entry.name;
+                    return this._resource.entry.name!;
             }
 
 
@@ -53,12 +53,10 @@ namespace Animate {
          * This will cleanup the component
          */
         dispose() {
-            this._group.removeReference( this._resource.entry.shallowId );
-            this._resource = null;
-            this._group = null;
+            this._group.removeReference( this._resource.entry.shallowId! );
             super.dispose();
         }
 
-        get shallowId(): number { return this._resource.entry.shallowId; }
+        get shallowId(): number { return this._resource.entry.shallowId!; }
     }
 }

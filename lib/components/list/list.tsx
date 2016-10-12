@@ -6,7 +6,7 @@ namespace Animate {
     }
 
     export interface IListProps {
-        items: IListItem[];
+        items: IListItem[] | null;
         onSelected?: ( item: IListItem, index: number ) => void;
         onDSelected?: ( item: IListItem, index: number ) => void;
         selectedIndex?: number;
@@ -14,7 +14,7 @@ namespace Animate {
     }
 
     export interface IListState {
-        selected?: IListItem;
+        selected?: IListItem | null;
         selectedIndex?: number;
     }
 
@@ -35,7 +35,7 @@ namespace Animate {
         constructor( props: IListProps ) {
             super( props );
 
-            this._prevItems = props.items;
+            this._prevItems = props.items!;
             this.state = {
                 selected: null,
                 selectedIndex: props.selectedIndex
@@ -52,11 +52,11 @@ namespace Animate {
             if ( nextProps.selectedIndex !== undefined && nextProps.selectedIndex !== this.props.selectedIndex ) {
                 selectedIndex = nextProps.selectedIndex;
 
-                if ( selectedIndex > this.props.items.length )
+                if ( selectedIndex > this.props.items!.length )
                     throw new Error( 'Selected index out of range' )
 
                 this.setState( {
-                    selected: this.props.items[ selectedIndex ],
+                    selected: this.props.items![ selectedIndex ],
                     selectedIndex: selectedIndex
                 });
             }
@@ -73,17 +73,17 @@ namespace Animate {
          */
         render(): JSX.Element {
             return <div className="list"> {
-                this.props.items.map(( item, index ) => {
+                this.props.items!.map(( item, index ) => {
 
-                    let jsx: JSX.Element;
+                    let jsx: JSX.Element | undefined;
                     if ( item.prefix )
                         jsx = item.prefix;
                     else if ( item.icon )
                         jsx = <img src={item.icon} />
 
                     return <div key={'item-' + index}
-                        ref={( this.state.selectedIndex === index ? 'selected-item' : '' ) }
-                        className={'list-item light-hover' + ( this.state.selectedIndex === index ? ' selected' : '' ) }
+                        ref={( this.state.selectedIndex === index ? 'selected-item' : '' )}
+                        className={'list-item light-hover' + ( this.state.selectedIndex === index ? ' selected' : '' )}
                         onClick={( e ) => { this.onItemSelected( e, item, index, false ); } }
                         onDoubleClick={( e ) => { this.onItemSelected( e, item, index, true ); } }
                         >

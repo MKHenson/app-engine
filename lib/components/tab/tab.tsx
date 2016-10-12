@@ -27,7 +27,7 @@ namespace Animate {
             this._disposed = false;
             this._waitingOnPromise = false;
             this.state = {
-                selectedIndex: props.panes.length > 0 ? 0 : -1
+                selectedIndex: props.panes!.length > 0 ? 0 : -1
             } as Y;
         }
 
@@ -52,7 +52,7 @@ namespace Animate {
          */
         componentDidMount() {
             if ( this.state.selectedIndex == 0 && this._panes[ this.state.selectedIndex ].props.onSelect )
-                this._panes[ this.state.selectedIndex ].props.onSelect( this.state.selectedIndex );
+                this._panes[ this.state.selectedIndex ].props.onSelect!( this.state.selectedIndex );
         }
 
         componentWillUnmount() {
@@ -65,7 +65,7 @@ namespace Animate {
         componentDidUpdate( prevProps: T, prevState: Y ) {
             if ( prevState.selectedIndex !== this.state.selectedIndex )
                 if ( this._panes[ this.state.selectedIndex ].props.onSelect )
-                    this._panes[ this.state.selectedIndex ].props.onSelect( this.state.selectedIndex );
+                    this._panes[ this.state.selectedIndex ].props.onSelect!( this.state.selectedIndex );
         }
 
 		/**
@@ -243,7 +243,7 @@ namespace Animate {
             let items: IReactContextMenuItem[] = [];
             let panes = this._panes;
             for ( let pane of panes )
-                items.push( { label: pane.props.label });
+                items.push( { label: pane.props.label! });
 
             ReactContextMenu.show( {
                 x: e.pageX, y: e.pageY, items: items, onChange: ( item ) => {
@@ -278,7 +278,7 @@ namespace Animate {
 		 * @param val The label text of the tab
 		 * @returns The tab pair containing both the label and page {Component}s
 		 */
-        getPaneByLabel( label: string ): ITabPaneProps {
+        getPaneByLabel( label: string ): ITabPaneProps | null {
             const panes = this._panes;
             for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.label === label )
@@ -294,7 +294,7 @@ namespace Animate {
             const panes = this._panes;
             for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.onDispose )
-                    panes[ i ].props.onDispose( i, panes[ i ].props );
+                    panes[ i ].props.onDispose!( i, panes[ i ].props );
         }
 
 		/**
@@ -306,7 +306,7 @@ namespace Animate {
             const panes = this._panes;
             for ( let i = 0, l = panes.length; i < l; i++ )
                 if ( panes[ i ].props.onDispose )
-                    panes[ i ].props.onDispose( i, panes[ i ].props );
+                    panes[ i ].props.onDispose!( i, panes[ i ].props );
 
             this._panes.splice( 0, this._panes.length );
             this.setState( {

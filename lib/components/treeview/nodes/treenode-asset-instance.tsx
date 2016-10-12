@@ -32,8 +32,6 @@ namespace Animate {
 		 */
         dispose() {
             this.resource.off<ResourceEvents, IResourceEvent>( 'edited', this.onAssetEdited, this );
-            this.assetClass = null;
-
             super.dispose();
         }
     }

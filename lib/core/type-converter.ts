@@ -22,8 +22,7 @@ namespace Animate {
 
         /** Cleans up the object. */
         dispose() {
-            this.conversionOptions = null;
-            this.plugin = null;
+            this.conversionOptions.splice( 0, this.conversionOptions.length );
         }
     }
 }

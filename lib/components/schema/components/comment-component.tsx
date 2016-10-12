@@ -74,7 +74,7 @@ namespace Animate {
                     ref = ref.parentElement;
 
             window.removeEventListener( 'mouseup', this._onUp );
-            this.props.editor.doAction( new Actions.CommentEditted( this.props.comment.id, input.value ) );
+            this.props.editor.doAction( new Actions.CommentEditted( this.props.comment.id!, input.value ) );
             this.setState( { editMode: false });
         }
 
@@ -87,14 +87,14 @@ namespace Animate {
 
             return (
                 <Draggable
-                    x={this.props.comment.left}
-                    y={this.props.comment.top}
+                    x={this.props.comment.left!}
+                    y={this.props.comment.top!}
                     enabled={( !this.state.editMode )}
                     onDragComplete={( start, end ) => {
-                        editor.doAction( new Actions.SelectionMoved( [ { index: comment.id, x: end.x, y: end.y }] ) );
+                        editor.doAction( new Actions.SelectionMoved( [ { index: comment.id!, x: end.x, y: end.y }] ) );
                     } }>
                     <Resizable
-                        onResized={( size ) => { editor.doAction( new Actions.CommentResized( comment.id, size.width, size.height ) ) } }
+                        onResized={( size ) => { editor.doAction( new Actions.CommentResized( comment.id!, size.width, size.height ) ) } }
                         onDragStart={( e ) => { e.preventDefault(); e.stopPropagation(); return true; } }>
                         <div
                             onKeyUp={( e ) => {
@@ -136,7 +136,7 @@ namespace Animate {
                                         // Enter
                                         if ( e.keyCode === 13 ) {
                                             this.setState( { editMode: false });
-                                            editor.doAction( new Actions.CommentEditted( this.props.comment.id, ( e.target as HTMLTextAreaElement ).value ) );
+                                            editor.doAction( new Actions.CommentEditted( this.props.comment.id!, ( e.target as HTMLTextAreaElement ).value ) );
                                         }
                                     } }
                                     value={this.state.newLabel}

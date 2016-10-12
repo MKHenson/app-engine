@@ -38,7 +38,7 @@ namespace Animate {
             popup: false,
             controlBox: true,
             showCloseButton: true,
-            title: null,
+            title: '',
             autoCenter: true,
             canResize: true,
             animated: true
@@ -80,7 +80,7 @@ namespace Animate {
             props._closing = () => {
                 ReactWindow._windows[ id ].window.remove();
                 ReactDOM.unmountComponentAtNode( ReactWindow._windows[ id ].window );
-                ReactWindow._windows[ id ] = null;
+                delete ReactWindow._windows[ id ];
             };
 
             let component = React.createElement<IReactWindowProps>( windowType, props );
@@ -100,7 +100,7 @@ namespace Animate {
          */
         static hide( id: number ) {
             ReactDOM.unmountComponentAtNode( ReactWindow._windows[ id ].window );
-            ReactWindow._windows[ id ] = null;
+            delete ReactWindow._windows[ id ];
         }
 
         /**
@@ -173,7 +173,7 @@ namespace Animate {
                 elm.style.top = ( this.props.y || 0 ) + 'px';
             }
 
-            setTimeout( function () { elm.className = elm.className + ' shown'; }, 30 );
+            setTimeout( function() { elm.className = elm.className + ' shown'; }, 30 );
         }
 
         /**
@@ -193,7 +193,7 @@ namespace Animate {
             let className = 'window' + ( this.props.className ? ' ' + this.props.className : '' );
 
             elm.className = className;
-            setTimeout( function () {
+            setTimeout( function() {
                 elm.className = className + ' anim-shadow-focus';
             }, 30 );
         }
@@ -202,14 +202,15 @@ namespace Animate {
          * When we click the close button
          */
         onClose() {
-            this.props._closing();
+            if ( this.props._closing )
+                this.props._closing();
         }
 
         /**
          * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
          * in derived classes
          */
-        getContent(): React.ReactNode {
+        getContent() {
             return this.props.children;
         }
 
@@ -217,24 +218,24 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-            let controlBox: JSX.Element;
+            let controlBox: JSX.Element | undefined;
             const animated = this.props.animated === undefined ? true : this.props.animated;
 
             if ( this.props.controlBox ) {
                 controlBox = <div className="window-control-box" onMouseDown={( e ) => { this.onHeaderDown( e ) } }>
-                    { this.props.showCloseButton ?
-                        <div  onClick={() => { this.onClose(); } } className="close-but">X</div> : null }
+                    {this.props.showCloseButton ?
+                        <div onClick={() => { this.onClose(); } } className="close-but">X</div> : null}
                     <div className="window-header">{this.props.title}</div>
                     <div className="fix"></div>
                 </div>
             }
             return <div>
-                {( this.props.modal ? <div className="modal-backdrop" onClick={() => { this.onModalClick(); } }></div> : null ) }
+                {( this.props.modal ? <div className="modal-backdrop" onClick={() => { this.onModalClick(); } }></div> : null )}
                 <Resizable ref="resizable" enabled={this.props.canResize} className={animated ? 'animated' : ''}>
-                    <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' ) } ref="window">
+                    <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' )} ref="window">
                         {controlBox}
-                        <div className={'window-content' + ( !this.props.controlBox ? ' no-control' : '' ) }>
-                            {this.getContent() }
+                        <div className={'window-content' + ( !this.props.controlBox ? ' no-control' : '' )}>
+                            {this.getContent()}
                         </div>
                     </div>
                 </Resizable>

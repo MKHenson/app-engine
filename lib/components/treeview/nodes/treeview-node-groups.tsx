@@ -21,7 +21,7 @@ namespace Animate {
         /**
          * Gets or sets the icon of the node
          */
-        icon( val?: JSX.Element ): JSX.Element {
+        icon( val?: JSX.Element ): JSX.Element | undefined {
             if ( val === undefined ) {
                 if ( this._loading )
                     return <i className="fa fa-cog fa-spin fa-fw"></i>;
@@ -37,7 +37,6 @@ namespace Animate {
         dispose() {
             super.dispose();
             this._project.off<ProjectEvents, IResourceEvent>( 'resource-created', this.onResourceCreated, this );
-            this._project = null;
         }
 
         /**

@@ -5,8 +5,8 @@ namespace Animate {
     }
 
     export interface IPortalFormStats extends IReactWindowState {
-        errorMsg?: string;
-        portal: Portal;
+        errorMsg?: string | null;
+        portal: Portal | null;
     }
 
 	/**
@@ -167,7 +167,7 @@ namespace Animate {
 		* Creates a new property from the data chosen
 		* @param {Prop<any>}
 		*/
-        getProperty(): Prop<any> {
+        getProperty(): Prop<any> | null {
             // return new Prop(this.$name, this._value);
             return null;
         }
@@ -401,7 +401,7 @@ namespace Animate {
         get portalType(): HatcheryRuntime.PortalType { return this._portalType; }
         //get value(): any { return this._value; }
         get value(): any { return this._newProperty.getVal(); }
-        get parameterType(): PropertyType {
+        get parameterType(): PropertyType | undefined {
             if ( this._portalType !== 'input' && this._portalType !== 'output' )
                 //    return <PropertyType>parseInt(this._typeCombo.selectedItem);
                 this._newProperty.type;

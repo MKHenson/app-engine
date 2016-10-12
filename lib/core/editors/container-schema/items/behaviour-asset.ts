@@ -4,30 +4,30 @@ namespace Animate {
      * A behaviour that contains an asset/resource reference
      */
     export class BehaviourAsset extends Behaviour {
-        public asset: ProjectResource<HatcheryServer.IResource>;
+        public asset: ProjectResource<HatcheryServer.IResource> | null;
 
         /**
          * Creates an instance of the behaviour
          */
-        constructor( asset?: ProjectResource<HatcheryServer.IResource> ) {
-            super( PluginManager.getSingleton().getTemplate( 'Asset' ) );
+        constructor( asset: ProjectResource<HatcheryServer.IResource> | null ) {
+            super( PluginManager.getSingleton().getTemplate( 'Asset' ) ! );
             this.asset = asset || null;
 
             // Set the property if the asset was provided
             this.parameters[ 0 ].property.setVal( asset );
 
             if ( asset )
-                this.alias = asset.entry.name;
+                this.alias = asset.entry.name!;
         }
 
         /**
          * Clones the canvas item
          */
-        clone( clone?: BehaviourAsset ) : BehaviourAsset {
+        clone( clone?: BehaviourAsset ): BehaviourAsset {
             if ( !clone )
                 clone = new BehaviourAsset( this.asset );
 
-            super.clone(clone);
+            super.clone( clone );
             return clone;
         }
 
@@ -35,7 +35,6 @@ namespace Animate {
 		 * Clean up
 		 */
         dispose() {
-            this.asset = null;
             super.dispose();
         }
 

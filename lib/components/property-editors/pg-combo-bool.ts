@@ -46,9 +46,6 @@ namespace Animate {
 
             // Add listeners
             selector.on( 'change', onSelect );
-
-            // Finall return editor as HTML to be added to the page
-            return editor;
         }
     }
 }

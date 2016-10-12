@@ -8,7 +8,7 @@ namespace Animate {
 
     export interface IOpenProjectState {
 
-        message?: string;
+        message?: string | null;
         mode?: AttentionType;
         loading?: boolean;
     }
@@ -18,8 +18,8 @@ namespace Animate {
         /**
          * Creates a new instance
          */
-        constructor(props: IOpenProjectProps) {
-            super(props);
+        constructor( props: IOpenProjectProps ) {
+            super( props );
             this.state = {
                 mode: AttentionType.SUCCESS,
                 loading: true,
@@ -45,29 +45,29 @@ namespace Animate {
 
             let message = `Loading project '${this.props.project.name}'...`
 
-            this.setState({
+            this.setState( {
                 mode: AttentionType.SUCCESS,
                 loading: true,
                 message: message
             });
 
-            LoggerStore.success(message);
+            LoggerStore.success( message );
 
             // Attempts to load all the project resources
-            project.loadResources().then( (resources) => {
+            project.loadResources().then(( resources ) => {
                 message = `Loaded [${resources.length}] resources`;
-                this.setState({
+                this.setState( {
                     message: message
                 });
 
                 LoggerStore.success( message );
                 return project.loadBuild();
 
-            }).then( (build) => {
+            }).then(( build ) => {
 
                 message = `Loaded project build '${build.entry.name} - v${build.entry.version}'`;
-                this.setState({
-                    loading : false,
+                this.setState( {
+                    loading: false,
                     message: message
                 });
 
@@ -77,13 +77,13 @@ namespace Animate {
                 document.title = `Hatchery: ${project.entry.name} ${project.entry._id}`;
 
                 // Log
-                LoggerStore.success(`Project '${this.props.project.name}' has successfully been opened` );
+                LoggerStore.success( `Project '${this.props.project.name}' has successfully been opened` );
 
                 // Everything done
                 this.props.onComplete();
 
-            }).catch( (err: Error) => {
-                this.setState({
+            }).catch(( err: Error ) => {
+                this.setState( {
                     mode: AttentionType.ERROR,
                     message: err.message
                 });
@@ -97,7 +97,7 @@ namespace Animate {
 
             let numLoaded = 0;
             let project: HatcheryServer.IProject = this.props.project;
-            this.setState({
+            this.setState( {
                 mode: AttentionType.SUCCESS,
                 loading: true
             });
@@ -105,32 +105,34 @@ namespace Animate {
             // Notify the reset
             Application.getInstance().projectReset();
 
+            const plugs = project.$plugins!;
+
             // Go through each plugin and load it
-            project.$plugins.forEach((plugin) => {
+            plugs.forEach(( plugin ) => {
                 plugin.$error = null;
-                PluginManager.getSingleton().loadPlugin( plugin ).then( () => {
+                PluginManager.getSingleton().loadPlugin( plugin ).then(() => {
 
                     // Check if all plugins are loaded
                     numLoaded++;
-                    if (numLoaded >= project.$plugins.length) {
+                    if ( numLoaded >= plugs.length ) {
                         // Everything loaded - so prepare the plugins
-                        for (let t = 0, tl = project.$plugins.length; t < tl; t++)
-                            PluginManager.getSingleton().preparePlugin(project.$plugins[t]);
+                        for ( let t = 0, tl = plugs.length; t < tl; t++ )
+                            PluginManager.getSingleton().preparePlugin( plugs[ t ] );
 
-                        this.setState({
+                        this.setState( {
                             loading: false
                         });
 
                         this.loadScene();
                     }
                     else {
-                        this.setState({
+                        this.setState( {
                             loading: false
                         });
                     }
-                }).catch( (err: Error) => {
+                }).catch(( err: Error ) => {
                     plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
-                    this.setState({
+                    this.setState( {
                         mode: AttentionType.ERROR,
                         message: 'Could not load all of the plugins'
                     });
@@ -142,14 +144,14 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-            let loadingPanel: JSX.Element;
-            if (this.props.project) {
+            let loadingPanel: JSX.Element | undefined;
+            if ( this.props.project ) {
                 loadingPanel = <div className="loading-panel">
                     {
-                        this.props.project.$plugins.map((plugin, index) => {
+                        this.props.project.$plugins!.map(( plugin, index ) => {
 
                             let pluginElm: JSX.Element;
-                            if (!plugin.$error) {
+                            if ( !plugin.$error ) {
                                 pluginElm = <div className="plugin-item">
                                     <VCheckbox checked={plugin.$loaded} noInteractions={true} label="" />
                                     <span className="plugin">{plugin.name}</span>
@@ -173,17 +175,17 @@ namespace Animate {
 
             return <div id="splash-loading-project" className="loading-project fade-in background">
                 <div>
-                    { this.props.project ? <h2>Loading '{this.props.project.name}'</h2> : <h2>Project Loading</h2> }
+                    {this.props.project ? <h2>Loading '{this.props.project.name} '</h2> : <h2>Project Loading</h2>}
                     {loadingPanel}
-                    { this.state.message ?
+                    {this.state.message ?
                         <div className="summary-message"><Attention
                             allowClose={false}
                             mode={this.state.mode}
                             className="error">{this.state.message}
-                        </Attention></div> : null }
+                        </Attention></div> : null}
 
                 </div>
-                <ButtonPrimary onClick={( e ) => {  this.props.onCancel(); }}>
+                <ButtonPrimary onClick={( e ) => { this.props.onCancel(); } }>
                     <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
                 </ButtonPrimary>
             </div>

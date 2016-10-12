@@ -5,7 +5,7 @@ namespace Animate {
 	*/
     export abstract class PropertyGridEditor {
 
-		constructor( grid: PropertyGrid ) {
+        constructor( grid: PropertyGrid ) {
         }
 
         /**
@@ -13,19 +13,19 @@ namespace Animate {
 		* @param {Prop<any>} prop The property being edited
         * @returns {boolean}
 		*/
-        abstract canEdit(prop: Prop<any>): boolean;
+        abstract canEdit( prop: Prop<any> ): boolean;
 
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
 		* @param {Prop<any>} prop The property being edited
 		* @param {Component} container The container acting as this editors parent
 		*/
-        edit(prop: Prop<any>, container: Component) {
-			return null;
-		}
+        edit( prop: Prop<any>, container: Component ): void | null {
+            return null;
+        }
 
-		/* This function is called when the grid is cleaning up all the editors. */
+        /* This function is called when the grid is cleaning up all the editors. */
         cleanup() {
-		}
-	}
+        }
+    }
 }

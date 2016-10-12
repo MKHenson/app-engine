@@ -1,7 +1,7 @@
 namespace Animate {
 
     export interface IBehaviourPickerProps extends IReactWindowProps {
-        onTemplateSelected?: ( template: BehaviourDefinition ) => void;
+        onTemplateSelected?: ( template: BehaviourDefinition | null ) => void;
     }
 
     export interface IBehaviourPickerState extends IReactWindowState {
@@ -110,10 +110,10 @@ namespace Animate {
                 <List
                     canDeselect={false}
                     selectedIndex={this.state.selectedIndex}
-                    items={this.state.items}
+                    items={this.state.items!}
                     onDSelected={( item, index ) => {
                         if ( this.props.onTemplateSelected )
-                            this.props.onTemplateSelected( PluginManager.getSingleton().getTemplate( item.label ) );
+                            this.props.onTemplateSelected( PluginManager.getSingleton().getTemplate( item.label ) ! );
 
                         this.onClose();
                     } }
@@ -148,21 +148,21 @@ namespace Animate {
 
                 if ( selected !== -1 ) {
 
-                    let items: number = this.state.items.length;
+                    let items: number = this.state.items!.length;
 
                     // If up
                     if ( e.keyCode === 38 ) {
                         if ( selected - 1 < 0 )
                             this.setState( {
                                 selectedIndex: items - 1,
-                                search: this.state.items[ items - 1 ].label,
-                                selectedText: this.state.items[ items - 1 ].label
+                                search: this.state.items![ items - 1 ].label,
+                                selectedText: this.state.items![ items - 1 ].label
                             });
                         else
                             this.setState( {
                                 selectedIndex: selected - 1,
-                                search: this.state.items[ selected - 1 ].label,
-                                selectedText: this.state.items[ selected - 1 ].label
+                                search: this.state.items![ selected - 1 ].label,
+                                selectedText: this.state.items![ selected - 1 ].label
                             });
                     }
                     // If down
@@ -170,14 +170,14 @@ namespace Animate {
                         if ( selected + 1 < items )
                             this.setState( {
                                 selectedIndex: selected + 1,
-                                search: this.state.items[ selected + 1 ].label,
-                                selectedText: this.state.items[ selected + 1 ].label
+                                search: this.state.items![ selected + 1 ].label,
+                                selectedText: this.state.items![ selected + 1 ].label
                             });
                         else
                             this.setState( {
                                 selectedIndex: 0,
-                                search: this.state.items[ 0 ].label,
-                                selectedText: this.state.items[ 0 ].label
+                                search: this.state.items![ 0 ].label,
+                                selectedText: this.state.items![ 0 ].label
                             });
                     }
                 }
@@ -189,17 +189,17 @@ namespace Animate {
             // If enter is pressed we select the current item
             if ( e.keyCode === 13 ) {
 
-                let selectedItem = this.state.items[ this.state.selectedIndex ];
+                let selectedItem: IListItem = this.state.items![ this.state.selectedIndex! ];
 
                 if ( this.props.onTemplateSelected )
-                    this.props.onTemplateSelected( selectedItem ? PluginManager.getSingleton().getTemplate( selectedItem.label ) : null );
+                    this.props.onTemplateSelected( selectedItem ? PluginManager.getSingleton().getTemplate( selectedItem.label ) ! : null );
 
                 this.onClose();
                 return;
             }
 
 
-            let items = this.state.items;
+            let items = this.state.items!;
             for ( let i = 0, l = items.length; i < l; i++ ) {
 
                 let v1 = items[ i ].label.toLowerCase();
@@ -207,7 +207,7 @@ namespace Animate {
 
 
                 if ( v1.indexOf( v2 ) !== -1 ) {
-                    let selectedItem = this.state.items[ i ];
+                    let selectedItem = items[ i ];
                     this.setState( {
                         selectedIndex: i,
                         search: selectedItem.label
