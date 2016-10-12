@@ -104,7 +104,8 @@ function createStore(): Redux.Store<any> {
     const reducers = Redux.combineReducers( {
         project: Animate.projectReducer,
         editorState: Animate.editorReducer,
-        logs: Animate.loggerReducer
+        logs: Animate.loggerReducer,
+        user: Animate.userReducer
     });
 
     // Creat the store

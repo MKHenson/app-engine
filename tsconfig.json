@@ -185,9 +185,11 @@
         "lib/actions/project.ts",
         "lib/actions/editor.ts",
         "lib/actions/logger.ts",
+        "lib/actions/user-actions.ts",
         "lib/reducers/project-reducer.ts",
         "lib/reducers/logger-reducer.ts",
         "lib/reducers/editor-reducer.ts",
+        "lib/reducers/user-reducer.ts",
         "lib/main.tsx"
     ]
 }

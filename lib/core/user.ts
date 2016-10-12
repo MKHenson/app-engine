@@ -70,7 +70,6 @@ namespace Animate {
                     return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
                 });
             });
-
         }
 
         /**
