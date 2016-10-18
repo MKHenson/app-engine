@@ -56,10 +56,11 @@ declare namespace Animate {
      * Describes the store User
      */
     export interface IUser {
-        entry: UsersInterface.IUserEntry;
-        meta: HatcheryServer.IUserMeta;
-        project: Project;
-        isLoggedIn: boolean;
+        entry?: UsersInterface.IUserEntry | null;
+        meta?: HatcheryServer.IUserMeta | null;
+        isLoggedIn?: boolean;
+        loading?: boolean;
+        error?: string | null;
     }
 
     /**

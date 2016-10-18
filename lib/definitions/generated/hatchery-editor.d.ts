@@ -6535,16 +6535,15 @@ declare namespace Animate {
         mode?: SplashMode;
         loading?: boolean;
         project?: HatcheryServer.IProject;
-        theme?: string;
     }
     /**
-    * The splash screen when starting the app
-    */
+     * The splash screen when starting the app
+     */
     class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton;
         /**
-        * Creates an instance of the splash screen
-        */
+         * Creates an instance of the splash screen
+         */
         constructor(props: ISplashProps);
         /**
          * Creates the component elements
@@ -6756,6 +6755,24 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+     * Describes each of the user action types
+     */
+    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED';
+    /**
+     * A base interface for describing user related actions
+     */
+    interface IUserAction extends Redux.Action {
+        type: UserActionType;
+        userData?: IUser;
+    }
+    /**
+     * Checks if a user is logged in or not. This checks the server using
+     * cookie and session data from the browser.
+     */
+    function authenticated(): (dispatch: Redux.Dispatch<IUserAction>) => void;
+}
+declare namespace Animate {
+    /**
      * A reducer for processing project actions
      */
     function projectReducer(state: any, action: IProjectAction): {};
@@ -6771,6 +6788,12 @@ declare namespace Animate {
      * A reducer that processes state changes of the editor
      */
     function editorReducer(state: IEditorState, action: IEditorAction): IEditorState;
+}
+declare namespace Animate {
+    /**
+     * A reducer for processing project actions
+     */
+    function userReducer(state: IUser, action: IUserAction): IUser;
 }
 declare namespace Animate {
     var store: Redux.Store<any>;
