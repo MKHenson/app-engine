@@ -26,7 +26,7 @@ namespace Animate {
                     {
                         label: 'Delete',
                         prefix: <i className="fa fa-times" aria-hidden="true"></i>,
-                        onSelect: ( e ) => {
+                        onSelect: () => {
                             this.parent!.removeNode( this );
                         }
                     }

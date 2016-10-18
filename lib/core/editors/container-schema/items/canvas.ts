@@ -32,6 +32,9 @@ namespace Animate {
 		* @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
 		*/
         constructor( parent: Component, container: Resources.Container ) {
+            parent; // Supresses unused param error
+            container;
+
             // Call super-class constructor
             //super( '<div class=\'canvas\' tabindex=\'0\'></div>', parent );
 

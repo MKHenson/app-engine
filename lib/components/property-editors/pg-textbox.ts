@@ -33,7 +33,7 @@ namespace Animate {
             container.element.append( editor );
 
             //Function to deal with user interactions with JQuery
-            const valueEdited = function( e: JQueryEventObject ) {
+            const valueEdited = function() {
                 p.setVal( jQuery( 'input', editor ).val() );
             };
 

@@ -54,13 +54,13 @@ namespace Animate {
                 selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? 'selected=\'selected\'' : '' )}>${groups[ i ].entry.name}</option>` );
 
             // Functions to deal with user interactions with JQuery
-            const onSelect = function( e: JQueryEventObject ) {
+            const onSelect = function() {
                 const val = parseFloat( selector.val() );
                 const group = <Resources.GroupArray>project.getResourceByShallowID( val, ResourceType.GROUP );
                 p.setVal( group );
             };
 
-            const onEye = function( e: JQueryEventObject ) {
+            const onEye = function() {
                 // const val = parseFloat( selector.val() );
                 // const group = project.getResourceByShallowID( val, ResourceType.GROUP );
                 // TODO: This needs to be checked with update to TSX

@@ -18,10 +18,10 @@ namespace Animate {
      * Creates a new project in the backend, and dispatches an event on its success or failure
      */
     export function createProject( projectData ) {
-        return ( dispatch: Redux.Dispatch<IProjectAction>, getState: () => IProjectAction ) => {
-            Utils.post( 'new-project', projectData ).then(( response ) => {
+        return ( dispatch: Redux.Dispatch<IProjectAction> ) => {
+            Utils.post( 'new-project', projectData ).then(() => {
                 dispatch( { type: 'NEW_PROJECT' });
-            }).catch(( error ) => {
+            }).catch(() => {
 
             });
         }

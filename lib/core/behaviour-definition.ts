@@ -49,6 +49,7 @@ namespace Animate {
 		* @return Return true if you want Animate to allow for building outputs.
         */
         canBuildOutput( behaviour: Behaviour ): boolean {
+            behaviour; // Supresses unused param error
             return this._canBuildOutput;
         }
 
@@ -57,6 +58,7 @@ namespace Animate {
 		* @return Return true if you want Animate to allow for building inputs.
         */
         canBuildInput( behaviour: Behaviour ): boolean {
+            behaviour; // Supresses unused param error
             return this._canBuildInput;
         }
 
@@ -65,6 +67,7 @@ namespace Animate {
 		* @return Return true if you want Animate to allow for building products.
         */
         canBuildProduct( behaviour: Behaviour ): boolean {
+            behaviour; // Supresses unused param error
             return this._canBuildProduct;
         }
 
@@ -73,6 +76,7 @@ namespace Animate {
 		* @return Return true if you want Animate to allow for building parameters.
         */
         canBuildParameter( behaviour: Behaviour ): boolean {
+            behaviour; // Supresses unused param error
             return this._canBuildParameter;
         }
 

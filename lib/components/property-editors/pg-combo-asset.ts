@@ -55,14 +55,14 @@ namespace Animate {
                 selector.append( `<option title='${nodes[ i ].resource.entry.shallowId + ' : ' + nodes[ i ].resource.entry.className}' value='${nodes[ i ].resource.entry.shallowId}' ${( selectedID === nodes[ i ].resource.entry.shallowId ? 'selected=\'selected\'' : '' )}>${nodes[ i ].resource.entry.name}</option>` );
 
             // When we select a new asset
-            const onSelect = function( e: JQueryEventObject ) {
+            const onSelect = function() {
                 const val = parseFloat( selector.val() );
                 const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET ) !;
                 p.setVal( asset );
             };
 
             // When we click on the target
-            const onEye = function( e: JQueryEventObject ) {
+            const onEye = function() {
                 // const val = parseInt( selector.val() );
                 // const asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
 

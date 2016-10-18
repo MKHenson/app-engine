@@ -26,7 +26,6 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-
             return (
                 <div onContextMenu={( e ) => {
                     e.preventDefault();
@@ -34,7 +33,7 @@ namespace Animate {
                         x: e.pageX, y: e.pageY, items: [ {
                             label: 'Clear',
                             prefix: <i className="fa fa-times" aria-hidden="true"></i>,
-                            onSelect: ( item ) => { this.props.dispatch!( LogActions.clear() ) }
+                            onSelect: () => { this.props.dispatch!( LogActions.clear() ) }
                         }]
                     });
                 } }

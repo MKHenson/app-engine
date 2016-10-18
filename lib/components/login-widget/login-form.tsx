@@ -42,7 +42,7 @@ namespace Animate {
                 error: false
             };
 
-            User.get.authenticated().then(( loggedIn ) => {
+            User.get.authenticated().then(() => {
 
                 if ( this.props.onLoadingChange )
                     this.props.onLoadingChange( false );
@@ -165,16 +165,16 @@ namespace Animate {
             return <div className="login animate-all fade-in">
                 <VForm name="login"
                     autoComplete="off"
-                    onValidationError={( errors, form ) => {
+                    onValidationError={( errors ) => {
                         this.setState( {
                             errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
                             error: true
                         })
                     } }
-                    onValidationsResolved={( form ) => {
+                    onValidationsResolved={() => {
                         this.setState( { errorMsg: '' })
                     } }
-                    onSubmitted={( json, form ) => {
+                    onSubmitted={( json ) => {
                         this.login( json );
                     } }>
                     <VInput
@@ -183,7 +183,10 @@ namespace Animate {
                         autoFocus={true}
                         type="text"
                         name="username"
-                        onChange={( e, newText ) => { this.setState( { username: newText }) } }
+                        onChange={( e, newText ) => {
+                            e; // Supresses unused param error
+                            this.setState( { username: newText })
+                        } }
                         value={this.state.username}
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
                         />
@@ -198,7 +201,7 @@ namespace Animate {
                         />
 
                     <a id="forgot-pass" className={( this.state.loading ? 'disabled' : undefined )}
-                        onClick={( e ) => this.resetPassword()}>
+                        onClick={() => this.resetPassword()}>
                         Forgot
                     </a>
                     <VCheckbox
@@ -209,7 +212,7 @@ namespace Animate {
                     <br />
                     <a
                         className={( this.state.loading ? 'disabled' : '' )}
-                        onClick={( e ) => this.resendActivation()}>
+                        onClick={() => this.resendActivation()}>
                         Resend Activation Email
                     </a>
                     <br />
@@ -222,7 +225,7 @@ namespace Animate {
                         )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode()}>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={() => this.props.switchMode()}>
                             Register <span className="fa fa-user" />
                         </ButtonPrimary>
                     </div>

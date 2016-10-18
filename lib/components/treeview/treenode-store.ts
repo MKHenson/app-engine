@@ -75,7 +75,7 @@ namespace Animate {
 		 * @param selection
 		 */
         onSelectionChange( selection: TreeNodeModel[] ) {
-
+            selection; // Supresses unused param error
         }
 
 		/**
@@ -142,7 +142,8 @@ namespace Animate {
 		 * @param node
          */
         onContext( e: React.MouseEvent, node: TreeNodeModel ) {
-
+            e; // Supresses unused param error
+            node;
         }
 
 		/**

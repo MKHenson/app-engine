@@ -59,7 +59,7 @@ namespace Animate {
             this.props.project.off<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
         }
 
-        onProjectUpdated( type: ProjectEvents ) {
+        onProjectUpdated() {
             this.forceUpdate();
         }
 
@@ -74,50 +74,50 @@ namespace Animate {
                     panes={[
                         <TabPane label="Home" showCloseButton={false}>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => { this.onHome() } } label="Home" imgUrl="media/animate-home.png" />
-                                <ToolbarButton onChange={( e ) => { this.saveAll() } } label="Save" imgUrl="media/save.png" />
+                                <ToolbarButton onChange={() => { this.onHome() } } label="Home" imgUrl="media/animate-home.png" />
+                                <ToolbarButton onChange={() => { this.saveAll() } } label="Save" imgUrl="media/save.png" />
                             </div>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png" disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { this.onPaste() } } label="Paste" imgUrl="media/paste.png" disabled={!this._copyPasteToken} />
-                                <ToolbarButton onChange={( e ) => { this.onDelete() } } label="Delete" imgUrl="media/delete.png" disabled={!this.$itemSelected} />
-                                <ToolbarButton onChange={( e ) => { editor!.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
+                                <ToolbarButton onChange={() => { this.onDuplicate() } } label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={() => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png" disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={() => { this.onPaste() } } label="Paste" imgUrl="media/paste.png" disabled={!this._copyPasteToken} />
+                                <ToolbarButton onChange={() => { this.onDelete() } } label="Delete" imgUrl="media/delete.png" disabled={!this.$itemSelected} />
+                                <ToolbarButton onChange={() => { editor!.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
                                     disabled={!editor || !editor.hasUndos} />
-                                <ToolbarButton onChange={( e ) => { editor!.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
+                                <ToolbarButton onChange={() => { editor!.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
                                     disabled={!editor || !editor.hasRedos} />
                             </div>
                             <div className="tool-bar-group">
                                 <ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Animate.Canvas.snapping}
-                                    onChange={( e ) => {
+                                    onChange={() => {
                                         Animate.Canvas.snapping = !Animate.Canvas.snapping
                                     } }
                                     />
                             </div>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => {
+                                <ToolbarButton onChange={() => {
                                     this.onRun()
                                 } } label="Run" imgUrl="media/play.png" />
-                                <ToolbarButton onChange={( e ) => {
+                                <ToolbarButton onChange={() => {
                                     ReactWindow.show( OptionsForm, {} as IOptionsForm );
                                 } } label="Settings" imgUrl="media/build.png" />
-                                <ToolbarButton onChange={( e ) => {
+                                <ToolbarButton onChange={() => {
                                     Animate.CanvasTab.getSingleton().addSpecialTab( 'HTML', Animate.CanvasTabType.HTML )
                                 } } label="HTML" imgUrl="media/html.png" />
-                                <ToolbarButton onChange={( e ) => {
+                                <ToolbarButton onChange={() => {
                                     Animate.CanvasTab.getSingleton().addSpecialTab( 'CSS', Animate.CanvasTabType.CSS )
                                 } } label="CSS" imgUrl="media/css.png" />
                             </div>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => { this.newContainer() } } label="New Behaviour" imgUrl="media/add-behaviour.png" />
+                                <ToolbarButton onChange={() => { this.newContainer() } } label="New Behaviour" imgUrl="media/add-behaviour.png" />
                             </div>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => {
+                                <ToolbarButton onChange={() => {
                                     Animate.UserPrivilegesForm.getSingleton().show()
                                 } } label="Privileges" imgUrl="media/privaledges.png" />
                             </div>
                             <div className="tool-bar-group">
-                                <ToolbarButton onChange={( e ) => { ReactWindow.show( FileDialogue, { multiselect: true, readOnly: true } as IFileDialogueProps ); } } label="File Manager" imgUrl="media/plug-detailed.png" />
+                                <ToolbarButton onChange={() => { ReactWindow.show( FileDialogue, { multiselect: true, readOnly: true } as IFileDialogueProps ); } } label="File Manager" imgUrl="media/plug-detailed.png" />
                             </div>
                         </TabPane>
                     ]}
@@ -130,6 +130,7 @@ namespace Animate {
 		* @param {Component} item
 		*/
         itemSelected( item: Component ) {
+            item; // Supresses unused param error
             // TODO: Canvas TSX changes
             // ==========================================
             // if (item instanceof Behaviour || item instanceof Link)
@@ -144,7 +145,7 @@ namespace Animate {
 		/**
 		* This is called when we have loaded and initialized a new project.
 		*/
-        newProject( project: Project ) {
+        newProject() {
             this.$itemSelected = false;
             this._copyPasteToken = null;
         }
@@ -217,6 +218,7 @@ namespace Animate {
         * When we click the copy button
         */
         onDuplicate( cut: boolean = false ) {
+            cut; // Supresses unused param error
             // if (CanvasTab.getSingleton().currentCanvas instanceof Canvas === false)
             //     return;
 
@@ -252,6 +254,7 @@ namespace Animate {
                     let project = User.get.project;
 
                     project.createResource( ResourceType.CONTAINER, { name: newName }).then(( resource ) => {
+                        resource; // Supresses unused param error
                         // TODO: This might be removed from update to TSX
                         // // The container is created - so lets open it up
                         // var tabPair = CanvasTab.getSingleton().addSpecialTab(resource.entry.name, CanvasTabType.CANVAS, resource);
@@ -263,7 +266,7 @@ namespace Animate {
                         MessageBox.error(
                             err.message,
                             [ 'Ok' ],
-                            ( button ) => {
+                            () => {
 
                                 // Show the new behaviour form again
                                 this.newContainer();
@@ -307,6 +310,9 @@ namespace Animate {
 		* @returns Returns the {Component} object representing the tab
 		*/
         createTab( text: string, isSelected: boolean = false ): Component | null {
+            text; // Supresses unused param error
+            isSelected;
+
             // var topTab = this._topMenu.addChild("<div className='toolbar-tab " + (isSelected ? "toolbar-tab-selected" : "" ) + "'>" + text + "</div>" );
             // var btmContainer: Component = <Component>this._bottomMenu.addChild( "<div className='tab-container'></div>" );
 
@@ -331,6 +337,7 @@ namespace Animate {
 		* Called when the key is pushed down
 		*/
         onKeyDown( event: any ) {
+            event; // Supresses unused param error
             // if (event.data === 'Ctrl+s')
             //     this.saveAll();
             // else if (event.data === 'Ctrl+c')
@@ -348,6 +355,7 @@ namespace Animate {
 		* @param text The name of the tab
 		*/
         removeTab( text: string ) {
+            text; // Supresses unused param error
             // var children: Array<IComponent> = this._topMenu.children;
             // var i = children.length;
 
@@ -365,6 +373,7 @@ namespace Animate {
 		* @returns Returns the {Component} object representing the group
 		*/
         createGroup( tab: Component ): Component | null {
+            tab; // Supresses unused param error
             // return <Component>tab.addChild( "<div className='tool-bar-group background-view-light'></div>" );
             return null;
         }
@@ -379,6 +388,12 @@ namespace Animate {
 		* @returns {ToolbarNumber}
 		*/
         createGroupNumber( text: string, defaultVal: number, min: number = Number.MAX_VALUE, max: number = Number.MAX_VALUE, delta: number = 0.1, group: Component | null = null ): ToolbarNumber | null {
+            text; // Supresses unused param error
+            defaultVal;
+            min;
+            max;
+            delta;
+            group;
             // var toRet: ToolbarNumber = new ToolbarNumber( group, text, defaultVal, min, max, delta );
             // group.addChild( <IComponent>toRet );
             // return toRet;
@@ -394,6 +409,10 @@ namespace Animate {
 		* @returns {Component} Returns the Component object representing the button
 		*/
         createGroupButton( text: string, image: string | null = null, group: Component | null = null, isPushButton: boolean = false ): ToolbarButton | null {
+            text; // Supresses unused param error
+            image;
+            group;
+            isPushButton;
             // var toRet: ToolBarButton = new ToolBarButton( text, image, isPushButton, group )
             // group.addChild( <IComponent>toRet );
             // return toRet;
@@ -407,6 +426,8 @@ namespace Animate {
 		* @returns {ToolbarDropDown} Returns the Component object representing the button
 		*/
         createDropDownButton( parent: Component, items: Array<ToolbarItem> ): ToolbarDropDown | null {
+            parent; // Supresses unused param error
+            items;
             // var toRet = new ToolbarDropDown( parent, items )
             // return toRet;
             return null;
@@ -420,6 +441,9 @@ namespace Animate {
 		* @returns {ToolbarColorPicker} Returns the ToolbarColorPicker object representing the button
 		*/
         createColorButton( parent: Component, text: string, color: string ): ToolbarColorPicker | null {
+            parent; // Supresses unused param error
+            text;
+            color;
             // var toRet = new ToolbarColorPicker( parent, text, color );
             // return toRet;
             return null;
@@ -429,6 +453,7 @@ namespace Animate {
 		* Gets the singleton instance
 		*/
         public static getSingleton( parent?: Component ): Toolbar {
+            parent;
             // if ( Toolbar._singleton === undefined )
             // 	Toolbar._singleton = new Toolbar( parent );
 

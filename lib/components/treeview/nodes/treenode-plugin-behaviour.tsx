@@ -22,7 +22,7 @@ namespace Animate {
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          */
-        onDragStart( e: React.DragEvent ): IDragDropToken {
+        onDragStart(): IDragDropToken {
             return { type: 'template', id: this._template.behaviourName } as IDragDropToken;
         }
 
@@ -30,6 +30,8 @@ namespace Animate {
          * If a template is removed then remove its instance
          */
         onTemplateRemoved( type: PluginManagerEvents, event: ITemplateEvent ) {
+            type; // Supresses unused param error
+
             if ( this._template === event.template && this._parent )
                 this._parent.removeNode( this );
         }

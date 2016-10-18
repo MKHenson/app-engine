@@ -31,7 +31,7 @@ namespace Animate {
                         ( node.focussed ? ' focussed' : '' )}>
                     <div className="node-header">
                         <div className="expand-button unselectable"
-                            onClick={( e ) => {
+                            onClick={() => {
                                 if ( node.disabled() )
                                     return;
 

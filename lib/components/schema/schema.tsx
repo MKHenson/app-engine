@@ -66,9 +66,8 @@ namespace Animate {
 		* @param template The definition of the behaviour we're creating
 		* @param pos The x and y position of where the node shoule be placed
 		* @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
-        * @param name The alias of the behaviour
 		*/
-        addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>, name?: string ) {
+        addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource> ) {
             pos.x = pos.x - pos.x % 10;
             pos.y = pos.y - pos.y % 10;
 
@@ -117,7 +116,7 @@ namespace Animate {
                 onOk: ( newName ) => {
                     this.props.editor.doAction( new Actions.PortalCreated( new Portal( null, type, new PropBool( newName, false ) ), null, pos.x, pos.y ) );
                 },
-                onRenaming: ( newName, prevName ): Error | null => {
+                onRenaming: ( newName ): Error | null => {
                     // Do not allow for duplicate portal names
                     const items = this.props.editor.getItems();
                     for ( const item of items )
@@ -145,7 +144,7 @@ namespace Animate {
             const selection = this.props.editor.getSelection();
             const items: IReactContextMenuItem[] = [
                 {
-                    label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" />, onSelect: ( e ) => {
+                    label: 'Add Comment', prefix: <i className="fa fa-comment-o" aria-hidden="true" />, onSelect: () => {
                         this.props.editor.doAction( new Actions.CommentCreated( mouse.x, mouse.y ) );
                     }
                 },
@@ -153,22 +152,22 @@ namespace Animate {
                     label: 'Portals', prefix: <i className="fa fa-caret-right" aria-hidden="true" />, items: [ {
                         label: 'Create Input',
                         prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                        onSelect: ( e ) => { this.createPortal( 'input', mouse ); }
+                        onSelect: () => { this.createPortal( 'input', mouse ); }
                     },
                     {
                         label: 'Create Output',
                         prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                        onSelect: ( e ) => { this.createPortal( 'output', mouse ); }
+                        onSelect: () => { this.createPortal( 'output', mouse ); }
                     },
                     {
                         label: 'Create Parameter',
                         prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                        onSelect: ( e ) => { this.createPortal( 'parameter', mouse ); }
+                        onSelect: () => { this.createPortal( 'parameter', mouse ); }
                     },
                     {
                         label: 'Create Product',
                         prefix: <i className="fa fa-plus" aria-hidden="true" />,
-                        onSelect: ( e ) => { this.createPortal( 'product', mouse ); }
+                        onSelect: () => { this.createPortal( 'product', mouse ); }
                     }
                     ]
                 }
@@ -176,7 +175,7 @@ namespace Animate {
 
             if ( selection.length > 0 )
                 items.push( {
-                    label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" />, onSelect: ( e ) => {
+                    label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true" />, onSelect: () => {
                         this.props.editor.doAction( new Actions.BehavioursRemoved( selection ) );
                     }
                 });
@@ -211,7 +210,7 @@ namespace Animate {
                     onContextMenu={( e ) => { this.onContext( e ); } }
                     ref="canvas"
                     className="canvas"
-                    onClick={( e ) => this.props.editor.onNodeSelected( null, false )}
+                    onClick={() => this.props.editor.onNodeSelected( null, false )}
                     onDragOver={( e ) => e.preventDefault()}
                     onDoubleClick={( e ) => {
                         e.preventDefault();

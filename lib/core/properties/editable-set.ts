@@ -60,7 +60,7 @@
         /**
          * Broadcasts an 'edited' event to the owner of the set
          */
-        notifyEdit( prop: Prop<any> ) {
+        notifyEdit() {
             //this.parent.emit( new EditEvent( prop, this ) );
         }
 

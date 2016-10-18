@@ -12,7 +12,7 @@
         "noImplicitAny": false,
         "jsx": "react",
         "experimentalDecorators": true,
-        "noUnusedParameters": false,
+        "noUnusedParameters": true,
         "noUnusedLocals": true,
         "strictNullChecks": true
     },

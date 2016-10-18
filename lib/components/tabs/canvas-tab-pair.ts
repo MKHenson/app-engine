@@ -23,13 +23,15 @@ namespace Animate {
         * Called whenever the container is refreshed
         */
         onRefreshed( type: string, event: Event, sender: Resources.Container ) {
+            type; // Supresses unused param error
+            event;
             this.text = sender.entry.name!;
         }
 
         /**
         * Whenever the container deleted
         */
-        onContainerDeleted( type: string, event: Event, sender: EventDispatcher ) {
+        onContainerDeleted() {
             this.forceClose = true;
             // TODO: This was changed in upgrade to TSX
             // this.tab.removeTab(this, true);
@@ -39,7 +41,7 @@ namespace Animate {
         /**
 		* Whenever the container is modified, we show this with a *
 		*/
-        onContainerModified( type: string, event: Event, sender: EventDispatcher ) {
+        onContainerModified() {
             // TODO: Canvas TSX changes
             // ==========================================================
             // this.modified = !this._canvas.container.saved;

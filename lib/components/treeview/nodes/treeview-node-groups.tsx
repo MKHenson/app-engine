@@ -71,6 +71,7 @@ namespace Animate {
          * If a container is created, then add its node representation
          */
         onResourceCreated( type: ProjectEvents, event: IResourceEvent ) {
+            type; // Supresses unused param error
             let r = event.resource;
             if ( r instanceof Resources.GroupArray )
                 this.addNode( new TreeNodeGroup( r ) );

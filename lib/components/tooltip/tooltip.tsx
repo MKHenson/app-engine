@@ -103,13 +103,13 @@ namespace Animate {
          * When the element is unmounted we remove the tooltip if its added
          */
         componentWillUnmount() {
-            this.onMouseleave( null );
+            this.onMouseleave();
         }
 
         /**
          * When the mouse leaves we remove the tooltip
          */
-        onMouseleave( e: React.MouseEvent | null ) {
+        onMouseleave() {
             const tooltipParent = Tooltip._tooltip;
 
             if ( !document.body.contains( tooltipParent ) )
@@ -143,7 +143,7 @@ namespace Animate {
 
             return <span
                 onMouseEnter={( e ) => this.onMouseEnter( e )}
-                onMouseLeave={( e ) => this.onMouseleave( e )}
+                onMouseLeave={() => this.onMouseleave()}
                 >
                 {this.props.children}
             </span>;

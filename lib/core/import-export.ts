@@ -407,7 +407,7 @@ namespace Animate {
 		/**
 		* This is the resonse from the server
 		*/
-        onServer( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+        onServer() {
             // const loader: AnimateLoader = <AnimateLoader>sender;
             // if ( response === LoaderEvents.COMPLETE ) {
             //     if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {

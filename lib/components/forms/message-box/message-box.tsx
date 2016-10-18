@@ -53,6 +53,8 @@ namespace Animate {
 		 * Hide the window when ok is clicked.
 		 */
         onButtonClick( e: React.MouseEvent, button: string ) {
+            e; // Supresses unused param error
+
             if ( this.props.onChange )
                 this.props.onChange( button );
 

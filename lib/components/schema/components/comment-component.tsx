@@ -41,6 +41,7 @@ namespace Animate {
          * When we switch edit mode, we add/remove listeners and/or focus on the editable textarea
          */
         componentDidUpdate( prevProps: ICommentComponentProps, prevState: ICommentComponentState ) {
+            prevProps; // Supresses unused param error
 
             if ( !prevState.editMode && this.state.editMode ) {
                 const input = this.refs[ 'input' ] as HTMLTextAreaElement;
@@ -91,6 +92,7 @@ namespace Animate {
                     y={this.props.comment.top!}
                     enabled={( !this.state.editMode )}
                     onDragComplete={( start, end ) => {
+                        start; // Supresses unused param error
                         editor.doAction( new Actions.SelectionMoved( [ { index: comment.id!, x: end.x, y: end.y }] ) );
                     } }>
                     <Resizable

@@ -18,7 +18,7 @@
         * Attempts to clone the property
         * @returns {PropObject}
         */
-        clone( clone?: PropObject ): PropObject {
+        clone(): PropObject {
             return new PropObject( this.name, this._value, this.category, this.options );
         }
     }

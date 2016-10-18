@@ -147,7 +147,7 @@ namespace Animate {
             const tab: ScriptTab = this;
 
             //When we return from the server
-            const onServer = function( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+            const onServer = function( response: LoaderEvents, event: AnimateLoaderEvent ) {
                 //When we come back from the server
                 if ( response === 'complete' ) {
                     let data: any = event.tag.script;
@@ -194,7 +194,7 @@ namespace Animate {
 		* @param <object> event
 		* @param <object> data
 		*/
-        onServer( response: ProjectEvents, event: any ) {
+        onServer( response: ProjectEvents ) {
             if ( response === 'failed' ) {
                 this.saved = false;
                 //MessageBox.show('Problem saving the data, server responded with:'' + event.message + ''', Array<string>('Ok'), null, null );
@@ -339,7 +339,7 @@ namespace Animate {
             const tab = this;
 
             // When we return from the save
-            const onSave = function( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+            const onSave = function( response: LoaderEvents, event: AnimateLoaderEvent ) {
                 if ( response === 'complete' ) {
                     if ( event.return_type === 'error' ) {
                         MessageBox.error( `There was an error saving the script: '${event.message}'` );

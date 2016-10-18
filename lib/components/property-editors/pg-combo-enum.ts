@@ -44,7 +44,7 @@ namespace Animate {
                 selector.append( `<option value='${vars[ i ]}' ${( selectedValue === vars[ i ] ? 'selected=\'selected\'' : '' )}>${vars[ i ]}</option>` );
 
             // Functions to deal with user interactions with JQuery
-            const onSelect = function( e: JQueryEventObject ) {
+            const onSelect = function() {
                 const val = selector.val();
                 p.setVal( val );
             };

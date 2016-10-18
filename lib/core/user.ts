@@ -338,6 +338,7 @@ namespace Animate {
 		* @param id The project ID we are copying
 		*/
         copyProject( id: string ) {
+            id; // Supresses unused param error
             throw new Error( 'not implemented' );
         }
 
@@ -345,6 +346,7 @@ namespace Animate {
 		* This function is used to open an existing project.
 		*/
         openProject( id: string ) {
+            id; // Supresses unused param error
             throw new Error( 'not implemented' );
         }
 
@@ -353,6 +355,7 @@ namespace Animate {
 		* @param id The id of the project we are removing.
 		*/
         deleteProject( id: string ) {
+            id; // Supresses unused param error
             throw new Error( 'not implemented' );
         }
 

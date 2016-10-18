@@ -53,7 +53,7 @@ namespace Animate {
             return (
                 <VForm onSubmitted={( json ) => { this.ok( json.name ); } }
                     onValidationError={( errors ) => { this.setState( { $errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}` }) } }
-                    onValidationsResolved={( e ) => { this.setState( { $errorMsg: null }) } }>
+                    onValidationsResolved={() => { this.setState( { $errorMsg: null }) } }>
                     <VInput type="text" name="name" placeholder="Please enter a name"
                         validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML}
                         value={this.props.name}

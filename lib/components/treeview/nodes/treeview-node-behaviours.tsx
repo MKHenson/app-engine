@@ -34,6 +34,7 @@ namespace Animate {
          * If a template is created, then add its node representation
          */
         onTemplateCreated( type: PluginManagerEvents, event: ITemplateEvent ) {
+            type; // Supresses unused param error
             this.addNode( new TreeNodePluginBehaviour( event.template ) );
         }
     }

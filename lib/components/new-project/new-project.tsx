@@ -72,16 +72,16 @@ namespace Animate {
                     <VForm name="new-project"
                         ref="newProjectForm"
                         autoComplete="off"
-                        onValidationError={( errors, form ) => {
+                        onValidationError={( errors ) => {
                             this.setState( {
                                 errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
                                 error: true
                             })
                         } }
-                        onValidationsResolved={( form ) => {
+                        onValidationsResolved={() => {
                             this.setState( { errorMsg: null })
                         } }
-                        onSubmitted={( json, form ) => {
+                        onSubmitted={( json ) => {
                             this.newProject( json );
                         } }>
 
@@ -113,7 +113,7 @@ namespace Animate {
                             </Attention>
                             : null
                     )}
-                    <ButtonPrimary onClick={( e ) => { this.props.onCancel() } }>
+                    <ButtonPrimary onClick={() => { this.props.onCancel() } }>
                         Back
                     </ButtonPrimary>
                     <ButtonPrimary disabled={this.state.loading} onClick={() => { ( this.refs[ 'newProjectForm' ] as VForm ).initiateSubmit(); } }>

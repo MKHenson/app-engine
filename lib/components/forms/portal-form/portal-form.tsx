@@ -111,9 +111,9 @@ namespace Animate {
             return (
                 <div id="portal-editor">
                     <VForm
-                        onValidationError={( errors, form ) => { } }
-                        onSubmitted={( json, form ) => { this.ok( json ) } }
-                        onValidationsResolved={( form ) => { } }
+                        onValidationError={() => { } }
+                        onSubmitted={( json ) => { this.ok( json ) } }
+                        onValidationsResolved={() => { } }
                         >
                         <VInput type="text" name="name" placeholder="Portal name" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />
                         <VSelect name="type" options={portalTypes} />
@@ -123,7 +123,7 @@ namespace Animate {
                             <i className="fa fa-check" aria-hidden="true"></i> OK
                         </ButtonSuccess>
                         <ButtonLink
-                            onClick={( e ) => {
+                            onClick={() => {
                                 this.onClose();
                                 if ( this.props.onCancel )
                                     this.props.onCancel();
@@ -183,6 +183,9 @@ namespace Animate {
         //showForm( item: Canvas, type: PortalType, caption: string )
         //showForm( item : any, type : PortalType, caption : string )
         editPortal( property: Prop<any>, type: HatcheryRuntime.PortalType, nameVerifier: ( name: string ) => boolean ) {
+            property; // Supresses unused param error
+            type;
+            nameVerifier;
             //             this.generateClasses();
             // 			//var types :Array<string> = PluginManager.getSingleton().dataTypes;
 
@@ -288,6 +291,7 @@ namespace Animate {
 		* and pass the text either for the ok or cancel buttons.
         */
         ok( json: any ) {
+            json; // Supresses unused param error
             //if ( jQuery( e.target ).text() === "Ok" )
             //{
             //Check if the values are valid

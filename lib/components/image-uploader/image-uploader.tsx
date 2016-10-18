@@ -64,7 +64,7 @@ namespace Animate {
                 label={this.props.label}
                 src={this.state.src}
                 labelIcon={<i className="fa fa-plus" aria-hidden="true"></i>}
-                onLabelClick={( e ) => { this.pickProjectPick(); } }
+                onLabelClick={() => { this.pickProjectPick(); } }
                 />
         }
     }

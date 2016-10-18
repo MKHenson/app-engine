@@ -13,7 +13,7 @@
         thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null {
 
             if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
-                return new Promise<HTMLCanvasElement>(( resolve, reject ) => {
+                return new Promise<HTMLCanvasElement>(( resolve ) => {
                     const size = this._maxPreviewSize;
 
 
@@ -24,7 +24,7 @@
                         k.appendChild( img );
                         img.crossOrigin = 'Anonymous';
                         img.src = file.url!;
-                        img.onload = function( e ) {
+                        img.onload = function() {
                             // Resize the image
                             const canvas = document.createElement( 'canvas' );
                             let width = img.naturalWidth,

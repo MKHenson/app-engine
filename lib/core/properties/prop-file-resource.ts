@@ -22,7 +22,7 @@
         * Attempts to clone the property
         * @returns {PropFileResource}
         */
-        clone( clone?: PropFileResource ): PropFileResource {
+        clone(): PropFileResource {
             return new PropFileResource( this.name, this._value, this.extensions, this.category, this.options );
         }
 

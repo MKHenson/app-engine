@@ -45,7 +45,7 @@
         * Attempts to clone the property
         * @returns {PropResourceList}
         */
-        clone( clone?: PropAssetList ): PropAssetList {
+        clone(): PropAssetList {
             return new PropAssetList( this.name, this._value, this.classNames, this.category, this.options );
         }
     }

@@ -21,7 +21,7 @@ namespace Animate {
         /**
          * Attempts to reconnect when the socket loses its connection
          */
-        private _reConnect( e: CloseEvent | null ) {
+        private _reConnect() {
             setTimeout(() => {
                 this.connect();
             }, 5000 );
@@ -51,8 +51,8 @@ namespace Animate {
         /**
          * Called whenever an error occurs
          */
-        onError( e: Error ) {
-            this._reConnect( null );
+        onError() {
+            this._reConnect();
             let type: SocketEvents = 'Error';
             this.emit<SocketEvents, ISocketEvent>( type, { error: new Error( 'An error occurred while connecting to the Users socket API' ) });
         }

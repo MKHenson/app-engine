@@ -145,7 +145,7 @@ namespace Animate {
 		/**
 		 * Recalculate the ratios on mouse up
 		 */
-        onStageMouseUp( e: MouseEvent ): void {
+        onStageMouseUp(): void {
 
             window.removeEventListener( 'mouseup', this.mMouseUpProxy );
             document.body.removeEventListener( 'mousemove', this.mMouseMoveProxy );

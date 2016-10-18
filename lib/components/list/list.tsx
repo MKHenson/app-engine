@@ -110,7 +110,7 @@ namespace Animate {
 		 * Called whenever a list item is selected
 		 */
         onItemSelected( e: React.MouseEvent, item: IListItem, index: number, doubleClick: boolean ) {
-
+            e; // Supresses unused param error
             let selected;
 
             if ( this.props.canDeselect )

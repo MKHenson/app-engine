@@ -22,9 +22,8 @@ namespace Animate {
 		/**
 		* Given a property, the grid editor must produce HTML that can be used to edit the property
 		* @param {Prop<any>} prop The property being edited
-		* @param {Component} container The container acting as this editors parent
 		*/
-        edit( prop: Prop<any>, container: Component ) {
+        edit( prop: Prop<any> ) {
             const p = <PropAssetList>prop;
 
             // Create HTML
@@ -66,19 +65,19 @@ namespace Animate {
             }
 
             // When we select an asset
-            const onSelect = function( e: JQueryEventObject ) {
+            const onSelect = function() {
                 assetId = parseInt( selector.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( assetId, ResourceType.ASSET );
             };
 
 
             // When we select an asset in the list, select that in the drop down
-            const onItemSelect = function( e: JQueryEventObject ) {
+            const onItemSelect = function() {
                 selector.val( items.val() );
             };
 
             // When we click on the eye selector
-            const onEye = function( e: JQueryEventObject ) {
+            const onEye = function() {
                 const val = parseInt( selector.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( val, ResourceType.ASSET );
 
@@ -92,7 +91,7 @@ namespace Animate {
             };
 
             // When we click on add button
-            const onAdd = function( e: JQueryEventObject ) {
+            const onAdd = function() {
                 if ( asset && assets.indexOf( asset ) === -1 ) {
                     assets.push( asset );
                     items.append( `<option title='${assetId + ' : ' + asset.entry.className}' value='${asset.entry.shallowId}'>${asset.entry.name}</option>` );
@@ -101,7 +100,7 @@ namespace Animate {
             }
 
             // When we click on remove button
-            const onRemove = function( e: JQueryEventObject ) {
+            const onRemove = function() {
                 const toRemove: number = parseInt( items.val() );
                 asset = User.get.project.getResourceByShallowID<Resources.Asset>( toRemove, ResourceType.ASSET );
 

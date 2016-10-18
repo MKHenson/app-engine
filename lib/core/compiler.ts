@@ -379,7 +379,7 @@
         * @param {any} ctrl The controller
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        static expand( root: RootNode, ctrl: any, includeSubTemplates: boolean = false ): Element {
+        static expand( root: RootNode, ctrl: any ): Element {
             const references = {};
             for ( const i in root.$commentReferences )
                 references[ i ] = root.$commentReferences[ i ];
@@ -491,7 +491,7 @@
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {Element}
         */
-        static digest( jElem: JQuery, controller: any, includeSubTemplates: boolean = false ): Element {
+        static digest( jElem: JQuery ): Element {
             let elm: Element = jElem.get( 0 );
             // let matches: RegExpMatchArray;
             // let textNode: AppNode;
@@ -849,6 +849,8 @@
 
                 // Go through each element's attributes
                 jQuery.each( attrs, function( i, attrib ) {
+                    i; // Supresses unused param error
+
                     if ( !attrib ) return;
 
                     const name = attrib.name;
@@ -885,7 +887,7 @@
             }
 
 
-            return jQuery( Compiler.digest( elm, ctrl, includeSubTemplates ) );
+            return jQuery( Compiler.digest( elm ) );
         }
     }
 }

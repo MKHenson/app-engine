@@ -95,6 +95,7 @@ namespace Animate {
          * Update the workspace
          */
         onProjectChanged( type: ProjectEvents ) {
+            type; // Supresses unused param error
             this.forceUpdate();
         }
 
@@ -105,6 +106,7 @@ namespace Animate {
 
 
         onShortcutClick( e ) {
+            e; // Supresses unused param error
             // var comp = jQuery( e.currentTarget ).data( 'component' );
 
             // var node : TreeNode = comp.element.parent().parent().parent().data( 'component' );
@@ -118,6 +120,7 @@ namespace Animate {
         }
 
         onMouseMove( e ) {
+            e; // Supresses unused param error
             // if ( jQuery( e.target ).hasClass( 'quick-button' ) )
             // 	return;
 
@@ -145,6 +148,7 @@ namespace Animate {
 		* Called when the project is loaded and ready.
 		*/
         projectReady( project: Project ) {
+            project; // Supresses unused param error
             // project.on( 'resource-created', this.onResourceCreated, this );
 
 
@@ -167,14 +171,14 @@ namespace Animate {
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated( type: string, event: any ) {
+        onResourceCreated() {
             // Todo: Add script nodes + files?
         }
 
 		/**
 		* Called when the project is reset by either creating a new one or opening an older one.
 		*/
-        projectReset( project: Project ) {
+        projectReset() {
             // project.off('resource-created', this.onResourceCreated, this);
 
             // //if ( this._curProj )
@@ -200,7 +204,7 @@ namespace Animate {
 		* Catch the key down events.
 		* @param e The event passed by jQuery
 		*/
-        onKeyDown( e ) {
+        onKeyDown() {
             // if ( Application.getInstance().focusObj !== null && Application.getInstance().focusObj instanceof TreeNode ) {
             // 	//If F2 pressed
             // 	if ( jQuery( e.target ).is( 'input' ) === false && e.keyCode === 113 ) {
@@ -281,7 +285,7 @@ namespace Animate {
 		/**
 		* Called when we select a menu item.
 		*/
-        onContextSelect( response: Event, event: Event, sender?: EventDispatcher ) {
+        onContextSelect() {
             // var promise: Promise<any>;
             // var project = User.get.project;
             // var context = this._contextNode;
@@ -414,7 +418,7 @@ namespace Animate {
 		* When we double click the tree
 		* @param <object> e The jQuery event object
 		*/
-        onDblClick( e ) {
+        onDblClick() {
             // if ( this.selectedNode instanceof TreeNodeBehaviour ) {
             // 	var tabPair = CanvasTab.getSingleton().getPaneByLabel( this.selectedNode.text );
 
@@ -654,6 +658,7 @@ namespace Animate {
 		* @returns Array<TreeNodeAssetInstance>
 		*/
         getAssets( classNames: string | Array<string> ): Array<TreeNodeAssetInstance> {
+            classNames; // Supresses unused param error
             // var i = this._assetsNode.children.length;
             // var toRet: Array<TreeNodeAssetInstance> = new Array();
             // while ( i-- ) {
@@ -697,7 +702,7 @@ namespace Animate {
 		* Called when the context menu is about to open.
 		* @param <jQuery> e The jQuery event object
 		*/
-        onContext2( e ) {
+        onContext2() {
             // //Now hook the context events
             // var targ = jQuery( e.target ).parent();
             // if ( targ === null )
@@ -758,6 +763,7 @@ namespace Animate {
 		 * @param {TreeNodeModel[]} selection
 		 */
         onSelectionChange( selection: TreeNodeModel[] ) {
+            selection; // Supresses unused param error
             // if ( selection.length === 0 )
             //     PluginManager.getSingleton().emit( new AssetEvent( EditorEvents.ASSET_SELECTED, null ) );
             // else {

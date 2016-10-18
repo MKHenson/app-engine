@@ -149,6 +149,7 @@ namespace Animate {
          * Check if we need to highlight the next
          */
         componentDidUpdate( nextProps ) {
+            nextProps; // Supresses unused param error
             if ( this._hintStart !== -1 )
                 ( ReactDOM.findDOMNode( this ) as HTMLInputElement ).setSelectionRange( this._hintStart, this._hintEnd );
         }
@@ -260,7 +261,7 @@ namespace Animate {
                     placeholder={divProps.placeholder}
                     onKeyDown={( e ) => { this.onKeyDown( e ) } }
                     onKeyUp={( e ) => { this.onKeyUp( e ) } }
-                    onBlur={( e ) => { this.setState( { focussed: false }); } }
+                    onBlur={() => { this.setState( { focussed: false }); } }
                     onFocus={( e ) => {
                         this._pristine = false;
                         this.setState( { focussed: true });

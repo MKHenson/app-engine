@@ -45,7 +45,7 @@
          * Called when we activate the context menu on the behaviour
          */
         onContext( e: React.MouseEvent ) {
-
+            e; // Supresses unused param error
         }
 
         /**
@@ -84,6 +84,8 @@
          * or to get the token you can use items[originalId].token
          */
         link( originalId: number, items: LinkMap ) {
+            originalId; // Supresses unused param error
+            items;
         }
 
         /**

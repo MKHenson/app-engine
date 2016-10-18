@@ -161,7 +161,9 @@
 		*/
         get value(): number { return this.defaultVal; }
 
-        onWheel( event, delta, deltaX, deltaY ) {
+        onWheel( event, delta ) {
+            event; // Supresses unused param error
+
             if ( delta < 0 )
                 this.defaultVal -= this.delta;
             else

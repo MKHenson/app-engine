@@ -31,7 +31,7 @@
         * Attempts to clone the property
         * @returns {Prop<T>}
         */
-        clone( clone?: Prop<T> ): Prop<T> {
+        clone(): Prop<T> {
             return new Prop<T>( this.name, this._value, this.category, this.options, this.type );
         }
 
@@ -73,7 +73,7 @@
         */
         setVal( val: T ) {
             this._value = val;
-            this.set.notifyEdit( this );
+            this.set.notifyEdit();
         }
 
         /**
@@ -109,7 +109,7 @@
         * Attempts to clone the property
         * @returns PropBool}
         */
-        clone( clone?: PropBool ): PropBool {
+        clone(): PropBool {
             return new PropBool( this.name, this._value, this.category, this.options );
         }
     }
@@ -131,7 +131,7 @@
         * Attempts to clone the property
         * @returns PropText}
         */
-        clone( clone?: PropText ): PropText {
+        clone(): PropText {
             return new PropText( this.name, this._value, this.category, this.options );
         }
     }

@@ -6,6 +6,7 @@ namespace Animate {
     export abstract class PropertyGridEditor {
 
         constructor( grid: PropertyGrid ) {
+            grid;
         }
 
         /**
@@ -21,6 +22,8 @@ namespace Animate {
 		* @param {Component} container The container acting as this editors parent
 		*/
         edit( prop: Prop<any>, container: Component ): void | null {
+            prop; // Supresses unused param error
+            container;
             return null;
         }
 

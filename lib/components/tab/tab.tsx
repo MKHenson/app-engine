@@ -63,6 +63,8 @@ namespace Animate {
          * Check if the index changes so we can notify the onSelect event
          */
         componentDidUpdate( prevProps: T, prevState: Y ) {
+            prevProps; // Supresses unused param error
+
             if ( prevState.selectedIndex !== this.state.selectedIndex )
                 if ( this._panes[ this.state.selectedIndex ].props.onSelect )
                     this._panes[ this.state.selectedIndex ].props.onSelect!( this.state.selectedIndex );

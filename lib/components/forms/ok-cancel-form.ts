@@ -50,7 +50,7 @@ namespace Animate {
 		* When we click on the close button
 		* @param {any} e The jQuery event object
 		*/
-        onCloseClicked( e ) {
+        onCloseClicked() {
             const event: any = { cancel: false, text: 'Cancel' };
             this.emit<any, any>( 'ok_cancel_confirm', event );
             if ( event.cancel === false )
@@ -104,6 +104,10 @@ namespace Animate {
 		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
 		*/
         show( parent: Component | null = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
+            parent; // Supresses unused param error
+            isModal;
+            isPopup;
+
             //var x = jQuery( 'body' ).width() / 2 - this.element.width() / 2;
             //var y = jQuery( 'body' ).height() / 2 - this.element.height() / 2;
 

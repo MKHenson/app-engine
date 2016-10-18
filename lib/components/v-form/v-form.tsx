@@ -37,9 +37,9 @@ namespace Animate {
     export class VForm extends React.Component<IVFormProps, { error?: boolean, pristine?: boolean }> {
         public static defaultProps: IVFormProps = {
             preventDefault: true,
-            onValidationError: function( e: ValidationError[], form: VForm ) { throw new Error( 'onSubmitted not implemented' ) },
-            onValidationsResolved: function( form: VForm ) { throw new Error( 'onSubmitted not implemented' ) },
-            onSubmitted: function( json: any, form: VForm ) { throw new Error( 'onSubmitted not implemented' ) }
+            onValidationError: function() { throw new Error( 'onSubmitted not implemented' ) },
+            onValidationsResolved: function() { throw new Error( 'onSubmitted not implemented' ) },
+            onSubmitted: function() { throw new Error( 'onSubmitted not implemented' ) }
         };
 
         private _className: string;
@@ -263,6 +263,7 @@ namespace Animate {
                             return React.cloneElement( i, {
                                 ref: index.toString(),
                                 onChecked: ( e, checked, input ) => {
+                                    e; // Supresses unused param error
                                     this._values[ input.name ] = { value: checked, error: null };
                                 }
                             } as IVCheckboxProps )

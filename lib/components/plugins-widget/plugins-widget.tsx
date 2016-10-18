@@ -206,7 +206,7 @@ namespace Animate {
             for ( const i in pluginArray )
                 arr.push( { name: i, array: pluginArray[ i ] });
 
-            return arr.map(( pluginGrp, groupIndex ) => {
+            return arr.map(( pluginGrp ) => {
                 return <div key={pluginGrp.name}>
                     {
                         pluginGrp.array.map(( plugin, index ) => {
@@ -230,7 +230,7 @@ namespace Animate {
                                 <VCheckbox
                                     className={(
                                         showTick && !isSelected ? 'not-directly-selected' : '' )}
-                                    onChecked={( e ) => {
+                                    onChecked={() => {
                                         this.selectPlugin( plugin );
                                     } }
                                     id={`cb-${plugin._id}`}

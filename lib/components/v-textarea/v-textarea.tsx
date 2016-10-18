@@ -171,11 +171,11 @@ namespace Animate {
             return <span className={'v-textarea-outer ' + ( this.state.focussed ? 'focussed' : '' )}>
                 <textarea
                     {...divProps}
-                    onFocus={( e ) => {
+                    onFocus={() => {
                         this._pristine = false;
                         this.setState( { focussed: true });
                     } }
-                    onBlur={( e ) => { this.setState( { focussed: false }); } }
+                    onBlur={() => { this.setState( { focussed: false }); } }
                     className={className}
                     value={this.state.value}
                     onChange={( e ) => { this.onChange( e ); } }

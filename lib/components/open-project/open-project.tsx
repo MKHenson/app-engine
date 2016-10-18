@@ -185,7 +185,7 @@ namespace Animate {
                         </Attention></div> : null}
 
                 </div>
-                <ButtonPrimary onClick={( e ) => { this.props.onCancel(); } }>
+                <ButtonPrimary onClick={() => { this.props.onCancel(); } }>
                     <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
                 </ButtonPrimary>
             </div>

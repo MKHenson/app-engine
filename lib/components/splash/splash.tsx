@@ -106,7 +106,7 @@
                     mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
                 });
 
-            }).catch(( err: Error ) => {
+            }).catch(() => {
                 this.setState( {
                     loading: false,
                     mode: SplashMode.LOGIN
@@ -146,7 +146,7 @@
                     mode: SplashMode.LOGIN
                 });
             })
-                .catch(( err ) => {
+                .catch(() => {
                     this.setState( {
                         loading: false
                     });

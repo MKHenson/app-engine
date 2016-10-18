@@ -406,7 +406,7 @@ namespace Animate {
                 promises.push( this.saveResource( arr[ i ].entry._id, type ) );
 
             return new Promise<boolean>(( resolve, reject ) => {
-                Promise.all( promises ).then(( data ) => {
+                Promise.all( promises ).then(() => {
                     resolve( true );
                 }).catch( function( err: Error ) {
                     reject( err );
@@ -496,7 +496,7 @@ namespace Animate {
                     }
 
             return new Promise<boolean>(( resolve, reject ) => {
-                Promise.all( promises ).then(( data ) => {
+                Promise.all( promises ).then(() => {
                     resolve( true );
 
                 }).catch(( err: Error ) => {
@@ -514,7 +514,7 @@ namespace Animate {
                 promises.push( this.saveResources( <ResourceType>parseInt( i ) ) );
 
             return new Promise<boolean>(( resolve, reject ) => {
-                Promise.all( promises ).then(( data ) => {
+                Promise.all( promises ).then(() => {
                     resolve( true );
                 }).catch(( err: Error ) => {
                     reject( err );

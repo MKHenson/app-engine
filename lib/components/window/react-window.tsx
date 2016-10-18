@@ -122,7 +122,7 @@ namespace Animate {
         /**
          * Called when the window is resized
          */
-        onResize( e ) {
+        onResize() {
 
             // When the component is mounted, check if it needs to be centered
             if ( this.props.autoCenter ) {
@@ -148,7 +148,7 @@ namespace Animate {
         /**
          * When the mouse is up we remove the dragging event listeners
          */
-        onMouseUp( e: MouseEvent ) {
+        onMouseUp() {
             window.removeEventListener( 'mouseup', this._mouseUpProxy );
             document.body.removeEventListener( 'mousemove', this._mouseMoveProxy );
         }

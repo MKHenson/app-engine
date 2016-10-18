@@ -30,7 +30,7 @@ namespace Animate {
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
-        onDragStart( e: React.DragEvent ): IDragDropToken {
+        onDragStart(): IDragDropToken {
             return { type: 'resource', id: this.resource.entry.shallowId } as IDragDropToken;
         }
 
@@ -53,18 +53,18 @@ namespace Animate {
 
 
             let menuItems = [
-                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: ( e ) => { this.onDeleteClick() } },
-                { label: 'Refresh', prefix: <i className="fa fa-refresh" aria-hidden="true"></i>, onSelect: ( e ) => { this.onRefreshClick() } }
+                { label: 'Delete', prefix: <i className="fa fa-times" aria-hidden="true"></i>, onSelect: () => { this.onDeleteClick() } },
+                { label: 'Refresh', prefix: <i className="fa fa-refresh" aria-hidden="true"></i>, onSelect: () => { this.onRefreshClick() } }
             ];
 
             if ( !resourcesSaved )
                 menuItems.push( {
-                    label: 'Save', prefix: <i className="fa fa-save" aria-hidden="true"></i>, onSelect: ( e ) => { this.onSaveClick() }
+                    label: 'Save', prefix: <i className="fa fa-save" aria-hidden="true"></i>, onSelect: () => { this.onSaveClick() }
                 });
 
             if ( showRename )
                 menuItems.push( {
-                    label: 'Rename', prefix: <i className="fa fa-pencil" aria-hidden="true"></i>, onSelect: ( e ) => { this.onRenameClick() }
+                    label: 'Rename', prefix: <i className="fa fa-pencil" aria-hidden="true"></i>, onSelect: () => { this.onRenameClick() }
                 });
 
             e.preventDefault();
@@ -139,6 +139,7 @@ namespace Animate {
          * Called whenever the resource is modified
          */
         protected onDeleted( type: ProjectEvents, event: IResourceEvent ) {
+            type; // Supresses unused param error
             if ( event.resource !== this.resource )
                 return;
 
@@ -169,6 +170,7 @@ namespace Animate {
             let p = User.get.project;
 
             let onOk = ( type: ResourceType, newName: string ) => {
+                type; // Supresses unused param error
                 this.handleNodePromise( p.editResource( resource.entry._id, { name: newName }), this );
             };
 

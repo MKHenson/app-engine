@@ -49,7 +49,7 @@
 		/**
 		* If an error occurs
 		*/
-        onError( event ) {
+        onError() {
             let fullURL: string = '';
             if ( this.numTries > 0 ) {
                 if ( this.numTries > 0 )

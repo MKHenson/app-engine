@@ -104,6 +104,7 @@ namespace Animate {
                     value={this.state.selectedText}
                     onKeyUp={( e ) => { this.onKeyUp( e ) } }
                     onChange={( e, newText ) => {
+                        e; // Supresses unused param error
                         this.setState( { selectedText: newText })
                     } }
                     />
@@ -111,7 +112,7 @@ namespace Animate {
                     canDeselect={false}
                     selectedIndex={this.state.selectedIndex}
                     items={this.state.items!}
-                    onDSelected={( item, index ) => {
+                    onDSelected={( item ) => {
                         if ( this.props.onTemplateSelected )
                             this.props.onTemplateSelected( PluginManager.getSingleton().getTemplate( item.label ) ! );
 

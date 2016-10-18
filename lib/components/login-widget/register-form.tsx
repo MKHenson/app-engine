@@ -87,16 +87,16 @@ namespace Animate {
                 <VForm
                     name="register"
                     autoComplete="off"
-                    onValidationError={( errors, form ) => {
+                    onValidationError={( errors ) => {
                         this.setState( {
                             errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
                             error: true
                         })
                     } }
-                    onValidationsResolved={( form ) => {
+                    onValidationsResolved={() => {
                         this.setState( { errorMsg: '' })
                     } }
-                    onSubmitted={( json, form ) => {
+                    onSubmitted={( json ) => {
                         this.register( json )
                     } }>
 
@@ -130,7 +130,7 @@ namespace Animate {
                         )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={( e ) => this.props.switchMode()}>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={() => this.props.switchMode()}>
                             <span className="fa-chevron-left fa" /> Login
                         </ButtonPrimary>
                     </div>

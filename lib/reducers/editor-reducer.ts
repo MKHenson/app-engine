@@ -7,12 +7,12 @@ namespace Animate {
     /**
      * A reducer that processes state changes of the editor
      */
-    export function editorReducer( state: IEditorState, action: IEditorAction ): IEditorState {
+    export function editorReducer( state: IEditorState = defaultState, action: IEditorAction ): IEditorState {
         switch ( action.type ) {
             case 'EA_TOGGLE_SPLASH':
                 return Object.assign<IEditorState>( {}, state, { showSplash: action.showSplash });
             default:
-                return defaultState;
+                return state;
         }
     }
 }

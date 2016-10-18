@@ -52,7 +52,7 @@
         * Attempts to clone the property
         * @returns {PropColor}
         */
-        clone( clone?: PropColor ): PropColor {
+        clone(): PropColor {
             return new PropColor( this.name, this._value.color, this._value.alpha, this.category, this.options );
         }
 

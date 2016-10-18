@@ -29,7 +29,7 @@ namespace Animate {
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps( nextProps: IAttentionProps ) {
+        componentWillReceiveProps() {
             this.setState( {
                 isClosed: false
             });

@@ -162,7 +162,7 @@ namespace Animate {
 		* When we click the main button
 		* @param {any} e The jQuery event oject
 		*/
-        onClick( e: any ) {
+        onClick() {
             //var comp = jQuery( e.target ).data( 'component' );
             const offset = this.element.offset();
             this.element.addClass( 'active' );

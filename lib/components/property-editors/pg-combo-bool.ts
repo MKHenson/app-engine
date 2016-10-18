@@ -39,7 +39,7 @@ namespace Animate {
             selector.append( `<option value='false' ${( !prop.getVal() ? 'selected=\'selected\'' : '' )}>False</option>` );
 
             //Functions to deal with user interactions with JQuery
-            const onSelect = function( e: JQueryEventObject ) {
+            const onSelect = function() {
                 const val = selector.val();
                 prop.setVal(( val === 'true' ? true : false ) );
             };

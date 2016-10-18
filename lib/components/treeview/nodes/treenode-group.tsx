@@ -46,6 +46,8 @@ namespace Animate {
          * @param json The unserialized data
          */
         onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
+            e; // Supresses unused param error
+
             if ( json.type === 'resource' ) {
                 let resource = User.get.project.getResourceByShallowID( json.id as number );
                 if ( !resource )

@@ -25,6 +25,7 @@ namespace Animate {
 		* @param {Component} container The container acting as this editors parent
 		*/
         edit( prop: Prop<any>, container: Component ) {
+            container; // Supresses unused param error
             const p = <PropFileResource>prop;
             const fileResource = p.getVal();
             // const fileID: string = fileResource || fileResource.entry._id || '';
@@ -51,7 +52,7 @@ namespace Animate {
             //     p.setVal(fileResource);
             // };
 
-            const mouseUp = function( e: JQueryEventObject ) {
+            const mouseUp = function() {
 
                 ReactWindow.show( FileDialogue, {
                     extensions: fileExtensions,

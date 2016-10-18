@@ -193,7 +193,7 @@ namespace Animate {
             return <select {...props}
                 value={this.state.selected ? this.state.selected.value.toString() : ''}
                 className={className}
-                onFocus={( e ) => { this._pristine = false; } }
+                onFocus={() => { this._pristine = false; } }
                 onChange={( e ) => { this.onChange( e ); } }
                 >
                 {( this.props.createEmptyOption ? <option value=""></option> : null )}

@@ -74,7 +74,7 @@
         * Attempts to clone the property
         * @returns {PropNum}
         */
-        clone( clone?: PropNum ): PropNum {
+        clone(): PropNum {
             return new PropNum( this.name, this._value, this.min, this.max, this.decimals, this.interval, this.category, this.options );
         }
     }

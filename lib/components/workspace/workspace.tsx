@@ -34,13 +34,14 @@ namespace Animate {
          * Update the workspace
          */
         onProjectChanged( type: ProjectEvents ) {
+            type; // Supresses unused param error
             this.forceUpdate();
         }
 
         canContainerClose( editor: Editor ): boolean | Promise<boolean> {
 
             if ( !editor.resource.saved || editor.hasUndos ) {
-                return new Promise<Boolean>( function( resolve, reject ) {
+                return new Promise<Boolean>( function( resolve ) {
                     MessageBox.warn(
                         `'${editor.resource.entry.name}' is not saved. Do you want to save it before closing?`,
                         [ 'Yes', 'No' ],
@@ -81,11 +82,11 @@ namespace Animate {
                                 panes={editors.map(( editor, index ) => {
                                     return (
                                         <TabPane
-                                            onSelect={( index ) => {
+                                            onSelect={() => {
                                                 this.props.project.activateEditor( editor );
                                             } }
                                             key={'pane-' + index}
-                                            canClose={( i, props ) => {
+                                            canClose={() => {
                                                 return this.canContainerClose( editor );
                                             } }
 

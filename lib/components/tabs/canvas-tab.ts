@@ -20,7 +20,7 @@ namespace Animate {
         private closingTabPair: TabPair | null;
         //private mDocker: Docker;
 
-        constructor( parent: Component ) {
+        constructor() {
 
             //Upgrade to TSX
             super( null )//parent );
@@ -149,7 +149,7 @@ namespace Animate {
 		* @param {Resources.Asset} asset The asset we are removing
 		*/
         removeAsset( asset: Resources.Asset ) {
-
+            asset; // Supresses unused param error
             // TODO: This no longer makes sense in TSX
             //=========================================
 
@@ -196,7 +196,7 @@ namespace Animate {
 		* @returns {Canvas} The returned tab's canvas or null
 		*/
         getTabCanvas( behaviourID: string ): Canvas | null {
-
+            behaviourID; // Supresses unused param error
             // TODO: This no longer makes sense in TSX
             //=========================================
 
@@ -279,6 +279,7 @@ namespace Animate {
         * @param {Project} project
 		*/
         projectReady( project: Project ) {
+            project; // Supresses unused param error
             // const loader = new AnimateLoader();
             // loader.on( LoaderEvents.COMPLETE, this.onNewsLoaded, this );
             // loader.on( LoaderEvents.FAILED, this.onNewsLoaded, this );
@@ -297,7 +298,7 @@ namespace Animate {
 		/**
 		* When the news has been loaded from webinate.
 		*/
-        onNewsLoaded( response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher ) {
+        onNewsLoaded() {
             // if ( response === LoaderEvents.COMPLETE ) {
             //     if ( event.return_type === AnimateLoaderResponses.SUCCESS ) {
 
@@ -319,8 +320,10 @@ namespace Animate {
 		* @returns {CanvasTab}
 		*/
         static getSingleton( parent?: Component ): CanvasTab {
+            parent; // Supresses unused param error
+
             if ( !CanvasTab._singleton )
-                new CanvasTab( parent! );
+                new CanvasTab();
 
             return CanvasTab._singleton;
         }
@@ -332,6 +335,8 @@ namespace Animate {
 		* @returns {TabPair} Returns the tab pair
 		*/
         renameTab( oldName: string, newName: string ): TabPair | null {
+            oldName; // Supresses unused param error
+            newName; // Supresses unused param error
 
             // TODO: Update required from upgrade to TSX
             // =========================================
@@ -354,6 +359,8 @@ namespace Animate {
         // removeTab( val: TabPair, dispose: boolean ): TabPair
         // removeTab( val: any, dispose: boolean ): TabPair {
         removeTab( index: number, prop: ITabPaneProps ) {
+            index; // Supresses unused param error
+            prop;
 
             // TODO: Updated since change to TSX
             // if (val instanceof CanvasTabPair) {
@@ -383,7 +390,7 @@ namespace Animate {
 		/**
 		* When a canvas is modified we change the tab name, canvas name and un-save its tree node.
 		*/
-        onCanvasModified( response: CanvasEvents, event: any, sender?: EventDispatcher ) {
+        onCanvasModified() {
             this._currentCanvas.container.saved = false;
         }
 
@@ -408,6 +415,10 @@ namespace Animate {
 		* @returns {TabPair} The tab pair object
 		*/
         addSpecialTab( text: string, type: CanvasTabType = CanvasTabType.CANVAS, tabContent: any = null ): TabPair | null {
+            text; // Supresses unused param error
+            type;
+            tabContent;
+
             // TODO: Update required from upgrade to TSX
 
             // var pManager: PluginManager = PluginManager.getSingleton();

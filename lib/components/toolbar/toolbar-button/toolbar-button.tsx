@@ -45,7 +45,7 @@ namespace Animate {
             return <Tooltip tooltip={this.props.label!} position={TooltipPosition.BOTTOM} offset={0} disabled={this.props.disabled}>
                 <div
                     className={className}
-                    onClick={( e ) => this.onClick( e )}>
+                    onClick={() => this.onClick()}>
                     {( this.props.prefix ? this.props.prefix : null )}
                     {( this.props.imgUrl ? <img src={this.props.imgUrl} /> : null )}
                 </div>
@@ -60,7 +60,7 @@ namespace Animate {
                 this.setState( { selected: nextProps.selected! });
         }
 
-        onClick( e ) {
+        onClick() {
             if ( this.props.disabled )
                 return;
 

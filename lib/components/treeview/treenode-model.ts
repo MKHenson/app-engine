@@ -58,6 +58,7 @@ namespace Animate {
          * @returns Return data to serialize
          */
         onDragStart( e: React.DragEvent ): IDragDropToken | null {
+            e; // Supresses unused param error
             return null;
         }
 
@@ -68,6 +69,8 @@ namespace Animate {
          * @param json The unserialized data
          */
         onDragDrop( e: React.DragEvent, json: IDragDropToken | null ) {
+            e; // Supresses unused param error
+            json;
 
         }
 
@@ -189,7 +192,7 @@ namespace Animate {
          * Called whenever the node is double clicked
          */
         onDoubleClick( e: React.MouseEvent ) {
-
+            e; // Supresses unused param error
         }
 
         /**

@@ -37,6 +37,7 @@ namespace Animate {
          * Called whenever a node is focussed
          */
         onFocusNodeChange( type: TreeviewEvents, e: INodeEvent ) {
+            type; // Supresses unused param error
             this.setState( { focussedNode: e.node });
         }
 
@@ -44,6 +45,7 @@ namespace Animate {
          * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
          */
         onChange( type: TreeviewEvents ) {
+            type; // Supresses unused param error
             if ( this._isMounted )
                 this.setState( { nodes: this.props.nodeStore!.getNodes() });
         }

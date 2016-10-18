@@ -41,7 +41,7 @@ namespace Animate {
         /**
          * Called whenever the node is double clicked
          */
-        onDoubleClick( e: React.MouseEvent ) {
+        onDoubleClick() {
             User.get.project.assignEditor( this.resource );
         }
 

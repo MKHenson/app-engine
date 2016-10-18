@@ -17,7 +17,7 @@ namespace Animate {
      */
     export class SearchBox extends React.Component<ISearchBoxProps, { value: string }> {
         static defaultProps: ISearchBoxProps = {
-            onSearch: function( e: React.FormEvent, searchText: string ) { throw new Error( 'onSearch not implemented' ) },
+            onSearch: function() { throw new Error( 'onSearch not implemented' ) },
             triggerOnBlur: true
         };
 

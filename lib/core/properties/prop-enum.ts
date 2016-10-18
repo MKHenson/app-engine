@@ -36,7 +36,7 @@
         * Attempts to clone the property
         * @returns {PropEnum}
         */
-        clone( clone?: PropEnum ): PropEnum {
+        clone(): PropEnum {
             return new PropEnum( this.name, this._value, this.choices, this.category, this.options );
         }
 

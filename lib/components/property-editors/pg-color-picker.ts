@@ -42,7 +42,7 @@ namespace Animate {
             myPicker.fromString( color.toString() )
 
             //Functions to deal with user interactions with JQuery
-            const onValueEdited = function( e: JQueryEventObject ) {
+            const onValueEdited = function() {
                 const col = parseFloat( jQuery( `#${_id1}` ).val() );
                 const alpha = parseFloat( jQuery( `#${_id2}` ).val() );
                 jQuery( `#${_id1}` ).css( 'opacity', alpha );

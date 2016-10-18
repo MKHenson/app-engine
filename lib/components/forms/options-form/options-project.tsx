@@ -98,8 +98,8 @@ namespace Animate {
                 <Group label="Details">
                     <VForm
                         onValidationError={( e ) => { this.setState( { infoServerMsg: `${Utils.capitalize( e[ 0 ].name )} : ${e[ 0 ].error}`, error: true }) } }
-                        onValidationsResolved={( form ) => { this.setState( { infoServerMsg: '' }) } }
-                        onSubmitted={( json, form ) => { this.updateDetails( json ); } }>
+                        onValidationsResolved={() => { this.setState( { infoServerMsg: '' }) } }
+                        onSubmitted={( json ) => { this.updateDetails( json ); } }>
 
                         <h4>Project Name: </h4>
                         <VInput value={project.name} name="name" type="text" placeholder="My Project" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />

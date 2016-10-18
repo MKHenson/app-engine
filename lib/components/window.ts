@@ -65,7 +65,7 @@ namespace Animate {
 		* When we click on the close button
 		* @param {any} e The jQuery event object
 		*/
-        onCloseClicked( e ) {
+        onCloseClicked() {
             this.hide();
         }
 
@@ -160,7 +160,7 @@ namespace Animate {
 		* When we click the modal window we flash the window
 		* @param {object} e The jQuery event object
 		*/
-        onModalClicked( e ) {
+        onModalClicked() {
             const prevParent = this.element.parent();
             this.element.detach();
             this.element.addClass( 'anim-shadow-focus' );

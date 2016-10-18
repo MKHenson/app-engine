@@ -63,6 +63,7 @@ namespace Animate {
                         ( items[ behaviour.id! ] as Behaviour ).move( x, y );
                     } }
                     onDragComplete={( start, end ) => {
+                        start; // Supresses unused param error
                         editor.doAction( new Actions.SelectionMoved( [ { index: behaviour.id!, x: end.x, y: end.y }] ) );
                     } } >
                     <div

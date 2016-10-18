@@ -23,7 +23,7 @@ namespace Animate {
 		/**
 		 * When we click ok on the portal form
 		 */
-        onAssetEdited( type: string, data: IResourceEvent ) {
+        onAssetEdited() {
             this.resource.saved = false;
         }
 

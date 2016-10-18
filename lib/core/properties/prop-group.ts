@@ -46,7 +46,7 @@
         * Attempts to clone the property
         * @returns {PropGroup}
         */
-        clone( clone?: PropGroup ): PropGroup {
+        clone(): PropGroup {
             return new PropGroup( this.name, this._value, this.category, this.options );
         }
     }

@@ -62,11 +62,11 @@ namespace Animate {
 
             return new Promise<HatcheryServer.IPlugin>( function( resolve, reject ) {
                 const script = document.createElement( 'script' );
-                script.onerror = function( ev ) {
+                script.onerror = function() {
                     pluginDefinition.$loaded = false;
                     return reject( new Error( `'${pluginDefinition.name}' could not be downloaded` ) );
                 }
-                script.onload = function( ev ) {
+                script.onload = function() {
 
                     // TODO: The __newPlugin way of doing things is terrible - we need something better
 
@@ -90,7 +90,7 @@ namespace Animate {
 		 * @param pluginDefinition The IPlugin constructor that is to be created
 		 * @param createPluginReference Should we keep this constructor in memory? The default is true
 		 */
-        preparePlugin( pluginDefinition: HatcheryServer.IPlugin, createPluginReference: boolean = true ) {
+        preparePlugin( pluginDefinition: HatcheryServer.IPlugin ) {
             const plugin: Animate.IPlugin = pluginDefinition.$instance!;
             this._plugins.push( plugin );
 
@@ -212,7 +212,7 @@ namespace Animate {
 		 * @param panToNode When set to true, the treeview will bring the node into view
 		 * @param multiSelect When set to true, the treeview not clear any previous selections
 		 */
-        selectAsset( asset: Resources.Asset, panToNode: boolean = true, multiSelect: boolean = false ) {
+        selectAsset() {
             // TODO: This needs to be checked with update to TSX
             // ================================================
             // Animate.TreeViewScene.getSingleton().selectNode(
@@ -239,7 +239,7 @@ namespace Animate {
         /**
 		 * Called when the project is reset by either creating a new one or opening an older one.
 		 */
-        projectReset( project: Project ) {
+        projectReset() {
             // Cleanup all the previous plugins
             for ( let i = 0; i < this._plugins.length; i++ )
                 this.unloadPlugin( this._plugins[ i ] );
@@ -251,7 +251,7 @@ namespace Animate {
 		/**
 		 * This function is called by Animate when everything has been loaded and the user is able to begin their session.
 		 */
-        projectReady( project: Project ) {
+        projectReady() {
             this.emit<PluginManagerEvents, void>( 'editor-ready' );
         }
 

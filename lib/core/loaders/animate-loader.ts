@@ -58,7 +58,7 @@ namespace Animate {
 		* @param {string} textStatus
 		* @param {any} errorThrown
 		*/
-        onError( e, textStatus, errorThrown ) {
+        onError() {
             if ( this.numTries > 0 ) {
                 if ( this.numTries > 0 )
                     this.numTries--;
@@ -95,7 +95,7 @@ namespace Animate {
 		* @param {any} textStatus
 		* @param {any} jqXHR
 		*/
-        onData( data, textStatus, jqXHR ) {
+        onData() {
             LoaderBase.hideLoader();
             // let e: AnimateLoaderEvent;
 

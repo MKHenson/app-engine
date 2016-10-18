@@ -11,6 +11,8 @@ namespace Animate {
 		* @param {Component} parent The parent of the button
 		*/
         constructor( parent: Component ) {
+            parent; // Supresses unused param error
+
             // TODO: Upgrade to new TSX
             super( null )// parent );
 

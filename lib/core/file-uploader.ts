@@ -195,7 +195,7 @@
                 cb( that.percent );
             }
 
-            xhr.onerror = function( ev ) {
+            xhr.onerror = function() {
                 // Remove the download from the array
                 for ( let i = 0, l = that._downloads.length; i < l; i++ )
                     if ( that._downloads[ i ].id === id ) {

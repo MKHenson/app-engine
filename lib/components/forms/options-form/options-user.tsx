@@ -117,7 +117,7 @@ namespace Animate {
 
                     {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
 
-                    <ButtonPrimary disabled={this.state.loading} onClick={( e ) => { this.updateBio(( this.refs[ 'bio' ] as VTextarea ).value ); } }>
+                    <ButtonPrimary disabled={this.state.loading} onClick={() => { this.updateBio(( this.refs[ 'bio' ] as VTextarea ).value ); } }>
                         Update Information
                     </ButtonPrimary>
 

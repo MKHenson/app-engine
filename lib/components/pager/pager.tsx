@@ -19,7 +19,7 @@ namespace Animate {
     export class Pager extends React.Component<IPagerProps, IPagerState> {
         static defaultProps: IPagerProps = {
             limit: 10,
-            onUpdate: ( index: number, limit: number ) => { throw new Error( 'onUpdate not implemented' ) }
+            onUpdate: () => { throw new Error( 'onUpdate not implemented' ) }
         } as IPagerProps;
 
         /**

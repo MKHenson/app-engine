@@ -66,7 +66,7 @@ namespace Animate {
                         <p>{project.description}</p>
                     </div>
                     <div className="buttons">
-                        <ButtonLink onClick={( e ) => {
+                        <ButtonLink onClick={() => {
                             MessageBox.warn(
                                 `Are you sure you want to permanently remove the project '${project.name}'?`,
                                 [ 'Yes', 'No' ],

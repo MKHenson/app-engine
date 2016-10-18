@@ -51,7 +51,7 @@
         * Attempts to clone the property
         * @returns {PropResource}
         */
-        clone( clone?: PropAsset ): PropAsset {
+        clone(): PropAsset {
             return new PropAsset( this.name, this._value, this.classNames, this.category, this.options );
         }
     }

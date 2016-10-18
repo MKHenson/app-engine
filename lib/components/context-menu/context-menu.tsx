@@ -111,7 +111,7 @@ namespace Animate {
         /**
          * When the mouse is up we remove the dragging event listeners
          */
-        private onMouseUp( e: MouseEvent ) {
+        private onMouseUp() {
             if ( this.props._closing )
                 this.props._closing();
             window.removeEventListener( 'mouseup', this._mouseUpProxy );

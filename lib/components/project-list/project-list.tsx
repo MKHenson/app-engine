@@ -123,19 +123,20 @@ namespace Animate {
                 <div className="projects-toolbar background">
                     {this.props.children}
                     <SearchBox placeholder="Keywords" onSearch={( e, text ) => {
+                        e; // Supresses unused param error
                         this.state.searchText = text;
                         ( this.refs[ 'pager' ] as Pager ).invalidate();
                     } } />
                     {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null}
                 </div>
-                <div className="projects-container" onClick={( e ) => { this.selectProject( null, false ) } }>
+                <div className="projects-container" onClick={() => { this.selectProject( null, false ) } }>
                     <Pager onUpdate={this.fetchProjects.bind( this )} limit={6} ref="pager">
                         <div className="project-items">
                             <div className="error bad-input" style={{ display: ( this.state.errorMsg ? 'block' : '' ) }}>
                                 {this.state.errorMsg || ''}
                             </div>
                             {
-                                this.state.projects!.map(( p, index ) => {
+                                this.state.projects!.map(( p ) => {
                                     return <ImagePreview key={p._id}
                                         className="project-item"
                                         selected={p.selected}

@@ -71,7 +71,7 @@ namespace Animate {
             }
         }
 
-        onFileUploaded( err: Error, files: UsersInterface.IUploadToken[] ) {
+        onFileUploaded( err: Error ) {
             if ( !this._isMounted )
                 return;
 
@@ -157,6 +157,7 @@ namespace Animate {
                                 <span className="td"><i className="fa fa-file-o" aria-hidden="true" /> Name: </span>
                                 <span className="td">
                                     <VInput type="text" value={fileToken.name} onChange={( e, newText ) => {
+                                        e; // Supresses unused param error
                                         fileToken.name = newText;
                                         this.setState( { fileToken: fileToken });
                                     } } />
@@ -167,6 +168,7 @@ namespace Animate {
                                 <span className="td">
                                     <VInput type="text" value={fileToken.tags!.join( ',' )}
                                         onChange={( e, newText ) => {
+                                            e; // Supresses unused param error
                                             fileToken.tags = newText.trim().split( ',' );
                                             for ( let t = 0, l = fileToken.tags.length; t < l; t++ )
                                                 fileToken.tags[ t ] = fileToken.tags[ t ].trim();
@@ -178,7 +180,7 @@ namespace Animate {
                             <div className="tr">
                                 <span className="td"><i className="fa fa-globe" aria-hidden="true" /> Global: </span>
                                 <span className="td">
-                                    <VCheckbox onChecked={( e ) => {
+                                    <VCheckbox onChecked={() => {
                                         fileToken.global = !fileToken.global;
                                         this.setState( { fileToken: fileToken });
                                     } }
@@ -189,7 +191,7 @@ namespace Animate {
                             <div className="tr">
                                 <span className="td"><i className="fa fa-star" aria-hidden="true" /> Favourite: </span>
                                 <span className="td">
-                                    <VCheckbox onChecked={( e ) => {
+                                    <VCheckbox onChecked={() => {
                                         fileToken.favourite = !fileToken.favourite;
                                         this.setState( { fileToken: fileToken });
                                     } }
@@ -228,10 +230,10 @@ namespace Animate {
             if ( editMode ) {
                 return (
                     <div className="buttons ">
-                        <ButtonLink onClick={( e ) => { this.setState( { editMode: false }) } }>
+                        <ButtonLink onClick={() => { this.setState( { editMode: false }) } }>
                             CANCEL
                         </ButtonLink>
-                        <ButtonPrimary onClick={( e ) => this.updateFile( this.state.fileToken! )}>
+                        <ButtonPrimary onClick={() => this.updateFile( this.state.fileToken! )}>
                             UPDATE <i className="fa fa-pencil" aria-hidden="true"></i>
                         </ButtonPrimary>
                     </div>
@@ -240,18 +242,18 @@ namespace Animate {
             else {
                 return (
                     <div className="buttons ">
-                        <ButtonLink onClick={( e ) => { this.confirmDelete() } }>
+                        <ButtonLink onClick={() => { this.confirmDelete() } }>
                             REMOVE
                         </ButtonLink>
 
                         {( this.props.readOnly ?
-                            <ButtonPrimary onClick={( e ) => {
+                            <ButtonPrimary onClick={() => {
                                 if ( this.props.onClose )
                                     this.props.onClose();
                             }
                             }> CLOSE </ButtonPrimary>
                             :
-                            <ButtonSuccess onClick={( e ) => {
+                            <ButtonSuccess onClick={() => {
                                 if ( this.props.onFilesSelected )
                                     this.props.onFilesSelected( this._selectedEntities );
                             }
@@ -294,17 +296,17 @@ namespace Animate {
                 <div className={'file-viewer' + ( selectedFile ? ' file-selected' : '' )} >
                     <div className="toolbar">
                         <ButtonPrimary
-                            onClick={( e ) => { jQuery( '#upload-new-file' ).trigger( 'click' ) } }
+                            onClick={() => { jQuery( '#upload-new-file' ).trigger( 'click' ) } }
                             disabled={state.loading}>
                             <i className="fa fa-plus" aria-hidden="true"></i> ADD FILE
                         </ButtonPrimary>
 
                         <div className="tool-bar-group">
-                            <ToolbarButton pushButton={true} selected={this._onlyFavourites} onChange={( e ) => {
+                            <ToolbarButton pushButton={true} selected={this._onlyFavourites} onChange={() => {
                                 this._onlyFavourites = !this._onlyFavourites;
                                 this.invalidate();
                             } } label="Filter by Favourites" prefix={<i className="fa fa-star" aria-hidden="true" />} />
-                            <ToolbarButton pushButton={true} selected={this._onlyGlobal} onChange={( e ) => {
+                            <ToolbarButton pushButton={true} selected={this._onlyGlobal} onChange={() => {
                                 this._onlyGlobal = !this._onlyGlobal;
                                 this.invalidate();
                             } } label="Filter by Global files" prefix={<i className="fa fa-globe" aria-hidden="true" />} />
@@ -318,10 +320,13 @@ namespace Animate {
                         </div>
 
                         <div className={'tool-bar-group' + ( this._selectedEntities.length === 0 ? ' disabled' : '' )}>
-                            <ToolbarButton onChange={( e ) => { this.confirmDelete() } } label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true" />} />
+                            <ToolbarButton onChange={() => { this.confirmDelete() } } label="Remove" prefix={<i className="fa fa-trash" aria-hidden="true" />} />
                         </div>
 
-                        <SearchBox disabled={state.loading} onSearch={( e, term ) => { this._search = term; this.invalidate(); } } />
+                        <SearchBox disabled={state.loading} onSearch={( e, term ) => {
+                            e; // Supresses unused param error
+                            this._search = term; this.invalidate();
+                        } } />
 
                         <input type="file" id="upload-new-file" multiple={true} onChange={( e ) => { this.onFileChange( e ) } } />
                         <div className="fix"></div>
@@ -330,8 +335,8 @@ namespace Animate {
                         <Pager ref="pager" onUpdate={( index, limit ) => { return this.updateContent( index, limit ) } }>
                             <div className={'file-items' + ( state.highlightDropZone ? ' drag-here' : '' )}
                                 onClick={( e ) => { this.selectEntity( e, null ) } }
-                                onDragExit={( e ) => this.onDragLeave( e )}
-                                onDragLeave={( e ) => this.onDragLeave( e )}
+                                onDragExit={() => this.onDragLeave()}
+                                onDragLeave={() => this.onDragLeave()}
                                 onDragOver={( e ) => this.onDragOver( e )}
                                 onDrop={( e ) => this.onDrop( e )}
                                 >
@@ -494,7 +499,7 @@ namespace Animate {
             else
                 command = `${DB.API}/users/${details.username}/files?index=${index}&limit=${limit}&global=${this._onlyGlobal}&favourite=${this._onlyFavourites}&search=${this._search}&bucket=${details.username}-bucket`
 
-            return new Promise(( resolve, reject ) => {
+            return new Promise(( resolve ) => {
                 jQuery.getJSON( command ).then(( token: UsersInterface.IGetFiles ) => {
                     let limit = 1;
                     if ( token.error ) {
@@ -648,7 +653,7 @@ namespace Animate {
 		/**
 		 * Called when we are no longer dragging items.
 		 */
-        onDragLeave( e: React.DragEvent ) {
+        onDragLeave() {
             this.setState( { highlightDropZone: false });
         }
 
@@ -715,7 +720,7 @@ namespace Animate {
 
                     this.forceUpdate();
 
-                }).catch(( err: IAjaxError ) => {
+                }).catch(() => {
                     if ( !this._isMounted )
                         this.setState( { errorMsg: 'Could not upload preview' });
                 });

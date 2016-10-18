@@ -56,7 +56,7 @@
 		* Called when the editor changes
 		* @param {any} e
 		*/
-        onChange( e ) {
+        onChange() {
             this.modified = true;
         }
 
