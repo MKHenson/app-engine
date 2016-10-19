@@ -1,13 +1,13 @@
 ﻿namespace Animate {
     export enum SplashMode {
         WELCOME,
-        LOGIN,
         NEW_PROJECT,
         OPENING
     }
 
     export interface ISplashProps {
         onClose: () => void;
+        user: IUser;
     }
 
     export interface ISplashStats {
@@ -28,7 +28,7 @@
         constructor( props: ISplashProps ) {
             super( props );
             this.state = {
-                mode: SplashMode.LOGIN,
+                mode: SplashMode.WELCOME,
                 loading: true
             };
         }
@@ -37,8 +37,11 @@
          * Creates the component elements
          */
         render(): JSX.Element {
+
+            const user = this.props.user!;
             let mainView: JSX.Element | undefined;
-            if ( this.state.mode === SplashMode.LOGIN )
+
+            if ( !user.isLoggedIn )
                 mainView = <LoginWidget
                     onLogin={() => {
                         this.setState( { mode: SplashMode.WELCOME });
@@ -94,33 +97,33 @@
             </div>
         }
 
-        /*
-        * Shows the splash screen
-        */
-        show() {
-            User.get.authenticated().then(( val ) => {
-                this.setState( {
-                    loading: false,
-                    mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
-                });
+        // /*
+        //  * Shows the splash screen
+        //  */
+        // show() {
+        //     User.get.authenticated().then(( val ) => {
+        //         this.setState( {
+        //             loading: false,
+        //             mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
+        //         });
 
-            }).catch(() => {
-                this.setState( {
-                    loading: false,
-                    mode: SplashMode.LOGIN
-                });
-            });
+        //     }).catch(() => {
+        //         this.setState( {
+        //             loading: false,
+        //             mode: SplashMode.LOGIN
+        //         });
+        //     });
 
-            this.setState( {
-                loading: true
-            });
-        }
+        //     this.setState( {
+        //         loading: true
+        //     });
+        // }
 
         /*
         * Gets the dimensions of the splash screen based on the active pane
         */
         splashDimensions(): string {
-            if ( this.state.mode === SplashMode.LOGIN || this.state.mode === SplashMode.OPENING )
+            if ( !this.props.user!.isLoggedIn || this.state.mode === SplashMode.OPENING )
                 return 'compact';
             else
                 return 'wide';
@@ -141,7 +144,7 @@
                 Application.getInstance().projectReset();
                 this.setState( {
                     loading: false,
-                    mode: SplashMode.LOGIN
+                    mode: SplashMode.WELCOME
                 });
             })
                 .catch(() => {

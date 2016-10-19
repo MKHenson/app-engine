@@ -4,51 +4,52 @@ namespace Animate {
         REGISTER
     }
 
-    export interface ILoginWidgetState {
-        mode?: LoginMode;
-        loading?: boolean;
+    export interface ILoginWidgetProps extends HatcheryProps {
+        onLogin?: () => void,
+        user?: IUser,
+        editorState?: IEditorState
     }
 
-    export class LoginWidget extends React.Component<{ onLogin: () => void }, ILoginWidgetState> {
+    @ReactRedux.connect<IStore, ILoginWidgetProps>(( state ) => {
+        return {
+            user: state.user,
+            editorState: state.editorState
+        }
+    })
+
+    export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
         private _user: User;
 
         /**
          * Creates a new instance
          */
-        constructor() {
-            super();
+        constructor( props: ILoginWidgetProps ) {
+            super( props );
             this._user = User.get;
-            this.state = {
-                mode: LoginMode.LOGIN,
-                loading: false
-            };
-        }
-
-        switchState() {
-            this.setState( { mode: ( this.state.mode === LoginMode.LOGIN ? LoginMode.REGISTER : LoginMode.LOGIN ) })
         }
 
         /**
          * Creates the component elements
          */
         render(): JSX.Element {
+
             let activePane: JSX.Element;
-            if ( this.state.mode === LoginMode.LOGIN )
+            const dispatch = this.props.dispatch!;
+            const user = this.props.user!;
+
+            if ( this.props.editorState!.loginState === 'login' )
                 activePane = <LoginForm
-                    switchMode={() => this.switchState()}
-                    onLogin={() => {
-                        if ( this.props.onLogin )
-                            this.props.onLogin();
-                    } }
-                    onLoadingChange={( loading ) => this.setState( { loading: loading })}
-                    />
+                    isLoading={user.loading}
+                    errorMsg={( user.error ? user.error.message : undefined )}
+                    onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
+                    onLoginRequested={( token ) => dispatch( login( token ) )}
+                    />;
             else
                 activePane = <RegisterForm
-                    switchMode={() => this.switchState()}
-                    onLoadingChange={( loading ) => this.setState( { loading: loading })}
-                    />
+                    onLoginRequested={() => dispatch( toggleLoginState( 'login' ) )}
+                    />;
 
-            return <div id="log-reg" className={( this.state.loading ? 'loading' : undefined )}>
+            return <div id="log-reg" className={( user.loading ? 'loading' : undefined )}>
                 <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
                 <div className="avatar">
                     <img src="media/blank-user.png" />

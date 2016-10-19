@@ -39,17 +39,20 @@ declare namespace Animate {
      */
     export interface IEditorState {
         showSplash?: boolean;
+        loginState?: 'login' | 'register';
     }
 
     /**
      * Describes the store Project
      */
     export interface IProject {
-        openEditors: Editor[];
-        activeEditor: Editor;
-        curBuild: Build;
-        restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<HatcheryServer.IResource>> }; }
-        entry: HatcheryServer.IProject;
+        loading?: boolean;
+        error?: Error | null;
+        openEditors?: Editor[];
+        activeEditor?: Editor | null;
+        curBuild?: Build | null;
+        restPaths?: { [ type: number ]: { url: string; array: Array<ProjectResource<HatcheryServer.IResource>> }; }
+        entry?: HatcheryServer.IProject | null;
     }
 
     /**
@@ -57,10 +60,12 @@ declare namespace Animate {
      */
     export interface IUser {
         entry?: UsersInterface.IUserEntry | null;
-        meta?: HatcheryServer.IUserMeta | null;
+        meta?: HatcheryServer.IUserMeta;
         isLoggedIn?: boolean;
         loading?: boolean;
-        error?: string | null;
+        error?: Error | null;
+        projects?: HatcheryServer.IProject[];
+        numProjects?: number;
     }
 
     /**

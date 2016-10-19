@@ -449,7 +449,7 @@ declare namespace Animate {
         * @param {any} ctrl The controller
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         */
-        static expand(root: RootNode, ctrl: any, includeSubTemplates?: boolean): Element;
+        static expand(root: RootNode, ctrl: any): Element;
         /**
         * Registers an internal function reference for later cleanup
         * @param {AppNode} node The element we are attaching events to
@@ -464,7 +464,7 @@ declare namespace Animate {
         * @param {boolean} includeSubTemplates When traversing the template - should the compiler continue if it finds a child element with an associated controller
         * @returns {Element}
         */
-        static digest(jElem: JQuery, controller: any, includeSubTemplates?: boolean): Element;
+        static digest(jElem: JQuery): Element;
         static validateNode(elem: NodeInput): void;
         /**
         * Checks each of the validation expressions on an input element. Used to set form and input states like form.$error
@@ -771,7 +771,7 @@ declare namespace Animate {
          * @param pluginDefinition The IPlugin constructor that is to be created
          * @param createPluginReference Should we keep this constructor in memory? The default is true
          */
-        preparePlugin(pluginDefinition: HatcheryServer.IPlugin, createPluginReference?: boolean): void;
+        preparePlugin(pluginDefinition: HatcheryServer.IPlugin): void;
         /**
          * Call this function to unload a plugin
          * @param plugin The IPlugin object that is to be loaded
@@ -795,7 +795,7 @@ declare namespace Animate {
          * @param panToNode When set to true, the treeview will bring the node into view
          * @param multiSelect When set to true, the treeview not clear any previous selections
          */
-        selectAsset(asset: Resources.Asset, panToNode?: boolean, multiSelect?: boolean): void;
+        selectAsset(): void;
         /**
          * Gets an asset class by its name
          * @param name The name of the asset class
@@ -804,11 +804,11 @@ declare namespace Animate {
         /**
          * Called when the project is reset by either creating a new one or opening an older one.
          */
-        projectReset(project: Project): void;
+        projectReset(): void;
         /**
          * This function is called by Animate when everything has been loaded and the user is able to begin their session.
          */
-        projectReady(project: Project): void;
+        projectReady(): void;
         /**
          * Creates a thumbnail preview of the file
          */
@@ -870,7 +870,7 @@ declare namespace Animate {
         /**
         * This is the resonse from the server
         */
-        onServer(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
+        onServer(): void;
         /**
         * Gets the singleton instance.
         * @extends <ImportExport>
@@ -1843,14 +1843,14 @@ declare namespace Animate {
         * @param {string} textStatus
         * @param {any} errorThrown
         */
-        onError(e: any, textStatus: any, errorThrown: any): void;
+        onError(): void;
         /**
         * Called when we get an ajax response.
         * @param {any} data
         * @param {any} textStatus
         * @param {any} jqXHR
         */
-        onData(data: any, textStatus: any, jqXHR: any): void;
+        onData(): void;
         /**
         * Cleans up the object
         */
@@ -1879,7 +1879,7 @@ declare namespace Animate {
         /**
         * If an error occurs
         */
-        onError(event: any): void;
+        onError(): void;
         /**
         * Cleans up and removes references for GC
         */
@@ -2122,14 +2122,6 @@ declare namespace Animate {
         */
         logout(): Promise<UsersInterface.IResponse>;
         /**
-        * Fetches all the projects of a user. This only works if the user if logged in. If not
-        * it will return null.
-        * @param index The index to  fetching projects for
-        * @param limit The limit of how many items to fetch
-        * @param search Optional search text
-        */
-        getProjectList(index: number, limit: number, search?: string): Promise<ModepressAddons.IGetProjects>;
-        /**
         * Creates a new user projects
         * @param name The name of the project
         * @param plugins An array of plugin IDs to identify which plugins to use
@@ -2182,7 +2174,7 @@ declare namespace Animate {
         /**
          * Attempts to reconnect when the socket loses its connection
          */
-        private _reConnect(e);
+        private _reConnect();
         /**
          * Called whenever we get a message from the users socket API
          */
@@ -2190,7 +2182,7 @@ declare namespace Animate {
         /**
          * Called whenever an error occurs
          */
-        onError(e: Error): void;
+        onError(): void;
         /**
          * Attempts to connect to the user's socket api
          */
@@ -2268,7 +2260,7 @@ declare namespace Animate {
         /**
          * Broadcasts an 'edited' event to the owner of the set
          */
-        notifyEdit(prop: Prop<any>): void;
+        notifyEdit(): void;
         /**
         * Updates a variable with a new value
         * @returns {T}
@@ -2316,7 +2308,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {Prop<T>}
         */
-        clone(clone?: Prop<T>): Prop<T>;
+        clone(): Prop<T>;
         /**
         * Attempts to fetch the value of this property
         * @returns {T}
@@ -2360,7 +2352,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns PropBool}
         */
-        clone(clone?: PropBool): PropBool;
+        clone(): PropBool;
     }
     class PropText extends Prop<string> {
         /**
@@ -2375,7 +2367,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns PropText}
         */
-        clone(clone?: PropText): PropText;
+        clone(): PropText;
     }
 }
 declare namespace Animate {
@@ -2403,7 +2395,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropEnum}
         */
-        clone(clone?: PropEnum): PropEnum;
+        clone(): PropEnum;
         /**
        * De-Tokenizes data from a JSON.
        * @param {any} data The data to import from
@@ -2430,7 +2422,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropFileResource}
         */
-        clone(clone?: PropFileResource): PropFileResource;
+        clone(): PropFileResource;
         /**
        * Tokenizes the data into a JSON.
        * @param {boolean} slim If true, only the core value is exported. If false, additional data is exported so that it can be re-created at a later stage.
@@ -2485,7 +2477,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropNum}
         */
-        clone(clone?: PropNum): PropNum;
+        clone(): PropNum;
     }
 }
 declare namespace Animate {
@@ -2505,7 +2497,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropObject}
         */
-        clone(clone?: PropObject): PropObject;
+        clone(): PropObject;
     }
 }
 declare namespace Animate {
@@ -2538,7 +2530,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropResource}
         */
-        clone(clone?: PropAsset): PropAsset;
+        clone(): PropAsset;
     }
 }
 declare namespace Animate {
@@ -2569,7 +2561,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropGroup}
         */
-        clone(clone?: PropGroup): PropGroup;
+        clone(): PropGroup;
     }
 }
 declare namespace Animate {
@@ -2602,7 +2594,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropResourceList}
         */
-        clone(clone?: PropAssetList): PropAssetList;
+        clone(): PropAssetList;
     }
 }
 declare namespace Animate {
@@ -2638,7 +2630,7 @@ declare namespace Animate {
         * Attempts to clone the property
         * @returns {PropColor}
         */
-        clone(clone?: PropColor): PropColor;
+        clone(): PropColor;
         /**
         * De-Tokenizes data from a JSON.
         * @param {any} data The data to import from
@@ -2888,7 +2880,7 @@ declare namespace Animate {
         /**
          * Recalculate the ratios on mouse up
          */
-        onStageMouseUp(e: MouseEvent): void;
+        onStageMouseUp(): void;
         /**
          * This function is called when the mouse is up from the body of stage.
          */
@@ -2931,7 +2923,7 @@ declare namespace Animate {
         * When we click on the close button
         * @param {any} e The jQuery event object
         */
-        onCloseClicked(e: any): void;
+        onCloseClicked(): void;
         /**
         * When the stage move event is called
         * @param {any} e The jQuery event object
@@ -2958,7 +2950,7 @@ declare namespace Animate {
         * When we click the modal window we flash the window
         * @param {object} e The jQuery event object
         */
-        onModalClicked(e: any): void;
+        onModalClicked(): void;
         /**
         * Updates the dimensions if autoCenter is true.
         * @param {object} val
@@ -3033,7 +3025,7 @@ declare namespace Animate {
         /**
          * Called when the window is resized
          */
-        onResize(e: any): void;
+        onResize(): void;
         /**
          * When the mouse moves and we are dragging the header bar we move the window
          */
@@ -3041,7 +3033,7 @@ declare namespace Animate {
         /**
          * When the mouse is up we remove the dragging event listeners
          */
-        onMouseUp(e: MouseEvent): void;
+        onMouseUp(): void;
         /**
          * When the component is mounted
          */
@@ -3114,7 +3106,7 @@ declare namespace Animate {
         /**
          * When the mouse is up we remove the dragging event listeners
          */
-        private onMouseUp(e);
+        private onMouseUp();
         /**
          * When the component is mounted
          */
@@ -3381,9 +3373,8 @@ declare namespace Animate {
         * @param template The definition of the behaviour we're creating
         * @param pos The x and y position of where the node shoule be placed
         * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
-        * @param name The alias of the behaviour
         */
-        addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>, name?: string): void;
+        addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>): void;
         createPortal(type: HatcheryRuntime.PortalType, pos: Point): void;
         /**
          * Opens the canvas context menu
@@ -3789,25 +3780,25 @@ declare namespace Animate {
         * any form of resource is created. I.e. try to get rid of addAssetInstance
         * Called whenever a project resource is created
         */
-        onResourceCreated(type: string, event: any): void;
+        onResourceCreated(): void;
         /**
         * Called when the project is reset by either creating a new one or opening an older one.
         */
-        projectReset(project: Project): void;
+        projectReset(): void;
         /**
         * Catch the key down events.
         * @param e The event passed by jQuery
         */
-        onKeyDown(e: any): void;
+        onKeyDown(): void;
         /**
         * Called when we select a menu item.
         */
-        onContextSelect(response: Event, event: Event, sender?: EventDispatcher): void;
+        onContextSelect(): void;
         /**
         * When we double click the tree
         * @param <object> e The jQuery event object
         */
-        onDblClick(e: any): void;
+        onDblClick(): void;
         /**
         * When the database returns from its command.
         * @param {ProjectEvents} response The loader response
@@ -3828,7 +3819,7 @@ declare namespace Animate {
         * Called when the context menu is about to open.
         * @param <jQuery> e The jQuery event object
         */
-        onContext2(e: any): void;
+        onContext2(): void;
         /**
          * Called whenever the selection has changed
          * @param {TreeNodeModel[]} selection
@@ -3858,7 +3849,7 @@ declare namespace Animate {
          * @param {React.DragEvent} e
          * @returns {IDragDropToken} Return data to serialize
          */
-        onDragStart(e: React.DragEvent): IDragDropToken;
+        onDragStart(): IDragDropToken;
         /**
          * Show a context menu of resource options
          */
@@ -4054,7 +4045,7 @@ declare namespace Animate {
         /**
          * When we click ok on the portal form
          */
-        onAssetEdited(type: string, data: IResourceEvent): void;
+        onAssetEdited(): void;
         /**
          * This will cleanup the component.
          */
@@ -4080,7 +4071,7 @@ declare namespace Animate {
         /**
          * Called whenever the node is double clicked
          */
-        onDoubleClick(e: React.MouseEvent): void;
+        onDoubleClick(): void;
         dispose(): void;
     }
 }
@@ -4147,7 +4138,7 @@ declare namespace Animate {
          * Called whenever we start dragging. This is only called if canDrag is true.
          * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
          */
-        onDragStart(e: React.DragEvent): IDragDropToken;
+        onDragStart(): IDragDropToken;
         /**
          * If a template is removed then remove its instance
          */
@@ -4174,11 +4165,11 @@ declare namespace Animate {
         /**
         * Whenever the container deleted
         */
-        onContainerDeleted(type: string, event: Event, sender: EventDispatcher): void;
+        onContainerDeleted(): void;
         /**
         * Whenever the container is modified, we show this with a *
         */
-        onContainerModified(type: string, event: Event, sender: EventDispatcher): void;
+        onContainerModified(): void;
         /**
         * Cleans up the pair
         */
@@ -4218,7 +4209,7 @@ declare namespace Animate {
         * Called when the editor changes
         * @param {any} e
         */
-        onChange(e: any): void;
+        onChange(): void;
         /**
         * Called by the tab class when the pair is to be removed.
         * @param {TabEvent} event An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
@@ -4358,7 +4349,7 @@ declare namespace Animate {
         * @param <object> event
         * @param <object> data
         */
-        onServer(response: ProjectEvents, event: any): void;
+        onServer(response: ProjectEvents): void;
         /**
         * Called when the save all button is clicked
         */
@@ -4415,7 +4406,7 @@ declare namespace Animate {
         private static _singleton;
         private _currentCanvas;
         private closingTabPair;
-        constructor(parent: Component);
+        constructor();
         /**
         * This is called by a controlling ScreenManager class. An image string needs to be returned
         * which will act as a preview of the component that is being viewed or hidden.
@@ -4474,7 +4465,7 @@ declare namespace Animate {
         /**
         * When the news has been loaded from webinate.
         */
-        onNewsLoaded(response: LoaderEvents, event: AnimateLoaderEvent, sender?: EventDispatcher): void;
+        onNewsLoaded(): void;
         /**
         * Gets the singleton instance.
         * @param {Component} parent The parent component of this tab
@@ -4492,7 +4483,7 @@ declare namespace Animate {
         /**
         * When a canvas is modified we change the tab name, canvas name and un-save its tree node.
         */
-        onCanvasModified(response: CanvasEvents, event: any, sender?: EventDispatcher): void;
+        onCanvasModified(): void;
         /**
         * Adds an item to the tab
         * @param {string} text The text of the new tab
@@ -4691,9 +4682,8 @@ declare namespace Animate {
         /**
         * Given a property, the grid editor must produce HTML that can be used to edit the property
         * @param {Prop<any>} prop The property being edited
-        * @param {Component} container The container acting as this editors parent
         */
-        edit(prop: Prop<any>, container: Component): void;
+        edit(prop: Prop<any>): void;
     }
 }
 declare namespace Animate {
@@ -4935,7 +4925,7 @@ declare namespace Animate {
         * Called when the props are updated
         */
         componentWillReceiveProps(nextProps: IVCheckboxProps): void;
-        onClick(e: any): void;
+        onClick(): void;
         /**
          * Get if the component is selected
          */
@@ -4993,7 +4983,7 @@ declare namespace Animate {
         * @param {number} val The value we are setting
         */
         value: number;
-        onWheel(event: any, delta: any, deltaX: any, deltaY: any): void;
+        onWheel(event: any, delta: any): void;
         onKeyDown(e: any): void;
         onDown(e: any): void;
         onClick(e: any): void;
@@ -5087,7 +5077,7 @@ declare namespace Animate {
         * When we click the main button
         * @param {any} e The jQuery event oject
         */
-        onClick(e: any): void;
+        onClick(): void;
         /**
         * Cleans up the component
         */
@@ -5116,7 +5106,7 @@ declare namespace Animate {
         * When we click on the close button
         * @param {any} e The jQuery event object
         */
-        onCloseClicked(e: any): void;
+        onCloseClicked(): void;
         /**
         * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
         * and pass the text either for the ok or cancel buttons.
@@ -5288,7 +5278,7 @@ declare namespace Animate {
          * Creates an instance of the file viewer
          */
         constructor(props: IFileViewerProps);
-        onFileUploaded(err: Error, files: UsersInterface.IUploadToken[]): void;
+        onFileUploaded(err: Error): void;
         /**
          * When the scope changes we update the viewable contents
          */
@@ -5344,7 +5334,7 @@ declare namespace Animate {
         /**
          * Called when we are no longer dragging items.
          */
-        onDragLeave(e: React.DragEvent): void;
+        onDragLeave(): void;
         /**
          * Called when we drop an asset on the file items div.
          * Checks if the file is allow, and if so, it uploads the file
@@ -5647,7 +5637,7 @@ declare namespace Animate {
         /**
          * When the mouse leaves we remove the tooltip
          */
-        onMouseleave(e: React.MouseEvent | null): void;
+        onMouseleave(): void;
         /**
         * Creates the component elements
         */
@@ -5670,7 +5660,7 @@ declare namespace Animate {
         constructor(props?: IToolbarProps);
         componentWillMount(): void;
         componentWillUnmount(): void;
-        onProjectUpdated(type: ProjectEvents): void;
+        onProjectUpdated(): void;
         /**
          * Creates the component elements
          */
@@ -5683,7 +5673,7 @@ declare namespace Animate {
         /**
         * This is called when we have loaded and initialized a new project.
         */
-        newProject(project: Project): void;
+        newProject(): void;
         /**
         * Opens the splash window
         */
@@ -5777,7 +5767,8 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IPagerProps extends React.HTMLAttributes {
-        onUpdate: (index: number, limit: number) => Promise<number>;
+        onUpdate: (index: number, limit: number) => void;
+        count: number;
         limit?: number;
     }
     interface IPagerState {
@@ -5893,7 +5884,7 @@ declare namespace Animate {
         /**
          * Called when the props are updated
          */
-        componentWillReceiveProps(nextProps: IAttentionProps): void;
+        componentWillReceiveProps(): void;
         /**
          * Creates the component elements
          */
@@ -6349,23 +6340,20 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    /**
-     *  Extends the project with a selected attribute
-     */
-    interface IInteractiveProject extends HatcheryServer.IProject {
-        selected?: boolean;
-    }
     interface IProjectListProps extends React.HTMLAttributes {
-        onProjectSelected?: (project: IInteractiveProject) => void;
-        onProjectDClicked?: (project: IInteractiveProject) => void;
+        onProjectSelected?: (project: HatcheryServer.IProject) => void;
+        onProjectDClicked?: (project: HatcheryServer.IProject) => void;
         noProjectMessage?: string;
+        projects?: HatcheryServer.IProject[];
+        numProjects?: number;
+        onProjectsRequested?: (index: number, limit: number, keywords: string) => void;
     }
     interface IProjectListState {
         loading?: boolean;
         searchText?: string;
-        selectedProject?: IInteractiveProject | null;
+        selectedProject?: HatcheryServer.IProject | null;
         errorMsg?: string | null;
-        projects?: IInteractiveProject[];
+        projects?: HatcheryServer.IProject[];
     }
     /**
      * A list that displays projects
@@ -6381,9 +6369,8 @@ declare namespace Animate {
          * Removes a project from the list
          * @param p The project to remove
          */
-        removeProject(p: IInteractiveProject): void;
-        selectProject(project: IInteractiveProject | null, doubleClick: boolean): void;
-        fetchProjects(index: number, limit: number): Promise<number>;
+        removeProject(p: HatcheryServer.IProject): void;
+        selectProject(project: HatcheryServer.IProject | null, doubleClick: boolean): void;
         /**
          * Creates the component elements
          */
@@ -6419,28 +6406,24 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface ILoginFormProps {
-        onLogin: () => void;
-        onLoadingChange?: (loading: boolean) => void;
-        switchMode: () => void;
+        onLoginRequested: (token: UsersInterface.ILoginToken) => void;
+        onRegisterRequested: () => void;
+        isLoading?: boolean;
+        errorMsg?: string;
     }
     interface ILoginFormState {
-        loading?: boolean;
-        username?: string;
-        errorMsg?: string;
-        error?: boolean;
+        error: boolean;
+        message: string;
     }
     class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
-        private _user;
         /**
          * Creates a new instance
          */
-        constructor();
+        constructor(props: ILoginFormProps);
         /**
          * When the component is mounted we check if the user is logged in
          */
         componentWillMount(): void;
-        loginError(err: Error): void;
-        loginSuccess(data: UsersInterface.IResponse): void;
         /**
          * Attempts to reset the users password
          */
@@ -6462,8 +6445,7 @@ declare namespace Animate {
 declare namespace Animate {
     interface IRegisterFormProps {
         onLogin?: () => void;
-        onLoadingChange?: (loading: boolean) => void;
-        switchMode: () => void;
+        onLoginRequested?: () => void;
     }
     interface IRegisterFormState {
         loading?: boolean;
@@ -6502,19 +6484,17 @@ declare namespace Animate {
         LOGIN = 0,
         REGISTER = 1,
     }
-    interface ILoginWidgetState {
-        mode?: LoginMode;
-        loading?: boolean;
+    interface ILoginWidgetProps extends HatcheryProps {
+        onLogin?: () => void;
+        user?: IUser;
+        editorState?: IEditorState;
     }
-    class LoginWidget extends React.Component<{
-        onLogin: () => void;
-    }, ILoginWidgetState> {
+    class LoginWidget extends React.Component<ILoginWidgetProps, any> {
         private _user;
         /**
          * Creates a new instance
          */
-        constructor();
-        switchState(): void;
+        constructor(props: ILoginWidgetProps);
         /**
          * Creates the component elements
          */
@@ -6524,12 +6504,12 @@ declare namespace Animate {
 declare namespace Animate {
     enum SplashMode {
         WELCOME = 0,
-        LOGIN = 1,
-        NEW_PROJECT = 2,
-        OPENING = 3,
+        NEW_PROJECT = 1,
+        OPENING = 2,
     }
     interface ISplashProps {
         onClose: () => void;
+        user: IUser;
     }
     interface ISplashStats {
         mode?: SplashMode;
@@ -6549,7 +6529,6 @@ declare namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element;
-        show(): void;
         splashDimensions(): string;
         reset(): void;
         /**
@@ -6593,18 +6572,14 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IProjectsOverviewProps extends React.HTMLAttributes {
-        onCreateProject: () => void;
-        onOpenProject: (project: HatcheryServer.IProject) => void;
+    interface IProjectsOverviewProps extends HatcheryProps {
+        user?: IUser;
+        onCreateProject?: () => void;
+        onOpenProject?: (project: HatcheryServer.IProject) => void;
     }
     interface IProjectsOverviewState {
-        loading?: boolean;
-        selectedProject?: IInteractiveProject | null;
-        errorMsg?: string | null;
+        selectedProject?: HatcheryServer.IProject | null;
     }
-    /**
-     * A component for viewing projects, displaying their stats, removing, adding or opening them.
-     */
     class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
         private _user;
         private _list;
@@ -6661,6 +6636,7 @@ declare namespace Animate {
         static bodyComponent: Component;
         private _focusObj;
         constructor(props: IApplicationState);
+        componentWillMount(): void;
         /**
          * Log the first welcome message
          */
@@ -6686,7 +6662,7 @@ declare namespace Animate {
          * Gets the singleton instance
          * @returns {Application}
          */
-        static getInstance(domElement?: string): Application;
+        static getInstance(): Application;
         readonly focusObj: Component;
     }
 }
@@ -6694,33 +6670,40 @@ declare namespace Animate {
     /**
      * Describes each of the project action types
      */
-    type ProjectActionType = 'NEW_PROJECT' | 'OPEN_PROJECT';
+    type ProjectActionType = 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_OPENED';
     /**
      * A base interface for describing project related actions
      */
     interface IProjectAction extends Redux.Action {
         type: ProjectActionType;
+        project: IProject;
     }
     /**
-     * Creates a new project in the backend, and dispatches an event on its success or failure
+     * Creates a new project for the authenticated user
+     * @param options An object of projet defaults
      */
-    function createProject(projectData: any): (dispatch: Redux.Dispatch<IProjectAction>, getState: () => IProjectAction) => void;
+    function createProject(options: HatcheryServer.IProject): (dispatch: Redux.Dispatch<IProjectAction>) => void;
 }
 declare namespace Animate {
     /**
      * Describes the different types of editor action types
      */
-    type EditorActionType = 'EA_TOGGLE_SPLASH' | 'EA_ADD_LOG_MESSAGE' | 'EA_CLEAR_LOG_MESSAGES';
+    type EditorActionType = 'EA_TOGGLE_SPLASH' | 'EA_TOGGLE_LOGIN_STATE';
     /**
      * An interface for describing  editor actions
      */
     interface IEditorAction extends Redux.Action, IEditorState {
         type: EditorActionType;
+        editorState: IEditorState;
     }
     /**
      * Creates an action that toggles the splash screen visiblility
      */
     function toggleSplash(visible: boolean): IEditorAction;
+    /**
+     * Creates an action that toggles the splash screen visiblility
+     */
+    function toggleLoginState(state: 'login' | 'register'): IEditorAction;
 }
 declare namespace Animate {
     /**
@@ -6757,7 +6740,7 @@ declare namespace Animate {
     /**
      * Describes each of the user action types
      */
-    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED';
+    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED';
     /**
      * A base interface for describing user related actions
      */
@@ -6766,16 +6749,29 @@ declare namespace Animate {
         userData?: IUser;
     }
     /**
+     * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
+     * @param user The username of the user we are fetching a project list for
+     * @param index The index to  fetching projects for
+     * @param limit The limit of how many items to fetch
+     * @param search Optional search text
+     */
+    function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
      * Checks if a user is logged in or not. This checks the server using
      * cookie and session data from the browser.
      */
     function authenticated(): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Tries to log the user in asynchronously
+     * @param token An object with user login details
+     */
+    function login(token: UsersInterface.ILoginToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
 }
 declare namespace Animate {
     /**
      * A reducer for processing project actions
      */
-    function projectReducer(state: any, action: IProjectAction): {};
+    function projectReducer(state: IProject, action: IProjectAction): IProject;
 }
 declare namespace Animate {
     /**

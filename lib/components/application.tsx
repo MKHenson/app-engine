@@ -30,6 +30,10 @@ namespace Animate {
             User.get;
         }
 
+        componentWillMount() {
+            this.props.dispatch!( authenticated() );
+        }
+
         /**
          * Log the first welcome message
          */
@@ -46,7 +50,7 @@ namespace Animate {
             const editorState = this.props.editorState!;
 
             return <div id="application">
-                {( editorState.showSplash ? <Animate.Splash onClose={() => this.props.dispatch!( toggleSplash( false ) )} /> : null )}
+                {( editorState.showSplash ? <Animate.Splash user={this.props.user!} onClose={() => this.props.dispatch!( toggleSplash( false ) )} /> : null )}
                 <div id="main-view" style={{ display: editorState.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
                         <Toolbar project={project} />
@@ -118,14 +122,14 @@ namespace Animate {
                 user.project.reset();
 
             // Unload all the plugins
-            PluginManager.getSingleton().projectReset( user.project );
+            PluginManager.getSingleton().projectReset();
         }
 
 		/**
 		 * Gets the singleton instance
          * @returns {Application}
 		 */
-        public static getInstance( domElement?: string ): Application {
+        public static getInstance(): Application {
             return Application._singleton;
         }
 

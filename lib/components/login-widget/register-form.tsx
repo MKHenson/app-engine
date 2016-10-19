@@ -1,8 +1,8 @@
 namespace Animate {
     export interface IRegisterFormProps {
         onLogin?: () => void;
-        onLoadingChange?: ( loading: boolean ) => void;
-        switchMode: () => void;
+        // onLoadingChange?: ( loading: boolean ) => void;
+        onLoginRequested?: () => void;
     }
 
     export interface IRegisterFormState {
@@ -32,16 +32,16 @@ namespace Animate {
         * Attempts to register a new user
         */
         register( json: any ) {
-            if ( this.props.onLoadingChange )
-                this.props.onLoadingChange( true );
+            // if ( this.props.onLoadingChange )
+            //     this.props.onLoadingChange( true );
 
             this.setState( {
                 loading: true
             });
 
             this._user.register( json.username, json.password, json.email, grecaptcha.getResponse( this._captchaId ) ).then(( data ) => {
-                if ( this.props.onLoadingChange )
-                    this.props.onLoadingChange( false );
+                // if ( this.props.onLoadingChange )
+                //     this.props.onLoadingChange( false );
 
                 this.setState( {
                     loading: false,
@@ -50,8 +50,8 @@ namespace Animate {
                 });
             })
                 .catch(( err: Error ) => {
-                    if ( this.props.onLoadingChange )
-                        this.props.onLoadingChange( false );
+                    // if ( this.props.onLoadingChange )
+                    //     this.props.onLoadingChange( false );
 
                     grecaptcha.reset();
                     this.setState( {
@@ -130,7 +130,10 @@ namespace Animate {
                         )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={() => this.props.switchMode()}>
+                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={() => {
+                            if ( this.props.onLoginRequested )
+                                this.props.onLoginRequested()
+                        } }>
                             <span className="fa-chevron-left fa" /> Login
                         </ButtonPrimary>
                     </div>

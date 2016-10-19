@@ -218,38 +218,6 @@ namespace Animate {
             });
         }
 
-		/**
-		* Fetches all the projects of a user. This only works if the user if logged in. If not
-		* it will return null.
-        * @param index The index to  fetching projects for
-        * @param limit The limit of how many items to fetch
-        * @param search Optional search text
-		*/
-        getProjectList( index: number, limit: number, search: string = '' ): Promise<ModepressAddons.IGetProjects> {
-            const that = this;
-
-            return new Promise<ModepressAddons.IGetProjects>( function( resolve, reject ) {
-                Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${that.entry.username}/projects?verbose=true&index=${index}&limit=${limit}&search=${search}` ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
-
-                    // Assign the actual plugins
-                    for ( let i = 0, l = data.data.length; i < l; i++ ) {
-                        const project = data.data[ i ];
-                        const plugins: Array<HatcheryServer.IPlugin> = [];
-                        for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
-                            plugins.push( getPluginByID( project.plugins![ ii ] ) ! );
-
-                        project.$plugins = plugins;
-                    }
-
-                    return resolve( data );
-
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                })
-            });
-        }
 
         /**
 		* Creates a new user projects

@@ -1,15 +1,22 @@
 namespace Animate {
 
-    export interface IProjectsOverviewProps extends React.HTMLAttributes {
-        onCreateProject: () => void;
-        onOpenProject: ( project: HatcheryServer.IProject ) => void;
+    export interface IProjectsOverviewProps extends HatcheryProps {
+        user?: IUser;
+        onCreateProject?: () => void;
+        onOpenProject?: ( project: HatcheryServer.IProject ) => void;
     }
 
     export interface IProjectsOverviewState {
-        loading?: boolean;
-        selectedProject?: IInteractiveProject | null;
-        errorMsg?: string | null;
+        // loading?: boolean;
+        selectedProject?: HatcheryServer.IProject | null;
+        // errorMsg?: string | null;
     }
+
+    @ReactRedux.connect<IStore, IProjectsOverviewProps>(( state ) => {
+        return {
+            user: state.user
+        }
+    })
 
     /**
      * A component for viewing projects, displaying their stats, removing, adding or opening them.
@@ -25,9 +32,9 @@ namespace Animate {
             super( props );
             this._user = User.get;
             this.state = {
-                loading: false,
+                // loading: false,
                 selectedProject: null,
-                errorMsg: null
+                // errorMsg: null
             };
         }
 
@@ -51,6 +58,8 @@ namespace Animate {
         */
         render(): JSX.Element {
             let projectInfo: JSX.Element | undefined;
+            const dispatch = this.props.dispatch!;
+            const user = this.props.user!;
             const project: HatcheryServer.IProject | null = ( this.state.selectedProject ? this.state.selectedProject : null );
 
             // If we have a project
@@ -75,7 +84,11 @@ namespace Animate {
                         } }>
                             REMOVE
                         </ButtonLink>
-                        <ButtonSuccess onClick={() => { this.props.onOpenProject( project ); } }>
+                        <ButtonSuccess onClick={() => {
+                            if ( this.props.onOpenProject )
+                                this.props.onOpenProject( project );
+                        }
+                        }>
                             OPEN <span className="fa fa-chevron-right" />
                         </ButtonSuccess>
                     </div>
@@ -85,12 +98,15 @@ namespace Animate {
             return <div className="projects-overview">
                 <ProjectList
                     ref={( target ) => { this._list = target; } }
+                    projects={user.projects!}
+                    onProjectsRequested={( index, limit, keywords ) => dispatch( getProjectList( user.entry!.username!, index, limit, keywords ) )}
                     noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
                     className="projects-view animate-all"
                     style={{ width: ( this.state.selectedProject ? '70%' : '' ) }}
                     onProjectDClicked={( project ) => {
                         this.setState( { selectedProject: project });
-                        this.props.onOpenProject( project );
+                        if ( this.props.onOpenProject )
+                            this.props.onOpenProject( project );
                     } }
                     onProjectSelected={( project ) => {
                         this.setState( { selectedProject: project });
