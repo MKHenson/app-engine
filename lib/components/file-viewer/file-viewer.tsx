@@ -332,7 +332,7 @@ namespace Animate {
                         <div className="fix"></div>
                     </div>
                     <div className="files-view background-view animate-all">
-                        <Pager ref="pager" onUpdate={( index, limit ) => { return this.updateContent( index, limit ) } }>
+                        <Pager ref="pager" count={100} onUpdate={( index, limit ) => { return this.updateContent( index, limit ) } }>
                             <div className={'file-items' + ( state.highlightDropZone ? ' drag-here' : '' )}
                                 onClick={( e ) => { this.selectEntity( e, null ) } }
                                 onDragExit={() => this.onDragLeave()}

@@ -5,6 +5,7 @@ declare namespace HatcheryServer {
     // Extends the IProject interface to include additional data
     export interface IProject {
         $plugins?: Array<IPlugin>;
+        selected?: boolean;
     }
 
     // Extends the IPlugin interface to include additional data

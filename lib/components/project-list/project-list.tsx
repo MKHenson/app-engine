@@ -1,24 +1,20 @@
 namespace Animate {
 
-    /**
-     *  Extends the project with a selected attribute
-     */
-    export interface IInteractiveProject extends HatcheryServer.IProject {
-        selected?: boolean;
-    }
-
     export interface IProjectListProps extends React.HTMLAttributes {
-        onProjectSelected?: ( project: IInteractiveProject ) => void;
-        onProjectDClicked?: ( project: IInteractiveProject ) => void;
+        onProjectSelected?: ( project: HatcheryServer.IProject ) => void;
+        onProjectDClicked?: ( project: HatcheryServer.IProject ) => void;
         noProjectMessage?: string;
+        projects?: HatcheryServer.IProject[];
+        numProjects?: number;
+        onProjectsRequested?: ( index: number, limit: number, keywords: string ) => void;
     }
 
     export interface IProjectListState {
         loading?: boolean;
         searchText?: string;
-        selectedProject?: IInteractiveProject | null;
+        selectedProject?: HatcheryServer.IProject | null;
         errorMsg?: string | null;
-        projects?: IInteractiveProject[];
+        projects?: HatcheryServer.IProject[];
     }
 
     /**
@@ -50,7 +46,7 @@ namespace Animate {
          * Removes a project from the list
          * @param p The project to remove
          */
-        removeProject( p: IInteractiveProject ) {
+        removeProject( p: HatcheryServer.IProject ) {
             const projects = this.state.projects;
             if ( projects!.indexOf( p ) !== -1 ) {
                 projects!.splice( projects!.indexOf( p ), 1 );
@@ -62,7 +58,7 @@ namespace Animate {
          * Called when we select a project
          * @param project The project to select
          */
-        selectProject( project: IInteractiveProject | null, doubleClick: boolean ) {
+        selectProject( project: HatcheryServer.IProject | null, doubleClick: boolean ) {
 
             if ( this.state.selectedProject && this.state.selectedProject !== project )
                 this.state.selectedProject.selected = false;
@@ -82,42 +78,18 @@ namespace Animate {
             }
         }
 
-        /*
-        * Fetches a list of user projects
-        */
-        fetchProjects( index: number, limit: number ): Promise<number> {
-            this.setState( {
-                loading: true,
-                errorMsg: null,
-                selectedProject: null
-            });
-
-            return new Promise<number>(( resolve, reject ) => {
-                this._user.getProjectList( index, limit, this.state.searchText ).then(( projects ) => {
-                    this.setState( {
-                        loading: false,
-                        projects: projects.data
-                    });
-
-                    resolve( projects.count || 1 );
-                }).catch(( err: Error ) => {
-                    this.setState( {
-                        loading: false,
-                        errorMsg: err.message
-                    });
-                    reject( err );
-                });
-            });
-        }
-
         /**
          * Creates the component elements
          */
         render(): JSX.Element {
             const props: IProjectListProps = Object.assign( {}, this.props );
+            const projects = this.props.projects!;
             delete props.noProjectMessage;
             delete props.onProjectSelected;
             delete props.onProjectDClicked;
+            delete props.projects;
+            delete props.numProjects;
+            delete props.onProjectsRequested;
 
             return <div {...props} className={'project-list ' + ( props.className || '' )}>
                 <div className="projects-toolbar background">
@@ -130,13 +102,20 @@ namespace Animate {
                     {this.state.loading ? <i className="fa fa-cog fa-spin fa-3x fa-fw"></i> : null}
                 </div>
                 <div className="projects-container" onClick={() => { this.selectProject( null, false ) } }>
-                    <Pager onUpdate={this.fetchProjects.bind( this )} limit={6} ref="pager">
+                    <Pager
+                        limit={6}
+                        ref="pager"
+                        count={this.props.numProjects!}
+                        onUpdate={( index, limit ) => {
+                            if ( this.props.onProjectsRequested )
+                                this.props.onProjectsRequested( index, limit, this.state.searchText! )
+                        } }>
                         <div className="project-items">
                             <div className="error bad-input" style={{ display: ( this.state.errorMsg ? 'block' : '' ) }}>
                                 {this.state.errorMsg || ''}
                             </div>
                             {
-                                this.state.projects!.map(( p ) => {
+                                projects.map(( p ) => {
                                     return <ImagePreview key={p._id}
                                         className="project-item"
                                         selected={p.selected}
@@ -153,7 +132,7 @@ namespace Animate {
                                         } }
                                         />
                                 })}
-                            <div className="no-items unselectable" style={{ display: ( this.state.projects!.length ? 'none' : '' ) }}>
+                            <div className="no-items unselectable" style={{ display: ( projects.length ? 'none' : '' ) }}>
                                 {this.props.noProjectMessage}
                             </div>
                         </div>

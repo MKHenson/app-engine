@@ -1,14 +1,14 @@
 namespace Animate {
 
     export interface IPagerProps extends React.HTMLAttributes {
-        onUpdate: ( index: number, limit: number ) => Promise<number>;
+        onUpdate: ( index: number, limit: number ) => void;
+        count: number;
         limit?: number;
     }
 
     export interface IPagerState {
         index?: number,
-        limit?: number,
-        last?: number
+        limit?: number
     }
 
     /**
@@ -19,6 +19,7 @@ namespace Animate {
     export class Pager extends React.Component<IPagerProps, IPagerState> {
         static defaultProps: IPagerProps = {
             limit: 10,
+            count: 0,
             onUpdate: () => { throw new Error( 'onUpdate not implemented' ) }
         } as IPagerProps;
 
@@ -29,8 +30,7 @@ namespace Animate {
             super( props );
             this.state = {
                 index: 0,
-                limit: props.limit,
-                last: 1
+                limit: props.limit
             };
         }
 
@@ -38,88 +38,75 @@ namespace Animate {
          * When the component is mounted - load the projects
          */
         componentWillMount() {
-            this.props.onUpdate( this.state.index!, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            });
+            this.props.onUpdate( this.state.index!, this.state.limit! );
         }
 
         /**
-        * Calls the update function
-        */
+         * Calls the update function
+         */
         invalidate() {
-            this.props.onUpdate( this.state.index!, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            });
+            this.props.onUpdate( this.state.index!, this.state.limit! );
         }
 
         /**
-        * Gets the current page number
-        */
+         * Gets the current page number
+         */
         getPageNum(): number {
             return ( this.state.index / this.state.limit ) + 1;
         }
 
         /**
-		* Gets the total number of pages
-		*/
+		 * Gets the total number of pages
+		 */
         getTotalPages() {
-            return Math.ceil( this.state.last / this.state.limit );
+            return Math.ceil( this.props.count / this.state.limit );
         }
 
         /**
-		* Sets the page search back to index = 0
-		*/
+		 * Sets the page search back to index = 0
+		 */
         goFirst() {
             this.setState( { index: 0 });
-            this.props.onUpdate( 0, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            })
+            this.props.onUpdate( 0, this.state.limit! );
         }
 
         /**
-		* Gets the last set of users
-		*/
+		 * Gets the last set of users
+		 */
         goLast() {
             let index = 0;
 
             if ( this.state.limit !== 1 )
-                index = this.state.last - ( this.state.last - this.state.limit ) % this.state.limit;
+                index = this.props.count - ( this.props.count - this.state.limit ) % this.state.limit;
             else
-                index = this.state.last - ( this.state.last - this.state.limit );
+                index = this.props.count - ( this.props.count - this.state.limit );
 
             if ( index < 0 )
                 index = 0;
 
             this.setState( { index: index });
-            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            });
+            this.props.onUpdate( index, this.state.limit! );
         }
 
         /**
-        * Sets the page search back to index = 0
-        */
+         * Sets the page search back to index = 0
+         */
         goNext() {
             let index = this.state.index + this.state.limit;
             this.setState( { index: index });
-
-            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            });
+            this.props.onUpdate( index, this.state.limit! );
         }
 
         /**
-        * Sets the page search back to index = 0
-        */
+         * Sets the page search back to index = 0
+         */
         goPrev() {
             let index = this.state.index - this.state.limit;
             if ( index < 0 )
                 index = 0;
 
             this.setState( { index: index });
-            this.props.onUpdate( index, this.state.limit! ).then(( last ) => {
-                this.setState( { last: last });
-            });
+            this.props.onUpdate( index, this.state.limit! );
         }
 
         /**
@@ -127,10 +114,12 @@ namespace Animate {
          */
         render(): JSX.Element {
             const props: IPagerProps = Object.assign( {}, this.props );
+            const count = this.props.count;
             delete props.onUpdate;
+            delete props.count;
             delete props.limit;
             let navbar: JSX.Element | undefined;
-            let needsNavigation = this.state.last === 1 || this.state.last === 0 ? false : true;
+            let needsNavigation = count === 1 || count === 0 ? false : true;
 
             if ( needsNavigation )
                 navbar = (
@@ -143,8 +132,8 @@ namespace Animate {
                             {this.getPageNum()} of {this.getTotalPages()}
                         </div>
                         <div className="navigation-column next">
-                            <a style={{ display: ( this.state.index + this.state.limit < this.state.last ? '' : 'none' ) }} onClick={() => { this.goNext() } }>{'>'} Next</a>
-                            <a style={{ display: ( this.state.index < this.state.last - this.state.limit ? '' : 'none' ) }} onClick={() => { this.goLast() } }>{'>>'} Last</a>
+                            <a style={{ display: ( this.state.index + this.state.limit < count ? '' : 'none' ) }} onClick={() => { this.goNext() } }>{'>'} Next</a>
+                            <a style={{ display: ( this.state.index < count - this.state.limit ? '' : 'none' ) }} onClick={() => { this.goLast() } }>{'>>'} Last</a>
                         </div>
                     </div>
                 )
