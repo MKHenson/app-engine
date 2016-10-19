@@ -1,6 +1,7 @@
 namespace Animate {
     export interface ILoginFormProps {
         onLoginRequested: ( token: UsersInterface.ILoginToken ) => void;
+        onResetPasswordRequest: ( username: string ) => void;
         onRegisterRequested: () => void;
         isLoading?: boolean;
         errorMsg?: string;
@@ -51,7 +52,8 @@ namespace Animate {
          * Attempts to resend the activation code
          */
         resendActivation() {
-            // const user = this.state.username!;
+            const user = this.state.username!;
+            this.props.onResetPasswordRequest( user );
             // const that = this;
 
             // if ( user === '' ) {
@@ -71,15 +73,14 @@ namespace Animate {
         }
 
         /**
-        * Attempts to log the user in
-        */
+         * Attempts to log the user in
+         */
         login( json ) {
-            if ( this.props.onLoginRequested )
-                this.props.onLoginRequested( {
-                    username: json.username,
-                    password: json.password,
-                    rememberMe: json.remember
-                });
+            this.props.onLoginRequested( {
+                username: json.username,
+                password: json.password,
+                rememberMe: json.remember
+            });
         }
 
         /**

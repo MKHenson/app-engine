@@ -110,6 +110,40 @@ namespace Animate {
     }
 
     /**
+     * This function is used to reset a user's password
+     */
+    export function resetPassword( user: string ) {
+        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( response ) {
+                if ( response.error )
+                    throw new Error( response.message );
+
+                return resolve( response );
+
+            }).catch( function( err: Error ) {
+                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+            });
+        }
+    }
+
+    /**
+     * This function is used to resend a user's activation code
+     */
+    export function resendActivation( user: string ): Promise<UsersInterface.IResponse> {
+        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( response ) {
+                if ( response.error )
+                    throw new Error( response.message );
+
+                return resolve( response );
+
+            }).catch( function( err: Error ) {
+                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+            });
+        }
+    }
+
+    /**
      * Tries to log the user in asynchronously
      * @param token An object with user login details
      */

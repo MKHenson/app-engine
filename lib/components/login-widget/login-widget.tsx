@@ -42,6 +42,7 @@ namespace Animate {
                     isLoading={user.loading}
                     errorMsg={( user.error ? user.error.message : undefined )}
                     onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
+                    onResetPasswordRequest={() => dispatch( toggleLoginState( 'register' ) )}
                     onLoginRequested={( token ) => dispatch( login( token ) )}
                     />;
             else

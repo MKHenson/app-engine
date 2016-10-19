@@ -35,87 +35,87 @@ namespace Animate {
             };
         }
 
-        /**
-		* Checks if a user is logged in or not. This checks the server using
-		* cookie and session data from the browser.
-		*/
-        authenticated(): Promise<boolean> {
-            this._isLoggedIn = false;
+        // /**
+        // * Checks if a user is logged in or not. This checks the server using
+        // * cookie and session data from the browser.
+        // */
+        // authenticated(): Promise<boolean> {
+        //     this._isLoggedIn = false;
 
-            return new Promise<boolean>(( resolve, reject ) => {
-                Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( data ): Promise<ModepressAddons.IGetDetails | null> => {
+        //     return new Promise<boolean>(( resolve, reject ) => {
+        //         Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( data ): Promise<ModepressAddons.IGetDetails | null> => {
 
-                    if ( data.error )
-                        throw new Error( data.message );
+        //             if ( data.error )
+        //                 throw new Error( data.message );
 
-                    if ( data.authenticated ) {
-                        this.entry = <UsersInterface.IUserEntry>data.user;
-                        this._isLoggedIn = true;
-                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
-                    }
-                    else {
-                        this._isLoggedIn = false;
-                        this.resetMeta();
-                        return Promise.resolve( null );
-                    }
+        //             if ( data.authenticated ) {
+        //                 this.entry = <UsersInterface.IUserEntry>data.user;
+        //                 this._isLoggedIn = true;
+        //                 return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
+        //             }
+        //             else {
+        //                 this._isLoggedIn = false;
+        //                 this.resetMeta();
+        //                 return Promise.resolve( null );
+        //             }
 
-                }).then(( data: ModepressAddons.IGetDetails | null ) => {
-                    if ( data && data.error )
-                        return reject( new Error( data.message ) );
+        //         }).then(( data: ModepressAddons.IGetDetails | null ) => {
+        //             if ( data && data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    this.meta = ( data ? data.data : null );
-                    return resolve( true );
+        //             this.meta = ( data ? data.data : null );
+        //             return resolve( true );
 
-                }).catch(( err: IAjaxError ) => {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                });
-            });
-        }
+        //         }).catch(( err: IAjaxError ) => {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         });
+        //     });
+        // }
 
-        /**
-		* Tries to log the user in asynchronously.
-		* @param user The username of the user.
-		* @param password The password of the user.
-		* @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-		*/
-        login( user: string, password: string, rememberMe: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
-            const token: UsersInterface.ILoginToken = {
-                username: user,
-                password: password,
-                rememberMe: rememberMe
-            };
-            let response: UsersInterface.IAuthenticationResponse;
+        // /**
+        // * Tries to log the user in asynchronously.
+        // * @param user The username of the user.
+        // * @param password The password of the user.
+        // * @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
+        // */
+        // login( user: string, password: string, rememberMe: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
+        //     const token: UsersInterface.ILoginToken = {
+        //         username: user,
+        //         password: password,
+        //         rememberMe: rememberMe
+        //     };
+        //     let response: UsersInterface.IAuthenticationResponse;
 
-            return new Promise<UsersInterface.IAuthenticationResponse>(( resolve, reject ) => {
-                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( data ) => {
-                    response = data;
-                    if ( data.error )
-                        throw new Error( data.message );
+        //     return new Promise<UsersInterface.IAuthenticationResponse>(( resolve, reject ) => {
+        //         Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( data ) => {
+        //             response = data;
+        //             if ( data.error )
+        //                 throw new Error( data.message );
 
-                    if ( data.authenticated ) {
-                        this._isLoggedIn = true;
-                        this.entry = <UsersInterface.IUserEntry>data.user;
-                        return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
-                    }
-                    else {
-                        this._isLoggedIn = false;
-                        this.resetMeta();
-                        return Promise.resolve( null );
-                    }
+        //             if ( data.authenticated ) {
+        //                 this._isLoggedIn = true;
+        //                 this.entry = <UsersInterface.IUserEntry>data.user;
+        //                 return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
+        //             }
+        //             else {
+        //                 this._isLoggedIn = false;
+        //                 this.resetMeta();
+        //                 return Promise.resolve( null );
+        //             }
 
-                }).then(( data: ModepressAddons.IGetDetails | null ) => {
-                    if ( data && data.error )
-                        return reject( new Error( data.message ) );
+        //         }).then(( data: ModepressAddons.IGetDetails | null ) => {
+        //             if ( data && data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    this.meta = ( data ? data.data : null );
-                    return resolve( response );
+        //             this.meta = ( data ? data.data : null );
+        //             return resolve( response );
 
-                }).catch(( err: IAjaxError ) => {
-                    this._isLoggedIn = false;
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                })
-            });
-        }
+        //         }).catch(( err: IAjaxError ) => {
+        //             this._isLoggedIn = false;
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         })
+        //     });
+        // }
 
         /**
 		* Tries to register a new user.
@@ -154,41 +154,41 @@ namespace Animate {
             });
         }
 
-        /**
-		* This function is used to resend a user's activation code
-		* @param user
-		*/
-        resendActivation( user: string ): Promise<UsersInterface.IResponse> {
-            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
+        // /**
+        // * This function is used to resend a user's activation code
+        // * @param user
+        // */
+        // resendActivation( user: string ): Promise<UsersInterface.IResponse> {
+        //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+        //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( data ) {
+        //             if ( data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    return resolve( data );
+        //             return resolve( data );
 
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                })
-            });
-        }
+        //         }).catch( function( err: IAjaxError ) {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         })
+        //     });
+        // }
 
-        /**
-		* This function is used to reset a user's password.
-		* @param user
-		*/
-        resetPassword( user: string ): Promise<UsersInterface.IResponse> {
-            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
+        // /**
+        // * This function is used to reset a user's password.
+        // * @param user
+        // */
+        // resetPassword( user: string ): Promise<UsersInterface.IResponse> {
+        //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+        //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( data ) {
+        //             if ( data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    return resolve( data );
+        //             return resolve( data );
 
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                })
-            });
-        }
+        //         }).catch( function( err: IAjaxError ) {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         })
+        //     });
+        // }
 
         /**
 		* Attempts to log the user out
