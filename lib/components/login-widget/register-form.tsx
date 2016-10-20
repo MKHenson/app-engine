@@ -86,7 +86,6 @@ namespace Animate {
             return <div className="login animate-all fade-in">
                 <VForm
                     name="register"
-                    autoComplete="off"
                     onValidationError={( errors ) => {
                         this.setState( {
                             errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,

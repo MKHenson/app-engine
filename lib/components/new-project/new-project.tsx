@@ -71,7 +71,6 @@ namespace Animate {
                 <div className="double-column form-info" style={{ width: '40%' }}>
                     <VForm name="new-project"
                         ref="newProjectForm"
-                        autoComplete="off"
                         onValidationError={( errors ) => {
                             this.setState( {
                                 errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,

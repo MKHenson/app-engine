@@ -22,7 +22,7 @@ namespace Animate {
         /**
          * Called whenever the input fails a validation test
          */
-        onValidationError?: ( e: Error, target: VTextarea ) => void;
+        onValidationError?: ( e: Error, target: VTextarea, value: string ) => void;
 
         /**
          * Called whenever the input passes a previously failed validation test
@@ -68,7 +68,7 @@ namespace Animate {
 
             // Call the optional error callback
             if ( err && !this._pristine && this.props.onValidationError )
-                this.props.onValidationError( new Error( err ), this );
+                this.props.onValidationError( new Error( err ), this, this.props.value || '' );
 
             this.setState( {
                 error: ( err ? err : null )
@@ -126,7 +126,7 @@ namespace Animate {
 
             // Call the optional error callback
             if ( err && this.props.onValidationError )
-                this.props.onValidationError( new Error( err ), this );
+                this.props.onValidationError( new Error( err ), this, val );
             else if ( wasAnError && !err && this.props.onValidationResolved )
                 this.props.onValidationResolved( this );
 

@@ -1,14 +1,22 @@
 namespace Animate {
 
     export type ValidationError = { name: string, error: string };
-
     export type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
 
-    export interface IVFormProps extends React.HTMLAttributes {
+    export interface IVFormProps {
+        id?: string;
+        className?: string;
+        name?: string;
+
         /**
          * If true, prevents the form being automatically submitted
          */
         preventDefault?: boolean;
+
+        /**
+         * A callback for when an input has been changed and the json updated
+         */
+        onChange?: ( json: any, form: VForm ) => void;
 
         /**
          * A callback for when submit is called and there are no validation errors
@@ -155,7 +163,7 @@ namespace Animate {
             if ( error )
                 return;
 
-            let json = {};
+            const json = {};
             for ( let i in this._values )
                 json[ i ] = this._values[ i ].value;
 
@@ -168,6 +176,13 @@ namespace Animate {
         onChange( e: React.FormEvent ) {
             let input = ( e.target as HTMLInputElement );
             this._values[ input.name ] = { value: input.value, error: null };
+
+            const json = {};
+            for ( let i in this._values )
+                json[ i ] = this._values[ i ].value;
+
+            if ( this.props.onChange )
+                this.props.onChange( json, this );
         }
 
         /**
@@ -175,7 +190,7 @@ namespace Animate {
          * @param e The error that occurred
          * @param target The input that triggered the error
          */
-        onError( e: Error | null, target: VGeneric ) {
+        onError( e: Error | null, target: VGeneric, value?: string | boolean ) {
             let pristine = this.state.pristine;
             if ( !target.pristine )
                 pristine = false;
@@ -192,7 +207,7 @@ namespace Animate {
 
             // Check there are any subsequent errors
             if ( target instanceof VInput || target instanceof VTextarea )
-                this._values[ target.props.name! ] = { value: target.state.value!, error: ( e ? e.message : null ) };
+                this._values[ target.props.name! ] = { value: value !== undefined ? value : target.state.value!, error: ( e ? e.message : null ) };
             else if ( target instanceof VCheckbox )
                 this._values[ target.props.name! ] = { value: target.state.checked!, error: ( e ? e.message : null ) };
             else if ( target instanceof VSelect )
@@ -209,6 +224,15 @@ namespace Animate {
                 this.props.onValidationsResolved( this );
 
             this.setState( { error: errors.length > 0 ? true : false, pristine: pristine });
+
+            if ( this.props.onChange ) {
+                const json = {};
+                for ( let i in this._values )
+                    json[ i ] = this._values[ i ].value;
+
+                this.props.onChange( json, this );
+            }
+
         }
 
         /**
@@ -228,6 +252,7 @@ namespace Animate {
             delete props.onValidationError;
             delete props.onValidationsResolved;
             delete props.preventDefault;
+            delete props.onChange;
 
             let className = this._className;
             if ( this.state.error )
@@ -238,7 +263,7 @@ namespace Animate {
                 className += ' pristine';
 
             return <form
-                {...props}
+                {...props as any}
                 className={className}
                 onSubmit={( e ) => { this.onSubmit( e ); } }> {
                     React.Children.map( this.props.children!, ( i: React.ReactElement<any>, index ) => {
@@ -249,14 +274,14 @@ namespace Animate {
                             return React.cloneElement( i, {
                                 ref: index.toString(),
                                 onChange: ( e ) => { this.onChange( e ); },
-                                onValidationError: ( e, input ) => { this.onError( e, input ) },
+                                onValidationError: ( e, input, value ) => { this.onError( e, input, value ) },
                                 onValidationResolved: ( input ) => { this.onError( null, input ) }
                             } as Animate.IVInputProps )
                         else if ( i.type === VTextarea )
                             return React.cloneElement( i, {
                                 ref: index.toString(),
                                 onChange: ( e ) => { this.onChange( e ); },
-                                onValidationError: ( e, input ) => { this.onError( e, input ) },
+                                onValidationError: ( e, input, value ) => { this.onError( e, input, value ) },
                                 onValidationResolved: ( input ) => { this.onError( null, input ) }
                             } as Animate.IVInputProps )
                         else if ( i.type === VCheckbox ) {
