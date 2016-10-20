@@ -66,6 +66,7 @@ declare namespace Animate {
         error?: Error | null;
         projects?: HatcheryServer.IProject[];
         numProjects?: number;
+        serverMessage?: string | null;
     }
 
     /**

@@ -190,33 +190,33 @@ namespace Animate {
         //     });
         // }
 
-        /**
-		* Attempts to log the user out
-		*/
-        logout(): Promise<UsersInterface.IResponse> {
-            const that = this;
+        // /**
+        // * Attempts to log the user out
+        // */
+        // logout(): Promise<UsersInterface.IResponse> {
+        //     const that = this;
 
-            return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-                Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
+        //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
+        //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
+        //             if ( data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    that.entry = { username: '' };
-                    that.meta = <HatcheryServer.IUserMeta>{
-                        bio: '',
-                        plan: UserPlan.Free,
-                        imgURL: 'media/blank-user.png',
-                        maxNumProjects: 0
-                    };
+        //             that.entry = { username: '' };
+        //             that.meta = <HatcheryServer.IUserMeta>{
+        //                 bio: '',
+        //                 plan: UserPlan.Free,
+        //                 imgURL: 'media/blank-user.png',
+        //                 maxNumProjects: 0
+        //             };
 
-                    that._isLoggedIn = false;
-                    return resolve( data );
+        //             that._isLoggedIn = false;
+        //             return resolve( data );
 
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                })
-            });
-        }
+        //         }).catch( function( err: IAjaxError ) {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         })
+        //     });
+        // }
 
 
         /**

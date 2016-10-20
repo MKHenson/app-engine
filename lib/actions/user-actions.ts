@@ -10,7 +10,10 @@ namespace Animate {
         'USER_AUTHENTICATED' |
         'USER_LOGGED_IN' |
         'USER_GET_PROJECTS' |
-        'USER_LOGIN_FAILED';
+        'USER_LOGIN_FAILED' |
+        'USER_PASSWORD_RESET' |
+        'USER_ACTIVATION_RESENT' |
+        'USER_LOGGED_OUT';
 
     /**
      * A base interface for describing user related actions
@@ -64,8 +67,7 @@ namespace Animate {
     }
 
     /**
-     * Checks if a user is logged in or not. This checks the server using
-     * cookie and session data from the browser.
+     * Sends a server request to check if a user is logged in
      */
     export function authenticated() {
 
@@ -110,7 +112,24 @@ namespace Animate {
     }
 
     /**
-     * This function is used to reset a user's password
+     * Attempts to log the user out
+     */
+    export function logout() {
+        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
+                if ( data.error )
+                    throw new Error( data.message );
+
+                dispatch<IUserAction>( { type: 'USER_LOGGED_OUT' });
+            }).catch( function( err: Error ) {
+                dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
+            })
+        }
+    }
+
+
+    /**
+     * Sends an instruction to the server to start the user password reset procedure
      */
     export function resetPassword( user: string ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
@@ -118,34 +137,31 @@ namespace Animate {
                 if ( response.error )
                     throw new Error( response.message );
 
-                return resolve( response );
-
+                dispatch<IUserAction>( { type: 'USER_PASSWORD_RESET', userData: { serverMessage: response.message } });
             }).catch( function( err: Error ) {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
             });
         }
     }
 
     /**
-     * This function is used to resend a user's activation code
+     * Sends an instruction to the server to resend the user account activation link
      */
-    export function resendActivation( user: string ): Promise<UsersInterface.IResponse> {
+    export function resendActivation( user: string ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
             Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( response ) {
                 if ( response.error )
                     throw new Error( response.message );
 
-                return resolve( response );
-
+                dispatch<IUserAction>( { type: 'USER_ACTIVATION_RESENT', userData: { serverMessage: response.message } });
             }).catch( function( err: Error ) {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
             });
         }
     }
 
     /**
-     * Tries to log the user in asynchronously
-     * @param token An object with user login details
+     * Attempts to log the user in using the token provided
      */
     export function login( token: UsersInterface.ILoginToken ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {

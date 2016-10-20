@@ -15,7 +15,8 @@ namespace Animate {
         loading: false,
         meta: defaultMeta,
         projects: [],
-        numProjects: 0
+        numProjects: 0,
+        serverMessage: null
     }
 
     /**
@@ -32,6 +33,8 @@ namespace Animate {
             case 'USER_AUTHENTICATED':
             case 'USER_LOGGED_IN':
             case 'USER_GET_PROJECTS':
+            case 'USER_PASSWORD_RESET':
+            case 'USER_ACTIVATION_RESENT':
                 toReturn = Object.assign<IUser>( {}, toReturn, { loading: false }, action.userData! );
                 break;
             case 'USER_LOGIN_FAILED':
@@ -40,11 +43,16 @@ namespace Animate {
                     isLoggedIn: false,
                     meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMeta )
                 }, action.userData! );
+            case 'USER_LOGGED_OUT':
+                toReturn = Object.assign<IUser>( {}, defaultState, {
+                    projects: [],
+                    meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMeta )
+                });
+                break;
             default:
                 toReturn = defaultState;
                 break;
         }
-
         return toReturn;
     }
 }
