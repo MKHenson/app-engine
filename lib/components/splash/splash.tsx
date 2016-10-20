@@ -7,6 +7,7 @@
 
     export interface ISplashProps {
         onClose: () => void;
+        onLogout: () => void;
         user: IUser;
     }
 
@@ -37,7 +38,6 @@
          * Creates the component elements
          */
         render(): JSX.Element {
-
             const user = this.props.user!;
             let mainView: JSX.Element | undefined;
 
@@ -86,7 +86,12 @@
 
             return <div id="splash">
                 <div className="logo">
-                    {( User.get.isLoggedIn ? <div className="logout background-a"><a onClick={() => this.logout()}><i className="fa fa-sign-out" aria-hidden="true"></i> Logout</a></div> : null )}
+                    {( user.isLoggedIn ? (
+                        <div className="logout background-a">
+                            <a onClick={() => this.props.onLogout()}>
+                                <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
+                            </a>
+                        </div> ) : null )}
                     <h2>Hatchery</h2>
                 </div>
                 <div
@@ -97,61 +102,14 @@
             </div>
         }
 
-        // /*
-        //  * Shows the splash screen
-        //  */
-        // show() {
-        //     User.get.authenticated().then(( val ) => {
-        //         this.setState( {
-        //             loading: false,
-        //             mode: ( !val ? SplashMode.LOGIN : SplashMode.WELCOME )
-        //         });
-
-        //     }).catch(() => {
-        //         this.setState( {
-        //             loading: false,
-        //             mode: SplashMode.LOGIN
-        //         });
-        //     });
-
-        //     this.setState( {
-        //         loading: true
-        //     });
-        // }
-
         /*
-        * Gets the dimensions of the splash screen based on the active pane
-        */
+         * Gets the dimensions of the splash screen based on the active pane
+         */
         splashDimensions(): string {
             if ( !this.props.user!.isLoggedIn || this.state.mode === SplashMode.OPENING )
                 return 'compact';
             else
                 return 'wide';
-        }
-
-        /*
-        * Called by the app when everything needs to be reset
-        */
-        reset() {
-        }
-
-        /**
-        * Attempts to resend the activation code
-        */
-        logout() {
-            this.setState( { loading: true });
-            User.get.logout().then(() => {
-                Application.getInstance().projectReset();
-                this.setState( {
-                    loading: false,
-                    mode: SplashMode.WELCOME
-                });
-            })
-                .catch(() => {
-                    this.setState( {
-                        loading: false
-                    });
-                });
         }
 
         /**

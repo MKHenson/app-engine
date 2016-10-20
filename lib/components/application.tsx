@@ -45,12 +45,18 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
-
+            const dispatch = this.props.dispatch!;
             let project = User.get.project;
             const editorState = this.props.editorState!;
 
             return <div id="application">
-                {( editorState.showSplash ? <Animate.Splash user={this.props.user!} onClose={() => this.props.dispatch!( toggleSplash( false ) )} /> : null )}
+                {( editorState.showSplash ? (
+                    <Animate.Splash
+                        user={this.props.user!}
+                        onClose={() => this.props.dispatch!( toggleSplash( false ) )}
+                        onLogout={() => dispatch( logout() )}
+                        />
+                ) : null )}
                 <div id="main-view" style={{ display: editorState.showSplash ? 'none' : '' }}>
                     <div id="toolbar">
                         <Toolbar project={project} />
