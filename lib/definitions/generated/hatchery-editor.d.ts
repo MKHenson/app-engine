@@ -2088,40 +2088,6 @@ declare namespace Animate {
         */
         resetMeta(): void;
         /**
-        * Checks if a user is logged in or not. This checks the server using
-        * cookie and session data from the browser.
-        */
-        authenticated(): Promise<boolean>;
-        /**
-        * Tries to log the user in asynchronously.
-        * @param user The username of the user.
-        * @param password The password of the user.
-        * @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-        */
-        login(user: string, password: string, rememberMe: boolean): Promise<UsersInterface.IAuthenticationResponse>;
-        /**
-        * Tries to register a new user.
-        * @param user The username of the user.
-        * @param password The password of the user.
-        * @param email The email of the user.
-        * @param captcha The captcha of the login screen
-        */
-        register(user: string, password: string, email: string, captcha: string): Promise<UsersInterface.IAuthenticationResponse>;
-        /**
-        * This function is used to resend a user's activation code
-        * @param user
-        */
-        resendActivation(user: string): Promise<UsersInterface.IResponse>;
-        /**
-        * This function is used to reset a user's password.
-        * @param user
-        */
-        resetPassword(user: string): Promise<UsersInterface.IResponse>;
-        /**
-        * Attempts to log the user out
-        */
-        logout(): Promise<UsersInterface.IResponse>;
-        /**
         * Creates a new user projects
         * @param name The name of the project
         * @param plugins An array of plugin IDs to identify which plugins to use
@@ -5774,7 +5740,6 @@ declare namespace Animate {
     interface IPagerState {
         index?: number;
         limit?: number;
-        last?: number;
     }
     /**
      * A class for handling paged content. You can use the pager like you would a div element. The content
@@ -5792,32 +5757,32 @@ declare namespace Animate {
          */
         componentWillMount(): void;
         /**
-        * Calls the update function
-        */
+         * Calls the update function
+         */
         invalidate(): void;
         /**
-        * Gets the current page number
-        */
+         * Gets the current page number
+         */
         getPageNum(): number;
         /**
-        * Gets the total number of pages
-        */
+         * Gets the total number of pages
+         */
         getTotalPages(): number;
         /**
-        * Sets the page search back to index = 0
-        */
+         * Sets the page search back to index = 0
+         */
         goFirst(): void;
         /**
-        * Gets the last set of users
-        */
+         * Gets the last set of users
+         */
         goLast(): void;
         /**
-        * Sets the page search back to index = 0
-        */
+         * Sets the page search back to index = 0
+         */
         goNext(): void;
         /**
-        * Sets the page search back to index = 0
-        */
+         * Sets the page search back to index = 0
+         */
         goPrev(): void;
         /**
          * Creates the component elements
@@ -6037,7 +6002,7 @@ declare namespace Animate {
         /**
          * Called whenever the input fails a validation test
          */
-        onValidationError?: (e: Error, target: VInput) => void;
+        onValidationError?: (e: Error, target: VInput, value: string) => void;
         /**
          * Called whenever the input passes a previously failed validation test
          */
@@ -6148,7 +6113,7 @@ declare namespace Animate {
         /**
          * Called whenever the input fails a validation test
          */
-        onValidationError?: (e: Error, target: VTextarea) => void;
+        onValidationError?: (e: Error, target: VTextarea, value: string) => void;
         /**
          * Called whenever the input passes a previously failed validation test
          */
@@ -6218,11 +6183,18 @@ declare namespace Animate {
         error: string;
     };
     type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
-    interface IVFormProps extends React.HTMLAttributes {
+    interface IVFormProps {
+        id?: string;
+        className?: string;
+        name?: string;
         /**
          * If true, prevents the form being automatically submitted
          */
         preventDefault?: boolean;
+        /**
+         * A callback for when an input has been changed and the json updated
+         */
+        onChange?: (json: any, form: VForm) => void;
         /**
          * A callback for when submit is called and there are no validation errors
          */
@@ -6277,7 +6249,7 @@ declare namespace Animate {
          * @param e The error that occurred
          * @param target The input that triggered the error
          */
-        onError(e: Error | null, target: VGeneric): void;
+        onError(e: Error | null, target: VGeneric, value?: string | boolean): void;
         /**
          * Gets if this form has not been touched by the user. False is returned if it has been,
          */
@@ -6405,37 +6377,34 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    /**
+     * An interface for describing the login form properties
+     */
     interface ILoginFormProps {
         onLoginRequested: (token: UsersInterface.ILoginToken) => void;
+        onResetPasswordRequest: (username: string) => void;
+        onResendActivationRequest: (username: string) => void;
         onRegisterRequested: () => void;
         isLoading?: boolean;
-        errorMsg?: string;
+        error?: boolean;
+        message?: string;
     }
+    /**
+     * An interface for describing the login state
+     */
     interface ILoginFormState {
-        error: boolean;
-        message: string;
+        username?: string;
+        error?: boolean;
+        message?: string;
     }
+    /**
+     * A simple login form
+     */
     class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
         /**
          * Creates a new instance
          */
         constructor(props: ILoginFormProps);
-        /**
-         * When the component is mounted we check if the user is logged in
-         */
-        componentWillMount(): void;
-        /**
-         * Attempts to reset the users password
-         */
-        resetPassword(): void;
-        /**
-         * Attempts to resend the activation code
-         */
-        resendActivation(): void;
-        /**
-        * Attempts to log the user in
-        */
-        login(json: any): void;
         /**
          * Creates the component elements
          */
@@ -6444,14 +6413,19 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IRegisterFormProps {
-        onLogin?: () => void;
+        onRegisterRequested?: (token: UsersInterface.IRegisterToken) => void;
         onLoginRequested?: () => void;
+        isLoading?: boolean;
+        error?: boolean;
+        message?: string;
     }
     interface IRegisterFormState {
-        loading?: boolean;
-        errorMsg?: string;
+        message?: string;
         error?: boolean;
     }
+    /**
+     * A simple register form
+     */
     class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
         private _user;
         private _captchaId;
@@ -6459,10 +6433,6 @@ declare namespace Animate {
          * Creates a new instance
          */
         constructor();
-        /**
-        * Attempts to register a new user
-        */
-        register(json: any): void;
         /**
          * Called when the captcha div has been mounted and is ready
          * to be rendered
@@ -6490,7 +6460,6 @@ declare namespace Animate {
         editorState?: IEditorState;
     }
     class LoginWidget extends React.Component<ILoginWidgetProps, any> {
-        private _user;
         /**
          * Creates a new instance
          */
@@ -6509,6 +6478,7 @@ declare namespace Animate {
     }
     interface ISplashProps {
         onClose: () => void;
+        onLogout: () => void;
         user: IUser;
     }
     interface ISplashStats {
@@ -6530,11 +6500,6 @@ declare namespace Animate {
          */
         render(): JSX.Element;
         splashDimensions(): string;
-        reset(): void;
-        /**
-        * Attempts to resend the activation code
-        */
-        logout(): void;
         /**
         * Gets the singleton reference of this class.
         */
@@ -6740,7 +6705,7 @@ declare namespace Animate {
     /**
      * Describes each of the user action types
      */
-    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED';
+    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_REGISTRATION_SENT' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED' | 'USER_PASSWORD_RESET' | 'USER_ACTIVATION_RESENT' | 'USER_LOGGED_OUT';
     /**
      * A base interface for describing user related actions
      */
@@ -6757,15 +6722,29 @@ declare namespace Animate {
      */
     function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
     /**
-     * Checks if a user is logged in or not. This checks the server using
-     * cookie and session data from the browser.
+     * Sends a server request to check if a user is logged in
      */
     function authenticated(): (dispatch: Redux.Dispatch<IUserAction>) => void;
     /**
-     * Tries to log the user in asynchronously
-     * @param token An object with user login details
+     * Attempts to log the user out
+     */
+    function logout(): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Sends an instruction to the server to start the user password reset procedure
+     */
+    function resetPassword(user: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Sends an instruction to the server to resend the user account activation link
+     */
+    function resendActivation(user: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Attempts to log the user in using the token provided
      */
     function login(token: UsersInterface.ILoginToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Attempts to register the user with the provided token
+     */
+    function register(token: UsersInterface.IRegisterToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
 }
 declare namespace Animate {
     /**
