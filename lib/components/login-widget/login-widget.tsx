@@ -40,9 +40,11 @@ namespace Animate {
             if ( this.props.editorState!.loginState === 'login' )
                 activePane = <LoginForm
                     isLoading={user.loading}
-                    errorMsg={( user.error ? user.error.message : undefined )}
+                    error={( user.error ? true : false )}
+                    message={( user.error ? user.error.message : user.serverMessage! )}
                     onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
-                    onResetPasswordRequest={() => dispatch( toggleLoginState( 'register' ) )}
+                    onResetPasswordRequest={( username ) => dispatch( resetPassword( username ) )}
+                    onResendActivationRequest={( username ) => dispatch( resendActivation( username ) )}
                     onLoginRequested={( token ) => dispatch( login( token ) )}
                     />;
             else

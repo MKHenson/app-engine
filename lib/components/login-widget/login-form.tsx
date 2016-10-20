@@ -1,18 +1,30 @@
 namespace Animate {
+
+    /**
+     * An interface for describing the login form properties
+     */
     export interface ILoginFormProps {
         onLoginRequested: ( token: UsersInterface.ILoginToken ) => void;
         onResetPasswordRequest: ( username: string ) => void;
+        onResendActivationRequest: ( username: string ) => void;
         onRegisterRequested: () => void;
         isLoading?: boolean;
-        errorMsg?: string;
+        error?: boolean;
+        message?: string;
     }
 
+    /**
+     * An interface for describing the login state
+     */
     export interface ILoginFormState {
         username?: string;
         error?: boolean;
         message?: string;
     }
 
+    /**
+     * A simple login form
+     */
     export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
 
         /**
@@ -28,72 +40,16 @@ namespace Animate {
         }
 
         /**
-         * Attempts to reset the users password
-         */
-        resetPassword() {
-            // const that = this;
-            // if ( this.state.username === '' ) {
-            //     return this.setState( {
-            //         error: true,
-            //         errorMsg: 'Please specify a username or email to fetch'
-            //     });
-            // }
-
-            // // if ( this.props.onLoadingChange )
-            // //     this.props.onLoadingChange( true );
-
-            // this.setState( { loading: true });
-            // this._user.resetPassword( this.state.username! )
-            //     .then( this.loginSuccess.bind( that ) )
-            //     .catch( this.loginError.bind( that ) );
-        }
-
-        /**
-         * Attempts to resend the activation code
-         */
-        resendActivation() {
-            const user = this.state.username!;
-            this.props.onResetPasswordRequest( user );
-            // const that = this;
-
-            // if ( user === '' ) {
-            //     return this.setState( {
-            //         error: true,
-            //         errorMsg: 'Please specify a username or email to fetch'
-            //     });
-            // }
-
-            // // if ( this.props.onLoadingChange )
-            // //     this.props.onLoadingChange( true );
-
-            // this.setState( { loading: true });
-            // this._user.resendActivation( user )
-            //     .then( this.loginSuccess.bind( that ) )
-            //     .catch( this.loginError.bind( that ) );
-        }
-
-        /**
-         * Attempts to log the user in
-         */
-        login( json ) {
-            this.props.onLoginRequested( {
-                username: json.username,
-                password: json.password,
-                rememberMe: json.remember
-            });
-        }
-
-        /**
          * Creates the component elements
          */
         render(): JSX.Element {
             const isLoading = this.props.isLoading!;
-            const error = this.props.errorMsg ? true : this.state.error;
-            const message = this.props.errorMsg ? this.props.errorMsg : this.state.message;
+            const error = this.props.error ? true : this.state.error;
+            const message = this.props.message ? this.props.message : this.state.message;
 
             return <div className="login animate-all fade-in">
                 <VForm name="login"
-                    autoComplete="off"
+                    onChange={( json ) => { this.setState( { username: json.username }) } }
                     onValidationError={( errors ) => {
                         this.setState( {
                             error: true,
@@ -104,7 +60,11 @@ namespace Animate {
                         this.setState( { message: '', error: false })
                     } }
                     onSubmitted={( json ) => {
-                        this.login( json );
+                        this.props.onLoginRequested( {
+                            username: json.username,
+                            password: json.password,
+                            rememberMe: json.remember
+                        });
                     } }>
                     <VInput
                         autoComplete="off"
@@ -113,11 +73,6 @@ namespace Animate {
                         type="text"
                         name="username"
                         validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
-                        onChange={( e, newText ) => {
-                            e; // Supresses unused param error
-                            this.setState( { username: newText })
-                        } }
-                        value={this.state.username}
                         />
 
                     <VInput
@@ -130,7 +85,12 @@ namespace Animate {
                         />
 
                     <a id="forgot-pass" className={( isLoading ? 'disabled' : undefined )}
-                        onClick={() => this.resetPassword()}>
+                        onClick={() => {
+                            const user = this.state.username!;
+                            if ( user === '' )
+                                return this.setState( { error: true, message: 'Please enter a username or email' });
+                            this.props.onResetPasswordRequest( user );
+                        } }>
                         Forgot
                     </a>
                     <VCheckbox
@@ -141,7 +101,12 @@ namespace Animate {
                     <br />
                     <a
                         className={( isLoading ? 'disabled' : '' )}
-                        onClick={() => this.resendActivation()}>
+                        onClick={() => {
+                            const user = this.state.username!;
+                            if ( user === '' )
+                                return this.setState( { error: true, message: 'Please enter a username or email' });
+                            this.props.onResendActivationRequest( user );
+                        } }>
                         Resend Activation Email
                     </a>
                     <br />
