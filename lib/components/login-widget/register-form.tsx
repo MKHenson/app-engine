@@ -1,16 +1,21 @@
 namespace Animate {
+
     export interface IRegisterFormProps {
-        onLogin?: () => void;
-        // onLoadingChange?: ( loading: boolean ) => void;
+        onRegisterRequested?: ( token: UsersInterface.IRegisterToken ) => void;
         onLoginRequested?: () => void;
+        isLoading?: boolean;
+        error?: boolean;
+        message?: string;
     }
 
     export interface IRegisterFormState {
-        loading?: boolean;
-        errorMsg?: string;
+        message?: string;
         error?: boolean;
     }
 
+    /**
+     * A simple register form
+     */
     export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
         private _user: User;
         private _captchaId: number;
@@ -22,44 +27,9 @@ namespace Animate {
             super();
             this._user = User.get;
             this.state = {
-                loading: false,
-                errorMsg: '',
+                message: '',
                 error: false
             };
-        }
-
-        /**
-        * Attempts to register a new user
-        */
-        register( json: any ) {
-            // if ( this.props.onLoadingChange )
-            //     this.props.onLoadingChange( true );
-
-            this.setState( {
-                loading: true
-            });
-
-            this._user.register( json.username, json.password, json.email, grecaptcha.getResponse( this._captchaId ) ).then(( data ) => {
-                // if ( this.props.onLoadingChange )
-                //     this.props.onLoadingChange( false );
-
-                this.setState( {
-                    loading: false,
-                    errorMsg: data.message,
-                    error: false
-                });
-            })
-                .catch(( err: Error ) => {
-                    // if ( this.props.onLoadingChange )
-                    //     this.props.onLoadingChange( false );
-
-                    grecaptcha.reset();
-                    this.setState( {
-                        loading: false,
-                        error: true,
-                        errorMsg: err.message
-                    });
-                });
         }
 
         /**
@@ -83,20 +53,26 @@ namespace Animate {
          * Creates the component elements
          */
         render(): JSX.Element {
+            const isLoading = this.props.isLoading!;
+            const error = this.props.error ? true : this.state.error;
+            const message = this.props.message ? this.props.message : this.state.message;
+
             return <div className="login animate-all fade-in">
                 <VForm
                     name="register"
                     onValidationError={( errors ) => {
                         this.setState( {
-                            errorMsg: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
+                            message: `${Utils.capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}`,
                             error: true
                         })
                     } }
                     onValidationsResolved={() => {
-                        this.setState( { errorMsg: '' })
+                        this.setState( { message: '' })
                     } }
-                    onSubmitted={( json ) => {
-                        this.register( json )
+                    onSubmitted={( json: UsersInterface.IRegisterToken ) => {
+                        json.captcha = grecaptcha.getResponse( this._captchaId );
+                        if ( this.props.onRegisterRequested )
+                            this.props.onRegisterRequested( json );
                     } }>
 
                     <VInput type="text"
@@ -121,15 +97,15 @@ namespace Animate {
                         />
                     <div id="animate-captcha" ref={( e ) => { this.mountCaptcha( e ) } }></div>
                     <div>
-                        {( this.state.errorMsg !== '' ?
-                            <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS}>
-                                {this.state.errorMsg}
+                        {( message !== '' ?
+                            <Attention mode={error ? AttentionType.ERROR : AttentionType.SUCCESS}>
+                                {message}
                             </Attention>
                             : null
                         )}
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="button" disabled={this.state.loading} onClick={() => {
+                        <ButtonPrimary type="button" disabled={isLoading} onClick={() => {
                             if ( this.props.onLoginRequested )
                                 this.props.onLoginRequested()
                         } }>
@@ -137,7 +113,7 @@ namespace Animate {
                         </ButtonPrimary>
                     </div>
                     <div className="double-column">
-                        <ButtonPrimary type="submit" preventDefault={false} disabled={this.state.loading}>
+                        <ButtonPrimary type="submit" preventDefault={false} disabled={isLoading}>
                             Register
                         </ButtonPrimary>
                     </div>

@@ -9,6 +9,7 @@ namespace Animate {
         'USER_REQUEST_FULFILLED' |
         'USER_AUTHENTICATED' |
         'USER_LOGGED_IN' |
+        'USER_REGISTRATION_SENT' |
         'USER_GET_PROJECTS' |
         'USER_LOGIN_FAILED' |
         'USER_PASSWORD_RESET' |
@@ -32,6 +33,7 @@ namespace Animate {
      */
     export function getProjectList( user: string, index: number, limit: number, search: string = '' ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
             Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${user}/projects?verbose=false&index=${index}&limit=${limit}&search=${search}` ).then( function( response ) {
                 if ( response.error )
@@ -72,7 +74,7 @@ namespace Animate {
     export function authenticated() {
 
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
-            dispatch( { type: 'USER_REQUEST_PENDING' });
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
             Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
 
@@ -116,6 +118,8 @@ namespace Animate {
      */
     export function logout() {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
+
             Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
                 if ( data.error )
                     throw new Error( data.message );
@@ -133,11 +137,17 @@ namespace Animate {
      */
     export function resetPassword( user: string ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
+
             Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( response ) {
                 if ( response.error )
                     throw new Error( response.message );
 
-                dispatch<IUserAction>( { type: 'USER_PASSWORD_RESET', userData: { serverMessage: response.message } });
+                dispatch<IUserAction>( {
+                    type: 'USER_PASSWORD_RESET', userData: {
+                        serverMessage: response.message
+                    }
+                });
             }).catch( function( err: Error ) {
                 dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
             });
@@ -149,11 +159,17 @@ namespace Animate {
      */
     export function resendActivation( user: string ) {
         return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
+
             Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( response ) {
                 if ( response.error )
                     throw new Error( response.message );
 
-                dispatch<IUserAction>( { type: 'USER_ACTIVATION_RESENT', userData: { serverMessage: response.message } });
+                dispatch<IUserAction>( {
+                    type: 'USER_ACTIVATION_RESENT', userData: {
+                        serverMessage: response.message
+                    }
+                });
             }).catch( function( err: Error ) {
                 dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
             });
@@ -168,6 +184,7 @@ namespace Animate {
 
             dispatch( { type: 'USER_REQUEST_PENDING' });
             let entry: UsersInterface.IUserEntry;
+            let message: string;
 
             Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( authResponse ) => {
                 if ( authResponse.error )
@@ -175,6 +192,7 @@ namespace Animate {
 
                 if ( authResponse.authenticated ) {
                     entry = authResponse.user!;
+                    message = authResponse.message;
                     return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
                 }
                 else
@@ -188,7 +206,8 @@ namespace Animate {
                     type: 'USER_LOGGED_IN', userData: {
                         isLoggedIn: true,
                         meta: metaResponse!.data,
-                        entry: entry
+                        entry: entry,
+                        serverMessage: message
                     }
                 });
 
@@ -200,5 +219,29 @@ namespace Animate {
                 });
             })
         };
+    }
+
+    /**
+     * Attempts to register the user with the provided token
+     */
+    export function register( token: UsersInterface.IRegisterToken ) {
+        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
+
+            Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( response ) {
+                if ( response.error )
+                    throw new Error( response.message );
+
+                dispatch<IUserAction>( {
+                    type: 'USER_REGISTRATION_SENT', userData: {
+                        entry: response.user!,
+                        isLoggedIn: response.authenticated,
+                        serverMessage: response.message
+                    }
+                });
+            }).catch( function( err: Error ) {
+                dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
+            });
+        }
     }
 }

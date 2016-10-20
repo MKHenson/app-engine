@@ -18,14 +18,12 @@ namespace Animate {
     })
 
     export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
-        private _user: User;
 
         /**
          * Creates a new instance
          */
         constructor( props: ILoginWidgetProps ) {
             super( props );
-            this._user = User.get;
         }
 
         /**
@@ -49,6 +47,11 @@ namespace Animate {
                     />;
             else
                 activePane = <RegisterForm
+                    ref="register"
+                    isLoading={user.loading}
+                    error={( user.error ? true : false )}
+                    message={( user.error ? user.error.message : user.serverMessage! )}
+                    onRegisterRequested={( token ) => dispatch( register( token ) )}
                     onLoginRequested={() => dispatch( toggleLoginState( 'login' ) )}
                     />;
 

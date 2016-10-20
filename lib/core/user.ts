@@ -117,42 +117,42 @@ namespace Animate {
         //     });
         // }
 
-        /**
-		* Tries to register a new user.
-		* @param user The username of the user.
-		* @param password The password of the user.
-		* @param email The email of the user.
-		* @param captcha The captcha of the login screen
-		*/
-        register( user: string, password: string, email: string, captcha: string ): Promise<UsersInterface.IAuthenticationResponse> {
-            const that = this,
-                token: UsersInterface.IRegisterToken = {
-                    username: user,
-                    password: password,
-                    email: email,
-                    captcha: captcha
-                };
+        // /**
+        // * Tries to register a new user.
+        // * @param user The username of the user.
+        // * @param password The password of the user.
+        // * @param email The email of the user.
+        // * @param captcha The captcha of the login screen
+        // */
+        // register( user: string, password: string, email: string, captcha: string ): Promise<UsersInterface.IAuthenticationResponse> {
+        //     const that = this,
+        //         token: UsersInterface.IRegisterToken = {
+        //             username: user,
+        //             password: password,
+        //             email: email,
+        //             captcha: captcha
+        //         };
 
 
-            return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
-                Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
+        //     return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
+        //         Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( data ) {
+        //             if ( data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    if ( data.authenticated ) {
-                        that._isLoggedIn = false;
-                        that.entry = <UsersInterface.IUserEntry>data.user;
-                    }
-                    else
-                        that._isLoggedIn = false;
+        //             if ( data.authenticated ) {
+        //                 that._isLoggedIn = false;
+        //                 that.entry = <UsersInterface.IUserEntry>data.user;
+        //             }
+        //             else
+        //                 that._isLoggedIn = false;
 
-                    return resolve( data );
+        //             return resolve( data );
 
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                });
-            });
-        }
+        //         }).catch( function( err: IAjaxError ) {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         });
+        //     });
+        // }
 
         // /**
         // * This function is used to resend a user's activation code
