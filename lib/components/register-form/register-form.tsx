@@ -57,7 +57,7 @@ namespace Animate {
             const error = this.props.error ? true : this.state.error;
             const message = this.props.message ? this.props.message : this.state.message;
 
-            return <div className="login animate-all fade-in">
+            return <div className="register animate-all fade-in">
                 <VForm
                     name="register"
                     onValidationError={( errors ) => {

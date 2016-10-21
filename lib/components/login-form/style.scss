@@ -1,0 +1,21 @@
+.login {
+    line-height:40px;
+
+    #forgot-pass {
+        position: absolute;
+        left: 80%;
+        top: 90px;
+        color: #aaa;
+    }
+
+    .login-msg {
+        text-align: center;
+        padding: 0px;
+        overflow:hidden;
+        max-height:0px;
+    }
+
+    .checkbox {
+        margin:15px 0 10px 0
+    }
+}

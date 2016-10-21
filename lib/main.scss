@@ -78,7 +78,9 @@ body {
 @import 'components/toolbar/style.scss';
 @import 'components/plugins-widget/style.scss';
 @import 'components/open-project/style.scss';
-@import 'components/login-widget/style.scss';
+@import 'components/login-form/style.scss';
+@import 'components/register-form/style.scss';
+@import 'containers/login-widget/style.scss';
 @import 'components/project-list/style.scss';
 @import 'components/new-project/style.scss';
 @import 'components/forms/behaviour-picker/style.scss';
