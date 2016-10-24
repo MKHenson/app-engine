@@ -128,7 +128,9 @@ function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     // Create the application element
     ReactDOM.render((
         <ReactRedux.Provider store={Animate.store}>
-            <Animate.Application />
+            <ReactRouter.Router history={ReactRouter.hashHistory}>
+                <ReactRouter.Route path="/" component={Animate.Application} />
+            </ReactRouter.Router>
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }
 

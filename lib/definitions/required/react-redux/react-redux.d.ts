@@ -15,7 +15,7 @@ declare namespace ReactRedux {
   type ActionCreator<A> = Redux.ActionCreator<A>;
 
   interface ComponentDecorator<TOriginalProps, TOwnProps> {
-    ( component: ComponentClass<TOriginalProps> | StatelessComponent<TOriginalProps> ): ComponentClass<TOwnProps>;
+    (component: ComponentClass<TOriginalProps>|StatelessComponent<TOriginalProps>): ComponentClass<TOwnProps>;
   }
 
   /**
@@ -24,7 +24,7 @@ declare namespace ReactRedux {
    * Can't use the above decorator because it would default the type to {}
    */
   export interface InferableComponentDecorator {
-    <P, TComponentConstruct extends ( ComponentClass<P> | StatelessComponent<P> )>( component: TComponentConstruct ): TComponentConstruct;
+    <P, TComponentConstruct extends (ComponentClass<P>|StatelessComponent<P>)>(component: TComponentConstruct): TComponentConstruct;
   }
 
   /**
@@ -50,32 +50,32 @@ declare namespace ReactRedux {
 
   export function connect<TStateProps, TDispatchProps, TOwnProps>(
     mapStateToProps: FuncOrSelf<MapStateToProps<TStateProps, TOwnProps>>,
-    mapDispatchToProps?: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps> | MapDispatchToPropsObject>
+    mapDispatchToProps?: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject>
   ): ComponentDecorator<TStateProps & TDispatchProps, TOwnProps>;
 
   export function connect<TStateProps, TDispatchProps, TOwnProps>(
     mapStateToProps: FuncOrSelf<MapStateToProps<TStateProps, TOwnProps>>,
-    mapDispatchToProps: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps> | MapDispatchToPropsObject>,
+    mapDispatchToProps: FuncOrSelf<MapDispatchToPropsFunction<TDispatchProps, TOwnProps>|MapDispatchToPropsObject>,
     mergeProps: MergeProps<TStateProps, TDispatchProps, TOwnProps>,
     options?: Options
   ): ComponentDecorator<TStateProps & TDispatchProps, TOwnProps>;
 
-  type FuncOrSelf<T> = T | ( () => T );
+  type FuncOrSelf<T> = T | (() => T);
 
   interface MapStateToProps<TStateProps, TOwnProps> {
-    ( state: any, ownProps?: TOwnProps ): TStateProps;
+    (state: any, ownProps?: TOwnProps): TStateProps;
   }
 
   interface MapDispatchToPropsFunction<TDispatchProps, TOwnProps> {
-    ( dispatch: Dispatch<any>, ownProps?: TOwnProps ): TDispatchProps;
+    (dispatch: Dispatch<any>, ownProps?: TOwnProps): TDispatchProps;
   }
 
   interface MapDispatchToPropsObject {
-    [ name: string ]: ActionCreator<any>;
+    [name: string]: ActionCreator<any>;
   }
 
   interface MergeProps<TStateProps, TDispatchProps, TOwnProps> {
-    ( stateProps: TStateProps, dispatchProps: TDispatchProps, ownProps: TOwnProps ): TStateProps & TDispatchProps;
+    (stateProps: TStateProps, dispatchProps: TDispatchProps, ownProps: TOwnProps): TStateProps & TDispatchProps;
   }
 
   interface Options {
@@ -88,7 +88,7 @@ declare namespace ReactRedux {
      */
     pure?: boolean;
     /**
-    * If true, stores a ref to the wrapped component instance and makes it available via
+    * If true, stores a ref to the wrapped component instance and makes it available via 
     * getWrappedInstance() method. Defaults to false.
     */
     withRef?: boolean;

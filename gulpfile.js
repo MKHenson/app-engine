@@ -17,8 +17,8 @@ var untar = require( 'gulp-untar' );
 var gutil = require( 'gulp-util' );
 var rename = require( 'gulp-rename' );
 var rimraf = require( 'rimraf' );
-var tslint = require( "gulp-tslint" );
-var typedoc = require( "gulp-typedoc" );
+var tslint = require( 'gulp-tslint' );
+var typedoc = require( 'gulp-typedoc' );
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 var tsConfig = JSON.parse( fs.readFileSync( 'tsconfig.json' ) );
@@ -26,7 +26,7 @@ var tsFiles = tsConfig.files;
 
 // CONFIG
 // ==============================
-var outDir = "dist";
+var outDir = 'dist';
 
 // Create the type script project file
 var tsProject = ts.createProject( 'tsconfig.json', { sortOutput: true });
@@ -53,6 +53,7 @@ gulp.task( 'deploy-third-party', function() {
         './third-party/react/react-dom.js',
         './third-party/redux/redux.js',
         './third-party/react-redux/react-redux.js',
+        './third-party/react-router/react-router.js',
         './third-party/es6-promise/dist/es6-promise.js',
         './third-party/jscolor/*.*',
         './third-party/ace/src-noconflict/*.js',
@@ -62,11 +63,11 @@ gulp.task( 'deploy-third-party', function() {
         './third-party/ace/src-noconflict/snippets/json.js',
         './polyfills/assign.js',
         './polyfills/es6-promise.js'
-    ], { base: "." })
+    ], { base: '.' })
         .pipe( gulp.dest( outDir ) );
 
     var sourceNoAce = sources.pipe( filter( [ '**/*.js', '!third-party/ace/**/*.js' ] ) );
-    var sourceWithAce = gulp.src( [ 'third-party/ace/src-noconflict/ace.js' ], { base: "." })
+    var sourceWithAce = gulp.src( [ 'third-party/ace/src-noconflict/ace.js' ], { base: '.' })
         .pipe( gulp.dest( outDir ) );
 
     var mergedStream = merge( sourceNoAce, sourceWithAce );
@@ -84,7 +85,7 @@ gulp.task( 'deploy-third-party', function() {
  */
 gulp.task( 'deploy-fonts', function() {
 
-    return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: "./third-party/font-awesome/fonts" })
+    return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: './third-party/font-awesome/fonts' })
         .pipe( gulp.dest( outDir + '/fonts' ) );
 });
 
@@ -119,7 +120,7 @@ gulp.task( 'media', function() {
 gulp.task( 'css', function() {
 
     // Compile all sass files into temp/css
-    return gulp.src( './lib/main.scss', { base: "./lib" })
+    return gulp.src( './lib/main.scss', { base: './lib' })
         .pipe( sass().on( 'error', sass.logError ) )
         .pipe( gulp.dest( outDir + '/css' ) );
 });
@@ -132,7 +133,7 @@ gulp.task( 'check-files', function() {
     // Make sure the files exist
     for ( var i = 0, l = tsFiles.length; i < l; i++ )
         if ( !fs.existsSync( tsFiles[ i ] ) ) {
-            console.log( "File does not exist:" + tsFiles[ i ] );
+            console.log( 'File does not exist:' + tsFiles[ i ] );
             process.exit();
         }
 })
@@ -143,23 +144,23 @@ gulp.task( 'check-files', function() {
  */
 gulp.task( 'ts-code', function() {
 
-    return gulp.src( tsFiles, { base: "." })
+    return gulp.src( tsFiles, { base: '.' })
         .pipe( ts( {
-            "noUnusedParameters": tsConfig.compilerOptions.noUnusedParameters,
-            "noUnusedLocals": tsConfig.compilerOptions.noUnusedLocals,
-            "strictNullChecks": tsConfig.compilerOptions.strictNullChecks,
-            "experimentalDecorators": tsConfig.compilerOptions.experimentalDecorators,
-            "jsx": tsConfig.compilerOptions.jsx,
-            "module": tsConfig.compilerOptions.module,
-            "removeComments": tsConfig.compilerOptions.removeComments,
-            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
-            "declaration": tsConfig.compilerOptions.declaration,
-            "sourceMap": tsConfig.compilerOptions.sourceMap,
-            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
-            "target": tsConfig.compilerOptions.target,
-            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
-            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
-            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels
+            'noUnusedParameters': tsConfig.compilerOptions.noUnusedParameters,
+            'noUnusedLocals': tsConfig.compilerOptions.noUnusedLocals,
+            'strictNullChecks': tsConfig.compilerOptions.strictNullChecks,
+            'experimentalDecorators': tsConfig.compilerOptions.experimentalDecorators,
+            'jsx': tsConfig.compilerOptions.jsx,
+            'module': tsConfig.compilerOptions.module,
+            'removeComments': tsConfig.compilerOptions.removeComments,
+            'noEmitOnError': tsConfig.compilerOptions.noEmitOnError,
+            'declaration': tsConfig.compilerOptions.declaration,
+            'sourceMap': tsConfig.compilerOptions.sourceMap,
+            'preserveConstEnums': tsConfig.compilerOptions.preserveConstEnums,
+            'target': tsConfig.compilerOptions.target,
+            'noImplicitAny': tsConfig.compilerOptions.noImplicitAny,
+            'allowUnreachableCode': tsConfig.compilerOptions.allowUnreachableCode,
+            'allowUnusedLabels': tsConfig.compilerOptions.allowUnusedLabels
         }) )
         .pipe( gulp.dest( outDir + '/js' ) );
 });
@@ -167,11 +168,11 @@ gulp.task( 'ts-code', function() {
 /**
  * Ensures the code quality is up to scratch
  */
-gulp.task( "tslint", [ 'ts-code' ], function() {
+gulp.task( 'tslint', [ 'ts-code' ], function() {
     gulp.src( tsFiles )
         .pipe( tslint( {
-            configuration: "tslint.json",
-            formatter: "verbose"
+            configuration: 'tslint.json',
+            formatter: 'verbose'
         }) )
         .pipe( tslint.report( {
             emitError: false
@@ -181,31 +182,31 @@ gulp.task( "tslint", [ 'ts-code' ], function() {
 /**
  * Creates an API document in a folder called 'docs' folder within /dist
  */
-gulp.task( "tsdocs", function() {
+gulp.task( 'tsdocs', function() {
     return gulp
-        .src( tsFiles, { base: "." })
+        .src( tsFiles, { base: '.' })
         .pipe( typedoc( {
             // TypeScript options (see typescript docs)
-            "noUnusedParameters": tsConfig.compilerOptions.noUnusedParameters,
-            "noUnusedLocals": tsConfig.compilerOptions.noUnusedLocals,
-            "strictNullChecks": tsConfig.compilerOptions.strictNullChecks,
-            "experimentalDecorators": tsConfig.compilerOptions.experimentalDecorators,
-            "jsx": tsConfig.compilerOptions.jsx,
-            "module": tsConfig.compilerOptions.module,
-            "noEmitOnError": tsConfig.compilerOptions.noEmitOnError,
-            "preserveConstEnums": tsConfig.compilerOptions.preserveConstEnums,
-            "target": tsConfig.compilerOptions.target,
-            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
-            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
-            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
+            'noUnusedParameters': tsConfig.compilerOptions.noUnusedParameters,
+            'noUnusedLocals': tsConfig.compilerOptions.noUnusedLocals,
+            'strictNullChecks': tsConfig.compilerOptions.strictNullChecks,
+            'experimentalDecorators': tsConfig.compilerOptions.experimentalDecorators,
+            'jsx': tsConfig.compilerOptions.jsx,
+            'module': tsConfig.compilerOptions.module,
+            'noEmitOnError': tsConfig.compilerOptions.noEmitOnError,
+            'preserveConstEnums': tsConfig.compilerOptions.preserveConstEnums,
+            'target': tsConfig.compilerOptions.target,
+            'noImplicitAny': tsConfig.compilerOptions.noImplicitAny,
+            'allowUnreachableCode': tsConfig.compilerOptions.allowUnreachableCode,
+            'allowUnusedLabels': tsConfig.compilerOptions.allowUnusedLabels,
 
             // Output options (see typedoc docs)
-            out: "./dist/docs",
-            mode: "file",
-            theme: "default",
+            out: './dist/docs',
+            mode: 'file',
+            theme: 'default',
 
             // TypeDoc options (see typedoc docs)
-            name: "Hatchery Editor",
+            name: 'Hatchery Editor',
             plugins: [],
             ignoreCompilerErrors: false,
             version: true,
@@ -219,36 +220,36 @@ gulp.task( "tsdocs", function() {
 gulp.task( 'ts-code-declaration', function() {
 
     var requiredDeclarationFiles = gulp.src( [
-        "./lib/definitions/custom/engine-definitions.d.ts",
-        "./lib/definitions/custom/external-interfaces.d.ts",
-        "./lib/definitions/custom/export-token.d.ts"
-    ], { base: "lib/definitions/custom" });
+        './lib/definitions/custom/engine-definitions.d.ts',
+        './lib/definitions/custom/external-interfaces.d.ts',
+        './lib/definitions/custom/export-token.d.ts'
+    ], { base: 'lib/definitions/custom' });
 
-    var tsDefinition = gulp.src( tsFiles, { base: "." })
+    var tsDefinition = gulp.src( tsFiles, { base: '.' })
         .pipe( ts( {
-            "noUnusedParameters": tsConfig.compilerOptions.noUnusedParameters,
-            "noUnusedLocals": tsConfig.compilerOptions.noUnusedLocals,
-            "strictNullChecks": tsConfig.compilerOptions.strictNullChecks,
-            "experimentalDecorators": tsConfig.compilerOptions.experimentalDecorators,
-            "jsx": tsConfig.compilerOptions.jsx,
-            "module": tsConfig.compilerOptions.module,
-            "removeComments": false,
-            "noEmitOnError": true,
-            "declaration": true,
-            "sourceMap": false,
-            "preserveConstEnums": true,
-            "target": tsConfig.compilerOptions.target,
-            "noImplicitAny": tsConfig.compilerOptions.noImplicitAny,
-            "allowUnreachableCode": tsConfig.compilerOptions.allowUnreachableCode,
-            "allowUnusedLabels": tsConfig.compilerOptions.allowUnusedLabels,
-            "out": "app-engine-client.js"
+            'noUnusedParameters': tsConfig.compilerOptions.noUnusedParameters,
+            'noUnusedLocals': tsConfig.compilerOptions.noUnusedLocals,
+            'strictNullChecks': tsConfig.compilerOptions.strictNullChecks,
+            'experimentalDecorators': tsConfig.compilerOptions.experimentalDecorators,
+            'jsx': tsConfig.compilerOptions.jsx,
+            'module': tsConfig.compilerOptions.module,
+            'removeComments': false,
+            'noEmitOnError': true,
+            'declaration': true,
+            'sourceMap': false,
+            'preserveConstEnums': true,
+            'target': tsConfig.compilerOptions.target,
+            'noImplicitAny': tsConfig.compilerOptions.noImplicitAny,
+            'allowUnreachableCode': tsConfig.compilerOptions.allowUnreachableCode,
+            'allowUnusedLabels': tsConfig.compilerOptions.allowUnusedLabels,
+            'out': 'app-engine-client.js'
         }) ).dts;
 
 
     // Merge the streams
     return merge( requiredDeclarationFiles, tsDefinition )
-        .pipe( concat( "hatchery-editor.d.ts" ) )
-        .pipe( gulp.dest( "lib/definitions/generated" ) );
+        .pipe( concat( 'hatchery-editor.d.ts' ) )
+        .pipe( gulp.dest( 'lib/definitions/generated' ) );
 });
 
 /**
@@ -278,22 +279,22 @@ gulp.task( 'ts-code-release', function() {
  */
 function downloadClient( url, folder ) {
     return new Promise( function( resolve, reject ) {
-        gutil.log( 'Downloading file "' + url + '" into folder "' + folder + '"' );
+        gutil.log( 'Downloading file \'' + url + '\' into folder \'' + folder + '\'' );
         return request( url )
             .pipe( source( 'hello.tar.gz' ) )
             .on( 'end', function() {
-                gutil.log( 'Unzipping... "' + url + '"' );
+                gutil.log( 'Unzipping... \'' + url + '\'' );
             })
             .pipe( gunzip() )
             .pipe( untar() )
             .pipe( gulp.dest( folder ) )
             .on( 'end', function() {
                 var folders = fs.readdirSync( folder );
-                gulp.src( folder + '/' + folders[ 0 ] + "/**/*.*" )
+                gulp.src( folder + '/' + folders[ 0 ] + '/**/*.*' )
                     .pipe( gulp.dest( folder ) )
                     .on( 'end', function() {
                         rimraf.sync( folder + '/' + folders[ 0 ] );
-                        gutil.log( gutil.colors.green( 'Finished download of "' + url + '"' ) );
+                        gutil.log( gutil.colors.green( 'Finished download of \'' + url + '\'' ) );
                         resolve( true );
                     });
             })
@@ -307,21 +308,22 @@ gulp.task( 'install-third-parties', function() {
     rimraf.sync( './third-party' )
 
     return Promise.all( [
-        downloadClient( "https://github.com/FortAwesome/Font-Awesome/tarball/v4.6.3", './third-party/font-awesome' ),
-        downloadClient( "https://github.com/jquery/jquery/tarball/2.2.1", './third-party/jquery' ),
-        downloadClient( "https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0", './third-party/jquery-hotkeys' ),
-        downloadClient( "https://github.com/EastDesire/jscolor/tarball/v1.4.5", './third-party/jscolor' ),
-        downloadClient( "https://github.com/EmKayDK/jstepper/tarball/1.5.0", './third-party/jstepper' ),
-        downloadClient( "https://github.com/ajaxorg/ace-builds/tarball/v1.2.3", './third-party/ace' ),
-        downloadClient( "https://github.com/jquery/jquery-ui/tarball/1.11.4", './third-party/jquery-ui' ),
-        downloadClient( "https://github.com/stefanpenner/es6-promise/tarball/v3.1.2", './third-party/es6-promise' ),
-        downloadClient( "https://github.com/jquery/jquery-mousewheel/tarball/3.1.13", './third-party/jquery-mousewheel' ),
-        downloadClient( "https://github.com/flesler/jquery.scrollTo/tarball/2.1.2", './third-party/jquery-scrollTo' ),
+        downloadClient( 'https://github.com/FortAwesome/Font-Awesome/tarball/v4.6.3', './third-party/font-awesome' ),
+        downloadClient( 'https://github.com/jquery/jquery/tarball/2.2.1', './third-party/jquery' ),
+        downloadClient( 'https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0', './third-party/jquery-hotkeys' ),
+        downloadClient( 'https://github.com/EastDesire/jscolor/tarball/v1.4.5', './third-party/jscolor' ),
+        downloadClient( 'https://github.com/EmKayDK/jstepper/tarball/1.5.0', './third-party/jstepper' ),
+        downloadClient( 'https://github.com/ajaxorg/ace-builds/tarball/v1.2.3', './third-party/ace' ),
+        downloadClient( 'https://github.com/jquery/jquery-ui/tarball/1.11.4', './third-party/jquery-ui' ),
+        downloadClient( 'https://github.com/stefanpenner/es6-promise/tarball/v3.1.2', './third-party/es6-promise' ),
+        downloadClient( 'https://github.com/jquery/jquery-mousewheel/tarball/3.1.13', './third-party/jquery-mousewheel' ),
+        downloadClient( 'https://github.com/flesler/jquery.scrollTo/tarball/2.1.2', './third-party/jquery-scrollTo' ),
 
-        downloadFile( "https://unpkg.com/react@15.3.2/dist/react-with-addons.js", "./third-party/react/", "react-with-addons.js" ),
-        downloadFile( "https://unpkg.com/react-dom@15.3.2/dist/react-dom.js", "./third-party/react/", "react-dom.js" ),
-        downloadFile( "https://unpkg.com/redux@3.6.0/dist/redux.js", "./third-party/redux/", "redux.js" ),
-        downloadFile( "https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js", "./third-party/react-redux/", "react-redux.js" )
+        downloadFile( 'https://unpkg.com/react@15.3.2/dist/react-with-addons.js', './third-party/react/', 'react-with-addons.js' ),
+        downloadFile( 'https://unpkg.com/react-dom@15.3.2/dist/react-dom.js', './third-party/react/', 'react-dom.js' ),
+        downloadFile( 'https://unpkg.com/redux@3.6.0/dist/redux.js', './third-party/redux/', 'redux.js' ),
+        downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js', './third-party/react-redux/', 'react-redux.js' ),
+        downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' )
     ] );
 });
 
@@ -349,13 +351,15 @@ function downloadFile( url, dest, name ) {
  */
 gulp.task( 'install-definitions', function() {
     return Promise.all( [
-        downloadFile( "https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts", "lib/definitions/required/", "hatchery-runtime.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts", "lib/definitions/required/", "hatchery-server.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts", "lib/definitions/required/", "users.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts", "lib/definitions/required/", "modepress-api.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts", "lib/definitions/required/redux/", "redux.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts", "lib/definitions/required/react-redux/", "react-redux.d.ts" ),
-        downloadFile( "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts", "lib/definitions/required/", "ace.d.ts" )
+        downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts', 'lib/definitions/required/', 'hatchery-runtime.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts', 'lib/definitions/required/', 'hatchery-server.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts', 'lib/definitions/required/', 'users.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts', 'lib/definitions/required/', 'modepress-api.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts', 'lib/definitions/required/redux/', 'redux.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts', 'lib/definitions/required/react-redux/', 'react-redux.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/history.d.ts', 'lib/definitions/required/react-router/', 'history.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/react-router.d.ts', 'lib/definitions/required/react-router/', 'react-router.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts', 'lib/definitions/required/', 'ace.d.ts' )
 
     ] );
 });
@@ -364,14 +368,14 @@ gulp.task( 'install-definitions', function() {
 gulp.task( 'build-all', [ 'html', 'media', 'deploy-fonts', 'check-files', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ], function() {
 
     var index = './dist/index.html';
-    var str = "<!-- inject:js -->\n";
+    var str = '<!-- inject:js -->\n';
     var jsArray = [];
 
     for ( var i = 0, l = tsFiles.length; i < l; i++ )
         if ( tsFiles[ i ].indexOf( '.d.ts' ) == -1 )
             jsArray.push( 'js/' + tsFiles[ i ].replace( /(\.tsx|\.ts)/, '.js' ) )
 
-    str += ( jsArray.map( function( item, i ) { return `<script type="text/javascript" src="${item}"></script>` }) ).join( "\n" );
+    str += ( jsArray.map( function( item, i ) { return `<script type='text/javascript' src='${item}'></script>` }) ).join( '\n' );
 
     var contents = fs.readFileSync( index, 'utf8' );
 
