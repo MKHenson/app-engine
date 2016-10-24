@@ -6465,19 +6465,15 @@ declare namespace Animate {
         NEW_PROJECT = 1,
         OPENING = 2,
     }
-    interface ISplashProps {
-        onClose: () => void;
-        onLogout: () => void;
-        user: IUser;
+    interface ISplashProps extends HatcheryProps {
+        user?: IUser;
+        splash?: ISplashScreen;
     }
     interface ISplashStats {
         mode?: SplashMode;
         loading?: boolean;
         project?: HatcheryServer.IProject;
     }
-    /**
-     * The splash screen when starting the app
-     */
     class Splash extends React.Component<ISplashProps, ISplashStats> {
         private static _singleton;
         /**
@@ -6526,16 +6522,21 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    interface IProjectsOverviewProps extends HatcheryProps {
-        user?: IUser;
-        onCreateProject?: () => void;
-        onOpenProject?: (project: HatcheryServer.IProject) => void;
+    interface IProjectsOverviewProps {
+        splash: ISplashScreen;
+        username: string;
+        onProjectDelete: (project: HatcheryServer.IProject) => void;
+        onCreateProject: () => void;
+        onOpenProject: (project: HatcheryServer.IProject) => void;
+        onProjectsRefresh: (index: number, limit: number, searchTerm: string) => void;
     }
     interface IProjectsOverviewState {
         selectedProject?: HatcheryServer.IProject | null;
     }
+    /**
+     * A component for viewing projects, displaying their stats, removing, adding or opening them.
+     */
     class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
-        private _user;
         private _list;
         /**
          * Creates an instance of the projects overview
@@ -6639,7 +6640,7 @@ declare namespace Animate {
     /**
      * Describes each of the splash screen action types
      */
-    type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED';
+    type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_GET_PROJECTS';
     /**
      * A base interface for describing the splash screen actions
      */
@@ -6647,6 +6648,14 @@ declare namespace Animate {
         type: SplashActionType;
         data?: ISplashScreen;
     }
+    /**
+     * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
+     * @param user The username of the user we are fetching a project list for
+     * @param index The index to  fetching projects for
+     * @param limit The limit of how many items to fetch
+     * @param search Optional search text
+     */
+    function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<ISplashAction>) => void;
 }
 declare namespace Animate {
     /**
@@ -6738,14 +6747,6 @@ declare namespace Animate {
         username?: string;
         project?: string;
     }
-    /**
-     * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
-     * @param user The username of the user we are fetching a project list for
-     * @param index The index to  fetching projects for
-     * @param limit The limit of how many items to fetch
-     * @param search Optional search text
-     */
-    function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
     /**
      * Sends a server request to check if a user is logged in
      */

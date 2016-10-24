@@ -35,50 +35,6 @@ namespace Animate {
     };
 
     /**
-     * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
-     * @param user The username of the user we are fetching a project list for
-     * @param index The index to  fetching projects for
-     * @param limit The limit of how many items to fetch
-     * @param search Optional search text
-     */
-    export function getProjectList( user: string, index: number, limit: number, search: string = '' ) {
-        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
-            dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
-
-            Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${user}/projects?verbose=false&index=${index}&limit=${limit}&search=${search}` ).then( function( response ) {
-                if ( response.error )
-                    throw new Error( response.message );
-
-                const projects = response.data;
-
-                // Assign the plugins
-                for ( const project of projects ) {
-                    const plugins = project.plugins!.map(( pluginName: string ) => {
-                        const iPlugin = getPluginByID( pluginName );
-                        if ( iPlugin )
-                            return iPlugin;
-
-                        throw new Error( `Could not find a plugin with the name '${pluginName}'` );
-                    });
-
-                    project.$plugins = plugins;
-                }
-
-                dispatch<IUserAction>( {
-                    type: 'USER_GET_PROJECTS',
-                    userData: {
-                        projects: projects,
-                        numProjects: response.count
-                    }
-                });
-
-            }).catch( function( err: Error ) {
-                dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
-            })
-        }
-    }
-
-    /**
      * Sends a server request to check if a user is logged in
      */
     export function authenticated() {

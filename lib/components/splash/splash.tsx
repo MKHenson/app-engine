@@ -5,10 +5,9 @@
         OPENING
     }
 
-    export interface ISplashProps {
-        onClose: () => void;
-        onLogout: () => void;
-        user: IUser;
+    export interface ISplashProps extends HatcheryProps {
+        user?: IUser;
+        splash?: ISplashScreen;
     }
 
     export interface ISplashStats {
@@ -16,6 +15,14 @@
         loading?: boolean;
         project?: HatcheryServer.IProject;
     }
+
+    // Connects th splash screen with its store properties
+    @ReactRedux.connect<IStore, ISplashProps>(( state ) => {
+        return {
+            user: state.user,
+            splash: state.splash
+        }
+    })
 
     /**
      * The splash screen when starting the app
@@ -39,6 +46,10 @@
          */
         render(): JSX.Element {
             const user = this.props.user!;
+            const username = user.entry!.username!;
+            const splash = this.props.splash!;
+            const dispatch = this.props.dispatch!;
+
             let mainView: JSX.Element | undefined;
 
             if ( !user.isLoggedIn )
@@ -48,6 +59,10 @@
                     } } />;
             else if ( this.state.mode === SplashMode.WELCOME )
                 mainView = <ProjectsOverview
+                    splash={splash}
+                    username={username}
+                    onProjectDelete={( project ) => dispatch( removeProject( username, project._id ) )}
+                    onProjectsRefresh={( index, limit, searchterm ) => dispatch( getProjectList( username, index, limit, searchterm ) )}
                     onCreateProject={() => {
                         this.setState( { mode: SplashMode.NEW_PROJECT });
                     } }
@@ -77,7 +92,7 @@
                 mainView = <OpenProject
                     project={this.state.project!}
                     onComplete={() => {
-                        this.props.onClose();
+                        throw new Error( 'Not implemented' );
                     } }
                     onCancel={() => {
                         this.setState( { mode: SplashMode.WELCOME });
@@ -88,7 +103,7 @@
                 <div className="logo">
                     {( user.isLoggedIn ? (
                         <div className="logout background-a">
-                            <a onClick={() => this.props.onLogout()}>
+                            <a onClick={() => { throw new Error( 'Not implemented' ) } }>
                                 <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
                             </a>
                         </div> ) : null )}

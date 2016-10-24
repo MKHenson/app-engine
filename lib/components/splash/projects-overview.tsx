@@ -1,26 +1,22 @@
 namespace Animate {
 
-    export interface IProjectsOverviewProps extends HatcheryProps {
-        user?: IUser;
-        onCreateProject?: () => void;
-        onOpenProject?: ( project: HatcheryServer.IProject ) => void;
+    export interface IProjectsOverviewProps {
+        splash: ISplashScreen;
+        username: string;
+        onProjectDelete: ( project: HatcheryServer.IProject ) => void;
+        onCreateProject: () => void;
+        onOpenProject: ( project: HatcheryServer.IProject ) => void;
+        onProjectsRefresh: ( index: number, limit: number, searchTerm: string ) => void;
     }
 
     export interface IProjectsOverviewState {
         selectedProject?: HatcheryServer.IProject | null;
     }
 
-    @ReactRedux.connect<IStore, IProjectsOverviewProps>(( state ) => {
-        return {
-            user: state.user
-        }
-    })
-
     /**
      * A component for viewing projects, displaying their stats, removing, adding or opening them.
      */
     export class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
-        private _user: User;
         private _list: ProjectList;
 
         /**
@@ -28,7 +24,6 @@ namespace Animate {
          */
         constructor( props: IProjectsOverviewProps ) {
             super( props );
-            this._user = User.get;
             this.state = {
                 selectedProject: null
             };
@@ -39,8 +34,8 @@ namespace Animate {
         */
         render(): JSX.Element {
             let projectInfo: JSX.Element | undefined;
-            const dispatch = this.props.dispatch!;
-            const user = this.props.user!;
+            const splash = this.props.splash;
+            const username = this.props.username;
             const project: HatcheryServer.IProject | null = ( this.state.selectedProject ? this.state.selectedProject : null );
 
             // If we have a project
@@ -64,7 +59,8 @@ namespace Animate {
                                     if ( button === 'No' )
                                         return;
 
-                                    removeProject( this.props.user!.entry!.username!, this.state.selectedProject!._id );
+                                    if ( this.props.onProjectDelete )
+                                        this.props.onProjectDelete( this.state.selectedProject! );
                                 }
                             );
                         } }>
@@ -84,10 +80,13 @@ namespace Animate {
             return <div className="projects-overview">
                 <ProjectList
                     ref={( target ) => { this._list = target; } }
-                    projects={user.projects!}
-                    numProjects={user.numProjects}
-                    onProjectsRequested={( index, limit, keywords ) => dispatch( getProjectList( user.entry!.username!, index, limit, keywords ) )}
-                    noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
+                    projects={splash.projects}
+                    numProjects={splash.numProjects}
+                    onProjectsRequested={( index, limit, keywords ) => {
+                        if ( this.props.onProjectsRefresh )
+                            this.props.onProjectsRefresh( index, limit, keywords );
+                    } }
+                    noProjectMessage={`Welcome ${username}, click New Appling to get started`}
                     className="projects-view animate-all"
                     style={{ width: ( this.state.selectedProject ? '70%' : '' ) }}
                     onProjectDClicked={( project ) => {

@@ -14,8 +14,6 @@ namespace Animate {
         isLoggedIn: false,
         loading: false,
         meta: defaultMeta,
-        projects: [],
-        numProjects: 0,
         serverResponse: null
     }
 
@@ -48,7 +46,6 @@ namespace Animate {
                 break;
             case 'USER_LOGGED_OUT':
                 toReturn = Object.assign<IUser>( {}, defaultState, {
-                    projects: [],
                     meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMeta )
                 });
                 break;

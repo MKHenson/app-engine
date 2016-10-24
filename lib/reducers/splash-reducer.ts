@@ -20,6 +20,7 @@ namespace Animate {
                 break;
             case 'SPLASH_REQUEST_REJECTED':
             case 'SPLASH_REQUEST_FULFILLED':
+            case 'SPLASH_GET_PROJECTS':
                 toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: false }, action.data! );
                 break;
             default:

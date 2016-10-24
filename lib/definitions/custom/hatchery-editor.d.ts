@@ -67,8 +67,6 @@ declare namespace Animate {
         entry?: UsersInterface.IUserEntry | null;
         meta?: HatcheryServer.IUserMeta;
         isLoggedIn?: boolean;
-        projects?: HatcheryServer.IProject[];
-        numProjects?: number;
     }
 
     /**
