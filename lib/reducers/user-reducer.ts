@@ -36,6 +36,7 @@ namespace Animate {
             case 'USER_PASSWORD_RESET':
             case 'USER_ACTIVATION_RESENT':
             case 'USER_REGISTRATION_SENT':
+            case 'USER_REQUEST_FULFILLED':
                 toReturn = Object.assign<IUser>( {}, toReturn, { loading: false }, action.userData! );
                 break;
             case 'USER_LOGIN_FAILED':

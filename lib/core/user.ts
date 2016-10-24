@@ -253,26 +253,26 @@ namespace Animate {
             });
         }
 
-        /**
-		* Removes a project by its id
-        * @param pid The id of the project to remove
-		*/
-        removeProject( pid: string ): Promise<Modepress.IResponse> {
-            const that = this;
+        // /**
+        // * Removes a project by its id
+        // * @param pid The id of the project to remove
+        // */
+        // removeProject( pid: string ): Promise<Modepress.IResponse> {
+        //     const that = this;
 
-            return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-                Utils.delete<Modepress.IResponse>( `${DB.API}/users/${that.entry.username}/projects/${pid}` ).then( function( data ) {
-                    if ( data.error )
-                        return reject( new Error( data.message ) );
+        //     return new Promise<Modepress.IResponse>( function( resolve, reject ) {
+        //         Utils.delete<Modepress.IResponse>( `${DB.API}/users/${that.entry.username}/projects/${pid}` ).then( function( data ) {
+        //             if ( data.error )
+        //                 return reject( new Error( data.message ) );
 
-                    return resolve( data );
+        //             return resolve( data );
 
-                }).catch( function( err: IAjaxError ) {
-                    return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-                });
-            });
+        //         }).catch( function( err: IAjaxError ) {
+        //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+        //         });
+        //     });
 
-        }
+        // }
 
         /**
 		* Attempts to update the user's details base on the token provided

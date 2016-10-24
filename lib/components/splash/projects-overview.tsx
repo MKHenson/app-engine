@@ -7,9 +7,7 @@ namespace Animate {
     }
 
     export interface IProjectsOverviewState {
-        // loading?: boolean;
         selectedProject?: HatcheryServer.IProject | null;
-        // errorMsg?: string | null;
     }
 
     @ReactRedux.connect<IStore, IProjectsOverviewProps>(( state ) => {
@@ -32,25 +30,8 @@ namespace Animate {
             super( props );
             this._user = User.get;
             this.state = {
-                // loading: false,
-                selectedProject: null,
-                // errorMsg: null
+                selectedProject: null
             };
-        }
-
-        /*
-        * Removes the selected project if confirmed by the user
-        * @param messageBoxAnswer The messagebox confirmation/denial from the user
-        */
-        removeProject( messageBoxAnswer: string ) {
-            if ( messageBoxAnswer === 'No' )
-                return;
-
-            this._user.removeProject( this.state.selectedProject!._id ).then(() => {
-                this._list.removeProject( this.state.selectedProject! );
-            }).catch( function( err: Error ) {
-                MessageBox.error( err.message );
-            });
         }
 
         /**
@@ -79,7 +60,12 @@ namespace Animate {
                             MessageBox.warn(
                                 `Are you sure you want to permanently remove the project '${project.name}'?`,
                                 [ 'Yes', 'No' ],
-                                ( button ) => { this.removeProject( button ) }
+                                ( button ) => {
+                                    if ( button === 'No' )
+                                        return;
+
+                                    removeProject( this.props.user!.entry!.username!, this.state.selectedProject!._id );
+                                }
                             );
                         } }>
                             REMOVE
@@ -99,6 +85,7 @@ namespace Animate {
                 <ProjectList
                     ref={( target ) => { this._list = target; } }
                     projects={user.projects!}
+                    numProjects={user.numProjects}
                     onProjectsRequested={( index, limit, keywords ) => dispatch( getProjectList( user.entry!.username!, index, limit, keywords ) )}
                     noProjectMessage={`Welcome ${this._user.entry.username}, click New Appling to get started`}
                     className="projects-view animate-all"

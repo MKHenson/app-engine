@@ -18,21 +18,18 @@ namespace Animate {
     }
 
     /**
-     * A list that displays projects
+     * A list that displays projects in a paginated container.
      */
     export class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps: IProjectListProps = {
             noProjectMessage: 'You have no projects'
         }
 
-        private _user: User;
-
         /**
          * Creates a new instance
          */
         constructor( props ) {
             super( props );
-            this._user = User.get;
             this.state = {
                 loading: false,
                 selectedProject: null,
@@ -40,18 +37,6 @@ namespace Animate {
                 projects: [],
                 searchText: ''
             };
-        }
-
-        /**
-         * Removes a project from the list
-         * @param p The project to remove
-         */
-        removeProject( p: HatcheryServer.IProject ) {
-            const projects = this.state.projects;
-            if ( projects!.indexOf( p ) !== -1 ) {
-                projects!.splice( projects!.indexOf( p ), 1 );
-                this.setState( { projects: projects });
-            }
         }
 
         /*

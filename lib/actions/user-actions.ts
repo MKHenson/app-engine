@@ -14,6 +14,7 @@ namespace Animate {
         'USER_LOGIN_FAILED' |
         'USER_PASSWORD_RESET' |
         'USER_ACTIVATION_RESENT' |
+        'USER_REMOVED_PROJECT' |
         'USER_LOGGED_OUT';
 
     /**
@@ -22,6 +23,15 @@ namespace Animate {
     export interface IUserAction extends Redux.Action {
         type: UserActionType;
         userData?: IUser;
+    };
+
+    /**
+     * Describes the action for removing projects
+     */
+    export interface IUserProjectRemovedAction extends Redux.Action {
+        type: UserActionType;
+        username?: string;
+        project?: string;
     };
 
     /**
@@ -172,6 +182,42 @@ namespace Animate {
                 });
             }).catch( function( err: Error ) {
                 dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
+            });
+        }
+    }
+
+    /**
+     * Removes a user's project by its id
+     * @param username The username of the user we are removing a project for
+     * @param pid The id of the project to remove
+     */
+    export function removeProject( username: string, pid: string ) {
+        return ( dispatch: Redux.Dispatch<IUserAction> ) => {
+
+            dispatch( { type: 'USER_REQUEST_PENDING' });
+
+            Utils.delete<Modepress.IResponse>( `${DB.API}/users/${username}/projects/${pid}` ).then( function( data ) {
+                if ( data.error )
+                    throw new Error( data.message );
+
+                dispatch<IUserProjectRemovedAction>( {
+                    type: 'USER_REMOVED_PROJECT',
+                    project: pid,
+                    username: username
+                });
+
+                dispatch<IUserAction>( {
+                    type: 'USER_REQUEST_FULFILLED', userData: {
+                        serverMessage: data.message
+                    }
+                });
+
+            }).catch( function( err: Error ) {
+                dispatch<IUserAction>( {
+                    type: 'USER_REQUEST_REJECTED', userData: {
+                        error: new Error( err.message )
+                    }
+                });
             });
         }
     }

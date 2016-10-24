@@ -2095,11 +2095,6 @@ declare namespace Animate {
         */
         newProject(name: string, plugins: Array<string>, description?: string): Promise<ModepressAddons.ICreateProject>;
         /**
-        * Removes a project by its id
-        * @param pid The id of the project to remove
-        */
-        removeProject(pid: string): Promise<Modepress.IResponse>;
-        /**
         * Attempts to update the user's details base on the token provided
         * @returns The user details token
         */
@@ -6328,20 +6323,14 @@ declare namespace Animate {
         projects?: HatcheryServer.IProject[];
     }
     /**
-     * A list that displays projects
+     * A list that displays projects in a paginated container.
      */
     class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
         static defaultProps: IProjectListProps;
-        private _user;
         /**
          * Creates a new instance
          */
         constructor(props: any);
-        /**
-         * Removes a project from the list
-         * @param p The project to remove
-         */
-        removeProject(p: HatcheryServer.IProject): void;
         selectProject(project: HatcheryServer.IProject | null, doubleClick: boolean): void;
         /**
          * Creates the component elements
@@ -6552,7 +6541,6 @@ declare namespace Animate {
          * Creates an instance of the projects overview
          */
         constructor(props: IProjectsOverviewProps);
-        removeProject(messageBoxAnswer: string): void;
         /**
         * Creates the component elements
         */
@@ -6705,13 +6693,21 @@ declare namespace Animate {
     /**
      * Describes each of the user action types
      */
-    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_REGISTRATION_SENT' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED' | 'USER_PASSWORD_RESET' | 'USER_ACTIVATION_RESENT' | 'USER_LOGGED_OUT';
+    type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_REGISTRATION_SENT' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED' | 'USER_PASSWORD_RESET' | 'USER_ACTIVATION_RESENT' | 'USER_REMOVED_PROJECT' | 'USER_LOGGED_OUT';
     /**
      * A base interface for describing user related actions
      */
     interface IUserAction extends Redux.Action {
         type: UserActionType;
         userData?: IUser;
+    }
+    /**
+     * Describes the action for removing projects
+     */
+    interface IUserProjectRemovedAction extends Redux.Action {
+        type: UserActionType;
+        username?: string;
+        project?: string;
     }
     /**
      * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
@@ -6737,6 +6733,12 @@ declare namespace Animate {
      * Sends an instruction to the server to resend the user account activation link
      */
     function resendActivation(user: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
+    /**
+     * Removes a user's project by its id
+     * @param username The username of the user we are removing a project for
+     * @param pid The id of the project to remove
+     */
+    function removeProject(username: string, pid: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
     /**
      * Attempts to log the user in using the token provided
      */
