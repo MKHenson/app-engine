@@ -94,6 +94,7 @@ body {
 @import 'components/schema/components/style.scss';
 @import 'components/workspace/style.scss';
 @import 'components/dashboard/style.scss';
+@import 'containers/application/style.scss';
 
 
 
@@ -101,7 +102,7 @@ body {
 *  APPLICATION
 *  ===============================
 */
-#main, #application {
+#main {
     height:100%;
 }
 

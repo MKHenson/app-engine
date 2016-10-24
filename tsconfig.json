@@ -182,7 +182,7 @@
         "lib/components/splash/projects-overview.tsx",
         "lib/components/workspace/workspace.tsx",
         "lib/components/dashboard/dashboard.tsx",
-        "lib/components/application.tsx",
+        "lib/containers/application/application.tsx",
         "lib/actions/project.ts",
         "lib/actions/editor.ts",
         "lib/actions/logger.ts",
