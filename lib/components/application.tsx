@@ -57,28 +57,7 @@ namespace Animate {
                         onLogout={() => dispatch( logout() )}
                         />
                 ) : null )}
-                <div id="main-view" style={{ display: editorState.showSplash ? 'none' : '' }}>
-                    <div id="toolbar">
-                        <Toolbar project={project} />
-                    </div>
-                    <div id="stage">
-                        <SplitPanel ratio={0.7} left={
-                            <SplitPanel
-                                ratio={0.8}
-                                orientation={SplitOrientation.HORIZONTAL}
-                                top={<Workspace project={project} />}
-                                bottom={<Logger />} />
-                        } right={
-                            <SplitPanel
-                                ratio={0.6}
-                                orientation={SplitOrientation.HORIZONTAL}
-                                top={<h2>Property editor goes here</h2>}
-                                bottom={
-                                    <TreeViewScene project={project} />
-                                } />
-                        } />
-                    </div>
-                </div>
+                <Dashboard project={project} editorState={editorState} />
             </div>
         }
 

@@ -1,0 +1,9 @@
+#main-view {
+    height:100%;
+
+    #stage {
+        width:100%;
+        height:calc(100% - 85px);
+        overflow:hidden;
+    }
+}

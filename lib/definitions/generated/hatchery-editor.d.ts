@@ -6579,6 +6579,22 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
+    interface IDashboardProps {
+        editorState?: IEditorState;
+        project?: Project;
+    }
+    /**
+     * The main GUI interface that users interact with once logged in and past the splash screen
+     */
+    class Dashboard extends React.Component<IDashboardProps, void> {
+        constructor(props: IDashboardProps);
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element;
+    }
+}
+declare namespace Animate {
     interface IApplicationState extends HatcheryProps {
         editorState?: IEditorState;
         project?: IProject;

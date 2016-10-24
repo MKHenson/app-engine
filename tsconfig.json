@@ -181,6 +181,7 @@
         "lib/components/new-project/new-project.tsx",
         "lib/components/splash/projects-overview.tsx",
         "lib/components/workspace/workspace.tsx",
+        "lib/components/dashboard/dashboard.tsx",
         "lib/components/application.tsx",
         "lib/actions/project.ts",
         "lib/actions/editor.ts",

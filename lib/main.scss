@@ -33,7 +33,7 @@ Please only put css rules in here for layout related requirements.
 
 	eg: How to format a list or table
 **/
-html, body, #stage {
+html, body {
     width:100%;
     height:100%;
     overflow:hidden;
@@ -93,6 +93,7 @@ body {
 @import 'components/schema/style.scss';
 @import 'components/schema/components/style.scss';
 @import 'components/workspace/style.scss';
+@import 'components/dashboard/style.scss';
 
 
 
@@ -100,12 +101,10 @@ body {
 *  APPLICATION
 *  ===============================
 */
-#main, #application, #main-view {
+#main, #application {
     height:100%;
 }
-#stage {
-    height:calc(100% - 85px);
-}
+
 
 /**
 *  PROPERTY GRID
