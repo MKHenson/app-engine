@@ -25,7 +25,14 @@ declare namespace Animate {
         tag: any;
     }
 
-
+    /**
+     * Describes the state of the editor
+     */
+    export interface IBaseStoreState {
+        loading?: boolean;
+        error?: Error | null;
+        serverResponse?: string | null;
+    }
 
     /**
      * The base interface for Hatchery props
@@ -45,9 +52,7 @@ declare namespace Animate {
     /**
      * Describes the store Project
      */
-    export interface IProject {
-        loading?: boolean;
-        error?: Error | null;
+    export interface IProject extends IBaseStoreState {
         openEditors?: Editor[];
         activeEditor?: Editor | null;
         curBuild?: Build | null;
@@ -58,15 +63,12 @@ declare namespace Animate {
     /**
      * Describes the store User
      */
-    export interface IUser {
+    export interface IUser extends IBaseStoreState {
         entry?: UsersInterface.IUserEntry | null;
         meta?: HatcheryServer.IUserMeta;
         isLoggedIn?: boolean;
-        loading?: boolean;
-        error?: Error | null;
         projects?: HatcheryServer.IProject[];
         numProjects?: number;
-        serverMessage?: string | null;
     }
 
     /**

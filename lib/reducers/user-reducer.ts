@@ -16,7 +16,7 @@ namespace Animate {
         meta: defaultMeta,
         projects: [],
         numProjects: 0,
-        serverMessage: null
+        serverResponse: null
     }
 
     /**

@@ -39,7 +39,7 @@ namespace Animate {
                 activePane = <LoginForm
                     isLoading={user.loading}
                     error={( user.error ? true : false )}
-                    message={( user.error ? user.error.message : user.serverMessage! )}
+                    message={( user.error ? user.error.message : user.serverResponse! )}
                     onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
                     onResetPasswordRequest={( username ) => dispatch( resetPassword( username ) )}
                     onResendActivationRequest={( username ) => dispatch( resendActivation( username ) )}
@@ -50,7 +50,7 @@ namespace Animate {
                     ref="register"
                     isLoading={user.loading}
                     error={( user.error ? true : false )}
-                    message={( user.error ? user.error.message : user.serverMessage! )}
+                    message={( user.error ? user.error.message : user.serverResponse! )}
                     onRegisterRequested={( token ) => dispatch( register( token ) )}
                     onLoginRequested={() => dispatch( toggleLoginState( 'login' ) )}
                     />;

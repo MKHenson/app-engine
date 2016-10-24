@@ -155,7 +155,7 @@ namespace Animate {
 
                 dispatch<IUserAction>( {
                     type: 'USER_PASSWORD_RESET', userData: {
-                        serverMessage: response.message
+                        serverResponse: response.message
                     }
                 });
             }).catch( function( err: Error ) {
@@ -177,7 +177,7 @@ namespace Animate {
 
                 dispatch<IUserAction>( {
                     type: 'USER_ACTIVATION_RESENT', userData: {
-                        serverMessage: response.message
+                        serverResponse: response.message
                     }
                 });
             }).catch( function( err: Error ) {
@@ -208,7 +208,7 @@ namespace Animate {
 
                 dispatch<IUserAction>( {
                     type: 'USER_REQUEST_FULFILLED', userData: {
-                        serverMessage: data.message
+                        serverResponse: data.message
                     }
                 });
 
@@ -253,7 +253,7 @@ namespace Animate {
                         isLoggedIn: true,
                         meta: metaResponse!.data,
                         entry: entry,
-                        serverMessage: message
+                        serverResponse: message
                     }
                 });
 
@@ -282,7 +282,7 @@ namespace Animate {
                     type: 'USER_REGISTRATION_SENT', userData: {
                         entry: response.user!,
                         isLoggedIn: response.authenticated,
-                        serverMessage: response.message
+                        serverResponse: response.message
                     }
                 });
             }).catch( function( err: Error ) {
