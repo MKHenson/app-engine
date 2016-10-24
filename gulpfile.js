@@ -353,8 +353,9 @@ gulp.task( 'install-definitions', function() {
     return Promise.all( [
         downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts', 'lib/definitions/required/', 'hatchery-runtime.d.ts' ),
         downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts', 'lib/definitions/required/', 'hatchery-server.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/custom/definitions.d.ts', 'lib/definitions/required/', 'users.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/custom/modepress-api.d.ts', 'lib/definitions/required/', 'modepress-api.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/generated/users.d.ts', 'lib/definitions/required/', 'users.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/generated/modepress.d.ts', 'lib/definitions/required/', 'modepress.d.ts' ),
+        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react/react.d.ts', 'lib/definitions/required/react/', 'react.d.ts' ),
         downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts', 'lib/definitions/required/redux/', 'redux.d.ts' ),
         downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts', 'lib/definitions/required/react-redux/', 'react-redux.d.ts' ),
         downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/history.d.ts', 'lib/definitions/required/react-router/', 'history.d.ts' ),
