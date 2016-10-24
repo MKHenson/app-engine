@@ -6637,6 +6637,19 @@ declare namespace Animate {
 }
 declare namespace Animate {
     /**
+     * Describes each of the splash screen action types
+     */
+    type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED';
+    /**
+     * A base interface for describing the splash screen actions
+     */
+    interface ISplashAction extends Redux.Action {
+        type: SplashActionType;
+        data?: ISplashScreen;
+    }
+}
+declare namespace Animate {
+    /**
      * Describes each of the project action types
      */
     type ProjectActionType = 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_OPENED';
@@ -6787,6 +6800,12 @@ declare namespace Animate {
      * A reducer for processing project actions
      */
     function userReducer(state: IUser, action: IUserAction): IUser;
+}
+declare namespace Animate {
+    /**
+     * A reducer for processing splash screen actions
+     */
+    function splashReducer(state: ISplashScreen, action: ISplashAction): ISplashScreen;
 }
 declare namespace Animate {
     var store: Redux.Store<any>;

@@ -72,9 +72,18 @@ declare namespace Animate {
     }
 
     /**
+     * Describes the splash screen
+     */
+    export interface ISplashScreen extends IBaseStoreState {
+        projects?: HatcheryServer.IProject[];
+        numProjects?: number;
+    }
+
+    /**
      * The root interface for the application store
      */
     export interface IStore {
+        splash: ISplashScreen;
         editorState: IEditorState;
         project: IProject;
         user: IUser;

@@ -105,7 +105,8 @@ function createStore(): Redux.Store<any> {
         project: Animate.projectReducer,
         editorState: Animate.editorReducer,
         logs: Animate.loggerReducer,
-        user: Animate.userReducer
+        user: Animate.userReducer,
+        splash: Animate.splashReducer
     });
 
     // Creat the store

@@ -183,6 +183,7 @@
         "lib/components/workspace/workspace.tsx",
         "lib/components/dashboard/dashboard.tsx",
         "lib/containers/application/application.tsx",
+        "lib/actions/splash-actions.ts",
         "lib/actions/project-actions.ts",
         "lib/actions/editor-actions.ts",
         "lib/actions/logger-actions.ts",
@@ -191,6 +192,7 @@
         "lib/reducers/logger-reducer.ts",
         "lib/reducers/editor-reducer.ts",
         "lib/reducers/user-reducer.ts",
+        "lib/reducers/splash-reducer.ts",
         "lib/main.tsx"
     ]
 }
