@@ -177,7 +177,7 @@
         "lib/components/login-form/login-form.tsx",
         "lib/components/register-form/register-form.tsx",
         "lib/containers/login-widget/login-widget.tsx",
-        "lib/components/splash/splash.tsx",
+        "lib/containers/splash/splash.tsx",
         "lib/components/projects-overview/projects-overview.tsx",
         "lib/components/new-project/new-project.tsx",
         "lib/components/workspace/workspace.tsx",
