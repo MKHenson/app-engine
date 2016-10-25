@@ -1,28 +1,28 @@
-namespace Animate {
-    export class TypeConverter {
-        public plugin: IPlugin;
-        public typeA: string;
-        public typeB: string;
-        public conversionOptions: Array<string>;
+import { IPlugin } from 'hatchery-editor';
 
-        constructor( typeA: string, typeB: string, conversionOptions: Array<string>, plugin: IPlugin ) {
-            this.typeA = typeA;
-            this.typeB = typeB;
-            this.conversionOptions = conversionOptions;
-            this.plugin = plugin;
-        }
+export class TypeConverter {
+    public plugin: IPlugin;
+    public typeA: string;
+    public typeB: string;
+    public conversionOptions: Array<string>;
 
-        /** Checks if this converter supports a conversion. */
-        canConvert( typeA, typeB ) {
-            if ( this.typeA === typeA && this.typeB === typeB )
-                return true;
-            else
-                return false;
-        }
+    constructor( typeA: string, typeB: string, conversionOptions: Array<string>, plugin: IPlugin ) {
+        this.typeA = typeA;
+        this.typeB = typeB;
+        this.conversionOptions = conversionOptions;
+        this.plugin = plugin;
+    }
 
-        /** Cleans up the object. */
-        dispose() {
-            this.conversionOptions.splice( 0, this.conversionOptions.length );
-        }
+    /** Checks if this converter supports a conversion. */
+    canConvert( typeA, typeB ) {
+        if ( this.typeA === typeA && this.typeB === typeB )
+            return true;
+        else
+            return false;
+    }
+
+    /** Cleans up the object. */
+    dispose() {
+        this.conversionOptions.splice( 0, this.conversionOptions.length );
     }
 }

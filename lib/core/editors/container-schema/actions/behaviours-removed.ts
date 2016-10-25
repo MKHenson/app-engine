@@ -1,43 +1,40 @@
-namespace Animate {
+import { EditorAction } from '../../editor-action';
+import { CanvasItem } from '../items/canvas-item';
+import { ContainerSchema } from '../container-schema';
 
-    export namespace Actions {
+/**
+ * An action for removing behaviours from a container
+ */
+export class BehavioursRemoved extends EditorAction {
 
-        /**
-         * An action for removing behaviours from a container
-         */
-        export class BehavioursRemoved extends EditorAction {
+    instances: CanvasItem[];
+    clones: CanvasItem[];
 
-            instances: CanvasItem[];
-            clones: CanvasItem[];
+    constructor( instances: CanvasItem[] ) {
+        super();
+        this.instances = instances;
+        this.clones = [];
+    }
 
-            constructor( instances: CanvasItem[] ) {
-                super();
-                this.instances = instances;
-                this.clones = [];
-            }
+    /**
+     * Undo the last history action
+     */
+    undo( editor: ContainerSchema ) {
+        for ( const item of this.clones )
+            editor.addItem( item );
 
-            /**
-             * Undo the last history action
-             */
-            undo( editor: Animate.ContainerSchema ) {
-                for ( const item of this.clones )
-                    editor.addItem( item );
+        this.instances = this.clones;
+        this.clones.splice( 0, this.clones.length );
+    }
 
-                this.instances = this.clones;
-                this.clones.splice( 0, this.clones.length );
-            }
-
-            /**
-             * Redo the next action
-             */
-            redo( editor: Animate.ContainerSchema ) {
-                this.clones.splice( 0, this.clones.length );
-                for ( const item of this.instances ) {
-                    this.clones.push( item.clone() );
-                    editor.removeItem( item );
-                }
-            }
+    /**
+     * Redo the next action
+     */
+    redo( editor: ContainerSchema ) {
+        this.clones.splice( 0, this.clones.length );
+        for ( const item of this.instances ) {
+            this.clones.push( item.clone() );
+            editor.removeItem( item );
         }
-
     }
 }

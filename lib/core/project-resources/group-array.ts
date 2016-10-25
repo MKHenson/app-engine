@@ -1,46 +1,42 @@
-﻿namespace Animate {
+﻿import { ProjectResource } from './project-resource';
 
-    export namespace Resources {
 
-        /**
-        * A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
-        */
-        export class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
+/**
+* A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
+*/
+export class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
 
-            /**
-            * @param entry [Optional] The database entry of the resource
-            */
-            constructor( entry: HatcheryServer.IGroup ) {
-                super( entry );
-            }
+    /**
+    * @param entry [Optional] The database entry of the resource
+    */
+    constructor( entry: HatcheryServer.IGroup ) {
+        super( entry );
+    }
 
-            /**
-            * Adds a new reference to the group
-            * @param shallowId
-            */
-            addReference( shallowId: number ) {
-                this.entry.items!.push( shallowId );
-                this.saved = false;
-            }
+    /**
+    * Adds a new reference to the group
+    * @param shallowId
+    */
+    addReference( shallowId: number ) {
+        this.entry.items!.push( shallowId );
+        this.saved = false;
+    }
 
-            /**
-            * Removes a reference from the group
-            * @param shallowId
-            */
-            removeReference( shallowId: number ) {
-                if ( this.entry.items!.indexOf( shallowId ) !== -1 )
-                    this.entry.items!.splice( this.entry.items!.indexOf( shallowId ), 1 );
+    /**
+    * Removes a reference from the group
+    * @param shallowId
+    */
+    removeReference( shallowId: number ) {
+        if ( this.entry.items!.indexOf( shallowId ) !== -1 )
+            this.entry.items!.splice( this.entry.items!.indexOf( shallowId ), 1 );
 
-                this.saved = false;
-            }
+        this.saved = false;
+    }
 
-            /**
-            * Disposes and cleans up the data of this asset
-            */
-            dispose() {
-                super.dispose();
-            }
-        }
-
+    /**
+    * Disposes and cleans up the data of this asset
+    */
+    dispose() {
+        super.dispose();
     }
 }

@@ -90,3 +90,7 @@ declare namespace Animate {
         logs: ILogMessage[];
     }
 }
+
+declare module 'hatchery-editor' {
+    export = Animate;
+}

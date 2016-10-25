@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "module": "amd",
+        "module": "es2015",
         "removeComments": false,
         "noEmitOnError": true,
         "declaration": true,
@@ -14,7 +14,8 @@
         "experimentalDecorators": true,
         "noUnusedParameters": true,
         "noUnusedLocals": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "outDir": "dist/lib"
     },
     "files": [
         "config.ts",

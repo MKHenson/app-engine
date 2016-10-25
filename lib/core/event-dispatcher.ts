@@ -1,120 +1,117 @@
-namespace Animate {
-
-    /**
-	 * Base class for all custom enums
-	 */
-    export class ENUM {
-        public value: string;
-        constructor( v: string ) {
-            this.value = v;
-        }
-
-        toString() { return this.value; }
+/**
+ * Base class for all custom enums
+ */
+export class ENUM {
+    public value: string;
+    constructor( v: string ) {
+        this.value = v;
     }
 
-    export type TypedCallback<T extends string, Y> = ( type: T, event: Y, sender?: EventDispatcher ) => void;
+    toString() { return this.value; }
+}
 
-	/**
-	 * Internal class only used internally by the {EventDispatcher}
-	 */
-    export class EventListener<T extends string, Y> {
-        type: T;
-        func: TypedCallback<T, Y>;
-        context: any;
+export type TypedCallback<T extends string, Y> = ( type: T, event: Y, sender?: EventDispatcher ) => void;
 
-        constructor( type: T, func: TypedCallback<T, Y>, context?: any ) {
-            this.type = type;
-            this.func = func;
-            this.context = context;
-        }
+/**
+ * Internal class only used internally by the {EventDispatcher}
+ */
+export class EventListener<T extends string, Y> {
+    type: T;
+    func: TypedCallback<T, Y>;
+    context: any;
+
+    constructor( type: T, func: TypedCallback<T, Y>, context?: any ) {
+        this.type = type;
+        this.func = func;
+        this.context = context;
+    }
+}
+
+/**
+ * A simple class that allows for the adding, removing and dispatching of events.
+ */
+export class EventDispatcher {
+    private _listeners: Array<EventListener<string, any>>;
+    public disposed: boolean;
+
+    constructor() {
+        this._listeners = [];
+        this.disposed = false;
     }
 
+
     /**
-     * A simple class that allows for the adding, removing and dispatching of events.
+     * Returns the list of event listeners that are currently attached to this dispatcher.
      */
-    export class EventDispatcher {
-        private _listeners: Array<EventListener<string, any>>;
-        public disposed: boolean;
+    get listeners(): Array<EventListener<string, any>> {
+        return this._listeners;
+    }
 
-        constructor() {
-            this._listeners = [];
-            this.disposed = false;
-        }
+    /**
+     * Adds a new listener to the dispatcher class.
+     * @param type The event type we are sending
+     * @param func The callback function
+     * @param context [Optional] The context to call with
+     */
+    on<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
+        if ( !func )
+            throw new Error( 'You cannot have an undefined function.' );
 
+        this._listeners.push( new EventListener( type, func, context ) );
+    }
 
-        /**
-         * Returns the list of event listeners that are currently attached to this dispatcher.
-         */
-        get listeners(): Array<EventListener<string, any>> {
-            return this._listeners;
-        }
+    /**
+     * Adds a new listener to the dispatcher class.
+     * @param type The event type we are sending
+     * @param func The callback function
+     * @param context [Optional] The context to call with
+     */
+    off<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
+        const listeners = this.listeners;
 
-        /**
-         * Adds a new listener to the dispatcher class.
-         * @param type The event type we are sending
-         * @param func The callback function
-         * @param context [Optional] The context to call with
-         */
-        on<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
-            if ( !func )
-                throw new Error( 'You cannot have an undefined function.' );
+        if ( !listeners )
+            return;
 
-            this._listeners.push( new EventListener( type, func, context ) );
-        }
+        if ( !func )
+            throw new Error( 'You cannot have an undefined function.' );
 
-        /**
-         * Adds a new listener to the dispatcher class.
-         * @param type The event type we are sending
-         * @param func The callback function
-         * @param context [Optional] The context to call with
-         */
-        off<T extends string, Y>( type: T, func: TypedCallback<T, Y>, context?: any ) {
-            const listeners = this.listeners;
-
-            if ( !listeners )
+        for ( let i = 0, li = listeners.length; i < li; i++ ) {
+            const l = listeners[ i ];
+            if ( l.type === type && l.func === func && l.context === context ) {
+                listeners.splice( i, 1 );
                 return;
+            }
+        }
+    }
 
-            if ( !func )
-                throw new Error( 'You cannot have an undefined function.' );
+    /**
+     * Sends a message to all listeners based on the eventType provided.
+     * @param type The event type we are sending
+     * @param data [Optional] The data to send with the emission
+     */
+    emit<T extends string, Y>( type: T, data?: Y | null ): any {
+        if ( this._listeners.length === 0 )
+            return null;
 
-            for ( let i = 0, li = listeners.length; i < li; i++ ) {
-                const l = listeners[ i ];
-                if ( l.type === type && l.func === func && l.context === context ) {
-                    listeners.splice( i, 1 );
-                    return;
-                }
+        let listeners = this._listeners;
+        let toRet: any = null;
+        for ( let listener of listeners! ) {
+            if ( listener.type === type ) {
+                if ( !listener.func )
+                    throw new Error( `A listener was added for ${type}, but the function is not defined.` );
+
+                toRet = listener.func.call( listener.context || this, type, data, this );
             }
         }
 
-        /**
-         * Sends a message to all listeners based on the eventType provided.
-         * @param type The event type we are sending
-         * @param data [Optional] The data to send with the emission
-         */
-        emit<T extends string, Y>( type: T, data?: Y | null ): any {
-            if ( this._listeners.length === 0 )
-                return null;
+        return toRet;
+    }
 
-            let listeners = this._listeners;
-            let toRet: any = null;
-            for ( let listener of listeners! ) {
-                if ( listener.type === type ) {
-                    if ( !listener.func )
-                        throw new Error( `A listener was added for ${type}, but the function is not defined.` );
-
-                    toRet = listener.func.call( listener.context || this, type, data, this );
-                }
-            }
-
-            return toRet;
-        }
-
-		/**
-		 * This will cleanup the component by nullifying all its variables and clearing up all memory.
-		 */
-        dispose(): void {
-            this._listeners.splice( 0, this._listeners.length );
-            this.disposed = true;
-        }
+    /**
+     * This will cleanup the component by nullifying all its variables and clearing up all memory.
+     */
+    dispose(): void {
+        this._listeners.splice( 0, this._listeners.length );
+        this.disposed = true;
     }
 }

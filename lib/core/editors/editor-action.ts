@@ -1,19 +1,17 @@
-namespace Animate {
-        export namespace Actions {
-        /**
-         * The base class for all editor actions
-         */
-        export abstract class EditorAction {
+import { Editor } from './editor';
 
-            /**
-             * Undo the last history action
-             */
-            abstract undo( editor : Animate.Editor );
+/**
+ * The base class for all editor actions
+ */
+export abstract class EditorAction {
 
-            /**
-             * Redo the next action
-             */
-            abstract redo( editor : Animate.Editor );
-        }
-    }
+    /**
+     * Undo the last history action
+     */
+    abstract undo( editor: Editor );
+
+    /**
+     * Redo the next action
+     */
+    abstract redo( editor: Editor );
 }
