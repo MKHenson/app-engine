@@ -1,18 +1,18 @@
 ﻿namespace Animate {
-    export enum SplashMode {
-        WELCOME,
-        NEW_PROJECT,
-        OPENING
-    }
 
+    /**
+     * An interface that describes the props of the Splash Component
+     */
     export interface ISplashProps extends HatcheryProps {
         user?: IUser;
         splash?: ISplashScreen;
     }
 
-    export interface ISplashStats {
-        mode?: SplashMode
-        project?: HatcheryServer.IProject;
+    /**
+     * Describes the state interface for the Splash Component
+     */
+    export interface ISplashState {
+        project?: HatcheryServer.IProject | null;
     }
 
     // Connects th splash screen with its store properties
@@ -26,7 +26,7 @@
     /**
      * The splash screen when starting the app
      */
-    export class Splash extends React.Component<ISplashProps, ISplashStats> {
+    export class Splash extends React.Component<ISplashProps, ISplashState> {
 
         /**
          * Creates an instance of the splash screen
@@ -34,11 +34,14 @@
         constructor( props: ISplashProps ) {
             super( props );
             this.state = {
-                mode: SplashMode.WELCOME
+                project: null
             };
         }
 
-        renderWelcome() {
+        /**
+         * Renders the projects overview sub section
+         */
+        renderOverview() {
             const dispatch = this.props.dispatch!;
             const username = this.props.user!.entry!.username!;
             const splash = this.props.splash!;
@@ -54,15 +57,15 @@
                         if ( !project )
                             return;
 
-                        this.setState( {
-                            mode: SplashMode.OPENING,
-                            project: project
-                        });
+                        dispatch( setSplashScreen( 'opening-project' ) );
                     } }
                     />
             )
         }
 
+        /**
+         * Renders the open project sub section
+         */
         renderOpenProject() {
             const dispatch = this.props.dispatch!;
 
@@ -79,6 +82,9 @@
             );
         }
 
+        /**
+         * Renders the new project sub section
+         */
         renderNewProject() {
             const dispatch = this.props.dispatch!;
             const splash = this.props.splash!;
@@ -103,7 +109,7 @@
 
             switch ( splash.screen ) {
                 case 'welcome':
-                    mainView = this.renderWelcome();
+                    mainView = this.renderOverview();
                     break;
                 case 'opening-project':
                     mainView = this.renderOpenProject();

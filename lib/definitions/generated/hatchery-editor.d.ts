@@ -6461,27 +6461,67 @@ declare namespace Animate {
     }
 }
 declare namespace Animate {
-    enum SplashMode {
-        WELCOME = 0,
-        NEW_PROJECT = 1,
-        OPENING = 2,
-    }
+    /**
+     * An interface that describes the props of the Splash Component
+     */
     interface ISplashProps extends HatcheryProps {
         user?: IUser;
         splash?: ISplashScreen;
     }
-    interface ISplashStats {
-        mode?: SplashMode;
-        project?: HatcheryServer.IProject;
+    /**
+     * Describes the state interface for the Splash Component
+     */
+    interface ISplashState {
+        project?: HatcheryServer.IProject | null;
     }
-    class Splash extends React.Component<ISplashProps, ISplashStats> {
+    class Splash extends React.Component<ISplashProps, ISplashState> {
         /**
          * Creates an instance of the splash screen
          */
         constructor(props: ISplashProps);
-        renderWelcome(): JSX.Element;
+        /**
+         * Renders the projects overview sub section
+         */
+        renderOverview(): JSX.Element;
+        /**
+         * Renders the open project sub section
+         */
         renderOpenProject(): JSX.Element;
+        /**
+         * Renders the new project sub section
+         */
         renderNewProject(): JSX.Element;
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element;
+    }
+}
+declare namespace Animate {
+    interface IProjectsOverviewProps {
+        splash: ISplashScreen;
+        username: string;
+        onProjectDelete: (project: HatcheryServer.IProject) => void;
+        onCreateProject: () => void;
+        onOpenProject: (project: HatcheryServer.IProject) => void;
+        onProjectsRefresh: (index: number, limit: number, searchTerm: string) => void;
+    }
+    interface IProjectsOverviewState {
+        selectedProject?: HatcheryServer.IProject | null;
+    }
+    /**
+     * A component for viewing projects, displaying their stats, removing, adding or opening them.
+     */
+    class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
+        private _list;
+        /**
+         * Creates an instance of the projects overview
+         */
+        constructor(props: IProjectsOverviewProps);
+        /**
+         * Renders the project details section
+         */
+        renderProjectInfo(): JSX.Element;
         /**
          * Creates the component elements
          */
@@ -6514,33 +6554,6 @@ declare namespace Animate {
         /**
          * Creates the component elements
          */
-        render(): JSX.Element;
-    }
-}
-declare namespace Animate {
-    interface IProjectsOverviewProps {
-        splash: ISplashScreen;
-        username: string;
-        onProjectDelete: (project: HatcheryServer.IProject) => void;
-        onCreateProject: () => void;
-        onOpenProject: (project: HatcheryServer.IProject) => void;
-        onProjectsRefresh: (index: number, limit: number, searchTerm: string) => void;
-    }
-    interface IProjectsOverviewState {
-        selectedProject?: HatcheryServer.IProject | null;
-    }
-    /**
-     * A component for viewing projects, displaying their stats, removing, adding or opening them.
-     */
-    class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
-        private _list;
-        /**
-         * Creates an instance of the projects overview
-         */
-        constructor(props: IProjectsOverviewProps);
-        /**
-        * Creates the component elements
-        */
         render(): JSX.Element;
     }
 }

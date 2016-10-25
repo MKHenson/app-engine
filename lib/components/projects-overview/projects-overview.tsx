@@ -30,17 +30,13 @@ namespace Animate {
         }
 
         /**
-        * Creates the component elements
-        */
-        render(): JSX.Element {
-            let projectInfo: JSX.Element | undefined;
-            const splash = this.props.splash;
-            const username = this.props.username;
-            const project: HatcheryServer.IProject | null = ( this.state.selectedProject ? this.state.selectedProject : null );
+         * Renders the project details section
+         */
+        renderProjectInfo() {
+            const project = this.state.selectedProject!;
 
-            // If we have a project
-            if ( project ) {
-                projectInfo = <div className="fade-in project-details">
+            return (
+                <div className="fade-in project-details">
                     <div>
                         <h2>{project.name}</h2>
                         <p><span className="info">Created By: </span><span className="detail"><b>{project.user}</b></span></p>
@@ -75,39 +71,50 @@ namespace Animate {
                         </ButtonSuccess>
                     </div>
                 </div>
-            }
+            );
+        }
 
-            return <div className="projects-overview">
-                <ProjectList
-                    ref={( target ) => { this._list = target; } }
-                    projects={splash.projects}
-                    numProjects={splash.numProjects}
-                    onProjectsRequested={( index, limit, keywords ) => {
-                        if ( this.props.onProjectsRefresh )
-                            this.props.onProjectsRefresh( index, limit, keywords );
-                    } }
-                    noProjectMessage={`Welcome ${username}, click New Appling to get started`}
-                    className="projects-view animate-all"
-                    style={{ width: ( this.state.selectedProject ? '70%' : '' ) }}
-                    onProjectDClicked={( project ) => {
-                        this.setState( { selectedProject: project });
-                        if ( this.props.onOpenProject )
-                            this.props.onOpenProject( project );
-                    } }
-                    onProjectSelected={( project ) => {
-                        this.setState( { selectedProject: project });
-                    } }>
-                    <ButtonPrimary onClick={() => {
-                        if ( this.props.onCreateProject )
-                            this.props.onCreateProject();
-                    } }>
-                        <i className="fa fa-plus" aria-hidden="true"></i> New Appling
-                    </ButtonPrimary>
-                </ProjectList>
-                <div className="project-info background animate-all" style={{ width: ( this.state.selectedProject ? '30%' : '' ), left: ( this.state.selectedProject ? '70%' : '' ) }}>
-                    {projectInfo}
+        /**
+         * Creates the component elements
+         */
+        render(): JSX.Element {
+            const splash = this.props.splash;
+            const username = this.props.username;
+            const project: HatcheryServer.IProject | null = ( this.state.selectedProject ? this.state.selectedProject : null );
+
+            return (
+                <div className="projects-overview">
+                    <ProjectList
+                        ref={( target ) => { this._list = target; } }
+                        projects={splash.projects}
+                        numProjects={splash.numProjects}
+                        onProjectsRequested={( index, limit, keywords ) => {
+                            if ( this.props.onProjectsRefresh )
+                                this.props.onProjectsRefresh( index, limit, keywords );
+                        } }
+                        noProjectMessage={`Welcome ${username}, click New Appling to get started`}
+                        className="projects-view animate-all"
+                        style={{ width: ( this.state.selectedProject ? '70%' : '' ) }}
+                        onProjectDClicked={( project ) => {
+                            this.setState( { selectedProject: project });
+                            if ( this.props.onOpenProject )
+                                this.props.onOpenProject( project );
+                        } }
+                        onProjectSelected={( project ) => {
+                            this.setState( { selectedProject: project });
+                        } }>
+                        <ButtonPrimary onClick={() => {
+                            if ( this.props.onCreateProject )
+                                this.props.onCreateProject();
+                        } }>
+                            <i className="fa fa-plus" aria-hidden="true"></i> New Appling
+                            </ButtonPrimary>
+                    </ProjectList>
+                    <div className="project-info background animate-all" style={{ width: ( this.state.selectedProject ? '30%' : '' ), left: ( this.state.selectedProject ? '70%' : '' ) }}>
+                        {( project ? this.renderProjectInfo() : undefined )}
+                    </div>
                 </div>
-            </div>
+            )
         }
     }
 }
