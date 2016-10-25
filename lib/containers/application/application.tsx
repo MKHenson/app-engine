@@ -1,15 +1,13 @@
 namespace Animate {
 
     export interface IApplicationState extends HatcheryProps {
-        editorState?: IEditorState;
-        project?: IProject;
+        splash?: ISplashScreen;
         user?: IUser;
     }
 
     @ReactRedux.connect<IStore, IApplicationState>(( state ) => {
         return {
-            editorState: state.editorState,
-            project: state.project,
+            splash: state.splash,
             user: state.user
         }
     })
@@ -22,43 +20,78 @@ namespace Animate {
         public static bodyComponent: Component;
         private _focusObj: Component;
 
+        // Configure routes here as this solves a problem with hot loading where
+        // the routes are recreated each time.
+        private _routes: JSX.Element;
+
+
         constructor( props: IApplicationState ) {
             super( props );
 
             Application._singleton = this;
             Utils.init();
             User.get;
+
+            this._routes = (
+                <ReactRouter.Route path='/'>
+                    <ReactRouter.IndexRoute component={LoginWidget} onEnter={( nextState, replace ) => this.authorized( nextState, replace )} />
+                    <ReactRouter.Route path="/splash" component={Splash} onEnter={( nextState, replace ) => this.requireAuth( nextState, replace )} />
+                    <ReactRouter.Route path="/dashboard" component={Dashboard} onEnter={( nextState, replace ) => this.requireAuth( nextState, replace )} />
+                </ReactRouter.Route> );
         }
 
         componentWillMount() {
             this.props.dispatch!( authenticated() );
         }
 
-        /**
-         * Log the first welcome message
-         */
-        componentDidMount() {
-            this.props.dispatch!( LogActions.message( 'Welcome to the Hatchery!' ) );
+        authorized( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction ) {
+            const isLoggedIn = this.props.user!.isLoggedIn!;
+            nextState; // Suppress warnings
+
+            if ( isLoggedIn )
+                replace( '/splash' );
+        }
+
+        requireAuth( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction ) {
+            const isLoggedIn = this.props.user!.isLoggedIn!;
+            nextState; // Suppress warnings
+
+            if ( !isLoggedIn )
+                replace( '/' );
         }
 
 		/**
          * Creates the component elements
          */
         render(): JSX.Element {
-            let project = User.get.project;
-            const editorState = this.props.editorState!;
+            const isLoading = this.props.user!.loading!;
+
+            let mainView: JSX.Element;
+
+            if ( isLoading ) {
+                mainView = <div className="loading-screen">
+                    <div className="loading-message fade-in">
+                        <h2>Loading Hatchery Editor...</h2>
+                        <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    </div>
+                </div>;
+            }
+            else {
+                mainView = (
+                    <ReactRouter.Router history={ReactRouter.browserHistory}>
+                        {this._routes}
+                    </ReactRouter.Router>
+                );
+            }
 
             return <div id="application">
-                {( editorState.showSplash ? (
-                    <Animate.Splash />
-                ) : null )}
-                <Dashboard project={project} editorState={editorState} />
-            </div>
+                {mainView}
+            </div>;
         }
 
-		/**
-		* Deals with the focus changes
-		*/
+        /**
+         * Deals with the focus changes
+         */
         onMouseDown( e ): void {
             let elem: JQuery = jQuery( e.target );
             let comp: Component = elem.data( 'component' ) as Component;

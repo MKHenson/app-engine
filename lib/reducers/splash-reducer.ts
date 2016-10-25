@@ -1,11 +1,13 @@
 namespace Animate {
 
-    const defaultState: ISplashScreen = {
+    const defaultSplashState: ISplashScreen = {
         error: null,
         loading: false,
         projects: [],
         numProjects: 0,
-        serverResponse: null
+        serverResponse: null,
+        selectedProject: null,
+        screen: 'welcome'
     }
 
     /**
@@ -21,10 +23,14 @@ namespace Animate {
             case 'SPLASH_REQUEST_REJECTED':
             case 'SPLASH_REQUEST_FULFILLED':
             case 'SPLASH_GET_PROJECTS':
+            case 'SPLASH_PROJECT_CREATED':
                 toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: false }, action.data! );
                 break;
+            case 'SPLASH_SET_SCREEN':
+                toReturn = Object.assign<ISplashScreen>( {}, toReturn, action.data! );
+                break;
             default:
-                toReturn = defaultState;
+                toReturn = defaultSplashState;
                 break;
         }
         return toReturn;

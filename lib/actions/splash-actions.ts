@@ -7,6 +7,8 @@ namespace Animate {
         'SPLASH_REQUEST_PENDING' |
         'SPLASH_REQUEST_FULFILLED' |
         'SPLASH_REQUEST_REJECTED' |
+        'SPLASH_PROJECT_CREATED' |
+        'SPLASH_SET_SCREEN' |
         'SPLASH_GET_PROJECTS';
 
     /**
@@ -59,5 +61,60 @@ namespace Animate {
                 dispatch<ISplashAction>( { type: 'SPLASH_REQUEST_REJECTED', data: { error: err } });
             })
         }
+    }
+
+    /**
+     * Sets the splash screen
+     */
+    export function setSplashScreen( screen: 'welcome' | 'opening-project' | 'new-project' ) {
+        return {
+            type: 'SPLASH_SET_SCREEN',
+            data: { screen: screen }
+        } as ISplashAction
+    }
+
+    /**
+     * Creates a new project for the authenticated user
+     * @param options An object of projet defaults
+     */
+    export function createProject( options: HatcheryServer.IProject ) {
+        return ( dispatch: Redux.Dispatch<ISplashAction> ) => {
+
+            // Notify project loading
+            dispatch( { type: 'PROJECT_REQUEST_PENDING' });
+
+            // Create project
+            Utils.post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, options ).then( function( response ) {
+
+                if ( response.error )
+                    return dispatch<ISplashAction>( { type: 'SPLASH_REQUEST_REJECTED', data: { error: new Error( response.message ) } });
+
+                // Assign the actual plugins
+                const project = response.data;
+                const plugins = project.plugins!.map(( pluginName: string ) => {
+                    const iPlugin = getPluginByID( pluginName );
+                    if ( iPlugin )
+                        return iPlugin;
+
+                    throw new Error( `Could not find a plugin with the name '${pluginName}'` );
+                });
+
+                project.$plugins = plugins;
+
+                return dispatch<ISplashAction>( {
+                    type: 'SPLASH_PROJECT_CREATED', data: {
+                        selectedProject: project,
+                        screen: 'opening-project'
+                    }
+                });
+
+            }).catch( function( err: IAjaxError ) {
+                return dispatch<ISplashAction>( {
+                    type: 'SPLASH_REQUEST_REJECTED', data: {
+                        error: new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` )
+                    }
+                });
+            });
+        };
     }
 }

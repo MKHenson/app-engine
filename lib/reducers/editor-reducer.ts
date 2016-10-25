@@ -1,6 +1,6 @@
 namespace Animate {
 
-    const defaultState: IEditorState = {
+    const defaultEditorState: IEditorState = {
         showSplash: true,
         loginState: 'login'
     }
@@ -8,7 +8,7 @@ namespace Animate {
     /**
      * A reducer that processes state changes of the editor
      */
-    export function editorReducer( state: IEditorState = defaultState, action: IEditorAction ): IEditorState {
+    export function editorReducer( state: IEditorState = defaultEditorState, action: IEditorAction ): IEditorState {
         switch ( action.type ) {
             case 'EA_TOGGLE_SPLASH':
             case 'EA_TOGGLE_LOGIN_STATE':

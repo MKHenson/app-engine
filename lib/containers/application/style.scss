@@ -1,3 +1,18 @@
 #application {
     height:100%;
+
+    .loading-screen {
+        height:100%;
+        background: url('/media/noise.png'), $splash-gradient;
+        display: flex;
+        text-align: center;
+
+        h2, .fa {
+            color: $ps-color;
+        }
+    }
+
+    .loading-message {
+        margin: auto;
+    }
 }

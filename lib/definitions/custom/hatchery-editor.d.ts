@@ -75,6 +75,8 @@ declare namespace Animate {
     export interface ISplashScreen extends IBaseStoreState {
         projects?: HatcheryServer.IProject[];
         numProjects?: number;
+        selectedProject?: HatcheryServer.IProject | null;
+        screen?: 'welcome' | 'new-project' | 'opening-project';
     }
 
     /**

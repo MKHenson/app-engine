@@ -85,6 +85,12 @@ function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
  */
 function createStore(): Redux.Store<any> {
 
+    const actionTypeLogger = store => next => action => {
+        store; // Supress unused param error
+        console.log( `Action received: '${action.type}'` );
+        next( action );
+    }
+
     // Creates the thunk middleware so that we can return
     // functions to redux dispatch actions
     function createThunkMiddleware( extraArgument?): any {
@@ -110,7 +116,7 @@ function createStore(): Redux.Store<any> {
     });
 
     // Creat the store
-    const store = Redux.createStore( reducers, Redux.applyMiddleware( thunk ) );
+    const store = Redux.createStore( reducers, Redux.applyMiddleware( actionTypeLogger, thunk ) );
     store.subscribe(() => {
         console.log( 'store changed', store.getState() )
     });
@@ -129,9 +135,7 @@ function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     // Create the application element
     ReactDOM.render((
         <ReactRedux.Provider store={Animate.store}>
-            <ReactRouter.Router history={ReactRouter.hashHistory}>
-                <ReactRouter.Route path="/" component={Animate.Application} />
-            </ReactRouter.Router>
+            <Animate.Application />
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }
 

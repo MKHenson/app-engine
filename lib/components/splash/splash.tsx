@@ -12,7 +12,6 @@
 
     export interface ISplashStats {
         mode?: SplashMode
-        loading?: boolean;
         project?: HatcheryServer.IProject;
     }
 
@@ -28,7 +27,6 @@
      * The splash screen when starting the app
      */
     export class Splash extends React.Component<ISplashProps, ISplashStats> {
-        private static _singleton: Splash;
 
         /**
          * Creates an instance of the splash screen
@@ -36,36 +34,22 @@
         constructor( props: ISplashProps ) {
             super( props );
             this.state = {
-                mode: SplashMode.WELCOME,
-                loading: true
+                mode: SplashMode.WELCOME
             };
         }
 
-        /**
-         * Creates the component elements
-         */
-        render(): JSX.Element {
-            const user = this.props.user!;
-            const username = user.entry!.username!;
-            const splash = this.props.splash!;
+        renderWelcome() {
             const dispatch = this.props.dispatch!;
+            const username = this.props.user!.entry!.username!;
+            const splash = this.props.splash!;
 
-            let mainView: JSX.Element | undefined;
-
-            if ( !user.isLoggedIn )
-                mainView = <LoginWidget
-                    onLogin={() => {
-                        this.setState( { mode: SplashMode.WELCOME });
-                    } } />;
-            else if ( this.state.mode === SplashMode.WELCOME )
-                mainView = <ProjectsOverview
+            return (
+                <ProjectsOverview
                     splash={splash}
                     username={username}
                     onProjectDelete={( project ) => dispatch( removeProject( username, project._id ) )}
                     onProjectsRefresh={( index, limit, searchterm ) => dispatch( getProjectList( username, index, limit, searchterm ) )}
-                    onCreateProject={() => {
-                        this.setState( { mode: SplashMode.NEW_PROJECT });
-                    } }
+                    onCreateProject={() => { dispatch( setSplashScreen( 'new-project' ) ) } }
                     onOpenProject={( project ) => {
                         if ( !project )
                             return;
@@ -75,63 +59,73 @@
                             project: project
                         });
                     } }
-                    />;
-            else if ( this.state.mode === SplashMode.NEW_PROJECT )
-                mainView = <NewProject
-                    onCancel={() => {
-                        this.setState( { mode: SplashMode.WELCOME });
-                    } }
-                    onProjectCreated={( project ) => {
-                        this.setState( {
-                            mode: SplashMode.OPENING,
-                            project: project
-                        });
-                    } }
-                    />;
-            else if ( this.state.mode === SplashMode.OPENING )
-                mainView = <OpenProject
-                    project={this.state.project!}
-                    onComplete={() => {
-                        throw new Error( 'Not implemented' );
-                    } }
-                    onCancel={() => {
-                        this.setState( { mode: SplashMode.WELCOME });
-                    } }
-                    />;
-
-            return <div id="splash">
-                <div className="logo">
-                    {( user.isLoggedIn ? (
-                        <div className="logout background-a">
-                            <a onClick={() => { throw new Error( 'Not implemented' ) } }>
-                                <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
-                            </a>
-                        </div> ) : null )}
-                    <h2>Hatchery</h2>
-                </div>
-                <div
-                    id="splash-view"
-                    className={this.splashDimensions() + ' background fade-in'}>
-                    {mainView}
-                </div>
-            </div>
+                    />
+            )
         }
 
-        /*
-         * Gets the dimensions of the splash screen based on the active pane
-         */
-        splashDimensions(): string {
-            if ( !this.props.user!.isLoggedIn || this.state.mode === SplashMode.OPENING )
-                return 'compact';
-            else
-                return 'wide';
+        renderOpenProject() {
+            const dispatch = this.props.dispatch!;
+
+            return (
+                <OpenProject
+                    dispatch={dispatch}
+                    project={this.state.project!}
+                    onComplete={() => {
+                        dispatch( LogActions.message( `Opened project '${this.state.project!.name!}''` ) );
+                        throw new Error( 'Not implemented' );
+                    } }
+                    onCancel={() => { dispatch( setSplashScreen( 'welcome' ) ) } }
+                    />
+            );
+        }
+
+        renderNewProject() {
+            const dispatch = this.props.dispatch!;
+            const splash = this.props.splash!;
+
+            return (
+                <NewProject
+                    splash={splash}
+                    onCreateProject={( options ) => { dispatch( createProject( options ) ) } }
+                    onCancel={() => { dispatch( setSplashScreen( 'welcome' ) ) } }
+                    />
+            );
         }
 
         /**
-        * Gets the singleton reference of this class.
-        */
-        static get get(): Splash {
-            return Splash._singleton;
+         * Creates the component elements
+         */
+        render(): JSX.Element {
+            const splash = this.props.splash!;
+            const dispatch = this.props.dispatch!;
+
+            let mainView: JSX.Element | undefined;
+
+            switch ( splash.screen ) {
+                case 'welcome':
+                    mainView = this.renderWelcome();
+                    break;
+                case 'opening-project':
+                    mainView = this.renderOpenProject();
+                    break;
+                default:
+                    mainView = this.renderNewProject();
+                    break
+            }
+
+            return <div id="splash">
+                <div className="logo">
+                    <div className="logout background-a">
+                        <a onClick={() => { dispatch( logout() ) } }>
+                            <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
+                        </a>
+                    </div>
+                    <h2>Hatchery</h2>
+                </div>
+                <div id="splash-view">
+                    {mainView}
+                </div>
+            </div>
         }
     }
 }

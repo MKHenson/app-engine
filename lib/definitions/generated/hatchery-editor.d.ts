@@ -6340,6 +6340,7 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IOpenProjectProps {
+        dispatch: Redux.Dispatch<ILoggerAction>;
         onCancel: () => void;
         onComplete: () => void;
         project: HatcheryServer.IProject;
@@ -6471,42 +6472,37 @@ declare namespace Animate {
     }
     interface ISplashStats {
         mode?: SplashMode;
-        loading?: boolean;
         project?: HatcheryServer.IProject;
     }
     class Splash extends React.Component<ISplashProps, ISplashStats> {
-        private static _singleton;
         /**
          * Creates an instance of the splash screen
          */
         constructor(props: ISplashProps);
+        renderWelcome(): JSX.Element;
+        renderOpenProject(): JSX.Element;
+        renderNewProject(): JSX.Element;
         /**
          * Creates the component elements
          */
         render(): JSX.Element;
-        splashDimensions(): string;
-        /**
-        * Gets the singleton reference of this class.
-        */
-        static readonly get: Splash;
     }
 }
 declare namespace Animate {
     interface INewProjectProps {
+        onCreateProject: (options: HatcheryServer.IProject) => void;
+        splash: ISplashScreen;
         onCancel: () => void;
-        onProjectCreated: (project: HatcheryServer.IProject) => void;
     }
     interface INewProjectState {
         plugins?: IPluginPlus[];
-        errorMsg?: string | null;
+        message?: string | null;
         error?: boolean;
-        loading?: boolean;
     }
     /**
      * A Component for creating a new project
      */
     class NewProject extends React.Component<INewProjectProps, INewProjectState> {
-        private _user;
         /**
          * Creates a new instance
          */
@@ -6516,8 +6512,8 @@ declare namespace Animate {
          */
         newProject(json: any): void;
         /**
-        * Creates the component elements
-        */
+         * Creates the component elements
+         */
         render(): JSX.Element;
     }
 }
@@ -6597,27 +6593,25 @@ declare namespace Animate {
 }
 declare namespace Animate {
     interface IApplicationState extends HatcheryProps {
-        editorState?: IEditorState;
-        project?: IProject;
+        splash?: ISplashScreen;
         user?: IUser;
     }
     class Application extends React.Component<IApplicationState, void> {
         private static _singleton;
         static bodyComponent: Component;
         private _focusObj;
+        private _routes;
         constructor(props: IApplicationState);
         componentWillMount(): void;
-        /**
-         * Log the first welcome message
-         */
-        componentDidMount(): void;
+        authorized(nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction): void;
+        requireAuth(nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction): void;
         /**
          * Creates the component elements
          */
         render(): JSX.Element;
         /**
-        * Deals with the focus changes
-        */
+         * Deals with the focus changes
+         */
         onMouseDown(e: any): void;
         /**
         * Sets a component to be focused.
@@ -6640,7 +6634,7 @@ declare namespace Animate {
     /**
      * Describes each of the splash screen action types
      */
-    type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_GET_PROJECTS';
+    type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_PROJECT_CREATED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
     /**
      * A base interface for describing the splash screen actions
      */
@@ -6656,6 +6650,15 @@ declare namespace Animate {
      * @param search Optional search text
      */
     function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<ISplashAction>) => void;
+    /**
+     * Sets the splash screen
+     */
+    function setSplashScreen(screen: 'welcome' | 'opening-project' | 'new-project'): ISplashAction;
+    /**
+     * Creates a new project for the authenticated user
+     * @param options An object of projet defaults
+     */
+    function createProject(options: HatcheryServer.IProject): (dispatch: Redux.Dispatch<ISplashAction>) => void;
 }
 declare namespace Animate {
     /**
@@ -6669,11 +6672,6 @@ declare namespace Animate {
         type: ProjectActionType;
         project: IProject;
     }
-    /**
-     * Creates a new project for the authenticated user
-     * @param options An object of projet defaults
-     */
-    function createProject(options: HatcheryServer.IProject): (dispatch: Redux.Dispatch<IProjectAction>) => void;
 }
 declare namespace Animate {
     /**

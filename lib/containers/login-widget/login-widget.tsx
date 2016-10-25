@@ -55,12 +55,14 @@ namespace Animate {
                     onLoginRequested={() => dispatch( toggleLoginState( 'login' ) )}
                     />;
 
-            return <div id="log-reg" className={( user.loading ? 'loading' : undefined )}>
-                <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
-                <div className="avatar">
-                    <img src="media/blank-user.png" />
+            return <div id="login-widget">
+                <div id="log-reg" className={'background fade-in' + ( user.loading ? ' loading' : undefined )}>
+                    <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                    <div className="avatar">
+                        <img src="media/blank-user.png" />
+                    </div>
+                    {activePane}
                 </div>
-                {activePane}
             </div>;
         }
     }
