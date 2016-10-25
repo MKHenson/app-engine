@@ -1,6 +1,6 @@
 namespace Animate {
 
-    const defaultMeta: HatcheryServer.IUserMeta = {
+    const defaultMetaState: HatcheryServer.IUserMeta = {
         bio: '',
         plan: UserPlan.Free,
         image: 'media/blank-user.png',
@@ -8,19 +8,19 @@ namespace Animate {
         website: ''
     }
 
-    const defaultState: IUser = {
+    const defaultUserState: IUser = {
         entry: null,
         error: null,
         isLoggedIn: false,
         loading: false,
-        meta: defaultMeta,
+        meta: defaultMetaState,
         serverResponse: null
     }
 
     /**
      * A reducer for processing project actions
      */
-    export function userReducer( state: IUser, action: IUserAction ): IUser {
+    export function userReducer( state: IUser = defaultUserState, action: IUserAction ): IUser {
         let toReturn = state;
 
         switch ( action.type ) {
@@ -41,18 +41,16 @@ namespace Animate {
                 toReturn = Object.assign<IUser>( {}, toReturn, {
                     loading: false,
                     isLoggedIn: false,
-                    meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMeta )
+                    meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMetaState )
                 }, action.userData! );
                 break;
             case 'USER_LOGGED_OUT':
-                toReturn = Object.assign<IUser>( {}, defaultState, {
-                    meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMeta )
+                toReturn = Object.assign<IUser>( {}, defaultUserState, {
+                    meta: Object.assign<HatcheryServer.IUserMeta>( {}, defaultMetaState )
                 });
                 break;
-            default:
-                toReturn = defaultState;
-                break;
         }
+
         return toReturn;
     }
 }
