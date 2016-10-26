@@ -3,7 +3,7 @@ import { Prop } from '../../../properties/prop';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { CanvasItem } from './canvas-item';
 import { Portal } from './portal';
-import { IBehaviour, IPortal } from '../../../../setup/models';
+import { IBehaviour, IPortal } from 'hatchery-editor';
 import { createProperty } from '../../../utils';
 
 /**

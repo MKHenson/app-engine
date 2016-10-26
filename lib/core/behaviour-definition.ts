@@ -1,4 +1,4 @@
-import { IPlugin } from 'hatchery-editor';
+import { IPlugin } from 'hatchery-editor-plugins';
 import { PortalTemplate } from './portal-template';
 import { Behaviour } from './editors/container-schema/items/behaviour';
 

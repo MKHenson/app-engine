@@ -1,40 +1,40 @@
-namespace Animate {
-	/**
-	*  Use this tool bar button to pick a colour.
-	*/
-    export class ToolbarColorPicker extends Component {
-        private numberInput: Component;
-        private picker: any;
+import { Component } from '../../component';
 
-        constructor( parent: Component, text: string, color: string ) {
-            super( '<div class=\'toolbar-button tooltip\'></div>', parent );
+/**
+*  Use this tool bar button to pick a colour.
+*/
+export class ToolbarColorPicker extends Component {
+    private numberInput: Component;
+    private picker: any;
 
-            this.numberInput = <Component>this.addChild( '<input class=\'toolbar-color\' value=\'#ff0000\'></input>' );
-            this.addChild( '<div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div>' );
+    constructor( parent: Component, text: string, color: string ) {
+        super( '<div class=\'toolbar-button tooltip\'></div>', parent );
 
-            this.picker = new jscolor.color( document.getElementById( this.numberInput.id ) )
-            this.picker.fromString( color );
-        }
+        this.numberInput = <Component>this.addChild( '<input class=\'toolbar-color\' value=\'#ff0000\'></input>' );
+        this.addChild( '<div class=\'tooltip-text tooltip-text-bg\'>' + text + '</div>' );
 
-		/**
-		* Gets or sets the colour of the toolbar button
-		*/
-        get color(): number {
-            return parseInt( this.numberInput.element.val(), 16 );
-        }
+        this.picker = new jscolor.color( document.getElementById( this.numberInput.id ) )
+        this.picker.fromString( color );
+    }
 
-		/**
-		* Gets or sets the colour of the toolbar button
-		*/
-        set color( color: number ) {
-            this.picker.fromString( color );
-        }
+    /**
+    * Gets or sets the colour of the toolbar button
+    */
+    get color(): number {
+        return parseInt( this.numberInput.element.val(), 16 );
+    }
 
-		/**
-		* Disposes of and cleans up this button
-		*/
-        dispose(): void {
-            this.picker = null;
-        }
+    /**
+    * Gets or sets the colour of the toolbar button
+    */
+    set color( color: number ) {
+        this.picker.fromString( color );
+    }
+
+    /**
+    * Disposes of and cleans up this button
+    */
+    dispose(): void {
+        this.picker = null;
     }
 }

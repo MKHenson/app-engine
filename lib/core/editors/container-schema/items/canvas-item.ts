@@ -1,4 +1,4 @@
-﻿import { ICanvasItem } from '../../../../setup/models';
+﻿import { ICanvasItem } from 'hatchery-editor';
 import { ContainerSchema } from '../container-schema';
 import { EventDispatcher } from '../../../event-dispatcher';
 

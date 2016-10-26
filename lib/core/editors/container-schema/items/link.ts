@@ -1,8 +1,7 @@
 import { EditableSet } from '../../../properties/editable-set';
 import { PropNum } from '../../../properties/prop-num';
 import { CanvasItem } from './canvas-item';
-import { ILinkItem } from '../../../../setup/models';
-import { Point } from '../../../utils';
+import { ILinkItem, Point } from 'hatchery-editor';
 
 /**
  * Links connect 2 behaviours to one another. Each link is connected by a start and end portal on both the origin

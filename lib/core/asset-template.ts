@@ -1,5 +1,5 @@
 import { AssetClass } from './asset-class';
-import { IPlugin } from 'hatchery-editor';
+import { IPlugin } from 'hatchery-editor-plugins';
 
 /**
 * The AssetTemplate object is used to define what assets are available to the scene.

@@ -1,5 +1,5 @@
 import { CanvasItem } from './canvas-item';
-import { IComment } from '../../../../setup/models';
+import { IComment } from 'hatchery-editor';
 
 /**
  * A user comment within the workspace

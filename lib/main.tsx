@@ -1,84 +1,19 @@
+import { LoaderBase } from './core/loaders/loader-base';
+import { DB } from './setup/db';
+import { Application } from './containers/application/application';
+import { editorReducer } from './reducers/editor-reducer';
+import { loggerReducer } from './reducers/logger-reducer';
+import { projectReducer } from './reducers/project-reducer';
+import { splashReducer } from './reducers/splash-reducer';
+import { userReducer } from './reducers/user-reducer';
+import { PluginManager } from './core/plugin-manager';
+
+
 namespace Animate {
     export var store: Redux.Store<any>;
 }
 
-declare let _cache: string;
-const __plugins: { [ name: string ]: Array<HatcheryServer.IPlugin> } = {};
-let __newPlugin: Animate.IPlugin | null = null;
 
-/**
- * Goes through each of the plugins and returns the one with the matching ID
- * @param id The ID of the plugin to fetch
- */
-function getPluginByID( id: string ): HatcheryServer.IPlugin | null {
-    for ( const pluginName in __plugins ) {
-        for ( let i = 0, l = __plugins[ pluginName ].length; i < l; i++ )
-            if ( __plugins[ pluginName ][ i ]._id === id )
-                return __plugins[ pluginName ][ i ];
-    }
-
-    return null;
-}
-
-/**
- * Returns a formatted byte string
- */
-function byteFilter( bytes, precision: number = 1 ): string {
-    if ( isNaN( parseFloat( bytes ) ) || !isFinite( bytes ) ) return '-';
-    const units = [ 'bytes', 'kB', 'MB', 'GB', 'TB', 'PB' ],
-        num = Math.floor( Math.log( bytes ) / Math.log( 1024 ) );
-    return ( bytes / Math.pow( 1024, Math.floor( num ) ) ).toFixed( precision ) + ' ' + units[ num ];
-}
-
-/**
- * Sorts the plugins based on their versions
- */
-function sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
-    for ( let i = 0, l = plugins.length; i < l; i++ ) {
-        if ( !__plugins[ plugins[ i ].name! ] )
-            __plugins[ plugins[ i ].name! ] = [];
-        else
-            continue;
-
-        let pluginArray = __plugins[ plugins[ i ].name! ];
-
-        for ( let ii = 0; ii < l; ii++ )
-            if ( plugins[ ii ].name === plugins[ i ].name )
-                pluginArray.push( plugins[ ii ] );
-
-        // Sort the plugins based on their versions
-        pluginArray = pluginArray.sort( function compare( a, b ) {
-            if ( a === b )
-                return 0;
-
-            const a_components = a.version!.split( '.' );
-            const b_components = b.version!.split( '.' );
-
-            const len = Math.min( a_components.length, b_components.length );
-
-            // loop while the components are equal
-            for ( let i = 0; i < len; i++ ) {
-                // A bigger than B
-                if ( parseInt( a_components[ i ] ) > parseInt( b_components[ i ] ) )
-                    return 1;
-
-                // B bigger than A
-                if ( parseInt( a_components[ i ] ) < parseInt( b_components[ i ] ) )
-                    return -1;
-            }
-
-            // If one's a prefix of the other, the longer one is greater.
-            if ( a_components.length > b_components.length )
-                return 1;
-
-            if ( a_components.length < b_components.length )
-                return -1;
-
-            // Otherwise they are the same.
-            return 0;
-        });
-    }
-}
 
 /**
  * Creates the redux store for the application
@@ -108,11 +43,11 @@ function createStore(): Redux.Store<any> {
 
     // Create the reducers object
     const reducers = Redux.combineReducers( {
-        project: Animate.projectReducer,
-        editorState: Animate.editorReducer,
-        logs: Animate.loggerReducer,
-        user: Animate.userReducer,
-        splash: Animate.splashReducer
+        project: projectReducer,
+        editorState: editorReducer,
+        logs: loggerReducer,
+        user: userReducer,
+        splash: splashReducer
     });
 
     // Creat the store
@@ -128,14 +63,14 @@ function createStore(): Redux.Store<any> {
  * Once the plugins are loaded from the DB
  */
 function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
-    sortPlugins( plugins );
+    PluginManager.getSingleton().sortPlugins( plugins );
 
     Animate.store = createStore();
 
     // Create the application element
     ReactDOM.render((
         <ReactRedux.Provider store={Animate.store}>
-            <Animate.Application />
+            <Application />
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }
 
@@ -149,14 +84,14 @@ jQuery( document ).ready( function() {
     });
 
     // Show the loading animation
-    Animate.LoaderBase.showLoader();
+    LoaderBase.showLoader();
 
     // Donwload the plugins available to this user
-    jQuery.getJSON( `${Animate.DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
+    jQuery.getJSON( `${DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
         onPluginsLoaded( response.data );
     }).fail( function( err: JQueryXHR ) {
         document.write( `An error occurred while connecting to the server. ${err.status}: ${err.responseText}` );
     }).always( function() {
-        Animate.LoaderBase.hideLoader();
+        LoaderBase.hideLoader();
     });
 });

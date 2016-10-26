@@ -1,6 +1,7 @@
 import { ISplashScreen } from 'hatchery-editor';
-import { Utils } from '../core/utils';
+import { post, get } from '../core/utils';
 import { DB } from '../setup/db';
+import { PluginManager } from '../core/plugin-manager';
 
 /**
  * Describes each of the splash screen action types
@@ -32,7 +33,7 @@ export function getProjectList( user: string, index: number, limit: number, sear
     return ( dispatch: Redux.Dispatch<ISplashAction> ) => {
         dispatch<ISplashAction>( { type: 'SPLASH_REQUEST_PENDING' });
 
-        Utils.get<ModepressAddons.IGetProjects>( `${DB.API}/users/${user}/projects?verbose=false&index=${index}&limit=${limit}&search=${search}` ).then( function( response ) {
+        get<ModepressAddons.IGetProjects>( `${DB.API}/users/${user}/projects?verbose=false&index=${index}&limit=${limit}&search=${search}` ).then( function( response ) {
             if ( response.error )
                 throw new Error( response.message );
 
@@ -41,7 +42,7 @@ export function getProjectList( user: string, index: number, limit: number, sear
             // Assign the plugins
             for ( const project of projects ) {
                 const plugins = project.plugins!.map(( pluginName: string ) => {
-                    const iPlugin = getPluginByID( pluginName );
+                    const iPlugin = PluginManager.getSingleton().getPluginByID( pluginName );
                     if ( iPlugin )
                         return iPlugin;
 
@@ -86,7 +87,7 @@ export function createProject( options: HatcheryServer.IProject ) {
         dispatch( { type: 'PROJECT_REQUEST_PENDING' });
 
         // Create project
-        Utils.post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, options ).then( function( response ) {
+        post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, options ).then( function( response ) {
 
             if ( response.error )
                 return dispatch<ISplashAction>( { type: 'SPLASH_REQUEST_REJECTED', data: { error: new Error( response.message ) } });
@@ -94,7 +95,7 @@ export function createProject( options: HatcheryServer.IProject ) {
             // Assign the actual plugins
             const project = response.data;
             const plugins = project.plugins!.map(( pluginName: string ) => {
-                const iPlugin = getPluginByID( pluginName );
+                const iPlugin = PluginManager.getSingleton().getPluginByID( pluginName );
                 if ( iPlugin )
                     return iPlugin;
 

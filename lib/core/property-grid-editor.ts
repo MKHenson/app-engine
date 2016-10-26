@@ -1,4 +1,6 @@
-
+import { PropertyGrid } from '../components/property-grid';
+import { Component } from '../components/component';
+import { Prop } from './properties/prop';
 
 /**
 * A simple interface for property grid editors

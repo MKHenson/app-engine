@@ -1,16 +1,16 @@
-namespace Animate {
+import { ILoggerAction } from '../actions/logger-actions';
+import { ILogMessage } from 'hatchery-editor';
 
-    /**
-     * A reducer that processes state changes of the editor
-     */
-    export function loggerReducer( state: ILogMessage[] = [], action: ILoggerAction ): ILogMessage[] {
-        switch ( action.type ) {
-            case 'LOGGER_ADD_ITEM':
-                return state.concat( action.item! );
-            case 'LOGGER_CLEAR_ITEMS':
-                return [];
-            default:
-                return state;
-        }
+/**
+ * A reducer that processes state changes of the editor
+ */
+export function loggerReducer( state: ILogMessage[] = [], action: ILoggerAction ): ILogMessage[] {
+    switch ( action.type ) {
+        case 'LOGGER_ADD_ITEM':
+            return state.concat( action.item! );
+        case 'LOGGER_CLEAR_ITEMS':
+            return [];
+        default:
+            return state;
     }
 }

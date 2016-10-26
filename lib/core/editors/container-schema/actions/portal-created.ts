@@ -1,5 +1,8 @@
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
+import { Behaviour } from '../items/behaviour';
+import { BehaviourPortal } from '../items/behaviour-portal';
+import { Portal } from '../items/portal';
 
 /**
  * An action for the creation of portals

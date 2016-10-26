@@ -1,4 +1,4 @@
-import { IPlugin } from 'hatchery-editor';
+import { IPlugin } from 'hatchery-editor-plugins';
 
 export class TypeConverter {
     public plugin: IPlugin;

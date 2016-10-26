@@ -1,6 +1,6 @@
 import { IUser } from 'hatchery-editor';
-import { Utils } from '../core/utils';
-import { DB } from '../setup/utils';
+import { get, del, post } from '../core/utils';
+import { DB } from '../setup/db';
 
 /**
  * Describes each of the user action types
@@ -44,7 +44,7 @@ export function authenticated() {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
+        get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
 
             if ( authResponse.error )
                 throw new Error( authResponse.message );
@@ -59,7 +59,7 @@ export function authenticated() {
                 return;
             }
 
-            Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` ).then(( metaResponse: ModepressAddons.IGetDetails ) => {
+            get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` ).then(( metaResponse: ModepressAddons.IGetDetails ) => {
 
                 if ( metaResponse && metaResponse.error )
                     throw new Error( metaResponse.message );
@@ -88,7 +88,7 @@ export function logout() {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
+        get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
             if ( data.error )
                 throw new Error( data.message );
 
@@ -107,7 +107,7 @@ export function resetPassword( user: string ) {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( response ) {
+        get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( response ) {
             if ( response.error )
                 throw new Error( response.message );
 
@@ -129,7 +129,7 @@ export function resendActivation( user: string ) {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( response ) {
+        get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( response ) {
             if ( response.error )
                 throw new Error( response.message );
 
@@ -154,7 +154,7 @@ export function removeProject( username: string, pid: string ) {
 
         dispatch( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.delete<Modepress.IResponse>( `${DB.API}/users/${username}/projects/${pid}` ).then( function( data ) {
+        del<Modepress.IResponse>( `${DB.API}/users/${username}/projects/${pid}` ).then( function( data ) {
             if ( data.error )
                 throw new Error( data.message );
 
@@ -190,14 +190,14 @@ export function login( token: UsersInterface.ILoginToken ) {
         let entry: UsersInterface.IUserEntry;
         let message: string;
 
-        Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( authResponse ) => {
+        post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( authResponse ) => {
             if ( authResponse.error )
                 throw new Error( authResponse.message );
 
             if ( authResponse.authenticated ) {
                 entry = authResponse.user!;
                 message = authResponse.message;
-                return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
+                return get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
             }
             else
                 throw new Error( `User could not be authenticated: '${authResponse.message}'` );
@@ -232,7 +232,7 @@ export function register( token: UsersInterface.IRegisterToken ) {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( response ) {
+        post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( response ) {
             if ( response.error )
                 throw new Error( response.message );
 

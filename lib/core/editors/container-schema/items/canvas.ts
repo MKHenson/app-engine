@@ -1,4 +1,5 @@
 import { ENUM } from '../../../event-dispatcher';
+import { Component } from '../../../../components/component';
 import { Container } from '../../../project-resources/container';
 
 export class CanvasEvents extends ENUM {
@@ -1598,7 +1599,6 @@ export class Canvas { // extends Component {
     // 		}
 
 
-    get container(): Resources.Container { return this._container; }
+    get container(): Container { return this._container; }
     get containerReferences(): { groups: Array<number>; assets: Array<number> } { return this._containerReferences; }
-}
 }

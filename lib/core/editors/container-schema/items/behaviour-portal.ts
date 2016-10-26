@@ -1,6 +1,6 @@
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IBehaviourPortal } from '../../../../setup/models';
+import { IBehaviourPortal } from 'hatchery-editor';
 import { createProperty } from '../../../utils';
 import { PluginManager } from '../../../plugin-manager';
 

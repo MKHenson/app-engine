@@ -1,179 +1,177 @@
-namespace Animate {
 
-    export interface IReactContextMenuItem {
-        onSelect?: ( item: IReactContextMenuItem ) => void;
-        tag?: any;
-        label: string;
-        prefix?: JSX.Element;
-        image?: string;
-        items?: IReactContextMenuItem[];
-    }
+export interface IReactContextMenuItem {
+    onSelect?: ( item: IReactContextMenuItem ) => void;
+    tag?: any;
+    label: string;
+    prefix?: JSX.Element;
+    image?: string;
+    items?: IReactContextMenuItem[];
+}
 
-    export interface IReactContextMenuProps {
-        x: number;
-        y: number;
-        className?: string;
-        onChange?: ( item: IReactContextMenuItem ) => void;
-        items?: IReactContextMenuItem[];
-        _closing?: () => void;
+export interface IReactContextMenuProps {
+    x: number;
+    y: number;
+    className?: string;
+    onChange?: ( item: IReactContextMenuItem ) => void;
+    items?: IReactContextMenuItem[];
+    _closing?: () => void;
+}
+
+/**
+ * A React component for showing a context menu.
+ * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
+ */
+export class ReactContextMenu extends React.Component<IReactContextMenuProps, any> {
+    private static _menuCount: number = 0;
+    private static _menus: {
+        [ id: number ]: {
+            menu: HTMLElement,
+            jsx: JSX.Element
+        }
+    } = {};
+
+    static defaultProps: IReactContextMenuProps = {
+        items: [],
+        x: 0,
+        y: 0
+    };
+
+    private _mouseUpProxy: any;
+
+    /**
+     * Creates a context menu instance
+     */
+    constructor( props: IReactContextMenuProps ) {
+        super( props );
+
+        this._mouseUpProxy = this.onMouseUp.bind( this );
     }
 
     /**
-     * A React component for showing a context menu.
-     * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
+     * When we click on a menu item
      */
-    export class ReactContextMenu extends React.Component<IReactContextMenuProps, any> {
-        private static _menuCount: number = 0;
-        private static _menus: {
-            [ id: number ]: {
-                menu: HTMLElement,
-                jsx: JSX.Element
-            }
-        } = {};
+    private onMouseDown( e: React.MouseEvent, item: IReactContextMenuItem ) {
+        e.preventDefault();
+        e.stopPropagation();
 
-        static defaultProps: IReactContextMenuProps = {
-            items: [],
-            x: 0,
-            y: 0
-        };
+        if ( this.props.onChange )
+            this.props.onChange( item );
 
-        private _mouseUpProxy: any;
+        item.onSelect && item.onSelect( item );
 
-        /**
-         * Creates a context menu instance
-         */
-        constructor( props: IReactContextMenuProps ) {
-            super( props );
+        if ( this.props._closing )
+            this.props._closing();
+    }
 
-            this._mouseUpProxy = this.onMouseUp.bind( this );
-        }
+    /**
+     * Draws each of the submenu items
+     */
+    private drawMenuItems( item: IReactContextMenuItem, level: number, index: number ): JSX.Element {
+        let children: JSX.Element | undefined;
+        let prefix: JSX.Element | undefined;
 
-        /**
-         * When we click on a menu item
-         */
-        private onMouseDown( e: React.MouseEvent, item: IReactContextMenuItem ) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if ( this.props.onChange )
-                this.props.onChange( item );
-
-            item.onSelect && item.onSelect( item );
-
-            if ( this.props._closing )
-                this.props._closing();
-        }
-
-        /**
-         * Draws each of the submenu items
-         */
-        private drawMenuItems( item: IReactContextMenuItem, level: number, index: number ): JSX.Element {
-            let children: JSX.Element | undefined;
-            let prefix: JSX.Element | undefined;
-
-            if ( item.items ) {
-                children = <div className="sub-menu">
-                    {
-                        item.items.map(( item, index ) => {
-                            return this.drawMenuItems( item, level + 1, index );
-                        })
-                    }
-                </div>
-            }
-
-            if ( item.prefix )
-                prefix = item.prefix;
-            else if ( item.image )
-                prefix = <img src={item.image} />;
-
-            return <div
-                onMouseDown={( e ) => { this.onMouseDown( e, item ); } }
-                key={`menu-item-${level}-${index}`}
-                className={'menu-item' + ( prefix ? ' has-prefix' : '' )}>
-                <div className="menu-item-button">{prefix} {item.label}</div>
-                {children}
+        if ( item.items ) {
+            children = <div className="sub-menu">
+                {
+                    item.items.map(( item, index ) => {
+                        return this.drawMenuItems( item, level + 1, index );
+                    })
+                }
             </div>
         }
 
-        /**
-         * Creates the component elements
-         */
-        render(): JSX.Element {
-            return <div ref="context" className={'context-menu ' + ( this.props.className || '' )}>
-                {
-                    this.props.items!.map(( item, index ) => {
-                        return this.drawMenuItems( item, 0, index );
-                    })
-                }
-            </div>;
-        }
+        if ( item.prefix )
+            prefix = item.prefix;
+        else if ( item.image )
+            prefix = <img src={item.image} />;
 
-        /**
-         * When the mouse is up we remove the dragging event listeners
-         */
-        private onMouseUp() {
-            if ( this.props._closing )
-                this.props._closing();
-            window.removeEventListener( 'mouseup', this._mouseUpProxy );
-        }
+        return <div
+            onMouseDown={( e ) => { this.onMouseDown( e, item ); } }
+            key={`menu-item-${level}-${index}`}
+            className={'menu-item' + ( prefix ? ' has-prefix' : '' )}>
+            <div className="menu-item-button">{prefix} {item.label}</div>
+            {children}
+        </div>
+    }
 
-        /**
-         * When the component is mounted
-         */
-        componentDidMount() {
-            window.addEventListener( 'mouseup', this._mouseUpProxy );
-            let elm = ReactDOM.findDOMNode( this.refs[ 'context' ] ) as HTMLElement;
-            let x = this.props.x;
-            let y = this.props.y;
+    /**
+     * Creates the component elements
+     */
+    render(): JSX.Element {
+        return <div ref="context" className={'context-menu ' + ( this.props.className || '' )}>
+            {
+                this.props.items!.map(( item, index ) => {
+                    return this.drawMenuItems( item, 0, index );
+                })
+            }
+        </div>;
+    }
 
-            x = ( elm.offsetWidth + x > document.body.offsetWidth ? x - elm.offsetWidth : x );
-            y = ( elm.offsetHeight + y > document.body.offsetHeight ? document.body.offsetHeight - elm.offsetHeight : y );
+    /**
+     * When the mouse is up we remove the dragging event listeners
+     */
+    private onMouseUp() {
+        if ( this.props._closing )
+            this.props._closing();
+        window.removeEventListener( 'mouseup', this._mouseUpProxy );
+    }
 
-            elm.style.left = x + 'px';
-            elm.style.top = y + 'px';
-        }
+    /**
+     * When the component is mounted
+     */
+    componentDidMount() {
+        window.addEventListener( 'mouseup', this._mouseUpProxy );
+        let elm = ReactDOM.findDOMNode( this.refs[ 'context' ] ) as HTMLElement;
+        let x = this.props.x;
+        let y = this.props.y;
 
-        /**
-         * Called when the component is to be removed
-         */
-        componentWillUnmount() {
-            window.removeEventListener( 'mouseup', this._mouseUpProxy );
-        }
+        x = ( elm.offsetWidth + x > document.body.offsetWidth ? x - elm.offsetWidth : x );
+        y = ( elm.offsetHeight + y > document.body.offsetHeight ? document.body.offsetHeight - elm.offsetHeight : y );
 
-        /**
-         * Shows a React context menu component to the user
-         * @param props The properties to use for the context menu component
-         */
-        static show( props: IReactContextMenuProps ) {
-            let id = ReactContextMenu._menuCount + 1;
-            let contextView = document.createElement( 'div' );
-            contextView.className = 'context-view';
-            ReactContextMenu._menuCount = id;
+        elm.style.left = x + 'px';
+        elm.style.top = y + 'px';
+    }
 
-            props._closing = () => {
-                ReactContextMenu._menus[ id ].menu.remove();
-                ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );
-                delete ReactContextMenu._menus[ id ];
-            };
+    /**
+     * Called when the component is to be removed
+     */
+    componentWillUnmount() {
+        window.removeEventListener( 'mouseup', this._mouseUpProxy );
+    }
 
-            let component = React.createElement<IReactContextMenuProps>( ReactContextMenu, props );
-            ReactContextMenu._menus[ id ] = {
-                jsx: component,
-                menu: contextView
-            };
+    /**
+     * Shows a React context menu component to the user
+     * @param props The properties to use for the context menu component
+     */
+    static show( props: IReactContextMenuProps ) {
+        let id = ReactContextMenu._menuCount + 1;
+        let contextView = document.createElement( 'div' );
+        contextView.className = 'context-view';
+        ReactContextMenu._menuCount = id;
 
-            // Add the tooltip to the dom
-            document.body.appendChild( contextView );
-            ReactDOM.render( component, contextView );
-            return ReactContextMenu._menuCount;
-        }
-
-        /**
-         * Hides/Removes a context menu component by id
-         */
-        static hide( id: number ) {
+        props._closing = () => {
+            ReactContextMenu._menus[ id ].menu.remove();
             ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );
             delete ReactContextMenu._menus[ id ];
-        }
+        };
+
+        let component = React.createElement<IReactContextMenuProps>( ReactContextMenu, props );
+        ReactContextMenu._menus[ id ] = {
+            jsx: component,
+            menu: contextView
+        };
+
+        // Add the tooltip to the dom
+        document.body.appendChild( contextView );
+        ReactDOM.render( component, contextView );
+        return ReactContextMenu._menuCount;
+    }
+
+    /**
+     * Hides/Removes a context menu component by id
+     */
+    static hide( id: number ) {
+        ReactDOM.unmountComponentAtNode( ReactContextMenu._menus[ id ].menu );
+        delete ReactContextMenu._menus[ id ];
     }
 }

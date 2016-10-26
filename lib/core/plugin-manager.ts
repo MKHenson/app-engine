@@ -2,9 +2,16 @@ import { EventDispatcher } from './event-dispatcher';
 import { BehaviourDefinition } from './behaviour-definition';
 import { AssetTemplate } from './asset-template';
 import { TypeConverter } from './type-converter';
-import { IPlugin, IPreviewFactory } from 'hatchery-editor';
+import { PortalTemplate } from './portal-template';
+import { PropAsset } from './properties/prop-asset';
+import { PropBool } from './properties/prop';
+import { PluginManagerEvents, ITemplateEvent } from '../setup/events';
+import { IPlugin as ServerPlugin } from 'hatchery-server';
+import { IPlugin, IPreviewFactory } from 'hatchery-editor-plugins';
+import { AssetClass } from './asset-class';
+import { ImageVisualizer } from './file-visualizers/image-visualizer';
 
-declare var __newPlugin: Animate.IPlugin | null;
+declare var __newPlugin: IPlugin | null;
 
 /**
  * The plugin manager is used to load and manage external Animate plugins.
@@ -12,12 +19,18 @@ declare var __newPlugin: Animate.IPlugin | null;
 export class PluginManager extends EventDispatcher {
     private static _singleton: PluginManager;
 
-    private _plugins: Array<Animate.IPlugin>;
+    private _plugins: Array<ServerPlugin>;
     private _loadedPlugins: Array<IPlugin>;
     private _behaviourTemplates: Array<BehaviourDefinition>;
     private _assetTemplates: Array<AssetTemplate>;
     private _converters: Array<TypeConverter>;
     private _previewVisualizers: Array<IPreviewFactory>;
+
+
+    private _allPlugins: { [ name: string ]: Array<HatcheryServer.IPlugin> };
+
+
+
 
     constructor() {
         super();
@@ -26,6 +39,7 @@ export class PluginManager extends EventDispatcher {
         PluginManager._singleton = this;
 
         this._plugins = new Array<IPlugin>();
+        this._allPlugins = {};
         this._behaviourTemplates = new Array<BehaviourDefinition>();
         this._assetTemplates = new Array<AssetTemplate>();
         this._converters = new Array<TypeConverter>();
@@ -90,12 +104,78 @@ export class PluginManager extends EventDispatcher {
     }
 
     /**
+     * Goes through each of the plugins and returns the one with the matching ID
+     * @param id The ID of the plugin to fetch
+     */
+    getPluginByID( id: string ): HatcheryServer.IPlugin | null {
+        for ( const pluginName in this._allPlugins ) {
+            for ( let i = 0, l = this._allPlugins[ pluginName ].length; i < l; i++ )
+                if ( this._allPlugins[ pluginName ][ i ]._id === id )
+                    return this._allPlugins[ pluginName ][ i ];
+        }
+
+        return null;
+    }
+
+
+
+    /**
+     * Sorts the plugins based on their versions
+     */
+    sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
+        for ( let i = 0, l = plugins.length; i < l; i++ ) {
+            if ( !this._allPlugins[ plugins[ i ].name! ] )
+                this._allPlugins[ plugins[ i ].name! ] = [];
+            else
+                continue;
+
+            let pluginArray = this._allPlugins[ plugins[ i ].name! ];
+
+            for ( let ii = 0; ii < l; ii++ )
+                if ( plugins[ ii ].name === plugins[ i ].name )
+                    pluginArray.push( plugins[ ii ] );
+
+            // Sort the plugins based on their versions
+            pluginArray = pluginArray.sort( function compare( a, b ) {
+                if ( a === b )
+                    return 0;
+
+                const a_components = a.version!.split( '.' );
+                const b_components = b.version!.split( '.' );
+
+                const len = Math.min( a_components.length, b_components.length );
+
+                // loop while the components are equal
+                for ( let i = 0; i < len; i++ ) {
+                    // A bigger than B
+                    if ( parseInt( a_components[ i ] ) > parseInt( b_components[ i ] ) )
+                        return 1;
+
+                    // B bigger than A
+                    if ( parseInt( a_components[ i ] ) < parseInt( b_components[ i ] ) )
+                        return -1;
+                }
+
+                // If one's a prefix of the other, the longer one is greater.
+                if ( a_components.length > b_components.length )
+                    return 1;
+
+                if ( a_components.length < b_components.length )
+                    return -1;
+
+                // Otherwise they are the same.
+                return 0;
+            });
+        }
+    }
+
+    /**
      * This funtcion is used to load a plugin.
      * @param pluginDefinition The IPlugin constructor that is to be created
      * @param createPluginReference Should we keep this constructor in memory? The default is true
      */
     preparePlugin( pluginDefinition: HatcheryServer.IPlugin ) {
-        const plugin: Animate.IPlugin = pluginDefinition.$instance!;
+        const plugin: IPlugin = pluginDefinition.$instance!;
         this._plugins.push( plugin );
 
         // Get behaviour definitions

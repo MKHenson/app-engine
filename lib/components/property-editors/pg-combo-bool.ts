@@ -1,51 +1,56 @@
-namespace Animate {
-	/**
-	* This represents a combo property for booleans that the user can select from a list.
-	*/
-    export class PGComboBool extends PropertyGridEditor {
-        constructor( grid: PropertyGrid ) {
-            super( grid );
-        }
+import { Component } from '../component';
+import { Prop } from '../../core/properties/prop';
+import { PropBool } from '../../core/properties/prop';
+import { PropertyGridEditor } from '../../core/property-grid-editor';
+import { PropertyGrid } from '../property-grid';
 
-        /**
-        * Checks a property to see if it can edit it
-        * @param {Prop<any>} prop The property being edited
-        * @returns {boolean}
-        */
-        canEdit( prop: Prop<any> ): boolean {
-            if ( prop instanceof PropBool )
-                return true;
-            else
-                return false;
-        }
 
-		/**
-		* Given a property, the grid editor must produce HTML that can be used to edit the property
-		* @param {Prop<any>} prop The property being edited
-		* @param {Component} container The container acting as this editors parent
-		*/
-        edit( prop: Prop<any>, container: Component ) {
-            const p = <PropBool>prop;
+/**
+* This represents a combo property for booleans that the user can select from a list.
+*/
+export class PGComboBool extends PropertyGridEditor {
+    constructor( grid: PropertyGrid ) {
+        super( grid );
+    }
 
-            // Create HTML
-            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
-            const selector: JQuery = jQuery( 'select', editor );
+    /**
+    * Checks a property to see if it can edit it
+    * @param {Prop<any>} prop The property being edited
+    * @returns {boolean}
+    */
+    canEdit( prop: Prop<any> ): boolean {
+        if ( prop instanceof PropBool )
+            return true;
+        else
+            return false;
+    }
 
-            // Add to DOM
-            container.element.append( editor );
+    /**
+    * Given a property, the grid editor must produce HTML that can be used to edit the property
+    * @param {Prop<any>} prop The property being edited
+    * @param {Component} container The container acting as this editors parent
+    */
+    edit( prop: Prop<any>, container: Component ) {
+        const p = <PropBool>prop;
 
-            // Boolean
-            selector.append( `<option value='true' ${( prop.getVal() ? 'selected=\'selected\'' : '' )}>True</option>` );
-            selector.append( `<option value='false' ${( !prop.getVal() ? 'selected=\'selected\'' : '' )}>False</option>` );
+        // Create HTML
+        const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo'></select></div><div class='fix'></div>` );
+        const selector: JQuery = jQuery( 'select', editor );
 
-            //Functions to deal with user interactions with JQuery
-            const onSelect = function() {
-                const val = selector.val();
-                prop.setVal(( val === 'true' ? true : false ) );
-            };
+        // Add to DOM
+        container.element.append( editor );
 
-            // Add listeners
-            selector.on( 'change', onSelect );
-        }
+        // Boolean
+        selector.append( `<option value='true' ${( prop.getVal() ? 'selected=\'selected\'' : '' )}>True</option>` );
+        selector.append( `<option value='false' ${( !prop.getVal() ? 'selected=\'selected\'' : '' )}>False</option>` );
+
+        //Functions to deal with user interactions with JQuery
+        const onSelect = function() {
+            const val = selector.val();
+            prop.setVal(( val === 'true' ? true : false ) );
+        };
+
+        // Add listeners
+        selector.on( 'change', onSelect );
     }
 }

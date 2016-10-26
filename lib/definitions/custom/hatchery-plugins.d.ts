@@ -1,4 +1,11 @@
-﻿declare namespace Animate {
+﻿import { BehaviourDefinition } from '../../core/behaviour-definition';
+import { Project } from '../../core/project';
+import { User } from '../../core/user';
+import { AssetTemplate } from '../../core/asset-template';
+import { TypeConverter } from '../../core/type-converter';
+import { Component } from '../../components/component';
+
+declare module HatcheryEditorPlugins {
 
     /**
 	* The IPlugin interface defines how a plugin interacts with app-engine
@@ -73,4 +80,9 @@
         name: string;
         onTab(): void;
     }
+}
+
+declare module "hatchery-editor-plugins"
+{
+    export = HatcheryEditorPlugins;
 }

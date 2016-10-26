@@ -1,4 +1,19 @@
 import { EventDispatcher } from './event-dispatcher';
+import { Editor } from './editors/editor';
+import { Build } from './build';
+import { User } from './user';
+import { ResourceType } from '../setup/enums';
+import { ProjectEvents, IResourceEvent, IEditorEvent, ResourceEvents } from '../setup/events';
+import { ProjectResource } from './project-resources/project-resource';
+import { Asset } from './project-resources/asset';
+import { Container } from './project-resources/container';
+import { Script } from './project-resources/script';
+import { File } from './project-resources/file';
+import { GroupArray } from './project-resources/group-array';
+import { DB } from '../setup/db';
+import { IAjaxError, get, put, del, post, generateLocalId } from './utils';
+import { PluginManager } from './plugin-manager';
+import { ContainerSchema } from './editors/container-schema/container-schema';
 
 /**
  * A project is the logical container of all resources and functions related
@@ -104,7 +119,7 @@ export class Project extends EventDispatcher {
     updateDetails( token: HatcheryServer.IProject ): Promise<UsersInterface.IResponse> {
         const entry = this._entry;
         return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
-            Utils.put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then(( data ) => {
+            put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then(( data ) => {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -135,9 +150,9 @@ export class Project extends EventDispatcher {
 
             // If the project has a build then load it - otherwise create a new one
             if ( this._entry.build && this._entry.build !== '' )
-                promise = Utils.get( `${DB.API}/users/${username}/projects/${this._entry._id}/builds/${this._entry.build}?verbose=true` );
+                promise = get( `${DB.API}/users/${username}/projects/${this._entry._id}/builds/${this._entry.build}?verbose=true` );
             else
-                promise = Utils.post( `${DB.API}/users/${username}/projects/${this._entry._id}/builds?set-current=true`, null );
+                promise = post( `${DB.API}/users/${username}/projects/${this._entry._id}/builds?set-current=true`, null );
 
             promise.then(( data: ModepressAddons.IGetBuilds ) => {
                 if ( data.error )
@@ -167,23 +182,23 @@ export class Project extends EventDispatcher {
             if ( !aClass )
                 throw new Error( `Could not find asset class ${className}` );
 
-            resource = new Resources.Asset( aClass, entry );
-            this._restPaths[ type ].array.push( <Resources.Asset>resource );
+            resource = new Asset( aClass, entry );
+            this._restPaths[ type ].array.push( <Asset>resource );
         }
         else if ( type === ResourceType.SCRIPT ) {
-            resource = new Resources.Script( entry );
+            resource = new Script( entry );
             this._restPaths[ type ].array.push( resource );
         }
         else if ( type === ResourceType.CONTAINER ) {
-            resource = new Resources.Container( entry );
-            this._restPaths[ type ].array.push( <Resources.Container>resource );
+            resource = new Container( entry );
+            this._restPaths[ type ].array.push( <Container>resource );
         }
         else if ( type === ResourceType.GROUP ) {
-            resource = new Resources.GroupArray( entry );
-            this._restPaths[ type ].array.push( <Resources.GroupArray>resource );
+            resource = new GroupArray( entry );
+            this._restPaths[ type ].array.push( <GroupArray>resource );
         }
         else {
-            resource = new Resources.File( entry );
+            resource = new File( entry );
             this._restPaths[ ResourceType.FILE ].array.push( resource );
         }
 
@@ -212,11 +227,11 @@ export class Project extends EventDispatcher {
                 paths[ t ].array.splice( paths[ t ].array.length );
             }
 
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.FILE ].url}?verbose=true` ) );
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.ASSET ].url}?verbose=true` ) );
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.CONTAINER ].url}?verbose=true` ) );
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.GROUP ].url}?verbose=true` ) );
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.SCRIPT ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.FILE ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.ASSET ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.CONTAINER ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.GROUP ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.SCRIPT ].url}?verbose=true` ) );
         }
         else {
             // Dispose each of the resources for that type
@@ -226,7 +241,7 @@ export class Project extends EventDispatcher {
             }
 
 
-            arr.push( Utils.get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ type ].url}?verbose=true` ) );
+            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ type ].url}?verbose=true` ) );
             paths[ type ].array.splice( 0, paths[ type ].array.length );
         }
 
@@ -297,7 +312,7 @@ export class Project extends EventDispatcher {
             return Promise.reject<Error>( new Error( 'Could not find a resource with that ID' ) );
 
         return new Promise<T>(( resolve, reject ) => {
-            Utils.get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then(( response ) => {
+            get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then(( response ) => {
                 if ( response.error )
                     return reject( new Error( response.message ) );
 
@@ -343,7 +358,7 @@ export class Project extends EventDispatcher {
             return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
         return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
-            Utils.put<Modepress.IResponse>( url, data ).then(( response ) => {
+            put<Modepress.IResponse>( url, data ).then(( response ) => {
                 if ( response.error )
                     return reject( new Error( response.message ) );
 
@@ -380,7 +395,7 @@ export class Project extends EventDispatcher {
         resource.onSaving();
 
         return new Promise<boolean>(( resolve, reject ) => {
-            Utils.put<Modepress.IResponse>( url, resource.entry ).then(( response ) => {
+            put<Modepress.IResponse>( url, resource.entry ).then(( response ) => {
                 if ( response.error )
                     return reject( new Error( `Could not save resource [${resource.entry._id}]: '${response.message}'` ) );
 
@@ -437,7 +452,7 @@ export class Project extends EventDispatcher {
             return Promise.reject<Error>( new Error( 'No resource with that ID exists' ) );
 
         return new Promise<boolean>(( resolve, reject ) => {
-            Utils.delete<Modepress.IResponse>( url ).then(( response ) => {
+            del<Modepress.IResponse>( url ).then(( response ) => {
                 if ( response.error )
                     return reject( new Error( response.message ) );
 
@@ -472,7 +487,7 @@ export class Project extends EventDispatcher {
 
         // Clone the resource and assign a new id
         const dataClone: T = JSON.parse( JSON.stringify( resource ) );
-        dataClone.shallowId = Utils.generateLocalId();
+        dataClone.shallowId = generateLocalId();
 
         // Create a new resource with the data
         return this.createResource<T>( type, dataClone );
@@ -533,10 +548,10 @@ export class Project extends EventDispatcher {
         const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}`;
 
         if ( data.shallowId === undefined )
-            data.shallowId = Utils.generateLocalId();
+            data.shallowId = generateLocalId();
 
         return new Promise<ProjectResource<T>>(( resolve, reject ) => {
-            Utils.post<ModepressAddons.ICreateResource<T>>( url, data ).then(( data ) => {
+            post<ModepressAddons.ICreateResource<T>>( url, data ).then(( data ) => {
                 if ( data.error )
                     return reject( new Error( data.message ) );
 
@@ -571,7 +586,7 @@ export class Project extends EventDispatcher {
                 return editor;
 
         let editor: Editor | null = null;
-        if ( resource instanceof Resources.Container )
+        if ( resource instanceof Container )
             editor = new ContainerSchema( resource, this );
 
         if ( editor ) {
@@ -610,11 +625,11 @@ export class Project extends EventDispatcher {
         this.emit<ProjectEvents, void>( 'change' );
     }
 
-    get containers(): Resources.Container[] { return this._restPaths[ ResourceType.CONTAINER ].array as Resources.Container[]; }
-    get files(): Resources.File[] { return this._restPaths[ ResourceType.FILE ].array as Resources.File[]; }
-    get scripts(): Resources.Script[] { return this._restPaths[ ResourceType.SCRIPT ].array as Resources.Script[]; }
-    get assets(): Resources.Asset[] { return this._restPaths[ ResourceType.ASSET ].array as Resources.Asset[]; }
-    get groups(): Resources.GroupArray[] { return this._restPaths[ ResourceType.GROUP ].array as Resources.GroupArray[]; }
+    get containers(): Container[] { return this._restPaths[ ResourceType.CONTAINER ].array as Container[]; }
+    get files(): File[] { return this._restPaths[ ResourceType.FILE ].array as File[]; }
+    get scripts(): Script[] { return this._restPaths[ ResourceType.SCRIPT ].array as Script[]; }
+    get assets(): Asset[] { return this._restPaths[ ResourceType.ASSET ].array as Asset[]; }
+    get groups(): GroupArray[] { return this._restPaths[ ResourceType.GROUP ].array as GroupArray[]; }
 
     /**
      * This will cleanup the project and remove all data associated with it.

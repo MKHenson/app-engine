@@ -1,8 +1,17 @@
 ﻿import { ValidationType, PropertyType } from '../setup/enums';
+import { Prop } from './properties/prop';
+import { PropAsset } from './properties/prop-asset';
+import { PropGroup } from './properties/prop-group';
+import { PropNum } from './properties/prop-num';
+import { PropObject } from './properties/prop-object';
+import { PropAssetList } from './properties/prop-asset-list';
+import { PropColor } from './properties/prop-color';
+import { PropEnum } from './properties/prop-enum';
+import { PropFileResource } from './properties/prop-file-resource';
+import { PropBool, PropText } from './properties/prop';
+import { Point } from 'hatchery-editor';
 
 export interface IAjaxError { message: string; status: number; };
-export interface Point { x: number; y: number; }
-
 
 const _withCredentials: boolean = true;
 let shallowIds: number = 0;
@@ -51,6 +60,16 @@ export function checkValidation( val: string, validator: ValidationType ) {
     }
 
     return null;
+}
+
+/**
+ * Returns a formatted byte string
+ */
+export function byteFilter( bytes: number | string, precision: number = 1 ): string {
+    if ( isNaN( parseFloat( bytes as string ) ) || !isFinite( bytes as number ) ) return '-';
+    const units = [ 'bytes', 'kB', 'MB', 'GB', 'TB', 'PB' ],
+        num = Math.floor( Math.log( bytes as number ) / Math.log( 1024 ) );
+    return ( bytes as number / Math.pow( 1024, Math.floor( num ) ) ).toFixed( precision ) + ' ' + units[ num ];
 }
 
 /**

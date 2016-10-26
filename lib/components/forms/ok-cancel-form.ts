@@ -1,136 +1,134 @@
-namespace Animate {
+// import { Component } from '../component';
+// import { Window } from '../window';
 
 
+// /**
+// * A simple form which holds a heading, content and OK / Cancel buttons.
+// */
+// export class OkCancelForm extends Window {
+//     public okCancelContent: Component;
+//     private mButtonContainer: Component;
+//     private mOk: any;// Button;
+//     private mCancel: any;// Button;
+//     private keyProxy: any;
+
+//     /**
+//     * @param {number} width The width of the form
+//     * @param {number} height The height of the form
+//     * @param {boolean} autoCenter Should this window center itself on a resize event
+//     * @param {boolean} controlBox Does this window have a draggable title bar and close button
+//     * @param {string} title The text for window heading. Only applicable if we are using a control box.
+//     */
+//     constructor( width: number = 400, height: number = 400, autoCenter: boolean = true, controlBox: boolean = false, title: string = '', hideCancel: boolean = false ) {
+//         // Call super-class constructor
+//         super( width, height, autoCenter, controlBox, title );
 
 
-	/**
-	* A simple form which holds a heading, content and OK / Cancel buttons.
-	*/
-    export class OkCancelForm extends Window {
-        public okCancelContent: Component;
-        private mButtonContainer: Component;
-        private mOk: any;// Button;
-        private mCancel: any;// Button;
-        private keyProxy: any;
+//         this.element.css( 'height', '' );
 
-		/**
-		* @param {number} width The width of the form
-		* @param {number} height The height of the form
-		* @param {boolean} autoCenter Should this window center itself on a resize event
-		* @param {boolean} controlBox Does this window have a draggable title bar and close button
-		* @param {string} title The text for window heading. Only applicable if we are using a control box.
-		*/
-        constructor( width: number = 400, height: number = 400, autoCenter: boolean = true, controlBox: boolean = false, title: string = '', hideCancel: boolean = false ) {
-            // Call super-class constructor
-            super( width, height, autoCenter, controlBox, title );
+//         //this.heading = new Label( this.content, 'OkCancelForm' );
+//         this.okCancelContent = new Component( '<div class=\'content\'></div>', this.content );
+//         this.mButtonContainer = new Component( '<div class=\'button-container\'></div>', this.content );
+//         //this.mOk = new Button( 'Ok', this.mButtonContainer );
+//         //this.mCancel = new Button( 'Cancel', this.mButtonContainer );
 
+//         //Set button height and width
+//         this.mOk.css( { width: '70px', height: '30px', 'margin-right': '3px' });
+//         this.mCancel.css( { width: '70px', height: '30px' });
 
-            this.element.css( 'height', '' );
+//         if ( hideCancel )
+//             this.mCancel.element.hide();
 
-            //this.heading = new Label( this.content, 'OkCancelForm' );
-            this.okCancelContent = new Component( '<div class=\'content\'></div>', this.content );
-            this.mButtonContainer = new Component( '<div class=\'button-container\'></div>', this.content );
-            //this.mOk = new Button( 'Ok', this.mButtonContainer );
-            //this.mCancel = new Button( 'Cancel', this.mButtonContainer );
+//         this.mOk.element.on( 'click', this.OnButtonClick.bind( this ) );
+//         this.mCancel.element.on( 'click', this.OnButtonClick.bind( this ) );
 
-            //Set button height and width
-            this.mOk.css( { width: '70px', height: '30px', 'margin-right': '3px' });
-            this.mCancel.css( { width: '70px', height: '30px' });
+//         this.keyProxy = this.onKeyDown.bind( this );
+//     }
 
-            if ( hideCancel )
-                this.mCancel.element.hide();
+//     /**
+//     * When we click on the close button
+//     * @param {any} e The jQuery event object
+//     */
+//     onCloseClicked() {
+//         const event: any = { cancel: false, text: 'Cancel' };
+//         this.emit<any, any>( 'ok_cancel_confirm', event );
+//         if ( event.cancel === false )
+//             this.hide();
+//     }
 
-            this.mOk.element.on( 'click', this.OnButtonClick.bind( this ) );
-            this.mCancel.element.on( 'click', this.OnButtonClick.bind( this ) );
+//     /**
+//     * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
+//     * and pass the text either for the ok or cancel buttons.
+//     * @param {any} e The jQuery event
+//     */
+//     OnButtonClick( e ) {
+//         const event: any = { cancel: false, text: jQuery( e.target ).text() };
+//         this.emit<any, any>( 'ok_cancel_confirm', event );
 
-            this.keyProxy = this.onKeyDown.bind( this );
-        }
+//         if ( event.cancel === false )
+//             this.hide();
+//     }
 
-		/**
-		* When we click on the close button
-		* @param {any} e The jQuery event object
-		*/
-        onCloseClicked() {
-            const event: any = { cancel: false, text: 'Cancel' };
-            this.emit<any, any>( 'ok_cancel_confirm', event );
-            if ( event.cancel === false )
-                this.hide();
-        }
+//     /**
+//     * Hides the window
+//     */
+//     hide() {
+//         super.hide();
 
-		/**
-		* Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-		* and pass the text either for the ok or cancel buttons.
-		* @param {any} e The jQuery event
-		*/
-        OnButtonClick( e ) {
-            const event: any = { cancel: false, text: jQuery( e.target ).text() };
-            this.emit<any, any>( 'ok_cancel_confirm', event );
+//         jQuery( 'body' ).off( 'keydown', this.keyProxy );
+//     }
 
-            if ( event.cancel === false )
-                this.hide();
-        }
+//     /**
+//     * This function is used to cleanup the object before its removed from memory.
+//     */
+//     dispose() {
+//         this.mOk.element.off();
+//         this.mCancel.element.off();
+//         jQuery( 'body' ).off( 'keydown', this.keyProxy );
 
-		/**
-		* Hides the window
-		*/
-        hide() {
-            super.hide();
+//         this.mOk = null;
+//         this.mCancel = null;
+//         this.keyProxy = null;
 
-            jQuery( 'body' ).off( 'keydown', this.keyProxy );
-        }
+//         //Call super
+//         super.dispose();
+//     }
 
-		/**
-		* This function is used to cleanup the object before its removed from memory.
-		*/
-        dispose() {
-            this.mOk.element.off();
-            this.mCancel.element.off();
-            jQuery( 'body' ).off( 'keydown', this.keyProxy );
+//     /**
+//     * Shows the window by adding it to a parent.
+//     * @param {Component} parent The parent Component we are adding this window to
+//     * @param {number} x The x coordinate of the window
+//     * @param {number} y The y coordinate of the window
+//     * @param {boolean} isModal Does this window block all other user operations?
+//     * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
+//     */
+//     show( parent: Component | null = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
+//         parent; // Supresses unused param error
+//         isModal;
+//         isPopup;
 
-            this.mOk = null;
-            this.mCancel = null;
-            this.keyProxy = null;
+//         //var x = jQuery( 'body' ).width() / 2 - this.element.width() / 2;
+//         //var y = jQuery( 'body' ).height() / 2 - this.element.height() / 2;
 
-            //Call super
-            super.dispose();
-        }
+//         //if ( y + this.element.height() > jQuery( 'body' ).height() )
+//         //	y = jQuery( 'body' ).height() - this.element.height();
+//         //if ( x + this.element.width() > jQuery( 'body' ).width() )
+//         //	x = jQuery( 'body' ).width() - this.element.width();
 
-		/**
-		* Shows the window by adding it to a parent.
-		* @param {Component} parent The parent Component we are adding this window to
-		* @param {number} x The x coordinate of the window
-		* @param {number} y The y coordinate of the window
-		* @param {boolean} isModal Does this window block all other user operations?
-		* @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-		*/
-        show( parent: Component | null = null, x: number = NaN, y: number = NaN, isModal = true, isPopup = false ) {
-            parent; // Supresses unused param error
-            isModal;
-            isPopup;
+//         super.show( null, x, y, true, false );
 
-            //var x = jQuery( 'body' ).width() / 2 - this.element.width() / 2;
-            //var y = jQuery( 'body' ).height() / 2 - this.element.height() / 2;
+//         jQuery( 'body' ).on( 'keydown', this.keyProxy );
 
-            //if ( y + this.element.height() > jQuery( 'body' ).height() )
-            //	y = jQuery( 'body' ).height() - this.element.height();
-            //if ( x + this.element.width() > jQuery( 'body' ).width() )
-            //	x = jQuery( 'body' ).width() - this.element.width();
+//         this.onWindowResized( null );
+//     }
 
-            super.show( null, x, y, true, false );
-
-            jQuery( 'body' ).on( 'keydown', this.keyProxy );
-
-            this.onWindowResized( null );
-        }
-
-		/**
-		* Catch the key down events.
-		* @param {any} e The jQuery event object
-		*/
-        onKeyDown( e ) {
-            //If delete pressed
-            if ( e.keyCode === 13 )
-                this.mOk.element.trigger( 'click' );
-        }
-    }
-}
+//     /**
+//     * Catch the key down events.
+//     * @param {any} e The jQuery event object
+//     */
+//     onKeyDown( e ) {
+//         //If delete pressed
+//         if ( e.keyCode === 13 )
+//             this.mOk.element.trigger( 'click' );
+//     }
+// }

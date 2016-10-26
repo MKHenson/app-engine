@@ -1,5 +1,7 @@
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
+import { Link } from '../items/link';
+import { ILinkItem } from 'hatchery-editor';
 
 /**
  * An action for the creation of links within a container

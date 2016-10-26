@@ -1,10 +1,11 @@
 ﻿import { Prop } from './prop';
 import { PropertyType } from '../../setup/enums';
+import { File } from '../project-resources/file';
 
 /**
 * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
 */
-export class PropFileResource extends Prop<Resources.File | null> {
+export class PropFileResource extends Prop<File | null> {
     public extensions: Array<string> | null;
 
     /**
@@ -15,7 +16,7 @@ export class PropFileResource extends Prop<Resources.File | null> {
     * @param {string} category [Optional] An optional category to describe this property's function
     * @param {any} options [Optional] Any optional data to be associated with the property
     */
-    constructor( name: string, value: Resources.File | null, extensions: Array<string> | null, category?: string, options?: any ) {
+    constructor( name: string, value: File | null, extensions: Array<string> | null, category?: string, options?: any ) {
         super( name, value, category, options, PropertyType.FILE );
         this.extensions = extensions;
     }

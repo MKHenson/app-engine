@@ -2,7 +2,7 @@ import { Behaviour } from './behaviour';
 import { Portal } from './portal';
 import { ProjectResource } from '../../../project-resources/project-resource';
 import { PluginManager } from '../../../plugin-manager';
-import { IBehaviour } from '../../../../setup/models';
+import { IBehaviour } from 'hatchery-editor';
 import { Prop } from '../../../properties/prop';
 import { Asset } from '../../../project-resources/asset';
 

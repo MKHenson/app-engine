@@ -1,4 +1,9 @@
 import { EventDispatcher } from './event-dispatcher';
+import { Project } from './project';
+import { UserPlan } from '../setup/enums';
+import { IAjaxError, post, put } from './utils';
+import { DB } from '../setup/db';
+import { PluginManager } from '../core/plugin-manager';
 
 /**
 * This class is used to represent the user who is logged into Animate.
@@ -233,7 +238,7 @@ export class User extends EventDispatcher {
         };
 
         return new Promise<ModepressAddons.ICreateProject>( function( resolve, reject ) {
-            Utils.post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function( data ) {
+            post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function( data ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
 
@@ -241,7 +246,7 @@ export class User extends EventDispatcher {
                 const project = data.data;
                 const plugins: Array<HatcheryServer.IPlugin> = [];
                 for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
-                    plugins.push( getPluginByID( project.plugins![ ii ] ) ! );
+                    plugins.push( PluginManager.getSingleton().getPluginByID( project.plugins![ ii ] ) ! );
 
                 project.$plugins = plugins;
 
@@ -283,7 +288,7 @@ export class User extends EventDispatcher {
         const that = this;
 
         return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-            Utils.put( `${DB.API}/user-details/${that.entry.username}`, token ).then( function( data: UsersInterface.IResponse ) {
+            put( `${DB.API}/user-details/${that.entry.username}`, token ).then( function( data: UsersInterface.IResponse ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {

@@ -1,4 +1,9 @@
-﻿
+﻿import { BehaviourDefinition } from '../core/behaviour-definition';
+import { Editor } from '../core/editors/editor';
+import { ProjectResource } from '../core/project-resources/project-resource';
+import { Container } from '../core/project-resources/container';
+import { TreeNodeModel } from '../components/treeview/treenode-model';
+
 /**
  * Events related to the web socket communication API
  */
@@ -66,7 +71,7 @@ export interface IResourceEvent {
  * An event token for events dispatched by changes to or from project containers
  */
 export interface IContainerEvent {
-    container: Resources.Container;
+    container: Container;
 }
 
 /**

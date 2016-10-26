@@ -1,5 +1,6 @@
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
+import { Comment } from '../items/comment';
 
 /**
  * An action for when comment text is editted

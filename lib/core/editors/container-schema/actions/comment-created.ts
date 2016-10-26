@@ -1,5 +1,6 @@
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
+import { Comment } from '../items/comment';
 
 /**
  * An action for the creation of a user comment in a container schema

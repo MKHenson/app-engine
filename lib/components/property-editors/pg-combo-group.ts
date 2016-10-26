@@ -1,75 +1,82 @@
-namespace Animate {
-	/**
-	* This represents a combo property for assets that the user can select from a list.
-	*/
-    export class PGComboGroup extends PropertyGridEditor {
-        constructor( grid: PropertyGrid ) {
-            super( grid );
-        }
+import { ResourceType } from '../../setup/enums';
+import { Component } from '../component';
+import { Prop } from '../../core/properties/prop';
+import { PropGroup } from '../../core/properties/prop-group';
+import { User } from '../../core/user';
+import { GroupArray } from '../../core/project-resources/group-array';
+import { PropertyGridEditor } from '../../core/property-grid-editor';
+import { PropertyGrid } from '../property-grid';
 
-        /**
-        * Checks a property to see if it can edit it
-        * @param {Prop<any>} prop The property being edited
-        * @returns {boolean}
-        */
-        canEdit( prop: Prop<any> ): boolean {
-            if ( prop instanceof PropGroup )
-                return true;
-            else
-                return false;
-        }
+/**
+* This represents a combo property for assets that the user can select from a list.
+*/
+export class PGComboGroup extends PropertyGridEditor {
+    constructor( grid: PropertyGrid ) {
+        super( grid );
+    }
 
-		/**
-		* Given a property, the grid editor must produce HTML that can be used to edit the property
-		* @param {Prop<any>} prop The property being edited
-		* @param {Component} container The container acting as this editors parent
-		*/
-        edit( prop: Prop<any>, container: Component ) {
-            const p = <PropGroup>prop;
-            const group = <Resources.GroupArray>p.getVal();
-            const groupId = ( group ? p.getVal() !.entry.shallowId! : '' );
+    /**
+    * Checks a property to see if it can edit it
+    * @param {Prop<any>} prop The property being edited
+    * @returns {boolean}
+    */
+    canEdit( prop: Prop<any> ): boolean {
+        if ( prop instanceof PropGroup )
+            return true;
+        else
+            return false;
+    }
 
-            //Create HTML
-            const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>` );
-            const selector: JQuery = jQuery( 'select', editor );
-            const eye: JQuery = jQuery( '.eye-picker', editor );
+    /**
+    * Given a property, the grid editor must produce HTML that can be used to edit the property
+    * @param {Prop<any>} prop The property being edited
+    * @param {Component} container The container acting as this editors parent
+    */
+    edit( prop: Prop<any>, container: Component ) {
+        const p = <PropGroup>prop;
+        const group = <GroupArray>p.getVal();
+        const groupId = ( group ? p.getVal() !.entry.shallowId! : '' );
 
-            // Add to DOM
-            container.element.append( editor );
+        //Create HTML
+        const editor: JQuery = jQuery( `<div class='property-grid-label'>${p.name}</div><div class='property-grid-value'><select class='prop-combo' style = 'width:90%;'></select><div class='eye-picker'><img src='media/eye.png' /></div></div><div class='fix'></div>` );
+        const selector: JQuery = jQuery( 'select', editor );
+        const eye: JQuery = jQuery( '.eye-picker', editor );
 
-            const project = User.get.project;
-            let groups = project.groups.slice( 0, project.groups.length );
+        // Add to DOM
+        container.element.append( editor );
 
-            //Sort alphabetically
-            groups = groups.sort( function( a: Resources.GroupArray, b: Resources.GroupArray ) {
-                const textA = a.entry.name;
-                const textB = b.entry.name;
-                return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
-            });
+        const project = User.get.project;
+        let groups = project.groups.slice( 0, project.groups.length );
 
-            //Create the blank
-            selector.append( `<option value='' ${( !p.getVal() ? 'selected=\'selected\'' : '' )}></option>` );
+        //Sort alphabetically
+        groups = groups.sort( function( a: GroupArray, b: GroupArray ) {
+            const textA = a.entry.name;
+            const textB = b.entry.name;
+            return ( textA < textB ) ? -1 : ( textA > textB ) ? 1 : 0;
+        });
 
-            for ( let i = 0; i < groups.length; i++ )
-                selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? 'selected=\'selected\'' : '' )}>${groups[ i ].entry.name}</option>` );
+        //Create the blank
+        selector.append( `<option value='' ${( !p.getVal() ? 'selected=\'selected\'' : '' )}></option>` );
 
-            // Functions to deal with user interactions with JQuery
-            const onSelect = function() {
-                const val = parseFloat( selector.val() );
-                const group = <Resources.GroupArray>project.getResourceByShallowID( val, ResourceType.GROUP );
-                p.setVal( group );
-            };
+        for ( let i = 0; i < groups.length; i++ )
+            selector.append( `<option title='${groups[ i ].entry.shallowId}' value='${groups[ i ].entry.shallowId}' ${( groupId === groups[ i ].entry.shallowId ? 'selected=\'selected\'' : '' )}>${groups[ i ].entry.name}</option>` );
 
-            const onEye = function() {
-                // const val = parseFloat( selector.val() );
-                // const group = project.getResourceByShallowID( val, ResourceType.GROUP );
-                // TODO: This needs to be checked with update to TSX
-                // TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
-            };
+        // Functions to deal with user interactions with JQuery
+        const onSelect = function() {
+            const val = parseFloat( selector.val() );
+            const group = <GroupArray>project.getResourceByShallowID( val, ResourceType.GROUP );
+            p.setVal( group );
+        };
 
-            //Add listeners
-            eye.on( 'mouseup', onEye );
-            selector.on( 'change', onSelect );
-        }
+        const onEye = function() {
+            // const val = parseFloat( selector.val() );
+            // const group = project.getResourceByShallowID( val, ResourceType.GROUP );
+            // TODO: This needs to be checked with update to TSX
+            // TreeViewScene.getSingleton().selectNode( TreeViewScene.getSingleton().findNode( 'resource', group ) );
+        };
+
+        //Add listeners
+        eye.on( 'mouseup', onEye );
+        selector.on( 'change', onSelect );
     }
 }

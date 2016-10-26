@@ -7,8 +7,7 @@ import { CanvasItem } from './items/canvas-item';
 import { Container } from '../../project-resources/container';
 import { Project } from '../../project';
 import { PluginManager } from '../../plugin-manager';
-import { IPortal, ICanvasItem, IBehaviour, IComment, ILinkItem } from '../../../setup/models';
-import { Point } from '../../utils';
+import { IPortal, ICanvasItem, IBehaviour, IComment, ILinkItem, Point } from 'hatchery-editor';
 import { SelectionChanged } from './actions/selection-changed';
 import { LinkCreated } from './actions/link-created';
 

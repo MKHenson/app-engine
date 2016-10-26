@@ -2,7 +2,7 @@ import { EventDispatcher } from '../../../event-dispatcher';
 import { Link } from './link';
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IPortal } from '../../../../setup/models';
+import { IPortal } from 'hatchery-editor';
 import { PluginManager } from '../../../plugin-manager';
 import { PropertyType } from '../../../../setup/enums';
 

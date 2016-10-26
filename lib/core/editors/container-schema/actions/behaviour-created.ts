@@ -4,7 +4,7 @@ import { BehaviourAsset } from '../items/behaviour-asset';
 import { ContainerSchema } from '../container-schema';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { ProjectResource } from '../../../project-resources/project-resource';
-import { IBehaviour } from '../../../../setup/models';
+import { IBehaviour } from 'hatchery-editor';
 
 /**
  * An action for the creation of behaviours within a container
