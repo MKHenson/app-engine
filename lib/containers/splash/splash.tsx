@@ -5,6 +5,7 @@ import { LogActions } from '../../actions/logger-actions';
 import { OpenProject } from '../../components/open-project/open-project';
 import { NewProject } from '../../components/new-project/new-project';
 import { ProjectsOverview } from '../../components/projects-overview/projects-overview';
+import { connect } from 'react-redux';
 
 /**
  * An interface that describes the props of the Splash Component
@@ -21,13 +22,7 @@ export interface ISplashState {
     project?: HatcheryServer.IProject | null;
 }
 
-// Connects th splash screen with its store properties
-@ReactRedux.connect<IStore, ISplashProps>(( state ) => {
-    return {
-        user: state.user,
-        splash: state.splash
-    }
-})
+
 
 /**
  * The splash screen when starting the app
@@ -140,3 +135,11 @@ export class Splash extends React.Component<ISplashProps, ISplashState> {
         </div>
     }
 }
+
+// Connects th splash screen with its store properties
+connect<ISplashProps, any, any>(( state: IStore ) => {
+    return {
+        user: state.user,
+        splash: state.splash
+    }
+})( Splash )

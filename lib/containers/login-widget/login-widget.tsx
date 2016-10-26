@@ -3,6 +3,7 @@ import { login, register, resetPassword, resendActivation } from '../../actions/
 import { toggleLoginState } from '../../actions/editor-actions';
 import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
+import { connect } from 'react-redux';
 
 export enum LoginMode {
     LOGIN,
@@ -15,12 +16,7 @@ export interface ILoginWidgetProps extends HatcheryProps {
     editorState?: IEditorState
 }
 
-@ReactRedux.connect<IStore, ILoginWidgetProps>(( state ) => {
-    return {
-        user: state.user,
-        editorState: state.editorState
-    }
-})
+
 
 export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
 
@@ -71,3 +67,10 @@ export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
         </div>;
     }
 }
+
+connect<ILoginWidgetProps, any, any>(( state: IStore ) => {
+    return {
+        user: state.user,
+        editorState: state.editorState
+    }
+})( LoginWidget )

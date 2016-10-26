@@ -2,16 +2,13 @@ import { IStore, ILogMessage, HatcheryProps } from 'hatchery-editor';
 import { LogActions } from '../../actions/logger-actions';
 import { ReactContextMenu } from '../../components/context-menu/context-menu';
 import { List } from '../../components/list/list';
+import { connect } from 'react-redux';
 
 export interface ILoggerProps extends HatcheryProps {
     messages?: ILogMessage[];
 }
 
-@ReactRedux.connect<IStore, ILoggerProps>(( state ) => {
-    return {
-        messages: state.logs!
-    }
-})
+
 
 /**
  * The Logger is a singleton class used to write message's to Animate's log window.
@@ -71,3 +68,9 @@ export class Logger extends React.Component<ILoggerProps, any> {
         )
     }
 }
+
+connect<ILoggerProps, any, any>(( state: IStore ) => {
+    return {
+        messages: state.logs!
+    }
+})( Logger )

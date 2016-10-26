@@ -19,23 +19,19 @@ var rename = require( 'gulp-rename' );
 var rimraf = require( 'rimraf' );
 var tslint = require( 'gulp-tslint' );
 var typedoc = require( 'gulp-typedoc' );
+var rollup = require( 'gulp-rollup' );
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
-var tsConfig = JSON.parse( fs.readFileSync( 'tsconfig.json' ) );
-var tsFiles = tsConfig.files;
-
-// CONFIG
-// ==============================
-var outDir = 'dist';
+const tsProject = ts.createProject( 'tsconfig.json' );
+var tsProjectWithDeclarations = ts.createProject( 'tsconfig.json', { declaration: true });
 
 // Create the type script project file
-var tsProject = ts.createProject( 'tsconfig.json', { sortOutput: true });
 var target = gulp.src( './lib/index.html' );
 
 /**
  * Adds the relevant deploy third party files to the index html
  */
-gulp.task( 'deploy-third-party', function() {
+gulp.task( 'deploy-third-party', function () {
 
     var sources = gulp.src( [
         './third-party/jquery/dist/jquery.js',
@@ -64,11 +60,11 @@ gulp.task( 'deploy-third-party', function() {
         './polyfills/assign.js',
         './polyfills/es6-promise.js'
     ], { base: '.' })
-        .pipe( gulp.dest( outDir ) );
+        .pipe( gulp.dest( './dist' ) );
 
     var sourceNoAce = sources.pipe( filter( [ '**/*.js', '!third-party/ace/**/*.js' ] ) );
     var sourceWithAce = gulp.src( [ 'third-party/ace/src-noconflict/ace.js' ], { base: '.' })
-        .pipe( gulp.dest( outDir ) );
+        .pipe( gulp.dest( './dist' ) );
 
     var mergedStream = merge( sourceNoAce, sourceWithAce );
 
@@ -77,99 +73,83 @@ gulp.task( 'deploy-third-party', function() {
         starttag: '<!-- inject:third-party -->',
         relative: true
     }) )
-        .pipe( gulp.dest( outDir ) );
+        .pipe( gulp.dest( './dist' ) );
 });
 
 /**
  * Adds fonts to the dist folder
  */
-gulp.task( 'deploy-fonts', function() {
+gulp.task( 'deploy-fonts', function () {
 
     return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: './third-party/font-awesome/fonts' })
-        .pipe( gulp.dest( outDir + '/fonts' ) );
+        .pipe( gulp.dest( './dist/fonts' ) );
 });
 
 /**
  * Adds all HTML files to the temp/index.html
  */
-gulp.task( 'html', function() {
+gulp.task( 'html', function () {
     var sources = gulp.src( [ './lib/**/*.html', '!./lib/**/index.html' ] );
 
     return target.pipe( inject( sources, {
         starttag: '<!-- inject:html -->',
-        transform: function( filePath, file ) {
+        transform: function ( filePath, file ) {
             return file.contents.toString( 'utf8' )
         }
     }) )
-        .pipe( gulp.dest( outDir ) );
+        .pipe( gulp.dest( './dist' ) );
 });
 
 /**
  * Copy all the media into the output folder
  */
-gulp.task( 'media', function() {
+gulp.task( 'media', function () {
 
     // Compile all sass files into temp/css
     gulp.src( './media/**/*.*' )
-        .pipe( gulp.dest( outDir + '/media' ) );
+        .pipe( gulp.dest( './dist/media' ) );
 });
 
 /**
  * Compile all sass files to css and add to the index html
  */
-gulp.task( 'css', function() {
+gulp.task( 'css', function () {
 
     // Compile all sass files into temp/css
     return gulp.src( './lib/main.scss', { base: './lib' })
         .pipe( sass().on( 'error', sass.logError ) )
-        .pipe( gulp.dest( outDir + '/css' ) );
+        .pipe( gulp.dest( './dist/css' ) );
 });
-
-/**
- * Checks to see that all TS files listed exist
- */
-gulp.task( 'check-files', function() {
-
-    // Make sure the files exist
-    for ( var i = 0, l = tsFiles.length; i < l; i++ )
-        if ( !fs.existsSync( tsFiles[ i ] ) ) {
-            console.log( 'File does not exist:' + tsFiles[ i ] );
-            process.exit();
-        }
-})
-
 
 /**
  * Concatenates and builds all TS code into a single file
  */
-gulp.task( 'ts-code', function() {
+gulp.task( 'ts-tmp', function () {
+    return tsProject.src()
+        .pipe( tsProject() )
+        .js
+        .pipe( gulp.dest( './dist/js/tmp' ) );
+})
 
-    return gulp.src( tsFiles, { base: '.' })
-        .pipe( ts( {
-            'noUnusedParameters': tsConfig.compilerOptions.noUnusedParameters,
-            'noUnusedLocals': tsConfig.compilerOptions.noUnusedLocals,
-            'strictNullChecks': tsConfig.compilerOptions.strictNullChecks,
-            'experimentalDecorators': tsConfig.compilerOptions.experimentalDecorators,
-            'jsx': tsConfig.compilerOptions.jsx,
-            'module': tsConfig.compilerOptions.module,
-            'removeComments': tsConfig.compilerOptions.removeComments,
-            'noEmitOnError': tsConfig.compilerOptions.noEmitOnError,
-            'declaration': tsConfig.compilerOptions.declaration,
-            'sourceMap': tsConfig.compilerOptions.sourceMap,
-            'preserveConstEnums': tsConfig.compilerOptions.preserveConstEnums,
-            'target': tsConfig.compilerOptions.target,
-            'noImplicitAny': tsConfig.compilerOptions.noImplicitAny,
-            'allowUnreachableCode': tsConfig.compilerOptions.allowUnreachableCode,
-            'allowUnusedLabels': tsConfig.compilerOptions.allowUnusedLabels
+/**
+ * Concatenates and builds all TS code into a single file
+ */
+gulp.task( 'ts-code', [ 'ts-tmp' ], function () {
+
+    return gulp.src( './dist/js/tmp/**/*.js' )
+        // transform the files here.
+        .pipe( rollup( {
+            // any option supported by Rollup can be set here.
+            entry: './dist/js/tmp/lib/main.js'
         }) )
-        .pipe( gulp.dest( outDir + '/js' ) );
+        .pipe( gulp.dest( './dist/js' ) );
 });
 
 /**
  * Ensures the code quality is up to scratch
  */
-gulp.task( 'tslint', [ 'ts-code' ], function() {
-    gulp.src( tsFiles )
+gulp.task( 'tslint', [ 'ts-code' ], function () {
+    return tsProject.src()
         .pipe( tslint( {
             configuration: 'tslint.json',
             formatter: 'verbose'
@@ -182,7 +162,7 @@ gulp.task( 'tslint', [ 'ts-code' ], function() {
 /**
  * Creates an API document in a folder called 'docs' folder within /dist
  */
-gulp.task( 'tsdocs', function() {
+gulp.task( 'tsdocs', function () {
     return gulp
         .src( tsFiles, { base: '.' })
         .pipe( typedoc( {
@@ -217,7 +197,7 @@ gulp.task( 'tsdocs', function() {
 /**
  * Builds the definition
  */
-gulp.task( 'ts-code-declaration', function() {
+gulp.task( 'ts-code-declaration', function () {
 
     var requiredDeclarationFiles = gulp.src( [
         './lib/definitions/custom/engine-definitions.d.ts',
@@ -225,29 +205,11 @@ gulp.task( 'ts-code-declaration', function() {
         './lib/definitions/custom/export-token.d.ts'
     ], { base: 'lib/definitions/custom' });
 
-    var tsDefinition = gulp.src( tsFiles, { base: '.' })
-        .pipe( ts( {
-            'noUnusedParameters': tsConfig.compilerOptions.noUnusedParameters,
-            'noUnusedLocals': tsConfig.compilerOptions.noUnusedLocals,
-            'strictNullChecks': tsConfig.compilerOptions.strictNullChecks,
-            'experimentalDecorators': tsConfig.compilerOptions.experimentalDecorators,
-            'jsx': tsConfig.compilerOptions.jsx,
-            'module': tsConfig.compilerOptions.module,
-            'removeComments': false,
-            'noEmitOnError': true,
-            'declaration': true,
-            'sourceMap': false,
-            'preserveConstEnums': true,
-            'target': tsConfig.compilerOptions.target,
-            'noImplicitAny': tsConfig.compilerOptions.noImplicitAny,
-            'allowUnreachableCode': tsConfig.compilerOptions.allowUnreachableCode,
-            'allowUnusedLabels': tsConfig.compilerOptions.allowUnusedLabels,
-            'out': 'app-engine-client.js'
-        }) ).dts;
+    var tsDefinition = tsProject.src().pipe( tsProjectWithDeclarations() );
 
 
     // Merge the streams
-    return merge( requiredDeclarationFiles, tsDefinition )
+    return merge( requiredDeclarationFiles, tsDefinition.dts )
         .pipe( concat( 'hatchery-editor.d.ts' ) )
         .pipe( gulp.dest( 'lib/definitions/generated' ) );
 });
@@ -255,13 +217,13 @@ gulp.task( 'ts-code-declaration', function() {
 /**
  * Concatenates and builds all TS code into a single file
  */
-gulp.task( 'ts-code-release', function() {
+gulp.task( 'ts-code-release', function () {
 
     var jsFiles = tsProject.src()
         .pipe( ts( tsProject ) )
         .pipe( uglify() )
         .pipe( concat( 'application.js' ) )
-        .pipe( gulp.dest( outDir + '/js' ) );
+        .pipe( gulp.dest( './dist/js' ) );
 
     // Add each css file in temp to the index in temp/index.html
     return target.pipe( inject( jsFiles, {
@@ -269,7 +231,7 @@ gulp.task( 'ts-code-release', function() {
         addRootSlash: false,
         relative: true
     }) )
-        .pipe( gulp.dest( outDir + '/js' ) );
+        .pipe( gulp.dest( './dist/js' ) );
 });
 
 /**
@@ -278,21 +240,21 @@ gulp.task( 'ts-code-release', function() {
  * @param {string} folder The folder we are moving the contents to
  */
 function downloadClient( url, folder ) {
-    return new Promise( function( resolve, reject ) {
+    return new Promise( function ( resolve, reject ) {
         gutil.log( 'Downloading file \'' + url + '\' into folder \'' + folder + '\'' );
         return request( url )
             .pipe( source( 'hello.tar.gz' ) )
-            .on( 'end', function() {
+            .on( 'end', function () {
                 gutil.log( 'Unzipping... \'' + url + '\'' );
             })
             .pipe( gunzip() )
             .pipe( untar() )
             .pipe( gulp.dest( folder ) )
-            .on( 'end', function() {
+            .on( 'end', function () {
                 var folders = fs.readdirSync( folder );
                 gulp.src( folder + '/' + folders[ 0 ] + '/**/*.*' )
                     .pipe( gulp.dest( folder ) )
-                    .on( 'end', function() {
+                    .on( 'end', function () {
                         rimraf.sync( folder + '/' + folders[ 0 ] );
                         gutil.log( gutil.colors.green( 'Finished download of \'' + url + '\'' ) );
                         resolve( true );
@@ -304,7 +266,7 @@ function downloadClient( url, folder ) {
 /**
  * Downloads each of the third party archives and unzips them into the third-party folder respectively
  */
-gulp.task( 'install-third-parties', function() {
+gulp.task( 'install-third-parties', function () {
     rimraf.sync( './third-party' )
 
     return Promise.all( [
@@ -333,14 +295,14 @@ gulp.task( 'install-third-parties', function() {
  * @param {string} dest The destination folder to move the file to
  */
 function downloadFile( url, dest, name ) {
-    return new Promise( function( resolve, reject ) {
+    return new Promise( function ( resolve, reject ) {
         download( url )
             .pipe( rename( name ) )
             .pipe( gulp.dest( dest ) )
-            .on( 'error', function( err ) {
+            .on( 'error', function ( err ) {
                 throw ( err )
             })
-            .on( 'end', function() {
+            .on( 'end', function () {
                 resolve( true );
             })
     });
@@ -349,7 +311,7 @@ function downloadFile( url, dest, name ) {
 /**
  * Downloads the definition files used in the development of the application and moves them into the definitions folder
  */
-gulp.task( 'install-definitions', function() {
+gulp.task( 'install-definitions', function () {
     return Promise.all( [
         downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts', 'lib/definitions/required/', 'hatchery-runtime.d.ts' ),
         downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts', 'lib/definitions/required/', 'hatchery-server.d.ts' ),
@@ -366,23 +328,23 @@ gulp.task( 'install-definitions', function() {
 });
 
 
-gulp.task( 'build-all', [ 'html', 'media', 'deploy-fonts', 'check-files', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ], function() {
+gulp.task( 'build-all', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ], function () {
 
-    var index = './dist/index.html';
-    var str = '<!-- inject:js -->\n';
-    var jsArray = [];
+    // var index = './dist/index.html';
+    // var str = '<!-- inject:js -->\n';
+    // var jsArray = [];
 
-    for ( var i = 0, l = tsFiles.length; i < l; i++ )
-        if ( tsFiles[ i ].indexOf( '.d.ts' ) == -1 )
-            jsArray.push( 'js/' + tsFiles[ i ].replace( /(\.tsx|\.ts)/, '.js' ) )
+    // for ( var i = 0, l = tsFiles.length; i < l; i++ )
+    //     if ( tsFiles[ i ].indexOf( '.d.ts' ) == -1 )
+    //         jsArray.push( 'js/' + tsFiles[ i ].replace( /(\.tsx|\.ts)/, '.js' ) )
 
-    str += ( jsArray.map( function( item, i ) { return `<script type='text/javascript' src='${item}'></script>` }) ).join( '\n' );
+    // str += ( jsArray.map( function ( item, i ) { return `<script type='text/javascript' src='${item}'></script>` }) ).join( '\n' );
 
-    var contents = fs.readFileSync( index, 'utf8' );
+    // var contents = fs.readFileSync( index, 'utf8' );
 
 
-    contents = contents.replace( /<!-- inject:js -->/, str );
-    fs.writeFileSync( './dist/index.html', contents, 'utf8' );
+    // contents = contents.replace( /<!-- inject:js -->/, str );
+    // fs.writeFileSync( './dist/index.html', contents, 'utf8' );
     return Promise.resolve();
 });
 

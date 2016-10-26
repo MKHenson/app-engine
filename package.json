@@ -27,6 +27,7 @@
         "gulp-rename": "^1.2.2",
         "rimraf": "^2.5.3",
         "typedoc": "^0.4.5",
-        "gulp-typedoc": "^2.0.0"
+        "gulp-typedoc": "^2.0.0",
+        "gulp-rollup": "^2.5.1"
     }
 }

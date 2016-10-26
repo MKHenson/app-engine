@@ -2,6 +2,28 @@ declare namespace Animate {
 
     export interface Point { x: number; y: number; }
 
+    export interface IPortalTemplate {
+        type: HatcheryRuntime.PortalType;
+        property: any; // TODO: This is of type Prop<any>
+    }
+
+    export interface IBehaviourDefinition {
+        behaviourName: string;
+        canBuildOutput: boolean;
+        canBuildInput: boolean;
+        canBuildParameter: boolean;
+        canBuildProduct: boolean;
+        portalTemplates: IPortalTemplate[];
+        plugin: string;
+    }
+
+    export interface ITypeConverter {
+        plugin: string;
+        typeA: string;
+        typeB: string;
+        conversionOptions: string[];
+    }
+
     /**
     * A basic wrapper for a Portal interface
     */

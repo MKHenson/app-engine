@@ -7,18 +7,12 @@ import { Component } from '../../components/component';
 import { LoginWidget } from '../login-widget/login-widget';
 import { Splash } from '../Splash/Splash';
 import { Dashboard } from '../../components/dashboard/dashboard';
+import { connect } from 'react-redux';
 
 export interface IApplicationState extends HatcheryProps {
     splash?: ISplashScreen;
     user?: IUser;
 }
-
-@ReactRedux.connect<IStore, IApplicationState>(( state ) => {
-    return {
-        splash: state.splash,
-        user: state.user
-    }
-})
 
 /**
  * The main GUI component of the application.
@@ -155,3 +149,10 @@ export class Application extends React.Component<IApplicationState, void> {
 
     get focusObj(): Component { return this._focusObj; }
 }
+
+connect<IApplicationState, any, any>(( state: IStore ) => {
+    return {
+        splash: state.splash,
+        user: state.user
+    }
+});

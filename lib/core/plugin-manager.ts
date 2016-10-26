@@ -6,7 +6,6 @@ import { PortalTemplate } from './portal-template';
 import { PropAsset } from './properties/prop-asset';
 import { PropBool } from './properties/prop';
 import { PluginManagerEvents, ITemplateEvent } from '../setup/events';
-import { IPlugin as ServerPlugin } from 'hatchery-server';
 import { IPlugin, IPreviewFactory } from 'hatchery-editor-plugins';
 import { AssetClass } from './asset-class';
 import { ImageVisualizer } from './file-visualizers/image-visualizer';
@@ -19,7 +18,7 @@ declare var __newPlugin: IPlugin | null;
 export class PluginManager extends EventDispatcher {
     private static _singleton: PluginManager;
 
-    private _plugins: Array<ServerPlugin>;
+    private _plugins: Array<IPlugin>;
     private _loadedPlugins: Array<IPlugin>;
     private _behaviourTemplates: Array<BehaviourDefinition>;
     private _assetTemplates: Array<AssetTemplate>;
@@ -174,7 +173,7 @@ export class PluginManager extends EventDispatcher {
      * @param pluginDefinition The IPlugin constructor that is to be created
      * @param createPluginReference Should we keep this constructor in memory? The default is true
      */
-    preparePlugin( pluginDefinition: HatcheryServer.IPlugin ) {
+    preparePlugin( pluginDefinition: any ) {
         const plugin: IPlugin = pluginDefinition.$instance!;
         this._plugins.push( plugin );
 
