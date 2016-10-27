@@ -26,15 +26,30 @@ var utils = require( './gulp/utils.js' );
 const tsProject = ts.createProject( 'tsconfig.json' );
 var tsProjectWithDeclarations = ts.createProject( 'tsconfig.json', { declaration: true });
 
-// Create the type script project file
-var target = gulp.src( './lib/index.html' );
+/**
+ * Adds fonts to the dist folder
+ */
+gulp.task( 'deploy-fonts', function() {
+
+    return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: './third-party/font-awesome/fonts' })
+        .pipe( gulp.dest( './dist/fonts' ) );
+});
 
 /**
- * Adds the relevant deploy third party files to the index html
+ * Adds all HTML files to the temp/index.html
  */
-gulp.task( 'deploy-third-party', function() {
+gulp.task( 'html', function() {
+    const target = gulp.src( './lib/index.html' );
+    const sources = gulp.src( [ './lib/**/*.html', '!./lib/**/index.html' ] );
 
-    var sources = gulp.src( [
+    const targetWithInjectedHTML = target.pipe( inject( sources, {
+        starttag: '<!-- inject:html -->',
+        transform: function( filePath, file ) {
+            return file.contents.toString( 'utf8' )
+        }
+    }) );
+
+    const thirdParties = gulp.src( [
         './third-party/jquery/dist/jquery.js',
         './third-party/jquery-hotkeys/jquery.hotkeys.js',
         './third-party/jquery-mousewheel/jquery.mousewheel.js',
@@ -63,41 +78,16 @@ gulp.task( 'deploy-third-party', function() {
     ], { base: '.' })
         .pipe( gulp.dest( './dist' ) );
 
-    var sourceNoAce = sources.pipe( filter( [ '**/*.js', '!third-party/ace/**/*.js' ] ) );
-    var sourceWithAce = gulp.src( [ 'third-party/ace/src-noconflict/ace.js' ], { base: '.' })
-        .pipe( gulp.dest( './dist' ) );
-
-    var mergedStream = merge( sourceNoAce, sourceWithAce );
+    const sourceNoAce = thirdParties.pipe( filter( [ '**/*.js', '!third-party/ace/**/*.js' ] ) );
+    const sourceWithAce = gulp.src( [ 'third-party/ace/src-noconflict/ace.js' ], { base: '.' }).pipe( gulp.dest( './dist' ) );
+    const mergedStream = merge( sourceNoAce, sourceWithAce );
 
     // Add each of the third party files as a reference
-    return target.pipe( inject( mergedStream, {
-        starttag: '<!-- inject:third-party -->',
-        relative: true
-    }) )
-        .pipe( gulp.dest( './dist' ) );
-});
-
-/**
- * Adds fonts to the dist folder
- */
-gulp.task( 'deploy-fonts', function() {
-
-    return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: './third-party/font-awesome/fonts' })
-        .pipe( gulp.dest( './dist/fonts' ) );
-});
-
-/**
- * Adds all HTML files to the temp/index.html
- */
-gulp.task( 'html', function() {
-    var sources = gulp.src( [ './lib/**/*.html', '!./lib/**/index.html' ] );
-
-    return target.pipe( inject( sources, {
-        starttag: '<!-- inject:html -->',
-        transform: function( filePath, file ) {
-            return file.contents.toString( 'utf8' )
-        }
-    }) )
+    return targetWithInjectedHTML
+        .pipe( inject( mergedStream, {
+            starttag: '<!-- inject:third-party -->',
+            relative: true
+        }) )
         .pipe( gulp.dest( './dist' ) );
 });
 
@@ -140,7 +130,7 @@ gulp.task( 'bundle-js-files', [ 'compile-typescript' ], function() {
 
     return gulp.src( './dist/js/tmp/**/*.js', { base: './dist/js/tmp' })
         .pipe( rollup( {
-            entry: './dist/js/tmp/lib/main.js'
+            entry: './dist/js/tmp/main.js'
         }) )
         .pipe( gulp.dest( './dist/js' ) );
 });
@@ -289,9 +279,11 @@ gulp.task( 'install-definitions', function() {
 gulp.task( 'watch', function() {
     gulp.watch( 'lib/**/*.scss', [ 'css' ] );
     gulp.watch( [ 'lib/**/*.ts', 'lib/**/*.tsx' ], [ 'tslint' ] );
+    gulp.watch( [ 'lib/**/*.html' ], [ 'html' ] );
+    gulp.watch( [ 'lib/media/**/*.*' ], [ 'media' ] );
 })
 
 
 gulp.task( 'install', [ 'install-third-parties', 'install-definitions' ] );
 gulp.task( 'quick-build', [ 'tslint' ] );
-gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ] );
+gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'css' ] );
