@@ -154,4 +154,4 @@ ReactRedux.connect<IApplicationState, any, any>(( state: IStore ) => {
         splash: state.splash,
         user: state.user
     }
-});
+})( Application );
