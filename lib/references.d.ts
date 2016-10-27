@@ -16,6 +16,7 @@
 /// <reference path='./definitions/required/redux/redux.d.ts' />
 /// <reference path='./definitions/required/react-redux/react-redux.d.ts' />
 /// <reference path='./definitions/required/react-router/react-router.d.ts' />
+/// <reference path='./definitions/required/react-router-redux/react-router-redux.d.ts' />
 /// <reference path='./definitions/required/hatchery-runtime.d.ts' />
 /// <reference path='./definitions/required/ace.d.ts' />
 

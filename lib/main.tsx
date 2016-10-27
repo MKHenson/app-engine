@@ -9,13 +9,6 @@ import { splashReducer } from './reducers/splash-reducer';
 import { userReducer } from './reducers/user-reducer';
 import { PluginManager } from './core/plugin-manager';
 
-
-namespace Animate {
-    export var store: Redux.Store<any>;
-}
-
-
-
 /**
  * Creates the redux store for the application
  */
@@ -48,11 +41,12 @@ function createStore(): Redux.Store<any> {
         editorState: editorReducer,
         logs: loggerReducer,
         user: userReducer,
-        splash: splashReducer
+        splash: splashReducer,
+        routing: ReactRouterRedux.routerReducer
     });
 
     // Creat the store
-    const store = Redux.createStore( reducers, Redux.applyMiddleware( actionTypeLogger, thunk ) );
+    const store = Redux.createStore( reducers, Redux.applyMiddleware( actionTypeLogger, thunk, ReactRouterRedux.routerMiddleware( ReactRouter.browserHistory ) ) );
     store.subscribe(() => {
         console.log( 'store changed', store.getState() )
     });
@@ -66,12 +60,19 @@ function createStore(): Redux.Store<any> {
 function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     PluginManager.getSingleton().sortPlugins( plugins );
 
-    Animate.store = createStore();
+    const store = createStore();
+    const history = ReactRouterRedux.syncHistoryWithStore( ReactRouter.browserHistory, store );
+    const mainRoutes = (
+        <ReactRouter.Route path="/">
+            <ReactRouter.IndexRoute component={Application} />
+        </ReactRouter.Route> );
 
     // Create the application element
     ReactDOM.render((
-        <ReactRedux.Provider store={Animate.store}>
-            <Application />
+        <ReactRedux.Provider store={store}>
+            <ReactRouter.Router history={history}>
+                {mainRoutes}
+            </ReactRouter.Router>
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }
 

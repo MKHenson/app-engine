@@ -66,6 +66,7 @@ gulp.task( 'html', function() {
         './third-party/redux/redux.js',
         './third-party/react-redux/react-redux.js',
         './third-party/react-router/react-router.js',
+        './third-party/react-router-redux/react-router-redux.js',
         './third-party/es6-promise/dist/es6-promise.js',
         './third-party/jscolor/*.*',
         './third-party/ace/src-noconflict/*.js',
@@ -247,7 +248,8 @@ gulp.task( 'install-third-parties', function() {
         utils.downloadFile( 'https://unpkg.com/react-dom@15.3.2/dist/react-dom.js', './third-party/react/', 'react-dom.js' ),
         utils.downloadFile( 'https://unpkg.com/redux@3.6.0/dist/redux.js', './third-party/redux/', 'redux.js' ),
         utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js', './third-party/react-redux/', 'react-redux.js' ),
-        utils.downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' )
+        utils.downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' ),
+        utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-router-redux/4.0.6/ReactRouterRedux.js', './third-party/react-router-redux/', 'react-router-redux.js' )
     ] );
 });
 
@@ -267,7 +269,8 @@ gulp.task( 'install-definitions', function() {
         utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts', 'lib/definitions/required/react-redux/', 'react-redux.d.ts' ),
         utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/history.d.ts', 'lib/definitions/required/react-router/', 'history.d.ts' ),
         utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/react-router.d.ts', 'lib/definitions/required/react-router/', 'react-router.d.ts' ),
-        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts', 'lib/definitions/required/', 'ace.d.ts' )
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts', 'lib/definitions/required/', 'ace.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router-redux/react-router-redux.d.ts', 'lib/definitions/required/react-router-redux/', 'react-router-redux.d.ts' )
     ] );
 });
 
