@@ -2,7 +2,6 @@ import { IStore, ILogMessage, HatcheryProps } from 'hatchery-editor';
 import { LogActions } from '../../actions/logger-actions';
 import { ReactContextMenu } from '../../components/context-menu/context-menu';
 import { List } from '../../components/list/list';
-import { connect } from 'react-redux';
 
 export interface ILoggerProps extends HatcheryProps {
     messages?: ILogMessage[];
@@ -69,7 +68,7 @@ export class Logger extends React.Component<ILoggerProps, any> {
     }
 }
 
-connect<ILoggerProps, any, any>(( state: IStore ) => {
+ReactRedux.connect<ILoggerProps, any, any>(( state: IStore ) => {
     return {
         messages: state.logs!
     }

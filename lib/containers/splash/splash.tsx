@@ -5,7 +5,6 @@ import { LogActions } from '../../actions/logger-actions';
 import { OpenProject } from '../../components/open-project/open-project';
 import { NewProject } from '../../components/new-project/new-project';
 import { ProjectsOverview } from '../../components/projects-overview/projects-overview';
-import { connect } from 'react-redux';
 
 /**
  * An interface that describes the props of the Splash Component
@@ -137,7 +136,7 @@ export class Splash extends React.Component<ISplashProps, ISplashState> {
 }
 
 // Connects th splash screen with its store properties
-connect<ISplashProps, any, any>(( state: IStore ) => {
+ReactRedux.connect<ISplashProps, any, any>(( state: IStore ) => {
     return {
         user: state.user,
         splash: state.splash
