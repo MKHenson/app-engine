@@ -12,7 +12,7 @@ export interface ILoggerProps extends HatcheryProps {
 /**
  * The Logger is a singleton class used to write message's to Animate's log window.
  */
-export class Logger extends React.Component<ILoggerProps, any> {
+class Logger extends React.Component<ILoggerProps, any> {
 
     /**
      * Creates an instance of the logger
@@ -68,8 +68,10 @@ export class Logger extends React.Component<ILoggerProps, any> {
     }
 }
 
-ReactRedux.connect<ILoggerProps, any, any>(( state: IStore ) => {
+const ConnectedLogger = ReactRedux.connect<ILoggerProps, any, any>(( state: IStore ) => {
     return {
         messages: state.logs!
     }
 })( Logger )
+
+export { ConnectedLogger as Logger };

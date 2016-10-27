@@ -26,7 +26,7 @@ export interface ISplashState {
 /**
  * The splash screen when starting the app
  */
-export class Splash extends React.Component<ISplashProps, ISplashState> {
+class Splash extends React.Component<ISplashProps, ISplashState> {
 
     /**
      * Creates an instance of the splash screen
@@ -136,9 +136,11 @@ export class Splash extends React.Component<ISplashProps, ISplashState> {
 }
 
 // Connects th splash screen with its store properties
-ReactRedux.connect<ISplashProps, any, any>(( state: IStore ) => {
+const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: IStore ) => {
     return {
         user: state.user,
         splash: state.splash
     }
 })( Splash )
+
+export { ConnectedSplash as Splash };

@@ -48,11 +48,3 @@ declare namespace Redux {
         <A extends Action>( callback: ( dispatch: Dispatch<S>, getState: Function ) => void ): void;
     }
 }
-
-// ===============================
-// REACT REDUX
-// -    Bug fix: Could not get the react redux connect function to work with TS decorators
-// ===============================
-declare namespace ReactRedux {
-    export function connect<S, P>( stateToParams: ( state: S ) => P ): React.ComponentClass<P>;
-}

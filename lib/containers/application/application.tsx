@@ -16,7 +16,7 @@ export interface IApplicationState extends HatcheryProps {
 /**
  * The main GUI component of the application.
  */
-export class Application extends React.Component<IApplicationState, void> {
+class Application extends React.Component<IApplicationState, void> {
     private static _singleton: Application;
     public static bodyComponent: Component;
     private _focusObj: Component;
@@ -40,7 +40,7 @@ export class Application extends React.Component<IApplicationState, void> {
             </ReactRouter.Route> );
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.props.dispatch!( authenticated() );
     }
 
@@ -149,9 +149,11 @@ export class Application extends React.Component<IApplicationState, void> {
     get focusObj(): Component { return this._focusObj; }
 }
 
-ReactRedux.connect<IApplicationState, any, any>(( state: IStore ) => {
+const ConnectedApp = ReactRedux.connect<IApplicationState, any, any>(( state: IStore ) => {
     return {
         splash: state.splash,
         user: state.user
     }
 })( Application );
+
+export { ConnectedApp as Application };

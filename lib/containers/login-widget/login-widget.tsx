@@ -15,9 +15,7 @@ export interface ILoginWidgetProps extends HatcheryProps {
     editorState?: IEditorState
 }
 
-
-
-export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
+class LoginWidget extends React.Component<ILoginWidgetProps, any> {
 
     /**
      * Creates a new instance
@@ -67,9 +65,11 @@ export class LoginWidget extends React.Component<ILoginWidgetProps, any> {
     }
 }
 
-ReactRedux.connect<ILoginWidgetProps, any, any>(( state: IStore ) => {
+const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: IStore ) => {
     return {
         user: state.user,
         editorState: state.editorState
     }
 })( LoginWidget )
+
+export { ConnectedWidget as LoginWidget };
