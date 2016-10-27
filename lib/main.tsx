@@ -1,13 +1,16 @@
 import './setup/emitters';
 import { LoaderBase } from './core/loaders/loader-base';
 import { DB } from './setup/db';
-import { Application } from './containers/application/application';
 import { editorReducer } from './reducers/editor-reducer';
 import { loggerReducer } from './reducers/logger-reducer';
 import { projectReducer } from './reducers/project-reducer';
 import { splashReducer } from './reducers/splash-reducer';
 import { userReducer } from './reducers/user-reducer';
 import { PluginManager } from './core/plugin-manager';
+import { Application } from './containers/application/application';
+import { Splash } from './containers/splash/splash';
+import { LoginWidget } from './containers/login-widget/login-widget';
+import { IStore } from 'hatchery-editor';
 
 /**
  * Creates the redux store for the application
@@ -54,6 +57,22 @@ function createStore(): Redux.Store<any> {
     return store;
 }
 
+function authorized( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction, store: IStore ) {
+    const isLoggedIn = store.user!.isLoggedIn!;
+    nextState; // Suppress warnings
+
+    if ( isLoggedIn )
+        replace( '/splash' );
+}
+
+function requireAuth( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction, store: IStore ) {
+    const isLoggedIn = store.user!.isLoggedIn!;
+    nextState; // Suppress warnings
+
+    if ( !isLoggedIn )
+        replace( '/login' );
+}
+
 /**
  * Once the plugins are loaded from the DB
  */
@@ -62,16 +81,17 @@ function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
 
     const store = createStore();
     const history = ReactRouterRedux.syncHistoryWithStore( ReactRouter.browserHistory, store );
-    const mainRoutes = (
-        <ReactRouter.Route path="/">
-            <ReactRouter.IndexRoute component={Application} />
-        </ReactRouter.Route> );
+
+
 
     // Create the application element
     ReactDOM.render((
         <ReactRedux.Provider store={store}>
             <ReactRouter.Router history={history}>
-                {mainRoutes}
+                <ReactRouter.Route path="/" component={Application}>
+                    <ReactRouter.IndexRoute component={LoginWidget} onEnter={( next, replace ) => authorized( next, replace, store.getState() )} />
+                    <ReactRouter.Route path="/splash" component={Splash} onEnter={( next, replace ) => requireAuth( next, replace, store.getState() )} />
+                </ReactRouter.Route>
             </ReactRouter.Router>
         </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
 }

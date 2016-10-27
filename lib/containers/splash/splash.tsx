@@ -128,9 +128,7 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
                 </div>
                 <h2>Hatchery</h2>
             </div>
-            <div id="splash-view">
-                {mainView}
-            </div>
+            {mainView}
         </div>
     }
 }

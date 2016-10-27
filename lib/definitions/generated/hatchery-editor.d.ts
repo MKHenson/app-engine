@@ -3723,65 +3723,19 @@ export declare class Workspace extends React.Component<IWorkspaceProps, any> {
 }
 
 import { ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
-import { Component } from '../../components/component';
 export interface IApplicationState extends HatcheryProps {
     splash?: ISplashScreen;
     user?: IUser;
 }
-/**
- * The main GUI component of the application.
- */
-export declare class Application extends React.Component<IApplicationState, void> {
-    private static _singleton;
-    static bodyComponent: Component;
-    private _focusObj;
-    private _routes;
-    constructor(props: IApplicationState);
-    componentWillMount(): void;
-    authorized(nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction): void;
-    requireAuth(nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    /**
-     * Deals with the focus changes
-     */
-    onMouseDown(e: any): void;
-    /**
-    * Sets a component to be focused.
-    * @param comp The component to focus on.
-    */
-    setFocus(comp: Component): void;
-    /**
-    *  This is called when a project is unloaded and we need to reset the GUI.
-    */
-    projectReset(): void;
-    /**
-     * Gets the singleton instance
-     * @returns {Application}
-     */
-    static getInstance(): Application;
-    readonly focusObj: Component;
-}
+declare const ConnectedApp: React.ComponentClass<any>;
+export { ConnectedApp as Application };
 
 import { ILogMessage, HatcheryProps } from 'hatchery-editor';
 export interface ILoggerProps extends HatcheryProps {
     messages?: ILogMessage[];
 }
-/**
- * The Logger is a singleton class used to write message's to Animate's log window.
- */
-export declare class Logger extends React.Component<ILoggerProps, any> {
-    /**
-     * Creates an instance of the logger
-     */
-    constructor(props: ILoggerProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
+declare const ConnectedLogger: React.ComponentClass<any>;
+export { ConnectedLogger as Logger };
 
 import { IEditorState, HatcheryProps, IUser } from 'hatchery-editor';
 export declare enum LoginMode {
@@ -3793,16 +3747,8 @@ export interface ILoginWidgetProps extends HatcheryProps {
     user?: IUser;
     editorState?: IEditorState;
 }
-export declare class LoginWidget extends React.Component<ILoginWidgetProps, any> {
-    /**
-     * Creates a new instance
-     */
-    constructor(props: ILoginWidgetProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
+declare const ConnectedWidget: React.ComponentClass<any>;
+export { ConnectedWidget as LoginWidget };
 
 import { ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
 /**
@@ -3818,31 +3764,8 @@ export interface ISplashProps extends HatcheryProps {
 export interface ISplashState {
     project?: HatcheryServer.IProject | null;
 }
-/**
- * The splash screen when starting the app
- */
-export declare class Splash extends React.Component<ISplashProps, ISplashState> {
-    /**
-     * Creates an instance of the splash screen
-     */
-    constructor(props: ISplashProps);
-    /**
-     * Renders the projects overview sub section
-     */
-    renderOverview(): JSX.Element;
-    /**
-     * Renders the open project sub section
-     */
-    renderOpenProject(): JSX.Element;
-    /**
-     * Renders the new project sub section
-     */
-    renderNewProject(): JSX.Element;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
+declare const ConnectedSplash: React.ComponentClass<any>;
+export { ConnectedSplash as Splash };
 
 import { EditableSet } from './properties/editable-set';
 import { Prop } from './properties/prop';
