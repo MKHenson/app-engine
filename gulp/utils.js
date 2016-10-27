@@ -1,3 +1,14 @@
+var gulp = require( 'gulp' );
+var download = require( 'gulp-download' );
+var gunzip = require( 'gulp-gunzip' );
+var request = require( 'request' );
+var fs = require( 'fs' );
+var rename = require( 'gulp-rename' );
+var gutil = require( 'gulp-util' );
+var source = require( 'vinyl-source-stream' );
+var untar = require( 'gulp-untar' );
+var rimraf = require( 'rimraf' );
+
 /**
  * Goes through each of the main config files and increments
  * the version
