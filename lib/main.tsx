@@ -1,3 +1,4 @@
+import './setup/emitters';
 import { LoaderBase } from './core/loaders/loader-base';
 import { DB } from './setup/db';
 import { Application } from './containers/application/application';

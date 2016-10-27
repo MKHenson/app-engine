@@ -4,7 +4,6 @@ import { Container } from '../../../core/project-resources/container';
 import { Project } from '../../../core/project';
 import { TreeNodeModel } from '../treenode-model';
 import { ReactContextMenu, IReactContextMenuItem } from '../../context-menu/context-menu';
-import * as React from 'react';
 
 /**
  * A root node that contains the visual representations of project containers

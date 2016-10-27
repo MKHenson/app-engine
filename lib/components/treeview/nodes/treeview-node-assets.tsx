@@ -2,7 +2,6 @@ import { Project } from '../../../core/project';
 import { TreeNodeAssetClass } from './treenode-asset-class';
 import { PluginManager } from '../../../core/plugin-manager';
 import { TreeNodeModel } from '../treenode-model';
-import * as React from 'react';
 
 /**
  * A root node that contains the visual representations of project assets

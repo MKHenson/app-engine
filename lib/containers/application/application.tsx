@@ -5,7 +5,7 @@ import { User } from '../../core/user';
 import { PluginManager } from '../../core/plugin-manager';
 import { Component } from '../../components/component';
 import { LoginWidget } from '../login-widget/login-widget';
-import { Splash } from '../Splash/Splash';
+import { Splash } from '../splash/splash';
 import { Dashboard } from '../../components/dashboard/dashboard';
 import { connect } from 'react-redux';
 
@@ -34,7 +34,7 @@ export class Application extends React.Component<IApplicationState, void> {
         User.get;
 
         this._routes = (
-            <ReactRouter.Route path='/'>
+            <ReactRouter.Route path="/">
                 <ReactRouter.IndexRoute component={LoginWidget} onEnter={( nextState, replace ) => this.authorized( nextState, replace )} />
                 <ReactRouter.Route path="/splash" component={Splash} onEnter={( nextState, replace ) => this.requireAuth( nextState, replace )} />
                 <ReactRouter.Route path="/dashboard" component={Dashboard} onEnter={( nextState, replace ) => this.requireAuth( nextState, replace )} />

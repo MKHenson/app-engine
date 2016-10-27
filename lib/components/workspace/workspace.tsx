@@ -1,5 +1,5 @@
 import { Project } from '../../core/project';
-import { User } from '../../core/User';
+import { User } from '../../core/user';
 import { Editor } from '../../core/editors/editor';
 import { ContainerSchema } from '../../core/editors/container-schema/container-schema';
 import { ButtonLink } from '../buttons/buttons';

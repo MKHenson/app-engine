@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Project } from '../../core/project';
 import { Component } from '../../components/component';
 import { User } from '../../core/user';
@@ -120,10 +119,10 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
                                 ReactWindow.show( OptionsForm, {} as IOptionsForm );
                             } } label="Settings" imgUrl="media/build.png" />
                             <ToolbarButton onChange={() => {
-                                //CanvasTab.getSingleton().addSpecialTab( 'HTML', CanvasTabType.HTML )
+                                // CanvasTab.getSingleton().addSpecialTab( 'HTML', CanvasTabType.HTML )
                             } } label="HTML" imgUrl="media/html.png" />
                             <ToolbarButton onChange={() => {
-                                //CanvasTab.getSingleton().addSpecialTab( 'CSS', CanvasTabType.CSS )
+                                // CanvasTab.getSingleton().addSpecialTab( 'CSS', CanvasTabType.CSS )
                             } } label="CSS" imgUrl="media/css.png" />
                         </div>
                         <div className="tool-bar-group">
@@ -131,7 +130,7 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
                         </div>
                         <div className="tool-bar-group">
                             <ToolbarButton onChange={() => {
-                                //UserPrivilegesForm.getSingleton().show()
+                                // UserPrivilegesForm.getSingleton().show()
                             } } label="Privileges" imgUrl="media/privaledges.png" />
                         </div>
                         <div className="tool-bar-group">

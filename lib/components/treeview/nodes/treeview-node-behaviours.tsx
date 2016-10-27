@@ -2,7 +2,6 @@ import { PluginManagerEvents, ITemplateEvent } from '../../../setup/events';
 import { TreeNodePluginBehaviour } from './treenode-plugin-behaviour';
 import { PluginManager } from '../../../core/plugin-manager';
 import { TreeNodeModel } from '../treenode-model';
-import * as React from 'react';
 
 
 /**

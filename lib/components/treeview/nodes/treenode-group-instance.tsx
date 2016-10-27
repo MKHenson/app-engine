@@ -3,7 +3,6 @@ import { ProjectResource } from '../../../core/project-resources/project-resourc
 import { TreeNodeModel } from '../treenode-model';
 import { ReactContextMenu } from '../../context-menu/context-menu';
 import * as HatcheryServer from 'hatchery-server';
-import * as React from 'react';
 
 /**
  * This node represents a group instance

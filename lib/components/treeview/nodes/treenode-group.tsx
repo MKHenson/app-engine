@@ -5,7 +5,6 @@ import { ProjectResource } from '../../../core/project-resources/project-resourc
 import { TreeViewNodeResource } from './treeview-node-resource';
 import { TreeNodeGroupInstance } from './treenode-group-instance';
 import { IDragDropToken } from 'hatchery-editor';
-import * as React from 'react';
 
 /**
  * This node represents a group asset.
