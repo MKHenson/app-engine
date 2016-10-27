@@ -5,7 +5,6 @@ import { ButtonPrimary } from '../buttons/buttons';
 import { AttentionType } from '../../setup/enums';
 import { PluginManager } from '../../core/plugin-manager';
 import { User } from '../../core/user';
-import { Application } from '../../containers/application/application';
 
 export interface IOpenProjectProps {
     dispatch: Redux.Dispatch<ILoggerAction>,
@@ -108,9 +107,6 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
             mode: AttentionType.SUCCESS,
             loading: true
         });
-
-        // Notify the reset
-        Application.getInstance().projectReset();
 
         const plugs = project.$plugins!;
 
