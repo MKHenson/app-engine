@@ -47,7 +47,7 @@ gulp.task( 'html', function() {
         transform: function( filePath, file ) {
             return file.contents.toString( 'utf8' )
         }
-    }) );
+    }) ).pipe( gulp.dest( './dist' ) );
 
     const thirdParties = gulp.src( [
         './third-party/jquery/dist/jquery.js',
