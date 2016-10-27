@@ -20,6 +20,7 @@ var rimraf = require( 'rimraf' );
 var tslint = require( 'gulp-tslint' );
 var typedoc = require( 'gulp-typedoc' );
 var rollup = require( 'gulp-rollup' );
+var utils = require( './gulp/utils.js' );
 
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 const tsProject = ts.createProject( 'tsconfig.json' );
@@ -31,7 +32,7 @@ var target = gulp.src( './lib/index.html' );
 /**
  * Adds the relevant deploy third party files to the index html
  */
-gulp.task( 'deploy-third-party', function () {
+gulp.task( 'deploy-third-party', function() {
 
     var sources = gulp.src( [
         './third-party/jquery/dist/jquery.js',
@@ -79,7 +80,7 @@ gulp.task( 'deploy-third-party', function () {
 /**
  * Adds fonts to the dist folder
  */
-gulp.task( 'deploy-fonts', function () {
+gulp.task( 'deploy-fonts', function() {
 
     return gulp.src( [ './third-party/font-awesome/fonts/**/*.*' ], { base: './third-party/font-awesome/fonts' })
         .pipe( gulp.dest( './dist/fonts' ) );
@@ -88,12 +89,12 @@ gulp.task( 'deploy-fonts', function () {
 /**
  * Adds all HTML files to the temp/index.html
  */
-gulp.task( 'html', function () {
+gulp.task( 'html', function() {
     var sources = gulp.src( [ './lib/**/*.html', '!./lib/**/index.html' ] );
 
     return target.pipe( inject( sources, {
         starttag: '<!-- inject:html -->',
-        transform: function ( filePath, file ) {
+        transform: function( filePath, file ) {
             return file.contents.toString( 'utf8' )
         }
     }) )
@@ -103,7 +104,7 @@ gulp.task( 'html', function () {
 /**
  * Copy all the media into the output folder
  */
-gulp.task( 'media', function () {
+gulp.task( 'media', function() {
 
     // Compile all sass files into temp/css
     gulp.src( './media/**/*.*' )
@@ -113,7 +114,7 @@ gulp.task( 'media', function () {
 /**
  * Compile all sass files to css and add to the index html
  */
-gulp.task( 'css', function () {
+gulp.task( 'css', function() {
 
     // Compile all sass files into temp/css
     return gulp.src( './lib/main.scss', { base: './lib' })
@@ -122,9 +123,10 @@ gulp.task( 'css', function () {
 });
 
 /**
- * Concatenates and builds all TS code into a single file
+ * Builds the ts project and moves the js files to a temp directory in
+ * the dist folder
  */
-gulp.task( 'ts-tmp', function () {
+gulp.task( 'compile-typescript', function() {
     return tsProject.src()
         .pipe( tsProject() )
         .js
@@ -132,14 +134,12 @@ gulp.task( 'ts-tmp', function () {
 })
 
 /**
- * Concatenates and builds all TS code into a single file
+ * Concatenates and bundles the js files in dist into a single file
  */
-gulp.task( 'ts-code', [ 'ts-tmp' ], function () {
+gulp.task( 'bundle-js-files', [ 'compile-typescript' ], function() {
 
-    return gulp.src( './dist/js/tmp/**/*.js' )
-        // transform the files here.
+    return gulp.src( './dist/js/tmp/**/*.js', { base: './dist/js/tmp' })
         .pipe( rollup( {
-            // any option supported by Rollup can be set here.
             entry: './dist/js/tmp/lib/main.js'
         }) )
         .pipe( gulp.dest( './dist/js' ) );
@@ -148,7 +148,7 @@ gulp.task( 'ts-code', [ 'ts-tmp' ], function () {
 /**
  * Ensures the code quality is up to scratch
  */
-gulp.task( 'tslint', [ 'ts-code' ], function () {
+gulp.task( 'tslint', [ 'bundle-js-files' ], function() {
     return tsProject.src()
         .pipe( tslint( {
             configuration: 'tslint.json',
@@ -162,7 +162,7 @@ gulp.task( 'tslint', [ 'ts-code' ], function () {
 /**
  * Creates an API document in a folder called 'docs' folder within /dist
  */
-gulp.task( 'tsdocs', function () {
+gulp.task( 'tsdocs', function() {
     return gulp
         .src( tsFiles, { base: '.' })
         .pipe( typedoc( {
@@ -197,7 +197,7 @@ gulp.task( 'tsdocs', function () {
 /**
  * Builds the definition
  */
-gulp.task( 'ts-code-declaration', function () {
+gulp.task( 'ts-code-declaration', function() {
 
     var requiredDeclarationFiles = gulp.src( [
         './lib/definitions/custom/engine-definitions.d.ts',
@@ -217,7 +217,7 @@ gulp.task( 'ts-code-declaration', function () {
 /**
  * Concatenates and builds all TS code into a single file
  */
-gulp.task( 'ts-code-release', function () {
+gulp.task( 'ts-code-release', function() {
 
     var jsFiles = tsProject.src()
         .pipe( ts( tsProject ) )
@@ -234,123 +234,64 @@ gulp.task( 'ts-code-release', function () {
         .pipe( gulp.dest( './dist/js' ) );
 });
 
-/**
- * Downloads a tarbal from a given url and unzips it into a specified folder
- * @param {string} url The URL of the tarball to download
- * @param {string} folder The folder we are moving the contents to
- */
-function downloadClient( url, folder ) {
-    return new Promise( function ( resolve, reject ) {
-        gutil.log( 'Downloading file \'' + url + '\' into folder \'' + folder + '\'' );
-        return request( url )
-            .pipe( source( 'hello.tar.gz' ) )
-            .on( 'end', function () {
-                gutil.log( 'Unzipping... \'' + url + '\'' );
-            })
-            .pipe( gunzip() )
-            .pipe( untar() )
-            .pipe( gulp.dest( folder ) )
-            .on( 'end', function () {
-                var folders = fs.readdirSync( folder );
-                gulp.src( folder + '/' + folders[ 0 ] + '/**/*.*' )
-                    .pipe( gulp.dest( folder ) )
-                    .on( 'end', function () {
-                        rimraf.sync( folder + '/' + folders[ 0 ] );
-                        gutil.log( gutil.colors.green( 'Finished download of \'' + url + '\'' ) );
-                        resolve( true );
-                    });
-            })
-    });
-}
 
 /**
  * Downloads each of the third party archives and unzips them into the third-party folder respectively
  */
-gulp.task( 'install-third-parties', function () {
+gulp.task( 'install-third-parties', function() {
     rimraf.sync( './third-party' )
 
     return Promise.all( [
-        downloadClient( 'https://github.com/FortAwesome/Font-Awesome/tarball/v4.6.3', './third-party/font-awesome' ),
-        downloadClient( 'https://github.com/jquery/jquery/tarball/2.2.1', './third-party/jquery' ),
-        downloadClient( 'https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0', './third-party/jquery-hotkeys' ),
-        downloadClient( 'https://github.com/EastDesire/jscolor/tarball/v1.4.5', './third-party/jscolor' ),
-        downloadClient( 'https://github.com/EmKayDK/jstepper/tarball/1.5.0', './third-party/jstepper' ),
-        downloadClient( 'https://github.com/ajaxorg/ace-builds/tarball/v1.2.3', './third-party/ace' ),
-        downloadClient( 'https://github.com/jquery/jquery-ui/tarball/1.11.4', './third-party/jquery-ui' ),
-        downloadClient( 'https://github.com/stefanpenner/es6-promise/tarball/v3.1.2', './third-party/es6-promise' ),
-        downloadClient( 'https://github.com/jquery/jquery-mousewheel/tarball/3.1.13', './third-party/jquery-mousewheel' ),
-        downloadClient( 'https://github.com/flesler/jquery.scrollTo/tarball/2.1.2', './third-party/jquery-scrollTo' ),
+        utils.downloadClient( 'https://github.com/FortAwesome/Font-Awesome/tarball/v4.6.3', './third-party/font-awesome' ),
+        utils.downloadClient( 'https://github.com/jquery/jquery/tarball/2.2.1', './third-party/jquery' ),
+        utils.downloadClient( 'https://github.com/jeresig/jquery.hotkeys/tarball/0.2.0', './third-party/jquery-hotkeys' ),
+        utils.downloadClient( 'https://github.com/EastDesire/jscolor/tarball/v1.4.5', './third-party/jscolor' ),
+        utils.downloadClient( 'https://github.com/EmKayDK/jstepper/tarball/1.5.0', './third-party/jstepper' ),
+        utils.downloadClient( 'https://github.com/ajaxorg/ace-builds/tarball/v1.2.3', './third-party/ace' ),
+        utils.downloadClient( 'https://github.com/jquery/jquery-ui/tarball/1.11.4', './third-party/jquery-ui' ),
+        utils.downloadClient( 'https://github.com/stefanpenner/es6-promise/tarball/v3.1.2', './third-party/es6-promise' ),
+        utils.downloadClient( 'https://github.com/jquery/jquery-mousewheel/tarball/3.1.13', './third-party/jquery-mousewheel' ),
+        utils.downloadClient( 'https://github.com/flesler/jquery.scrollTo/tarball/2.1.2', './third-party/jquery-scrollTo' ),
 
-        downloadFile( 'https://unpkg.com/react@15.3.2/dist/react-with-addons.js', './third-party/react/', 'react-with-addons.js' ),
-        downloadFile( 'https://unpkg.com/react-dom@15.3.2/dist/react-dom.js', './third-party/react/', 'react-dom.js' ),
-        downloadFile( 'https://unpkg.com/redux@3.6.0/dist/redux.js', './third-party/redux/', 'redux.js' ),
-        downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js', './third-party/react-redux/', 'react-redux.js' ),
-        downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' )
+        utils.downloadFile( 'https://unpkg.com/react@15.3.2/dist/react-with-addons.js', './third-party/react/', 'react-with-addons.js' ),
+        utils.downloadFile( 'https://unpkg.com/react-dom@15.3.2/dist/react-dom.js', './third-party/react/', 'react-dom.js' ),
+        utils.downloadFile( 'https://unpkg.com/redux@3.6.0/dist/redux.js', './third-party/redux/', 'redux.js' ),
+        utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js', './third-party/react-redux/', 'react-redux.js' ),
+        utils.downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' )
     ] );
 });
 
-/**
- * This function downloads a file and writes it to a destination
- * @param {string} url The url of the file to download
- * @param {string} dest The destination folder to move the file to
- */
-function downloadFile( url, dest, name ) {
-    return new Promise( function ( resolve, reject ) {
-        download( url )
-            .pipe( rename( name ) )
-            .pipe( gulp.dest( dest ) )
-            .on( 'error', function ( err ) {
-                throw ( err )
-            })
-            .on( 'end', function () {
-                resolve( true );
-            })
-    });
-}
+
 
 /**
  * Downloads the definition files used in the development of the application and moves them into the definitions folder
  */
-gulp.task( 'install-definitions', function () {
+gulp.task( 'install-definitions', function() {
     return Promise.all( [
-        downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts', 'lib/definitions/required/', 'hatchery-runtime.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts', 'lib/definitions/required/', 'hatchery-server.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/generated/users.d.ts', 'lib/definitions/required/', 'users.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/generated/modepress.d.ts', 'lib/definitions/required/', 'modepress.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react/react.d.ts', 'lib/definitions/required/react/', 'react.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts', 'lib/definitions/required/redux/', 'redux.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts', 'lib/definitions/required/react-redux/', 'react-redux.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/history.d.ts', 'lib/definitions/required/react-router/', 'history.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/react-router.d.ts', 'lib/definitions/required/react-router/', 'react-router.d.ts' ),
-        downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts', 'lib/definitions/required/', 'ace.d.ts' )
-
+        utils.downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-runtime/dev/lib/definitions/generated/hatchery-runtime.d.ts', 'lib/definitions/required/', 'hatchery-runtime.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/PixelSwarm/hatchery-server/dev/lib/definitions/generated/hatchery-server.d.ts', 'lib/definitions/required/', 'hatchery-server.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/Webinate/users/dev/src/definitions/generated/users.d.ts', 'lib/definitions/required/', 'users.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/Webinate/modepress/dev/src/definitions/generated/modepress.d.ts', 'lib/definitions/required/', 'modepress.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react/react.d.ts', 'lib/definitions/required/react/', 'react.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/redux/redux.d.ts', 'lib/definitions/required/redux/', 'redux.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-redux/react-redux.d.ts', 'lib/definitions/required/react-redux/', 'react-redux.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/history.d.ts', 'lib/definitions/required/react-router/', 'history.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/react-router/react-router.d.ts', 'lib/definitions/required/react-router/', 'react-router.d.ts' ),
+        utils.downloadFile( 'https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/ace/ace.d.ts', 'lib/definitions/required/', 'ace.d.ts' )
     ] );
 });
 
-
-gulp.task( 'build-all', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ], function () {
-
-    // var index = './dist/index.html';
-    // var str = '<!-- inject:js -->\n';
-    // var jsArray = [];
-
-    // for ( var i = 0, l = tsFiles.length; i < l; i++ )
-    //     if ( tsFiles[ i ].indexOf( '.d.ts' ) == -1 )
-    //         jsArray.push( 'js/' + tsFiles[ i ].replace( /(\.tsx|\.ts)/, '.js' ) )
-
-    // str += ( jsArray.map( function ( item, i ) { return `<script type='text/javascript' src='${item}'></script>` }) ).join( '\n' );
-
-    // var contents = fs.readFileSync( index, 'utf8' );
-
-
-    // contents = contents.replace( /<!-- inject:js -->/, str );
-    // fs.writeFileSync( './dist/index.html', contents, 'utf8' );
-    return Promise.resolve();
-});
-
 /**
- * Use this task to install all third-party libraries from github and their respective authors
+ * Watches for source file changes and calls the appropriate build calls
+ * This is not the same as a build - its more like a quick build to cut
+ * down on waiting times
  */
-gulp.task( 'install', [ 'install-third-parties', 'install-definitions' ] );
+gulp.task( 'watch', function() {
+    gulp.watch( 'lib/**/*.scss', [ 'css' ] );
+    gulp.watch( [ 'lib/**/*.ts', 'lib/**/*.tsx' ], [ 'tslint' ] );
+})
 
-gulp.task( 'build', [ 'build-all' ] );
+
+gulp.task( 'install', [ 'install-third-parties', 'install-definitions' ] );
+gulp.task( 'quick-build', [ 'tslint' ] );
+gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'deploy-third-party', 'css' ] );
