@@ -22,8 +22,6 @@ export interface ISplashState {
     project?: HatcheryServer.IProject | null;
 }
 
-
-
 /**
  * The splash screen when starting the app
  */

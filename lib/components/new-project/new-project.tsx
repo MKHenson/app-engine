@@ -3,7 +3,7 @@ import { VForm } from '../v-form/v-form';
 import { VTextarea } from '../v-textarea/v-textarea';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
-import { PluginsWidget, IPluginPlus } from '../plugins-widget/plugins-widget';
+import { PluginsWidget } from '../plugins-widget/plugins-widget';
 import { ValidationType, AttentionType } from '../../setup/enums';
 import { capitalize } from '../../core/utils';
 import { ISplashScreen } from 'hatchery-editor';
@@ -15,7 +15,7 @@ export interface INewProjectProps {
 }
 
 export interface INewProjectState {
-    plugins?: IPluginPlus[];
+    plugins?: HatcheryServer.IPlugin[];
     message?: string | null;
     error?: boolean;
 }
