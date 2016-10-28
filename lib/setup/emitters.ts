@@ -11,8 +11,6 @@
 
 declare const WorkerGlobalScope: any;
 declare const Reflect: any;
-interface PromiseConstructor { }
-interface Object { assign() }
 
 function __assignFn( t ) {
     for ( let s, i = 1, n = arguments.length; i < n; i++ ) {

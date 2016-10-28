@@ -241,7 +241,6 @@ gulp.task( 'install-third-parties', function() {
         utils.downloadClient( 'https://github.com/EmKayDK/jstepper/tarball/1.5.0', './third-party/jstepper' ),
         utils.downloadClient( 'https://github.com/ajaxorg/ace-builds/tarball/v1.2.3', './third-party/ace' ),
         utils.downloadClient( 'https://github.com/jquery/jquery-ui/tarball/1.11.4', './third-party/jquery-ui' ),
-        utils.downloadClient( 'https://github.com/stefanpenner/es6-promise/tarball/v3.1.2', './third-party/es6-promise' ),
         utils.downloadClient( 'https://github.com/jquery/jquery-mousewheel/tarball/3.1.13', './third-party/jquery-mousewheel' ),
         utils.downloadClient( 'https://github.com/flesler/jquery.scrollTo/tarball/2.1.2', './third-party/jquery-scrollTo' ),
 

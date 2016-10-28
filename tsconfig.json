@@ -16,7 +16,14 @@
         "noUnusedLocals": true,
         "strictNullChecks": true,
         "outDir": "dist/lib/js/tmp",
-        "noEmitHelpers": true
+        "noEmitHelpers": true,
+        "lib": [
+            "dom",
+            "es2015.promise",
+            "es2017.object",
+            "es5",
+            "es2015.symbol"
+        ]
     },
     "include": [
         "lib/references.d.ts",
