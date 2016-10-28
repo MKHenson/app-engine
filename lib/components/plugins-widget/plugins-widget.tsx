@@ -2,23 +2,17 @@ import { get } from '../../core/utils';
 import { DB } from '../../setup/db';
 import { VCheckbox } from '../v-checkbox/v-checkbox';
 
-export type PluginMap = { [ name: string ]: IPluginPlus[] };
-
-export interface IPluginPlus extends HatcheryServer.IPlugin {
-    expanded?: boolean;
-}
-
 export interface IPluginsWidgetProps {
-    onChange( selectedPlugins: IPluginPlus[] );
+    onChange( selectedPlugins: HatcheryServer.IPlugin[] );
     onError( error: Error );
 }
 
 export interface IPluginsWidgetState {
     loading?: boolean;
-    plugins?: PluginMap,
-    selectedPlugin?: IPluginPlus | null,
-    activePlugin?: IPluginPlus | null,
-    selectedPlugins?: IPluginPlus[]
+    plugins?: HatcheryServer.IPlugin,
+    selectedPlugin?: HatcheryServer.IPlugin | null,
+    activePlugin?: HatcheryServer.IPlugin | null,
+    selectedPlugins?: HatcheryServer.IPlugin[]
 }
 
 /**
@@ -68,7 +62,7 @@ export class PluginsWidget extends React.Component<IPluginsWidgetProps, IPlugins
     /**
      * Gets the currently selected plugins
      */
-    get selectedPlugins(): IPluginPlus[] {
+    get selectedPlugins(): HatcheryServer.IPlugin[] {
         return this.state.selectedPlugins!;
     }
 
@@ -76,7 +70,7 @@ export class PluginsWidget extends React.Component<IPluginsWidgetProps, IPlugins
     * Called when we select a plugin
     * @param The plugin to select
     */
-    selectPlugin( plugin: IPluginPlus ) {
+    selectPlugin( plugin: HatcheryServer.IPlugin ) {
 
         const selectedPlugins = this.state.selectedPlugins!;
 
@@ -146,9 +140,9 @@ export class PluginsWidget extends React.Component<IPluginsWidgetProps, IPlugins
     /**
      * Once the plugins are loaded from the DB
      */
-    onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ): PluginMap {
+    onPluginsLoaded( plugins: Array<HatcheryServer.IPlugin> ): HatcheryServer.IPlugin {
 
-        const toRet: PluginMap = {};
+        const toRet = {};
 
         for ( let i = 0, l = plugins.length; i < l; i++ ) {
             if ( !toRet[ plugins[ i ].name! ] )
@@ -205,7 +199,7 @@ export class PluginsWidget extends React.Component<IPluginsWidgetProps, IPlugins
      */
     createPluginHierarchy(): JSX.Element[] {
         const pluginArray = this.state.plugins!;
-        const arr: { name: string; array: IPluginPlus[] }[] = [];
+        const arr: { name: string; array: HatcheryServer.IPlugin[] }[] = [];
         for ( const i in pluginArray )
             arr.push( { name: i, array: pluginArray[ i ] });
 
