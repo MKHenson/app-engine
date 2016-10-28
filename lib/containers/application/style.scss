@@ -1,7 +1,6 @@
 #application {
     height:100%;
     background: url('/media/noise.png'), $splash-gradient;
-    display: flex;
 
     .loading-screen {
         h2, .fa {
@@ -9,18 +8,9 @@
         }
     }
 
-    .loading-message, .splash-view {
-        display: flex;
-        margin: auto;
-    }
-
     .splash-view {
-        overflow:auto;
-        text-align:center;
+        height:100%;
         position:relative;
-        margin:auto;
-        transition: width 0.5s, height 0.5s;
-        box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
-        border-radius:5px;
+        display: flex;
     }
 }

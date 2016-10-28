@@ -3,16 +3,13 @@ import { login, register, resetPassword, resendActivation } from '../../actions/
 import { toggleLoginState } from '../../actions/editor-actions';
 import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
-
-export enum LoginMode {
-    LOGIN,
-    REGISTER
-}
+import { authenticated } from '../../actions/user-actions';
 
 export interface ILoginWidgetProps extends HatcheryProps {
     onLogin?: () => void,
     user?: IUser,
-    editorState?: IEditorState
+    editorState?: IEditorState;
+    forward?: string;
 }
 
 class LoginWidget extends React.Component<ILoginWidgetProps, any> {
@@ -22,6 +19,10 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
      */
     constructor( props: ILoginWidgetProps ) {
         super( props );
+    }
+
+    componentWillMount() {
+        this.props.dispatch!( authenticated( this.props.forward ) );
     }
 
     /**
@@ -53,7 +54,7 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
                 onLoginRequested={() => dispatch( toggleLoginState( 'login' ) )}
                 />;
 
-        return <div id="login-widget">
+        return <div id="login-widget" className="background fade-in">
             <div id="log-reg" className={( user.loading ? ' loading' : undefined )}>
                 <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
                 <div className="avatar">
@@ -65,11 +66,12 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
     }
 }
 
-const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: IStore ) => {
+const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: IStore, ownProps ) => {
     return {
         user: state.user,
-        editorState: state.editorState
-    }
+        editorState: state.editorState,
+        forward: ownProps.location.query.forward
+    } as ILoginWidgetProps
 })( LoginWidget )
 
 export { ConnectedWidget as LoginWidget };

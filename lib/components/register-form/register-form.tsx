@@ -104,7 +104,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                 <div id="animate-captcha" ref={( e ) => { this.mountCaptcha( e ) } }></div>
                 <div>
                     {( message !== '' ?
-                        <Attention mode={error ? AttentionType.ERROR : AttentionType.SUCCESS}>
+                        <Attention allowClose={false} mode={error ? AttentionType.ERROR : AttentionType.SUCCESS}>
                             {message}
                         </Attention>
                         : null

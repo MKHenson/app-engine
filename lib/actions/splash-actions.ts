@@ -67,16 +67,6 @@ export function getProjectList( user: string, index: number, limit: number, sear
 }
 
 /**
- * Sets the splash screen
- */
-export function setSplashScreen( screen: 'welcome' | 'opening-project' | 'new-project' ) {
-    return {
-        type: 'SPLASH_SET_SCREEN',
-        data: { screen: screen }
-    } as ISplashAction
-}
-
-/**
  * Creates a new project for the authenticated user
  * @param options An object of projet defaults
  */

@@ -19,4 +19,12 @@ input[type="text"].v-input, input[type="password"].v-input {
         width: 100%;
         border-top:1px solid $ps-blue;
     }
+
+    &.focussed {
+        input[type="text"].v-input, input[type="password"].v-input {
+            &.highlight-error {
+                border-bottom: none;
+            }
+        }
+    }
 }

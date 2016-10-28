@@ -118,7 +118,7 @@ export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState>
                 <br />
                 <div>
                     {( message !== '' ?
-                        <Attention mode={error ? AttentionType.ERROR : AttentionType.SUCCESS}>
+                        <Attention allowClose={false} mode={error ? AttentionType.ERROR : AttentionType.SUCCESS}>
                             {message}
                         </Attention>
                         : null

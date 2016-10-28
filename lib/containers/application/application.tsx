@@ -1,5 +1,5 @@
 import { IStore, ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
-import { authenticated } from '../../actions/user-actions';
+
 
 export interface IApplicationState extends HatcheryProps {
     splash?: ISplashScreen;
@@ -15,16 +15,11 @@ class Application extends React.Component<IApplicationState, void> {
         super( props );
     }
 
-    componentDidMount() {
-        this.props.dispatch!( authenticated() );
-    }
-
     /**
      * Creates the component elements
      */
     render(): JSX.Element {
         const isLoading = this.props.user!.loading!;
-        const loggedIn = this.props.user!.isLoggedIn!;
         let mainView: JSX.Element | React.ReactNode;
 
         if ( isLoading )
@@ -34,14 +29,11 @@ class Application extends React.Component<IApplicationState, void> {
                     <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
                 </div>
             </div>;
-        else
-            mainView = <div className="background fade-in splash-view" style={{
-                width: ( loggedIn ? '80%' : '20%' ),
-                minWidth: ( loggedIn ? '910px' : '450px' )
-            }}>{this.props.children}</div>
 
         return <div id="application">
-            {mainView}
+            <div className="splash-view">
+                {this.props.children}
+            </div>
         </div>;
     }
 }

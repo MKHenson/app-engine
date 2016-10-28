@@ -8,10 +8,11 @@
     }
 
     .form-info {
-        input, textarea {
-            width:100%;
-            padding: 10px;
+        .input-highlighter {
             margin-bottom:15px;
+        }
+        input {
+            width: 100%;
         }
     }
 

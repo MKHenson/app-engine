@@ -87,7 +87,8 @@ gulp.task( 'html', function() {
     return targetWithInjectedHTML
         .pipe( inject( mergedStream, {
             starttag: '<!-- inject:third-party -->',
-            relative: true
+            relative: true,
+            addRootSlash: true
         }) )
         .pipe( gulp.dest( './dist' ) );
 });

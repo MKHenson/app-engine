@@ -24,4 +24,10 @@ textarea.v-textarea {
         width: 100%;
         border-top:1px solid $ps-blue;
     }
+
+    &.focussed {
+        textarea.v-textarea.bad-input.dirty {
+            border-bottom: none;
+        }
+    }
 }

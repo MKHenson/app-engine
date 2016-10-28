@@ -38,8 +38,9 @@ export interface IUserProjectRemovedAction extends Redux.Action {
 
 /**
  * Sends a server request to check if a user is logged in
+ * @param forward Optionally pass a url to forward onto if the user is authenticated
  */
-export function authenticated() {
+export function authenticated( forward: string = '/overview' ) {
 
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
@@ -73,6 +74,8 @@ export function authenticated() {
                     }
                 });
 
+                // Make sure we go to the overview
+                dispatch( ReactRouterRedux.push( forward ) );
             })
 
         }).catch(( err: Error ) => {
@@ -92,7 +95,10 @@ export function logout() {
             if ( data.error )
                 throw new Error( data.message );
 
+            // Make sure we go to the overview
+            dispatch( ReactRouterRedux.push( '/' ) );
             dispatch<IUserAction>( { type: 'USER_LOGGED_OUT' });
+
         }).catch( function( err: Error ) {
             dispatch<IUserAction>( { type: 'USER_REQUEST_REJECTED', userData: { error: err } });
         })
@@ -214,6 +220,10 @@ export function login( token: UsersInterface.ILoginToken ) {
                     serverResponse: message
                 }
             });
+
+            // Make sure we go to the overview
+            dispatch( ReactRouterRedux.push( '/overview' ) );
+
 
         }).catch(( err: Error ) => {
             dispatch<IUserAction>( {

@@ -57,21 +57,7 @@ function createStore(): Redux.Store<any> {
     return store;
 }
 
-function authorized( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction, store: IStore ) {
-    const isLoggedIn = store.user!.isLoggedIn!;
-    nextState; // Suppress warnings
 
-    if ( isLoggedIn )
-        replace( '/splash' );
-}
-
-function requireAuth( nextState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction, store: IStore ) {
-    const isLoggedIn = store.user!.isLoggedIn!;
-    nextState; // Suppress warnings
-
-    if ( !isLoggedIn )
-        replace( '/login' );
-}
 
 /**
  * Once the plugins are loaded from the DB
@@ -82,18 +68,32 @@ function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
     const store = createStore();
     const history = ReactRouterRedux.syncHistoryWithStore( ReactRouter.browserHistory, store );
 
+    // function authorized( replace: ReactRouter.RedirectFunction ) {
+    //     const isLoggedIn = (store.getState() as IStore).user!.isLoggedIn!;
 
+    //     if ( isLoggedIn )
+    //         replace( '/splash/overview' );
+    // }
+
+    function requireAuth( currentState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction ) {
+        const isLoggedIn = ( store.getState() as IStore ).user!.isLoggedIn!;
+
+        if ( !isLoggedIn )
+            replace( '/?forward=' + currentState.location.pathname );
+    }
 
     // Create the application element
     ReactDOM.render((
         <ReactRedux.Provider store={store}>
             <ReactRouter.Router history={history}>
-                <ReactRouter.Route path="/" component={Application}>
-                    <ReactRouter.IndexRoute component={LoginWidget} onEnter={( next, replace ) => authorized( next, replace, store.getState() )} />
-                    <ReactRouter.Route path="/splash" component={Splash} onEnter={( next, replace ) => requireAuth( next, replace, store.getState() )} />
+                <ReactRouter.Route path="/" component={Application} >
+                    <ReactRouter.IndexRoute component={LoginWidget} />
+                    <ReactRouter.Route path="overview(/:section)" component={Splash} onEnter={( next, replace ) => { requireAuth( next, replace ) } } />
+                </ReactRouter.Route>
+                <ReactRouter.Route path="/dashboard">
                 </ReactRouter.Route>
             </ReactRouter.Router>
-        </ReactRedux.Provider> ), document.getElementById( 'main' ) ! );
+        </ReactRedux.Provider > ), document.getElementById( 'main' ) ! );
 }
 
 

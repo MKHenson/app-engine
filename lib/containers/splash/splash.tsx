@@ -1,6 +1,6 @@
 ﻿import { IStore, ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
 import { logout, removeProject } from '../../actions/user-actions';
-import { setSplashScreen, getProjectList, createProject } from '../../actions/splash-actions';
+import { getProjectList, createProject } from '../../actions/splash-actions';
 import { LogActions } from '../../actions/logger-actions';
 import { OpenProject } from '../../components/open-project/open-project';
 import { NewProject } from '../../components/new-project/new-project';
@@ -12,6 +12,7 @@ import { ProjectsOverview } from '../../components/projects-overview/projects-ov
 export interface ISplashProps extends HatcheryProps {
     user?: IUser;
     splash?: ISplashScreen;
+    section?: string;
 }
 
 /**
@@ -52,12 +53,12 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
                 username={username}
                 onProjectDelete={( project ) => dispatch( removeProject( username, project._id ) )}
                 onProjectsRefresh={( index, limit, searchterm ) => dispatch( getProjectList( username, index, limit, searchterm ) )}
-                onCreateProject={() => { dispatch( setSplashScreen( 'new-project' ) ) } }
+                onCreateProject={() => { dispatch( ReactRouterRedux.push( '/overview/new' ) ) } }
                 onOpenProject={( project ) => {
                     if ( !project )
                         return;
 
-                    dispatch( setSplashScreen( 'opening-project' ) );
+                    dispatch( ReactRouterRedux.push( '/overview/open' ) );
                 } }
                 />
         )
@@ -77,7 +78,7 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
                     dispatch( LogActions.message( `Opened project '${this.state.project!.name!}''` ) );
                     throw new Error( 'Not implemented' );
                 } }
-                onCancel={() => { dispatch( setSplashScreen( 'welcome' ) ) } }
+                onCancel={() => { dispatch( ReactRouterRedux.push( '/overview' ) ) } }
                 />
         );
     }
@@ -93,7 +94,7 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
             <NewProject
                 splash={splash}
                 onCreateProject={( options ) => { dispatch( createProject( options ) ) } }
-                onCancel={() => { dispatch( setSplashScreen( 'welcome' ) ) } }
+                onCancel={() => { dispatch( ReactRouterRedux.push( '/overview' ) ) } }
                 />
         );
     }
@@ -102,42 +103,48 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
      * Creates the component elements
      */
     render(): JSX.Element {
-        const splash = this.props.splash!;
+        // const splash = this.props.splash!;
         const dispatch = this.props.dispatch!;
 
         let mainView: JSX.Element | undefined;
 
-        switch ( splash.screen ) {
-            case 'welcome':
-                mainView = this.renderOverview();
+        switch ( this.props.section ) {
+            case 'new':
+                mainView = this.renderNewProject();
                 break;
-            case 'opening-project':
+            case 'open':
                 mainView = this.renderOpenProject();
                 break;
             default:
-                mainView = this.renderNewProject();
+                mainView = this.renderOverview();
                 break
         }
 
-        return <div id="splash">
+        return <div id="splash" className="fade-in" ref={( elm ) => {
+            if ( elm )
+                setTimeout( function() { ( elm as HTMLElement ).style.width = '80%' }, 300 )
+        } }>
             <div className="logo">
-                <div className="logout background-a">
+                <div className="logout">
                     <a onClick={() => { dispatch( logout() ) } }>
                         <i className="fa fa-sign-out" aria-hidden="true"></i> Logout
                         </a>
                 </div>
                 <h2>Hatchery</h2>
             </div>
-            {mainView}
+            <div className="background projects">
+                {mainView}
+            </div>
         </div>
     }
 }
 
 // Connects th splash screen with its store properties
-const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: IStore ) => {
+const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: IStore, ownProps ) => {
     return {
         user: state.user,
-        splash: state.splash
+        splash: state.splash,
+        section: ownProps.routeParams.section
     }
 })( Splash )
 
