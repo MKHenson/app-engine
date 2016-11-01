@@ -8,6 +8,8 @@ import { DB } from '../setup/db';
 export type PluginActionType =
     'PLUGINS_REQUEST_PENDING' |
     'PLUGINS_DOWNLOADED' |
+    'PLUGINS_EXPAND_TOGGLE' |
+    'PLUGINS_SELECTED' |
     'PLUGINS_REQUEST_REJECTED';
 
 /**
@@ -16,6 +18,21 @@ export type PluginActionType =
 export interface IPluginAction extends Redux.Action {
     type: PluginActionType;
     data?: IStorePlugins;
+};
+
+/**
+ * An interface for describing plugin expand actions
+ */
+export interface IPluginToggleAction extends IPluginAction {
+    plugin: string;
+};
+
+/**
+ * An interface for describing plugin select actions
+ */
+export interface IPluginSelectAction extends IPluginAction {
+    id: string;
+    selected: boolean;
 };
 
 /**
@@ -31,4 +48,24 @@ export function downloadPluginList() {
             dispatch<IPluginAction>( { type: 'PLUGINS_REQUEST_REJECTED', data: { error: err } });
         });
     }
+}
+
+/*
+ * Toggles if a plugin should show all its versions or not
+ * @param plugins The name of the plugin to toggle
+ */
+export function toggleExpanded( plugin: string ): IPluginToggleAction {
+    return {
+        type: 'PLUGINS_EXPAND_TOGGLE', plugin: plugin
+    };
+}
+
+/*
+ * Selects or unselects a plugin by ID
+ * @param plugins The name of the plugin to toggle
+ */
+export function select( id: string, selected: boolean ): IPluginSelectAction {
+    return {
+        type: 'PLUGINS_SELECTED', id: id, selected: selected
+    };
 }

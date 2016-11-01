@@ -18,6 +18,7 @@ declare module 'hatchery-server' {
         $error?: string | null;
         $instance?: IPlugin;
         expanded?: boolean;
+        selected?: boolean;
     }
 
     /**

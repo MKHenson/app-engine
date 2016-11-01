@@ -87,7 +87,6 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
                 <div className="double-column" style={{ width: '60%' }}>
                     <PluginsWidget
                         onChange={( plugins ) => { this.setState( { plugins: plugins }) } }
-                        onError={( err ) => { this.setState( { error: true, message: err.message }) } }
                         />
                 </div>
                 <div className="fix"></div>

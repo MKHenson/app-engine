@@ -50,6 +50,38 @@ export declare namespace LogActions {
     function error(message: string): ILoggerAction;
 }
 
+import { IStorePlugins } from 'hatchery-editor';
+/**
+ * Describes the different types of plugin action types
+ */
+export declare type PluginActionType = 'PLUGINS_REQUEST_PENDING' | 'PLUGINS_DOWNLOADED' | 'PLUGINS_EXPAND_TOGGLE' | 'PLUGINS_SELECTED' | 'PLUGINS_REQUEST_REJECTED';
+/**
+ * An interface for describing plugin actions
+ */
+export interface IPluginAction extends Redux.Action {
+    type: PluginActionType;
+    data?: IStorePlugins;
+}
+/**
+ * An interface for describing plugin expand actions
+ */
+export interface IPluginToggleAction extends IPluginAction {
+    plugin: string;
+}
+/**
+ * An interface for describing plugin select actions
+ */
+export interface IPluginSelectAction extends IPluginAction {
+    id: string;
+    selected: boolean;
+}
+/**
+ * Attempts to download the available plugins for use in the editor
+ */
+export declare function downloadPluginList(): (dispatch: Redux.Dispatch<IPluginAction>) => void;
+export declare function toggleExpanded(plugin: string): IPluginToggleAction;
+export declare function select(id: string, selected: boolean): IPluginSelectAction;
+
 import { IProject } from 'hatchery-editor';
 /**
  * Describes each of the project action types
@@ -84,10 +116,6 @@ export interface ISplashAction extends Redux.Action {
  */
 export declare function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<ISplashAction>) => void;
 /**
- * Sets the splash screen
- */
-export declare function setSplashScreen(screen: 'welcome' | 'opening-project' | 'new-project'): ISplashAction;
-/**
  * Creates a new project for the authenticated user
  * @param options An object of projet defaults
  */
@@ -115,8 +143,9 @@ export interface IUserProjectRemovedAction extends Redux.Action {
 }
 /**
  * Sends a server request to check if a user is logged in
+ * @param forward Optionally pass a url to forward onto if the user is authenticated
  */
-export declare function authenticated(): (dispatch: Redux.Dispatch<IUserAction>) => void;
+export declare function authenticated(forward?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
 /**
  * Attempts to log the user out
  */
@@ -1033,7 +1062,6 @@ export declare class LoginForm extends React.Component<ILoginFormProps, ILoginFo
     render(): JSX.Element;
 }
 
-import { IPluginPlus } from '../plugins-widget/plugins-widget';
 import { ISplashScreen } from 'hatchery-editor';
 export interface INewProjectProps {
     onCreateProject: (options: HatcheryServer.IProject) => void;
@@ -1041,7 +1069,7 @@ export interface INewProjectProps {
     onCancel: () => void;
 }
 export interface INewProjectState {
-    plugins?: IPluginPlus[];
+    plugins?: HatcheryServer.IPlugin[];
     message?: string | null;
     error?: boolean;
 }
@@ -1150,55 +1178,16 @@ export declare class Pager extends React.Component<IPagerProps, IPagerState> {
     render(): JSX.Element;
 }
 
-export declare type PluginMap = {
-    [name: string]: IPluginPlus[];
-};
-export interface IPluginPlus extends HatcheryServer.IPlugin {
-    expanded?: boolean;
-}
-export interface IPluginsWidgetProps {
-    onChange(selectedPlugins: IPluginPlus[]): any;
-    onError(error: Error): any;
+import { IStorePlugins, HatcheryProps } from 'hatchery-editor';
+export interface IPluginsWidgetProps extends HatcheryProps {
+    onChange: ((selectedPlugins: HatcheryServer.IPlugin[]) => void) | null;
+    plugins?: IStorePlugins;
 }
 export interface IPluginsWidgetState {
-    loading?: boolean;
-    plugins?: PluginMap;
-    selectedPlugin?: IPluginPlus | null;
-    activePlugin?: IPluginPlus | null;
-    selectedPlugins?: IPluginPlus[];
+    activePlugin?: HatcheryServer.IPlugin | null;
 }
-/**
- * A class for displaying a list of available plugins that can be used with a project.
- */
-export declare class PluginsWidget extends React.Component<IPluginsWidgetProps, IPluginsWidgetState> {
-    /**
-     * Creates an instance
-     */
-    constructor(props: IPluginsWidgetProps);
-    /**
-     * When the component is mounted, we download the latest plugins
-     */
-    componentWillMount(): void;
-    /**
-     * Gets the currently selected plugins
-     */
-    readonly selectedPlugins: IPluginPlus[];
-    selectPlugin(plugin: IPluginPlus): void;
-    mustShowPluginTick(plugin: any, index: number): boolean;
-    showVersions(plugin: HatcheryServer.IPlugin): void;
-    /**
-     * Once the plugins are loaded from the DB
-     */
-    onPluginsLoaded(plugins: Array<HatcheryServer.IPlugin>): PluginMap;
-    /**
-     * Generates the React code for displaying the plugins
-     */
-    createPluginHierarchy(): JSX.Element[];
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
+declare const ConnectedClass: React.ComponentClass<any>;
+export { ConnectedClass as PluginsWidget };
 
 export interface IProjectListProps extends React.HTMLAttributes {
     onProjectSelected?: (project: HatcheryServer.IProject) => void;
@@ -3738,14 +3727,11 @@ declare const ConnectedLogger: React.ComponentClass<any>;
 export { ConnectedLogger as Logger };
 
 import { IEditorState, HatcheryProps, IUser } from 'hatchery-editor';
-export declare enum LoginMode {
-    LOGIN = 0,
-    REGISTER = 1,
-}
 export interface ILoginWidgetProps extends HatcheryProps {
     onLogin?: () => void;
     user?: IUser;
     editorState?: IEditorState;
+    forward?: string;
 }
 declare const ConnectedWidget: React.ComponentClass<any>;
 export { ConnectedWidget as LoginWidget };
@@ -3757,6 +3743,7 @@ import { ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
 export interface ISplashProps extends HatcheryProps {
     user?: IUser;
     splash?: ISplashScreen;
+    section?: string;
 }
 /**
  * Describes the state interface for the Splash Component
@@ -5939,6 +5926,13 @@ import { ILogMessage } from 'hatchery-editor';
  */
 export declare function loggerReducer(state: ILogMessage[], action: ILoggerAction): ILogMessage[];
 
+import { IPluginAction } from '../actions/plugin-actions';
+import { IStorePlugins } from 'hatchery-editor';
+/**
+ * A reducer that processes state changes of the plugins
+ */
+export declare function editorReducer(state: IStorePlugins, action: IPluginAction): IStorePlugins;
+
 import { IProjectAction } from '../actions/project-actions';
 import { IProject } from 'hatchery-editor';
 /**
@@ -5990,11 +5984,6 @@ export declare class DB {
  */
 declare const WorkerGlobalScope: any;
 declare const Reflect: any;
-interface PromiseConstructor {
-}
-interface Object {
-    assign(): any;
-}
 declare function __assignFn(t: any): any;
 declare function __extendsFn(d: any, b: any): void;
 declare function __decorateFn(decorators: any, target: any, key: any, desc: any): any;

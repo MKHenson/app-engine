@@ -1,4 +1,4 @@
-import { IPluginAction } from '../actions/plugin-actions';
+import { IPluginAction, IPluginSelectAction, IPluginToggleAction } from '../actions/plugin-actions';
 import { IStorePlugins } from 'hatchery-editor';
 
 // The defaults of the plugin store
@@ -78,6 +78,28 @@ export function editorReducer( state: IStorePlugins = defaults, action: IPluginA
             break;
         case 'PLUGINS_DOWNLOADED':
             toRet = Object.assign<IStorePlugins>( {}, state, action.data! );
+            toRet.map = createPluginMap( toRet.plugins! );
+            break;
+        case 'PLUGINS_EXPAND_TOGGLE':
+            toRet = Object.assign<IStorePlugins>( {}, state, {
+                plugins: action.data!.plugins!.map(( item ) => {
+                    if ( item.name === ( action as IPluginToggleAction ).plugin )
+                        return Object.assign<HatcheryServer.IPlugin>( {}, item, { expanded: !item.expanded! });
+                    else
+                        return item;
+                })
+            });
+            toRet.map = createPluginMap( toRet.plugins! );
+            break;
+        case 'PLUGINS_SELECTED':
+            toRet = Object.assign<IStorePlugins>( {}, state, {
+                plugins: action.data!.plugins!.map(( item ) => {
+                    if ( item._id === ( action as IPluginSelectAction ).id )
+                        return Object.assign<HatcheryServer.IPlugin>( {}, item, { selected: ( action as IPluginSelectAction ).selected });
+                    else
+                        return item;
+                })
+            });
             toRet.map = createPluginMap( toRet.plugins! );
             break;
         default:
