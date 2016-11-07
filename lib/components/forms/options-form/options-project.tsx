@@ -5,10 +5,6 @@ import { ValidationType, AttentionType } from '../../../setup/enums';
 import { ImageUploader } from '../../image-uploader/image-uploader';
 import { Attention } from '../../attention/attention';
 import { VForm } from '../../v-form/v-form';
-import { VSelect } from '../../v-select/v-select';
-import { VInput } from '../../v-input/v-input';
-import { VTextarea } from '../../v-textarea/v-textarea';
-import { VCheckbox } from '../../v-checkbox/v-checkbox';
 import { Group } from '../../group/group';
 import { ButtonPrimary } from '../../buttons/buttons';
 
@@ -109,34 +105,61 @@ export class OptionsProject extends React.Component<IOptionsProjectProps, IOptio
         return <div id="options-project">
             <Group label="Details">
                 <VForm
+                    descriptor={{
+                        items: [
+                            {
+                                name: 'name',
+                                type: 'text',
+                                value: project.name!,
+                                placeholder: 'My Project',
+                                validators: ValidationType.NOT_EMPTY | ValidationType.NO_HTML,
+                                before: <h4>Project Name: </h4>
+                            },
+                            {
+                                name: 'tags',
+                                type: 'text',
+                                value: project.tags!.join( ', ' ),
+                                placeholder: 'Keywords to describe the project',
+                                validators: ValidationType.NOT_EMPTY | ValidationType.NO_HTML,
+                                before: <h4>Tags: </h4>
+                            },
+                            {
+                                name: 'description',
+                                type: 'textarea',
+                                value: project.description,
+                                placeholder: 'A project description',
+                                validators: ValidationType.NOT_EMPTY | ValidationType.NO_HTML,
+                                before: <h4>Description: </h4>
+                            },
+                            {
+                                name: 'public',
+                                type: 'checkbox',
+                                label: 'Public',
+                                value: project.public,
+                                before: <h4>Visibility: </h4>,
+                                after: <p className="info"><i>If public , your project will be searchable on the Webinate gallery.</i></p>
+                            },
+                            {
+                                name: 'category',
+                                type: 'select',
+                                value: project.category,
+                                options: [
+                                    { label: 'Other', value: 1 },
+                                    { label: 'Artistic', value: 2 },
+                                    { label: 'Gaming', value: 3 },
+                                    { label: 'Informative', value: 4 },
+                                    { label: 'Musical', value: 5 },
+                                    { label: 'Technical', value: 6 },
+                                    { label: 'Promotional', value: 7 },
+                                ],
+                                before: <h4>Category: </h4>,
+                                after: <p className="info"><i>Optionally provide a project category.The default is 'Other'</i></p>
+                            }
+                        ]
+                    }}
                     onValidationError={( e ) => { this.setState( { infoServerMsg: `${capitalize( e[ 0 ].name )} : ${e[ 0 ].error}`, error: true }) } }
                     onValidationsResolved={() => { this.setState( { infoServerMsg: '' }) } }
                     onSubmitted={( json ) => { this.updateDetails( json ); } }>
-
-                    <h4>Project Name: </h4>
-                    <VInput value={project.name} name="name" type="text" placeholder="My Project" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />
-
-                    <h4>Tags: </h4>
-                    <VInput value={project.tags!.join( ', ' )} name="tags" type="text" placeholder="Keywords to describe the project" />
-
-                    <h4>Description: </h4>
-                    <VTextarea value={project.description} name="description" placeholder="A project description"></VTextarea>
-
-                    <h4>Visibility: </h4>
-                    <VCheckbox name="public" label="Public" checked={project.public} />
-                    <p className="info"><i>If public , your project will be searchable on the Webinate gallery.</i></p>
-
-                    <h4>Category: </h4>
-                    <VSelect name="category" allowEmptySelection={false} options={[
-                        { label: 'Other', value: 1, selected: project.category === 1 },
-                        { label: 'Artistic', value: 2, selected: project.category === 2 },
-                        { label: 'Gaming', value: 3, selected: project.category === 3 },
-                        { label: 'Informative', value: 4, selected: project.category === 4 },
-                        { label: 'Musical', value: 5, selected: project.category === 5 },
-                        { label: 'Technical', value: 6, selected: project.category === 6 },
-                        { label: 'Promotional', value: 7, selected: project.category === 7 },
-                    ]} />
-                    <p className="info"><i>Optionally provide a project category.The default is 'Other'</i></p>
 
                     {( this.state.infoServerMsg ?
                         <Attention mode={this.state.error ? AttentionType.ERROR : AttentionType.SUCCESS} allowClose={false}>{this.state.infoServerMsg}</Attention> : null )}

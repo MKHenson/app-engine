@@ -36,6 +36,8 @@ export interface IVTextareaProps extends React.HTMLAttributes {
      * provided, then that is used instead (for example 'Please specify a value for X')
      */
     errorMsg?: string;
+
+    onChange?( e: React.FormEvent, text?: string ): void;
 }
 
 
@@ -43,7 +45,7 @@ export interface IVTextareaProps extends React.HTMLAttributes {
  * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
  * with the VForm.
  */
-export class VTextarea extends React.Component<IVTextareaProps, { error?: string | null, value?: string, highlightError?: boolean, className?: string, focussed?: boolean }> {
+export class VTextarea extends React.Component<IVTextareaProps, { error?: string | null, highlightError?: boolean, className?: string, focussed?: boolean }> {
     private _pristine: boolean;
 
     /**
@@ -53,7 +55,6 @@ export class VTextarea extends React.Component<IVTextareaProps, { error?: string
         super( props );
         this._pristine = true;
         this.state = {
-            value: props.value || '',
             error: null,
             highlightError: false,
             focussed: false,
@@ -77,19 +78,6 @@ export class VTextarea extends React.Component<IVTextareaProps, { error?: string
     }
 
     /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps( nextProps: IVTextareaProps ) {
-        if ( nextProps.value as string !== this.props.value )
-            this.setState( { value: nextProps.value as string });
-    }
-
-    /**
-     * Gets the current value of the input
-     */
-    get value(): string { return this.state.value!; }
-
-    /**
      * Sets the highlight error state. This state adds a 'highlight-error' class which
      * can be used to bring attention to the component
      */
@@ -103,8 +91,6 @@ export class VTextarea extends React.Component<IVTextareaProps, { error?: string
      */
     getValidationErrorMsg( val: string ): string {
         let errorMsg: string | null = null;
-
-        val = ( val !== undefined ? val : this.state.value! );
 
         if ( this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
             errorMsg = `You have too few characters`;
@@ -132,13 +118,12 @@ export class VTextarea extends React.Component<IVTextareaProps, { error?: string
             this.props.onValidationResolved( this );
 
         this.setState( {
-            value: val,
             error: ( err ? err : null ),
             highlightError: ( err && this.state.highlightError ? true : false )
         });
 
         if ( !err && this.props.onChange )
-            this.props.onChange( e );
+            this.props.onChange( e, val );
     }
 
     /**
@@ -178,7 +163,7 @@ export class VTextarea extends React.Component<IVTextareaProps, { error?: string
                 } }
                 onBlur={() => { this.setState( { focussed: false }); } }
                 className={className}
-                value={this.state.value}
+                value={this.props.value}
                 onChange={( e ) => { this.onChange( e ); } }
                 />
             <div className="input-highlighter"></div>

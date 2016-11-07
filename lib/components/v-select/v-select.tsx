@@ -1,15 +1,15 @@
 
 
-export type SelectValue = { label: string; value: string | number, selected?: boolean; };
+export type SelectValue = { label: string; value: string | number };
 
-export interface IVSelectProps extends React.HTMLAttributes {
+export interface IVSelectProps {
 
     /**
      * Called whenever an option is selected
      * @param {SelectValue} option
      * @param {HTMLSelectElement} element
      */
-    onOptionSelected?: ( option: SelectValue | null, element: HTMLSelectElement ) => void;
+    onOptionSelected: ( option: SelectValue | null, element: HTMLSelectElement ) => void;
 
     /**
      * An array of options to use with the select
@@ -42,6 +42,11 @@ export interface IVSelectProps extends React.HTMLAttributes {
      * provided, then that is used instead (for example 'Please specify a value for X')
      */
     errorMsg?: string;
+
+    value: string | number;
+    name?: string;
+    id?: string;
+    className?: string;
 }
 
 
@@ -49,7 +54,7 @@ export interface IVSelectProps extends React.HTMLAttributes {
  * A verified select box is an one that can optionally have its value verified. The select must be used in conjunction
  * with the VForm.
  */
-export class VSelect extends React.Component<IVSelectProps, { error?: string | null, selected?: SelectValue | null, highlightError?: boolean }> {
+export class VSelect extends React.Component<IVSelectProps, { error?: string | null, highlightError?: boolean }> {
 
     private _pristine: boolean;
 
@@ -60,18 +65,9 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
         super( props );
         this._pristine = true;
         this.state = {
-            selected: null,
             error: null,
             highlightError: false
         };
-    }
-
-    /**
-     * Gets the current selected option
-     * @returns {SelectValue}
-     */
-    get value(): SelectValue | null {
-        return this.state.selected!;
     }
 
     /**
@@ -80,7 +76,7 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
     componentWillMount(): void {
         let selected: SelectValue | null = null;
         for ( let option of this.props.options )
-            if ( option.selected ) {
+            if ( option.value.toString() === this.props.value ) {
                 selected = option;
                 break;
             }
@@ -95,7 +91,6 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
             this.props.onValidationError( new Error( err ), this );
 
         this.setState( {
-            selected: selected,
             error: ( err ? err : null )
         });
     }
@@ -114,11 +109,6 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
      */
     validate( val: string | number ): string {
         let errorMsg: string | null = null;
-
-        if ( val !== undefined )
-            val = val;
-        else if ( this.state.selected )
-            val = this.state.selected.value;
 
         if ( !this.props.allowEmptySelection && ( !val || val === '' ) ) {
             errorMsg = 'Selection is required'
@@ -143,7 +133,6 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
             }
 
         this.setState( {
-            selected: selected,
             error: ( err ? err : null ),
             highlightError: ( err && this.state.highlightError ? true : false )
         });
@@ -154,9 +143,6 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
         else if ( wasAnError && !err && this.props.onValidationResolved )
             this.props.onValidationResolved( this );
 
-
-        if ( !err && this.props.onChange )
-            this.props.onChange( e );
         if ( !err && this.props.onOptionSelected )
             this.props.onOptionSelected( selected, ReactDOM.findDOMNode( this ) as HTMLSelectElement );
     }
@@ -190,8 +176,15 @@ export class VSelect extends React.Component<IVSelectProps, { error?: string | n
         if ( !this._pristine )
             className += ' dirty';
 
+        let value: string | undefined = undefined;
+        for ( const option of this.props.options )
+            if ( option.value.toString() === this.props.value ) {
+                value = option.value.toString();
+                break;
+            }
+
         return <select {...props}
-            value={this.state.selected ? this.state.selected.value.toString() : ''}
+            value={value}
             className={className}
             onFocus={() => { this._pristine = false; } }
             onChange={( e ) => { this.onChange( e ); } }

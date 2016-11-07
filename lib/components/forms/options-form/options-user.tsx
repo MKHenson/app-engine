@@ -2,9 +2,9 @@ import { User } from '../../../core/user';
 import { AttentionType } from '../../../setup/enums';
 import { ImageUploader } from '../../image-uploader/image-uploader';
 import { Attention } from '../../attention/attention';
-import { VTextarea } from '../../v-textarea/v-textarea';
 import { Group } from '../../group/group';
 import { ButtonPrimary } from '../../buttons/buttons';
+import { VForm } from '../../v-form/v-form';
 
 export interface IOptionsUserProps {
 }
@@ -117,18 +117,28 @@ export class OptionsUser extends React.Component<IOptionsUserProps, IOptionsUser
                 <div className="fix"></div>
             </Group>
             <Group label="User Information">
-                <h3>Bio</h3>
-                <VTextarea ref="bio" className="background-view-light" value={meta ? meta.bio! : undefined} />
-                <div className="info">Use the above pad to write about yourself.This will show up on Webinate next to your projects.</div>
+                <VForm
+                    descriptor={{
+                        items: [
+                            { name: 'bio', value: meta ? meta.bio! : undefined, placeholder: 'User Bio', type: 'textarea', before: <h3>Bio</h3>, after: <div className="info">Use the above pad to write about yourself.This will show up on Webinate next to your projects.</div> }
+                        ]
+                    }}
+                    onValidationError={( token ) => { this.setState( { bioUpdateErr: token[ 0 ].error }) } }
+                    onValidationsResolved={() => { this.setState( { bioUpdateErr: null }) } }
+                    onSubmitted={( json ) => {
+                        this.updateBio( json.bio );
+                    } }
+                    >
 
-                {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
+                    {( this.state.bioUpdateErr ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.bioUpdateErr}</Attention> : null )}
 
-                <ButtonPrimary disabled={this.state.loading} onClick={() => { this.updateBio(( this.refs[ 'bio' ] as VTextarea ).value ); } }>
-                    Update Information
-                    </ButtonPrimary>
+                    <ButtonPrimary type="submit" disabled={this.state.loading}>
+                        Update Information
+                        </ButtonPrimary>
 
-                {loadingSymbol}
-                <div className="fix" />
+                    {loadingSymbol}
+                    <div className="fix" />
+                </VForm>
             </Group>
         </div>
     }

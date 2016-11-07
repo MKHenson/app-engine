@@ -1,20 +1,49 @@
-import { VInput, IVInputProps } from '../v-input/v-input';
-import { VTextarea, IVTextareaProps } from '../v-textarea/v-textarea';
-import { VCheckbox, IVCheckboxProps } from '../v-checkbox/v-checkbox';
-import { VSelect, IVSelectProps } from '../v-select/v-select';
+import { VInput } from '../v-input/v-input';
+import { VTextarea } from '../v-textarea/v-textarea';
+import { VCheckbox } from '../v-checkbox/v-checkbox';
+import { VSelect, SelectValue } from '../v-select/v-select';
+import { ValidationType } from '../../setup/enums';
 
 export type ValidationError = { name: string, error: string };
 export type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
+export interface IVFormItem {
+    name: string;
+    before?: JSX.Element;
+    after?: JSX.Element;
+}
+export interface IVFormSelect extends IVFormItem {
+    type: 'select';
+    options?: SelectValue[];
+    value?: string | number;
+    defaultVal?: string | number;
+    allowEmptySelection?: boolean;
+};
+export interface IVFormCheckbox extends IVFormItem {
+    type: 'checkbox';
+    label?: string;
+    placeholder?: string;
+    defaultVal?: boolean;
+    value?: boolean;
+};
+export interface IVFormJsonText extends IVFormItem {
+    type: 'password' | 'text' | 'textarea';
+    placeholder?: string;
+    defaultVal?: string | null;
+    value?: string | null;
+    validators?: ValidationType
+};
+export interface IVFormJson { items: ( IVFormSelect | IVFormCheckbox | IVFormJsonText )[] };
+export interface IFormValue {
+    error: string | null,
+    value: string | boolean | number | null
+}
 
 export interface IVFormProps {
     id?: string;
     className?: string;
     name?: string;
-
-    /**
-     * If true, prevents the form being automatically submitted
-     */
     preventDefault?: boolean;
+    descriptor: IVFormJson;
 
     /**
      * A callback for when an input has been changed and the json updated
@@ -37,6 +66,12 @@ export interface IVFormProps {
     onValidationsResolved: ( form: VForm ) => void;
 }
 
+export interface IVFormState {
+    error?: boolean;
+    pristine?: boolean;
+    values?: { [ name: string ]: IFormValue }
+}
+
 /**
  * A validated form is one which checks its children inputs for validation errors
  * before allowing the form to be submitted. If there are errors the submit is not allowed.
@@ -45,9 +80,10 @@ export interface IVFormProps {
  * the validated inputs. The name is taken from the name of the input name attribute and the
  * value from its value.
  */
-export class VForm extends React.Component<IVFormProps, { error?: boolean, pristine?: boolean }> {
+export class VForm extends React.Component<IVFormProps, IVFormState> {
     public static defaultProps: IVFormProps = {
         preventDefault: true,
+        descriptor: { items: [] },
         onValidationError: function() { throw new Error( 'onSubmitted not implemented' ) },
         onValidationsResolved: function() { throw new Error( 'onSubmitted not implemented' ) },
         onSubmitted: function() { throw new Error( 'onSubmitted not implemented' ) }
@@ -55,23 +91,35 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
 
     private _className: string;
 
-    private _values: {
-        [ name: string ]: {
-            error: string | null,
-            value: string | boolean | number | null
-        }
-    };
-
     /**
      * Creates a new instance
      */
     constructor( props: IVFormProps ) {
         super();
-        this._values = {};
         this._className = ( props.className ? props.className + ' v-form' : 'v-form' );
         this.state = {
             error: false,
-            pristine: true
+            pristine: true,
+            values: {}
+        }
+    }
+
+    componentWillMount() {
+        const values = this.state.values!;
+        for ( const descriptor of this.props.descriptor.items ) {
+            switch ( descriptor.type ) {
+                case 'text':
+                case 'password':
+                case 'textarea':
+                    values[ descriptor.name! ] = { value: descriptor.value! || descriptor.defaultVal! || '', error: null }
+                    break;
+                case 'select':
+                    values[ descriptor.name! ] = { value: descriptor.value! || descriptor.defaultVal! || null, error: null }
+                    break;
+                case 'checkbox':
+                    values[ descriptor.name! ] = { value: descriptor.value! || descriptor.defaultVal! || false, error: null }
+                    break;
+            }
         }
     }
 
@@ -82,6 +130,7 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
         let firstInputHasFocus = false;
 
         for ( let i in this.refs ) {
+
             if ( this.refs[ i ] instanceof VInput || this.refs[ i ] instanceof VTextarea ) {
                 let component = this.refs[ i ] as HTMLInputElement | HTMLTextAreaElement;
                 let domNode = ReactDOM.findDOMNode( component ) as HTMLInputElement | HTMLTextAreaElement;
@@ -90,24 +139,8 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
                 if ( !firstInputHasFocus ) {
                     firstInputHasFocus = true;
                     domNode.focus();
+                    return;
                 }
-
-                // Set the initial values for inputs and text areas
-                this._values[ domNode.name ] = { value: component.value, error: null };
-            }
-            else if ( this.refs[ i ] instanceof VCheckbox ) {
-
-                let component = this.refs[ i ] as VCheckbox;
-
-                // Set the initial values of checkbox
-                this._values[ component.props.name! ] = { value: component.checked, error: null };
-            }
-            else if ( this.refs[ i ] instanceof VSelect ) {
-
-                let component = this.refs[ i ] as VSelect;
-
-                // Set the initial values of checkbox
-                this._values[ component.props.name! ] = { value: ( component.value ? component.value.value : null ), error: null };
             }
         }
     }
@@ -131,6 +164,7 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
         let firstInputWithError: VInput | VTextarea | VSelect | undefined;
         let textInput: VInput | VTextarea;
         let select: VSelect;
+        const values = this.state.values!;
 
         for ( let i in this.refs ) {
 
@@ -141,6 +175,7 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
                     firstInputWithError = textInput;
                     textInput.highlightError = true;
                     error = true;
+                    values[ textInput.props.name! ].error = textInput.state.error;
                 }
                 else
                     textInput.highlightError = false;
@@ -151,6 +186,7 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
                 if ( select.state.error ) {
                     firstInputWithError = select;
                     select.highlightError = true;
+                    values[ select.props.name! ].error = select.state.error;
                     error = true;
                 }
                 else
@@ -158,17 +194,17 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
             }
         }
 
-        this.setState( { pristine: false, error: error });
+        this.setState( { pristine: false, error: error, values: this.state.values! });
 
         if ( firstInputWithError && firstInputWithError.state.error )
-            this.onError( new Error( firstInputWithError.state.error ), firstInputWithError );
+            this.onError();
 
         if ( error )
             return;
 
         const json = {};
-        for ( let i in this._values )
-            json[ i ] = this._values[ i ].value;
+        for ( let i in values )
+            json[ i ] = values[ i ].value;
 
         this.props.onSubmitted( json, this );
     }
@@ -176,66 +212,37 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
     /**
      * Called whenever any of the inputs fire a change event
      */
-    onChange( e: React.FormEvent ) {
-        let input = ( e.target as HTMLInputElement );
-        this._values[ input.name ] = { value: input.value, error: null };
+    onChange() {
 
         const json = {};
-        for ( let i in this._values )
-            json[ i ] = this._values[ i ].value;
+        for ( let i in this.state.values! )
+            json[ i ] = this.state.values![ i ].value;
 
         if ( this.props.onChange )
             this.props.onChange( json, this );
+
+        this.setState( { values: this.state.values! });
     }
 
     /**
      * Called if any of the validated inputs reported or resolved an error
-     * @param e The error that occurred
-     * @param target The input that triggered the error
      */
-    onError( e: Error | null, target: VGeneric, value?: string | boolean ) {
-        let pristine = this.state.pristine;
-        if ( !target.pristine )
-            pristine = false;
-
-        let wasError = this.state
+    onError() {
         let errors: { name: string, error: string }[] = [];
+        const values = this.state.values!;
 
-        // Check if there was previously an error
-        for ( let i in this._values )
-            if ( this._values[ i ].error ) {
-                wasError = true;
-                break;
-            }
-
-        // Check there are any subsequent errors
-        if ( target instanceof VInput || target instanceof VTextarea )
-            this._values[ target.props.name! ] = { value: value !== undefined ? value : target.state.value!, error: ( e ? e.message : null ) };
-        else if ( target instanceof VCheckbox )
-            this._values[ target.props.name! ] = { value: target.state.checked!, error: ( e ? e.message : null ) };
-        else if ( target instanceof VSelect )
-            this._values[ target.props.name! ] = { value: ( target.state.selected ? target.state.selected.value : null ), error: ( e ? e.message : null ) };
-
-        for ( let i in this._values )
-            if ( this._values[ i ].error )
-                errors.push( { name: i, error: this._values[ i ].error! });
+        for ( let i in values )
+            if ( values[ i ].error )
+                errors.push( { name: i, error: values[ i ].error! });
 
         // Notify any events
         if ( this.props.onValidationError && errors.length > 0 )
             this.props.onValidationError( errors, this );
-        else if ( wasError && errors.length === 0 && this.props.onValidationsResolved )
+        else if ( errors.length === 0 && this.props.onValidationsResolved )
             this.props.onValidationsResolved( this );
 
-        this.setState( { error: errors.length > 0 ? true : false, pristine: pristine });
-
-        if ( this.props.onChange ) {
-            const json = {};
-            for ( let i in this._values )
-                json[ i ] = this._values[ i ].value;
-
-            this.props.onChange( json, this );
-        }
-
+        this.setState( { error: errors.length > 0 ? true : false, pristine: false });
+        this.onChange();
     }
 
     /**
@@ -256,6 +263,7 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
         delete props.onValidationsResolved;
         delete props.preventDefault;
         delete props.onChange;
+        delete props.descriptor;
 
         let className = this._className;
         if ( this.state.error )
@@ -265,49 +273,108 @@ export class VForm extends React.Component<IVFormProps, { error?: boolean, prist
         else
             className += ' pristine';
 
+        const values = this.state.values!;
+
         return <form
             {...props as any}
             className={className}
-            onSubmit={( e ) => { this.onSubmit( e ); } }> {
-                React.Children.map( this.props.children!, ( i: React.ReactElement<any>, index ) => {
-                    if ( !i )
-                        return null;
+            onSubmit={( e ) => { this.onSubmit( e ); } }
+            >
+            {
+                this.props.descriptor.items.map(( descriptor, index ) => {
 
-                    if ( i.type === VInput )
-                        return React.cloneElement( i, {
-                            ref: index.toString(),
-                            onChange: ( e ) => { this.onChange( e ); },
-                            onValidationError: ( e, input, value ) => { this.onError( e, input, value ) },
-                            onValidationResolved: ( input ) => { this.onError( null, input ) }
-                        } as IVInputProps )
-                    else if ( i.type === VTextarea )
-                        return React.cloneElement( i, {
-                            ref: index.toString(),
-                            onChange: ( e ) => { this.onChange( e ); },
-                            onValidationError: ( e, input, value ) => { this.onError( e, input, value ) },
-                            onValidationResolved: ( input ) => { this.onError( null, input ) }
-                        } as IVTextareaProps )
-                    else if ( i.type === VCheckbox ) {
-                        return React.cloneElement( i, {
-                            ref: index.toString(),
-                            onChecked: ( e, checked, input ) => {
-                                e; // Supresses unused param error
-                                this._values[ input.name ] = { value: checked, error: null };
-                            }
-                        } as IVCheckboxProps )
+                    let elm: JSX.Element | undefined;
+
+                    switch ( descriptor.type ) {
+                        case 'text':
+                        case 'password':
+                            elm = <VInput
+                                ref={index.toString()}
+                                name={descriptor.name}
+                                type={descriptor.type === 'password' ? 'password' : 'text'}
+                                placeholder={descriptor.placeholder as string}
+                                validator={descriptor.validators}
+                                value={values[ descriptor.name! ].value! as string}
+                                onChange={( e, value ) => {
+                                    values[ descriptor.name! ].value = value!;
+                                    this.onChange();
+                                }
+                                }
+                                onValidationError={( e, input, value ) => {
+                                    values[ descriptor.name! ].value = value!;
+                                    values[ descriptor.name! ].error = e.message;
+                                    this.onError()
+                                }
+                                }
+                                onValidationResolved={( input ) => {
+                                    values[ descriptor.name! ].error = null;
+                                    this.onError()
+                                }
+                                }
+                                />
+                            break;
+                        case 'textarea':
+                            elm = <VTextarea
+                                ref={index.toString()}
+                                name={descriptor.name}
+                                value={values[ descriptor.name! ].value! as string}
+                                placeholder={descriptor.placeholder as string}
+                                validator={descriptor.validators}
+                                onChange={( e, value ) => {
+                                    values[ descriptor.name! ].value = value!;
+                                    this.onChange();
+                                }
+                                }
+                                onValidationError={( e, input, value ) => {
+                                    values[ descriptor.name! ].value = value!;
+                                    values[ descriptor.name! ].error = e.message;
+                                    this.onError()
+                                }
+                                }
+                                onValidationResolved={( input ) => {
+                                    values[ descriptor.name! ].error = null;
+                                    this.onError()
+                                }
+                                }
+                                />
+                            break;
+                        case 'checkbox':
+                            elm = <VCheckbox
+                                ref={index.toString()}
+                                name={descriptor.name}
+                                checked={values[ descriptor.name! ].value! as boolean}
+                                label={descriptor.label}
+                                onChange={( e, checked ) => {
+                                    values[ descriptor.name! ].value = checked!;
+                                    this.onChange();
+                                } }
+                                />
+                            break;
+                        case 'select':
+                            elm = <VSelect
+                                ref={index.toString()}
+                                name={descriptor.name}
+                                value={values[ descriptor.name! ].value! as string}
+                                allowEmptySelection={descriptor.allowEmptySelection!}
+                                options={descriptor.options!}
+                                onOptionSelected={( option, element ) => {
+                                    values[ descriptor.name! ].value = option ? option.value : null;
+                                    this.onChange();
+                                } }
+                                />
+                            break;
                     }
-                    else if ( i.type === VSelect ) {
-                        return React.cloneElement( i, {
-                            ref: index.toString(),
-                            options: i.props.options,
-                            onOptionSelected: ( option, element ) => {
-                                this._values[ element.name ] = { value: ( option ? option.value : null ), error: null };
-                            }
-                        } as IVSelectProps )
-                    }
-                    else
-                        return i;
+
+                    return <div key={'key' + index.toString()} className="form-item">
+                        {descriptor.before}
+                        {elm}
+                        {descriptor.after}
+                    </div>;
+
                 })
+            }
+            {
+                this.props.children
             }
         </form>;
     }

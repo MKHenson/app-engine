@@ -1,6 +1,5 @@
 import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
 import { VForm } from '../../v-form/v-form';
-import { VInput } from '../../v-input/v-input';
 import { Attention } from '../../attention/attention';
 import { ButtonLink, ButtonSuccess } from '../../buttons/buttons';
 import { ValidationType, AttentionType } from '../../../setup/enums';
@@ -57,13 +56,15 @@ export class RenameForm extends ReactWindow<IRenameFormProps, IRenameFormState> 
      */
     getContent(): React.ReactNode {
         return (
-            <VForm onSubmitted={( json ) => { this.ok( json.name ); } }
+            <VForm
+                descriptor={{
+                    items: [
+                        { name: 'name', type: 'text', value: this.props.name, placeholder: 'Please enter a name', validators: ValidationType.NOT_EMPTY | ValidationType.NO_HTML }
+                    ]
+                }}
+                onSubmitted={( json ) => { this.ok( json.name ); } }
                 onValidationError={( errors ) => { this.setState( { $errorMsg: `${capitalize( errors[ 0 ].name )} : ${errors[ 0 ].error}` }) } }
                 onValidationsResolved={() => { this.setState( { $errorMsg: null }) } }>
-                <VInput type="text" name="name" placeholder="Please enter a name"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML}
-                    value={this.props.name}
-                    />
                 {this.state.$errorMsg ? <Attention allowClose={false} mode={AttentionType.ERROR}>{this.state.$errorMsg}</Attention> : null}
                 <div className="buttons-container">
                     <ButtonLink type="button" onClick={( e ) => { e.preventDefault(); this.onCancel(); } }>

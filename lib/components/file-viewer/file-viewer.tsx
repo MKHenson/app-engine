@@ -102,7 +102,7 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
      * When the scope changes we update the viewable contents
      */
     onScopeChange( option: SelectValue | null ) {
-        if ( option && option.label === 'Only project files' )
+        if ( option && option.value === FileSearchType.Project )
             this.selectMode( FileSearchType.Project );
         else
             this.selectMode( FileSearchType.User );
@@ -197,8 +197,8 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
                         <div className="tr">
                             <span className="td"><i className="fa fa-globe" aria-hidden="true" /> Global: </span>
                             <span className="td">
-                                <VCheckbox onChecked={() => {
-                                    fileToken.global = !fileToken.global;
+                                <VCheckbox onChange={( elm, val ) => {
+                                    fileToken.global = val!;
                                     this.setState( { fileToken: fileToken });
                                 } }
                                     label={( fileToken.global ? 'YES' : 'NO' )}
@@ -208,8 +208,8 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
                         <div className="tr">
                             <span className="td"><i className="fa fa-star" aria-hidden="true" /> Favourite: </span>
                             <span className="td">
-                                <VCheckbox onChecked={() => {
-                                    fileToken.favourite = !fileToken.favourite;
+                                <VCheckbox onChange={( elm, val ) => {
+                                    fileToken.favourite = val;
                                     this.setState( { fileToken: fileToken });
                                 } }
                                     label={( fileToken.favourite ? 'YES' : 'NO' )}
@@ -330,10 +330,14 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
                     </div>
 
                     <div className="tool-bar-group">
-                        <VSelect onOptionSelected={( e ) => { this.onScopeChange( e ) } } options={[
-                            { label: 'All files', value: 0 },
-                            { label: 'Only project files', value: 1 }
-                        ]} />
+                        <VSelect
+                            value={this._searchType}
+                            onOptionSelected={( option ) => { this.onScopeChange( option ) } }
+                            options={[
+                                { label: 'User files', value: FileSearchType.User },
+                                { label: 'Only project files', value: FileSearchType.Project },
+                                { label: 'Only global files', value: FileSearchType.Global }
+                            ]} />
                     </div>
 
                     <div className={'tool-bar-group' + ( this._selectedEntities.length === 0 ? ' disabled' : '' )}>

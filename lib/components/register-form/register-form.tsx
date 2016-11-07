@@ -1,4 +1,3 @@
-import { VInput } from '../v-input/v-input';
 import { VForm } from '../v-form/v-form';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
@@ -65,6 +64,13 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
 
         return <div className="register animate-all fade-in">
             <VForm
+                descriptor={{
+                    items: [
+                        { name: 'username', type: 'text', placeholder: 'Username', validators: ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS },
+                        { name: 'email', type: 'text', placeholder: 'Email', validators: ValidationType.NOT_EMPTY | ValidationType.EMAIL },
+                        { name: 'password', type: 'password', validators: ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS }
+                    ]
+                }}
                 name="register"
                 onValidationError={( errors ) => {
                     this.setState( {
@@ -80,27 +86,6 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                     if ( this.props.onRegisterRequested )
                         this.props.onRegisterRequested( json );
                 } }>
-
-                <VInput type="text"
-                    placeholder="Username"
-                    autoComplete="off"
-                    name="username"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                    />
-
-                <VInput type="text"
-                    placeholder="Email"
-                    autoComplete="off"
-                    name="email"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.EMAIL}
-                    />
-
-                <VInput type="password"
-                    placeholder="Password"
-                    autoComplete="off"
-                    name="password"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                    />
                 <div id="animate-captcha" ref={( e ) => { this.mountCaptcha( e ) } }></div>
                 <div>
                     {( message !== '' ?

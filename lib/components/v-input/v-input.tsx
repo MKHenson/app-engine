@@ -63,7 +63,7 @@ export interface IVInputProps {
  * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
  * with the VForm.
  */
-export class VInput extends React.Component<IVInputProps, { error?: string | null, value?: string, highlightError?: boolean, focussed?: boolean }> {
+export class VInput extends React.Component<IVInputProps, { error?: string | null, highlightError?: boolean, focussed?: boolean }> {
     static defaultProps: IVInputProps = {
         selectOnClick: true
     }
@@ -83,17 +83,11 @@ export class VInput extends React.Component<IVInputProps, { error?: string | nul
         this._allowHint = true;
 
         this.state = {
-            value: props.value || '',
             error: null,
             highlightError: false,
             focussed: false
         };
     }
-
-    /**
-     * Gets the current value of the input
-     */
-    get value(): string { return this.state.value!; }
 
     /**
      * Called when the component is about to be mounted.
@@ -111,14 +105,6 @@ export class VInput extends React.Component<IVInputProps, { error?: string | nul
     }
 
     /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps( nextProps: IVInputProps ) {
-        if ( nextProps.value as string !== this.props.value )
-            this.setState( { value: nextProps.value as string });
-    }
-
-    /**
      * Sets the highlight error state. This state adds a 'highlight-error' class which
      * can be used to bring attention to the component
      */
@@ -132,8 +118,6 @@ export class VInput extends React.Component<IVInputProps, { error?: string | nul
      */
     getValidationErrorMsg( val: string ): string {
         let errorMsg: string | null = null;
-
-        val = ( val !== undefined ? val : this.state.value! );
 
         if ( this.props.minCharacters !== undefined && val.length < this.props.minCharacters )
             errorMsg = `You have too few characters`;
@@ -212,7 +196,6 @@ export class VInput extends React.Component<IVInputProps, { error?: string | nul
         }
 
         this.setState( {
-            value: val,
             error: ( err ? err : null ),
             highlightError: ( err && this.state.highlightError ? true : false )
         });
@@ -270,7 +253,7 @@ export class VInput extends React.Component<IVInputProps, { error?: string | nul
                         ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
                 } }
                 className={className}
-                value={this.state.value}
+                value={this.props.value}
                 onChange={( e ) => {
                     this.onChange( e );
                 } }

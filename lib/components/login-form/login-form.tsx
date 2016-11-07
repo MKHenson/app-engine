@@ -1,6 +1,4 @@
-import { VInput } from '../v-input/v-input';
 import { VForm } from '../v-form/v-form';
-import { VCheckbox } from '../v-checkbox/v-checkbox';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
 import { ValidationType, AttentionType } from '../../setup/enums';
@@ -55,6 +53,13 @@ export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState>
 
         return <div className="login animate-all fade-in">
             <VForm name="login"
+                descriptor={{
+                    items: [
+                        { name: 'username', type: 'text', placeholder: 'Email or Username', validators: ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL },
+                        { name: 'password', type: 'password', placeholder: 'Password', validators: ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS },
+                        { name: 'remember', type: 'checkbox', value: true, label: 'Remember me' }
+                    ]
+                }}
                 onChange={( json ) => { this.setState( { username: json.username }) } }
                 onValidationError={( errors ) => {
                     this.setState( {
@@ -72,23 +77,6 @@ export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState>
                         rememberMe: json.remember
                     });
                 } }>
-                <VInput
-                    autoComplete="off"
-                    placeholder="Email or Username"
-                    autoFocus={true}
-                    type="text"
-                    name="username"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL}
-                    />
-
-                <VInput
-                    autoComplete="off"
-                    placeholder="Password"
-                    autoFocus={false}
-                    type="password"
-                    name="password"
-                    validator={ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS}
-                    />
 
                 <a id="forgot-pass" className={( isLoading ? 'disabled' : undefined )}
                     onClick={() => {
@@ -98,12 +86,7 @@ export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState>
                         this.props.onResetPasswordRequest( user );
                     } }>
                     Forgot
-                    </a>
-                <VCheckbox
-                    label="Remember me"
-                    checked={true}
-                    name="remember"
-                    />
+                </a>
                 <br />
                 <a
                     className={( isLoading ? 'disabled' : '' )}
@@ -114,7 +97,7 @@ export class LoginForm extends React.Component<ILoginFormProps, ILoginFormState>
                         this.props.onResendActivationRequest( user );
                     } }>
                     Resend Activation Email
-                    </a>
+                </a>
                 <br />
                 <div>
                     {( message !== '' ?

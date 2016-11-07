@@ -1,7 +1,6 @@
 import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
 import { VForm } from '../../v-form/v-form';
-import { VInput } from '../../v-input/v-input';
-import { VSelect, SelectValue } from '../../v-select/v-select';
+import { SelectValue } from '../../v-select/v-select';
 import { Attention } from '../../attention/attention';
 import { TreeViewScene } from '../../treeview/treeview-scene';
 import { ButtonLink, ButtonSuccess } from '../../buttons/buttons';
@@ -100,13 +99,13 @@ export class PortalForm extends ReactWindow<IPortalFormProps, IPortalFormStats> 
         const assetClasses: SelectValue[] = [];
 
         // Add the 4 types of portals
-        portalTypes.push( { label: 'Parameter', value: 'parameter' as HatcheryRuntime.PortalType, selected: true });
+        portalTypes.push( { label: 'Parameter', value: 'parameter' as HatcheryRuntime.PortalType });
         portalTypes.push( { label: 'Product', value: 'product' as HatcheryRuntime.PortalType });
         portalTypes.push( { label: 'Output', value: 'output' as HatcheryRuntime.PortalType });
         portalTypes.push( { label: 'Input', value: 'input' as HatcheryRuntime.PortalType });
 
         // Add default all value for classes
-        assetClasses.push( { label: 'All', value: 'all', selected: true });
+        assetClasses.push( { label: 'All', value: 'all' });
 
         // Get and sort all asset classes
         let classes: AssetClass[] = TreeViewScene.getSingleton().getAssetClasses();
@@ -117,18 +116,22 @@ export class PortalForm extends ReactWindow<IPortalFormProps, IPortalFormStats> 
         });
 
         for ( let c of classes )
-            assetClasses.push( { label: capitalize( c.name ), value: c.name, selected: false });
+            assetClasses.push( { label: capitalize( c.name ), value: c.name });
 
         return (
             <div id="portal-editor">
                 <VForm
+                    descriptor={{
+                        items: [
+                            { name: 'name', type: 'text', placeholder: 'Portal name', validators: ValidationType.NOT_EMPTY | ValidationType.NO_HTML },
+                            { name: 'type', type: 'select', options: portalTypes, value: 'parameter' },
+                            { name: 'classes', type: 'select', options: assetClasses, value: 'all' }
+                        ]
+                    }}
                     onValidationError={() => { } }
                     onSubmitted={( json ) => { this.ok( json ) } }
                     onValidationsResolved={() => { } }
                     >
-                    <VInput type="text" name="name" placeholder="Portal name" validator={ValidationType.NOT_EMPTY | ValidationType.NO_HTML} />
-                    <VSelect name="type" options={portalTypes} />
-                    <VSelect name="classes" options={assetClasses} />
                     {this.state.errorMsg ? <Attention mode={AttentionType.ERROR} allowClose={false}>{this.state.errorMsg}</Attention> : null}
                     <ButtonSuccess type="submit">
                         <i className="fa fa-check" aria-hidden="true"></i> OK
