@@ -1,6 +1,4 @@
-import { VInput } from '../v-input/v-input';
 import { VForm } from '../v-form/v-form';
-import { VTextarea } from '../v-textarea/v-textarea';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
 import { PluginsWidget } from '../plugins-widget/plugins-widget';
@@ -15,7 +13,7 @@ export interface INewProjectProps {
 }
 
 export interface INewProjectState {
-    plugins?: HatcheryServer.IPlugin[];
+    plugins?: Array<{ id: string; version: string; }>;
     message?: string | null;
     error?: boolean;
 }
@@ -43,8 +41,8 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
      */
     newProject( json ) {
         const plugins = this.state.plugins!;
-        const ids = plugins.map<string>( function( value ) { return value._id; });
-        this.props.onCreateProject( { name: json.name, plugins: ids, description: json.description });
+        //const ids = plugins.map<string>( function( value ) { return value._id; });
+        this.props.onCreateProject( { name: json.name, plugins: plugins, description: json.description });
     }
 
     /**
@@ -71,22 +69,18 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
                         } }
                         onSubmitted={( json ) => {
                             this.newProject( json );
-                        } }>
-
-                        <VInput name="name"
-                            type="text"
-                            placeholder="Project Name"
-                            validator={ValidationType.NO_HTML | ValidationType.NOT_EMPTY}
-                            />
-
-                        <VTextarea name="description"
-                            placeholder="Project Description"
-                            />
+                        } }
+                        descriptor={{
+                            items: [
+                                { name: 'name', type: 'text', placeholder: 'Project Name', validators: ValidationType.NO_HTML | ValidationType.NOT_EMPTY },
+                                { name: 'description', type: 'textarea', placeholder: 'Project Description' }
+                            ]
+                        }}>
                     </VForm>
                 </div>
                 <div className="double-column" style={{ width: '60%' }}>
                     <PluginsWidget
-                        onChange={( plugins ) => { this.setState( { plugins: plugins }) } }
+                        onChange={() => { } }
                         />
                 </div>
                 <div className="fix"></div>
