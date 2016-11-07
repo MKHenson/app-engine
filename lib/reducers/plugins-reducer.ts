@@ -1,8 +1,8 @@
 import { IPluginAction, IPluginSelectAction, IPluginToggleAction } from '../actions/plugin-actions';
-import { IStorePlugins } from 'hatchery-editor';
+import { IPlugins } from 'hatchery-editor';
 
 // The defaults of the plugin store
-const defaults: IStorePlugins = {
+const defaults: IPlugins = {
     plugins: [],
     error: null,
     loading: false,
@@ -66,23 +66,23 @@ function createPluginMap( plugins: HatcheryServer.IPlugin[] ) {
 /**
  * A reducer that processes state changes of the plugins
  */
-export function editorReducer( state: IStorePlugins = defaults, action: IPluginAction ): IStorePlugins {
+export function pluginReducer( state: IPlugins = defaults, action: IPluginAction ): IPlugins {
     let toRet = state;
 
     switch ( action.type ) {
         case 'PLUGINS_REQUEST_PENDING':
-            toRet = Object.assign<IStorePlugins>( {}, state, { loading: true, error: null });
+            toRet = Object.assign<IPlugins>( {}, state, { loading: true, error: null });
             break;
         case 'PLUGINS_REQUEST_REJECTED':
-            toRet = Object.assign<IStorePlugins>( {}, state, action.data! );
+            toRet = Object.assign<IPlugins>( {}, state, action.data!, { loading: false });
             break;
         case 'PLUGINS_DOWNLOADED':
-            toRet = Object.assign<IStorePlugins>( {}, state, action.data! );
+            toRet = Object.assign<IPlugins>( {}, state, action.data! );
             toRet.map = createPluginMap( toRet.plugins! );
             break;
         case 'PLUGINS_EXPAND_TOGGLE':
-            toRet = Object.assign<IStorePlugins>( {}, state, {
-                plugins: action.data!.plugins!.map(( item ) => {
+            toRet = Object.assign<IPlugins>( {}, state, {
+                plugins: state.plugins!.map(( item ) => {
                     if ( item.name === ( action as IPluginToggleAction ).plugin )
                         return Object.assign<HatcheryServer.IPlugin>( {}, item, { expanded: !item.expanded! });
                     else
@@ -92,7 +92,7 @@ export function editorReducer( state: IStorePlugins = defaults, action: IPluginA
             toRet.map = createPluginMap( toRet.plugins! );
             break;
         case 'PLUGINS_SELECTED':
-            toRet = Object.assign<IStorePlugins>( {}, state, {
+            toRet = Object.assign<IPlugins>( {}, state, {
                 plugins: action.data!.plugins!.map(( item ) => {
                     if ( item._id === ( action as IPluginSelectAction ).id )
                         return Object.assign<HatcheryServer.IPlugin>( {}, item, { selected: ( action as IPluginSelectAction ).selected });
@@ -105,6 +105,11 @@ export function editorReducer( state: IStorePlugins = defaults, action: IPluginA
         default:
             break;
     }
+
+    if ( toRet.plugins )
+        for ( const plugin of toRet.plugins )
+            if ( !Array.isArray( plugin.versions! ) )
+                plugin.versions = [ plugin.versions as any ];
 
     return toRet;
 }

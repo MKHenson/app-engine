@@ -8,7 +8,6 @@ declare module 'hatchery-server' {
 
     // Extends the IProject interface to include additional data
     export interface IProject {
-        $plugins?: Array<IPlugin>;
         selected?: boolean;
     }
 
@@ -18,6 +17,12 @@ declare module 'hatchery-server' {
         $error?: string | null;
         $instance?: IPlugin;
         expanded?: boolean;
+        selected?: boolean;
+    }
+
+    // Extends the IPluginVersion interface
+    export interface IPluginVersion {
+        mouseOver?: boolean;
         selected?: boolean;
     }
 

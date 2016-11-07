@@ -118,55 +118,56 @@ export class PluginManager extends EventDispatcher {
 
 
 
-    /**
-     * Sorts the plugins based on their versions
-     */
-    sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
-        for ( let i = 0, l = plugins.length; i < l; i++ ) {
-            if ( !this._allPlugins[ plugins[ i ].name! ] )
-                this._allPlugins[ plugins[ i ].name! ] = [];
-            else
-                continue;
+    // /**
+    //  * Sorts the plugins based on their versions
+    //  */
+    // sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
 
-            let pluginArray = this._allPlugins[ plugins[ i ].name! ];
+    //     for ( let i = 0, l = plugins.length; i < l; i++ ) {
+    //         if ( !this._allPlugins[ plugins[ i ].name! ] )
+    //             this._allPlugins[ plugins[ i ].name! ] = [];
+    //         else
+    //             continue;
 
-            for ( let ii = 0; ii < l; ii++ )
-                if ( plugins[ ii ].name === plugins[ i ].name )
-                    pluginArray.push( plugins[ ii ] );
+    //         let pluginArray = this._allPlugins[ plugins[ i ].name! ];
 
-            // Sort the plugins based on their versions
-            pluginArray = pluginArray.sort( function compare( a, b ) {
-                if ( a === b )
-                    return 0;
+    //         for ( let ii = 0; ii < l; ii++ )
+    //             if ( plugins[ ii ].name === plugins[ i ].name )
+    //                 pluginArray.push( plugins[ ii ] );
 
-                const a_components = a.version!.split( '.' );
-                const b_components = b.version!.split( '.' );
+    //         // Sort the plugins based on their versions
+    //         pluginArray = pluginArray.sort( function compare( a, b ) {
+    //             if ( a === b )
+    //                 return 0;
 
-                const len = Math.min( a_components.length, b_components.length );
+    //             const a_components = a.version!.split( '.' );
+    //             const b_components = b.version!.split( '.' );
 
-                // loop while the components are equal
-                for ( let i = 0; i < len; i++ ) {
-                    // A bigger than B
-                    if ( parseInt( a_components[ i ] ) > parseInt( b_components[ i ] ) )
-                        return 1;
+    //             const len = Math.min( a_components.length, b_components.length );
 
-                    // B bigger than A
-                    if ( parseInt( a_components[ i ] ) < parseInt( b_components[ i ] ) )
-                        return -1;
-                }
+    //             // loop while the components are equal
+    //             for ( let i = 0; i < len; i++ ) {
+    //                 // A bigger than B
+    //                 if ( parseInt( a_components[ i ] ) > parseInt( b_components[ i ] ) )
+    //                     return 1;
 
-                // If one's a prefix of the other, the longer one is greater.
-                if ( a_components.length > b_components.length )
-                    return 1;
+    //                 // B bigger than A
+    //                 if ( parseInt( a_components[ i ] ) < parseInt( b_components[ i ] ) )
+    //                     return -1;
+    //             }
 
-                if ( a_components.length < b_components.length )
-                    return -1;
+    //             // If one's a prefix of the other, the longer one is greater.
+    //             if ( a_components.length > b_components.length )
+    //                 return 1;
 
-                // Otherwise they are the same.
-                return 0;
-            });
-        }
-    }
+    //             if ( a_components.length < b_components.length )
+    //                 return -1;
+
+    //             // Otherwise they are the same.
+    //             return 0;
+    //         });
+    //     }
+    // }
 
     /**
      * This funtcion is used to load a plugin.

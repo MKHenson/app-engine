@@ -51,6 +51,14 @@ declare module HatcheryServer {
     }
 
     /**
+    * An interface that describes the plugin versions
+    */
+    export interface IPluginVersion {
+        version?: string;
+        deployables?: Array<string>;
+    }
+
+    /**
     * An interface that is used to describe the plugin model
     */
     export interface IPlugin {
@@ -58,10 +66,7 @@ declare module HatcheryServer {
         description?: string;
         url?: string;
         plan?: number;
-        versions?: Array<{
-            version?: string;
-            deployables?: Array<string>;
-        }>;
+        versions?: IPluginVersion[];
         image?: string;
         author?: string;
         createdOn?: number;
@@ -92,7 +97,7 @@ declare module HatcheryServer {
         readPrivileges?: Array<string>;
         writePrivileges?: Array<string>;
         adminPrivileges?: Array<string>;
-        plugins?: Array<any>;
+        plugins?: Array<{ id: string; version: string; }>;
         files?: Array<string>;
         createdOn?: number;
         lastModified?: number;

@@ -1,4 +1,4 @@
-import { IStorePlugins } from 'hatchery-editor';
+import { IPlugins } from 'hatchery-editor';
 import { get } from '../core/utils';
 import { DB } from '../setup/db';
 
@@ -17,7 +17,7 @@ export type PluginActionType =
  */
 export interface IPluginAction extends Redux.Action {
     type: PluginActionType;
-    data?: IStorePlugins;
+    data?: IPlugins;
 };
 
 /**
@@ -43,7 +43,7 @@ export function downloadPluginList() {
         dispatch<IPluginAction>( { type: 'PLUGINS_REQUEST_PENDING' });
 
         get<Modepress.IGetArrayResponse<HatcheryServer.IPlugin>>( `${DB.API}/plugins` ).then(( response: ModepressAddons.IGetProjects ) => {
-            dispatch<IPluginAction>( { type: 'PLUGINS_DOWNLOADED', data: { plugins: response.data } });
+            dispatch<IPluginAction>( { type: 'PLUGINS_DOWNLOADED', data: { plugins: response.data, loading: false } });
         }).catch(( err: Error ) => {
             dispatch<IPluginAction>( { type: 'PLUGINS_REQUEST_REJECTED', data: { error: err } });
         });

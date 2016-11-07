@@ -1,4 +1,4 @@
-﻿import { IStore, ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
+﻿import { IStore, ISplashScreen, HatcheryProps, IUser, IPlugins } from 'hatchery-editor';
 import { logout, removeProject } from '../../actions/user-actions';
 import { getProjectList, createProject } from '../../actions/splash-actions';
 import { LogActions } from '../../actions/logger-actions';
@@ -13,6 +13,7 @@ export interface ISplashProps extends HatcheryProps {
     user?: IUser;
     splash?: ISplashScreen;
     section?: string;
+    plugins?: IPlugins;
 }
 
 /**
@@ -70,6 +71,7 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
 
         return (
             <OpenProject
+                plugins={this.props.plugins!.plugins!}
                 dispatch={dispatch}
                 project={this.state.project!}
                 onComplete={() => {
@@ -142,6 +144,7 @@ const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: ISto
     return {
         user: state.user,
         splash: state.splash,
+        plugins: state.plugins,
         section: ownProps.routeParams.section
     }
 })( Splash )

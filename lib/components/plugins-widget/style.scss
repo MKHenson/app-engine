@@ -31,26 +31,17 @@
         margin: 10px 0;
     }
 
-    .no-other-versions, .secondary-plugin {
-        .more {
-            display: none;
-        }
-    }
-
-    .secondary-plugin {
+    .version {
         padding: 0;
         box-sizing: border-box;
         display:none;
-
-        &.expanded {
-            padding: 0 0 0 10px;
-            display:block;
-        }
-
-        img {
-            display: none;
-        }
     }
+
+     .expanded .version {
+        padding: 0 0 0 10px;
+        display:block;
+    }
+
 
     .plugins {
         overflow:auto;
@@ -73,9 +64,9 @@
             }
         }
 
-        .not-directly-selected.v-checkbox input:checked + label:before {
+        /*.not-directly-selected.v-checkbox input:checked + label:before {
             color: $text-lightest;
-        }
+        }*/
     }
 
     .plugin {

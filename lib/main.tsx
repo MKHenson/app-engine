@@ -1,12 +1,10 @@
 import './setup/emitters';
-import { LoaderBase } from './core/loaders/loader-base';
-import { DB } from './setup/db';
 import { editorReducer } from './reducers/editor-reducer';
 import { loggerReducer } from './reducers/logger-reducer';
 import { projectReducer } from './reducers/project-reducer';
 import { splashReducer } from './reducers/splash-reducer';
+import { pluginReducer } from './reducers/plugins-reducer';
 import { userReducer } from './reducers/user-reducer';
-import { PluginManager } from './core/plugin-manager';
 import { Application } from './containers/application/application';
 import { Splash } from './containers/splash/splash';
 import { LoginWidget } from './containers/login-widget/login-widget';
@@ -44,6 +42,7 @@ function createStore(): Redux.Store<any> {
         editorState: editorReducer,
         logs: loggerReducer,
         user: userReducer,
+        plugins: pluginReducer,
         splash: splashReducer,
         routing: ReactRouterRedux.routerReducer
     });
@@ -62,8 +61,8 @@ function createStore(): Redux.Store<any> {
 /**
  * Once the plugins are loaded from the DB
  */
-function onPluginsLoaded( plugins: HatcheryServer.IPlugin[] ) {
-    PluginManager.getSingleton().sortPlugins( plugins );
+function onPluginsLoaded() { // plugins: HatcheryServer.IPlugin[] ) {
+    // PluginManager.getSingleton().sortPlugins( plugins );
 
     const store = createStore();
     const history = ReactRouterRedux.syncHistoryWithStore( ReactRouter.browserHistory, store );
@@ -105,15 +104,17 @@ jQuery( document ).ready( function() {
         xhrFields: { withCredentials: true }
     });
 
-    // Show the loading animation
-    LoaderBase.showLoader();
+    // // Show the loading animation
+    // LoaderBase.showLoader();
 
-    // Donwload the plugins available to this user
-    jQuery.getJSON( `${DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
-        onPluginsLoaded( response.data );
-    }).fail( function( err: JQueryXHR ) {
-        document.write( `An error occurred while connecting to the server. ${err.status}: ${err.responseText}` );
-    }).always( function() {
-        LoaderBase.hideLoader();
-    });
+    // // Donwload the plugins available to this user
+    // jQuery.getJSON( `${DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
+    //     onPluginsLoaded( response.data );
+    // }).fail( function( err: JQueryXHR ) {
+    //     document.write( `An error occurred while connecting to the server. ${err.status}: ${err.responseText}` );
+    // }).always( function() {
+    //     LoaderBase.hideLoader();
+    // });
+
+    onPluginsLoaded();
 });

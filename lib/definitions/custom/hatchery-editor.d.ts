@@ -183,7 +183,7 @@ declare namespace Animate {
     /**
      * Describes the plugins available to the editor
      */
-    export interface IStorePlugins extends IBaseStoreState {
+    export interface IPlugins extends IBaseStoreState {
         plugins?: HatcheryServer.IPlugin[];
         map?: { [ name: string ]: HatcheryServer.IPlugin[] };
     }
@@ -197,7 +197,7 @@ declare namespace Animate {
         project: IProject;
         user: IUser;
         logs: ILogMessage[];
-        storePlugins: IStorePlugins;
+        plugins: IPlugins;
     }
 }
 

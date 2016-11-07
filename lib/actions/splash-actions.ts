@@ -1,7 +1,6 @@
 import { ISplashScreen } from 'hatchery-editor';
 import { post, get } from '../core/utils';
 import { DB } from '../setup/db';
-import { PluginManager } from '../core/plugin-manager';
 
 /**
  * Describes each of the splash screen action types
@@ -39,19 +38,6 @@ export function getProjectList( user: string, index: number, limit: number, sear
 
             const projects = response.data;
 
-            // Assign the plugins
-            for ( const project of projects ) {
-                const plugins = project.plugins!.map(( pluginName: string ) => {
-                    const iPlugin = PluginManager.getSingleton().getPluginByID( pluginName );
-                    if ( iPlugin )
-                        return iPlugin;
-
-                    throw new Error( `Could not find a plugin with the name '${pluginName}'` );
-                });
-
-                project.$plugins = plugins;
-            }
-
             dispatch<ISplashAction>( {
                 type: 'SPLASH_GET_PROJECTS',
                 data: {
@@ -84,15 +70,6 @@ export function createProject( options: HatcheryServer.IProject ) {
 
             // Assign the actual plugins
             const project = response.data;
-            const plugins = project.plugins!.map(( pluginName: string ) => {
-                const iPlugin = PluginManager.getSingleton().getPluginByID( pluginName );
-                if ( iPlugin )
-                    return iPlugin;
-
-                throw new Error( `Could not find a plugin with the name '${pluginName}'` );
-            });
-
-            project.$plugins = plugins;
 
             return dispatch<ISplashAction>( {
                 type: 'SPLASH_PROJECT_CREATED', data: {

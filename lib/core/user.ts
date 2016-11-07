@@ -3,7 +3,6 @@ import { Project } from './project';
 import { UserPlan } from '../setup/enums';
 import { IAjaxError, post, put } from './utils';
 import { DB } from '../setup/db';
-import { PluginManager } from '../core/plugin-manager';
 
 /**
 * This class is used to represent the user who is logged into Animate.
@@ -230,7 +229,7 @@ export class User extends EventDispatcher {
     * @param plugins An array of plugin IDs to identify which plugins to use
     * @param description [Optional] A short description
     */
-    newProject( name: string, plugins: Array<string>, description: string = '' ): Promise<ModepressAddons.ICreateProject> {
+    newProject( name: string, plugins: Array<{ id: string; version: string; }>, description: string = '' ): Promise<ModepressAddons.ICreateProject> {
         const token: HatcheryServer.IProject = {
             name: name,
             description: description,
@@ -243,12 +242,12 @@ export class User extends EventDispatcher {
                     return reject( new Error( data.message ) );
 
                 // Assign the actual plugins
-                const project = data.data;
-                const plugins: Array<HatcheryServer.IPlugin> = [];
-                for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
-                    plugins.push( PluginManager.getSingleton().getPluginByID( project.plugins![ ii ] ) ! );
+                // const project = data.data;
+                // const plugins: Array<HatcheryServer.IPlugin> = [];
+                // for ( let ii = 0, il = project.plugins!.length; ii < il; ii++ )
+                //     plugins.push( PluginManager.getSingleton().getPluginByID( project.plugins![ ii ] ) ! );
 
-                project.$plugins = plugins;
+                // project.$plugins = plugins;
 
                 return resolve( data );
 

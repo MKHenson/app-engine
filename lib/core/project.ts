@@ -647,5 +647,5 @@ export class Project extends EventDispatcher {
         }
     }
 
-    get plugins(): Array<HatcheryServer.IPlugin> { return this._entry.$plugins!; }
+    // get plugins(): Array<HatcheryServer.IPlugin> { return this._entry.$plugins!; }
 }
