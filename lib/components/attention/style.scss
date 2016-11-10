@@ -2,7 +2,7 @@ $attention-icon-ratio: 20%;
 
 .attention {
     text-align: left;
-    display:table;
+    display:flex;
     width: 100%;
     .icon {
         text-align: center;
@@ -18,17 +18,27 @@ $attention-icon-ratio: 20%;
     }
 
     .close {
-        display:table-cell;
         vertical-align: top;
         cursor: pointer;
         padding: 5px;
         opacity: 0.6;
         transition: opacity 1s;
-        width: 5px;
+
         &:hover {
             opacity:1;
         }
     }
+
+    .icon, .message, .close {
+        flex: 1 100%;
+    }
+    .icon {
+        flex-basis: 50px;
+    }
+    .close {
+        flex-basis: 25px;
+    }
+
     &.warning {
         background: $attention-warning;
         color: shade( $attention-warning, 50 );
