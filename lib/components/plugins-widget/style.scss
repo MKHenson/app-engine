@@ -5,19 +5,6 @@
         color: $ps-blue;
     }
 
-    .double-column {
-        transition: width 1s;
-    }
-    &.no-plugin .double-column {
-        &:first-child {
-            width:100%;
-        }
-        &:last-child {
-            width:0%;
-        }
-    }
-
-
     .fa-cog {
         display: none;
         font-size: 30px;
@@ -25,6 +12,11 @@
     }
     &.loading .fa-cog {
         display: inline-block;
+    }
+
+    .divider {
+        border-top: 1px solid #ccc;
+        margin: 20px auto;
     }
 
     h2 {
