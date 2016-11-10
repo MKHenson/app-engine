@@ -140,7 +140,7 @@ gulp.task( 'bundle-js-files', [ 'compile-typescript' ], function() {
 /**
  * Ensures the code quality is up to scratch
  */
-gulp.task( 'tslint', [ 'bundle-js-files' ], function() {
+gulp.task( 'tslint', function() {
     return tsProject.src()
         .pipe( tslint( {
             configuration: 'tslint.json',
@@ -281,12 +281,12 @@ gulp.task( 'install-definitions', function() {
  */
 gulp.task( 'watch', function() {
     gulp.watch( 'lib/**/*.scss', [ 'css' ] );
-    gulp.watch( [ 'lib/**/*.ts', 'lib/**/*.tsx' ], [ 'tslint' ] );
+    gulp.watch( [ 'lib/**/*.ts', 'lib/**/*.tsx' ], [ 'bundle-js-files', 'tslint' ] );
     gulp.watch( [ 'lib/**/*.html' ], [ 'html' ] );
     gulp.watch( [ 'lib/media/**/*.*' ], [ 'media' ] );
 })
 
 
 gulp.task( 'install', [ 'install-third-parties', 'install-definitions' ] );
-gulp.task( 'quick-build', [ 'tslint' ] );
-gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'ts-code-declaration', 'css' ] );
+gulp.task( 'quick-build', [ 'tslint', 'bundle-js-files', 'css' ] );
+gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'bundle-js-files', 'ts-code-declaration', 'css' ] );
