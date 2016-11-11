@@ -5,6 +5,7 @@ import { PluginsWidget } from '../plugins-widget/plugins-widget';
 import { ValidationType, AttentionType } from '../../setup/enums';
 import { capitalize } from '../../core/utils';
 import { ISplashScreen } from 'hatchery-editor';
+import { IProject } from 'hatchery-server';
 
 export interface INewProjectProps {
     onCreateProject: ( options: HatcheryServer.IProject ) => void;
@@ -39,7 +40,7 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
     /**
      * Creates a new user project
      */
-    newProject( json ) {
+    newProject( json: IProject ) {
         const plugins = this.state.plugins!;
         //const ids = plugins.map<string>( function( value ) { return value._id; });
         this.props.onCreateProject( { name: json.name, plugins: plugins, description: json.description });
@@ -81,13 +82,17 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
                 <div className="double-column" style={{ width: '60%' }}>
                     <PluginsWidget
                         onError={( e ) => this.setState( { error: true, message: e.message })}
-                        onChange={() => { } }
+                        onChange={( plugins ) => {
+                            this.setState( {
+                                plugins: plugins
+                            });
+                        } }
                         />
                 </div>
                 <div className="fix"></div>
                 <div className="buttons">
                     {(
-                        message || message !== '' ?
+                        message ?
                             <Attention
                                 allowClose={false}
                                 showIcon={error}

@@ -7,8 +7,7 @@ const defaultSplashState: ISplashScreen = {
     projects: [],
     numProjects: 0,
     serverResponse: null,
-    selectedProject: null,
-    screen: 'welcome'
+    selectedProject: null
 }
 
 /**
@@ -19,7 +18,7 @@ export function splashReducer( state: ISplashScreen, action: ISplashAction ): IS
 
     switch ( action.type ) {
         case 'SPLASH_REQUEST_PENDING':
-            toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: true, error: null });
+            toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: true, error: null, serverResponse: null });
             break;
         case 'SPLASH_REQUEST_REJECTED':
         case 'SPLASH_REQUEST_FULFILLED':

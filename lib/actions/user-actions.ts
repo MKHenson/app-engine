@@ -189,7 +189,7 @@ export function removeProject( username: string, pid: string ) {
 /**
  * Attempts to log the user in using the token provided
  */
-export function login( token: UsersInterface.ILoginToken ) {
+export function login( token: UsersInterface.ILoginToken, forward: string = '/overview' ) {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
 
         dispatch( { type: 'USER_REQUEST_PENDING' });
@@ -222,7 +222,7 @@ export function login( token: UsersInterface.ILoginToken ) {
             });
 
             // Make sure we go to the overview
-            dispatch( ReactRouterRedux.push( '/overview' ) );
+            dispatch( ReactRouterRedux.push( forward ) );
 
 
         }).catch(( err: Error ) => {

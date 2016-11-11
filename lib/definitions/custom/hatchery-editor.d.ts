@@ -177,7 +177,7 @@ declare namespace Animate {
         projects?: HatcheryServer.IProject[];
         numProjects?: number;
         selectedProject?: HatcheryServer.IProject | null;
-        screen?: 'welcome' | 'new-project' | 'opening-project';
+        // screen?: 'welcome' | 'new-project' | 'opening-project';
     }
 
     /**

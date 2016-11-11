@@ -42,7 +42,7 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
                 onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
                 onResetPasswordRequest={( username ) => dispatch( resetPassword( username ) )}
                 onResendActivationRequest={( username ) => dispatch( resendActivation( username ) )}
-                onLoginRequested={( token ) => dispatch( login( token ) )}
+                onLoginRequested={( token ) => dispatch( login( token, this.props.forward ) )}
                 />;
         else
             activePane = <RegisterForm
