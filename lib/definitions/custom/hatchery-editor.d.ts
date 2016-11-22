@@ -159,6 +159,7 @@ declare namespace Animate {
         curBuild?: any | null;
         restPaths?: { [ type: number ]: { url: string; array: any[] }; }
         entry?: HatcheryServer.IProject | null;
+        plugins?: HatcheryServer.IPlugin[];
     }
 
     /**
@@ -181,14 +182,6 @@ declare namespace Animate {
     }
 
     /**
-     * Describes the plugins available to the editor
-     */
-    export interface IPlugins extends IBaseStoreState {
-        plugins?: HatcheryServer.IPlugin[];
-        map?: { [ name: string ]: HatcheryServer.IPlugin[] };
-    }
-
-    /**
      * The root interface for the application store
      */
     export interface IStore {
@@ -197,7 +190,6 @@ declare namespace Animate {
         project: IProject;
         user: IUser;
         logs: ILogMessage[];
-        plugins: IPlugins;
     }
 }
 

@@ -8,21 +8,28 @@ const defaultState: IProject = {
     entry: null,
     loading: false,
     openEditors: [],
-    restPaths: {}
+    restPaths: {},
+    plugins: [],
+    serverResponse: null
 }
 
 /**
  * A reducer for processing project actions
  */
 export function projectReducer( state: IProject = defaultState, action: IProjectAction ) {
+    let toReturn = state;
+
     switch ( action.type ) {
         case 'PROJECT_REQUEST_PENDING':
-            return Object.assign<IProject>( {}, state, { loading: true });
+            toReturn = Object.assign<IProject>( {}, state, { loading: true });
         case 'PROJECT_REQUEST_REJECTED':
         case 'PROJECT_CREATED':
         case 'PROJECT_OPENED':
-            return Object.assign<IProject>( {}, state, { loading: false }, action.project );
+        case 'PROJECT_PLUGIN_LOADED':
+            toReturn = Object.assign<IProject>( {}, state, { loading: false }, action.project );
         default:
-            return state;
+            toReturn = state;
     }
+
+    return toReturn;
 }

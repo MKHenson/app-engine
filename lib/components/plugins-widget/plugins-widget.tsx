@@ -3,7 +3,7 @@ import { get } from '../../core/utils';
 import { DB } from '../../setup/db';
 
 export interface IPluginsWidgetProps {
-    onChange: ( plugins?: Array<{ id: string; version: string; }> ) => void;
+    onChange: ( selectedPlugins: { id: string; version: string; }[] ) => void;
     onError: ( error: Error ) => void;
 }
 
@@ -121,14 +121,23 @@ export class PluginsWidget extends React.Component<IPluginsWidgetProps, IPlugins
         version.selected = true;
     }
 
+    /**
+     * When the user selects a plugin we trigger the onChange event
+     */
     onChange( plugins: HatcheryServer.IPlugin[] ) {
-        const selectedPlugins: Array<{ id: string; version: string; }> = [];
-        for ( const plugin of plugins )
-            if ( plugin.selected )
-                selectedPlugins.push( {
+        const selectedVersions: { id: string; version: string; }[] = [];
+
+        for ( const plugin of plugins ) {
+            if ( plugin.selected ) {
+                selectedVersions.push( {
                     id: plugin._id,
                     version: plugin.versions!.filter( v => v.selected ).pop() !.version!
-                })
+                });
+            }
+        }
+
+        if ( this.props.onChange )
+            this.props.onChange( selectedVersions );
     }
 
     /**

@@ -9,8 +9,9 @@ import { PluginManagerEvents, ITemplateEvent } from '../setup/events';
 import { IPlugin, IPreviewFactory } from 'hatchery-editor-plugins';
 import { AssetClass } from './asset-class';
 import { ImageVisualizer } from './file-visualizers/image-visualizer';
+import { IStore } from 'hatchery-editor';
 
-declare var __newPlugin: IPlugin | null;
+// declare var __newPlugin: IPlugin | null;
 
 /**
  * The plugin manager is used to load and manage external Animate plugins.
@@ -18,27 +19,20 @@ declare var __newPlugin: IPlugin | null;
 export class PluginManager extends EventDispatcher {
     private static _singleton: PluginManager;
 
-    private _plugins: Array<IPlugin>;
-    private _loadedPlugins: Array<IPlugin>;
+    private _store: Redux.Store<IStore>;
     private _behaviourTemplates: Array<BehaviourDefinition>;
     private _assetTemplates: Array<AssetTemplate>;
     private _converters: Array<TypeConverter>;
     private _previewVisualizers: Array<IPreviewFactory>;
 
 
-    private _allPlugins: { [ name: string ]: Array<HatcheryServer.IPlugin> };
 
 
-
-
-    constructor() {
+    constructor( store: Redux.Store<IStore> ) {
         super();
 
-        // Set this singleton
-        PluginManager._singleton = this;
+        this._store = store;
 
-        this._plugins = new Array<IPlugin>();
-        this._allPlugins = {};
         this._behaviourTemplates = new Array<BehaviourDefinition>();
         this._assetTemplates = new Array<AssetTemplate>();
         this._converters = new Array<TypeConverter>();
@@ -58,7 +52,7 @@ export class PluginManager extends EventDispatcher {
 
         this._behaviourTemplates.push( new BehaviourDefinition( 'Portal', [], null, false, false, false, false ) );
         this._behaviourTemplates.push( new BehaviourDefinition( 'Instance', [], null, true, true, true, true ) );
-        this._loadedPlugins = [];
+
         // TODO: This must be refactored from updates to TSX
         // ==================================================
         // BehaviourPicker.getSingleton().list.addItem( 'Asset' );
@@ -67,106 +61,39 @@ export class PluginManager extends EventDispatcher {
         this._previewVisualizers = [ new ImageVisualizer() ];
     }
 
-    /**
-     * Attempts to download a plugin by its URL and insert it onto the page.
-     * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
-     * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-     * @param pluginDefinition The plugin to load
-     */
-    loadPlugin( pluginDefinition: HatcheryServer.IPlugin ): Promise<HatcheryServer.IPlugin> {
-        if ( pluginDefinition.$loaded )
-            return Promise.resolve();
-
-        return new Promise<HatcheryServer.IPlugin>( function( resolve, reject ) {
-            const script = document.createElement( 'script' );
-            script.onerror = function() {
-                pluginDefinition.$loaded = false;
-                return reject( new Error( `'${pluginDefinition.name}' could not be downloaded` ) );
-            }
-            script.onload = function() {
-
-                // TODO: The __newPlugin way of doing things is terrible - we need something better
-
-                if ( !__newPlugin )
-                    return reject( new Error( `'${pluginDefinition.name}' could not be downloaded or __newPlugin not set` ) );
-
-                pluginDefinition.$loaded = true;
-                pluginDefinition.$instance = __newPlugin;
-                __newPlugin = null;
-                return resolve( pluginDefinition );
-            }
-
-            script.async = true;
-            script.src = pluginDefinition.url!;
-            document.head.appendChild( script );
-        });
-    }
-
-    /**
-     * Goes through each of the plugins and returns the one with the matching ID
-     * @param id The ID of the plugin to fetch
-     */
-    getPluginByID( id: string ): HatcheryServer.IPlugin | null {
-        for ( const pluginName in this._allPlugins ) {
-            for ( let i = 0, l = this._allPlugins[ pluginName ].length; i < l; i++ )
-                if ( this._allPlugins[ pluginName ][ i ]._id === id )
-                    return this._allPlugins[ pluginName ][ i ];
-        }
-
-        return null;
-    }
-
-
-
     // /**
-    //  * Sorts the plugins based on their versions
+    //  * Attempts to download a plugin by its URL and insert it onto the page.
+    //  * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
+    //  * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
+    //  * @param pluginDefinition The plugin to load
     //  */
-    // sortPlugins( plugins: HatcheryServer.IPlugin[] ) {
+    // loadPlugin( pluginDefinition: HatcheryServer.IPlugin ): Promise<HatcheryServer.IPlugin> {
+    //     if ( pluginDefinition.$loaded )
+    //         return Promise.resolve();
 
-    //     for ( let i = 0, l = plugins.length; i < l; i++ ) {
-    //         if ( !this._allPlugins[ plugins[ i ].name! ] )
-    //             this._allPlugins[ plugins[ i ].name! ] = [];
-    //         else
-    //             continue;
+    //     return new Promise<HatcheryServer.IPlugin>( function( resolve, reject ) {
+    //         const script = document.createElement( 'script' );
+    //         script.onerror = function() {
+    //             pluginDefinition.$loaded = false;
+    //             return reject( new Error( `'${pluginDefinition.name}' could not be downloaded` ) );
+    //         }
+    //         script.onload = function() {
 
-    //         let pluginArray = this._allPlugins[ plugins[ i ].name! ];
+    //             // TODO: The __newPlugin way of doing things is terrible - we need something better
 
-    //         for ( let ii = 0; ii < l; ii++ )
-    //             if ( plugins[ ii ].name === plugins[ i ].name )
-    //                 pluginArray.push( plugins[ ii ] );
+    //             if ( !__newPlugin )
+    //                 return reject( new Error( `'${pluginDefinition.name}' could not be downloaded or __newPlugin not set` ) );
 
-    //         // Sort the plugins based on their versions
-    //         pluginArray = pluginArray.sort( function compare( a, b ) {
-    //             if ( a === b )
-    //                 return 0;
+    //             pluginDefinition.$loaded = true;
+    //             pluginDefinition.$instance = __newPlugin;
+    //             __newPlugin = null;
+    //             return resolve( pluginDefinition );
+    //         }
 
-    //             const a_components = a.version!.split( '.' );
-    //             const b_components = b.version!.split( '.' );
-
-    //             const len = Math.min( a_components.length, b_components.length );
-
-    //             // loop while the components are equal
-    //             for ( let i = 0; i < len; i++ ) {
-    //                 // A bigger than B
-    //                 if ( parseInt( a_components[ i ] ) > parseInt( b_components[ i ] ) )
-    //                     return 1;
-
-    //                 // B bigger than A
-    //                 if ( parseInt( a_components[ i ] ) < parseInt( b_components[ i ] ) )
-    //                     return -1;
-    //             }
-
-    //             // If one's a prefix of the other, the longer one is greater.
-    //             if ( a_components.length > b_components.length )
-    //                 return 1;
-
-    //             if ( a_components.length < b_components.length )
-    //                 return -1;
-
-    //             // Otherwise they are the same.
-    //             return 0;
-    //         });
-    //     }
+    //         script.async = true;
+    //         script.src = pluginDefinition.url!;
+    //         document.head.appendChild( script );
+    //     });
     // }
 
     /**
@@ -176,7 +103,6 @@ export class PluginManager extends EventDispatcher {
      */
     preparePlugin( pluginDefinition: any ) {
         const plugin: IPlugin = pluginDefinition.$instance!;
-        this._plugins.push( plugin );
 
         // Get behaviour definitions
         const btemplates: Array<BehaviourDefinition> = plugin.getBehaviourDefinitions();
@@ -321,25 +247,6 @@ export class PluginManager extends EventDispatcher {
     }
 
     /**
-     * Called when the project is reset by either creating a new one or opening an older one.
-     */
-    projectReset() {
-        // Cleanup all the previous plugins
-        for ( let i = 0; i < this._plugins.length; i++ )
-            this.unloadPlugin( this._plugins[ i ] );
-
-        this._plugins.splice( 0, this._plugins.length );
-        this._loadedPlugins.splice( 0, this._loadedPlugins.length );
-    }
-
-    /**
-     * This function is called by Animate when everything has been loaded and the user is able to begin their session.
-     */
-    projectReady() {
-        this.emit<PluginManagerEvents, void>( 'editor-ready' );
-    }
-
-    /**
      * Creates a thumbnail preview of the file
      */
     thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null {
@@ -373,15 +280,21 @@ export class PluginManager extends EventDispatcher {
     }
 
     get assetTemplates(): AssetTemplate[] { return this._assetTemplates; }
-    get loadedPlugins(): IPlugin[] { return this._loadedPlugins; }
     get behaviourTemplates(): BehaviourDefinition[] { return this._behaviourTemplates; }
+
+    /**
+     * Gets the application store
+     */
+    get store(): Redux.Store<IStore> {
+        return this._store;
+    }
 
     /**
      * Gets the singleton instance.
      */
-    static getSingleton() {
+    static getSingleton( store?: Redux.Store<IStore> ) {
         if ( !PluginManager._singleton )
-            new PluginManager();
+            PluginManager._singleton = new PluginManager( store! );
 
         return PluginManager._singleton;
     }

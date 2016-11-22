@@ -3,7 +3,7 @@ import { VCheckbox } from '../v-checkbox/v-checkbox';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
 import { AttentionType } from '../../setup/enums';
-// import { PluginManager } from '../../core/plugin-manager';
+import { PluginManager } from '../../core/plugin-manager';
 import { User } from '../../core/user';
 import { IProject } from 'hatchery-editor';
 
@@ -12,7 +12,6 @@ export interface IOpenProjectProps {
     onCancel: () => void;
     onComplete: () => void;
     project: IProject;
-    plugins: HatcheryServer.IPlugin[];
 }
 
 export interface IOpenProjectState {
@@ -41,15 +40,6 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
     loadScene() {
         let project = User.get.project;
         project.entry = this.props.project;
-
-        // Notify of new project
-        // TODO: ALL NEEDS TO BE UPDATED
-        // ==========================================
-        // Toolbar.getSingleton().newProject(project);
-        // CanvasTab.getSingleton().projectReady(project);
-        // TreeViewScene.getSingleton().projectReady(project);
-        // PluginManager.getSingleton().projectReady(project);
-        // ==========================================
 
         let message = `Loading project '${this.props.project.entry!.name}'...`
 
@@ -103,48 +93,46 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
      */
     componentWillMount() {
 
-        // let numLoaded = 0;
-        // let project: HatcheryServer.IProject = this.props.project;
-        // this.setState( {
-        //     mode: AttentionType.SUCCESS,
-        //     loading: true
-        // });
+        let numLoaded = 0;
+        let project: HatcheryServer.IProject = this.props.project;
+        this.setState( {
+            mode: AttentionType.SUCCESS,
+            loading: true
+        });
 
-        // const plugs = project.plugins!;
+        const plugs = project.plugins!;
 
-        throw new Error( 'Load plugins' );
+        // Go through each plugin and load it
+        plugs.forEach(( plugin ) => {
+            plugin.$error = null;
+            PluginManager.getSingleton().loadPlugin( plugin ).then(() => {
 
-        // // Go through each plugin and load it
-        // plugs.forEach(( plugin ) => {
-        //     plugin.$error = null;
-        //     PluginManager.getSingleton().loadPlugin( plugin ).then(() => {
+                // Check if all plugins are loaded
+                numLoaded++;
+                if ( numLoaded >= plugs.length ) {
+                    // Everything loaded - so prepare the plugins
+                    for ( let t = 0, tl = plugs.length; t < tl; t++ )
+                        PluginManager.getSingleton().preparePlugin( plugs[ t ] );
 
-        //         // Check if all plugins are loaded
-        //         numLoaded++;
-        //         if ( numLoaded >= plugs.length ) {
-        //             // Everything loaded - so prepare the plugins
-        //             for ( let t = 0, tl = plugs.length; t < tl; t++ )
-        //                 PluginManager.getSingleton().preparePlugin( plugs[ t ] );
+                    this.setState( {
+                        loading: false
+                    });
 
-        //             this.setState( {
-        //                 loading: false
-        //             });
-
-        //             this.loadScene();
-        //         }
-        //         else {
-        //             this.setState( {
-        //                 loading: false
-        //             });
-        //         }
-        //     }).catch(( err: Error ) => {
-        //         plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
-        //         this.setState( {
-        //             mode: AttentionType.ERROR,
-        //             message: 'Could not load all of the plugins'
-        //         });
-        //     });
-        // });
+                    this.loadScene();
+                }
+                else {
+                    this.setState( {
+                        loading: false
+                    });
+                }
+            }).catch(( err: Error ) => {
+                plugin.$error = `Failed to load ${plugin.name} : ${err.message}`;
+                this.setState( {
+                    mode: AttentionType.ERROR,
+                    message: 'Could not load all of the plugins'
+                });
+            });
+        });
     }
 
     /**
@@ -152,6 +140,10 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
      */
     render(): JSX.Element {
         let loadingPanel: JSX.Element | undefined;
+        const project = this.props.project!;
+
+
+
         if ( this.props.project ) {
             loadingPanel = <div className="loading-panel">
                 {
@@ -180,21 +172,23 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
             </div>
         }
 
-        return <div id="splash-loading-project" className="loading-project fade-in background">
-            <div>
-                {this.props.project ? <h2>Loading '{this.props.project.entry!.name} '</h2> : <h2>Project Loading</h2>}
-                {loadingPanel}
-                {this.state.message ?
-                    <div className="summary-message"><Attention
-                        allowClose={false}
-                        mode={this.state.mode}
-                        className="error">{this.state.message}
-                    </Attention></div> : null}
+        return (
+            <div id="splash-loading-project" className="loading-project fade-in background">
+                <div>
+                    {this.props.project ? <h2>Loading '{this.props.project.entry!.name} '</h2> : <h2>Project Loading</h2>}
+                    {loadingPanel}
+                    {this.state.message ?
+                        <div className="summary-message"><Attention
+                            allowClose={false}
+                            mode={this.state.mode}
+                            className="error">{this.state.message}
+                        </Attention></div> : null}
 
-            </div>
-            <ButtonPrimary onClick={() => { this.props.onCancel(); } }>
-                <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
+                </div>
+                <ButtonPrimary onClick={() => { this.props.onCancel(); } }>
+                    <i className="fa fa-chevron-left" aria-hidden="true"></i> Back
                 </ButtonPrimary>
-        </div>
+            </div>
+        )
     }
 }
