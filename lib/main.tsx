@@ -76,7 +76,7 @@ function initialize() {
             <ReactRouter.Router history={history}>
                 <ReactRouter.Route path="/" component={Application} >
                     <ReactRouter.IndexRoute component={LoginWidget} />
-                    <ReactRouter.Route path="overview(/:section)" component={Splash} onEnter={( next, replace ) => { requireAuth( next, replace ) } } />
+                    <ReactRouter.Route path="overview(/:section)(/:projectId)" component={Splash} onEnter={( next, replace ) => { requireAuth( next, replace ) } } />
                 </ReactRouter.Route>
                 <ReactRouter.Route path="/dashboard">
                 </ReactRouter.Route>

@@ -13,6 +13,7 @@ export interface ISplashProps extends HatcheryProps {
     user?: IUser;
     splash?: ISplashScreen;
     section?: string;
+    projectId?: string;
 }
 
 /**
@@ -142,7 +143,8 @@ const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: ISto
     return {
         user: state.user,
         splash: state.splash,
-        section: ownProps.routeParams.section
+        section: ownProps.routeParams.section,
+        projectId: ownProps.routeParams.projectId
     }
 })( Splash )
 
