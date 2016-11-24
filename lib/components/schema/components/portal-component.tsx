@@ -1,7 +1,5 @@
-import { IPortal } from 'hatchery-editor';
-
 export interface IPortalComponentProps {
-    portal: IPortal;
+    portal: HatcheryEditor.IPortal;
     onPortalDown?: ( e: React.MouseEvent ) => void;
 }
 

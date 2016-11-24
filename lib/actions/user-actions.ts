@@ -1,4 +1,3 @@
-import { IUser } from 'hatchery-editor';
 import { get, del, post } from '../core/utils';
 import { DB } from '../setup/db';
 
@@ -24,7 +23,7 @@ export type UserActionType =
  */
 export interface IUserAction extends Redux.Action {
     type: UserActionType;
-    userData?: IUser;
+    userData?: HatcheryEditor.IUser;
 };
 
 /**

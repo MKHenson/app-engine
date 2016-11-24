@@ -1,5 +1,4 @@
 import { TreeNodeModel } from './treenode-model';
-import { IDragDropToken } from 'hatchery-editor';
 
 export interface ITreeNodeProps {
     node: TreeNodeModel;
@@ -53,7 +52,7 @@ export class TreeNode extends React.Component<ITreeNodeProps, any> {
                             e.preventDefault();
                             e.stopPropagation();
                             try {
-                                let json: IDragDropToken | null = null;
+                                let json: HatcheryEditor.IDragDropToken | null = null;
                                 let data = e.dataTransfer.getData( 'text' );
                                 if ( data && data !== '' )
                                     json = JSON.parse( data );

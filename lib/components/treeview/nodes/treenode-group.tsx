@@ -4,7 +4,6 @@ import { GroupArray } from '../../../core/project-resources/group-array';
 import { ProjectResource } from '../../../core/project-resources/project-resource';
 import { TreeViewNodeResource } from './treeview-node-resource';
 import { TreeNodeGroupInstance } from './treenode-group-instance';
-import { IDragDropToken } from 'hatchery-editor';
 
 /**
  * This node represents a group asset.
@@ -51,7 +50,7 @@ export class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
      * @param e
      * @param json The unserialized data
      */
-    onDragDrop( e: React.DragEvent, json: IDragDropToken ) {
+    onDragDrop( e: React.DragEvent, json: HatcheryEditor.IDragDropToken ) {
         e; // Supresses unused param error
 
         if ( json.type === 'resource' ) {

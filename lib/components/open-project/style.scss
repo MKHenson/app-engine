@@ -1,6 +1,17 @@
-#splash-loading-project {
+#loading-project {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: rgba(0,0,0,0.6);
+    position: absolute;
+    display: flex;
+    top: 0;
+    left: 0;
+    z-index: 1;
+
     h2 {
-        margin:20px auto;
+        margin-top: 15px;
+        text-align: center;
     }
     button {
         width:100%;
@@ -17,33 +28,34 @@
         width: 50px;
     }
 
-    .summary-message .attention {
-        height: 80px;
+    .loading-project {
+        width: 50%;
+        margin: auto;
+        min-width: 400px;
+        box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
     }
-}
 
-.loading-panel {
-    text-align:left;
-    overflow: auto;
-    max-height: 300px;
-    margin: 0 0 10px 0;
+    .plugins-panel {
+        text-align:left;
+        overflow: auto;
+        max-height: 300px;
 
-    .plugin-item {
-        display: table;
-        width: 100%;
+        .plugin-item {
+            display: table;
+            width: 100%;
 
-        .v-checkbox {
-            width: 40px;
+            .v-checkbox {
+                width: 40px;
+            }
+
+            .v-checkbox, .plugin, .fa-cog, .success {
+                display: table-cell;
+            }
         }
 
-        .v-checkbox, .plugin, .fa-cog, .success {
-            display: table-cell;
+        .plugin {
+            padding: 0 0 5px 0;
+            border-bottom: 2px dashed $input;
         }
     }
-
-    .plugin {
-        padding: 0 0 5px 0;
-        border-bottom: 2px dashed $input;
-    }
 }
-

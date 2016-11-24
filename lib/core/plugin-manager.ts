@@ -9,7 +9,6 @@ import { PluginManagerEvents, ITemplateEvent } from '../setup/events';
 import { IPlugin, IPreviewFactory } from 'hatchery-editor-plugins';
 import { AssetClass } from './asset-class';
 import { ImageVisualizer } from './file-visualizers/image-visualizer';
-import { IStore } from 'hatchery-editor';
 
 // declare var __newPlugin: IPlugin | null;
 
@@ -19,7 +18,7 @@ import { IStore } from 'hatchery-editor';
 export class PluginManager extends EventDispatcher {
     private static _singleton: PluginManager;
 
-    private _store: Redux.Store<IStore>;
+    private _store: Redux.Store<HatcheryEditor.IStore>;
     private _behaviourTemplates: Array<BehaviourDefinition>;
     private _assetTemplates: Array<AssetTemplate>;
     private _converters: Array<TypeConverter>;
@@ -28,7 +27,7 @@ export class PluginManager extends EventDispatcher {
 
 
 
-    constructor( store: Redux.Store<IStore> ) {
+    constructor( store: Redux.Store<HatcheryEditor.IStore> ) {
         super();
 
         this._store = store;
@@ -285,14 +284,14 @@ export class PluginManager extends EventDispatcher {
     /**
      * Gets the application store
      */
-    get store(): Redux.Store<IStore> {
+    get store(): Redux.Store<HatcheryEditor.IStore> {
         return this._store;
     }
 
     /**
      * Gets the singleton instance.
      */
-    static getSingleton( store?: Redux.Store<IStore> ) {
+    static getSingleton( store?: Redux.Store<HatcheryEditor.IStore> ) {
         if ( !PluginManager._singleton )
             PluginManager._singleton = new PluginManager( store! );
 

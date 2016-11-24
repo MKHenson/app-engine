@@ -1,4 +1,3 @@
-import { ISplashScreen } from 'hatchery-editor';
 import { post, get } from '../core/utils';
 import { DB } from '../setup/db';
 
@@ -9,7 +8,7 @@ export type SplashActionType =
     'SPLASH_REQUEST_PENDING' |
     'SPLASH_REQUEST_FULFILLED' |
     'SPLASH_REQUEST_REJECTED' |
-    'SPLASH_PROJECT_CREATED' |
+    // 'SPLASH_PROJECT_CREATED' |
     'SPLASH_SET_SCREEN' |
     'SPLASH_GET_PROJECTS';
 
@@ -18,7 +17,7 @@ export type SplashActionType =
  */
 export interface ISplashAction extends Redux.Action {
     type: SplashActionType;
-    data?: ISplashScreen;
+    data?: HatcheryEditor.ISplashScreen;
 };
 
 /**
@@ -68,13 +67,13 @@ export function createProject( options: HatcheryServer.IProject ) {
             if ( response.error )
                 throw new Error( response.message );
 
-            dispatch<ISplashAction>( {
-                type: 'SPLASH_PROJECT_CREATED', data: {
-                    selectedProject: response.data
-                }
-            });
+            // dispatch<ISplashAction>( {
+            //     type: 'SPLASH_PROJECT_CREATED', data: {
+            //         selectedProject: response.data
+            //     }
+            // });
 
-            dispatch( ReactRouterRedux.push( '/overview/open' ) );
+            dispatch( ReactRouterRedux.push( '/dashboard/' + response.data._id ) );
 
         }).catch( function( err: Error ) {
             return dispatch<ISplashAction>( {

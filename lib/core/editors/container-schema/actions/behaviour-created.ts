@@ -4,7 +4,6 @@ import { BehaviourAsset } from '../items/behaviour-asset';
 import { ContainerSchema } from '../container-schema';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { ProjectResource } from '../../../project-resources/project-resource';
-import { IBehaviour } from 'hatchery-editor';
 
 /**
  * An action for the creation of behaviours within a container
@@ -13,10 +12,10 @@ export class BehaviourCreated extends EditorAction {
 
     definition: BehaviourDefinition;
     instance: Behaviour | null;
-    options: IBehaviour;
+    options: HatcheryEditor.IBehaviour;
     resource: ProjectResource<HatcheryServer.IResource> | null;
 
-    constructor( definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource> ) {
+    constructor( definition: BehaviourDefinition, options: HatcheryEditor.IBehaviour, resource?: ProjectResource<HatcheryServer.IResource> ) {
         super();
         this.definition = definition;
         this.resource = resource || null;

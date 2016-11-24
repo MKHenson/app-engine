@@ -1,4 +1,3 @@
-import { Project } from '../../core/project';
 import { User } from '../../core/user';
 import { Editor } from '../../core/editors/editor';
 import { ContainerSchema } from '../../core/editors/container-schema/container-schema';
@@ -10,7 +9,7 @@ import { MessageBox } from '../forms/message-box/message-box';
 import { ProjectEvents } from '../../setup/events';
 
 export interface IWorkspaceProps extends ITabProps {
-    project: Project;
+    project: HatcheryEditor.IProject | null;
 }
 
 /**
@@ -29,14 +28,14 @@ export class Workspace extends React.Component<IWorkspaceProps, any> {
      * Bind any project related events
      */
     componentWillMount() {
-        this.props.project.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        // this.props.project.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
     }
 
     /**
      * Unbind any project related events
      */
     componentWillUnmount() {
-        this.props.project.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        // this.props.project.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
     }
 
     /**
@@ -76,7 +75,10 @@ export class Workspace extends React.Component<IWorkspaceProps, any> {
      */
     render(): JSX.Element {
 
-        const editors = this.props.project.openEditors;
+        let editors: HatcheryEditor.IEditor[] = [];
+
+        if ( this.props.project )
+            editors = this.props.project.openEditors!;
 
         return (
             <div className="workspace">
@@ -92,14 +94,16 @@ export class Workspace extends React.Component<IWorkspaceProps, any> {
                                 return (
                                     <TabPane
                                         onSelect={() => {
-                                            this.props.project.activateEditor( editor );
+                                            throw new Error( 'Not implemented' )
+                                            // this.props.project.activateEditor( editor );
                                         } }
                                         key={'pane-' + index}
                                         canClose={() => {
-                                            return this.canContainerClose( editor );
+                                            // return this.canContainerClose( editor );
+                                            return Promise.resolve();
                                         } }
 
-                                        label={( !editor.resource.saved || editor.hasUndos ? '* ' : '' ) + editor.resource.entry.name}>
+                                        label={( !editor.saved || editor.canUndo ? '* ' : '' ) + editor.title}>
                                         <Schema editor={editor as ContainerSchema} />
                                     </TabPane>
                                 )

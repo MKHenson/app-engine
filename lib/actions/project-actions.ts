@@ -1,6 +1,5 @@
-import { IProject } from 'hatchery-editor';
 import { IPlugin } from 'hatchery-editor-plugins';
-import { post, get } from '../core/utils';
+import { get } from '../core/utils';
 import { DB } from '../setup/db';
 
 /**
@@ -12,14 +11,14 @@ export type ProjectActionType =
     'PROJECT_REQUEST_PENDING' |
     'PROJECT_REQUEST_REJECTED' |
     'PROJECT_CREATED' |
-    'PROJECT_OPENED';
+    'PROJECT_LOADED';
 
 /**
  * A base interface for describing project related actions
  */
 export interface IProjectAction extends Redux.Action {
     type: ProjectActionType;
-    project?: IProject;
+    project?: HatcheryEditor.IProject;
 };
 
 export interface IProjectPluginAction extends IProjectAction {
@@ -29,10 +28,24 @@ export interface IProjectPluginAction extends IProjectAction {
 /**
  * Attempts to load a project by its id
  */
-export function loadProject( id: string ) {
+export function loadProject( id: string, username: string ) {
     return ( dispatch: Redux.Dispatch<IProjectAction> ) => {
         dispatch( { type: 'PROJECT_REQUEST_PENDING' });
 
+        get<ModepressAddons.IGetProject>( `${DB.API}/users/${username}/projects/${id}` ).then(( response ) => {
+            if ( response.error )
+                throw new Error( response.message );
+
+            dispatch<IProjectAction>( {
+                type: 'PROJECT_LOADED',
+                project: { entry: response.data }
+            });
+        }).catch(( err ) => {
+            dispatch<IProjectAction>( {
+                type: 'PROJECT_REQUEST_REJECTED',
+                project: { error: err }
+            });
+        })
     }
 }
 

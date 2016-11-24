@@ -1,4 +1,3 @@
-import { IComment, IPortal, Point } from 'hatchery-editor';
 import { BehaviourPortal } from '../../core/editors/container-schema/items/behaviour-portal';
 import { Portal } from '../../core/editors/container-schema/items/portal';
 import { EditorEvents } from '../../setup/events';
@@ -15,7 +14,6 @@ import { ReactContextMenu, IReactContextMenuItem } from '../context-menu/context
 import { RenameForm, IRenameFormProps } from '../forms/rename-form/rename-form';
 import { BehaviourPicker, IBehaviourPickerProps } from '../forms/behaviour-picker/behaviour-picker';
 import { ReactWindow } from '../window/react-window';
-import { IDragDropToken } from 'hatchery-editor';
 import { LinkComponent } from './components/link-component';
 import { BehaviourComponent } from './components/behaviour-component';
 import { CommentComponent } from './components/comment-component';
@@ -66,7 +64,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
      * @param {React.MouseEvent} e
      * @param {IDragDropToken} json
      */
-    onObjectDropped( e: React.MouseEvent, json: IDragDropToken | null ) {
+    onObjectDropped( e: React.MouseEvent, json: HatcheryEditor.IDragDropToken | null ) {
         const elm = this.refs[ 'canvas' ] as HTMLElement;
         const mouse = getRelativePos( e, elm );
 
@@ -92,7 +90,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
     * @param pos The x and y position of where the node shoule be placed
     * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
     */
-    addBehaviour( template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource> ) {
+    addBehaviour( template: BehaviourDefinition, pos: HatcheryEditor.Point, resource?: ProjectResource<HatcheryServer.IResource> ) {
         pos.x = pos.x - pos.x % 10;
         pos.y = pos.y - pos.y % 10;
 
@@ -134,7 +132,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
     // 	return false;
     // }
 
-    createPortal( type: HatcheryRuntime.PortalType, pos: Point ) {
+    createPortal( type: HatcheryRuntime.PortalType, pos: HatcheryEditor.Point ) {
         // Show the rename form
         ReactWindow.show( RenameForm, {
             name: '',
@@ -209,9 +207,9 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
         e.preventDefault();
     }
 
-    getPortal( target: HTMLElement ): IPortal | null {
+    getPortal( target: HTMLElement ): HatcheryEditor.IPortal | null {
         let ref: React.Component<any, any> | Element;
-        let portal: IPortal | null;
+        let portal: HatcheryEditor.IPortal | null;
 
         for ( let i in this.refs ) {
             ref = this.refs[ i ];
@@ -254,7 +252,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
                     e.preventDefault();
                     e.stopPropagation();
                     try {
-                        let json: IDragDropToken | null = null;
+                        let json: HatcheryEditor.IDragDropToken | null = null;
                         const data = e.dataTransfer.getData( 'text' );
                         if ( data && data !== '' )
                             json = JSON.parse( data );
@@ -291,7 +289,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
                         return <CommentComponent
                             key={'item-' + index}
                             editor={this.props.editor}
-                            comment={item as IComment} />;
+                            comment={item as HatcheryEditor.IComment} />;
 
                     return null;
                 })}

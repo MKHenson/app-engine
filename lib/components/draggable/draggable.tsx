@@ -1,5 +1,4 @@
 import { getRelativePos, scrollTo } from '../../core/utils';
-import { Point } from 'hatchery-editor';
 
 
 export interface IDraggableProps {
@@ -7,7 +6,7 @@ export interface IDraggableProps {
     x: number;
     y: number;
     onMove?: ( x: number, y: number ) => void;
-    onDragComplete?: ( start: Point, end: Point ) => void;
+    onDragComplete?: ( start: HatcheryEditor.Point, end: HatcheryEditor.Point ) => void;
 }
 
 export class Draggable extends React.Component<IDraggableProps, any> {
@@ -19,8 +18,8 @@ export class Draggable extends React.Component<IDraggableProps, any> {
 
     private _upProxy;
     private _moveProxy;
-    private _mouseDelta: Point;
-    private _startPos: Point;
+    private _mouseDelta: HatcheryEditor.Point;
+    private _startPos: HatcheryEditor.Point;
     private _scrollInterval: number;
 
     constructor( props: IDraggableProps ) {
@@ -68,7 +67,7 @@ export class Draggable extends React.Component<IDraggableProps, any> {
             this.props.onDragComplete( this._startPos, endPosition );
     }
 
-    private getPosition( e: React.MouseEvent ): Point {
+    private getPosition( e: React.MouseEvent ): HatcheryEditor.Point {
         const elm = this.refs[ 'draggable' ] as HTMLElement;
         const pos = getRelativePos( e, elm.parentElement );
         pos.x -= this._mouseDelta.x;

@@ -1,6 +1,5 @@
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IBehaviourPortal } from 'hatchery-editor';
 import { createProperty } from '../../../utils';
 import { PluginManager } from '../../../plugin-manager';
 
@@ -47,8 +46,8 @@ export class BehaviourPortal extends Behaviour {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): IBehaviourPortal {
-        const toRet = <IBehaviourPortal>super.serialize( id );
+    serialize( id: number ): HatcheryEditor.IBehaviourPortal {
+        const toRet = <HatcheryEditor.IBehaviourPortal>super.serialize( id );
         toRet.portal = { name: this._property!.name, custom: true, type: this.portalType, property: this._property!.tokenize() };
         toRet.type = 'portal';
         return toRet;
@@ -58,7 +57,7 @@ export class BehaviourPortal extends Behaviour {
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize( data: IBehaviourPortal ) {
+    deSerialize( data: HatcheryEditor.IBehaviourPortal ) {
         super.deSerialize( data );
         this.portalType = data.portal.type;
         this._property = createProperty( data.portal.property.name, data.portal.property.type ) !;

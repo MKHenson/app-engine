@@ -1,19 +1,17 @@
-﻿import { IStore, ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
-import { logout, removeProject } from '../../actions/user-actions';
+﻿import { logout, removeProject } from '../../actions/user-actions';
 import { getProjectList, createProject } from '../../actions/splash-actions';
-import { LogActions } from '../../actions/logger-actions';
-import { OpenProject } from '../../components/open-project/open-project';
+// import { LogActions } from '../../actions/logger-actions';
+// import { OpenProject } from '../../components/open-project/open-project';
 import { NewProject } from '../../components/new-project/new-project';
 import { ProjectsOverview } from '../../components/projects-overview/projects-overview';
 
 /**
  * An interface that describes the props of the Splash Component
  */
-export interface ISplashProps extends HatcheryProps {
-    user?: IUser;
-    splash?: ISplashScreen;
+export interface ISplashProps extends HatcheryEditor.HatcheryProps {
+    user?: HatcheryEditor.IUser;
+    splash?: HatcheryEditor.ISplashScreen;
     section?: string;
-    projectId?: string;
 }
 
 /**
@@ -57,30 +55,30 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
                     if ( !project )
                         return;
 
-                    dispatch( ReactRouterRedux.push( '/overview/open' ) );
+                    dispatch( ReactRouterRedux.push( '/dashboard/' + project._id ) );
                 } }
                 />
         )
     }
 
-    /**
-     * Renders the open project sub section
-     */
-    renderOpenProject() {
-        const dispatch = this.props.dispatch!;
+    // /**
+    //  * Renders the open project sub section
+    //  */
+    // renderOpenProject() {
+    //     const dispatch = this.props.dispatch!;
 
-        return (
-            <OpenProject
-                dispatch={dispatch}
-                project={this.state.project!}
-                onComplete={() => {
-                    dispatch( LogActions.message( `Opened project '${this.state.project!.name!}''` ) );
-                    throw new Error( 'Not implemented' );
-                } }
-                onCancel={() => { dispatch( ReactRouterRedux.push( '/overview' ) ) } }
-                />
-        );
-    }
+    //     return (
+    //         <OpenProject
+    //             dispatch={dispatch}
+    //             project={this.state.project!}
+    //             onComplete={() => {
+    //                 dispatch( LogActions.message( `Opened project '${this.state.project!.name!}''` ) );
+    //                 throw new Error( 'Not implemented' );
+    //             } }
+    //             onCancel={() => { dispatch( ReactRouterRedux.push( '/overview' ) ) } }
+    //             />
+    //     );
+    // }
 
     /**
      * Renders the new project sub section
@@ -111,9 +109,9 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
             case 'new':
                 mainView = this.renderNewProject();
                 break;
-            case 'open':
-                mainView = this.renderOpenProject();
-                break;
+            // case 'open':
+            //     mainView = this.renderOpenProject();
+            //     break;
             default:
                 mainView = this.renderOverview();
                 break
@@ -139,12 +137,11 @@ class Splash extends React.Component<ISplashProps, ISplashState> {
 }
 
 // Connects th splash screen with its store properties
-const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: IStore, ownProps ) => {
+const ConnectedSplash = ReactRedux.connect<ISplashProps, any, any>(( state: HatcheryEditor.IStore, ownProps ) => {
     return {
         user: state.user,
         splash: state.splash,
-        section: ownProps.routeParams.section,
-        projectId: ownProps.routeParams.projectId
+        section: ownProps.routeParams.section
     }
 })( Splash )
 

@@ -10,7 +10,6 @@ import { ReactContextMenu } from '../../context-menu/context-menu';
 import { ReactWindow } from '../../window/react-window';
 import { RenameForm, IRenameFormProps } from '../../forms/rename-form/rename-form';
 import { MessageBox } from '../../forms/message-box/message-box';
-import { IDragDropToken } from 'hatchery-editor';
 
 /**
  * A model for referencing a project resource
@@ -42,8 +41,8 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
      * @param {React.DragEvent} e
      * @returns {IDragDropToken} Return data to serialize
      */
-    onDragStart(): IDragDropToken {
-        return { type: 'resource', id: this.resource.entry.shallowId } as IDragDropToken;
+    onDragStart(): HatcheryEditor.IDragDropToken {
+        return { type: 'resource', id: this.resource.entry.shallowId } as HatcheryEditor.IDragDropToken;
     }
 
     /**

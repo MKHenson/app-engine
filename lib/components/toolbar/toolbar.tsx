@@ -1,4 +1,4 @@
-import { Project } from '../../core/project';
+// import { Project } from '../../core/project';
 import { Component } from '../../components/component';
 import { User } from '../../core/user';
 import { ResourceType } from '../../setup/enums';
@@ -14,10 +14,10 @@ import { ToolbarNumber } from '../toolbar/toolbar-buttons/toolbar-number';
 import { ToolbarColorPicker } from '../toolbar/toolbar-buttons/toolbar-color-picker';
 import { ToolbarDropDown, ToolbarItem } from '../toolbar/toolbar-buttons/toolbar-drop-down';
 import { Canvas } from '../../core/editors/container-schema/items/canvas';
-import { ProjectEvents, IEditorEvent } from '../../setup/events';
+// import { ProjectEvents, IEditorEvent } from '../../setup/events';
 
 export interface IToolbarProps {
-    project: Project;
+    project: HatcheryEditor.IProject | null;
 }
 
 export interface IToolbarState {
@@ -69,11 +69,11 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
     }
 
     componentWillMount() {
-        this.props.project.on<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
+        // this.props.project.on<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
     }
 
     componentWillUnmount() {
-        this.props.project.off<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
+        // this.props.project.off<ProjectEvents, IEditorEvent>( 'change', this.onProjectUpdated, this );
     }
 
     onProjectUpdated() {
@@ -84,28 +84,29 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
      * Creates the component elements
      */
     render(): JSX.Element {
-        const editor = this.props.project.activeEditor;
+        // const editor = this.props.project.activeEditor;
+
+        const hasUndos = false;
+        const hasRedos = false;
 
         return <div className="toolbar">
             <Tab
                 panes={[
                     <TabPane label="Home" showCloseButton={false}>
                         <div className="tool-bar-group">
-                            <ToolbarButton onChange={() => { this.onHome() } } label="Home" imgUrl="media/animate-home.png" />
-                            <ToolbarButton onChange={() => { this.saveAll() } } label="Save" imgUrl="media/save.png" />
+                            <ToolbarButton onChange={() => { this.onHome() } } label="Home" imgUrl="/media/animate-home.png" />
+                            <ToolbarButton onChange={() => { this.saveAll() } } label="Save" imgUrl="/media/save.png" />
                         </div>
                         <div className="tool-bar-group">
-                            <ToolbarButton onChange={() => { this.onDuplicate() } } label="Copy" imgUrl="media/copy.png" disabled={!this.$itemSelected} />
-                            <ToolbarButton onChange={() => { this.onDuplicate() } } label="Cut" imgUrl="media/cut.png" disabled={!this.$itemSelected} />
-                            <ToolbarButton onChange={() => { this.onPaste() } } label="Paste" imgUrl="media/paste.png" disabled={!this._copyPasteToken} />
-                            <ToolbarButton onChange={() => { this.onDelete() } } label="Delete" imgUrl="media/delete.png" disabled={!this.$itemSelected} />
-                            <ToolbarButton onChange={() => { editor!.undo() } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />}
-                                disabled={!editor || !editor.hasUndos} />
-                            <ToolbarButton onChange={() => { editor!.redo() } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />}
-                                disabled={!editor || !editor.hasRedos} />
+                            <ToolbarButton onChange={() => { this.onDuplicate() } } label="Copy" imgUrl="/media/copy.png" disabled={!this.$itemSelected} />
+                            <ToolbarButton onChange={() => { this.onDuplicate() } } label="Cut" imgUrl="/media/cut.png" disabled={!this.$itemSelected} />
+                            <ToolbarButton onChange={() => { this.onPaste() } } label="Paste" imgUrl="/media/paste.png" disabled={!this._copyPasteToken} />
+                            <ToolbarButton onChange={() => { this.onDelete() } } label="Delete" imgUrl="/media/delete.png" disabled={!this.$itemSelected} />
+                            <ToolbarButton onChange={() => { } } label="Undo" prefix={<i className="fa fa-undo" aria-hidden="true" />} disabled={!hasUndos} />
+                            <ToolbarButton onChange={() => { } } label="Redo" prefix={<i className="fa fa-repeat" aria-hidden="true" />} disabled={!hasRedos} />
                         </div>
                         <div className="tool-bar-group">
-                            <ToolbarButton label="Snapping" imgUrl="media/snap.png" pushButton={true} selected={Canvas.snapping}
+                            <ToolbarButton label="Snapping" imgUrl="/media/snap.png" pushButton={true} selected={Canvas.snapping}
                                 onChange={() => {
                                     Canvas.snapping = !Canvas.snapping
                                 } }
@@ -114,27 +115,27 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
                         <div className="tool-bar-group">
                             <ToolbarButton onChange={() => {
                                 this.onRun()
-                            } } label="Run" imgUrl="media/play.png" />
+                            } } label="Run" imgUrl="/media/play.png" />
                             <ToolbarButton onChange={() => {
                                 ReactWindow.show( OptionsForm, {} as IOptionsForm );
-                            } } label="Settings" imgUrl="media/build.png" />
+                            } } label="Settings" imgUrl="/media/build.png" />
                             <ToolbarButton onChange={() => {
                                 // CanvasTab.getSingleton().addSpecialTab( 'HTML', CanvasTabType.HTML )
-                            } } label="HTML" imgUrl="media/html.png" />
+                            } } label="HTML" imgUrl="/media/html.png" />
                             <ToolbarButton onChange={() => {
                                 // CanvasTab.getSingleton().addSpecialTab( 'CSS', CanvasTabType.CSS )
-                            } } label="CSS" imgUrl="media/css.png" />
+                            } } label="CSS" imgUrl="/media/css.png" />
                         </div>
                         <div className="tool-bar-group">
-                            <ToolbarButton onChange={() => { this.newContainer() } } label="New Behaviour" imgUrl="media/add-behaviour.png" />
+                            <ToolbarButton onChange={() => { this.newContainer() } } label="New Behaviour" imgUrl="/media/add-behaviour.png" />
                         </div>
                         <div className="tool-bar-group">
                             <ToolbarButton onChange={() => {
                                 // UserPrivilegesForm.getSingleton().show()
-                            } } label="Privileges" imgUrl="media/privaledges.png" />
+                            } } label="Privileges" imgUrl="/media/privaledges.png" />
                         </div>
                         <div className="tool-bar-group">
-                            <ToolbarButton onChange={() => { ReactWindow.show( FileDialogue, { multiselect: true, readOnly: true } as IFileDialogueProps ); } } label="File Manager" imgUrl="media/plug-detailed.png" />
+                            <ToolbarButton onChange={() => { ReactWindow.show( FileDialogue, { multiselect: true, readOnly: true } as IFileDialogueProps ); } } label="File Manager" imgUrl="/media/plug-detailed.png" />
                         </div>
                     </TabPane>
                 ]}

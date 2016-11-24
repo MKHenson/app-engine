@@ -40,14 +40,7 @@ gulp.task( 'deploy-fonts', function() {
  */
 gulp.task( 'html', function() {
     const target = gulp.src( './lib/index.html' );
-    const sources = gulp.src( [ './lib/**/*.html', '!./lib/**/index.html' ] );
-
-    const targetWithInjectedHTML = target.pipe( inject( sources, {
-        starttag: '<!-- inject:html -->',
-        transform: function( filePath, file ) {
-            return file.contents.toString( 'utf8' )
-        }
-    }) ).pipe( gulp.dest( './dist' ) );
+    const targetWithInjectedHTML = target.pipe( gulp.dest( './dist' ) );
 
     const thirdParties = gulp.src( [
         './third-party/jquery/dist/jquery.js',

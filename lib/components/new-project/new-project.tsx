@@ -4,12 +4,11 @@ import { ButtonPrimary } from '../buttons/buttons';
 import { PluginsWidget } from '../plugins-widget/plugins-widget';
 import { ValidationType, AttentionType } from '../../setup/enums';
 import { capitalize } from '../../core/utils';
-import { ISplashScreen } from 'hatchery-editor';
 import { IProject } from 'hatchery-server';
 
 export interface INewProjectProps {
     onCreateProject: ( options: HatcheryServer.IProject ) => void;
-    splash: ISplashScreen;
+    splash: HatcheryEditor.ISplashScreen;
     onCancel: () => void;
 }
 

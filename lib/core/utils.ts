@@ -9,7 +9,6 @@ import { PropColor } from './properties/prop-color';
 import { PropEnum } from './properties/prop-enum';
 import { PropFileResource } from './properties/prop-file-resource';
 import { PropBool, PropText } from './properties/prop';
-import { Point } from 'hatchery-editor';
 
 export interface IAjaxError { message: string; status: number; };
 
@@ -308,7 +307,7 @@ export function createProperty( name: string, type: PropertyType ): Prop<any> | 
  * @param e
  * @param elm The target element
  */
-export function getRelativePos( e: React.MouseEvent | MouseEvent, elm: HTMLElement ): Point {
+export function getRelativePos( e: React.MouseEvent | MouseEvent, elm: HTMLElement ): HatcheryEditor.Point {
     let offsetX = elm.offsetLeft;
     let offsetY = elm.offsetTop;
     let scrollX = elm.scrollLeft;
@@ -350,7 +349,7 @@ export function quadInOut( startValue, delta, curTime, duration ): number {
  * @param duration The total amount of time to take to scroll
  * @return Returns setInterval
  */
-export function scrollTo( dest: Point, elm: HTMLElement, duration: number ): number {
+export function scrollTo( dest: HatcheryEditor.Point, elm: HTMLElement, duration: number ): number {
     let curTime = 0;
     let left = 0;
     let top = 0;

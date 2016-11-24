@@ -1,4 +1,4 @@
-declare namespace Animate {
+declare namespace HatcheryEditor {
 
     export interface Point { x: number; y: number; }
 
@@ -146,16 +146,22 @@ declare namespace Animate {
      * Describes the state of the editor
      */
     export interface IEditorState {
-        showSplash?: boolean;
         loginState?: 'login' | 'register';
+    }
+
+    export interface IEditor {
+        canUndo?: boolean;
+        canRedo?: boolean;
+        title?: string;
+        saved?: boolean;
     }
 
     /**
      * Describes the store Project
      */
     export interface IProject extends IBaseStoreState {
-        openEditors?: any[];
-        activeEditor?: any | null;
+        openEditors?: IEditor[];
+        activeEditor?: IEditor | null;
         curBuild?: any | null;
         restPaths?: { [ type: number ]: { url: string; array: any[] }; }
         entry?: HatcheryServer.IProject | null;
@@ -177,8 +183,6 @@ declare namespace Animate {
     export interface ISplashScreen extends IBaseStoreState {
         projects?: HatcheryServer.IProject[];
         numProjects?: number;
-        selectedProject?: HatcheryServer.IProject | null;
-        // screen?: 'welcome' | 'new-project' | 'opening-project';
     }
 
     /**
@@ -194,5 +198,5 @@ declare namespace Animate {
 }
 
 declare module 'hatchery-editor' {
-    export = Animate;
+    export = HatcheryEditor;
 }

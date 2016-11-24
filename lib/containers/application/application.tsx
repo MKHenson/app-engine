@@ -1,9 +1,6 @@
-import { IStore, ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
-
-
-export interface IApplicationState extends HatcheryProps {
-    splash?: ISplashScreen;
-    user?: IUser;
+export interface IApplicationState extends HatcheryEditor.HatcheryProps {
+    splash?: HatcheryEditor.ISplashScreen;
+    user?: HatcheryEditor.IUser;
 }
 
 /**
@@ -38,7 +35,7 @@ class Application extends React.Component<IApplicationState, void> {
     }
 }
 
-const ConnectedApp = ReactRedux.connect<IApplicationState, any, any>(( state: IStore ) => {
+const ConnectedApp = ReactRedux.connect<IApplicationState, any, any>(( state: HatcheryEditor.IStore ) => {
     return {
         splash: state.splash,
         user: state.user

@@ -50,56 +50,40 @@ export declare namespace LogActions {
     function error(message: string): ILoggerAction;
 }
 
-import { IStorePlugins } from 'hatchery-editor';
-/**
- * Describes the different types of plugin action types
- */
-export declare type PluginActionType = 'PLUGINS_REQUEST_PENDING' | 'PLUGINS_DOWNLOADED' | 'PLUGINS_EXPAND_TOGGLE' | 'PLUGINS_SELECTED' | 'PLUGINS_REQUEST_REJECTED';
-/**
- * An interface for describing plugin actions
- */
-export interface IPluginAction extends Redux.Action {
-    type: PluginActionType;
-    data?: IStorePlugins;
-}
-/**
- * An interface for describing plugin expand actions
- */
-export interface IPluginToggleAction extends IPluginAction {
-    plugin: string;
-}
-/**
- * An interface for describing plugin select actions
- */
-export interface IPluginSelectAction extends IPluginAction {
-    id: string;
-    selected: boolean;
-}
-/**
- * Attempts to download the available plugins for use in the editor
- */
-export declare function downloadPluginList(): (dispatch: Redux.Dispatch<IPluginAction>) => void;
-export declare function toggleExpanded(plugin: string): IPluginToggleAction;
-export declare function select(id: string, selected: boolean): IPluginSelectAction;
-
 import { IProject } from 'hatchery-editor';
+import { IPlugin } from 'hatchery-editor-plugins';
 /**
  * Describes each of the project action types
  */
-export declare type ProjectActionType = 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_OPENED';
+export declare type ProjectActionType = 'PROJECT_PLUGIN_LOADED' | 'PROJECT_PLUGIN_INSTANCE_ADDED' | 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_OPENED';
 /**
  * A base interface for describing project related actions
  */
 export interface IProjectAction extends Redux.Action {
     type: ProjectActionType;
-    project: IProject;
+    project?: IProject;
 }
+export interface IProjectPluginAction extends IProjectAction {
+    plugin: HatcheryServer.IPlugin;
+}
+/**
+ * Attempts to load a project by its id
+ */
+export declare function loadProject(id: string): (dispatch: Redux.Dispatch<IProjectAction>) => void;
+/**
+ * Attempts to log the user in using the token provided
+ */
+export declare function loadPlugin(pluginDefinition: HatcheryServer.IPlugin): (dispatch: Redux.Dispatch<IProjectAction>) => void;
+/**
+ * Adds a plugin instance to its parent plugin
+ */
+export declare function addPluginInstance(plugin: HatcheryServer.IPlugin, instance: IPlugin): IProjectPluginAction;
 
 import { ISplashScreen } from 'hatchery-editor';
 /**
  * Describes each of the splash screen action types
  */
-export declare type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_PROJECT_CREATED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
+export declare type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
 /**
  * A base interface for describing the splash screen actions
  */
@@ -167,7 +151,7 @@ export declare function removeProject(username: string, pid: string): (dispatch:
 /**
  * Attempts to log the user in using the token provided
  */
-export declare function login(token: UsersInterface.ILoginToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
+export declare function login(token: UsersInterface.ILoginToken, forward?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
 /**
  * Attempts to register the user with the provided token
  */
@@ -1063,13 +1047,17 @@ export declare class LoginForm extends React.Component<ILoginFormProps, ILoginFo
 }
 
 import { ISplashScreen } from 'hatchery-editor';
+import { IProject } from 'hatchery-server';
 export interface INewProjectProps {
     onCreateProject: (options: HatcheryServer.IProject) => void;
     splash: ISplashScreen;
     onCancel: () => void;
 }
 export interface INewProjectState {
-    plugins?: HatcheryServer.IPlugin[];
+    selectedPlugins?: Array<{
+        id: string;
+        version: string;
+    }>;
     message?: string | null;
     error?: boolean;
 }
@@ -1084,7 +1072,7 @@ export declare class NewProject extends React.Component<INewProjectProps, INewPr
     /**
      * Creates a new user project
      */
-    newProject(json: any): void;
+    newProject(json: IProject): void;
     /**
      * Creates the component elements
      */
@@ -1093,11 +1081,12 @@ export declare class NewProject extends React.Component<INewProjectProps, INewPr
 
 import { ILoggerAction } from '../../actions/logger-actions';
 import { AttentionType } from '../../setup/enums';
+import { IProject } from 'hatchery-editor';
 export interface IOpenProjectProps {
     dispatch: Redux.Dispatch<ILoggerAction>;
     onCancel: () => void;
     onComplete: () => void;
-    project: HatcheryServer.IProject;
+    project: IProject;
 }
 export interface IOpenProjectState {
     message?: string | null;
@@ -1178,16 +1167,48 @@ export declare class Pager extends React.Component<IPagerProps, IPagerState> {
     render(): JSX.Element;
 }
 
-import { IStorePlugins, HatcheryProps } from 'hatchery-editor';
-export interface IPluginsWidgetProps extends HatcheryProps {
-    onChange: ((selectedPlugins: HatcheryServer.IPlugin[]) => void) | null;
-    plugins?: IStorePlugins;
+export interface IPluginsWidgetProps {
+    onChange: (selectedPlugins: {
+        id: string;
+        version: string;
+    }[]) => void;
+    onError: (error: Error) => void;
 }
 export interface IPluginsWidgetState {
+    plugins?: HatcheryServer.IPlugin[];
+    activeVersion?: HatcheryServer.IPluginVersion | null;
     activePlugin?: HatcheryServer.IPlugin | null;
+    loading?: boolean;
 }
-declare const ConnectedClass: React.ComponentClass<any>;
-export { ConnectedClass as PluginsWidget };
+/**
+ * A class for displaying a list of available plugins that can be used with a project.
+ */
+export declare class PluginsWidget extends React.Component<IPluginsWidgetProps, IPluginsWidgetState> {
+    /**
+     * Creates an instance
+     */
+    constructor(props: IPluginsWidgetProps);
+    /**
+     * When the component is about to mount, we download a list of available plugins
+     */
+    componentWillMount(): void;
+    /**
+     * Selects / deselects the plugin and version
+     */
+    updateSelection(plugin: HatcheryServer.IPlugin, version?: HatcheryServer.IPluginVersion): void;
+    /**
+     * When the user selects a plugin we trigger the onChange event
+     */
+    onChange(plugins: HatcheryServer.IPlugin[]): void;
+    /**
+     * Generates the React code for displaying the plugins
+     */
+    createPluginHierarchy(): JSX.Element[];
+    /**
+     * Creates the component elements
+     */
+    render(): JSX.Element;
+}
 
 export interface IProjectListProps extends React.HTMLAttributes {
     onProjectSelected?: (project: HatcheryServer.IProject) => void;
@@ -3108,11 +3129,10 @@ export declare class TreeView<T extends ITreeViewProps> extends React.Component<
 }
 
 export interface IVCheckboxProps extends React.HTMLAttributes {
-    onChecked?: (e: React.FormEvent, checked: boolean, input: HTMLInputElement) => void;
+    onChange?: (e: React.FormEvent, checked?: boolean, input?: HTMLInputElement) => void;
     noInteractions?: boolean;
 }
 export declare class VCheckbox extends React.Component<IVCheckboxProps, {
-    checked?: boolean;
     pristine?: boolean;
 }> {
     static defaultProps: IVCheckboxProps;
@@ -3124,14 +3144,6 @@ export declare class VCheckbox extends React.Component<IVCheckboxProps, {
      * Called whenever the checkbox input changes
      */
     onChange(e: React.FormEvent): void;
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: IVCheckboxProps): void;
-    /**
-     * Gets the current checked state of the input
-     */
-    readonly checked: boolean;
     /**
      * Gets if this input has not been touched by the user. False is returned if it has been
      */
@@ -3145,20 +3157,52 @@ export declare class VCheckbox extends React.Component<IVCheckboxProps, {
 import { VInput } from '../v-input/v-input';
 import { VTextarea } from '../v-textarea/v-textarea';
 import { VCheckbox } from '../v-checkbox/v-checkbox';
-import { VSelect } from '../v-select/v-select';
+import { VSelect, SelectValue } from '../v-select/v-select';
+import { ValidationType } from '../../setup/enums';
 export declare type ValidationError = {
     name: string;
     error: string;
 };
 export declare type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
+export interface IVFormItem {
+    name: string;
+    before?: JSX.Element;
+    after?: JSX.Element;
+}
+export interface IVFormSelect extends IVFormItem {
+    type: 'select';
+    options?: SelectValue[];
+    value?: string | number;
+    defaultVal?: string | number;
+    allowEmptySelection?: boolean;
+}
+export interface IVFormCheckbox extends IVFormItem {
+    type: 'checkbox';
+    label?: string;
+    placeholder?: string;
+    defaultVal?: boolean;
+    value?: boolean;
+}
+export interface IVFormJsonText extends IVFormItem {
+    type: 'password' | 'text' | 'textarea';
+    placeholder?: string;
+    defaultVal?: string | null;
+    value?: string | null;
+    validators?: ValidationType;
+}
+export interface IVFormJson {
+    items: (IVFormSelect | IVFormCheckbox | IVFormJsonText)[];
+}
+export interface IFormValue {
+    error: string | null;
+    value: string | boolean | number | null;
+}
 export interface IVFormProps {
     id?: string;
     className?: string;
     name?: string;
-    /**
-     * If true, prevents the form being automatically submitted
-     */
     preventDefault?: boolean;
+    descriptor: IVFormJson;
     /**
      * A callback for when an input has been changed and the json updated
      */
@@ -3176,6 +3220,13 @@ export interface IVFormProps {
      */
     onValidationsResolved: (form: VForm) => void;
 }
+export interface IVFormState {
+    error?: boolean;
+    pristine?: boolean;
+    values?: {
+        [name: string]: IFormValue;
+    };
+}
 /**
  * A validated form is one which checks its children inputs for validation errors
  * before allowing the form to be submitted. If there are errors the submit is not allowed.
@@ -3184,17 +3235,14 @@ export interface IVFormProps {
  * the validated inputs. The name is taken from the name of the input name attribute and the
  * value from its value.
  */
-export declare class VForm extends React.Component<IVFormProps, {
-    error?: boolean;
-    pristine?: boolean;
-}> {
+export declare class VForm extends React.Component<IVFormProps, IVFormState> {
     static defaultProps: IVFormProps;
     private _className;
-    private _values;
     /**
      * Creates a new instance
      */
     constructor(props: IVFormProps);
+    componentWillMount(): void;
     /**
      * Focus on the name element once its mounted
      */
@@ -3211,13 +3259,11 @@ export declare class VForm extends React.Component<IVFormProps, {
     /**
      * Called whenever any of the inputs fire a change event
      */
-    onChange(e: React.FormEvent): void;
+    onChange(): void;
     /**
      * Called if any of the validated inputs reported or resolved an error
-     * @param e The error that occurred
-     * @param target The input that triggered the error
      */
-    onError(e: Error | null, target: VGeneric, value?: string | boolean): void;
+    onError(): void;
     /**
      * Gets if this form has not been touched by the user. False is returned if it has been,
      */
@@ -3282,7 +3328,6 @@ export interface IVInputProps {
  */
 export declare class VInput extends React.Component<IVInputProps, {
     error?: string | null;
-    value?: string;
     highlightError?: boolean;
     focussed?: boolean;
 }> {
@@ -3296,17 +3341,9 @@ export declare class VInput extends React.Component<IVInputProps, {
      */
     constructor(props: any);
     /**
-     * Gets the current value of the input
-     */
-    readonly value: string;
-    /**
      * Called when the component is about to be mounted.
      */
     componentWillMount(): void;
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: IVInputProps): void;
     /**
      * Sets the highlight error state. This state adds a 'highlight-error' class which
      * can be used to bring attention to the component
@@ -3346,15 +3383,14 @@ export declare class VInput extends React.Component<IVInputProps, {
 export declare type SelectValue = {
     label: string;
     value: string | number;
-    selected?: boolean;
 };
-export interface IVSelectProps extends React.HTMLAttributes {
+export interface IVSelectProps {
     /**
      * Called whenever an option is selected
      * @param {SelectValue} option
      * @param {HTMLSelectElement} element
      */
-    onOptionSelected?: (option: SelectValue | null, element: HTMLSelectElement) => void;
+    onOptionSelected: (option: SelectValue | null, element: HTMLSelectElement) => void;
     /**
      * An array of options to use with the select
      */
@@ -3381,6 +3417,10 @@ export interface IVSelectProps extends React.HTMLAttributes {
      * provided, then that is used instead (for example 'Please specify a value for X')
      */
     errorMsg?: string;
+    value: string | number;
+    name?: string;
+    id?: string;
+    className?: string;
 }
 /**
  * A verified select box is an one that can optionally have its value verified. The select must be used in conjunction
@@ -3388,7 +3428,6 @@ export interface IVSelectProps extends React.HTMLAttributes {
  */
 export declare class VSelect extends React.Component<IVSelectProps, {
     error?: string | null;
-    selected?: SelectValue | null;
     highlightError?: boolean;
 }> {
     private _pristine;
@@ -3396,11 +3435,6 @@ export declare class VSelect extends React.Component<IVSelectProps, {
      * Creates a new instance
      */
     constructor(props: IVSelectProps);
-    /**
-     * Gets the current selected option
-     * @returns {SelectValue}
-     */
-    readonly value: SelectValue | null;
     /**
      * Called when the component is about to be mounted.
      */
@@ -3459,6 +3493,7 @@ export interface IVTextareaProps extends React.HTMLAttributes {
      * provided, then that is used instead (for example 'Please specify a value for X')
      */
     errorMsg?: string;
+    onChange?(e: React.FormEvent, text?: string): void;
 }
 /**
  * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
@@ -3466,7 +3501,6 @@ export interface IVTextareaProps extends React.HTMLAttributes {
  */
 export declare class VTextarea extends React.Component<IVTextareaProps, {
     error?: string | null;
-    value?: string;
     highlightError?: boolean;
     className?: string;
     focussed?: boolean;
@@ -3480,14 +3514,6 @@ export declare class VTextarea extends React.Component<IVTextareaProps, {
      * Called when the component is about to be mounted.
      */
     componentWillMount(): void;
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: IVTextareaProps): void;
-    /**
-     * Gets the current value of the input
-     */
-    readonly value: string;
     /**
      * Sets the highlight error state. This state adds a 'highlight-error' class which
      * can be used to bring attention to the component
@@ -3744,6 +3770,7 @@ export interface ISplashProps extends HatcheryProps {
     user?: IUser;
     splash?: ISplashScreen;
     section?: string;
+    projectId?: string;
 }
 /**
  * Describes the state interface for the Splash Component
@@ -4866,35 +4893,18 @@ import { BehaviourDefinition } from './behaviour-definition';
 import { AssetTemplate } from './asset-template';
 import { IPlugin } from 'hatchery-editor-plugins';
 import { AssetClass } from './asset-class';
+import { IStore } from 'hatchery-editor';
 /**
  * The plugin manager is used to load and manage external Animate plugins.
  */
 export declare class PluginManager extends EventDispatcher {
     private static _singleton;
-    private _plugins;
-    private _loadedPlugins;
+    private _store;
     private _behaviourTemplates;
     private _assetTemplates;
     private _converters;
     private _previewVisualizers;
-    private _allPlugins;
-    constructor();
-    /**
-     * Attempts to download a plugin by its URL and insert it onto the page.
-     * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
-     * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-     * @param pluginDefinition The plugin to load
-     */
-    loadPlugin(pluginDefinition: HatcheryServer.IPlugin): Promise<HatcheryServer.IPlugin>;
-    /**
-     * Goes through each of the plugins and returns the one with the matching ID
-     * @param id The ID of the plugin to fetch
-     */
-    getPluginByID(id: string): HatcheryServer.IPlugin | null;
-    /**
-     * Sorts the plugins based on their versions
-     */
-    sortPlugins(plugins: HatcheryServer.IPlugin[]): void;
+    constructor(store: Redux.Store<IStore>);
     /**
      * This funtcion is used to load a plugin.
      * @param pluginDefinition The IPlugin constructor that is to be created
@@ -4931,14 +4941,6 @@ export declare class PluginManager extends EventDispatcher {
      */
     getAssetClass(name: string): AssetClass | null;
     /**
-     * Called when the project is reset by either creating a new one or opening an older one.
-     */
-    projectReset(): void;
-    /**
-     * This function is called by Animate when everything has been loaded and the user is able to begin their session.
-     */
-    projectReady(): void;
-    /**
      * Creates a thumbnail preview of the file
      */
     thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
@@ -4949,12 +4951,15 @@ export declare class PluginManager extends EventDispatcher {
      */
     displayPreview(file: HatcheryServer.IFile): JSX.Element | null;
     readonly assetTemplates: AssetTemplate[];
-    readonly loadedPlugins: IPlugin[];
     readonly behaviourTemplates: BehaviourDefinition[];
+    /**
+     * Gets the application store
+     */
+    readonly store: Redux.Store<IStore>;
     /**
      * Gets the singleton instance.
      */
-    static getSingleton(): PluginManager;
+    static getSingleton(store?: Redux.Store<IStore>): PluginManager;
 }
 
 import { Prop } from './properties/prop';
@@ -5274,7 +5279,6 @@ export declare class Project extends EventDispatcher {
      * This will cleanup the project and remove all data associated with it.
      */
     reset(): void;
-    readonly plugins: Array<HatcheryServer.IPlugin>;
 }
 
 import { EventDispatcher } from '../event-dispatcher';
@@ -5786,7 +5790,10 @@ export declare class User extends EventDispatcher {
     * @param plugins An array of plugin IDs to identify which plugins to use
     * @param description [Optional] A short description
     */
-    newProject(name: string, plugins: Array<string>, description?: string): Promise<ModepressAddons.ICreateProject>;
+    newProject(name: string, plugins: Array<{
+        id: string;
+        version: string;
+    }>, description?: string): Promise<ModepressAddons.ICreateProject>;
     /**
     * Attempts to update the user's details base on the token provided
     * @returns The user details token
@@ -5925,13 +5932,6 @@ import { ILogMessage } from 'hatchery-editor';
  * A reducer that processes state changes of the editor
  */
 export declare function loggerReducer(state: ILogMessage[], action: ILoggerAction): ILogMessage[];
-
-import { IPluginAction } from '../actions/plugin-actions';
-import { IStorePlugins } from 'hatchery-editor';
-/**
- * A reducer that processes state changes of the plugins
- */
-export declare function editorReducer(state: IStorePlugins, action: IPluginAction): IStorePlugins;
 
 import { IProjectAction } from '../actions/project-actions';
 import { IProject } from 'hatchery-editor';

@@ -1,7 +1,6 @@
 import { EditableSet } from '../../../properties/editable-set';
 import { PropNum } from '../../../properties/prop-num';
 import { CanvasItem } from './canvas-item';
-import { ILinkItem, Point } from 'hatchery-editor';
 
 /**
  * Links connect 2 behaviours to one another. Each link is connected by a start and end portal on both the origin
@@ -15,7 +14,7 @@ export class Link extends CanvasItem {
     public selected: boolean;
     public startBehaviour: number;
     public endBehaviour: number;
-    public points: Point[];
+    public points: HatcheryEditor.Point[];
     private _properties: EditableSet;
 
     /**
@@ -38,8 +37,8 @@ export class Link extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): ILinkItem {
-        let toRet = <ILinkItem>super.serialize( id );
+    serialize( id: number ): HatcheryEditor.ILinkItem {
+        let toRet = <HatcheryEditor.ILinkItem>super.serialize( id );
         toRet.type = 'link';
         toRet.width = this.width;
         toRet.height = this.height;
@@ -59,7 +58,7 @@ export class Link extends CanvasItem {
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize( data: ILinkItem ) {
+    deSerialize( data: HatcheryEditor.ILinkItem ) {
         super.deSerialize( data );
 
         this.width = data.width!;

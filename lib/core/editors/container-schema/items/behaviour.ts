@@ -3,7 +3,6 @@ import { Prop } from '../../../properties/prop';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { CanvasItem } from './canvas-item';
 import { Portal } from './portal';
-import { IBehaviour, IPortal } from 'hatchery-editor';
 import { createProperty } from '../../../utils';
 
 /**
@@ -186,11 +185,11 @@ export class Behaviour extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): IBehaviour {
-        let toRet = <IBehaviour>super.serialize( id );
+    serialize( id: number ): HatcheryEditor.IBehaviour {
+        let toRet = <HatcheryEditor.IBehaviour>super.serialize( id );
         let portals = this.portals;
 
-        toRet.portals = <Array<IPortal>>[];
+        toRet.portals = <Array<HatcheryEditor.IPortal>>[];
 
         for ( let portal of portals )
             toRet.portals.push( portal.serialize() );
@@ -204,7 +203,7 @@ export class Behaviour extends CanvasItem {
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize( data: IBehaviour ) {
+    deSerialize( data: HatcheryEditor.IBehaviour ) {
         super.deSerialize( data );
 
         // Remove all existing portals

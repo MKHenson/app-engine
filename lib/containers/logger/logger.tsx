@@ -1,10 +1,9 @@
-import { IStore, ILogMessage, HatcheryProps } from 'hatchery-editor';
-import { LogActions } from '../../actions/logger-actions';
+import { clear } from '../../actions/logger-actions';
 import { ReactContextMenu } from '../../components/context-menu/context-menu';
 import { List } from '../../components/list/list';
 
-export interface ILoggerProps extends HatcheryProps {
-    messages?: ILogMessage[];
+export interface ILoggerProps extends HatcheryEditor.HatcheryProps {
+    messages?: HatcheryEditor.ILogMessage[];
 }
 
 
@@ -32,7 +31,7 @@ class Logger extends React.Component<ILoggerProps, any> {
                     x: e.pageX, y: e.pageY, items: [ {
                         label: 'Clear',
                         prefix: <i className="fa fa-times" aria-hidden="true"></i>,
-                        onSelect: () => { this.props.dispatch!( LogActions.clear() ) }
+                        onSelect: () => { this.props.dispatch!( clear() ) }
                     }]
                 });
             } }
@@ -68,7 +67,7 @@ class Logger extends React.Component<ILoggerProps, any> {
     }
 }
 
-const ConnectedLogger = ReactRedux.connect<ILoggerProps, any, any>(( state: IStore ) => {
+const ConnectedLogger = ReactRedux.connect<ILoggerProps, any, any>(( state: HatcheryEditor.IStore ) => {
     return {
         messages: state.logs!
     }
