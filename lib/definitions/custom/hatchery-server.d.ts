@@ -13,9 +13,9 @@ declare module 'hatchery-server' {
 
     // Extends the IPlugin interface to include additional data
     export interface IPlugin {
-        $loaded?: boolean;
-        $error?: string | null;
-        $instance?: IPlugin;
+        loaded?: boolean;
+        error?: string | null;
+        instance?: IPlugin;
         expanded?: boolean;
         selected?: boolean;
     }
