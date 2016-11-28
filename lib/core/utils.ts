@@ -124,9 +124,6 @@ export function post<T>( url: string, data: any ): Promise<T> {
         xhttp.send( str );
 
     });
-
-    // Associate the uploaded preview with the file
-    // return jQuery.ajax(url, { type: 'post', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
 }
 
 /**
@@ -182,9 +179,6 @@ export function put<T>( url: string, data: any ): Promise<T> {
         xhttp.send( str );
 
     });
-
-    // Associate the uploaded preview with the file
-    // return jQuery.ajax(url, { type: 'put', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
 }
 
 /**
@@ -216,40 +210,7 @@ export function del<T>( url: string, data?: any ): Promise<T> {
         xhttp.send( str );
 
     });
-
-    // Associate the uploaded preview with the file
-    // return jQuery.ajax(url, { type: 'delete', data: JSON.stringify(data), contentType: 'application/json;charset=UTF-8', dataType: 'json' });
 }
-
-// TODO: This can probably be removed with new canvas tsx
-// ======================================================
-// /**
-// * Creates a new canvas item based on the dataset provided
-// * @param {Canvas} parent The parent component this item must be added to
-// * @param {any} data The data, usually created from a tokenize function
-// * @returns {CanvasItem}
-// */
-// static createItem(parent : Canvas, data: ICanvasItem): CanvasItem {
-//     switch (data.type) {
-//         case 'link':
-//             return new Link(parent);
-//         case 'asset':
-//             return new BehaviourAsset(parent);
-//         case 'comment':
-//             return new BehaviourComment(parent, '');
-//         case 'instance':
-//             return new BehaviourInstance(parent, null);
-//         case 'portal':
-//             return new BehaviourPortal(parent, null, PortalType.INPUT);
-//         case 'script':
-//             return new BehaviourScript(parent, (<IBehaviourScript>data).scriptId, (<IBehaviourScript>data).text, false);
-//         case 'shortcut':
-//             return new BehaviourShortcut(parent, null, '');
-//         case 'behaviour':
-//             return new Behaviour(parent, '');
-//     }
-// }
-// ======================================================
 
 /**
 * Creates a new property based on the dataset provided
@@ -412,4 +373,35 @@ export function getObjectClass( obj ): any {
     }
 
     return undefined;
+}
+
+/**
+ * A helper function that processes all promises with an optional callback for when each returns a result
+ */
+export function all<Y>( promises: Promise<Y>[], progress: ( item: Y, progress: number ) => void ): Promise<Y[]> {
+    return new Promise<Y[]>( function( resolve, reject ) {
+        const total = promises.length;
+        let numLoaded = 0;
+        let failed = false;
+        const results: Y[] = [];
+
+        promises.forEach(( promise, index ) => {
+
+            if ( failed )
+                return;
+
+            promise.then(( item ) => {
+                numLoaded++;
+                results[ index ] = item;
+                progress( item, ( numLoaded / total ) * 100 );
+
+                if ( numLoaded == total )
+                    resolve( results );
+
+            }).catch(( error ) => {
+                failed = true;
+                reject( error );
+            });
+        });
+    });
 }

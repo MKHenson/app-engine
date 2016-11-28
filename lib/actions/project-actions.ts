@@ -1,5 +1,5 @@
 import { IPlugin } from 'hatchery-editor-plugins';
-import { get } from '../core/utils';
+import { get, all } from '../core/utils';
 import { DB } from '../setup/db';
 
 /**
@@ -36,10 +36,54 @@ export function loadProject( id: string, username: string ) {
             if ( response.error )
                 throw new Error( response.message );
 
+            // New project created with entry data set from server and all plugins wiped
             dispatch<IProjectAction>( {
                 type: 'PROJECT_LOADED',
-                project: { entry: response.data }
+                project: {
+                    entry: response.data,
+                    plugins: [],
+                    loading: true // Still loading plugins
+                }
             });
+
+            // Now that the project is loaded,
+            // lets load each of the plugins based in the version specified
+            const promises: Promise<ModepressAddons.IGetPlugin>[] = [];
+            for ( const plugin of response.data.plugins! )
+                promises.push( get<ModepressAddons.IGetPlugin>( `${DB.API}/plugins/${plugin.id}` ) );
+
+            all( promises, ( item, percent ) => {
+                if ( item.error ) {
+                    dispatch<IProjectPluginAction>( {
+                        type: 'PROJECT_PLUGIN_LOADED',
+                        plugin: { error: item.message, loaded: false }
+                    });
+                }
+                else {
+                    dispatch<IProjectPluginAction>( {
+                        type: 'PROJECT_PLUGIN_LOADED',
+                        plugin: Object.assign<HatcheryServer.IPlugin>( item.data, { error: null, loaded: false })
+                    });
+                }
+
+            }).then(( plugins ) => {
+
+                const scriptPromises: Promise<HatcheryServer.IPlugin>[] = [];
+                for ( const plugin of plugins )
+                    scriptPromises.push( loadPlugin( plugin.data ) );
+
+                return all( scriptPromises, ( plugin ) => {
+                    dispatch<IProjectPluginAction>( {
+                        type: 'PROJECT_LOADED',
+                        plugin: Object.assign<HatcheryServer.IPlugin>( { error: null, loaded: true })
+                    });
+                });
+
+
+            }).catch(( err ) => {
+                throw err
+            });
+
         }).catch(( err ) => {
             dispatch<IProjectAction>( {
                 type: 'PROJECT_REQUEST_REJECTED',
@@ -52,37 +96,25 @@ export function loadProject( id: string, username: string ) {
 /**
  * Attempts to log the user in using the token provided
  */
-export function loadPlugin( pluginDefinition: HatcheryServer.IPlugin ) {
-    return ( dispatch: Redux.Dispatch<IProjectAction> ) => {
-
-        dispatch( { type: 'PROJECT_REQUEST_PENDING' });
-
+export function loadPlugin( pluginDefinition: HatcheryServer.IPlugin ): Promise<HatcheryServer.IPlugin> {
+    return new Promise<HatcheryServer.IPlugin>(( resolve, reject ) => {
         // Create the script element
         const script = document.createElement( 'script' );
 
         // If an error occurs then display it
         script.onerror = function() {
-            dispatch<IProjectPluginAction>( {
-                type: 'PROJECT_REQUEST_REJECTED',
-                project: { error: new Error( `'${pluginDefinition.name}' could not be downloaded` ) },
-                plugin: { _id: pluginDefinition._id, $loaded: false }
-            });
+            reject();
         }
 
         // When we successfully load a script
         script.onload = function() {
-            pluginDefinition.$loaded = true;
-
-            dispatch<IProjectPluginAction>( {
-                type: 'PROJECT_PLUGIN_LOADED',
-                plugin: { _id: pluginDefinition._id, $loaded: true }
-            });
+            resolve( pluginDefinition );
         }
 
         script.async = true;
         script.src = pluginDefinition.url!;
         document.head.appendChild( script );
-    };
+    });
 }
 
 /**
