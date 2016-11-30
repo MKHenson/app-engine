@@ -44,24 +44,33 @@
 
 // export { ConnectedApp as Application };
 
-export type Children = HTMLElement[] | NodeList | HTMLElement | string;
+export type Children = HTMLElement[] | HTMLElement | string;
 
-export function html( type: string, attrs: React.HTMLAttributes, children?: Children ): HTMLElement {
-    const elm = document.createElement( type );
+export function html( type: string | HTMLElement, attrs: React.HTMLAttributes, children?: Children ): HTMLElement {
+    let elm : HTMLElement;
+
+    if ( typeof type === 'string')
+        elm = document.createElement( type );
+    else
+        elm = type;
+
     for ( var a in attrs )
         elm[ a ] = attrs[ a ];
 
     if ( typeof children === 'string' )
         elm.textContent = children;
     else if ( Array.isArray( children ) ) {
-        for ( const elm of children )
-            elm.appendChild( elm );
+        for ( const child of children )
+            if ( Array.isArray( child ) ) {
+                for ( const childElm of child )
+                    elm.appendChild( childElm );
+            }
+            else
+                elm.appendChild( child );
     }
     else if ( children ) {
         elm.appendChild( children );
     }
-
-
 
     return elm;
 }
@@ -104,24 +113,20 @@ export class Application extends HTMLElement {
 
         this.setAttribute( 'id', 'application' );
 
-        this._loadingElm = div( { className: 'loading-screen' }, [
-            div( { class: 'loading-message fade-in' }, [
-                h2( {
-                    onclick: () => {
-                        alert( 'Hello world!' );
-                    }
-                }, 'Loading Hatchery Editor...' ),
-
-                i( { class: "fa fa-cog fa-spin fa-3x fa-fw" })
-            ] )
-        ] );
+        this._loadingElm =
+            div( { class: 'loading-screen' }, [
+                div( { class: 'loading-message fade-in' }, [
+                    h2( {  onclick: () => {  alert( 'Hello world!' );  } }, 'Loading Hatchery Editor...' ),
+                    i( { class: "fa fa-cog fa-spin fa-3x fa-fw" }),
+                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+                ] )
+            ] );
 
         this.appendChild(
             div( { class: "splash-view" }, [
                 new Taco(),
-                this.childNodes
-            ]
-            )
+                Array.prototype.slice.call( this.childNodes )
+            ])
         );
     }
 

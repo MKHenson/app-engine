@@ -4,7 +4,7 @@ import './setup/emitters';
 // import { projectReducer } from './reducers/project-reducer';
 // import { splashReducer } from './reducers/splash-reducer';
 // import { userReducer } from './reducers/user-reducer';
-import { Application } from './containers/application/application';
+import { Application, html } from './containers/application/application';
 // import { Splash } from './containers/splash/splash';
 // import { LoginWidget } from './containers/login-widget/login-widget';
 // import { PluginManager } from './core/plugin-manager';
@@ -106,5 +106,5 @@ class XSuperParagraph extends HTMLElement {
 
 ( window as any ).customElements.define( 'x-paragraph', XSuperParagraph );
 
-document.body.appendChild( new Application );
+document.body.appendChild( html( new Application(), { loading: true } ) );
 
