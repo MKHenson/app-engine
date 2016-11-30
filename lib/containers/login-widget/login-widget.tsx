@@ -1,14 +1,13 @@
-import { IStore, IEditorState, HatcheryProps, IUser } from 'hatchery-editor';
 import { login, register, resetPassword, resendActivation } from '../../actions/user-actions';
 import { toggleLoginState } from '../../actions/editor-actions';
 import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
 import { authenticated } from '../../actions/user-actions';
 
-export interface ILoginWidgetProps extends HatcheryProps {
+export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
     onLogin?: () => void,
-    user?: IUser,
-    editorState?: IEditorState;
+    user?: HatcheryEditor.IUser,
+    editorState?: HatcheryEditor.IEditorState;
     forward?: string;
 }
 
@@ -42,7 +41,7 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
                 onRegisterRequested={() => dispatch( toggleLoginState( 'register' ) )}
                 onResetPasswordRequest={( username ) => dispatch( resetPassword( username ) )}
                 onResendActivationRequest={( username ) => dispatch( resendActivation( username ) )}
-                onLoginRequested={( token ) => dispatch( login( token ) )}
+                onLoginRequested={( token ) => dispatch( login( token, this.props.forward ) )}
                 />;
         else
             activePane = <RegisterForm
@@ -66,7 +65,7 @@ class LoginWidget extends React.Component<ILoginWidgetProps, any> {
     }
 }
 
-const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: IStore, ownProps ) => {
+const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: HatcheryEditor.IStore, ownProps ) => {
     return {
         user: state.user,
         editorState: state.editorState,

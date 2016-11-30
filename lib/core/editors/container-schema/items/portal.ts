@@ -2,7 +2,6 @@ import { EventDispatcher } from '../../../event-dispatcher';
 import { Link } from './link';
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IPortal } from 'hatchery-editor';
 import { PluginManager } from '../../../plugin-manager';
 import { PropertyType } from '../../../../setup/enums';
 
@@ -73,7 +72,7 @@ export class Portal extends EventDispatcher {
         return clone;
     }
 
-    serialize(): IPortal {
+    serialize(): HatcheryEditor.IPortal {
         return {
             name: this.property.name,
             custom: this.custom,

@@ -1,9 +1,8 @@
-﻿import { ICanvasItem } from 'hatchery-editor';
-import { ContainerSchema } from '../container-schema';
+﻿import { ContainerSchema } from '../container-schema';
 import { EventDispatcher } from '../../../event-dispatcher';
 
 export type LinkMap = {
-    [ shallowId: number ]: { item: CanvasItem; token: ICanvasItem; }
+    [ shallowId: number ]: { item: CanvasItem; token: HatcheryEditor.ICanvasItem; }
 };
 
 /**
@@ -53,9 +52,9 @@ export class CanvasItem extends EventDispatcher {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): ICanvasItem {
+    serialize( id: number ): HatcheryEditor.ICanvasItem {
         this.id = id;
-        const toRet: ICanvasItem = {
+        const toRet: HatcheryEditor.ICanvasItem = {
             id: id,
             type: 'behaviour',
             left: this.left,
@@ -72,7 +71,7 @@ export class CanvasItem extends EventDispatcher {
      * De-serialize data from a JSON.
      * @param data The data to import from
      */
-    deSerialize( data: ICanvasItem ) {
+    deSerialize( data: HatcheryEditor.ICanvasItem ) {
         this.top = data.top!;
         this.left = data.left!;
         this.width = data.width!;

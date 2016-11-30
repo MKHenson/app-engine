@@ -1,5 +1,4 @@
 import { CanvasItem } from './canvas-item';
-import { IComment } from 'hatchery-editor';
 
 /**
  * A user comment within the workspace
@@ -36,8 +35,8 @@ export class Comment extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): IComment {
-        let toRet = <IComment>super.serialize( id );
+    serialize( id: number ): HatcheryEditor.IComment {
+        let toRet = <HatcheryEditor.IComment>super.serialize( id );
         toRet.type = 'comment';
         toRet.label = this.label;
         toRet.width = this.width;
@@ -49,7 +48,7 @@ export class Comment extends CanvasItem {
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize( data: IComment ) {
+    deSerialize( data: HatcheryEditor.IComment ) {
         super.deSerialize( data );
         this.width = data.width!;
         this.height = data.height!;

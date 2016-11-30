@@ -4,16 +4,16 @@ import { ButtonPrimary } from '../buttons/buttons';
 import { PluginsWidget } from '../plugins-widget/plugins-widget';
 import { ValidationType, AttentionType } from '../../setup/enums';
 import { capitalize } from '../../core/utils';
-import { ISplashScreen } from 'hatchery-editor';
+import { IProject } from 'hatchery-server';
 
 export interface INewProjectProps {
     onCreateProject: ( options: HatcheryServer.IProject ) => void;
-    splash: ISplashScreen;
+    splash: HatcheryEditor.ISplashScreen;
     onCancel: () => void;
 }
 
 export interface INewProjectState {
-    plugins?: Array<{ id: string; version: string; }>;
+    selectedPlugins?: Array<{ id: string; version: string; }>;
     message?: string | null;
     error?: boolean;
 }
@@ -30,7 +30,7 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
         super( props );
 
         this.state = {
-            plugins: [],
+            selectedPlugins: [],
             error: false,
             message: 'Please enter the project details and select any plugins you want to use'
         }
@@ -39,10 +39,11 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
     /**
      * Creates a new user project
      */
-    newProject( json ) {
-        const plugins = this.state.plugins!;
+    newProject( json: IProject ) {
+        const selectedPlugins = this.state.selectedPlugins!;
+
         //const ids = plugins.map<string>( function( value ) { return value._id; });
-        this.props.onCreateProject( { name: json.name, plugins: plugins, description: json.description });
+        this.props.onCreateProject( { name: json.name, plugins: selectedPlugins, description: json.description });
     }
 
     /**
@@ -80,13 +81,18 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
                 </div>
                 <div className="double-column" style={{ width: '60%' }}>
                     <PluginsWidget
-                        onChange={() => { } }
+                        onError={( e ) => this.setState( { error: true, message: e.message })}
+                        onChange={( selectedPlugins ) => {
+                            this.setState( {
+                                selectedPlugins: selectedPlugins
+                            });
+                        } }
                         />
                 </div>
                 <div className="fix"></div>
                 <div className="buttons">
                     {(
-                        message || message !== '' ?
+                        message ?
                             <Attention
                                 allowClose={false}
                                 showIcon={error}

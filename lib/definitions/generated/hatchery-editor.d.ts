@@ -1,4 +1,3 @@
-import { IEditorState } from 'hatchery-editor';
 /**
  * Describes the different types of editor action types
  */
@@ -6,20 +5,15 @@ export declare type EditorActionType = 'EA_TOGGLE_SPLASH' | 'EA_TOGGLE_LOGIN_STA
 /**
  * An interface for describing  editor actions
  */
-export interface IEditorAction extends Redux.Action, IEditorState {
+export interface IEditorAction extends Redux.Action, HatcheryEditor.IEditorState {
     type: EditorActionType;
-    editorState: IEditorState;
+    editorState: HatcheryEditor.IEditorState;
 }
-/**
- * Creates an action that toggles the splash screen visiblility
- */
-export declare function toggleSplash(visible: boolean): IEditorAction;
 /**
  * Creates an action that toggles the splash screen visiblility
  */
 export declare function toggleLoginState(state: 'login' | 'register'): IEditorAction;
 
-import { ILogMessage } from 'hatchery-editor';
 /**
  * Describes each of the project action types
  */
@@ -29,83 +23,35 @@ export declare type LoggerActionType = 'LOGGER_ADD_ITEM' | 'LOGGER_CLEAR_ITEMS';
  */
 export interface ILoggerAction extends Redux.Action {
     type: LoggerActionType;
-    item?: ILogMessage;
+    item?: HatcheryEditor.ILogMessage;
 }
-export declare namespace LogActions {
-    /**
-     * Creates an action to clear all log items
-     */
-    function clear(): ILoggerAction;
-    /**
-     * Creates an action for adding a log message in the log window
-     */
-    function message(message: string): ILoggerAction;
-    /**
-     * Creates an action for adding a warning log message in the log window
-     */
-    function warning(message: string): ILoggerAction;
-    /**
-     * Creates an action for adding an error log message in the log window
-     */
-    function error(message: string): ILoggerAction;
-}
+/**
+ * Creates an action to clear all log items
+ */
+export declare function clear(): ILoggerAction;
+/**
+ * Creates an action for adding a log message in the log window
+ */
+export declare function message(message: string): ILoggerAction;
+/**
+ * Creates an action for adding a warning log message in the log window
+ */
+export declare function warning(message: string): ILoggerAction;
+/**
+ * Creates an action for adding an error log message in the log window
+ */
+export declare function error(message: string): ILoggerAction;
 
-import { IPlugins } from 'hatchery-editor';
-/**
- * Describes the different types of plugin action types
- */
-export declare type PluginActionType = 'PLUGINS_REQUEST_PENDING' | 'PLUGINS_DOWNLOADED' | 'PLUGINS_EXPAND_TOGGLE' | 'PLUGINS_SELECTED' | 'PLUGINS_REQUEST_REJECTED';
-/**
- * An interface for describing plugin actions
- */
-export interface IPluginAction extends Redux.Action {
-    type: PluginActionType;
-    data?: IPlugins;
-}
-/**
- * An interface for describing plugin expand actions
- */
-export interface IPluginToggleAction extends IPluginAction {
-    plugin: string;
-}
-/**
- * An interface for describing plugin select actions
- */
-export interface IPluginSelectAction extends IPluginAction {
-    id: string;
-    selected: boolean;
-}
-/**
- * Attempts to download the available plugins for use in the editor
- */
-export declare function downloadPluginList(): (dispatch: Redux.Dispatch<IPluginAction>) => void;
-export declare function toggleExpanded(plugin: string): IPluginToggleAction;
-export declare function select(id: string, selected: boolean): IPluginSelectAction;
-
-import { IProject } from 'hatchery-editor';
-/**
- * Describes each of the project action types
- */
-export declare type ProjectActionType = 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_OPENED';
-/**
- * A base interface for describing project related actions
- */
-export interface IProjectAction extends Redux.Action {
-    type: ProjectActionType;
-    project: IProject;
-}
-
-import { ISplashScreen } from 'hatchery-editor';
 /**
  * Describes each of the splash screen action types
  */
-export declare type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_PROJECT_CREATED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
+export declare type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
 /**
  * A base interface for describing the splash screen actions
  */
 export interface ISplashAction extends Redux.Action {
     type: SplashActionType;
-    data?: ISplashScreen;
+    data?: HatcheryEditor.ISplashScreen;
 }
 /**
  * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
@@ -121,7 +67,6 @@ export declare function getProjectList(user: string, index: number, limit: numbe
  */
 export declare function createProject(options: HatcheryServer.IProject): (dispatch: Redux.Dispatch<ISplashAction>) => void;
 
-import { IUser } from 'hatchery-editor';
 /**
  * Describes each of the user action types
  */
@@ -131,7 +76,7 @@ export declare type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJE
  */
 export interface IUserAction extends Redux.Action {
     type: UserActionType;
-    userData?: IUser;
+    userData?: HatcheryEditor.IUser;
 }
 /**
  * Describes the action for removing projects
@@ -167,7 +112,7 @@ export declare function removeProject(username: string, pid: string): (dispatch:
 /**
  * Attempts to log the user in using the token provided
  */
-export declare function login(token: UsersInterface.ILoginToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
+export declare function login(token: UsersInterface.ILoginToken, forward?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
 /**
  * Attempts to register the user with the provided token
  */
@@ -426,30 +371,12 @@ export declare class ReactContextMenu extends React.Component<IReactContextMenuP
     static hide(id: number): void;
 }
 
-import { Project } from '../../core/project';
-import { IEditorState } from 'hatchery-editor';
-export interface IDashboardProps {
-    editorState?: IEditorState;
-    project?: Project;
-}
-/**
- * The main GUI interface that users interact with once logged in and past the splash screen
- */
-export declare class Dashboard extends React.Component<IDashboardProps, void> {
-    constructor(props: IDashboardProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { Point } from 'hatchery-editor';
 export interface IDraggableProps {
     enabled?: boolean;
     x: number;
     y: number;
     onMove?: (x: number, y: number) => void;
-    onDragComplete?: (start: Point, end: Point) => void;
+    onDragComplete?: (start: HatcheryEditor.Point, end: HatcheryEditor.Point) => void;
 }
 export declare class Draggable extends React.Component<IDraggableProps, any> {
     static defaultProps: IDraggableProps;
@@ -1062,69 +989,6 @@ export declare class LoginForm extends React.Component<ILoginFormProps, ILoginFo
     render(): JSX.Element;
 }
 
-import { ISplashScreen } from 'hatchery-editor';
-export interface INewProjectProps {
-    onCreateProject: (options: HatcheryServer.IProject) => void;
-    splash: ISplashScreen;
-    onCancel: () => void;
-}
-export interface INewProjectState {
-    plugins?: Array<{
-        id: string;
-        version: string;
-    }>;
-    message?: string | null;
-    error?: boolean;
-}
-/**
- * A Component for creating a new project
- */
-export declare class NewProject extends React.Component<INewProjectProps, INewProjectState> {
-    /**
-     * Creates a new instance
-     */
-    constructor(props: any);
-    /**
-     * Creates a new user project
-     */
-    newProject(json: any): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ILoggerAction } from '../../actions/logger-actions';
-import { AttentionType } from '../../setup/enums';
-import { IProject } from 'hatchery-editor';
-export interface IOpenProjectProps {
-    dispatch: Redux.Dispatch<ILoggerAction>;
-    onCancel: () => void;
-    onComplete: () => void;
-    project: IProject;
-    plugins: HatcheryServer.IPlugin[];
-}
-export interface IOpenProjectState {
-    message?: string | null;
-    mode?: AttentionType;
-    loading?: boolean;
-}
-export declare class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOpenProjectProps);
-    /**
-     * Attempts to load the project and setup the scene
-     */
-    loadScene(): void;
-    componentWillMount(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
 export interface IPagerProps extends React.HTMLAttributes {
     onUpdate: (index: number, limit: number) => void;
     count: number;
@@ -1183,16 +1047,18 @@ export declare class Pager extends React.Component<IPagerProps, IPagerState> {
     render(): JSX.Element;
 }
 
-import { IPlugins } from 'hatchery-editor';
 export interface IPluginsWidgetProps {
-    onChange: (plugins: IPlugins) => void;
+    onChange: (selectedPlugins: {
+        id: string;
+        version: string;
+    }[]) => void;
+    onError: (error: Error) => void;
 }
 export interface IPluginsWidgetState {
     plugins?: HatcheryServer.IPlugin[];
     activeVersion?: HatcheryServer.IPluginVersion | null;
     activePlugin?: HatcheryServer.IPlugin | null;
     loading?: boolean;
-    error?: Error | null;
 }
 /**
  * A class for displaying a list of available plugins that can be used with a project.
@@ -1202,8 +1068,18 @@ export declare class PluginsWidget extends React.Component<IPluginsWidgetProps, 
      * Creates an instance
      */
     constructor(props: IPluginsWidgetProps);
-    componentDidMount(): void;
+    /**
+     * When the component is about to mount, we download a list of available plugins
+     */
+    componentWillMount(): void;
+    /**
+     * Selects / deselects the plugin and version
+     */
     updateSelection(plugin: HatcheryServer.IPlugin, version?: HatcheryServer.IPluginVersion): void;
+    /**
+     * When the user selects a plugin we trigger the onChange event
+     */
+    onChange(plugins: HatcheryServer.IPlugin[]): void;
     /**
      * Generates the React code for displaying the plugins
      */
@@ -1239,37 +1115,6 @@ export declare class ProjectList extends React.Component<IProjectListProps, IPro
      */
     constructor(props: any);
     selectProject(project: HatcheryServer.IProject | null, doubleClick: boolean): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ISplashScreen } from 'hatchery-editor';
-export interface IProjectsOverviewProps {
-    splash: ISplashScreen;
-    username: string;
-    onProjectDelete: (project: HatcheryServer.IProject) => void;
-    onCreateProject: () => void;
-    onOpenProject: (project: HatcheryServer.IProject) => void;
-    onProjectsRefresh: (index: number, limit: number, searchTerm: string) => void;
-}
-export interface IProjectsOverviewState {
-    selectedProject?: HatcheryServer.IProject | null;
-}
-/**
- * A component for viewing projects, displaying their stats, removing, adding or opening them.
- */
-export declare class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
-    private _list;
-    /**
-     * Creates an instance of the projects overview
-     */
-    constructor(props: IProjectsOverviewProps);
-    /**
-     * Renders the project details section
-     */
-    renderProjectInfo(): JSX.Element;
     /**
      * Creates the component elements
      */
@@ -1650,11 +1495,10 @@ export declare class Resizable extends React.Component<IResizableProps, any> {
     render(): JSX.Element;
 }
 
-import { IBehaviour, IPortal } from 'hatchery-editor';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
 export interface IBehaviourComponentProps {
     editor: ContainerSchema;
-    behaviour: IBehaviour;
+    behaviour: HatcheryEditor.IBehaviour;
 }
 /**
  * A visual representation of a Behaviour
@@ -1664,18 +1508,17 @@ export declare class BehaviourComponent extends React.Component<IBehaviourCompon
      * Creates an instance of the component
      */
     constructor(props: IBehaviourComponentProps);
-    onLinkStart(e: React.MouseEvent, portal: IPortal): void;
-    getPortalFromTarget(target: HTMLElement): IPortal | null;
+    onLinkStart(e: React.MouseEvent, portal: HatcheryEditor.IPortal): void;
+    getPortalFromTarget(target: HTMLElement): HatcheryEditor.IPortal | null;
     /**
      * Creates the component elements
      */
     render(): JSX.Element;
 }
 
-import { IComment } from 'hatchery-editor';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
 export interface ICommentComponentProps {
-    comment: IComment;
+    comment: HatcheryEditor.IComment;
     editor: ContainerSchema;
 }
 export interface ICommentComponentState {
@@ -1710,13 +1553,12 @@ export declare class CommentComponent extends React.Component<ICommentComponentP
     render(): JSX.Element;
 }
 
-import { ILinkItem, IPortal, Point } from 'hatchery-editor';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
 export interface ILinkComponentProps {
     editor: ContainerSchema;
-    link: ILinkItem;
+    link: HatcheryEditor.ILinkItem;
     isRouting: boolean;
-    getPortal: ((target: HTMLElement) => IPortal | null) | null;
+    getPortal: ((target: HTMLElement) => HatcheryEditor.IPortal | null) | null;
 }
 /**
  * A visual representation of a Link. Represented on a schema as an SVG line between two behaviours
@@ -1728,7 +1570,7 @@ export declare class LinkComponent extends React.Component<ILinkComponentProps, 
      * Creates an instance of the component
      */
     constructor(props: ILinkComponentProps);
-    calculateRect(pos: Point): {
+    calculateRect(pos: HatcheryEditor.Point): {
         left: number;
         top: number;
         height: number;
@@ -1749,9 +1591,8 @@ export declare class LinkComponent extends React.Component<ILinkComponentProps, 
     render(): JSX.Element;
 }
 
-import { IPortal } from 'hatchery-editor';
 export interface IPortalComponentProps {
-    portal: IPortal;
+    portal: HatcheryEditor.IPortal;
     onPortalDown?: (e: React.MouseEvent) => void;
 }
 /**
@@ -1768,10 +1609,8 @@ export declare class PortalComponent extends React.Component<IPortalComponentPro
     render(): JSX.Element;
 }
 
-import { IPortal, Point } from 'hatchery-editor';
 import { BehaviourDefinition } from '../../core/behaviour-definition';
 import { ContainerSchema } from '../../core/editors/container-schema/container-schema';
-import { IDragDropToken } from 'hatchery-editor';
 import { ProjectResource } from '../../core/project-resources/project-resource';
 export interface ISchemaProps {
     editor: ContainerSchema;
@@ -1794,21 +1633,21 @@ export declare class Schema extends React.Component<ISchemaProps, {
      * @param {React.MouseEvent} e
      * @param {IDragDropToken} json
      */
-    onObjectDropped(e: React.MouseEvent, json: IDragDropToken | null): void;
+    onObjectDropped(e: React.MouseEvent, json: HatcheryEditor.IDragDropToken | null): void;
     /**
     * This will create a new behaviour based on the template given
     * @param template The definition of the behaviour we're creating
     * @param pos The x and y position of where the node shoule be placed
     * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
     */
-    addBehaviour(template: BehaviourDefinition, pos: Point, resource?: ProjectResource<HatcheryServer.IResource>): void;
-    createPortal(type: HatcheryRuntime.PortalType, pos: Point): void;
+    addBehaviour(template: BehaviourDefinition, pos: HatcheryEditor.Point, resource?: ProjectResource<HatcheryServer.IResource>): void;
+    createPortal(type: HatcheryRuntime.PortalType, pos: HatcheryEditor.Point): void;
     /**
      * Opens the canvas context menu
      * @param {React.MouseEvent} e
      */
     onContext(e: React.MouseEvent): void;
-    getPortal(target: HTMLElement): IPortal | null;
+    getPortal(target: HTMLElement): HatcheryEditor.IPortal | null;
     /**
      * Creates the component elements
      * @returns {JSX.Element}
@@ -2283,14 +2122,13 @@ export declare class ToolbarNumber extends Component {
     dispose(): void;
 }
 
-import { Project } from '../../core/project';
 import { Component } from '../../components/component';
 import { ToolbarButton } from './toolbar-button/toolbar-button';
 import { ToolbarNumber } from '../toolbar/toolbar-buttons/toolbar-number';
 import { ToolbarColorPicker } from '../toolbar/toolbar-buttons/toolbar-color-picker';
 import { ToolbarDropDown, ToolbarItem } from '../toolbar/toolbar-buttons/toolbar-drop-down';
 export interface IToolbarProps {
-    project: Project;
+    project: HatcheryEditor.IProject | null;
 }
 export interface IToolbarState {
 }
@@ -2560,7 +2398,6 @@ export declare class TreeNodeGroupInstance extends TreeNodeModel {
 
 import { GroupArray } from '../../../core/project-resources/group-array';
 import { TreeViewNodeResource } from './treeview-node-resource';
-import { IDragDropToken } from 'hatchery-editor';
 /**
  * This node represents a group asset.
  * Other resource nodes can be dropped on these which will append the object (if valid) into the group
@@ -2580,13 +2417,12 @@ export declare class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
      * @param e
      * @param json The unserialized data
      */
-    onDragDrop(e: React.DragEvent, json: IDragDropToken): void;
+    onDragDrop(e: React.DragEvent, json: HatcheryEditor.IDragDropToken): void;
 }
 
 import { PluginManagerEvents, ITemplateEvent } from '../../../setup/events';
 import { BehaviourDefinition } from '../../../core/behaviour-definition';
 import { TreeNodeModel } from '../treenode-model';
-import { IDragDropToken } from 'hatchery-editor';
 /**
  * This node represents a behaviour created by a plugin.
  */
@@ -2600,7 +2436,7 @@ export declare class TreeNodePluginBehaviour extends TreeNodeModel {
      * Called whenever we start dragging. This is only called if canDrag is true.
      * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
      */
-    onDragStart(): IDragDropToken;
+    onDragStart(): HatcheryEditor.IDragDropToken;
     /**
      * If a template is removed then remove its instance
      */
@@ -2713,7 +2549,6 @@ export declare class TreeViewNodeGroups extends TreeNodeModel {
 import { ProjectResource } from '../../../core/project-resources/project-resource';
 import { ProjectEvents, IResourceEvent } from '../../../setup/events';
 import { TreeNodeModel } from '../treenode-model';
-import { IDragDropToken } from 'hatchery-editor';
 /**
  * A model for referencing a project resource
  */
@@ -2730,7 +2565,7 @@ export declare class TreeViewNodeResource<T extends ProjectResource<HatcheryServ
      * @param {React.DragEvent} e
      * @returns {IDragDropToken} Return data to serialize
      */
-    onDragStart(): IDragDropToken;
+    onDragStart(): HatcheryEditor.IDragDropToken;
     /**
      * Show a context menu of resource options
      */
@@ -2796,7 +2631,6 @@ export declare class TreeViewNodeResource<T extends ProjectResource<HatcheryServ
 }
 
 import { TreeNodeStore } from './treenode-store';
-import { IDragDropToken } from 'hatchery-editor';
 export declare class TreeNodeModel {
     private _icon;
     private _label;
@@ -2830,14 +2664,14 @@ export declare class TreeNodeModel {
      * @param e
      * @returns Return data to serialize
      */
-    onDragStart(e: React.DragEvent): IDragDropToken | null;
+    onDragStart(e: React.DragEvent): HatcheryEditor.IDragDropToken | null;
     /**
      * Called whenever we drop an item on this element. This is only called if canDrop is true.
      * Use it to set drag data, eg: e.dataTransfer.getData("text");
      * @param e
      * @param json The unserialized data
      */
-    onDragDrop(e: React.DragEvent, json: IDragDropToken | null): void;
+    onDragDrop(e: React.DragEvent, json: HatcheryEditor.IDragDropToken | null): void;
     /**
      * Gets or sets if the node is selected
      * @param val
@@ -2999,7 +2833,7 @@ import { AssetClass } from '../../core/asset-class';
 import { ProjectEvents } from '../../setup/events';
 import { TreeNodeAssetInstance } from './nodes/treenode-asset-instance';
 export interface ITreeViewSceneProps extends ITreeViewProps {
-    project: Project | null;
+    project: HatcheryEditor.IProject | null;
 }
 /**s
  * An implementation of the tree view for the scene.
@@ -3707,12 +3541,11 @@ export declare class ReactWindow<T extends IReactWindowProps, S extends IReactWi
     render(): JSX.Element;
 }
 
-import { Project } from '../../core/project';
 import { Editor } from '../../core/editors/editor';
 import { ITabProps } from '../tab/tab';
 import { ProjectEvents } from '../../setup/events';
 export interface IWorkspaceProps extends ITabProps {
-    project: Project;
+    project: HatcheryEditor.IProject | null;
 }
 /**
  * The main workspace area of the application.
@@ -3741,40 +3574,43 @@ export declare class Workspace extends React.Component<IWorkspaceProps, any> {
     render(): JSX.Element;
 }
 
-import { ISplashScreen, HatcheryProps, IUser } from 'hatchery-editor';
-export interface IApplicationState extends HatcheryProps {
-    splash?: ISplashScreen;
-    user?: IUser;
+export interface IApplicationState extends HatcheryEditor.HatcheryProps {
+    splash?: HatcheryEditor.ISplashScreen;
+    user?: HatcheryEditor.IUser;
 }
 declare const ConnectedApp: React.ComponentClass<any>;
 export { ConnectedApp as Application };
 
-import { ILogMessage, HatcheryProps } from 'hatchery-editor';
-export interface ILoggerProps extends HatcheryProps {
-    messages?: ILogMessage[];
+export interface IDashboardProps extends HatcheryEditor.HatcheryProps {
+    project?: HatcheryEditor.IProject;
+    projectId?: string;
+    user?: HatcheryEditor.IUser;
+}
+declare const ConnectedDashboard: React.ComponentClass<any>;
+export { ConnectedDashboard as Dashboard };
+
+export interface ILoggerProps extends HatcheryEditor.HatcheryProps {
+    messages?: HatcheryEditor.ILogMessage[];
 }
 declare const ConnectedLogger: React.ComponentClass<any>;
 export { ConnectedLogger as Logger };
 
-import { IEditorState, HatcheryProps, IUser } from 'hatchery-editor';
-export interface ILoginWidgetProps extends HatcheryProps {
+export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
     onLogin?: () => void;
-    user?: IUser;
-    editorState?: IEditorState;
+    user?: HatcheryEditor.IUser;
+    editorState?: HatcheryEditor.IEditorState;
     forward?: string;
 }
 declare const ConnectedWidget: React.ComponentClass<any>;
 export { ConnectedWidget as LoginWidget };
 
-import { ISplashScreen, HatcheryProps, IUser, IPlugins } from 'hatchery-editor';
 /**
  * An interface that describes the props of the Splash Component
  */
-export interface ISplashProps extends HatcheryProps {
-    user?: IUser;
-    splash?: ISplashScreen;
+export interface ISplashProps extends HatcheryEditor.HatcheryProps {
+    user?: HatcheryEditor.IUser;
+    splash?: HatcheryEditor.ISplashScreen;
     section?: string;
-    plugins?: IPlugins;
 }
 /**
  * Describes the state interface for the Splash Component
@@ -3940,16 +3776,15 @@ import { Behaviour } from '../items/behaviour';
 import { ContainerSchema } from '../container-schema';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { ProjectResource } from '../../../project-resources/project-resource';
-import { IBehaviour } from 'hatchery-editor';
 /**
  * An action for the creation of behaviours within a container
  */
 export declare class BehaviourCreated extends EditorAction {
     definition: BehaviourDefinition;
     instance: Behaviour | null;
-    options: IBehaviour;
+    options: HatcheryEditor.IBehaviour;
     resource: ProjectResource<HatcheryServer.IResource> | null;
-    constructor(definition: BehaviourDefinition, options: IBehaviour, resource?: ProjectResource<HatcheryServer.IResource>);
+    constructor(definition: BehaviourDefinition, options: HatcheryEditor.IBehaviour, resource?: ProjectResource<HatcheryServer.IResource>);
     /**
      * Undo the last history action
      */
@@ -4046,14 +3881,13 @@ export declare class CommentResized extends EditorAction {
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
 import { Link } from '../items/link';
-import { ILinkItem } from 'hatchery-editor';
 /**
  * An action for the creation of links within a container
  */
 export declare class LinkCreated extends EditorAction {
     instance: Link | null;
-    options: ILinkItem;
-    constructor(options: ILinkItem);
+    options: HatcheryEditor.ILinkItem;
+    constructor(options: HatcheryEditor.ILinkItem);
     /**
      * Undo the last history action
      */
@@ -4144,7 +3978,6 @@ import { Link } from './items/link';
 import { CanvasItem } from './items/canvas-item';
 import { Container } from '../../project-resources/container';
 import { Project } from '../../project';
-import { IPortal, ICanvasItem, ILinkItem, Point } from 'hatchery-editor';
 /**
  * An editor that represents the data of a container's inner behaviours and their relationships with eachother.
  * This editor is visualised through a schema component.
@@ -4163,11 +3996,11 @@ export declare class ContainerSchema extends Editor {
      * This should be followed by a call to endLinkRouting when
      * the process is completed
      */
-    beginLinkRouting(portal: IPortal, pos: Point): void;
+    beginLinkRouting(portal: HatcheryEditor.IPortal, pos: HatcheryEditor.Point): void;
     /**
      * Completes the process of linking two behaviours together
      */
-    endLinkRouting(options: ILinkItem | null): void;
+    endLinkRouting(options: HatcheryEditor.ILinkItem | null): void;
     readonly activeLink: Link | null;
     /**
      * Returns all items of this store
@@ -4180,11 +4013,11 @@ export declare class ContainerSchema extends Editor {
     /**
      * Called whenever an item is clicked.
      */
-    onNodeSelected(item: ICanvasItem | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
+    onNodeSelected(item: HatcheryEditor.ICanvasItem | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
     /**
      * Whenever we receive a context event on an item
      */
-    onContext(item: ICanvasItem, e: React.MouseEvent): void;
+    onContext(item: HatcheryEditor.ICanvasItem, e: React.MouseEvent): void;
     /**
      * Adds a canvas item to the canvas
      * @param item The item to add
@@ -4209,7 +4042,6 @@ export declare class ContainerSchema extends Editor {
 import { Behaviour } from './behaviour';
 import { Portal } from './portal';
 import { ProjectResource } from '../../../project-resources/project-resource';
-import { IBehaviour } from 'hatchery-editor';
 import { Prop } from '../../../properties/prop';
 /**
  * A behaviour that contains an asset/resource reference
@@ -4231,7 +4063,7 @@ export declare class BehaviourAsset extends Behaviour {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): IBehaviour;
+    serialize(id: number): HatcheryEditor.IBehaviour;
     /**
      * Adds a portal to this behaviour.
      * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
@@ -4244,7 +4076,6 @@ export declare class BehaviourAsset extends Behaviour {
 
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IBehaviourPortal } from 'hatchery-editor';
 /**
  * A behaviour for representing container portals
  */
@@ -4262,12 +4093,12 @@ export declare class BehaviourPortal extends Behaviour {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): IBehaviourPortal;
+    serialize(id: number): HatcheryEditor.IBehaviourPortal;
     /**
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize(data: IBehaviourPortal): void;
+    deSerialize(data: HatcheryEditor.IBehaviourPortal): void;
     /**
      * This will cleanup the component.
      */
@@ -4282,7 +4113,6 @@ import { Prop } from '../../../properties/prop';
 import { BehaviourDefinition } from '../../../behaviour-definition';
 import { CanvasItem } from './canvas-item';
 import { Portal } from './portal';
-import { IBehaviour } from 'hatchery-editor';
 /**
  * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
  * that has been added to a container.
@@ -4327,12 +4157,12 @@ export declare class Behaviour extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): IBehaviour;
+    serialize(id: number): HatcheryEditor.IBehaviour;
     /**
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize(data: IBehaviour): void;
+    deSerialize(data: HatcheryEditor.IBehaviour): void;
     /**
      * Diposes and cleans up this component and its portals
      */
@@ -4340,13 +4170,12 @@ export declare class Behaviour extends CanvasItem {
 }
 
 
-import { ICanvasItem } from 'hatchery-editor';
 import { ContainerSchema } from '../container-schema';
 import { EventDispatcher } from '../../../event-dispatcher';
 export declare type LinkMap = {
     [shallowId: number]: {
         item: CanvasItem;
-        token: ICanvasItem;
+        token: HatcheryEditor.ICanvasItem;
     };
 };
 /**
@@ -4375,12 +4204,12 @@ export declare class CanvasItem extends EventDispatcher {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): ICanvasItem;
+    serialize(id: number): HatcheryEditor.ICanvasItem;
     /**
      * De-serialize data from a JSON.
      * @param data The data to import from
      */
-    deSerialize(data: ICanvasItem): void;
+    deSerialize(data: HatcheryEditor.ICanvasItem): void;
     /**
      * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
      * @param originalId The original shallow ID of the item when it was tokenized.
@@ -4427,7 +4256,6 @@ export declare class Canvas {
 }
 
 import { CanvasItem } from './canvas-item';
-import { IComment } from 'hatchery-editor';
 /**
  * A user comment within the workspace
  */
@@ -4446,17 +4274,16 @@ export declare class Comment extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): IComment;
+    serialize(id: number): HatcheryEditor.IComment;
     /**
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize(data: IComment): void;
+    deSerialize(data: HatcheryEditor.IComment): void;
 }
 
 import { EditableSet } from '../../../properties/editable-set';
 import { CanvasItem } from './canvas-item';
-import { ILinkItem, Point } from 'hatchery-editor';
 /**
  * Links connect 2 behaviours to one another. Each link is connected by a start and end portal on both the origin
  * and destination behaviours. Links are drawn on the schema as an SVG line.
@@ -4469,7 +4296,7 @@ export declare class Link extends CanvasItem {
     selected: boolean;
     startBehaviour: number;
     endBehaviour: number;
-    points: Point[];
+    points: HatcheryEditor.Point[];
     private _properties;
     /**
      * Creates a new instance of a link
@@ -4478,12 +4305,12 @@ export declare class Link extends CanvasItem {
     /**
      * Serializes the data into a JSON.
      */
-    serialize(id: number): ILinkItem;
+    serialize(id: number): HatcheryEditor.ILinkItem;
     /**
      * De-Serializes data from a JSON.
      * @param data The data to import from
      */
-    deSerialize(data: ILinkItem): void;
+    deSerialize(data: HatcheryEditor.ILinkItem): void;
     calculateDimensions(): void;
     /**
     * Gets the properties of this link
@@ -4500,7 +4327,6 @@ import { EventDispatcher } from '../../../event-dispatcher';
 import { Link } from './link';
 import { Behaviour } from './behaviour';
 import { Prop } from '../../../properties/prop';
-import { IPortal } from 'hatchery-editor';
 /**
 * A portal class for behaviours. There are 4 different types of portals -
 * INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
@@ -4525,7 +4351,7 @@ export declare class Portal extends EventDispatcher {
      * Clones the canvas item
      */
     clone(): Portal;
-    serialize(): IPortal;
+    serialize(): HatcheryEditor.IPortal;
     /**
     * Edits the portal variables
     * @param property The new value of the property
@@ -4902,26 +4728,12 @@ import { AssetClass } from './asset-class';
  */
 export declare class PluginManager extends EventDispatcher {
     private static _singleton;
-    private _plugins;
-    private _loadedPlugins;
+    private _store;
     private _behaviourTemplates;
     private _assetTemplates;
     private _converters;
     private _previewVisualizers;
-    private _allPlugins;
-    constructor();
-    /**
-     * Attempts to download a plugin by its URL and insert it onto the page.
-     * Each plugin should then register itself with the plugin manager by setting the __newPlugin variable. This variable is set in the plugin that's downloaded.
-     * Once downloaded - the __newPlugin will be set as the plugin and is assigned to the plugin definition.
-     * @param pluginDefinition The plugin to load
-     */
-    loadPlugin(pluginDefinition: HatcheryServer.IPlugin): Promise<HatcheryServer.IPlugin>;
-    /**
-     * Goes through each of the plugins and returns the one with the matching ID
-     * @param id The ID of the plugin to fetch
-     */
-    getPluginByID(id: string): HatcheryServer.IPlugin | null;
+    constructor(store: Redux.Store<HatcheryEditor.IStore>);
     /**
      * This funtcion is used to load a plugin.
      * @param pluginDefinition The IPlugin constructor that is to be created
@@ -4958,14 +4770,6 @@ export declare class PluginManager extends EventDispatcher {
      */
     getAssetClass(name: string): AssetClass | null;
     /**
-     * Called when the project is reset by either creating a new one or opening an older one.
-     */
-    projectReset(): void;
-    /**
-     * This function is called by Animate when everything has been loaded and the user is able to begin their session.
-     */
-    projectReady(): void;
-    /**
      * Creates a thumbnail preview of the file
      */
     thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
@@ -4976,12 +4780,15 @@ export declare class PluginManager extends EventDispatcher {
      */
     displayPreview(file: HatcheryServer.IFile): JSX.Element | null;
     readonly assetTemplates: AssetTemplate[];
-    readonly loadedPlugins: IPlugin[];
     readonly behaviourTemplates: BehaviourDefinition[];
+    /**
+     * Gets the application store
+     */
+    readonly store: Redux.Store<HatcheryEditor.IStore>;
     /**
      * Gets the singleton instance.
      */
-    static getSingleton(): PluginManager;
+    static getSingleton(store?: Redux.Store<HatcheryEditor.IStore>): PluginManager;
 }
 
 import { Prop } from './properties/prop';
@@ -5790,61 +5597,8 @@ export declare class TypeConverter {
     dispose(): void;
 }
 
-import { EventDispatcher } from './event-dispatcher';
-import { Project } from './project';
-/**
-* This class is used to represent the user who is logged into Animate.
-*/
-export declare class User extends EventDispatcher {
-    private static _singleton;
-    entry: UsersInterface.IUserEntry;
-    meta: HatcheryServer.IUserMeta | null;
-    project: Project;
-    private _isLoggedIn;
-    constructor();
-    /**
-    * Resets the meta data
-    */
-    resetMeta(): void;
-    /**
-    * Creates a new user projects
-    * @param name The name of the project
-    * @param plugins An array of plugin IDs to identify which plugins to use
-    * @param description [Optional] A short description
-    */
-    newProject(name: string, plugins: Array<{
-        id: string;
-        version: string;
-    }>, description?: string): Promise<ModepressAddons.ICreateProject>;
-    /**
-    * Attempts to update the user's details base on the token provided
-    * @returns The user details token
-    */
-    updateDetails(token: HatcheryServer.IUserMeta): Promise<UsersInterface.IResponse>;
-    /**
-    * Use this function to duplicate a project
-    * @param id The project ID we are copying
-    */
-    copyProject(id: string): void;
-    /**
-    * This function is used to open an existing project.
-    */
-    openProject(id: string): void;
-    /**
-    * This will delete a project from the database as well as remove it from the user.
-    * @param id The id of the project we are removing.
-    */
-    deleteProject(id: string): void;
-    readonly isLoggedIn: boolean;
-    /**
-    * Gets the singleton instance.
-    */
-    static readonly get: User;
-}
-
 import { ValidationType, PropertyType } from '../setup/enums';
 import { Prop } from './properties/prop';
-import { Point } from 'hatchery-editor';
 export interface IAjaxError {
     message: string;
     status: number;
@@ -5905,7 +5659,7 @@ export declare function createProperty(name: string, type: PropertyType): Prop<a
  * @param e
  * @param elm The target element
  */
-export declare function getRelativePos(e: React.MouseEvent | MouseEvent, elm: HTMLElement): Point;
+export declare function getRelativePos(e: React.MouseEvent | MouseEvent, elm: HTMLElement): HatcheryEditor.Point;
 /**
  * Gets a quadratically eased in/out value
  * @param startValue The initial value
@@ -5921,7 +5675,7 @@ export declare function quadInOut(startValue: any, delta: any, curTime: any, dur
  * @param duration The total amount of time to take to scroll
  * @return Returns setInterval
  */
-export declare function scrollTo(dest: Point, elm: HTMLElement, duration: number): number;
+export declare function scrollTo(dest: HatcheryEditor.Point, elm: HTMLElement, duration: number): number;
 /**
 * Use this function to check if a value contains characters that break things.
 * @param text The text to check
@@ -5938,50 +5692,42 @@ export declare function validateEmail(email: string): boolean;
  * it's not a valid JavaScript object.
  */
 export declare function getObjectClass(obj: any): any;
+/**
+ * A helper function that processes all promises with an optional callback for when each returns a result
+ */
+export declare function all<Y>(promises: Promise<Y>[], progress: (item: Y, progress: number) => void): Promise<Y[]>;
 
 import './setup/emitters';
 
 import { IEditorAction } from '../actions/editor-actions';
-import { IEditorState } from 'hatchery-editor';
 /**
  * A reducer that processes state changes of the editor
  */
-export declare function editorReducer(state: IEditorState, action: IEditorAction): IEditorState;
+export declare function editorReducer(state: HatcheryEditor.IEditorState, action: IEditorAction): HatcheryEditor.IEditorState;
 
 import { ILoggerAction } from '../actions/logger-actions';
-import { ILogMessage } from 'hatchery-editor';
 /**
  * A reducer that processes state changes of the editor
  */
-export declare function loggerReducer(state: ILogMessage[], action: ILoggerAction): ILogMessage[];
-
-import { IPluginAction } from '../actions/plugin-actions';
-import { IPlugins } from 'hatchery-editor';
-/**
- * A reducer that processes state changes of the plugins
- */
-export declare function pluginReducer(state: IPlugins, action: IPluginAction): IPlugins;
+export declare function loggerReducer(state: HatcheryEditor.ILogMessage[], action: ILoggerAction): HatcheryEditor.ILogMessage[];
 
 import { IProjectAction } from '../actions/project-actions';
-import { IProject } from 'hatchery-editor';
 /**
  * A reducer for processing project actions
  */
-export declare function projectReducer(state: IProject, action: IProjectAction): IProject;
+export declare function projectReducer(state: HatcheryEditor.IProject, action: IProjectAction): HatcheryEditor.IProject;
 
 import { ISplashAction } from '../actions/splash-actions';
-import { ISplashScreen } from 'hatchery-editor';
 /**
  * A reducer for processing splash screen actions
  */
-export declare function splashReducer(state: ISplashScreen, action: ISplashAction): ISplashScreen;
+export declare function splashReducer(state: HatcheryEditor.ISplashScreen, action: ISplashAction): HatcheryEditor.ISplashScreen;
 
 import { IUserAction } from '../actions/user-actions';
-import { IUser } from 'hatchery-editor';
 /**
  * A reducer for processing project actions
  */
-export declare function userReducer(state: IUser, action: IUserAction): IUser;
+export declare function userReducer(state: HatcheryEditor.IUser, action: IUserAction): HatcheryEditor.IUser;
 
 export declare class DataToken {
     category: string;

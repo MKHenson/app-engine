@@ -2,7 +2,6 @@ import { Behaviour } from './behaviour';
 import { Portal } from './portal';
 import { ProjectResource } from '../../../project-resources/project-resource';
 import { PluginManager } from '../../../plugin-manager';
-import { IBehaviour } from 'hatchery-editor';
 import { Prop } from '../../../properties/prop';
 import { Asset } from '../../../project-resources/asset';
 
@@ -47,8 +46,8 @@ export class BehaviourAsset extends Behaviour {
     /**
      * Serializes the data into a JSON.
      */
-    serialize( id: number ): IBehaviour {
-        let toRet = <IBehaviour>super.serialize( id );
+    serialize( id: number ): HatcheryEditor.IBehaviour {
+        let toRet = <HatcheryEditor.IBehaviour>super.serialize( id );
         toRet.type = 'asset';
         return toRet;
     }

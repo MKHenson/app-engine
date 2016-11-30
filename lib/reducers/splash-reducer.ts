@@ -1,34 +1,32 @@
 import { ISplashAction } from '../actions/splash-actions';
-import { ISplashScreen } from 'hatchery-editor';
 
-const defaultSplashState: ISplashScreen = {
+const defaultSplashState: HatcheryEditor.ISplashScreen = {
     error: null,
     loading: false,
     projects: [],
     numProjects: 0,
     serverResponse: null,
-    selectedProject: null,
-    screen: 'welcome'
+    // selectedProject: null
 }
 
 /**
  * A reducer for processing splash screen actions
  */
-export function splashReducer( state: ISplashScreen, action: ISplashAction ): ISplashScreen {
+export function splashReducer( state: HatcheryEditor.ISplashScreen, action: ISplashAction ): HatcheryEditor.ISplashScreen {
     let toReturn = state;
 
     switch ( action.type ) {
         case 'SPLASH_REQUEST_PENDING':
-            toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: true, error: null });
+            toReturn = Object.assign<HatcheryEditor.ISplashScreen>( {}, toReturn, { loading: true, error: null, serverResponse: null });
             break;
         case 'SPLASH_REQUEST_REJECTED':
         case 'SPLASH_REQUEST_FULFILLED':
         case 'SPLASH_GET_PROJECTS':
-        case 'SPLASH_PROJECT_CREATED':
-            toReturn = Object.assign<ISplashScreen>( {}, toReturn, { loading: false }, action.data! );
+            // case 'SPLASH_PROJECT_CREATED':
+            toReturn = Object.assign<HatcheryEditor.ISplashScreen>( {}, toReturn, { loading: false }, action.data! );
             break;
         case 'SPLASH_SET_SCREEN':
-            toReturn = Object.assign<ISplashScreen>( {}, toReturn, action.data! );
+            toReturn = Object.assign<HatcheryEditor.ISplashScreen>( {}, toReturn, action.data! );
             break;
         default:
             toReturn = defaultSplashState;

@@ -7,8 +7,7 @@ export interface IVCheckboxProps extends React.HTMLAttributes {
 
 export class VCheckbox extends React.Component<IVCheckboxProps, { pristine?: boolean; }> {
     static defaultProps: IVCheckboxProps = {
-        noInteractions: false,
-        onChange: function() { }
+        noInteractions: false
     }
 
     /**
@@ -25,7 +24,7 @@ export class VCheckbox extends React.Component<IVCheckboxProps, { pristine?: boo
      * Called whenever the checkbox input changes
      */
     onChange( e: React.FormEvent ) {
-        let input = e.target as HTMLInputElement;
+        const input = e.target as HTMLInputElement;
 
         this.setState( {
             pristine: false
@@ -52,6 +51,7 @@ export class VCheckbox extends React.Component<IVCheckboxProps, { pristine?: boo
         delete props.checked;
         delete props.label;
         delete props.noInteractions;
+        delete props.onChange;
 
         let className = 'v-checkbox fa ' + ( this.props.className || '' ) + ( this.props.noInteractions ? ' no-interaction' : '' );
         if ( !this.state.pristine )
@@ -65,7 +65,7 @@ export class VCheckbox extends React.Component<IVCheckboxProps, { pristine?: boo
                 name={( this.props.name ? this.props.name : undefined )}
                 type="checkbox"
                 ref="check"
-                checked={this.props.checked} />
+                checked={this.props.checked || false} />
             <label
                 onClick={( e ) => {
                     if ( this.props.noInteractions )

@@ -1,4 +1,3 @@
-import { IBehaviour, IPortal, IBehaviourPortal } from 'hatchery-editor';
 import { Draggable } from '../../draggable/draggable';
 import { PortalComponent } from './portal-component';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
@@ -7,7 +6,7 @@ import { SelectionMoved } from '../../../core/editors/container-schema/actions/s
 
 export interface IBehaviourComponentProps {
     editor: ContainerSchema;
-    behaviour: IBehaviour;
+    behaviour: HatcheryEditor.IBehaviour;
 }
 
 /**
@@ -22,7 +21,7 @@ export class BehaviourComponent extends React.Component<IBehaviourComponentProps
         super( props );
     }
 
-    onLinkStart( e: React.MouseEvent, portal: IPortal ) {
+    onLinkStart( e: React.MouseEvent, portal: HatcheryEditor.IPortal ) {
         e.preventDefault();
         e.stopPropagation();
         const behaviour = this.props.behaviour;
@@ -30,7 +29,7 @@ export class BehaviourComponent extends React.Component<IBehaviourComponentProps
         this.props.editor.beginLinkRouting( portal, p );
     }
 
-    getPortalFromTarget( target: HTMLElement ): IPortal | null {
+    getPortalFromTarget( target: HTMLElement ): HatcheryEditor.IPortal | null {
         let ref: Element | React.Component<any, any>;
         let elm: HTMLElement;
 
@@ -56,7 +55,7 @@ export class BehaviourComponent extends React.Component<IBehaviourComponentProps
 
         let behaviourTypeClass = '';
         if ( behaviour.type == 'portal' )
-            behaviourTypeClass += ( behaviour as IBehaviourPortal ).portal.type;
+            behaviourTypeClass += ( behaviour as HatcheryEditor.IBehaviourPortal ).portal.type;
 
         return (
             <Draggable

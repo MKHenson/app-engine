@@ -2,7 +2,6 @@ import { PluginManagerEvents, ITemplateEvent } from '../../../setup/events';
 import { BehaviourDefinition } from '../../../core/behaviour-definition';
 import { PluginManager } from '../../../core/plugin-manager';
 import { TreeNodeModel } from '../treenode-model';
-import { IDragDropToken } from 'hatchery-editor';
 
 /**
  * This node represents a behaviour created by a plugin.
@@ -26,8 +25,8 @@ export class TreeNodePluginBehaviour extends TreeNodeModel {
      * Called whenever we start dragging. This is only called if canDrag is true.
      * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
      */
-    onDragStart(): IDragDropToken {
-        return { type: 'template', id: this._template.behaviourName } as IDragDropToken;
+    onDragStart(): HatcheryEditor.IDragDropToken {
+        return { type: 'template', id: this._template.behaviourName } as HatcheryEditor.IDragDropToken;
     }
 
     /**

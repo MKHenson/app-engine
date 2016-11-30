@@ -1,5 +1,3 @@
-import { IEditorState } from 'hatchery-editor';
-
 /**
  * Describes the different types of editor action types
  */
@@ -10,20 +8,10 @@ export type EditorActionType =
 /**
  * An interface for describing  editor actions
  */
-export interface IEditorAction extends Redux.Action, IEditorState {
+export interface IEditorAction extends Redux.Action, HatcheryEditor.IEditorState {
     type: EditorActionType;
-    editorState: IEditorState;
+    editorState: HatcheryEditor.IEditorState;
 };
-
-/**
- * Creates an action that toggles the splash screen visiblility
- */
-export function toggleSplash( visible: boolean ): IEditorAction {
-    return {
-        type: 'EA_TOGGLE_SPLASH',
-        editorState: { showSplash: visible }
-    }
-}
 
 /**
  * Creates an action that toggles the splash screen visiblility

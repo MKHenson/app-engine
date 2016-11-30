@@ -1,12 +1,11 @@
-import { ILinkItem, IPortal, Point } from 'hatchery-editor';
 import { getRelativePos } from '../../../core/utils';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
 
 export interface ILinkComponentProps {
     editor: ContainerSchema;
-    link: ILinkItem;
+    link: HatcheryEditor.ILinkItem;
     isRouting: boolean;
-    getPortal: ( ( target: HTMLElement ) => IPortal | null ) | null;
+    getPortal: ( ( target: HTMLElement ) => HatcheryEditor.IPortal | null ) | null;
 }
 
 /**
@@ -25,7 +24,7 @@ export class LinkComponent extends React.Component<ILinkComponentProps, any> {
         this._upProxy = this.onMouseUp.bind( this );
     }
 
-    calculateRect( pos: Point ): { left: number; top: number; height: number; width: number; } {
+    calculateRect( pos: HatcheryEditor.Point ): { left: number; top: number; height: number; width: number; } {
         const link = this.props.link;
         let top = 0;
         let left = 0;
@@ -51,7 +50,7 @@ export class LinkComponent extends React.Component<ILinkComponentProps, any> {
     }
 
     onMouseMove( e: MouseEvent ) {
-        const targetPortal: IPortal | null = null;
+        const targetPortal: HatcheryEditor.IPortal | null = null;
         if ( this.props.getPortal )
             this.props.getPortal( e.target as HTMLElement );
         const svg = this.refs[ 'svg' ] as SVGAElement;
@@ -74,7 +73,7 @@ export class LinkComponent extends React.Component<ILinkComponentProps, any> {
     onMouseUp( e: MouseEvent ) {
         const editor = this.props.editor;
         const link = this.props.link;
-        let targetPortal: IPortal | null = null;
+        let targetPortal: HatcheryEditor.IPortal | null = null;
 
         if ( this.props.getPortal )
             targetPortal = this.props.getPortal( e.target as HTMLElement );

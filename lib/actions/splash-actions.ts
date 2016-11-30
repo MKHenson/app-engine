@@ -1,4 +1,3 @@
-import { ISplashScreen } from 'hatchery-editor';
 import { post, get } from '../core/utils';
 import { DB } from '../setup/db';
 
@@ -9,7 +8,7 @@ export type SplashActionType =
     'SPLASH_REQUEST_PENDING' |
     'SPLASH_REQUEST_FULFILLED' |
     'SPLASH_REQUEST_REJECTED' |
-    'SPLASH_PROJECT_CREATED' |
+    // 'SPLASH_PROJECT_CREATED' |
     'SPLASH_SET_SCREEN' |
     'SPLASH_GET_PROJECTS';
 
@@ -18,7 +17,7 @@ export type SplashActionType =
  */
 export interface ISplashAction extends Redux.Action {
     type: SplashActionType;
-    data?: ISplashScreen;
+    data?: HatcheryEditor.ISplashScreen;
 };
 
 /**
@@ -60,28 +59,27 @@ export function createProject( options: HatcheryServer.IProject ) {
     return ( dispatch: Redux.Dispatch<ISplashAction> ) => {
 
         // Notify project loading
-        dispatch( { type: 'PROJECT_REQUEST_PENDING' });
+        dispatch( { type: 'SPLASH_REQUEST_PENDING' });
 
         // Create project
         post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, options ).then( function( response ) {
 
             if ( response.error )
-                return dispatch<ISplashAction>( { type: 'SPLASH_REQUEST_REJECTED', data: { error: new Error( response.message ) } });
+                throw new Error( response.message );
 
-            // Assign the actual plugins
-            const project = response.data;
+            // dispatch<ISplashAction>( {
+            //     type: 'SPLASH_PROJECT_CREATED', data: {
+            //         selectedProject: response.data
+            //     }
+            // });
 
-            return dispatch<ISplashAction>( {
-                type: 'SPLASH_PROJECT_CREATED', data: {
-                    selectedProject: project,
-                    screen: 'opening-project'
-                }
-            });
+            dispatch( ReactRouterRedux.push( '/dashboard/' + response.data._id ) );
 
         }).catch( function( err: Error ) {
             return dispatch<ISplashAction>( {
                 type: 'SPLASH_REQUEST_REJECTED', data: {
-                    error: err
+                    error: err,
+                    serverResponse: err.message
                 }
             });
         });

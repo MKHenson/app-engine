@@ -3,12 +3,12 @@ import { editorReducer } from './reducers/editor-reducer';
 import { loggerReducer } from './reducers/logger-reducer';
 import { projectReducer } from './reducers/project-reducer';
 import { splashReducer } from './reducers/splash-reducer';
-import { pluginReducer } from './reducers/plugins-reducer';
 import { userReducer } from './reducers/user-reducer';
 import { Application } from './containers/application/application';
 import { Splash } from './containers/splash/splash';
 import { LoginWidget } from './containers/login-widget/login-widget';
-import { IStore } from 'hatchery-editor';
+import { PluginManager } from './core/plugin-manager';
+import { Dashboard } from './containers/dashboard/dashboard';
 
 /**
  * Creates the redux store for the application
@@ -42,7 +42,6 @@ function createStore(): Redux.Store<any> {
         editorState: editorReducer,
         logs: loggerReducer,
         user: userReducer,
-        plugins: pluginReducer,
         splash: splashReducer,
         routing: ReactRouterRedux.routerReducer
     });
@@ -56,27 +55,16 @@ function createStore(): Redux.Store<any> {
     return store;
 }
 
-
-
 /**
  * Once the plugins are loaded from the DB
  */
-function onPluginsLoaded() { // plugins: HatcheryServer.IPlugin[] ) {
-    // PluginManager.getSingleton().sortPlugins( plugins );
-
+function initialize() {
     const store = createStore();
     const history = ReactRouterRedux.syncHistoryWithStore( ReactRouter.browserHistory, store );
-
-    // function authorized( replace: ReactRouter.RedirectFunction ) {
-    //     const isLoggedIn = (store.getState() as IStore).user!.isLoggedIn!;
-
-    //     if ( isLoggedIn )
-    //         replace( '/splash/overview' );
-    // }
+    PluginManager.getSingleton( store );
 
     function requireAuth( currentState: ReactRouter.RouterState, replace: ReactRouter.RedirectFunction ) {
-        const isLoggedIn = ( store.getState() as IStore ).user!.isLoggedIn!;
-
+        const isLoggedIn = ( store.getState() as HatcheryEditor.IStore ).user!.isLoggedIn!;
         if ( !isLoggedIn )
             replace( '/?forward=' + currentState.location.pathname );
     }
@@ -89,32 +77,12 @@ function onPluginsLoaded() { // plugins: HatcheryServer.IPlugin[] ) {
                     <ReactRouter.IndexRoute component={LoginWidget} />
                     <ReactRouter.Route path="overview(/:section)" component={Splash} onEnter={( next, replace ) => { requireAuth( next, replace ) } } />
                 </ReactRouter.Route>
-                <ReactRouter.Route path="/dashboard">
-                </ReactRouter.Route>
+                <ReactRouter.Route path="/dashboard/:projectId" component={Dashboard} onEnter={( next, replace ) => { requireAuth( next, replace ) } } />
+                <ReactRouter.Redirect from="/**" to="/" />
             </ReactRouter.Router>
         </ReactRedux.Provider > ), document.getElementById( 'main' ) ! );
-}
+};
 
 
 // Once the document is ready we begin
-jQuery( document ).ready( function() {
-    // Make sure we call ajax with credentials on
-    jQuery.ajaxSetup( {
-        crossDomain: true,
-        xhrFields: { withCredentials: true }
-    });
-
-    // // Show the loading animation
-    // LoaderBase.showLoader();
-
-    // // Donwload the plugins available to this user
-    // jQuery.getJSON( `${DB.API}/plugins` ).done( function( response: ModepressAddons.IGetProjects ) {
-    //     onPluginsLoaded( response.data );
-    // }).fail( function( err: JQueryXHR ) {
-    //     document.write( `An error occurred while connecting to the server. ${err.status}: ${err.responseText}` );
-    // }).always( function() {
-    //     LoaderBase.hideLoader();
-    // });
-
-    onPluginsLoaded();
-});
+initialize();

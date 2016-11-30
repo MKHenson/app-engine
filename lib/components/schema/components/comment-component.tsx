@@ -1,4 +1,3 @@
-import { IComment } from 'hatchery-editor';
 import { Draggable } from '../../draggable/draggable';
 import { Resizable } from '../../resizable/resizable';
 import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
@@ -8,7 +7,7 @@ import { CommentEditted } from '../../../core/editors/container-schema/actions/c
 
 
 export interface ICommentComponentProps {
-    comment: IComment;
+    comment: HatcheryEditor.IComment;
     editor: ContainerSchema;
 }
 

@@ -5,13 +5,13 @@ import { Project } from '../../core/project';
 import { AssetClass } from '../../core/asset-class';
 import { ProjectEvents } from '../../setup/events';
 import { TreeNodeAssetInstance } from './nodes/treenode-asset-instance';
-import { TreeViewNodeContainers } from './nodes/treeview-node-containers';
-import { TreeViewNodeAssets } from './nodes/treeview-node-assets';
-import { TreeViewNodeGroups } from './nodes/treeview-node-groups';
+// import { TreeViewNodeContainers } from './nodes/treeview-node-containers';
+// import { TreeViewNodeAssets } from './nodes/treeview-node-assets';
+// import { TreeViewNodeGroups } from './nodes/treeview-node-groups';
 import { TreeViewNodeBehaviours } from './nodes/treeview-node-behaviours';
 
 export interface ITreeViewSceneProps extends ITreeViewProps {
-    project: Project | null;
+    project: HatcheryEditor.IProject | null;
 }
 
 /**s
@@ -40,9 +40,9 @@ export class TreeViewScene extends TreeView<ITreeViewSceneProps> {
 
     constructor( props: ITreeViewSceneProps ) {
         super( props );
-        this.props.nodeStore!.addNode( new TreeViewNodeContainers( props.project! ) );
-        this.props.nodeStore!.addNode( new TreeViewNodeAssets( props.project! ) );
-        this.props.nodeStore!.addNode( new TreeViewNodeGroups( props.project! ) );
+        // this.props.nodeStore!.addNode( new TreeViewNodeContainers( props.project! ) );
+        // this.props.nodeStore!.addNode( new TreeViewNodeAssets( props.project! ) );
+        // this.props.nodeStore!.addNode( new TreeViewNodeGroups( props.project! ) );
         this.props.nodeStore!.addNode( new TreeViewNodeBehaviours() );
 
 
@@ -91,14 +91,14 @@ export class TreeViewScene extends TreeView<ITreeViewSceneProps> {
      * Bind any project related events
      */
     componentWillMount() {
-        this.props.project!.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        // this.props.project!.on<ProjectEvents, void>( 'change', this.onProjectChanged, this );
     }
 
     /**
      * Unbind any project related events
      */
     componentWillUnmount() {
-        this.props.project!.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
+        // this.props.project!.off<ProjectEvents, void>( 'change', this.onProjectChanged, this );
     }
 
     /**

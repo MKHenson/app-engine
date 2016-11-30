@@ -1,5 +1,4 @@
 import { TreeNodeStore } from './treenode-store';
-import { IDragDropToken } from 'hatchery-editor';
 
 export class TreeNodeModel {
     private _icon: JSX.Element | undefined;
@@ -58,7 +57,7 @@ export class TreeNodeModel {
      * @param e
      * @returns Return data to serialize
      */
-    onDragStart( e: React.DragEvent ): IDragDropToken | null {
+    onDragStart( e: React.DragEvent ): HatcheryEditor.IDragDropToken | null {
         e; // Supresses unused param error
         return null;
     }
@@ -69,7 +68,7 @@ export class TreeNodeModel {
      * @param e
      * @param json The unserialized data
      */
-    onDragDrop( e: React.DragEvent, json: IDragDropToken | null ) {
+    onDragDrop( e: React.DragEvent, json: HatcheryEditor.IDragDropToken | null ) {
         e; // Supresses unused param error
         json;
 

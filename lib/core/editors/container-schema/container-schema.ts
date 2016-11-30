@@ -7,7 +7,6 @@ import { CanvasItem } from './items/canvas-item';
 import { Container } from '../../project-resources/container';
 import { Project } from '../../project';
 import { PluginManager } from '../../plugin-manager';
-import { IPortal, ICanvasItem, IBehaviour, IComment, ILinkItem, Point } from 'hatchery-editor';
 import { SelectionChanged } from './actions/selection-changed';
 import { LinkCreated } from './actions/link-created';
 
@@ -39,7 +38,7 @@ export class ContainerSchema extends Editor {
      * This should be followed by a call to endLinkRouting when
      * the process is completed
      */
-    beginLinkRouting( portal: IPortal, pos: Point ) {
+    beginLinkRouting( portal: HatcheryEditor.IPortal, pos: HatcheryEditor.Point ) {
         this._activeLink = new Link();
         this._activeLink.startPortal = portal.name;
         this._activeLink.startBehaviour = portal.behaviour!;
@@ -51,7 +50,7 @@ export class ContainerSchema extends Editor {
     /**
      * Completes the process of linking two behaviours together
      */
-    endLinkRouting( options: ILinkItem | null ) {
+    endLinkRouting( options: HatcheryEditor.ILinkItem | null ) {
         if ( options )
             this.doAction( new LinkCreated( options ) );
 
@@ -81,7 +80,7 @@ export class ContainerSchema extends Editor {
     /**
      * Called whenever an item is clicked.
      */
-    onNodeSelected( item: ICanvasItem | null, shiftDown: boolean, toggleSelectedState: boolean = true ) {
+    onNodeSelected( item: HatcheryEditor.ICanvasItem | null, shiftDown: boolean, toggleSelectedState: boolean = true ) {
 
         let clearSelection = false;
         const prevSelection = this._selection.slice();
@@ -139,7 +138,7 @@ export class ContainerSchema extends Editor {
     /**
      * Whenever we receive a context event on an item
      */
-    onContext( item: ICanvasItem, e: React.MouseEvent ) {
+    onContext( item: HatcheryEditor.ICanvasItem, e: React.MouseEvent ) {
         let node = this._items[ item.id! ];
         node.onContext( e );
     }
@@ -186,10 +185,10 @@ export class ContainerSchema extends Editor {
         for ( const item of scene.items ) {
             switch ( item.type ) {
                 case 'comment':
-                    canvasItem = new Comment(( item as IComment ).label );
+                    canvasItem = new Comment(( item as HatcheryEditor.IComment ).label );
                     break;
                 case 'behaviour':
-                    canvasItem = new Behaviour( manager.getTemplate(( item as IBehaviour ).behaviourType! ) ! );
+                    canvasItem = new Behaviour( manager.getTemplate(( item as HatcheryEditor.IBehaviour ).behaviourType! ) ! );
                     break;
                 case 'asset':
                     canvasItem = new BehaviourAsset( null );

@@ -1,7 +1,6 @@
 import { EditorAction } from '../../editor-action';
 import { ContainerSchema } from '../container-schema';
 import { Link } from '../items/link';
-import { ILinkItem } from 'hatchery-editor';
 
 /**
  * An action for the creation of links within a container
@@ -9,9 +8,9 @@ import { ILinkItem } from 'hatchery-editor';
 export class LinkCreated extends EditorAction {
 
     instance: Link | null;
-    options: ILinkItem;
+    options: HatcheryEditor.ILinkItem;
 
-    constructor( options: ILinkItem ) {
+    constructor( options: HatcheryEditor.ILinkItem ) {
         super();
         this.options = options;
     }

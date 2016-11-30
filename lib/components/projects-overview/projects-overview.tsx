@@ -1,10 +1,9 @@
 import { ButtonSuccess, ButtonLink, ButtonPrimary } from '../buttons/buttons';
 import { ProjectList } from '../project-list/project-list';
 import { MessageBox } from '../forms/message-box/message-box';
-import { ISplashScreen } from 'hatchery-editor';
 
 export interface IProjectsOverviewProps {
-    splash: ISplashScreen;
+    splash: HatcheryEditor.ISplashScreen;
     username: string;
     onProjectDelete: ( project: HatcheryServer.IProject ) => void;
     onCreateProject: () => void;
