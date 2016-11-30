@@ -1,4 +1,12 @@
 // ===============================
+// document-register-element
+// ===============================
+declare const customElements: {
+    define: ( tagName: string, cls: Function, options?: { extends?: string; prototype?: Function }) => void;
+};
+
+
+// ===============================
 // JS COLOR
 // - TODO:  This might be removed from
 //          conversion to react

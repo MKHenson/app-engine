@@ -6,7 +6,7 @@
         "declaration": false,
         "sourceMap": false,
         "preserveConstEnums": true,
-        "target": "es5",
+        "target": "es6",
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "noImplicitAny": false,
@@ -15,14 +15,7 @@
         "noUnusedLocals": true,
         "strictNullChecks": true,
         "outDir": "dist/lib/js/tmp",
-        "noEmitHelpers": true,
-        "lib": [
-            "dom",
-            "es2015.promise",
-            "es2017.object",
-            "es5",
-            "es2015.symbol"
-        ]
+        "noEmitHelpers": true
     },
     "include": [
         "lib/references.d.ts",

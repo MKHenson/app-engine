@@ -44,7 +44,7 @@ export class ProjectsOverview extends React.Component<IProjectsOverviewProps, IP
                     <p><span className="info">Created By: </span><span className="detail"><b>{project.user}</b></span></p>
                     <p><span className="info">Created On: </span><span className="detail">{new Date( project.createdOn! ).toLocaleDateString()}</span></p>
                     <p><span className="info">Last Modified On: </span><span className="detail">{new Date( project.lastModified! ).toLocaleDateString()}</span></p>
-                    <p><span className="info">No.Plugins: </span><span className="detail">{project.plugins!.length}</span></p>
+                    <p><span className="info">No.Plugins: </span><span className="detail">{project.versions!.length}</span></p>
                     <div className="fix"></div>
                     <p>{project.description}</p>
                 </div>

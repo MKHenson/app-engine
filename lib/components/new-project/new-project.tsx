@@ -43,7 +43,7 @@ export class NewProject extends React.Component<INewProjectProps, INewProjectSta
         const selectedPlugins = this.state.selectedPlugins!;
 
         //const ids = plugins.map<string>( function( value ) { return value._id; });
-        this.props.onCreateProject( { name: json.name, plugins: selectedPlugins, description: json.description });
+        this.props.onCreateProject( { name: json.name, versions: selectedPlugins, description: json.description });
     }
 
     /**

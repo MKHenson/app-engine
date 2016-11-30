@@ -233,7 +233,7 @@ export class User extends EventDispatcher {
         const token: HatcheryServer.IProject = {
             name: name,
             description: description,
-            plugins: plugins
+            versions: plugins
         };
 
         return new Promise<ModepressAddons.ICreateProject>( function( resolve, reject ) {

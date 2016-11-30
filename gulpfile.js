@@ -43,6 +43,7 @@ gulp.task( 'html', function() {
     const targetWithInjectedHTML = target.pipe( gulp.dest( './dist' ) );
 
     const thirdParties = gulp.src( [
+        './third-party/document-register-element/document-register-element.js',
         './third-party/jquery/dist/jquery.js',
         './third-party/jquery-hotkeys/jquery.hotkeys.js',
         './third-party/jquery-mousewheel/jquery.mousewheel.js',
@@ -242,7 +243,9 @@ gulp.task( 'install-third-parties', function() {
         utils.downloadFile( 'https://unpkg.com/redux@3.6.0/dist/redux.js', './third-party/redux/', 'redux.js' ),
         utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-redux/4.4.5/react-redux.js', './third-party/react-redux/', 'react-redux.js' ),
         utils.downloadFile( 'https://unpkg.com/react-router@2.8.1/umd/ReactRouter.js', './third-party/react-router/', 'react-router.js' ),
-        utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-router-redux/4.0.6/ReactRouterRedux.js', './third-party/react-router-redux/', 'react-router-redux.js' )
+        utils.downloadFile( 'https://cdnjs.cloudflare.com/ajax/libs/react-router-redux/4.0.6/ReactRouterRedux.js', './third-party/react-router-redux/', 'react-router-redux.js' ),
+
+        utils.downloadFile( 'https://raw.githubusercontent.com/WebReflection/document-register-element/master/build/document-register-element.max.js', './third-party/document-register-element/', 'document-register-element.js' )
     ] );
 });
 

@@ -49,8 +49,8 @@ export function loadProject( id: string, username: string ) {
             // Now that the project is loaded,
             // lets load each of the plugins based in the version specified
             const promises: Promise<ModepressAddons.IGetPlugin>[] = [];
-            for ( const plugin of response.data.plugins! )
-                promises.push( get<ModepressAddons.IGetPlugin>( `${DB.API}/plugins/${plugin.id}` ) );
+            for ( const version of response.data.versions! )
+                promises.push( get<ModepressAddons.IGetPlugin>( `${DB.API}/plugins/${version.id}` ) );
 
             all( promises, ( item, percent ) => {
                 if ( item.error ) {

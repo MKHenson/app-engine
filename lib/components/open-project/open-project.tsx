@@ -145,18 +145,18 @@ export class OpenProject extends React.Component<IOpenProjectProps, IOpenProject
                     project.plugins!.map(( plugin, index ) => {
 
                         let pluginElm: JSX.Element;
-                        if ( !plugin.$error ) {
+                        if ( !plugin.error ) {
                             pluginElm = <div className="plugin-item">
-                                <VCheckbox checked={plugin.$loaded} noInteractions={true} label="" />
+                                <VCheckbox checked={plugin.loaded} noInteractions={true} label="" />
                                 <span className="plugin">{plugin.name}</span>
-                                {( !plugin.$loaded ?
+                                {( !plugin.loaded ?
                                     <i className="fa fa-cog fa-spin fa-3x fa-fw light plugin-loading"></i> :
                                     <div className="success plugin-loading">Complete</div>
                                 )}
                             </div>
                         }
                         else {
-                            pluginElm = <Attention mode={AttentionType.ERROR}>{plugin.$error}</Attention>
+                            pluginElm = <Attention mode={AttentionType.ERROR}>{plugin.error}</Attention>
                         }
 
                         return <div className="load-item" key={'plugin-' + index}>
