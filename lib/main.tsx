@@ -1,10 +1,11 @@
 import './setup/emitters';
+import { elm } from './jml/jml';
 // import { editorReducer } from './reducers/editor-reducer';
 // import { loggerReducer } from './reducers/logger-reducer';
 // import { projectReducer } from './reducers/project-reducer';
 // import { splashReducer } from './reducers/splash-reducer';
 // import { userReducer } from './reducers/user-reducer';
-import { Application, html } from './containers/application/application';
+import { Application } from './containers/application/application';
 // import { Splash } from './containers/splash/splash';
 // import { LoginWidget } from './containers/login-widget/login-widget';
 // import { PluginManager } from './core/plugin-manager';
@@ -106,5 +107,5 @@ class XSuperParagraph extends HTMLElement {
 
 ( window as any ).customElements.define( 'x-paragraph', XSuperParagraph );
 
-document.body.appendChild( html( new Application(), { loading: true } ) );
+document.body.appendChild( elm( new Application(), { loading: 'true', heading: 'This is an application' }) );
 

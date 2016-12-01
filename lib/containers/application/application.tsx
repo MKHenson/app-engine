@@ -1,3 +1,4 @@
+import * as el from '../../jml/jml';
 // export interface IApplicationState extends HatcheryEditor.HatcheryProps {
 //     splash?: HatcheryEditor.ISplashScreen;
 //     user?: HatcheryEditor.IUser;
@@ -35,117 +36,51 @@
 //     }
 // }
 
-// const ConnectedApp = ReactRedux.connect<IApplicationState, any, any>(( state: HatcheryEditor.IStore ) => {
-//     return {
-//         splash: state.splash,
-//         user: state.user
-//     }
-// })( Application );
-
-// export { ConnectedApp as Application };
-
-export type Children = HTMLElement[] | HTMLElement | string;
-
-export function html( type: string | HTMLElement, attrs: React.HTMLAttributes, children?: Children ): HTMLElement {
-    let elm : HTMLElement;
-
-    if ( typeof type === 'string')
-        elm = document.createElement( type );
-    else
-        elm = type;
-
-    for ( var a in attrs )
-        elm[ a ] = attrs[ a ];
-
-    if ( typeof children === 'string' )
-        elm.textContent = children;
-    else if ( Array.isArray( children ) ) {
-        for ( const child of children )
-            if ( Array.isArray( child ) ) {
-                for ( const childElm of child )
-                    elm.appendChild( childElm );
-            }
-            else
-                elm.appendChild( child );
-    }
-    else if ( children ) {
-        elm.appendChild( children );
-    }
-
-    return elm;
-}
-
-export function div( atts: any, children?: Children ): HTMLElement { return html( 'div', atts, children ); }
-export function h2( atts: any, children?: Children ): HTMLElement { return html( 'h2', atts, children ); }
-export function a( atts: any, children?: Children ): HTMLElement { return html( 'a', atts, children ); }
-export function i( atts: any, children?: Children ): HTMLElement { return html( 'i', atts, children ); }
-
-
-export class Taco extends HTMLElement {
-    constructor() {
-        super();
-        this.appendChild( div( null, 'This is TACO' ) );
-    }
-}
-
-
 /**
  * The main GUI component of the application.
  */
 export class Application extends HTMLElement {
 
     static get observedAttributes() {
-        return [ 'loading', 'id' ];
+        return [ 'loading', 'heading' ];
     }
 
     private _loadingElm: HTMLElement;
 
     constructor() {
         super();
-        // this._loadingElm = document.createElement( 'div' );
-        // this._loadingElm.innerHTML = `
-        //     <div className="loading-screen">
-        //         <div className="loading-message fade-in">
-        //             <h2>Loading Hatchery Editor...</h2>
-        //             <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
-        //         </div>
-        //     </div>`;
-
-        this.setAttribute( 'id', 'application' );
 
         this._loadingElm =
-            div( { class: 'loading-screen' }, [
-                div( { class: 'loading-message fade-in' }, [
-                    h2( {  onclick: () => {  alert( 'Hello world!' );  } }, 'Loading Hatchery Editor...' ),
-                    i( { class: "fa fa-cog fa-spin fa-3x fa-fw" }),
-                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+            el.div( { className: 'loading-screen' }, [
+                el.div( { className: 'loading-message fade-in' }, [
+                    el.h2( null, 'Loading Hatchery Editor...' ),
+                    el.i( { className: "fa fa-cog fa-spin fa-3x fa-fw" })
                 ] )
             ] );
 
-        this.appendChild(
-            div( { class: "splash-view" }, [
-                new Taco(),
+        super.setAttribute( 'id', 'application' );
+        super.appendChild(
+            el.div( { className: "splash-view" }, [
+                el.div( { style: { color: 'red', marginTop: '20px' } }, 'I am mister Red' ),
                 Array.prototype.slice.call( this.childNodes )
-            ])
+            ] )
         );
     }
 
-    set loading( val: boolean ) {
-        if ( val )
-            this.insertBefore( this._loadingElm, null );
+    set loading( val: string ) {
+        if ( val === 'true' )
+            this.insertBefore( this._loadingElm, this.childNodes[ 0 ] );
         else
             this._loadingElm.remove();
     }
 
+    set heading( val: string ) { this.querySelector( 'h2' ).textContent = val; }
+    get heading(): string { return this.querySelector( 'h2' ).textContent || ''; }
+
     attributeChangedCallback( name, oldValue, newValue ) {
-        switch ( name ) {
-            case 'loading':
-                this.loading = newValue === 'true' ? true : false;
-                break;
-        }
+        this[ name ] = newValue;
     }
 }
 
 // define it specifying what's extending
 customElements.define( 'x-application', Application );
-customElements.define( 'x-taco', Taco );
