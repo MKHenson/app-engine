@@ -4,7 +4,7 @@ import { parsers } from './parsers';
 /**
  * Describes the types that can be added to calls to jml
  */
-export type Children = HTMLElement[] | HTMLElement | string;
+export type Children = ( HTMLElement | NodeList )[] | HTMLElement | string;
 
 /**
  * Creates an element based on the type and attributes defined. If children are supplied they are added
@@ -26,7 +26,7 @@ export function elm( type: string | HTMLElement, attrs?: null | HTMLAttributes, 
 
     // Set the attributes if present
     if ( attrs ) {
-        for ( var a in attrs )
+        for ( let a in attrs )
             if ( parsers[ a ] )
                 elm[ a ] = parsers[ a ]( attrs[ a ] );
             else
@@ -37,13 +37,15 @@ export function elm( type: string | HTMLElement, attrs?: null | HTMLAttributes, 
     if ( typeof children === 'string' )
         elm.textContent = children;
     else if ( Array.isArray( children ) ) {
+
         for ( const child of children )
-            if ( Array.isArray( child ) ) {
-                for ( const childElm of child )
-                    elm.appendChild( childElm );
-            }
-            else
+            if ( child instanceof HTMLElement ) {
                 elm.appendChild( child );
+            }
+            else {
+                for ( const node of child )
+                    elm.appendChild( node );
+            }
     }
     else if ( children ) {
         elm.appendChild( children );

@@ -9,7 +9,7 @@
 //  * When true, they do not exist and so have to be added manually.
 //  */
 
-// declare const WorkerGlobalScope: any;
+declare const WorkerGlobalScope: any;
 // declare const Reflect: any;
 
 // function __assignFn( t ) {
@@ -40,27 +40,27 @@
 // function __paramFn( paramIndex, decorator ) {
 //     return function( target, key ) { decorator( target, key, paramIndex ); }
 // }
-// function __awaiterFn( thisArg, _arguments, P, generator ) {
-//     return new ( P || ( P = Promise ) )( function( resolve, reject ) {
-//         function fulfilled( value ) { try { step( generator.next( value ) ); } catch ( e ) { reject( e ); } }
-//         function rejected( value ) { try { step( generator.throw( value ) ); } catch ( e ) { reject( e ); } }
-//         function step( result ) { result.done ? resolve( result.value ) : new P( function( resolve ) { resolve( result.value ); }).then( fulfilled, rejected ); }
-//         step(( generator = generator.apply( thisArg, _arguments ) ).next() );
-//     });
-// }
+function __awaiterFn( thisArg, _arguments, P, generator ) {
+    return new ( P || ( P = Promise ) )( function( resolve, reject ) {
+        function fulfilled( value ) { try { step( generator.next( value ) ); } catch ( e ) { reject( e ); } }
+        function rejected( value ) { try { step( generator.throw( value ) ); } catch ( e ) { reject( e ); } }
+        function step( result ) { result.done ? resolve( result.value ) : new P( function( resolve ) { resolve( result.value ); }).then( fulfilled, rejected ); }
+        step(( generator = generator.apply( thisArg, _arguments ) ).next() );
+    });
+}
 
-// // hook global helpers
-// ( function( __global: any ) {
+// hook global helpers
+( function( __global: any ) {
 
-//     __global.__assign = ( __global && __global.__assign ) || Object.assign || __assignFn;
-//     __global.__extends = ( __global && __global.__extends ) || __extendsFn;
-//     __global.__decorate = ( __global && __global.__decorate ) || __decorateFn;
-//     __global.__metadata = ( __global && __global.__metadata ) || __metadataFn;
-//     __global.__param = ( __global && __global.__param ) || __paramFn;
-//     __global.__awaiter = ( __global && __global.__awaiter ) || __awaiterFn;
+    // __global.__assign = ( __global && __global.__assign ) || Object.assign || __assignFn;
+    // __global.__extends = ( __global && __global.__extends ) || __extendsFn;
+    // __global.__decorate = ( __global && __global.__decorate ) || __decorateFn;
+    // __global.__metadata = ( __global && __global.__metadata ) || __metadataFn;
+    // __global.__param = ( __global && __global.__param ) || __paramFn;
+    __global.__awaiter = ( __global && __global.__awaiter ) || __awaiterFn;
 
-// })(
-//     typeof window !== 'undefined' ? window :
-//         typeof WorkerGlobalScope !== 'undefined' ? self :
-//             typeof global !== 'undefined' ? global :
-//                 Function( 'return this;' )() );
+})(
+    typeof window !== 'undefined' ? window :
+        typeof WorkerGlobalScope !== 'undefined' ? self :
+            typeof global !== 'undefined' ? global :
+                Function( 'return this;' )() );

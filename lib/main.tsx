@@ -88,24 +88,10 @@ import { Application } from './containers/application/application';
 // Once the document is ready we begin
 // initialize();
 
-class XSuperParagraph extends HTMLElement {
-    constructor() {
-        super();
-        this.innerHTML = '<p>This is a super param</p>';
-        alert( 'paragraph was connected' )
-    }
 
-    connectedCallback() {
-        alert( 'paragraph was connected' )
-    }
+document.body.appendChild(
+    elm( new Application(), null, [
 
-    disconnectedCallback() {
-        alert( 'paragraph was disconnected' )
-    }
-}
-
-
-( window as any ).customElements.define( 'x-paragraph', XSuperParagraph );
-
-document.body.appendChild( elm( new Application(), { loading: 'true', heading: 'This is an application' }) );
+    ] )
+);
 

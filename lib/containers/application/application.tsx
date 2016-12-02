@@ -1,40 +1,5 @@
-import * as el from '../../jml/jml';
-// export interface IApplicationState extends HatcheryEditor.HatcheryProps {
-//     splash?: HatcheryEditor.ISplashScreen;
-//     user?: HatcheryEditor.IUser;
-// }
-
-// /**
-//  * The main GUI component of the application.
-//  */
-// class Application extends React.Component<IApplicationState, void> {
-
-//     constructor( props: IApplicationState ) {
-//         super( props );
-//     }
-
-//     /**
-//      * Creates the component elements
-//      */
-//     render(): JSX.Element {
-//         const isLoading = this.props.user!.loading!;
-//         let mainView: JSX.Element | React.ReactNode;
-
-//         if ( isLoading )
-//             mainView = <div className="loading-screen">
-//                 <div className="loading-message fade-in">
-//                     <h2>Loading Hatchery Editor...</h2>
-//                     <i className="fa fa-cog fa-spin fa-3x fa-fw"></i>
-//                 </div>
-//             </div>;
-
-//         return <div id="application">
-//             <div className="splash-view">
-//                 {this.props.children}
-//             </div>
-//         </div>;
-//     }
-// }
+import { div, i, h2 } from '../../jml/jml';
+import { User } from '../../core/user';
 
 /**
  * The main GUI component of the application.
@@ -51,34 +16,48 @@ export class Application extends HTMLElement {
         super();
 
         this._loadingElm =
-            el.div( { className: 'loading-screen' }, [
-                el.div( { className: 'loading-message fade-in' }, [
-                    el.h2( null, 'Loading Hatchery Editor...' ),
-                    el.i( { className: "fa fa-cog fa-spin fa-3x fa-fw" })
+            div( { className: 'loading-screen' }, [
+                div( { className: 'loading-message fade-in' }, [
+                    h2( null, 'Loading Hatchery Editor...' ),
+                    i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' })
                 ] )
             ] );
 
-        super.setAttribute( 'id', 'application' );
-        super.appendChild(
-            el.div( { className: "splash-view" }, [
-                el.div( { style: { color: 'red', marginTop: '20px' } }, 'I am mister Red' ),
-                Array.prototype.slice.call( this.childNodes )
+        this.appendChild(
+            div( { className: 'splash-view' }, [
+                this.childNodes
             ] )
         );
     }
 
-    set loading( val: string ) {
-        if ( val === 'true' )
+    set loading( val: boolean | string ) {
+        if ( val === 'true' || val === true )
             this.insertBefore( this._loadingElm, this.childNodes[ 0 ] );
         else
             this._loadingElm.remove();
     }
 
-    set heading( val: string ) { this.querySelector( 'h2' ).textContent = val; }
-    get heading(): string { return this.querySelector( 'h2' ).textContent || ''; }
 
     attributeChangedCallback( name, oldValue, newValue ) {
         this[ name ] = newValue;
+    }
+
+    get name(): string { return 'John'; }
+
+    /**
+     * When the component is added to the DOM
+     */
+    async connectedCallback() {
+        this.loading = true;
+
+        try {
+            const authenticated = await User.get.authenticated()
+            this.loading = false;
+            alert( JSON.stringify( authenticated ) )
+        }
+        catch ( e ) {
+            this.loading = false;
+        }
     }
 }
 

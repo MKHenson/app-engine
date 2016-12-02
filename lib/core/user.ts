@@ -1,7 +1,7 @@
 import { EventDispatcher } from './event-dispatcher';
 import { Project } from './project';
 import { UserPlan } from '../setup/enums';
-import { IAjaxError, post, put } from './utils';
+import { IAjaxError, post, put, get } from './utils';
 import { DB } from '../setup/db';
 
 /**
@@ -221,6 +221,34 @@ export class User extends EventDispatcher {
     //         })
     //     });
     // }
+
+    /**
+     * Sends a server request to check if a user is logged in
+     * @param forward Optionally pass a url to forward onto if the user is authenticated
+     */
+    async authenticated(): Promise<boolean> {
+        return new Promise<boolean>( function( resolve, reject ) {
+            get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
+
+                if ( authResponse.error )
+                    throw new Error( authResponse.message );
+
+                if ( !authResponse.authenticated )
+                    return resolve( false );
+
+                get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` ).then(( metaResponse ) => {
+
+                    if ( metaResponse && metaResponse.error )
+                        throw new Error( metaResponse.message );
+
+                    // this
+                    //         entry: authResponse.user,
+                    //         meta: metaResponse.data,
+                    //         isLoggedIn: true
+                })
+            })
+        });
+    }
 
 
     /**

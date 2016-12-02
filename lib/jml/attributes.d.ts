@@ -173,7 +173,7 @@ export interface CSSProperties {
      * whether that image's position is fixed within the viewport,
      * or scrolls along with its containing block.
      */
-    backgroundAttachment?: "scroll" | "fixed" | "local";
+    backgroundAttachment?: 'scroll' | 'fixed' | 'local';
 
     /**
      * This property describes how the element's background images should blend with each other and the element's background color.
@@ -511,12 +511,12 @@ export interface CSSProperties {
     counterReset?: any;
 
     /**
-     * The cue property specifies sound files (known as an "auditory icon") to be played by speech media agents before and after presenting an element's content; if only one file is specified, it is played both before and after. The volume at which the file(s) should be played, relative to the volume of the main element, may also be specified. The icon files may also be set separately with the cue-before and cue-after properties.
+     * The cue property specifies sound files (known as an 'auditory icon') to be played by speech media agents before and after presenting an element's content; if only one file is specified, it is played both before and after. The volume at which the file(s) should be played, relative to the volume of the main element, may also be specified. The icon files may also be set separately with the cue-before and cue-after properties.
      */
     cue?: any;
 
     /**
-     * The cue-after property specifies a sound file (known as an "auditory icon") to be played by speech media agents after presenting an element's content; the volume at which the file should be played may also be specified. The shorthand property cue sets cue sounds for both before and after the element is presented.
+     * The cue-after property specifies a sound file (known as an 'auditory icon') to be played by speech media agents after presenting an element's content; the volume at which the file should be played may also be specified. The shorthand property cue sets cue sounds for both before and after the element is presented.
      */
     cueAfter?: any;
 
@@ -546,7 +546,7 @@ export interface CSSProperties {
     fillOpacity?: number;
 
     /**
-     * The ‘fill-rule’ property indicates the algorithm which is to be used to determine what parts of the canvas are included inside the shape. For a simple, non-intersecting path, it is intuitively clear what region lies "inside"; however, for a more complex path, such as a path that intersects itself or where one subpath encloses another, the interpretation of "inside" is not so obvious.
+     * The ‘fill-rule’ property indicates the algorithm which is to be used to determine what parts of the canvas are included inside the shape. For a simple, non-intersecting path, it is intuitively clear what region lies 'inside'; however, for a more complex path, such as a path that intersects itself or where one subpath encloses another, the interpretation of 'inside' is not so obvious.
      * The ‘fill-rule’ property provides two options for how the inside of a shape is determined:
      */
     fillRule?: any;
@@ -672,7 +672,7 @@ export interface CSSProperties {
     /**
      * Specifies the weight or boldness of the font.
      */
-    fontWeight?: "normal" | "bold" | "lighter" | "bolder" | number;
+    fontWeight?: 'normal' | 'bold' | 'lighter' | 'bolder' | number;
 
     /**
      * Lays out one or more grid items bound by 4 grid lines. Shorthand for setting grid-column-start, grid-column-end, grid-row-start, and grid-row-end in a single declaration.
@@ -758,7 +758,7 @@ export interface CSSProperties {
      * Defines how the browser distributes space between and around flex items
      * along the main-axis of their container.
      */
-    justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around";
+    justifyContent?: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around';
 
     layoutGrid?: any;
 
@@ -1048,7 +1048,7 @@ export interface CSSProperties {
 
     /**
      * Obsolete: unsupported.
-     * This property determines whether or not a full-width punctuation mark character should be trimmed if it appears at the beginning of a line, so that its "ink" lines up with the first glyph in the line above and below.
+     * This property determines whether or not a full-width punctuation mark character should be trimmed if it appears at the beginning of a line, so that its 'ink' lines up with the first glyph in the line above and below.
      */
     punctuationTrim?: any;
 
@@ -1082,7 +1082,7 @@ export interface CSSProperties {
     rubyPosition?: any;
 
     /**
-     * Defines the alpha channel threshold used to extract a shape from an image. Can be thought of as a "minimum opacity" threshold; that is, a value of 0.5 means that the shape will enclose all the pixels that are more than 50% opaque.
+     * Defines the alpha channel threshold used to extract a shape from an image. Can be thought of as a 'minimum opacity' threshold; that is, a value of 0.5 means that the shape will enclose all the pixels that are more than 50% opaque.
      */
     shapeImageThreshold?: any;
 
@@ -1420,7 +1420,7 @@ export interface CSSProperties {
     voiceVolume?: any;
 
     /**
-     * The white-space property controls whether and how white space inside the element is collapsed, and whether lines may wrap at unforced "soft wrap" opportunities.
+     * The white-space property controls whether and how white space inside the element is collapsed, and whether lines may wrap at unforced 'soft wrap' opportunities.
      */
     whiteSpace?: any;
 
@@ -1446,7 +1446,7 @@ export interface CSSProperties {
     wordBreak?: any;
 
     /**
-     * The word-spacing CSS property specifies the spacing behavior between "words".
+     * The word-spacing CSS property specifies the spacing behavior between 'words'.
      */
     wordSpacing?: any;
 
@@ -1480,12 +1480,12 @@ export interface CSSProperties {
      * The z-index property specifies the z-order of an element and its descendants.
      * When elements overlap, z-order determines which one covers the other.
      */
-    zIndex?: "auto" | number;
+    zIndex?: 'auto' | number;
 
     /**
      * Sets the initial zoom factor of a document defined by @viewport.
      */
-    zoom?: "auto" | number;
+    zoom?: 'auto' | number;
 
     [ propertyName: string ]: any;
 }
