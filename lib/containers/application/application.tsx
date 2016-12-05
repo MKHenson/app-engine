@@ -12,6 +12,9 @@ export class Application extends HTMLElement {
 
     private _loadingElm: HTMLElement;
 
+    /**
+     * Creates a new instance an application element
+     */
     constructor() {
         super();
 
@@ -30,8 +33,12 @@ export class Application extends HTMLElement {
         );
     }
 
-    set loading( val: boolean | string ) {
-        if ( val === 'true' || val === true )
+    get loading(): boolean {
+        return this._loadingElm.parentNode ? true : false;
+    }
+
+    set loading( val: boolean ) {
+        if ( val === true )
             this.insertBefore( this._loadingElm, this.childNodes[ 0 ] );
         else
             this._loadingElm.remove();
@@ -41,8 +48,6 @@ export class Application extends HTMLElement {
     attributeChangedCallback( name, oldValue, newValue ) {
         this[ name ] = newValue;
     }
-
-    get name(): string { return 'John'; }
 
     /**
      * When the component is added to the DOM

@@ -5,6 +5,7 @@ import { elm } from './jml/jml';
 // import { projectReducer } from './reducers/project-reducer';
 // import { splashReducer } from './reducers/splash-reducer';
 // import { userReducer } from './reducers/user-reducer';
+import { SplitPanel } from './components/split-panel/split-panel';
 import { Application } from './containers/application/application';
 // import { Splash } from './containers/splash/splash';
 // import { LoginWidget } from './containers/login-widget/login-widget';
@@ -91,7 +92,7 @@ import { Application } from './containers/application/application';
 
 document.body.appendChild(
     elm( new Application(), null, [
-
+        new SplitPanel()
     ] )
 );
 
