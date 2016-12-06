@@ -15,7 +15,6 @@ export class SplitPanel extends HTMLElement {
     private _orientation: SplitOrientation;
     private _ratio: number;
     private _dividerSize: number;
-    private _dragging: boolean;
     private _mouseUpProxy: any;
     private _mouseMoveProxy: any;
     private _ratioChanged: undefined | ( ( ratio: number ) => void );
@@ -29,41 +28,40 @@ export class SplitPanel extends HTMLElement {
         this._orientation = 'vertical';
         this._ratio = 0.5;
         this._dividerSize = 6;
-        this._dragging = false;
         this._mouseUpProxy = this.onStageMouseUp.bind( this );
         this._mouseMoveProxy = this.onStageMouseMove.bind( this );
         this.className = `split-panel ${this._orientation}`;
 
-        // <div className="panel1" style={panel1Style}>
-        //     {this.state.dragging ? <div className="panel-input"></div> : null}
-        //     {this.props.left || this.props.top}
-        // </div>
-        // <div ref="divider" onMouseDown={( e ) => { this.onDividerMouseDown( e ) } }
-        //     style={dividerStyle}
-        //     className="split-panel-divider background-dark" />
-        // <div
-        //     ref="scrubber"
-        //     className="split-panel-divider-dragging"
-        //     style={{
-        //         display: ( !this.state.dragging ? 'none' : '' )
-        //     }} />
-        // <div className="panel2" style={panel2Style}>
-        //     {this.state.dragging ? <div className="panel-input"></div> : null}
-        //     {this.props.right || this.props.bottom}
-        // </div>
-        // <div className="fix"></div>
+        const panel1 = this.querySelector( '.left, .top' ) as HTMLElement;
+        const panel2 = this.querySelector( '.bottom, .right' ) as HTMLElement;
 
-        this.appendChild( div( { className: 'panel1' }) );
+        this.appendChild( div( { className: 'panel1' }, panel1 ) );
         this.appendChild( div( { className: 'split-panel-divider background-dark', onmousedown: ( e ) => this.onDividerMouseDown( e ) }) );
         this.appendChild( div( { className: 'split-panel-divider-dragging', style: { display: 'none' } }) ) as HTMLElement;
-        this.appendChild( div( { className: 'panel2' }) );
+        this.appendChild( div( { className: 'panel2' }, panel2 ) );
         this.appendChild( div( { className: 'fix' }) );
+        this.updateStyles();
     }
 
-
-    attributeChangedCallback( name, oldValue, newValue ) {
-        this[ name ] = newValue;
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback( name: string, oldValue: string, newValue: string ) {
+        if ( name === 'ratio' )
+            this.ratio = parseFloat( newValue );
+        else if ( name === 'orientation' )
+            this.orientation = ( newValue === 'vertical' ? 'vertical' : 'horizontal' );
     }
+
+    /**
+     * Gets the callback for when the ratio is changed
+     */
+    get onRatioChanged() { return this._ratioChanged; }
+
+    /**
+     * Sets the callback for when the ratio is changed
+     */
+    set onRatioChanged( val ) { this._ratioChanged = val; }
 
     /**
      * Gets the orientation of the split panel
@@ -97,6 +95,9 @@ export class SplitPanel extends HTMLElement {
         this.updateStyles();
     }
 
+    /**
+     * Updates the propertions of the two panels
+     */
     updateStyles() {
         const orientation = this._orientation;
         const dividerSize = this._dividerSize;
@@ -106,57 +107,29 @@ export class SplitPanel extends HTMLElement {
 
         // Calculate ratios etc...
         if ( orientation === 'vertical' ) {
-            ( this.children[ 0 ] as HTMLElement ).setAttribute( 'style', `width='calc(${ratio * 100}% - ${dividerSizeHalf}px)' height: '100%'` );
-            ( this.children[ 1 ] as HTMLElement ).setAttribute( 'style', `width='${dividerSize}px' height: '100%'` );
-            ( this.children[ 2 ] as HTMLElement ).setAttribute( 'style', `width='calc(${( 1 - ratio ) * 100}% - ${dividerSizeHalf}px)' height: '100%'` );
+            ( this.children[ 0 ] as HTMLElement ).setAttribute( 'style', `width:calc(${ratio * 100}% - ${dividerSizeHalf}px); height: 100%;` );
+            ( this.children[ 1 ] as HTMLElement ).setAttribute( 'style', `width:${dividerSize}px; height: 100%;` );
+            ( this.children[ 3 ] as HTMLElement ).setAttribute( 'style', `width:calc(${( 1 - ratio ) * 100}% - ${dividerSizeHalf}px); height: 100%;` );
         }
         else {
-            ( this.children[ 0 ] as HTMLElement ).setAttribute( 'style', `width='100%' height: 'calc(${ratio * 100}% - ${dividerSizeHalf}px)'` );
-            ( this.children[ 1 ] as HTMLElement ).setAttribute( 'style', `width='100%' height: '${dividerSize}px'` );
-            ( this.children[ 2 ] as HTMLElement ).setAttribute( 'style', `width='100%' height: 'calc(${( 1 - ratio ) * 100}% - ${dividerSizeHalf}px)'` );
+            ( this.children[ 0 ] as HTMLElement ).setAttribute( 'style', `width:100%; height: calc(${ratio * 100}% - ${dividerSizeHalf}px);` );
+            ( this.children[ 1 ] as HTMLElement ).setAttribute( 'style', `width:100%; height: ${dividerSize}px;` );
+            ( this.children[ 3 ] as HTMLElement ).setAttribute( 'style', `width:100%; height: calc(${( 1 - ratio ) * 100}% - ${dividerSizeHalf}px);` );
         }
     }
-
-    // /**
-    //  * Creates the component elements
-    //  */
-    // render(): JSX.Element {
-
-
-    //     return <div className={'split-panel ' + ( orientation === SplitOrientation.VERTICAL ? 'vertical' : 'horizontal' )} >
-    //         <div className="panel1" style={panel1Style}>
-    //             {this.state.dragging ? <div className="panel-input"></div> : null}
-    //             {this.props.left || this.props.top}
-    //         </div>
-    //         <div ref="divider" onMouseDown={( e ) => { this.onDividerMouseDown( e ) } }
-    //             style={dividerStyle}
-    //             className="split-panel-divider background-dark" />
-    //         <div
-    //             ref="scrubber"
-    //             className="split-panel-divider-dragging"
-    //             style={{
-    //                 display: ( !this.state.dragging ? 'none' : '' )
-    //             }} />
-    //         <div className="panel2" style={panel2Style}>
-    //             {this.state.dragging ? <div className="panel-input"></div> : null}
-    //             {this.props.right || this.props.bottom}
-    //         </div>
-    //         <div className="fix"></div>
-    //     </div>
-    // }
 
     /**
       * This function is called when the mouse is down on the divider
       */
     onDividerMouseDown( e: MouseEvent ) {
         e.preventDefault();
-        this._dragging = true;
         const ratio = this._ratio;
         const orientation = this._orientation;
         const scrubber = this.children[ 2 ] as HTMLElement;
         const dividerSize = this._dividerSize;
         const dividerSizeHalf = this._dividerSize * 0.5;
 
+        scrubber.style.display = '';
         scrubber.style.height = ( orientation === 'vertical' ? '100%' : dividerSize + 'px' );
         scrubber.style.width = ( orientation === 'vertical' ? dividerSize + 'px' : '100%' );
         scrubber.style.left = ( orientation === 'vertical' ? `calc(${ratio * 100}% - ${dividerSizeHalf}px)` : `0` );
@@ -164,6 +137,7 @@ export class SplitPanel extends HTMLElement {
 
         window.addEventListener( 'mouseup', this._mouseUpProxy );
         document.body.addEventListener( 'mousemove', this._mouseMoveProxy );
+        this.onStageMouseMove( e );
     }
 
     /**
@@ -175,7 +149,9 @@ export class SplitPanel extends HTMLElement {
         document.body.removeEventListener( 'mousemove', this._mouseMoveProxy );
 
         const orientation = this._orientation;
+        const dividerSize = this._dividerSize;
         const scrubber = this.children[ 2 ] as HTMLElement;
+        scrubber.style.display = 'none';
 
         // Get the new ratio
         const left = parseFloat( scrubber.style.left!.split( 'px' )[ 0 ] );
@@ -183,18 +159,23 @@ export class SplitPanel extends HTMLElement {
         const w = scrubber.parentElement.clientWidth;
         const h = scrubber.parentElement.clientHeight;
         let ratio = 0;
+        let dividerSizeRatio = 0;
 
-        if ( orientation === 'vertical' )
+        if ( orientation === 'vertical' ) {
             ratio = left / w;
-        else
+            dividerSizeRatio = dividerSize / w;
+        }
+        else {
             ratio = top / h;
+            dividerSizeRatio = dividerSize / h;
+        }
 
-        if ( ratio < 0 )
-            ratio = 0;
-        if ( ratio > 1 )
-            ratio = 1;
+        if ( ratio < dividerSizeRatio / 2 )
+            ratio = dividerSizeRatio / 2;
+        else if ( ratio > 1 - dividerSizeRatio )
+            ratio = 1 - dividerSizeRatio;
 
-        this._dragging = false;
+
         this._ratio = ratio;
         this.updateStyles();
 
@@ -211,12 +192,9 @@ export class SplitPanel extends HTMLElement {
         let bounds = scrubber.parentElement.getBoundingClientRect();
         let left = e.clientX - bounds.left;
         let top = e.clientY - bounds.top;
-
         scrubber.style.left = ( orientation === 'vertical' ? `${left}px` : `0` );
         scrubber.style.top = ( orientation === 'horizontal' ? `${top}px` : `0` );
     }
-
-
 }
 
 // define it specifying what's extending

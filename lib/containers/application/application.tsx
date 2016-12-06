@@ -26,17 +26,26 @@ export class Application extends HTMLElement {
                 ] )
             ] );
 
-        this.appendChild(
-            div( { className: 'splash-view' }, [
-                this.childNodes
-            ] )
-        );
+
+        this.innerHTML = `
+            <x-split-panel ratio="0.6" orientation="vertical">
+                <div class="left">
+                    <h2>This is the left panel!</h2>
+                </div>
+                <div class="right">
+                    <h2>This is the right panel!</h2>
+                </div>
+            </x-split-panel>`;
     }
 
-    get loading(): boolean {
-        return this._loadingElm.parentNode ? true : false;
-    }
+    /**
+     * Gets if the loading element is visible
+     */
+    get loading(): boolean { return this._loadingElm.parentNode ? true : false; }
 
+    /**
+     * Sets if the loading element is visible
+     */
     set loading( val: boolean ) {
         if ( val === true )
             this.insertBefore( this._loadingElm, this.childNodes[ 0 ] );
@@ -44,8 +53,10 @@ export class Application extends HTMLElement {
             this._loadingElm.remove();
     }
 
-
-    attributeChangedCallback( name, oldValue, newValue ) {
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback( name: string, oldValue: string, newValue: string ) {
         this[ name ] = newValue;
     }
 
@@ -56,9 +67,9 @@ export class Application extends HTMLElement {
         this.loading = true;
 
         try {
-            const authenticated = await User.get.authenticated()
+            const authenticated = await User.get.authenticated();
             this.loading = false;
-            alert( JSON.stringify( authenticated ) )
+            authenticated;
         }
         catch ( e ) {
             this.loading = false;

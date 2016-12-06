@@ -1,12 +1,15 @@
 import './setup/emitters';
 import { elm } from './jml/jml';
+import './components/split-panel/split-panel';
+
 // import { editorReducer } from './reducers/editor-reducer';
 // import { loggerReducer } from './reducers/logger-reducer';
 // import { projectReducer } from './reducers/project-reducer';
 // import { splashReducer } from './reducers/splash-reducer';
 // import { userReducer } from './reducers/user-reducer';
-import { SplitPanel } from './components/split-panel/split-panel';
 import { Application } from './containers/application/application';
+
+
 // import { Splash } from './containers/splash/splash';
 // import { LoginWidget } from './containers/login-widget/login-widget';
 // import { PluginManager } from './core/plugin-manager';
@@ -90,9 +93,5 @@ import { Application } from './containers/application/application';
 // initialize();
 
 
-document.body.appendChild(
-    elm( new Application(), null, [
-        new SplitPanel()
-    ] )
-);
+document.body.appendChild( elm( new Application() ) );
 
