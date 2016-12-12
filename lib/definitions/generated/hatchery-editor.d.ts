@@ -1809,55 +1809,41 @@ export declare class SearchBox extends React.Component<ISearchBoxProps, {
     render(): JSX.Element;
 }
 
-export declare enum SplitOrientation {
-    VERTICAL = 0,
-    HORIZONTAL = 1,
-}
-export interface ISplitPanelProps {
-    left?: JSX.Element;
-    right?: JSX.Element;
-    top?: JSX.Element;
-    bottom?: JSX.Element;
-    orientation?: SplitOrientation;
-    ratio?: number;
-    dividerSize?: number;
-    onRatioChanged?: (ratio: number) => void;
-}
-export interface ISplitPanelState {
-    ratio?: number;
-    dragging?: boolean;
-}
+export declare type SplitOrientation = 'vertical' | 'horizontal';
 /**
- * A Component that holds 2 sub Components and a splitter to split between them.
+ * An element that holds 2 child elements and a splitter to split the space between them.
+ * The user can grab the splitter to resize the shared space of the two child elements.
  */
-export declare class SplitPanel extends React.Component<ISplitPanelProps, ISplitPanelState> {
-    static defaultProps: ISplitPanelProps;
-    private mMouseUpProxy;
-    private mMouseMoveProxy;
+export declare class SplitPanel extends HTMLElement {
+    static readonly observedAttributes: string[];
+    private _orientation;
+    private _ratio;
+    private _dividerSize;
+    private _mouseUpProxy;
+    private _mouseMoveProxy;
+    private _ratioChanged;
     /**
      * Creates a new instance
      */
-    constructor(props: ISplitPanelProps);
+    constructor();
     /**
-     * Called when the props are updated
+     * If the attributes change we update the internal state
      */
-    componentWillReceiveProps(nextProps: ISplitPanelProps): void;
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
     /**
-     * Creates the component elements
+     * Gets the callback for when the ratio is changed
      */
-    render(): JSX.Element;
     /**
-      * This function is called when the mouse is down on the divider
-      */
-    onDividerMouseDown(e: React.MouseEvent): void;
-    /**
-     * Recalculate the ratios on mouse up
+     * Sets the callback for when the ratio is changed
      */
-    onStageMouseUp(): void;
+    onRatioChanged: ((ratio: number) => void) | undefined;
     /**
-     * This function is called when the mouse is up from the body of stage.
+     * Gets the orientation of the split panel
      */
-    onStageMouseMove(e: MouseEvent): void;
+    /**
+     * Sets the orientation of the split panel
+     */
+    orientation: SplitOrientation;
     /**
      * Call this function to get the ratio of the panel. Values are from 0 to 1
      */
@@ -1866,6 +1852,22 @@ export declare class SplitPanel extends React.Component<ISplitPanelProps, ISplit
      * @param val The ratio from 0 to 1 of where the divider should be
      */
     ratio: number;
+    /**
+     * Updates the propertions of the two panels
+     */
+    updateStyles(): void;
+    /**
+      * This function is called when the mouse is down on the divider
+      */
+    onDividerMouseDown(e: MouseEvent): void;
+    /**
+     * Recalculate the ratios on mouse up
+     */
+    onStageMouseUp(): void;
+    /**
+     * This function is called when the mouse is up from the body of stage.
+     */
+    onStageMouseMove(e: MouseEvent): void;
 }
 
 import { Component } from '../component';
@@ -3690,24 +3692,31 @@ export declare class Workspace extends React.Component<IWorkspaceProps, any> {
     render(): JSX.Element;
 }
 
-export declare type Children = HTMLElement[] | HTMLElement | string;
-export declare function html(type: string | HTMLElement, attrs: React.HTMLAttributes, children?: Children): HTMLElement;
-export declare function div(atts: any, children?: Children): HTMLElement;
-export declare function h2(atts: any, children?: Children): HTMLElement;
-export declare function a(atts: any, children?: Children): HTMLElement;
-export declare function i(atts: any, children?: Children): HTMLElement;
-export declare class Taco extends HTMLElement {
-    constructor();
-}
 /**
  * The main GUI component of the application.
  */
 export declare class Application extends HTMLElement {
     static readonly observedAttributes: string[];
     private _loadingElm;
+    /**
+     * Creates a new instance an application element
+     */
     constructor();
+    /**
+     * Gets if the loading element is visible
+     */
+    /**
+     * Sets if the loading element is visible
+     */
     loading: boolean;
-    attributeChangedCallback(name: any, oldValue: any, newValue: any): void;
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
+    /**
+     * When the component is added to the DOM
+     */
+    connectedCallback(): Promise<void>;
 }
 
 export interface IDashboardProps extends HatcheryEditor.HatcheryProps {
@@ -3724,14 +3733,19 @@ export interface ILoggerProps extends HatcheryEditor.HatcheryProps {
 declare const ConnectedLogger: React.ComponentClass<any>;
 export { ConnectedLogger as Logger };
 
-export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
-    onLogin?: () => void;
-    user?: HatcheryEditor.IUser;
-    editorState?: HatcheryEditor.IEditorState;
-    forward?: string;
+export declare class LoginWidget extends HTMLElement {
+    /**
+     * Creates a new instance
+     */
+    constructor();
+    /**
+     * Gets if the loading element is visible
+     */
+    /**
+     * Sets if the loading element is visible
+     */
+    loading: boolean;
 }
-declare const ConnectedWidget: React.ComponentClass<any>;
-export { ConnectedWidget as LoginWidget };
 
 /**
  * An interface that describes the props of the Splash Component
@@ -5679,6 +5693,41 @@ export declare abstract class PropertyGridEditor {
     cleanup(): void;
 }
 
+import { EventDispatcher } from './event-dispatcher';
+export interface IState {
+    name: string;
+    title?: string;
+    path: string;
+    queries: any;
+}
+/**
+ * A manager for handling the push states of the window
+ */
+export declare class Router extends EventDispatcher {
+    private static _singleton;
+    /**
+     * Creates a state manager
+     */
+    constructor();
+    init(): void;
+    /**
+     * Returns the queries as an object
+     */
+    getQueryParams(): {};
+    /**
+     * Called whenever the state pops
+     */
+    protected onPopState(ev: PopStateEvent): void;
+    /**
+     * Add a history entry using push state
+     */
+    push(data: IState): void;
+    /**
+     * Gets the instance of the state manager
+     */
+    static readonly get: Router;
+}
+
 import { EventDispatcher } from '../event-dispatcher';
 /**
  * A singleton class that deals with comminication between the client frontend
@@ -5733,15 +5782,19 @@ import { Project } from './project';
 */
 export declare class User extends EventDispatcher {
     private static _singleton;
-    entry: UsersInterface.IUserEntry;
+    entry: UsersInterface.IUserEntry | null;
     meta: HatcheryServer.IUserMeta | null;
-    project: Project;
-    private _isLoggedIn;
+    project: Project | null;
     constructor();
     /**
-    * Resets the meta data
-    */
-    resetMeta(): void;
+     * Attempts to log the user out
+     */
+    logout(): Promise<boolean>;
+    /**
+     * Sends a server request to check if a user is logged in
+     * @param forward Optionally pass a url to forward onto if the user is authenticated
+     */
+    authenticated(): Promise<boolean | undefined>;
     /**
     * Creates a new user projects
     * @param name The name of the project
@@ -5771,10 +5824,9 @@ export declare class User extends EventDispatcher {
     * @param id The id of the project we are removing.
     */
     deleteProject(id: string): void;
-    readonly isLoggedIn: boolean;
     /**
-    * Gets the singleton instance.
-    */
+     * Gets the singleton instance.
+     */
     static readonly get: User;
 }
 
@@ -5878,7 +5930,111 @@ export declare function getObjectClass(obj: any): any;
  */
 export declare function all<Y>(promises: Promise<Y>[], progress: (item: Y, progress: number) => void): Promise<Y[]>;
 
+import { HTMLAttributes } from './attributes';
+/**
+ * Describes the types that can be added to calls to jml
+ */
+export declare type Children = (HTMLElement | NodeList)[] | HTMLElement | string;
+/**
+ * Creates an element based on the type and attributes defined. If children are supplied they are added
+ * to the newly created element.
+ *
+ * eg:
+ *  elm('div', { className: 'important', style: { marginLeft: '5px' } } )
+ *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, 'Strings are converted to a text node' )
+ *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, new HTMLCanvasElement() )
+ */
+export declare function elm(type: string | HTMLElement, attrs?: null | HTMLAttributes, children?: Children): HTMLElement;
+export declare function a(attrs?: null | HTMLAttributes, children?: Children): HTMLAnchorElement;
+export declare function applet(attrs?: null | HTMLAttributes, children?: Children): HTMLAppletElement;
+export declare function area(attrs?: null | HTMLAttributes, children?: Children): HTMLAreaElement;
+export declare function audio(attrs?: null | HTMLAttributes, children?: Children): HTMLAudioElement;
+export declare function base(attrs?: null | HTMLAttributes, children?: Children): HTMLBaseElement;
+export declare function basefont(attrs?: null | HTMLAttributes, children?: Children): HTMLBaseFontElement;
+export declare function blockquote(attrs?: null | HTMLAttributes, children?: Children): HTMLQuoteElement;
+export declare function body(attrs?: null | HTMLAttributes, children?: Children): HTMLBodyElement;
+export declare function br(attrs?: null | HTMLAttributes, children?: Children): HTMLBRElement;
+export declare function button(attrs?: null | HTMLAttributes, children?: Children): HTMLButtonElement;
+export declare function canvas(attrs?: null | HTMLAttributes, children?: Children): HTMLCanvasElement;
+export declare function caption(attrs?: null | HTMLAttributes, children?: Children): HTMLTableCaptionElement;
+export declare function col(attrs?: null | HTMLAttributes, children?: Children): HTMLTableColElement;
+export declare function colgroup(attrs?: null | HTMLAttributes, children?: Children): HTMLTableColElement;
+export declare function datalist(attrs?: null | HTMLAttributes, children?: Children): HTMLDataListElement;
+export declare function del(attrs?: null | HTMLAttributes, children?: Children): HTMLModElement;
+export declare function dir(attrs?: null | HTMLAttributes, children?: Children): HTMLDirectoryElement;
+export declare function div(attrs?: null | HTMLAttributes, children?: Children): HTMLDivElement;
+export declare function dl(attrs?: null | HTMLAttributes, children?: Children): HTMLDListElement;
+export declare function embed(attrs?: null | HTMLAttributes, children?: Children): HTMLEmbedElement;
+export declare function fieldset(attrs?: null | HTMLAttributes, children?: Children): HTMLFieldSetElement;
+export declare function font(attrs?: null | HTMLAttributes, children?: Children): HTMLFontElement;
+export declare function form(attrs?: null | HTMLAttributes, children?: Children): HTMLFormElement;
+export declare function frame(attrs?: null | HTMLAttributes, children?: Children): HTMLFrameElement;
+export declare function frameset(attrs?: null | HTMLAttributes, children?: Children): HTMLFrameSetElement;
+export declare function h1(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function h2(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function h3(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function h4(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function h5(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function h6(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
+export declare function head(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadElement;
+export declare function hr(attrs?: null | HTMLAttributes, children?: Children): HTMLHRElement;
+export declare function html(attrs?: null | HTMLAttributes, children?: Children): HTMLHtmlElement;
+export declare function iframe(attrs?: null | HTMLAttributes, children?: Children): HTMLIFrameElement;
+export declare function img(attrs?: null | HTMLAttributes, children?: Children): HTMLImageElement;
+export declare function input(attrs?: null | HTMLAttributes, children?: Children): HTMLInputElement;
+export declare function ins(attrs?: null | HTMLAttributes, children?: Children): HTMLModElement;
+export declare function isindex(attrs?: null | HTMLAttributes, children?: Children): HTMLUnknownElement;
+export declare function label(attrs?: null | HTMLAttributes, children?: Children): HTMLLabelElement;
+export declare function legend(attrs?: null | HTMLAttributes, children?: Children): HTMLLegendElement;
+export declare function li(attrs?: null | HTMLAttributes, children?: Children): HTMLLIElement;
+export declare function link(attrs?: null | HTMLAttributes, children?: Children): HTMLLinkElement;
+export declare function listing(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
+export declare function map(attrs?: null | HTMLAttributes, children?: Children): HTMLMapElement;
+export declare function marquee(attrs?: null | HTMLAttributes, children?: Children): HTMLMarqueeElement;
+export declare function menu(attrs?: null | HTMLAttributes, children?: Children): HTMLMenuElement;
+export declare function meta(attrs?: null | HTMLAttributes, children?: Children): HTMLMetaElement;
+export declare function meter(attrs?: null | HTMLAttributes, children?: Children): HTMLMeterElement;
+export declare function nextid(attrs?: null | HTMLAttributes, children?: Children): HTMLUnknownElement;
+export declare function object(attrs?: null | HTMLAttributes, children?: Children): HTMLObjectElement;
+export declare function ol(attrs?: null | HTMLAttributes, children?: Children): HTMLOListElement;
+export declare function optgroup(attrs?: null | HTMLAttributes, children?: Children): HTMLOptGroupElement;
+export declare function option(attrs?: null | HTMLAttributes, children?: Children): HTMLOptionElement;
+export declare function p(attrs?: null | HTMLAttributes, children?: Children): HTMLParagraphElement;
+export declare function param(attrs?: null | HTMLAttributes, children?: Children): HTMLParamElement;
+export declare function picture(attrs?: null | HTMLAttributes, children?: Children): HTMLPictureElement;
+export declare function pre(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
+export declare function progress(attrs?: null | HTMLAttributes, children?: Children): HTMLProgressElement;
+export declare function q(attrs?: null | HTMLAttributes, children?: Children): HTMLQuoteElement;
+export declare function script(attrs?: null | HTMLAttributes, children?: Children): HTMLScriptElement;
+export declare function select(attrs?: null | HTMLAttributes, children?: Children): HTMLSelectElement;
+export declare function source(attrs?: null | HTMLAttributes, children?: Children): HTMLSourceElement;
+export declare function span(attrs?: null | HTMLAttributes, children?: Children): HTMLSpanElement;
+export declare function style(attrs?: null | HTMLAttributes, children?: Children): HTMLStyleElement;
+export declare function table(attrs?: null | HTMLAttributes, children?: Children): HTMLTableElement;
+export declare function tbody(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
+export declare function td(attrs?: null | HTMLAttributes, children?: Children): HTMLTableDataCellElement;
+export declare function template(attrs?: null | HTMLAttributes, children?: Children): HTMLTemplateElement;
+export declare function textarea(attrs?: null | HTMLAttributes, children?: Children): HTMLTextAreaElement;
+export declare function tfoot(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
+export declare function th(attrs?: null | HTMLAttributes, children?: Children): HTMLTableHeaderCellElement;
+export declare function thead(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
+export declare function title(attrs?: null | HTMLAttributes, children?: Children): HTMLTitleElement;
+export declare function tr(attrs?: null | HTMLAttributes, children?: Children): HTMLTableRowElement;
+export declare function track(attrs?: null | HTMLAttributes, children?: Children): HTMLTrackElement;
+export declare function ul(attrs?: null | HTMLAttributes, children?: Children): HTMLUListElement;
+export declare function video(attrs?: null | HTMLAttributes, children?: Children): HTMLVideoElement;
+export declare function xmp(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
+export declare function i(attrs?: null | HTMLAttributes, children?: Children): HTMLElement;
+
+/**
+ * Describes custom attribute parsers
+ */
+export declare const parsers: {
+    [name: string]: (val: any) => any;
+};
+
 import './setup/emitters';
+import './components/split-panel/split-panel';
 
 import { IEditorAction } from '../actions/editor-actions';
 /**
@@ -5928,6 +6084,8 @@ export declare class DB {
     static PLAN_PLATINUM: string;
 }
 
+declare const WorkerGlobalScope: any;
+declare function __awaiterFn(thisArg: any, _arguments: any, P: any, generator: any): any;
 
 export declare module EventTypes {
     const PORTAL_ADDED: string;
