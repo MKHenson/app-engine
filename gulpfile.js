@@ -25,6 +25,11 @@ var utils = require( './gulp/utils.js' );
 // Read the contents of the tsconfig file so we dont have to specify the files twice
 const tsProject = ts.createProject( 'tsconfig.json' );
 var tsProjectWithDeclarations = ts.createProject( 'tsconfig.json', { declaration: true });
+const configFiles = [
+    'config.ts',
+    'readme.md',
+    'package.json'
+];
 
 /**
  * Adds fonts to the dist folder
@@ -283,6 +288,9 @@ gulp.task( 'watch', function() {
 })
 
 
+gulp.task( 'bump-patch', function() { return utils.bumpVersion( utils.bumpPatchNum, configFiles ) });
+gulp.task( 'bump-minor', function() { return utils.bumpVersion( utils.bumpMidNum, configFiles ) });
+gulp.task( 'bump-major', function() { return utils.bumpVersion( utils.bumpMajorNum, configFiles ) });
 gulp.task( 'install', [ 'install-third-parties', 'install-definitions' ] );
 gulp.task( 'quick-build', [ 'tslint', 'bundle-js-files', 'css' ] );
 gulp.task( 'build', [ 'html', 'media', 'deploy-fonts', 'tslint', 'bundle-js-files', 'ts-code-declaration', 'css' ] );
