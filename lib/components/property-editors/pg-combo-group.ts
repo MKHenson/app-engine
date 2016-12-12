@@ -45,7 +45,7 @@ export class PGComboGroup extends PropertyGridEditor {
         // Add to DOM
         container.element.append( editor );
 
-        const project = User.get.project;
+        const project = User.get.project!;
         let groups = project.groups.slice( 0, project.groups.length );
 
         //Sort alphabetically

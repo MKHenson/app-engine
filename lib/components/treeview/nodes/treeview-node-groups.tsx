@@ -50,7 +50,7 @@ export class TreeViewNodeGroups extends TreeNodeModel {
      * Show context menu items
      */
     onContext( e: React.MouseEvent ) {
-        let project = User.get.project;
+        let project = User.get.project!;
 
         e.preventDefault();
         ReactContextMenu.show( {

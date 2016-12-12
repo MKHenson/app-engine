@@ -67,7 +67,7 @@ export class PGComboAsset extends PropertyGridEditor {
         // When we select a new asset
         const onSelect = function() {
             const val = parseFloat( selector.val() );
-            const asset = User.get.project.getResourceByShallowID<Asset>( val, ResourceType.ASSET ) !;
+            const asset = User.get.project!.getResourceByShallowID<Asset>( val, ResourceType.ASSET ) !;
             p.setVal( asset );
         };
 

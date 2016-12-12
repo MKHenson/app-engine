@@ -504,8 +504,8 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
      * Fetches a list of user buckets and files
      */
     updateContent( index: number, limit: number ): Promise<number> {
-        let details = User.get.entry;
-        let project = User.get.project;
+        let details = User.get.entry!;
+        let project = User.get.project!;
         let command = '';
 
         this.setState( {
@@ -716,7 +716,7 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
      */
     uploadPreview( file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement ) {
 
-        let details = User.get.entry;
+        let details = User.get.entry!;
 
         // Create the uploader
         const fu = new FileUploader(( err: Error, tokens: Array<UsersInterface.IUploadToken> ) => {
@@ -757,7 +757,7 @@ export class FileViewer extends React.Component<IFileViewerProps, IFileViewerSta
      * @param token The file token to update with
      */
     updateFile( token: HatcheryServer.IFile ) {
-        let details = User.get.entry;
+        let details = User.get.entry!;
 
         this.setState( {
             loading: true,

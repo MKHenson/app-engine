@@ -84,7 +84,7 @@ export class Workspace extends React.Component<IWorkspaceProps, any> {
             <div className="workspace">
                 {( editors.length === 0 ? (
                     <div className="welcome">
-                        <h2>Welcome back {User.get.entry.username}</h2>
+                        <h2>Welcome back {User.get.entry!.username}</h2>
                         <ButtonLink>Create Container</ButtonLink>
                         <ButtonLink>Open the Docs</ButtonLink>
                     </div>

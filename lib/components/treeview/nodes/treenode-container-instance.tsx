@@ -45,7 +45,7 @@ export class TreeNodeContainerInstance extends TreeViewNodeResource<Container> {
      * Called whenever the node is double clicked
      */
     onDoubleClick() {
-        User.get.project.assignEditor( this.resource );
+        User.get.project!.assignEditor( this.resource );
     }
 
     dispose() {

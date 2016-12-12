@@ -41,7 +41,7 @@ export class PropGroup extends Prop<GroupArray | null> {
     */
     deTokenize( data: any ) {
         // Gets the actual resource from the saved shallowId
-        data.value = User.get.project.getResourceByShallowID( data.value );
+        data.value = User.get.project!.getResourceByShallowID( data.value );
 
         super.deTokenize( data );
     }

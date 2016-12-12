@@ -45,7 +45,7 @@ export class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource> | 
     */
     deTokenize( data: any ) {
         // Gets the actual resource from the saved shallowId
-        data.value = User.get.project.getResourceByShallowID( data.value );
+        data.value = User.get.project!.getResourceByShallowID( data.value );
 
         super.deTokenize( data );
         this.classNames = data.classNames;

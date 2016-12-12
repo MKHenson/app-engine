@@ -43,7 +43,7 @@ export class OptionsProject extends React.Component<IOptionsProjectProps, IOptio
      */
     setProjectImageUrl( file: HatcheryServer.IFile ) {
 
-        const project = User.get.project;
+        const project = User.get.project!;
         this.setState( {
             loading: true,
             imageUploadErr: null
@@ -73,7 +73,7 @@ export class OptionsProject extends React.Component<IOptionsProjectProps, IOptio
             error: false
         });
 
-        let project = User.get.project;
+        let project = User.get.project!;
 
         // Turn the tags into an array
         json.tags = json.tags.split( ',' );
@@ -96,7 +96,7 @@ export class OptionsProject extends React.Component<IOptionsProjectProps, IOptio
      * Draws the options JSX
      */
     render(): JSX.Element {
-        let project = User.get.project.entry;
+        let project = User.get.project!.entry!;
         let loadingSymbol: JSX.Element | undefined;
 
         if ( this.state.loading )

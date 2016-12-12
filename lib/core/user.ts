@@ -1,6 +1,5 @@
 import { EventDispatcher } from './event-dispatcher';
 import { Project } from './project';
-import { UserPlan } from '../setup/enums';
 import { IAjaxError, post, put, get } from './utils';
 import { DB } from '../setup/db';
 
@@ -9,72 +8,16 @@ import { DB } from '../setup/db';
 */
 export class User extends EventDispatcher {
     private static _singleton: User;
-    public entry: UsersInterface.IUserEntry;
+    public entry: UsersInterface.IUserEntry | null;
     public meta: HatcheryServer.IUserMeta | null;
-    public project: Project;
-    private _isLoggedIn: boolean;
+    public project: Project | null;
 
     constructor() {
         super();
-        User._singleton = this;
-
-        // Create the default entry
-        this.entry = { username: '' };
-        this.resetMeta();
-
-        this.project = new Project();
-        this._isLoggedIn = false;
-
+        this.entry = null;
+        this.meta = null;
+        this.project = null;
     }
-
-    /**
-    * Resets the meta data
-    */
-    resetMeta() {
-        this.meta = <HatcheryServer.IUserMeta>{
-            bio: '',
-            plan: UserPlan.Free,
-            imgURL: 'media/blank-user.png',
-            maxNumProjects: 0
-        };
-    }
-
-    // /**
-    // * Checks if a user is logged in or not. This checks the server using
-    // * cookie and session data from the browser.
-    // */
-    // authenticated(): Promise<boolean> {
-    //     this._isLoggedIn = false;
-
-    //     return new Promise<boolean>(( resolve, reject ) => {
-    //         Utils.get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( data ): Promise<ModepressAddons.IGetDetails | null> => {
-
-    //             if ( data.error )
-    //                 throw new Error( data.message );
-
-    //             if ( data.authenticated ) {
-    //                 this.entry = <UsersInterface.IUserEntry>data.user;
-    //                 this._isLoggedIn = true;
-    //                 return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
-    //             }
-    //             else {
-    //                 this._isLoggedIn = false;
-    //                 this.resetMeta();
-    //                 return Promise.resolve( null );
-    //             }
-
-    //         }).then(( data: ModepressAddons.IGetDetails | null ) => {
-    //             if ( data && data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             this.meta = ( data ? data.data : null );
-    //             return resolve( true );
-
-    //         }).catch(( err: IAjaxError ) => {
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         });
-    //     });
-    // }
 
     // /**
     // * Tries to log the user in asynchronously.
@@ -194,60 +137,40 @@ export class User extends EventDispatcher {
     //     });
     // }
 
-    // /**
-    // * Attempts to log the user out
-    // */
-    // logout(): Promise<UsersInterface.IResponse> {
-    //     const that = this;
+    /**
+     * Attempts to log the user out
+     */
+    async logout() {
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/logout` );
+        if ( response.error )
+            new Error( response.message );
 
-    //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-    //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
-    //             if ( data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             that.entry = { username: '' };
-    //             that.meta = <HatcheryServer.IUserMeta>{
-    //                 bio: '',
-    //                 plan: UserPlan.Free,
-    //                 imgURL: 'media/blank-user.png',
-    //                 maxNumProjects: 0
-    //             };
-
-    //             that._isLoggedIn = false;
-    //             return resolve( data );
-
-    //         }).catch( function( err: IAjaxError ) {
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         })
-    //     });
-    // }
+        this.entry = null;
+        this.meta = null;
+        return true;
+    }
 
     /**
      * Sends a server request to check if a user is logged in
      * @param forward Optionally pass a url to forward onto if the user is authenticated
      */
-    async authenticated(): Promise<boolean> {
-        return new Promise<boolean>( function( resolve, reject ) {
-            get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
+    async authenticated() {
 
-                if ( authResponse.error )
-                    throw new Error( authResponse.message );
+        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` );
 
-                if ( !authResponse.authenticated )
-                    return resolve( false );
+        if ( authResponse.error )
+            throw new Error( authResponse.message );
 
-                get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` ).then(( metaResponse ) => {
+        if ( !authResponse.authenticated )
+            return false;
 
-                    if ( metaResponse && metaResponse.error )
-                        throw new Error( metaResponse.message );
+        const metaResponse = await get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
 
-                    // this
-                    //         entry: authResponse.user,
-                    //         meta: metaResponse.data,
-                    //         isLoggedIn: true
-                })
-            })
-        });
+        if ( metaResponse && metaResponse.error )
+            throw new Error( metaResponse.message );
+
+        this.entry = authResponse.user!;
+        this.meta = metaResponse.data;
     }
 
 
@@ -303,7 +226,6 @@ export class User extends EventDispatcher {
     //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
     //         });
     //     });
-
     // }
 
     /**
@@ -315,7 +237,7 @@ export class User extends EventDispatcher {
         const that = this;
 
         return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-            put( `${DB.API}/user-details/${that.entry.username}`, token ).then( function( data: UsersInterface.IResponse ) {
+            put( `${DB.API}/user-details/${that.entry!.username}`, token ).then( function( data: UsersInterface.IResponse ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -358,14 +280,13 @@ export class User extends EventDispatcher {
         throw new Error( 'not implemented' );
     }
 
-    get isLoggedIn(): boolean { return this._isLoggedIn; }
 
     /**
-    * Gets the singleton instance.
-    */
+     * Gets the singleton instance.
+     */
     static get get(): User {
         if ( !User._singleton )
-            new User();
+            User._singleton = new User();
 
         return User._singleton;
     }

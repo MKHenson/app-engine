@@ -69,7 +69,7 @@ export class Schema extends React.Component<ISchemaProps, { workspace: HatcheryS
         const mouse = getRelativePos( e, elm );
 
         if ( json && json.type === 'resource' ) {
-            const resource = User.get.project.getResourceByShallowID( json.id as number );
+            const resource = User.get.project!.getResourceByShallowID( json.id as number );
             if ( resource instanceof Container )
                 this.addBehaviour( PluginManager.getSingleton().getTemplate( 'Instance' ) !, mouse, resource );
             else if ( resource instanceof Asset || resource instanceof GroupArray )

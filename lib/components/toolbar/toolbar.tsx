@@ -269,7 +269,7 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
         ReactWindow.show( RenameForm, {
             name: '',
             onOk: ( newName ) => {
-                let project = User.get.project;
+                let project = User.get.project!;
 
                 project.createResource( ResourceType.CONTAINER, { name: newName }).then(( resource ) => {
                     resource; // Supresses unused param error
@@ -296,7 +296,7 @@ export class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
             onRenaming: ( newName, prevName ): Error | null => {
 
                 // Make sure no other container exists with the same name
-                let containers = User.get.project.containers;
+                let containers = User.get.project!.containers;
                 for ( let container of containers )
                     if ( container.entry.name === newName && container.entry.name !== prevName )
                         return new Error( `A container with the name '${newName}' already exists` );

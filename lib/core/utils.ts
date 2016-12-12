@@ -99,7 +99,7 @@ export function capitalize( str: string ): string {
 * A predefined shorthand method for calling put methods that use JSON communication
 */
 export function post<T>( url: string, data: any ): Promise<T> {
-    return new Promise( function( resolve, reject ) {
+    return new Promise<T>( function( resolve, reject ) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if ( xhttp.readyState === 4 ) {
@@ -130,7 +130,7 @@ export function post<T>( url: string, data: any ): Promise<T> {
 * A predefined shorthand method for calling put methods that use JSON communication
 */
 export function get<T>( url: string ): Promise<T> {
-    return new Promise( function( resolve, reject ) {
+    return new Promise<T>( function( resolve, reject ) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if ( xhttp.readyState === 4 ) {
@@ -153,7 +153,7 @@ export function get<T>( url: string ): Promise<T> {
 * A predefined shorthand method for calling put methods that use JSON communication
 */
 export function put<T>( url: string, data: any ): Promise<T> {
-    return new Promise( function( resolve, reject ) {
+    return new Promise<T>( function( resolve, reject ) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if ( xhttp.readyState === 4 ) {
@@ -185,7 +185,7 @@ export function put<T>( url: string, data: any ): Promise<T> {
 * A predefined shorthand method for calling deleta methods that use JSON communication
 */
 export function del<T>( url: string, data?: any ): Promise<T> {
-    return new Promise( function( resolve, reject ) {
+    return new Promise<T>( function( resolve, reject ) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if ( xhttp.readyState === 4 ) {

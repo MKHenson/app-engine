@@ -82,8 +82,8 @@ export class OptionsUser extends React.Component<IOptionsUserProps, IOptionsUser
      * Draws the options JSX
      */
     render(): JSX.Element {
-        let user = User.get.entry;
-        let meta = User.get.meta;
+        let user = User.get.entry!;
+        let meta = User.get.meta!;
         let loadingSymbol: JSX.Element | undefined;
 
         if ( this.state.loading )

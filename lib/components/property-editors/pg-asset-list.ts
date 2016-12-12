@@ -68,7 +68,7 @@ export class PGAssetList extends PropertyGridEditor {
 
         // Fill the already selected items
         for ( let i = 0, l: number = assets.length; i < l; i++ ) {
-            const selectedAsset = User.get.project.getResourceByShallowID<Asset>( assets[ i ].entry.shallowId!, ResourceType.ASSET );
+            const selectedAsset = User.get.project!.getResourceByShallowID<Asset>( assets[ i ].entry.shallowId!, ResourceType.ASSET );
             if ( selectedAsset )
                 items.append( `<option title='${assets[ i ] + ' : ' + selectedAsset.entry.className}' value='${selectedAsset.entry.shallowId}'>${selectedAsset.entry.name}</option>` );
         }
@@ -76,7 +76,7 @@ export class PGAssetList extends PropertyGridEditor {
         // When we select an asset
         const onSelect = function() {
             assetId = parseInt( selector.val() );
-            asset = User.get.project.getResourceByShallowID<Asset>( assetId, ResourceType.ASSET );
+            asset = User.get.project!.getResourceByShallowID<Asset>( assetId, ResourceType.ASSET );
         };
 
 
@@ -88,7 +88,7 @@ export class PGAssetList extends PropertyGridEditor {
         // When we click on the eye selector
         const onEye = function() {
             const val = parseInt( selector.val() );
-            asset = User.get.project.getResourceByShallowID<Asset>( val, ResourceType.ASSET );
+            asset = User.get.project!.getResourceByShallowID<Asset>( val, ResourceType.ASSET );
 
             // TODO: This needs to be checked with update to TSX
             // ================================================
@@ -111,7 +111,7 @@ export class PGAssetList extends PropertyGridEditor {
         // When we click on remove button
         const onRemove = function() {
             const toRemove: number = parseInt( items.val() );
-            asset = User.get.project.getResourceByShallowID<Asset>( toRemove, ResourceType.ASSET );
+            asset = User.get.project!.getResourceByShallowID<Asset>( toRemove, ResourceType.ASSET );
 
             if ( asset && assets.indexOf( asset ) !== -1 ) {
                 assets.splice( assets.indexOf( asset ), 1 );

@@ -162,7 +162,7 @@ export class FileUploader {
     */
     upload( form: FormData, url: string | null, parentFile?: string ) {
         if ( !url ) {
-            const details = User.get.entry;
+            const details = User.get.entry!;
             url = `${DB.USERS}/buckets/${details.username}-bucket/upload` + ( parentFile ? '/' + parentFile : '' );
         }
 

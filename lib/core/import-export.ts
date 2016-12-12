@@ -323,7 +323,7 @@ export class ImportExport extends EventDispatcher {
         if ( group === null )
             return;
 
-        const project = User.get.project;
+        const project = User.get.project!;
 
         // Add the group
         if ( container.groups.indexOf( group.resource.entry._id ) )

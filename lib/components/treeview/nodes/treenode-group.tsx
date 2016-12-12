@@ -32,7 +32,7 @@ export class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
         for ( let node of children )
             this.removeNode( node );
 
-        const project: Project = User.get.project;
+        const project: Project = User.get.project!;
         const group = this.resource;
 
         // Add each of the node references
@@ -54,7 +54,7 @@ export class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
         e; // Supresses unused param error
 
         if ( json.type === 'resource' ) {
-            let resource = User.get.project.getResourceByShallowID( json.id as number );
+            let resource = User.get.project!.getResourceByShallowID( json.id as number );
             if ( !resource )
                 throw new Error( `Could not find resource ${json.id}` )
 

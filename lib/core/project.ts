@@ -144,7 +144,7 @@ export class Project extends EventDispatcher {
      * Loads a previously selected build, or creates one if none are selected
      */
     loadBuild(): Promise<Build> {
-        const username = User.get.entry.username;
+        const username = User.get.entry!.username;
         return new Promise<Build>(( resolve, reject ) => {
             let promise: Promise<any>;
 
@@ -340,7 +340,7 @@ export class Project extends EventDispatcher {
      * @param data The new data for the resource
      */
     editResource<T>( id: string, data: T ): Promise<Modepress.IResponse | Error> {
-        const details = User.get.entry;
+        const details = User.get.entry!;
         const projId = this._entry._id;
         const paths = this._restPaths;
         let url: string;
@@ -383,7 +383,7 @@ export class Project extends EventDispatcher {
      */
     saveResource( id: string, type?: ResourceType ): Promise<boolean> {
         const paths = this._restPaths;
-        const details = User.get.entry;
+        const details = User.get.entry!;
         const projId = this._entry._id;
         const r = this.getResourceByID( id, type );
 
@@ -435,7 +435,7 @@ export class Project extends EventDispatcher {
      * @param type The type of resource we are renaming
      */
     deleteResource( id: string, type: ResourceType ): Promise<boolean | Error> {
-        const details = User.get.entry;
+        const details = User.get.entry!;
         const projId = this._entry._id;
         const paths = this._restPaths;
         const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}/${id}`;
@@ -542,7 +542,7 @@ export class Project extends EventDispatcher {
      * @param type The type of resource we are renaming
      */
     createResource<T extends HatcheryServer.IResource>( type: ResourceType, data: T ): Promise<ProjectResource<T>> {
-        const details = User.get.entry;
+        const details = User.get.entry!;
         const projId = this._entry._id;
         const paths = this._restPaths;
         const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}`;

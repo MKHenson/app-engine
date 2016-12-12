@@ -29,7 +29,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
         this.canDrag = true;
         this.canDrop = false;
 
-        User.get.project.on<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
+        User.get.project!.on<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
         resource.on<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
         resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
         resource.on<ResourceEvents, IResourceEvent>( 'refreshed', this.onRefreshed, this );
@@ -138,7 +138,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
      */
     dispose() {
         let resource = this.resource;
-        User.get.project.off<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
+        User.get.project!.off<ProjectEvents, IResourceEvent>( 'resource-removed', this.onDeleted, this );
         resource.off<ResourceEvents, IResourceEvent>( 'modified', this.onModified, this );
         resource.on<ResourceEvents, IResourceEvent>( 'edited', this.onEdited, this );
         resource.off<ResourceEvents, IResourceEvent>( 'refreshed', this.onModified, this );
@@ -178,7 +178,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
      */
     onRenameClick() {
         let resource = this.resource;
-        let p = User.get.project;
+        let p = User.get.project!;
 
         let onOk = ( type: ResourceType, newName: string ) => {
             type; // Supresses unused param error
@@ -197,7 +197,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
                 onRenaming: ( newName, prevName ): Error | null => {
 
                     // Make sure no other container exists with the same name
-                    let containers = User.get.project.containers;
+                    let containers = User.get.project!.containers;
                     for ( let container of containers )
                         if ( container.entry.name === newName && container.entry.name !== prevName )
                             return new Error( `A container with the name '${newName}' already exists` );
@@ -214,7 +214,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
      * Called when the delete context item is clicked
      */
     private onDeleteClick() {
-        let project = User.get.project;
+        let project = User.get.project!;
         let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
         if ( selection.length === 0 )
             selection.push( this );
@@ -227,7 +227,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
      * Called when the delete context item is clicked
      */
     private onSaveClick() {
-        let project = User.get.project;
+        let project = User.get.project!;
         let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
         if ( selection.length === 0 )
             selection.push( this );
@@ -242,7 +242,7 @@ export class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IReso
     private onRefreshClick() {
         let selection = this.store.getSelectedNodes() as TreeViewNodeResource<ProjectResource<HatcheryServer.IResource>>[];
         let message = false;
-        let project = User.get.project;
+        let project = User.get.project!;
 
         if ( selection.length === 0 )
             selection.push( this );
