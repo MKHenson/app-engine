@@ -1,5 +1,6 @@
 import { div, i, h2 } from '../../jml/jml';
 import { User } from '../../core/user';
+import { Router } from '../../core/router';
 
 /**
  * The main GUI component of the application.
@@ -25,7 +26,6 @@ export class Application extends HTMLElement {
                     i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' })
                 ] )
             ] );
-
 
         this.innerHTML = `
             <x-split-panel ratio="0.6" orientation="vertical">
@@ -65,6 +65,7 @@ export class Application extends HTMLElement {
      */
     async connectedCallback() {
         this.loading = true;
+        Router.get.init();
 
         try {
             const authenticated = await User.get.authenticated();
