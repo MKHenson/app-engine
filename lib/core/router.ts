@@ -36,6 +36,13 @@ export class Router extends EventDispatcher {
     }
 
     /**
+     * Removes begining and trailing slashes
+     */
+    clearSlashes( path : string ): string {
+        return path.toString().replace(/\/$/, '').replace(/^\//, '');
+    }
+
+    /**
      * Returns the queries as an object
      */
     getQueryParams() {
