@@ -65,18 +65,46 @@ export class Application extends HTMLElement {
      */
     async connectedCallback() {
         this.loading = true;
-        Router.get.init();
 
         try {
             const authenticated = await User.get.authenticated();
             this.loading = false;
-            authenticated;
+
+            // Setup the routes
+            Router.get.init( [
+                {
+                    name: 'splash',
+                    path: '/splash/:section?',
+                    onStateEnter: ( state ) => this.innerHTML = `<div></div>`
+                },
+                {
+                    name: 'login',
+                    path: '/login/:forward?',
+                    onStateEnter: ( state ) => {
+                        if ( authenticated && state.params.forward ) {
+                            Router.get.push( state.params.forward );
+                        }
+                        else if ( authenticated )
+                            Router.get.push( '/splash' );
+                        else
+                            this.innerHTML = `<x-login-widget></x-login-widget>`
+                    }
+                },
+                {
+                    name: 'default',
+                    path: '/',
+                    isIndex: true,
+                    onStateEnter: ( state ) => Router.get.push( '/login' )
+                },
+                {
+                    name: 'error',
+                    path: '*',
+                    onStateEnter: ( state ) => this.innerHTML = `<div>404 - What you done phillis!?</div>`
+                }
+            ] );
         }
         catch ( e ) {
             this.loading = false;
         }
     }
 }
-
-// define it specifying what's extending
-customElements.define( 'x-application', Application );
