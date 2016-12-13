@@ -196,6 +196,3 @@ export class SplitPanel extends HTMLElement {
         scrubber.style.top = ( orientation === 'horizontal' ? `${top}px` : `0` );
     }
 }
-
-// define it specifying what's extending
-customElements.define( 'x-split-panel', SplitPanel );

@@ -77,32 +77,38 @@
 // export { ConnectedWidget as LoginWidget };
 
 export class LoginWidget extends HTMLElement {
-
-    /**
-     * Creates a new instance
-     */
     constructor() {
         super();
-
-        this.innerHTML = `
-            <div id="login-widget" class="background fade-in">
-                <div id="log-reg">
-                    <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
-                    <div class="avatar">
-                        <img src="media/blank-user.png" />
-                    </div>
-                    <div class="content"></div>
-                </div>
-            </div>;`;
     }
-
-    /**
-     * Gets if the loading element is visible
-     */
-    get loading(): boolean { return this.querySelector( '#log-reg' ).classList.contains( 'loading' ); }
-
-    /**
-     * Sets if the loading element is visible
-     */
-    set loading( val: boolean ) { this.querySelector( '#log-reg' ).className = val ? 'loading' : ''; }
 }
+
+// export class LoginWidget extends HTMLElement {
+
+//     /**
+//      * Creates a new instance
+//      */
+//     constructor() {
+//         super();
+
+        // this.innerHTML = `
+        //     <div id="login-widget" class="background fade-in">
+        //         <div id="log-reg">
+        //             <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
+        //             <div class="avatar">
+        //                 <img src="media/blank-user.png" />
+        //             </div>
+        //             <div class="content"></div>
+        //         </div>
+        //     </div>`;
+    // }
+
+    // /**
+    //  * Gets if the loading element is visible
+    //  */
+    // get loading(): boolean { return this.querySelector( '#log-reg' ).classList.contains( 'loading' ); }
+
+    // /**
+    //  * Sets if the loading element is visible
+    //  */
+    // set loading( val: boolean ) { this.querySelector( '#log-reg' ).className = val ? 'loading' : ''; }
+// }

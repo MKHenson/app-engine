@@ -1,6 +1,7 @@
 import './setup/emitters';
 import { elm } from './jml/jml';
-import './components/split-panel/split-panel';
+import { SplitPanel } from './components/split-panel/split-panel';
+import { LoginWidget } from './containers/login-widget/login-widget';
 
 // import { editorReducer } from './reducers/editor-reducer';
 // import { loggerReducer } from './reducers/logger-reducer';
@@ -89,9 +90,14 @@ import { Application } from './containers/application/application';
 // };
 
 
+
+
 // Once the document is ready we begin
 // initialize();
 
+customElements.define( 'x-split-panel', SplitPanel );
+customElements.define( 'x-login-widget', LoginWidget );
+customElements.define( 'x-application', Application );
 
 document.body.appendChild( elm( new Application() ) );
 
