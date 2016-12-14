@@ -1,4 +1,4 @@
-import { div } from '../../jml/jml';
+import { JML } from '../../jml/jml';
 
 export type SplitOrientation = 'vertical' | 'horizontal';
 
@@ -17,7 +17,7 @@ export class SplitPanel extends HTMLElement {
     private _dividerSize: number;
     private _mouseUpProxy: any;
     private _mouseMoveProxy: any;
-    private _ratioChanged: undefined | ( ( ratio: number ) => void );
+    public onRatioChanged: undefined | ( ( ratio: number ) => void );
 
     /**
      * Creates a new instance
@@ -35,11 +35,11 @@ export class SplitPanel extends HTMLElement {
         const panel1 = this.querySelector( '.left, .top' ) as HTMLElement;
         const panel2 = this.querySelector( '.bottom, .right' ) as HTMLElement;
 
-        this.appendChild( div( { className: 'panel1' }, panel1 ) );
-        this.appendChild( div( { className: 'split-panel-divider background-dark', onmousedown: ( e ) => this.onDividerMouseDown( e ) }) );
-        this.appendChild( div( { className: 'split-panel-divider-dragging', style: { display: 'none' } }) ) as HTMLElement;
-        this.appendChild( div( { className: 'panel2' }, panel2 ) );
-        this.appendChild( div( { className: 'fix' }) );
+        this.appendChild( JML.div( { className: 'panel1' }, panel1 ) );
+        this.appendChild( JML.div( { className: 'split-panel-divider background-dark', onmousedown: ( e ) => this.onDividerMouseDown( e ) }) );
+        this.appendChild( JML.div( { className: 'split-panel-divider-dragging', style: { display: 'none' } }) ) as HTMLElement;
+        this.appendChild( JML.div( { className: 'panel2' }, panel2 ) );
+        this.appendChild( JML.div( { className: 'fix' }) );
         this.updateStyles();
     }
 
@@ -52,16 +52,6 @@ export class SplitPanel extends HTMLElement {
         else if ( name === 'orientation' )
             this.orientation = ( newValue === 'vertical' ? 'vertical' : 'horizontal' );
     }
-
-    /**
-     * Gets the callback for when the ratio is changed
-     */
-    get onRatioChanged() { return this._ratioChanged; }
-
-    /**
-     * Sets the callback for when the ratio is changed
-     */
-    set onRatioChanged( val ) { this._ratioChanged = val; }
 
     /**
      * Gets the orientation of the split panel
@@ -179,8 +169,8 @@ export class SplitPanel extends HTMLElement {
         this._ratio = ratio;
         this.updateStyles();
 
-        if ( this._ratioChanged )
-            this._ratioChanged( ratio );
+        if ( this.onRatioChanged )
+            this.onRatioChanged( ratio );
     }
 
     /**

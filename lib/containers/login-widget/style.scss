@@ -1,4 +1,4 @@
-#login-widget {
+x-login-widget {
     font-size:20px;
     width: 20%;
     min-width: 450px;
@@ -7,6 +7,7 @@
     margin: auto;
     text-align: center;
     overflow: hidden;
+    display: block;
 }
 
 #log-reg {

@@ -1,13 +1,17 @@
 import './setup/emitters';
-import { elm } from './jml/jml';
+import { JML } from './jml/jml';
+import { ButtonPrimary } from './components/buttons/buttons';
+import { JsonForm } from './components/v-form/v-form';
 import { SplitPanel } from './components/split-panel/split-panel';
-import { LoginWidget } from './containers/login-widget/login-widget';
+import { LoginForm } from './components/login-form/login-form';
+
 
 // import { editorReducer } from './reducers/editor-reducer';
 // import { loggerReducer } from './reducers/logger-reducer';
 // import { projectReducer } from './reducers/project-reducer';
 // import { splashReducer } from './reducers/splash-reducer';
 // import { userReducer } from './reducers/user-reducer';
+import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
 
 
@@ -95,9 +99,12 @@ import { Application } from './containers/application/application';
 // Once the document is ready we begin
 // initialize();
 
+customElements.define( 'x-primary', ButtonPrimary, { extends: 'button' });
+customElements.define( 'x-json-form', JsonForm, { extends: 'form' });
+customElements.define( 'x-login-form', LoginForm );
 customElements.define( 'x-split-panel', SplitPanel );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
 
-document.body.appendChild( elm( new Application() ) );
+document.body.appendChild( JML.elm( new Application() ) );
 

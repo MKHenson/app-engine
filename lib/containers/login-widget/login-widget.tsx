@@ -1,9 +1,9 @@
 // import { login, register, resetPassword, resendActivation } from '../../actions/user-actions';
 // import { toggleLoginState } from '../../actions/editor-actions';
 // import { RegisterForm } from '../../components/register-form/register-form';
-// import { LoginForm } from '../../components/login-form/login-form';
+import { LoginForm } from '../../components/login-form/login-form';
 // import { authenticated } from '../../actions/user-actions';
-// import { div, i, h2 } from '../../jml/jml';
+import { JML } from '../../jml/jml';
 
 // export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
 //     onLogin?: () => void,
@@ -66,49 +66,49 @@
 //     }
 // }
 
-// const ConnectedWidget = ReactRedux.connect<ILoginWidgetProps, any, any>(( state: HatcheryEditor.IStore, ownProps ) => {
-//     return {
-//         user: state.user,
-//         editorState: state.editorState,
-//         forward: ownProps.location.query.forward
-//     } as ILoginWidgetProps
-// })( LoginWidget )
-
-// export { ConnectedWidget as LoginWidget };
-
+/**
+ * A widget for logging the user in
+ */
 export class LoginWidget extends HTMLElement {
+
+    static get observedAttributes() {
+        return [ 'loading' ];
+    }
+
     constructor() {
         super();
+        this.className = 'background fade-in';
+
+        this.appendChild( JML.div( { id: 'log-reg' }, [
+            JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' }),
+            JML.div( { className: 'avatar' }, [
+                JML.img( { src: 'media/blank-user.png' })
+            ] ),
+            JML.div( { className: 'content' }, [
+                new LoginForm()
+            ] )
+        ] ) );
+    }
+
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback( name: string, oldValue: string, newValue: string ) {
+        if ( name === 'loading' )
+            this.loading = newValue === 'true' ? true : false;
+    }
+
+    /**
+    * Gets if the loading element is visible
+    */
+    get loading(): boolean {
+        return this.querySelector( '#log-reg' ).className.indexOf( 'loading' ) === -1 ? false : true;
+    }
+
+    /**
+     * Sets if the loading element is visible
+     */
+    set loading( val: boolean ) {
+        this.querySelector( '#log-reg' ).className = val ? 'loading' : '';
     }
 }
-
-// export class LoginWidget extends HTMLElement {
-
-//     /**
-//      * Creates a new instance
-//      */
-//     constructor() {
-//         super();
-
-        // this.innerHTML = `
-        //     <div id="login-widget" class="background fade-in">
-        //         <div id="log-reg">
-        //             <i class="fa fa-cog fa-spin fa-3x fa-fw"></i>
-        //             <div class="avatar">
-        //                 <img src="media/blank-user.png" />
-        //             </div>
-        //             <div class="content"></div>
-        //         </div>
-        //     </div>`;
-    // }
-
-    // /**
-    //  * Gets if the loading element is visible
-    //  */
-    // get loading(): boolean { return this.querySelector( '#log-reg' ).classList.contains( 'loading' ); }
-
-    // /**
-    //  * Sets if the loading element is visible
-    //  */
-    // set loading( val: boolean ) { this.querySelector( '#log-reg' ).className = val ? 'loading' : ''; }
-// }

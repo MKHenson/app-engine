@@ -19,7 +19,17 @@
     },
     "include": [
         "lib/references.d.ts",
-        "lib/**/*"
+        "lib/parsers/parsers.ts",
+        "lib/jml/jml.ts",
+        "lib/core/user.ts",
+        "lib/core/project.ts",
+        "lib/components/split-panel/split-panel.tsx",
+        "lib/components/v-form/v-form.tsx",
+        "lib/components/login-form/login-form.tsx",
+        "lib/components/buttons/buttons.tsx",
+        "lib/containers/application/application.tsx",
+        "lib/containers/login-widget/login-widget.tsx",
+        "lib/main.tsx"
     ],
     "exclude": [
         "lib/definitions/generated/*",

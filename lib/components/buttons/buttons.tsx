@@ -68,13 +68,25 @@ export class ReactButton extends React.Component<IButtonProps, any> {
 }
 
 /**
- * A wrapper for the base button class to style it as a primary button
+ * A simple login form
  */
-export class ButtonPrimary extends ReactButton {
-    static defaultProps: IButtonProps = {
-        buttonType: ButtonType.PRIMARY
+export class ButtonPrimary extends HTMLButtonElement {
+
+    constructor() {
+        super();
+        this.className = 'primary';
+        this.type = 'button';
     }
 }
+
+// /**
+//  * A wrapper for the base button class to style it as a primary button
+//  */
+// export class ButtonPrimary extends ReactButton {
+//     static defaultProps: IButtonProps = {
+//         buttonType: ButtonType.PRIMARY
+//     }
+// }
 
 /**
  * A wrapper for the base button class to style it as a success button

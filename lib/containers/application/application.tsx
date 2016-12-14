@@ -1,6 +1,7 @@
-import { div, i, h2 } from '../../jml/jml';
+import { JML } from '../../jml/jml';
 import { User } from '../../core/user';
 import { Router } from '../../core/router';
+import { SplitPanel } from '../../components/split-panel/split-panel';
 
 /**
  * The main GUI component of the application.
@@ -20,28 +21,31 @@ export class Application extends HTMLElement {
         super();
 
         this._loadingElm =
-            div( { className: 'loading-screen' }, [
-                div( { className: 'loading-message fade-in' }, [
-                    h2( null, 'Loading Hatchery Editor...' ),
-                    i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' })
+            JML.div( { className: 'loading-screen' }, [
+                JML.div( { className: 'loading-message fade-in' }, [
+                    JML.h2( null, 'Loading Hatchery Editor...' ),
+                    JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' })
                 ] )
             ] );
 
-        this.innerHTML = `
-            <x-split-panel ratio="0.6" orientation="vertical">
-                <div class="left">
-                    <h2>This is the left panel!</h2>
-                </div>
-                <div class="right">
-                    <h2>This is the right panel!</h2>
-                </div>
-            </x-split-panel>`;
+        this.appendChild(
+            JML.elm( new SplitPanel(), { ratio: 0.6, orientation: 'vertical' }, [
+                JML.div( { className: 'left' }, [
+                    JML.h2( null, 'This is the left panel!' )
+                ] ),
+                JML.div( { className: 'right' }, [
+                    JML.h2( null, 'This is the right panel!' )
+                ] )
+            ] )
+        );
     }
 
     /**
      * Gets if the loading element is visible
      */
-    get loading(): boolean { return this._loadingElm.parentNode ? true : false; }
+    get loading(): boolean {
+        return this._loadingElm.parentNode ? true : false;
+    }
 
     /**
      * Sets if the loading element is visible
