@@ -1,7 +1,8 @@
-import { JML } from '../../jml/jml';
+import { JML, innerHtml } from '../../jml/jml';
 import { User } from '../../core/user';
 import { Router } from '../../core/router';
 import { SplitPanel } from '../../components/split-panel/split-panel';
+import { LoginWidget } from '../login-widget/login-widget';
 
 /**
  * The main GUI component of the application.
@@ -28,16 +29,19 @@ export class Application extends HTMLElement {
                 ] )
             ] );
 
-        this.appendChild(
-            JML.elm( new SplitPanel(), { ratio: 0.6, orientation: 'vertical' }, [
-                JML.div( { className: 'left' }, [
-                    JML.h2( null, 'This is the left panel!' )
-                ] ),
-                JML.div( { className: 'right' }, [
-                    JML.h2( null, 'This is the right panel!' )
-                ] )
-            ] )
-        );
+
+        // Create the split panel
+        const splitPanel = JML.elm<SplitPanel>( new SplitPanel(), {
+            ratio: 0.6,
+            orientation: 'vertical'
+        });
+
+        splitPanel.left.appendChild( JML.h2( null, 'This is the left panel!' ) );
+        splitPanel.right.appendChild( JML.h2( null, 'This is the right panel!' ) );
+
+        splitPanel.right.appendChild( JML.elm<LoginWidget>( new LoginWidget(), {}) );
+
+        this.appendChild( splitPanel );
     }
 
     /**
@@ -74,12 +78,16 @@ export class Application extends HTMLElement {
             const authenticated = await User.get.authenticated();
             this.loading = false;
 
+            authenticated;
+
             // Setup the routes
             Router.get.init( [
                 {
                     name: 'splash',
                     path: '/splash/:section?',
-                    onStateEnter: ( state ) => this.innerHTML = `<div></div>`
+                    onStateEnter: ( state ) => {
+                        this.innerHTML = `<div></div>`
+                    }
                 },
                 {
                     name: 'login',
@@ -91,7 +99,7 @@ export class Application extends HTMLElement {
                         else if ( authenticated )
                             Router.get.push( '/splash' );
                         else
-                            this.innerHTML = `<x-login-widget></x-login-widget>`
+                            innerHtml( this, new LoginWidget() );
                     }
                 },
                 {

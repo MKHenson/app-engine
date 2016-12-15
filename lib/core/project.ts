@@ -319,9 +319,10 @@ export class Project extends EventDispatcher {
                 if ( response.data.length === 0 )
                     return resolve( r.resource );
 
-                for ( const t in response.data[ 0 ] )
-                    if ( r.resource.entry.hasOwnProperty( t ) )
+                for ( const t in response.data[ 0 ] as HatcheryServer.IResource )
+                    if ( r.resource.entry.hasOwnProperty( t ) ) {
                         r.resource.entry[ t ] = response.data[ 0 ][ t ];
+                    }
 
                 r.resource.emit<ResourceEvents, IResourceEvent>( 'refreshed', { resource: r.resource });
                 r.resource.saved = true;
@@ -348,7 +349,7 @@ export class Project extends EventDispatcher {
 
         for ( const p in paths )
             for ( const r of paths[ p ].array )
-                if ( r.entry._id == id ) {
+                if ( r.entry._id === id ) {
                     resource = r;
                     url = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ p ].url}/${id}`;
                     break;
@@ -362,7 +363,7 @@ export class Project extends EventDispatcher {
                 if ( response.error )
                     return reject( new Error( response.message ) );
 
-                for ( const t in data )
+                for ( const t in data as HatcheryServer.IResource )
                     if ( resource!.entry.hasOwnProperty( t ) )
                         resource!.entry[ t ] = data[ t ];
 
@@ -582,7 +583,7 @@ export class Project extends EventDispatcher {
      */
     assignEditor( resource: ProjectResource<HatcheryServer.IResource> ): Editor | null {
         for ( const editor of this.openEditors )
-            if ( editor.resource == resource )
+            if ( editor.resource === resource )
                 return editor;
 
         let editor: Editor | null = null;

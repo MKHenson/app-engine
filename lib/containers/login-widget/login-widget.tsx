@@ -2,6 +2,7 @@
 // import { toggleLoginState } from '../../actions/editor-actions';
 // import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
+import { ButtonLink } from '../../components/buttons/buttons';
 // import { authenticated } from '../../actions/user-actions';
 import { JML } from '../../jml/jml';
 
@@ -79,15 +80,19 @@ export class LoginWidget extends HTMLElement {
         super();
         this.className = 'background fade-in';
 
-        this.appendChild( JML.div( { id: 'log-reg' }, [
-            JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' }),
-            JML.div( { className: 'avatar' }, [
-                JML.img( { src: 'media/blank-user.png' })
-            ] ),
-            JML.div( { className: 'content' }, [
-                new LoginForm()
+        this.appendChild(
+            JML.div( { id: 'log-reg' }, [
+                JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' }),
+                JML.div( { className: 'avatar' }, [
+                    JML.img( { src: 'media/blank-user.png' })
+                ] ),
+                JML.div( { className: 'content' }, [
+                    JML.elm<LoginForm>( new LoginForm(), {}),
+                    JML.elm<ButtonLink>( new ButtonLink(), { text: 'This is a special button' })
+                    // JML.elm<LoginForm>( new LoginForm() )
+                ] )
             ] )
-        ] ) );
+        );
     }
 
     /**
@@ -102,13 +107,13 @@ export class LoginWidget extends HTMLElement {
     * Gets if the loading element is visible
     */
     get loading(): boolean {
-        return this.querySelector( '#log-reg' ).className.indexOf( 'loading' ) === -1 ? false : true;
+        return this.querySelector( '#log-reg' ) !.className.indexOf( 'loading' ) === -1 ? false : true;
     }
 
     /**
      * Sets if the loading element is visible
      */
     set loading( val: boolean ) {
-        this.querySelector( '#log-reg' ).className = val ? 'loading' : '';
+        this.querySelector( '#log-reg' ) !.className = val ? 'loading' : '';
     }
 }

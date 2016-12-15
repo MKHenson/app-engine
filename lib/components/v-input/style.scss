@@ -2,11 +2,6 @@
     background: $input-error !important;
 }
 
-input[type="text"].v-input, input[type="password"].v-input {
-    &.highlight-error {
-        border-color : $input-highlight;
-    }
-}
 .v-input-outer {
     .input-highlighter {
         border-top:1px solid $input;
@@ -20,11 +15,15 @@ input[type="text"].v-input, input[type="password"].v-input {
         border-top:1px solid $ps-blue;
     }
 
-    &.focussed {
+    &.focussed.highlight-error {
         input[type="text"].v-input, input[type="password"].v-input {
-            &.highlight-error {
-                border-bottom: none;
-            }
+            border-bottom: none;
+        }
+    }
+
+    &.highlight-error {
+        input[type="text"].v-input, input[type="password"].v-input {
+            border-color : $input-highlight;
         }
     }
 }

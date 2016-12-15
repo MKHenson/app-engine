@@ -35,13 +35,28 @@ export class SplitPanel extends HTMLElement {
         const panel1 = this.querySelector( '.left, .top' ) as HTMLElement;
         const panel2 = this.querySelector( '.bottom, .right' ) as HTMLElement;
 
-        this.appendChild( JML.div( { className: 'panel1' }, panel1 ) );
+        if ( panel1 )
+            panel1.remove();
+        if ( panel2 )
+            panel2.remove();
+
+        this.appendChild( JML.div( { className: 'panel1 left top' }, [ panel1 && panel1.childNodes ] ) );
         this.appendChild( JML.div( { className: 'split-panel-divider background-dark', onmousedown: ( e ) => this.onDividerMouseDown( e ) }) );
-        this.appendChild( JML.div( { className: 'split-panel-divider-dragging', style: { display: 'none' } }) ) as HTMLElement;
-        this.appendChild( JML.div( { className: 'panel2' }, panel2 ) );
+        this.appendChild( JML.div( { className: 'split-panel-divider-dragging', style: { display: 'none' } }) );
+        this.appendChild( JML.div( { className: 'panel2 bottom right' }, [ panel2 && panel2.childNodes ] ) );
         this.appendChild( JML.div( { className: 'fix' }) );
         this.updateStyles();
     }
+
+    connectedCallback() {
+
+    }
+
+    get left() { return this.children[ 0 ]; }
+    get top() { return this.children[ 0 ]; }
+    get bottom() { return this.children[ 3 ]; }
+    get right() { return this.children[ 3 ]; }
+
 
     /**
      * If the attributes change we update the internal state
@@ -146,8 +161,8 @@ export class SplitPanel extends HTMLElement {
         // Get the new ratio
         const left = parseFloat( scrubber.style.left!.split( 'px' )[ 0 ] );
         const top = parseFloat( scrubber.style.top!.split( 'px' )[ 0 ] );
-        const w = scrubber.parentElement.clientWidth;
-        const h = scrubber.parentElement.clientHeight;
+        const w = scrubber.parentElement!.clientWidth;
+        const h = scrubber.parentElement!.clientHeight;
         let ratio = 0;
         let dividerSizeRatio = 0;
 
@@ -179,7 +194,7 @@ export class SplitPanel extends HTMLElement {
     onStageMouseMove( e: MouseEvent ) {
         let orientation = this._orientation;
         const scrubber = this.children[ 2 ] as HTMLElement;
-        let bounds = scrubber.parentElement.getBoundingClientRect();
+        let bounds = scrubber.parentElement!.getBoundingClientRect();
         let left = e.clientX - bounds.left;
         let top = e.clientY - bounds.top;
         scrubber.style.left = ( orientation === 'vertical' ? `${left}px` : `0` );

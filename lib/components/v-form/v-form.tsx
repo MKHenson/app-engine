@@ -392,8 +392,15 @@ export class JsonForm extends HTMLFormElement {
         this._inputs = {};
     }
 
+
     traverseChildren( childNodes: NodeList ) {
-        for ( const child of childNodes ) {
+
+        for ( let i in childNodes ) {
+            if ( !childNodes.hasOwnProperty( i ) )
+                continue;
+
+            const child = childNodes[ i ];
+
             this.traverseChildren( child.childNodes );
             if ( child instanceof HTMLInputElement )
                 this._inputs[ child.name ] = child;

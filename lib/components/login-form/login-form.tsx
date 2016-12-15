@@ -1,5 +1,6 @@
 import { JsonForm } from '../v-form/v-form';
 import { ButtonPrimary } from '../buttons/buttons';
+import { JsonInput } from '../v-input/v-input';
 import { JML } from '../../jml/jml';
 
 // import { VForm } from '../v-form/v-form';
@@ -138,25 +139,30 @@ export class LoginForm extends HTMLElement {
         super();
 
         this.className = 'login animate-all fade-in';
-        this.appendChild( JML.elm( new JsonForm(), undefined, [
-            JML.a( { id: 'forgot-pass' }, 'Forgot' ),
-            JML.br(),
-            JML.a( {}, 'Resend Activation Email' ),
-            JML.br(),
-            JML.div( {}, 'Message goes here' ),
-            JML.div( { className: 'double-column' }, [
-                JML.elm( new ButtonPrimary(), {}, [
-                    'Register ',
-                    JML.span( { className: 'fa fa-user' })
+        this.appendChild(
+            JML.elm<JsonForm>( new JsonForm(), {
+                onApproved: ( json ) => { alert( 'Approved!' ) }
+            }, [
+                    JML.elm<JsonInput>( new JsonInput(), { highlight: false }),
+                    JML.a( { id: 'forgot-pass' }, 'Forgot' ),
+                    JML.br(),
+                    JML.a( {}, 'Resend Activation Email' ),
+                    JML.br(),
+                    JML.div( {}, 'Message goes here' ),
+                    JML.div( { className: 'double-column' }, [
+                        JML.elm( new ButtonPrimary(), {}, [
+                            'Register ',
+                            JML.span( { className: 'fa fa-user' })
+                        ] )
+                    ] ),
+                    JML.div( { className: 'double-column' }, [
+                        JML.elm( new ButtonPrimary(), {}, [
+                            'Login ',
+                            JML.span( { className: 'fa fa-sign-in' })
+                        ] )
+                    ] ),
                 ] )
-            ] ),
-            JML.div( { className: 'double-column' }, [
-                JML.elm( new ButtonPrimary(), {}, [
-                    'Login ',
-                    JML.span( { className: 'fa fa-sign-in' })
-                ] )
-            ] ),
-        ] ) );
+        );
         // this.innerHTML = `
         //     <x-json-form>
         //         <input />

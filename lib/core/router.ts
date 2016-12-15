@@ -144,10 +144,10 @@ export class Router extends EventDispatcher {
         if ( this.mode === 'history' ) {
             fragment = this.clearSlashes( decodeURI( location.pathname + location.search ) );
             fragment = fragment.replace( /\?(.*)$/, '' );
-            fragment = this.root != '/' ? fragment.replace( this.root, '' ) : fragment;
+            fragment = this.root !== '/' ? fragment.replace( this.root, '' ) : fragment;
 
         } else {
-            var match = window.location.href.match( /#(.*)$/ );
+            const match = window.location.href.match( /#(.*)$/ );
             fragment = match ? match[ 1 ] : '';
         }
         return this.clearSlashes( fragment );
@@ -161,7 +161,7 @@ export class Router extends EventDispatcher {
         const pl = /\+/g,  // Regex for replacing addition symbol with a space
             search = /([^&=]+)=?([^&]*)/g,
             query = window.location.search.substring( 1 ),
-            decode = ( s ) => decodeURIComponent( s.replace( pl, " " ) );
+            decode = ( s ) => decodeURIComponent( s.replace( pl, ' ' ) );
 
         const urlParams = {};
         while ( match = search.exec( query ) )
@@ -193,9 +193,9 @@ export class Router extends EventDispatcher {
     push( path: string ) {
         let route = this.check( path );
         if ( route )
-            history.pushState( undefined, route.title, path );
+            history.pushState( undefined, route.title!, path );
         else
-            history.pushState( undefined, undefined, path );
+            history.pushState( undefined, '', path );
     }
 
     /**
