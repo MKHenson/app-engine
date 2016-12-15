@@ -6,7 +6,7 @@
         "declaration": false,
         "sourceMap": false,
         "preserveConstEnums": true,
-        "target": "es6",
+        "target": "es5",
         "allowUnreachableCode": false,
         "allowUnusedLabels": false,
         "noImplicitAny": false,
@@ -15,15 +15,26 @@
         "noUnusedLocals": true,
         "strictNullChecks": true,
         "outDir": "dist/lib/js/tmp",
-        "noEmitHelpers": true
+        "noEmitHelpers": true,
+        "allowSyntheticDefaultImports": false,
+        "types": [],
+        "typeRoots": [],
+        "lib": [
+            "es5",
+            "dom",
+            "es2015.promise"
+        ]
     },
     "include": [
         "lib/references.d.ts",
         "lib/parsers/parsers.ts",
         "lib/jml/jml.ts",
+        "lib/core/event-dispatcher.ts",
         "lib/core/user.ts",
         "lib/core/project.ts",
+        "lib/core/router.ts",
         "lib/components/split-panel/split-panel.tsx",
+        "lib/components/v-input/v-input.tsx",
         "lib/components/v-form/v-form.tsx",
         "lib/components/login-form/login-form.tsx",
         "lib/components/buttons/buttons.tsx",
