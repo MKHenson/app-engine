@@ -1,17 +1,6 @@
 import { JML, empty } from '../../jml/jml';
 import { ValidationType, ValidationErrorType } from '../../setup/enums';
-import { checkValidation } from '../../core/utils';
-
-/**
- * An error for use when there is a validation problem
- */
-export class ValidationError extends Error {
-    code: ValidationErrorType;
-    constructor( message: string, code: ValidationErrorType ) {
-        super( message );
-        this.code = code;
-    }
-}
+import { checkValidation, ValidationError } from '../../core/utils';
 
 /**
  * A wrapper for an input or text area that adds functionality for validating the user input.
@@ -44,7 +33,6 @@ export class ValidatedText extends HTMLElement {
             'select-on-click',
             'min',
             'max',
-            'pristine',
             'highlight',
             'read-only',
             'name',
@@ -152,8 +140,6 @@ export class ValidatedText extends HTMLElement {
             this.onValidationResolved( this );
 
         this.invalid = err ? true : false;
-        this.highlight = err && this.highlight ? true : false;
-
         if ( !err && this.onChange )
             this.onChange( this );
     }
@@ -294,7 +280,7 @@ export class ValidatedText extends HTMLElement {
      * Sets if the input is in a pristine state
      */
     set pristine( val: boolean ) {
-        this.classList.toggle( 'dirty', val );
+        this.classList.toggle( 'dirty', !val );
     }
 
     /**

@@ -1,4 +1,4 @@
-﻿import { ValidationType, PropertyType } from '../setup/enums';
+﻿import { ValidationType, ValidationErrorType, PropertyType } from '../setup/enums';
 import { Prop } from './properties/prop';
 import { PropAsset } from './properties/prop-asset';
 import { PropGroup } from './properties/prop-group';
@@ -27,7 +27,16 @@ validators[ ValidationType.EMAIL ] = { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+
 validators[ ValidationType.NO_HTML ] = { regex: /(<([^>]+)>)/ig, name: 'no-html', negate: true, message: 'HTML is not allowed', type: ValidationType.NO_HTML };
 validators[ ValidationType.ALPHA_EMAIL ] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: 'email-plus', negate: false, message: 'Only alphanumeric, \'_\', \'-\', \'@\' and \'!\' characters accepted', type: ValidationType.ALPHA_EMAIL };
 
-
+/**
+ * An error for use when there is a validation problem
+ */
+export class ValidationError extends Error {
+    code: ValidationErrorType;
+    constructor( message: string, code: ValidationErrorType ) {
+        super( message );
+        this.code = code;
+    }
+}
 
 /**
  * Checks a string to see if there is a validation error
@@ -396,7 +405,7 @@ export function all<Y>( promises: Promise<Y>[], progress: ( item: Y, progress: n
                 results[ index ] = item;
                 progress( item, ( numLoaded / total ) * 100 );
 
-                if ( numLoaded == total )
+                if ( numLoaded === total )
                     resolve( results );
 
             }).catch(( error ) => {
