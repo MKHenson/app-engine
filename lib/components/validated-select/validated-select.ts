@@ -27,6 +27,7 @@ export class ValidatedSelect extends HTMLElement {
     static get observedAttributes() {
         return [
             'value',
+            'name',
             'allow-empty'
         ];
     }
@@ -49,6 +50,7 @@ export class ValidatedSelect extends HTMLElement {
     attributeChangedCallback( name: string, oldValue: string, newValue: string ) {
         switch ( name ) {
             case 'value':
+            case 'name':
                 this[ name ] = newValue;
                 break;
             case 'allow-empty':
@@ -99,6 +101,20 @@ export class ValidatedSelect extends HTMLElement {
             return new ValidationError( 'Selection is required', ValidationErrorType.NOT_EMPTY );
 
         return null;
+    }
+
+    /**
+     * Sets the select name
+     */
+    set name( val: string ) {
+        ( this.children[ 0 ] as HTMLSelectElement ).name = val;
+    }
+
+    /**
+     * Gets the select name
+     */
+    get name(): string {
+        return ( this.children[ 0 ] as HTMLSelectElement ).name;
     }
 
     /**

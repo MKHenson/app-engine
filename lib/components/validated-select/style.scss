@@ -8,7 +8,7 @@ x-validated-select {
         -moz-appearance: none;
         appearance: none;
         box-shadow: none;
-        background: #F0F0F0 url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat calc(100% - 6px) 50%;
+        background: #F0F0F0 url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat 95% 50%;
 
         &:focus {
             outline: none;
@@ -23,7 +23,7 @@ x-validated-select {
 
     &.dirty.invalid {
         select {
-            background: $input-error url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat calc(100% - 6px) 50%;
+            background: $input-error url("data:image/png;base64,R0lGODlhDwAUAIABAAAAAP///yH5BAEAAAEALAAAAAAPABQAAAIXjI+py+0Po5wH2HsXzmw//lHiSJZmUAAAOw==") no-repeat 95% 50%;
         }
     }
 }
