@@ -100,7 +100,7 @@ import { Application } from './containers/application/application';
 
 // Once the document is ready we begin
 // initialize();
-customElements.define( 'x-json-input', ValidatedText );
+customElements.define( 'x-validated-text', ValidatedText );
 customElements.define( 'x-primary', ButtonPrimary, { extends: 'button' });
 customElements.define( 'x-error', ButtonError, { extends: 'button' });
 customElements.define( 'x-link', ButtonLink, { extends: 'button' });
