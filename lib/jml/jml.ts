@@ -1,4 +1,3 @@
-// import { HTMLAttributes } from './attributes';
 import { parsers } from './parsers';
 
 /**
@@ -14,7 +13,7 @@ type PartialHTMLElement<T> = {
 export type Children = ( HTMLElement | NodeList | string )[] | HTMLElement | string;
 
 /**
- * Empties out an element
+ * Empties out an element of all its child nodes
  */
 export function empty( element: Element ) {
     while ( element.firstChild )
@@ -73,7 +72,6 @@ export namespace JML {
 
             targetParent = query;
         }
-
 
         // Create a text element if the child is a string
         if ( typeof children === 'string' )
