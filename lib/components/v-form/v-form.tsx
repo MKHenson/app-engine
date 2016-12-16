@@ -385,7 +385,7 @@ export class JsonForm extends HTMLFormElement {
 
     onApproved?: ( json: any ) => void;
     onError?: ( errors: any ) => void;
-    private _inputs: { [ nameL: string ]: HTMLElement };
+    private _inputs: { [ name: string ]: HTMLElement };
 
     constructor() {
         super();
@@ -394,13 +394,8 @@ export class JsonForm extends HTMLFormElement {
 
 
     traverseChildren( childNodes: NodeList ) {
-
-        for ( let i in childNodes ) {
-            if ( !childNodes.hasOwnProperty( i ) )
-                continue;
-
+        for ( let i = 0, l = childNodes.length; i < l; i++ ) {
             const child = childNodes[ i ];
-
             this.traverseChildren( child.childNodes );
             if ( child instanceof HTMLInputElement )
                 this._inputs[ child.name ] = child;

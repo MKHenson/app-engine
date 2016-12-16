@@ -18,13 +18,14 @@ let shallowIds: number = 0;
 /**
  * Initializes the utils static variables
  */
-export let validators: { [ type: number ]: { regex: RegExp, name: string, negate: boolean; message: string; } } = {};
-validators[ ValidationType.ALPHANUMERIC ] = { regex: /^[a-z0-9]+$/i, name: 'alpha-numeric', negate: false, message: 'Only alphanumeric characters accepted' };
-validators[ ValidationType.NOT_EMPTY ] = { regex: /\S/, name: 'non-empty', negate: false, message: 'Cannot be empty' };
-validators[ ValidationType.ALPHANUMERIC_PLUS ] = { regex: /^[a-zA-Z0-9_\-!]+$/, name: 'alpha-numeric-plus', negate: false, message: 'Only alphanumeric, \'_\', \'-\' and \'!\' characters accepted' };
-validators[ ValidationType.EMAIL ] = { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: 'email', negate: false, message: 'Email format not accepted' };
-validators[ ValidationType.NO_HTML ] = { regex: /(<([^>]+)>)/ig, name: 'no-html', negate: true, message: 'HTML is not allowed' };
-validators[ ValidationType.ALPHA_EMAIL ] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: 'email-plus', negate: false, message: 'Only alphanumeric, \'_\', \'-\', \'@\' and \'!\' characters accepted' };
+export type Validator = { regex: RegExp, name: string, negate: boolean; message: string; type: ValidationType; };
+export let validators: { [ type: number ]: Validator } = {};
+validators[ ValidationType.ALPHANUMERIC ] = { regex: /^[a-z0-9]+$/i, name: 'alpha-numeric', negate: false, message: 'Only alphanumeric characters accepted', type: ValidationType.ALPHANUMERIC };
+validators[ ValidationType.NOT_EMPTY ] = { regex: /\S/, name: 'non-empty', negate: false, message: 'Cannot be empty', type: ValidationType.NOT_EMPTY };
+validators[ ValidationType.ALPHANUMERIC_PLUS ] = { regex: /^[a-zA-Z0-9_\-!]+$/, name: 'alpha-numeric-plus', negate: false, message: 'Only alphanumeric, \'_\', \'-\' and \'!\' characters accepted', type: ValidationType.ALPHANUMERIC_PLUS };
+validators[ ValidationType.EMAIL ] = { regex: /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i, name: 'email', negate: false, message: 'Email format not accepted', type: ValidationType.EMAIL };
+validators[ ValidationType.NO_HTML ] = { regex: /(<([^>]+)>)/ig, name: 'no-html', negate: true, message: 'HTML is not allowed', type: ValidationType.NO_HTML };
+validators[ ValidationType.ALPHA_EMAIL ] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, name: 'email-plus', negate: false, message: 'Only alphanumeric, \'_\', \'-\', \'@\' and \'!\' characters accepted', type: ValidationType.ALPHA_EMAIL };
 
 
 
@@ -33,8 +34,8 @@ validators[ ValidationType.ALPHA_EMAIL ] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, nam
  * @param val The string to check
  * @param validator The type of validations to check
  */
-export function checkValidation( val: string, validator: ValidationType ) {
-    let v: { regex: RegExp, name: string, negate: boolean; message: string; };
+export function checkValidation( val: string, validator: ValidationType ): Validator | null {
+    let v: Validator;
 
     for ( let i in ValidationType ) {
         if ( !isNaN( parseInt( i ) ) )
@@ -46,13 +47,13 @@ export function checkValidation( val: string, validator: ValidationType ) {
 
             if ( v.negate ) {
                 if ( match ) {
-                    return v.message;
+                    return v;
                 }
             }
 
             if ( !v.negate ) {
                 if ( !match ) {
-                    return v.message;
+                    return v;
                 }
             }
         }

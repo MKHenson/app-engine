@@ -1,8 +1,4 @@
-.v-input.bad-input.dirty {
-    background: $input-error !important;
-}
-
-.v-input-outer {
+.validated-text {
     .input-highlighter {
         border-top:1px solid $input;
         margin: 0 auto;
@@ -16,14 +12,20 @@
     }
 
     &.focussed.highlight-error {
-        input[type="text"].v-input, input[type="password"].v-input {
+        input[type="text"], input[type="password"], textarea {
             border-bottom: none;
         }
     }
 
     &.highlight-error {
-        input[type="text"].v-input, input[type="password"].v-input {
+        input[type="text"], input[type="password"], textarea {
             border-color : $input-highlight;
+        }
+    }
+
+    &.invalid.dirty {
+        input[type="text"], input[type="password"], textarea {
+            background: $input-error !important;
         }
     }
 }

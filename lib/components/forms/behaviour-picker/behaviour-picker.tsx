@@ -1,5 +1,5 @@
 import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { VInput } from '../../v-input/v-input';
+import { VInput } from '../../validated-text/validated-text';
 import { List, IListItem } from '../../list/list';
 import { BehaviourDefinition } from '../../../core/behaviour-definition';
 import { PluginManager } from '../../../core/plugin-manager';

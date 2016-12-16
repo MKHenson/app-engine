@@ -1,7 +1,9 @@
 import { JsonForm } from '../v-form/v-form';
 import { ButtonPrimary } from '../buttons/buttons';
-import { JsonInput } from '../v-input/v-input';
+import { ValidatedText } from '../validated-text/validated-text';
 import { JML } from '../../jml/jml';
+
+import { ValidationType } from '../../setup/enums';
 
 // import { VForm } from '../v-form/v-form';
 // import { Attention } from '../attention/attention';
@@ -143,7 +145,11 @@ export class LoginForm extends HTMLElement {
             JML.elm<JsonForm>( new JsonForm(), {
                 onApproved: ( json ) => { alert( 'Approved!' ) }
             }, [
-                    JML.elm<JsonInput>( new JsonInput(), { highlight: false }),
+                    JML.elm<ValidatedText>( new ValidatedText(), {
+                        highlight: false,
+                        hint: 'hello world',
+                        validator: ValidationType.EMAIL | ValidationType.NOT_EMPTY
+                    }),
                     JML.a( { id: 'forgot-pass' }, 'Forgot' ),
                     JML.br(),
                     JML.a( {}, 'Resend Activation Email' ),

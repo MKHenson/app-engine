@@ -88,10 +88,10 @@ export namespace JML {
                     targetParent.appendChild( child );
                 }
                 else {
-                    for ( let i in child ) {
-                        if ( !child.hasOwnProperty( i ) )
-                            continue;
+                    if ( !child )
+                        continue;
 
+                    for ( let i = 0, l = child.length; i < l; i++ ) {
                         const node = child[ i ];
                         targetParent.appendChild( node );
                     }

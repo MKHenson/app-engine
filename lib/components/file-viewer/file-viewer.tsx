@@ -6,7 +6,7 @@ import { put, del, IAjaxError, byteFilter } from '../../core/utils';
 import { FileUploader } from '../../core/file-uploader';
 import { PluginManager } from '../../core/plugin-manager';
 import { MessageBox } from '../forms/message-box/message-box';
-import { VInput } from '../v-input/v-input';
+import { VInput } from '../validated-text/validated-text';
 import { Pager } from '../pager/pager';
 import { ImagePreview } from '../image-preview/image-preview';
 import { VSelect, SelectValue } from '../v-select/v-select';
