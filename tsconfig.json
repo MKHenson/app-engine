@@ -38,6 +38,7 @@
         "lib/components/split-panel/split-panel.tsx",
         "lib/components/validated-text/validated-text.ts",
         "lib/components/validated-select/validated-select.ts",
+        "lib/components/validated-checkbox/validated-checkbox.ts",
         "lib/components/v-form/v-form.tsx",
         "lib/components/login-form/login-form.tsx",
         "lib/components/buttons/buttons.tsx",

@@ -1,4 +1,4 @@
-.v-checkbox {
+x-validated-checkbox {
 
     input, label {
         display: inline-block;
@@ -7,8 +7,10 @@
         cursor: pointer;
     }
 
-    .no-interaction {
-        cursor:none;
+    &.read-only {
+        input, label {
+            cursor:default;
+        }
     }
 
     label {
@@ -24,6 +26,7 @@
         vertical-align: middle;
         padding: 2px;
         margin-right: 10px;
+        transition: 0.5s color;
         @include fa-icon();
     }
 

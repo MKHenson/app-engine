@@ -3,6 +3,7 @@ import { JML } from './jml/jml';
 import { ButtonPrimary, ButtonError, ButtonLink, ButtonSuccess } from './components/buttons/buttons';
 import { ValidatedText } from './components/validated-text/validated-text';
 import { ValidatedSelect } from './components/validated-select/validated-select';
+import { ValidatedCheckbox } from './components/validated-checkbox/validated-checkbox';
 import { JsonForm } from './components/v-form/v-form';
 
 import { SplitPanel } from './components/split-panel/split-panel';
@@ -101,6 +102,7 @@ import { Application } from './containers/application/application';
 
 // Once the document is ready we begin
 // initialize();
+customElements.define( 'x-validated-checkbox', ValidatedCheckbox );
 customElements.define( 'x-validated-text', ValidatedText );
 customElements.define( 'x-validated-select', ValidatedSelect );
 customElements.define( 'x-primary', ButtonPrimary, { extends: 'button' });
