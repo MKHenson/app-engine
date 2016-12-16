@@ -1,6 +1,7 @@
 import { JsonForm } from '../v-form/v-form';
 import { ButtonPrimary } from '../buttons/buttons';
 import { ValidatedText } from '../validated-text/validated-text';
+import { ValidatedSelect } from '../validated-select/validated-select';
 import { JML } from '../../jml/jml';
 
 import { ValidationType } from '../../setup/enums';
@@ -149,6 +150,10 @@ export class LoginForm extends HTMLElement {
                         highlight: false,
                         hint: 'hello world',
                         validator: ValidationType.EMAIL | ValidationType.NOT_EMPTY
+                    }),
+                    JML.elm<ValidatedSelect>( new ValidatedSelect(), {
+                        allowEmpty: false,
+                        options: [ '', 'option 1', 'option 2' ]
                     }),
                     JML.a( { id: 'forgot-pass' }, 'Forgot' ),
                     JML.br(),
