@@ -13,6 +13,18 @@ export class ValidationError extends Error {
     }
 }
 
+/**
+ * A wrapper for an input or text area that adds functionality for validating the user input.
+ * Validations are set as min and max character limits and validator enums. You can hook into events
+ * such as onValidationError, onValidationResolved and onChange to extract data. You can
+ * aslo call value.
+ *
+ * e.g:
+ * const input = new ValidatedText();
+ * input.value = 'hello world';
+ * input.min = 5;
+ * input.validator = ValidationType.EMAIL | ValidationType.NOT_EMPTY;
+ */
 export class ValidatedText extends HTMLElement {
     private _selectOnClick: boolean;
     private _inputType: 'text' | 'password' | 'textarea';
@@ -84,7 +96,8 @@ export class ValidatedText extends HTMLElement {
     }
 
     /**
-     * Makes sure that the key is printable and therefore if we have to show the hint or not
+     * Only applicable if hints are active. Sets the input value to that of the hint
+     * if it matches it.
      */
     private onKeyUp( e: KeyboardEvent ) {
         if ( this.hint === '' )
@@ -124,7 +137,8 @@ export class ValidatedText extends HTMLElement {
     }
 
     /**
-     * Called whenever the value changes
+     * Called whenever the value changes by user input. The input checks
+     * the validation rules and triggers any events accordingly
      */
     private onInputChange( e: Event ) {
         let wasAnError = this.invalid;
@@ -145,8 +159,8 @@ export class ValidatedText extends HTMLElement {
     }
 
     /**
-     * Checks the string against all validators.
-     * @returns An error string or null if there are no errors
+     * Checks the value against all validators.
+     * @returns A ValidationError if validators don't pass
      */
     private getValidationErrorMsg( val: string ): ValidationError | null {
         let errorMsg: string | null = null;
@@ -166,10 +180,9 @@ export class ValidatedText extends HTMLElement {
     }
 
     /**
-     * Sets the input type
+     * Sets the input type. Can be either 'text', 'password' or 'textarea'
      */
     set type( val: 'text' | 'password' | 'textarea' ) {
-
         empty( this );
 
         // Add the input
