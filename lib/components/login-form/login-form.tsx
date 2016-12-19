@@ -2,7 +2,7 @@ import { JsonForm } from '../v-form/v-form';
 import { ButtonPrimary } from '../buttons/buttons';
 import { ValidatedText } from '../validated-text/validated-text';
 import { ValidatedSelect } from '../validated-select/validated-select';
-import { ValidatedCheckbox } from '../validated-checkbox/validated-checkbox';
+import { Checkbox } from '../checkbox/checkbox';
 import { JML } from '../../jml/jml';
 
 import { ValidationType } from '../../setup/enums';
@@ -156,7 +156,7 @@ export class LoginForm extends HTMLElement {
                         allowEmpty: false,
                         options: [ '', 'option 1', 'option 2' ]
                     }),
-                    JML.elm<ValidatedCheckbox>( new ValidatedCheckbox(), {
+                    JML.elm<Checkbox>( new Checkbox(), {
                         label: 'This is a checkbox',
                         id: 'checkbox-1',
                         name: 'checky'

@@ -1,15 +1,14 @@
 import { JML } from '../../jml/jml';
 
-export class ValidatedCheckbox extends HTMLElement {
+export class Checkbox extends HTMLElement {
 
-    public onChange?: ( sender: ValidatedCheckbox ) => void;
+    public onChange?: ( sender: Checkbox ) => void;
 
     static get observedAttributes() {
         return [
             'label',
             'checked',
             'name',
-            'id',
             'read-only'
         ];
     }
@@ -43,7 +42,6 @@ export class ValidatedCheckbox extends HTMLElement {
             case 'checked':
                 this.checked = newValue === 'true' ? true : false;
                 break;
-            case 'id':
             case 'name':
             case 'label':
                 this[ name ] = newValue;
