@@ -1,10 +1,11 @@
 import './setup/emitters';
 import { JML } from './jml/jml';
 import { ButtonPrimary, ButtonError, ButtonLink, ButtonSuccess } from './components/buttons/buttons';
+import { Attention } from './components/attention/attention';
 import { ValidatedText } from './components/validated-text/validated-text';
 import { ValidatedSelect } from './components/validated-select/validated-select';
 import { Checkbox } from './components/checkbox/checkbox';
-import { JsonForm } from './components/v-form/v-form';
+import { JsonForm } from './components/json-form/json-form';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -102,6 +103,7 @@ import { Application } from './containers/application/application';
 
 // Once the document is ready we begin
 // initialize();
+customElements.define( 'x-attention', Attention );
 customElements.define( 'x-checkbox', Checkbox );
 customElements.define( 'x-validated-text', ValidatedText );
 customElements.define( 'x-validated-select', ValidatedSelect );
