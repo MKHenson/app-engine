@@ -34,6 +34,7 @@ export class ValidatedText extends HTMLElement {
             'min',
             'max',
             'highlight',
+            'value',
             'read-only',
             'name',
             'hint',
@@ -64,6 +65,7 @@ export class ValidatedText extends HTMLElement {
             case 'type':
             case 'name':
             case 'hint':
+            case 'value':
                 this[ name ] = newValue;
                 break;
             case 'validator':
@@ -125,10 +127,25 @@ export class ValidatedText extends HTMLElement {
     }
 
     /**
+     * When added to the DOM, check the validation
+     */
+    connectedCallback() {
+        const val = ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).value;
+        const err = this.getValidationErrorMsg( val );
+
+        // Call the optional error callback
+        if ( err && this.onValidationError )
+            this.onValidationError( this, err );
+
+        this.invalid = err ? true : false;
+    }
+
+    /**
      * Called whenever the value changes by user input. The input checks
      * the validation rules and triggers any events accordingly
      */
     private onInputChange( e: Event ) {
+        this.pristine = false;
         let wasAnError = this.invalid;
         let val = ( e.target as HTMLInputElement | HTMLTextAreaElement ).value;
         let err = this.getValidationErrorMsg( val );
@@ -140,7 +157,7 @@ export class ValidatedText extends HTMLElement {
             this.onValidationResolved( this );
 
         this.invalid = err ? true : false;
-        if ( !err && this.onChange )
+        if ( this.onChange )
             this.onChange( this );
     }
 
@@ -178,7 +195,6 @@ export class ValidatedText extends HTMLElement {
                     type: val,
                     onfocus: ( e: FocusEvent ) => {
                         this.classList.toggle( 'focussed', true );
-                        this.classList.toggle( 'dirty', true );
                         if ( this._selectOnClick )
                             ( e.target as HTMLInputElement ).setSelectionRange( 0, ( e.target as HTMLInputElement ).value.length );
                     },
@@ -195,7 +211,6 @@ export class ValidatedText extends HTMLElement {
                 JML.textarea( {
                     onfocus: ( e: FocusEvent ) => {
                         this.classList.toggle( 'focussed', true );
-                        this.classList.toggle( 'dirty', true );
                         if ( this._selectOnClick )
                             ( e.target as HTMLTextAreaElement ).setSelectionRange( 0, ( e.target as HTMLTextAreaElement ).value.length );
                     },
@@ -274,6 +289,20 @@ export class ValidatedText extends HTMLElement {
      */
     get readOnly(): boolean {
         return ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).readOnly;
+    }
+
+    /**
+     * Sets the input value
+     */
+    set value( val: string ) {
+        ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).value = val;
+    }
+
+    /**
+     * Gets the input value
+     */
+    get value(): string {
+        return ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).value;
     }
 
     /**
