@@ -26,6 +26,11 @@ export class ValidatedText extends HTMLElement {
     public onValidationError?: ( sender: ValidatedText, error: ValidationError ) => void;
     public onValidationResolved?: ( sender: ValidatedText ) => void;
 
+    private _name: string;
+    private _placeholder: string;
+    private _readOnly: boolean;
+    private _value: string;
+
     static get observedAttributes() {
         return [
             'placeholder',
@@ -50,6 +55,11 @@ export class ValidatedText extends HTMLElement {
         this._selectOnClick = true;
         this.min = -1;
         this.max = -1;
+        this._name = '';
+        this._placeholder = '';
+        this._readOnly = false;
+        this._value = '';
+
         this.className = 'validated-text';
         this.hint = '';
         this._inputType = 'text';
@@ -226,6 +236,11 @@ export class ValidatedText extends HTMLElement {
         this.appendChild( JML.div( {
             className: 'input-highlighter'
         }) );
+
+        this.name = this._name;
+        this.placeholder = this._placeholder;
+        this.readOnly = this._readOnly;
+        this.value = this._value;
     }
 
     /**
@@ -239,6 +254,7 @@ export class ValidatedText extends HTMLElement {
      * Sets the input name
      */
     set name( val: string ) {
+        this._name = val;
         ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).name = val;
     }
 
@@ -253,6 +269,7 @@ export class ValidatedText extends HTMLElement {
      * Sets the input placeholder text
      */
     set placeholder( val: string ) {
+        this._placeholder = val;
         ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).placeholder = val;
     }
 
@@ -281,6 +298,7 @@ export class ValidatedText extends HTMLElement {
      * Sets if the input is read only
      */
     set readOnly( val: boolean ) {
+        this._readOnly = val;
         ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).readOnly = val;
     }
 
@@ -295,6 +313,7 @@ export class ValidatedText extends HTMLElement {
      * Sets the input value
      */
     set value( val: string ) {
+        this._value = val;
         ( this.children[ 0 ] as HTMLInputElement | HTMLTextAreaElement ).value = val;
     }
 
@@ -316,7 +335,7 @@ export class ValidatedText extends HTMLElement {
      * Gets if the input is in a pristine state
      */
     get pristine(): boolean {
-        return this.classList.contains( 'dirty' );
+        return !this.classList.contains( 'dirty' );
     }
 
     /**
