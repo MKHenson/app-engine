@@ -31,7 +31,7 @@ validators[ ValidationType.ALPHA_EMAIL ] = { regex: /^[a-zA-Z0-9_\-!@\.]+$/, nam
  * An error for use when there is a validation problem
  */
 export class ValidationError extends Error {
-    code: ValidationErrorType;
+    public code: ValidationErrorType;
     constructor( message: string, code: ValidationErrorType ) {
         super( message );
         this.code = code;
