@@ -155,7 +155,7 @@ export class ValidatedSelect extends HTMLElement {
      * Gets if the select is in a pristine state
      */
     get pristine(): boolean {
-        return this.classList.contains( 'dirty' );
+        return !this.classList.contains( 'dirty' );
     }
 
     /**
