@@ -86,7 +86,12 @@ export class LoginWidget extends HTMLElement {
                     JML.img( { src: 'media/blank-user.png' })
                 ] ),
                 JML.div( { className: 'content' }, [
-                    JML.elm<LoginForm>( new LoginForm(), {})
+                    JML.elm<LoginForm>( new LoginForm(), {
+                        onRegisterRequested: () => alert( 'Go register' ),
+                        onResetPasswordRequest: ( username ) => alert( 'Go reset password: ' + username ),
+                        onLoginRequested: ( json ) => alert( 'On login: ' + JSON.stringify( json ) ),
+                        onResendActivationRequest: ( username ) => alert( 'resend activation:' + username )
+                    })
                     // JML.elm<LoginForm>( new LoginForm() )
                 ] )
             ] )
