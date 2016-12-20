@@ -1,17 +1,17 @@
-import { JsonForm } from '../v-form/v-form';
+import { JsonForm } from '../json-form/json-form';
 import { ButtonPrimary } from '../buttons/buttons';
 import { ValidatedText } from '../validated-text/validated-text';
-import { ValidatedSelect } from '../validated-select/validated-select';
 import { Checkbox } from '../checkbox/checkbox';
+import { Attention } from '../attention/attention';
 import { JML } from '../../jml/jml';
-
-import { ValidationType } from '../../setup/enums';
+import { capitalize } from '../../core/utils';
+import { ValidationType, AttentionType } from '../../setup/enums';
 
 // import { VForm } from '../v-form/v-form';
 // import { Attention } from '../attention/attention';
 // import { ButtonPrimary } from '../buttons/buttons';
 // import { ValidationType, AttentionType } from '../../setup/enums';
-// import { capitalize } from '../../core/utils';
+
 
 // /**
 //  * An interface for describing the login form properties
@@ -142,30 +142,50 @@ export class LoginForm extends HTMLElement {
     constructor() {
         super();
 
+
+
         this.className = 'login animate-all fade-in';
         this.appendChild(
             JML.elm<JsonForm>( new JsonForm(), {
-                onApproved: ( json ) => { alert( 'Approved!' ) }
+                onError: ( sender, errors ) => {
+                    if ( Object.keys( errors ).length !== 0 ) {
+                        const error = errors[ Object.keys( errors )[ 0 ] ];
+                        const errorMsg = `${capitalize( error.name )} : ${error.message}`;
+                        const attention = this.querySelector( 'x-attention' ) ! as Attention;
+                        attention.text = errorMsg;
+                        attention.style.display = '';
+                    }
+                },
+                onResolved: ( sender, errors ) => { },
+                onChange: ( sender, json ) => alert( 'On Change:' + JSON.stringify( json ) ),
+                onSubmit: ( sender, json ) => alert( 'On Submit:' + JSON.stringify( json ) )
             }, [
                     JML.elm<ValidatedText>( new ValidatedText(), {
-                        highlight: false,
-                        hint: 'hello world',
-                        validator: ValidationType.EMAIL | ValidationType.NOT_EMPTY
+                        name: 'username',
+                        placeholder: 'Email or Username',
+                        validator: ValidationType.EMAIL | ValidationType.ALPHA_EMAIL
                     }),
-                    JML.elm<ValidatedSelect>( new ValidatedSelect(), {
-                        allowEmpty: false,
-                        options: [ '', 'option 1', 'option 2' ]
+                    JML.elm<ValidatedText>( new ValidatedText(), {
+                        name: 'password',
+                        placeholder: 'Password',
+                        validator: ValidationType.NOT_EMPTY | ValidationType.ALPHANUMERIC_PLUS
                     }),
                     JML.elm<Checkbox>( new Checkbox(), {
-                        label: 'This is a checkbox',
-                        id: 'checkbox-1',
-                        name: 'checky'
+                        checked: true,
+                        label: 'Remember me',
+                        id: 'remember-me-checkbox',
+                        name: 'remember'
                     }),
                     JML.a( { id: 'forgot-pass' }, 'Forgot' ),
                     JML.br(),
                     JML.a( {}, 'Resend Activation Email' ),
                     JML.br(),
-                    JML.div( {}, 'Message goes here' ),
+                    JML.elm<Attention>( new Attention(), {
+                        text: 'Message goes here',
+                        canClose: false,
+                        style: { display: 'none' },
+                        mode: AttentionType.ERROR
+                    }),
                     JML.div( { className: 'double-column' }, [
                         JML.elm( new ButtonPrimary(), {}, [
                             'Register ',
@@ -225,6 +245,10 @@ export class LoginForm extends HTMLElement {
         //             });
         //         } }>
 
+
+
+
+
         //         <a id="forgot-pass" className={( isLoading ? 'disabled' : undefined )}
         //             onClick={() => {
         //                 const user = this.state.username!;
@@ -271,11 +295,6 @@ export class LoginForm extends HTMLElement {
     }
 
     connectedCallback() {
-        const form = this.children[ 0 ] as JsonForm;
-
-        form.onApproved = () => {
-            alert( 'Yay!' );
-        }
     }
 
     // private error( msg: string ) {
