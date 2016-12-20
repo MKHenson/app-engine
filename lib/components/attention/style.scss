@@ -1,15 +1,23 @@
 $attention-icon-ratio: 20%;
 
-.attention {
+x-attention {
     text-align: left;
     display:flex;
     width: 100%;
+    transition: opacity 0.5s;
+    opacity: 1;
+
     .icon {
         text-align: center;
+        display: none;
     }
+
+    &.with-icon .icon {
+        display: table-cell;
+    }
+
     .icon, .message {
         vertical-align: middle;
-        display:table-cell;
         padding: 10px;
         box-sizing: border-box;
         color: inherit;
@@ -62,30 +70,8 @@ $attention-icon-ratio: 20%;
             background: shade( $attention-error, 5 );
         }
     }
-}
 
-.attention-enter {
-    opacity: 0.01;
-    &.attention-enter-active {
-    opacity: 1;
-        transition: opacity 500ms ease-in;
+    &.fade-out {
+        opacity: 0;
     }
 }
-
-.attention-appear {
-    opacity: 0.01;
-    &.attention-appear-active {
-    opacity: 1;
-        transition: opacity 500ms ease-in;
-    }
-}
-
-
-.attention-leave {
-    opacity: 1;
-    &.attention-leave-active {
-        opacity: 0.01;
-        transition: opacity 500ms ease-in;
-    }
-}
-
