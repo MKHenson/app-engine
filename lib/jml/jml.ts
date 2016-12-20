@@ -3,7 +3,7 @@ import { parsers } from './parsers';
 /**
  * Make all properties in T optional as well as their base type
  */
-type PartialHTMLElement<T> = {
+export type PartialHTMLElement<T> = {
 [ P in keyof T ]?: Partial<T[ P ]>;
 };
 
