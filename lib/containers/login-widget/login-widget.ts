@@ -2,7 +2,6 @@
 // import { toggleLoginState } from '../../actions/editor-actions';
 // import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
-import { ButtonLink } from '../../components/buttons/buttons';
 // import { authenticated } from '../../actions/user-actions';
 import { JML } from '../../jml/jml';
 
@@ -87,8 +86,7 @@ export class LoginWidget extends HTMLElement {
                     JML.img( { src: 'media/blank-user.png' })
                 ] ),
                 JML.div( { className: 'content' }, [
-                    JML.elm<LoginForm>( new LoginForm(), {}),
-                    JML.elm<ButtonLink>( new ButtonLink(), { text: 'This is a special button' })
+                    JML.elm<LoginForm>( new LoginForm(), {})
                     // JML.elm<LoginForm>( new LoginForm() )
                 ] )
             ] )
