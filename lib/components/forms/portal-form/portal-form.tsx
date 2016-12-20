@@ -1,5 +1,5 @@
 import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { VForm } from '../../v-form/v-form';
+import { JsonForm } from '../../json-form/json-form';
 import { SelectValue } from '../../v-select/v-select';
 import { Attention } from '../../attention/attention';
 import { TreeViewScene } from '../../treeview/treeview-scene';

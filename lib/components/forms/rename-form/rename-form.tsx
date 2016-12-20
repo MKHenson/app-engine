@@ -1,5 +1,5 @@
 import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { VForm } from '../../v-form/v-form';
+import { JsonForm } from '../../json-form/json-form';
 import { Attention } from '../../attention/attention';
 import { ButtonLink, ButtonSuccess } from '../../buttons/buttons';
 import { ValidationType, AttentionType } from '../../../setup/enums';

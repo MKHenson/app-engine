@@ -4,7 +4,7 @@ import { capitalize } from '../../../core/utils';
 import { ValidationType, AttentionType } from '../../../setup/enums';
 import { ImageUploader } from '../../image-uploader/image-uploader';
 import { Attention } from '../../attention/attention';
-import { VForm } from '../../v-form/v-form';
+import { JsonForm } from '../../json-form/json-form';
 import { Group } from '../../group/group';
 import { ButtonPrimary } from '../../buttons/buttons';
 

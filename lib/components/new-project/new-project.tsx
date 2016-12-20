@@ -1,4 +1,4 @@
-import { VForm } from '../v-form/v-form';
+import { JsonForm } from '../json-form/json-form';
 import { Attention } from '../attention/attention';
 import { ButtonPrimary } from '../buttons/buttons';
 import { PluginsWidget } from '../plugins-widget/plugins-widget';
