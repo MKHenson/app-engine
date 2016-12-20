@@ -61,13 +61,26 @@ export class ValidatedSelect extends HTMLElement {
 
     /**
      * Once the component is added to the DOM we re-evaluate the value value
-     * to see if there are options added now that match it
+     * to see if there are options added now that match it. We also check its
+     * validation rules.
      */
     connectedCallback() {
+        const checkbox = this.children[ 0 ] as HTMLSelectElement;
+
         if ( this._value !== undefined ) {
-            ( this.children[ 0 ] as HTMLSelectElement ).value = this._value;
+            checkbox.value = this._value;
             this._value = undefined;
         }
+
+        const value = checkbox.value;
+        const err = this.validate( value );
+        this.invalid = err ? true : false;
+
+        // Call the optional error callback
+        if ( err && this.onValidationError )
+            this.onValidationError( this, err );
+
+        this.invalid = err ? true : false;
     }
 
     /**
