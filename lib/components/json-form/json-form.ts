@@ -46,17 +46,23 @@ export class JsonForm extends HTMLFormElement {
 
     private _inputs: { [ name: string ]: JsonFormInput };
     private _errors: { [ name: string ]: ValidationError };
+    private _pristine: boolean;
 
     constructor() {
         super();
         this._inputs = {};
         this._errors = {};
+        this.pristine = true;
     }
 
     /**
      * Called if any of the validated inputs reported or resolved an error
      */
     private onValidationChanged( sender: ValidatedText | ValidatedSelect, error: ValidationError | null ) {
+
+        if ( !sender.pristine )
+            this.pristine = false;
+
         const errors = this._errors;
         if ( error )
             errors[ sender.name ] = error;
@@ -68,7 +74,6 @@ export class JsonForm extends HTMLFormElement {
             this.onError( this, errors );
         else if ( !hasErrors && this.onResolved )
             this.onResolved( this );
-
     }
 
     /**
@@ -76,6 +81,7 @@ export class JsonForm extends HTMLFormElement {
      */
     private onInputChange() {
         const json = this.json;
+        this.pristine = false;
 
         if ( this.onChange )
             this.onChange( this, json );
@@ -139,6 +145,21 @@ export class JsonForm extends HTMLFormElement {
             else
                 this.traverseChildren( child.childNodes );
         }
+    }
+
+    /**
+     * Gets if the form is in a pristine state
+     */
+    get pristine(): boolean {
+        return this._pristine;
+    }
+
+    /**
+     * Sets if the form is in a pristine state
+     */
+    set pristine( val: boolean ) {
+        this._pristine = val;
+        this.classList.toggle( 'pristine', val );
     }
 
     /**
