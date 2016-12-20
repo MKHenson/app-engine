@@ -130,4 +130,18 @@ export class Checkbox extends HTMLElement {
     get checked(): boolean {
         return ( this.children[ 0 ] as HTMLInputElement ).checked;
     }
+
+    /**
+     * Sets if the checkbox is checked
+     */
+    set value( val: boolean ) {
+        ( this.children[ 0 ] as HTMLInputElement ).checked = val;
+    }
+
+    /**
+     * Gets if the checkbox is checked
+     */
+    get value(): boolean {
+        return ( this.children[ 0 ] as HTMLInputElement ).checked;
+    }
 }
