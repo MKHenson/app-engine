@@ -39,8 +39,6 @@ export class Application extends HTMLElement {
         splitPanel.left.appendChild( JML.h2( null, 'This is the left panel!' ) );
         splitPanel.right.appendChild( JML.h2( null, 'This is the right panel!' ) );
 
-        splitPanel.right.appendChild( JML.elm<LoginWidget>( new LoginWidget(), {}) );
-
         this.appendChild( splitPanel );
     }
 
