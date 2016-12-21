@@ -97,7 +97,7 @@ export class RegisterForm extends HTMLElement {
     /**
      * Shows a message to the user
      */
-    private message( message: string | null, mode: AttentionType ) {
+    message( message: string | null, mode: AttentionType ) {
         const messageDiv = this.querySelector( '.user-message' ) as HTMLElement;
         empty( messageDiv );
         if ( message ) {
