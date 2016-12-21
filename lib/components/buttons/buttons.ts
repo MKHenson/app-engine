@@ -18,7 +18,7 @@ export class ButtonSuccess extends HTMLButtonElement {
     constructor() {
         super();
         this.className = 'success';
-        this.type = "button";
+        this.type = 'button';
     }
 }
 
