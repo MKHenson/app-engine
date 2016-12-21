@@ -6,7 +6,7 @@ x-attention {
     width: 100%;
     transition: opacity 0.5s, transform 0.5s;
     opacity: 1;
-    transform: 0px;
+    transform: translateY(0);
 
     .icon {
         text-align: center;
@@ -14,15 +14,13 @@ x-attention {
     }
 
     &.with-icon .icon {
-        display: table-cell;
+        display: block;
     }
 
     .icon, .message {
-        vertical-align: middle;
         padding: 10px;
         box-sizing: border-box;
         color: inherit;
-        height: 100%;
         line-height: 25px;
     }
 
@@ -39,13 +37,17 @@ x-attention {
     }
 
     .icon, .message, .close {
-        flex: 1 100%;
+        flex: 1 auto;
+        display: block;
     }
+
     .icon {
         flex-basis: 50px;
+        flex: 0 auto;
     }
     .close {
         flex-basis: 25px;
+        flex: 0 auto;
     }
 
     &.warning {
