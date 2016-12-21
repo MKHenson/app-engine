@@ -4,6 +4,8 @@ import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
 // import { authenticated } from '../../actions/user-actions';
 import { JML, empty } from '../../jml/jml';
+import { User } from '../../core/user';
+import { AttentionType } from '../../setup/enums';
 
 // export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
 //     onLogin?: () => void,
@@ -75,6 +77,7 @@ export enum LoginWidgetMode {
  * A widget for logging the user in
  */
 export class LoginWidget extends HTMLElement {
+    public onLogin: () => void;
     private _mode: LoginWidgetMode;
 
     static get observedAttributes() {
@@ -102,6 +105,23 @@ export class LoginWidget extends HTMLElement {
     }
 
     /**
+     * Handles a request to the server and how the widget should React
+     */
+    private request<T>( promise: Promise<T> ): Promise<T> {
+        return new Promise<T>(( resolve, reject ) => {
+            this.loading = true;
+
+            promise.then(( val: T ) => {
+                this.loading = false;
+                resolve( val );
+            }).catch(( err: Error ) => {
+                this.loading = false;
+                this.form.message( err.message );
+            });
+        });
+    }
+
+    /**
      * Sets the mode of the login widet
      */
     set mode( val: LoginWidgetMode ) {
@@ -112,19 +132,43 @@ export class LoginWidget extends HTMLElement {
             content.appendChild(
                 JML.elm<LoginForm>( new LoginForm(), {
                     onRegisterRequested: () => this.mode = LoginWidgetMode.REGISTER,
-                    onResetPasswordRequest: ( username ) => alert( 'Go reset password: ' + username ),
-                    onLoginRequested: ( json ) => alert( 'On login: ' + JSON.stringify( json ) ),
-                    onResendActivationRequest: ( username ) => alert( 'resend activation:' + username )
+                    onResetPasswordRequest: ( username ) => {
+                        this.request( User.get.resetPassword( username ) ).then(( message ) => {
+                            this.form.message( message!, AttentionType.SUCCESS );
+                        });
+                    },
+                    onLoginRequested: ( json ) => {
+                        this.request( User.get.login( json ) ).then(() => {
+                            this.form.message( 'Logged in', AttentionType.SUCCESS );
+                        });
+                    },
+                    onResendActivationRequest: ( username ) => {
+                        this.request( User.get.resendActivation( username ) ).then(( message ) => {
+                            this.form.message( message!, AttentionType.SUCCESS );
+                        });
+                    }
                 }) );
         }
         else {
             content.appendChild(
                 JML.elm<RegisterForm>( new RegisterForm(), {
                     onLoginRequested: () => this.mode = LoginWidgetMode.LOGIN,
-                    onRegisterRequested: ( token ) => { }
+                    onRegisterRequested: ( json ) => {
+                        this.request( User.get.register( json ) ).then(() => {
+                            this.form.message( 'Please check your email for further instructions', AttentionType.SUCCESS );
+                        });
+                    }
                 })
             );
         }
+    }
+
+    /**
+     * Gets the currently active form
+     */
+    get form(): LoginForm | RegisterForm {
+        const content = this.querySelector( '.content' ) as HTMLElement;
+        return content.children[ 0 ] as LoginForm | RegisterForm;
     }
 
     /**
@@ -153,6 +197,7 @@ export class LoginWidget extends HTMLElement {
      * Sets if the loading element is visible
      */
     set loading( val: boolean ) {
-        this.querySelector( '#log-reg' ) !.className = val ? 'loading' : '';
+        this.classList.toggle( 'loading', val );
+        this.form.loading = val;
     }
 }
