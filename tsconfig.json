@@ -42,6 +42,7 @@
         "lib/components/checkbox/checkbox.ts",
         "lib/components/json-form/json-form.ts",
         "lib/components/login-form/login-form.ts",
+        "lib/components/register-form/register-form.ts",
         "lib/components/buttons/buttons.ts",
         "lib/containers/application/application.tsx",
         "lib/containers/login-widget/login-widget.ts",

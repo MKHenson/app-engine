@@ -9,6 +9,7 @@ import { JsonForm } from './components/json-form/json-form';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
+import { RegisterForm } from './components/register-form/register-form';
 
 
 // import { editorReducer } from './reducers/editor-reducer';
@@ -113,6 +114,7 @@ customElements.define( 'x-link', ButtonLink, { extends: 'button' });
 customElements.define( 'x-success', ButtonSuccess, { extends: 'button' });
 customElements.define( 'x-json-form', JsonForm, { extends: 'form' });
 customElements.define( 'x-login-form', LoginForm );
+customElements.define( 'x-register-form', RegisterForm );
 customElements.define( 'x-split-panel', SplitPanel );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
