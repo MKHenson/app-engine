@@ -4,8 +4,9 @@ x-attention {
     text-align: left;
     display:flex;
     width: 100%;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s, transform 0.5s;
     opacity: 1;
+    transform: 0px;
 
     .icon {
         text-align: center;
@@ -69,6 +70,11 @@ x-attention {
         .icon {
             background: shade( $attention-error, 5 );
         }
+    }
+
+    &.fade-in {
+        opacity: 0;
+        transform: translateY(-20px);
     }
 
     &.fade-out {
