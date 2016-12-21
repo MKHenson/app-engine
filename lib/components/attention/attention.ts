@@ -30,8 +30,7 @@ export class Attention extends HTMLElement {
     constructor() {
         super();
         this._mode = AttentionType.SUCCESS;
-        this.classList.toggle( 'success', true );
-        this.classList.toggle( 'with-icon', true );
+        this.className = 'success with-icon fade-in';
 
         this.appendChild(
             JML.div( { className: 'icon' },
@@ -42,6 +41,13 @@ export class Attention extends HTMLElement {
         this.appendChild(
             JML.div( { className: 'message' })
         );
+    }
+
+    /**
+     * When added to the dom, create a fade in effect
+     */
+    connectedCallback() {
+        setTimeout(() => this.classList.toggle( 'fade-in', false ), 30 );
     }
 
     /**
