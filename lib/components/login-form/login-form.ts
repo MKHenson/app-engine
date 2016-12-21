@@ -3,7 +3,7 @@ import { ButtonPrimary } from '../buttons/buttons';
 import { ValidatedText } from '../validated-text/validated-text';
 import { Checkbox } from '../checkbox/checkbox';
 import { Attention } from '../attention/attention';
-import { JML } from '../../jml/jml';
+import { JML, empty } from '../../jml/jml';
 import { capitalize } from '../../core/utils';
 import { ValidationType, AttentionType } from '../../setup/enums';
 
@@ -33,10 +33,10 @@ export class LoginForm extends HTMLElement {
                     if ( !sender.pristine && Object.keys( errors ).length !== 0 ) {
                         const firstKey = Object.keys( errors )[ 0 ];
                         const error = errors[ firstKey ];
-                        this.error( `${capitalize( firstKey )} : ${error.message}` );
+                        this.message( `${capitalize( firstKey )} : ${error.message}`, AttentionType.ERROR );
                     }
                 },
-                onResolved: ( sender, errors ) => this.error( null ),
+                onResolved: ( sender, errors ) => this.message( null, AttentionType.ERROR ),
                 onSubmit: ( sender, json ) => {
                     this.onLoginRequested( json );
                 }
@@ -44,7 +44,7 @@ export class LoginForm extends HTMLElement {
                     JML.elm<ValidatedText>( new ValidatedText(), {
                         name: 'username',
                         placeholder: 'Email or Username',
-                        validator: ValidationType.EMAIL | ValidationType.ALPHA_EMAIL
+                        validator: ValidationType.NOT_EMPTY | ValidationType.ALPHA_EMAIL
                     }),
                     JML.elm<ValidatedText>( new ValidatedText(), {
                         name: 'password',
@@ -68,7 +68,7 @@ export class LoginForm extends HTMLElement {
                                 return;
 
                             if ( username === '' || !username )
-                                return this.error( 'Please enter a valid username or email' );
+                                return this.message( 'Please enter a valid username or email', AttentionType.ERROR );
 
                             this.onResetPasswordRequest( username );
                         }
@@ -83,18 +83,13 @@ export class LoginForm extends HTMLElement {
                                 return;
 
                             if ( username === '' || !username )
-                                return this.error( 'Please enter a valid username or email' );
+                                return this.message( 'Please enter a valid username or email', AttentionType.ERROR );
 
                             this.onResendActivationRequest( username );
                         }
                     }, 'Resend Activation Email' ),
                     JML.br(),
-                    JML.elm<Attention>( new Attention(), {
-                        text: 'Message goes here',
-                        canClose: false,
-                        style: { display: 'none' },
-                        mode: AttentionType.ERROR
-                    }),
+                    JML.div( { className: 'user-message' }),
                     JML.div( { className: 'double-column' }, [
                         JML.elm<ButtonPrimary>( new ButtonPrimary(), {
                             onclick: ( e ) => {
@@ -118,16 +113,20 @@ export class LoginForm extends HTMLElement {
     }
 
     /**
-     * Shows an error message
+     * Shows an message to the user
      */
-    private error( message: string | null ) {
-        const attention = this.querySelector( 'x-attention' ) ! as Attention;
+    message( message: string | null, mode: AttentionType ) {
+        const messageDiv = this.querySelector( '.user-message' ) as HTMLElement;
+        empty( messageDiv );
         if ( message ) {
-            attention.text = message;
-            attention.style.display = '';
+            messageDiv.appendChild(
+                JML.elm<Attention>( new Attention(), {
+                    text: message,
+                    canClose: false,
+                    mode: mode
+                })
+            );
         }
-        else
-            attention.style.display = 'none';
     }
 
     /**
