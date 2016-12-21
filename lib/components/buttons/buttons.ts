@@ -7,6 +7,7 @@ export class ButtonPrimary extends HTMLButtonElement {
     constructor() {
         super();
         this.className = 'primary';
+        this.type = 'button';
     }
 }
 
@@ -17,6 +18,7 @@ export class ButtonSuccess extends HTMLButtonElement {
     constructor() {
         super();
         this.className = 'success';
+        this.type = "button";
     }
 }
 
@@ -27,6 +29,7 @@ export class ButtonError extends HTMLButtonElement {
     constructor() {
         super();
         this.className = 'error';
+        this.type = 'button';
     }
 }
 
@@ -37,6 +40,7 @@ export class ButtonLink extends HTMLButtonElement {
     constructor() {
         super();
         this.className = 'red-link';
+        this.type = 'button';
         innerHtml( this, JML.span( { className: 'wrapper' }, [ this.childNodes ] ) );
     }
 
