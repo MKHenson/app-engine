@@ -152,10 +152,8 @@ export class User extends EventDispatcher {
 
     /**
      * Sends a server request to check if a user is logged in
-     * @param forward Optionally pass a url to forward onto if the user is authenticated
      */
     async authenticated() {
-
         const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` );
 
         if ( authResponse.error )
@@ -173,6 +171,67 @@ export class User extends EventDispatcher {
         this.meta = metaResponse.data;
     }
 
+    /**
+     * Attempts to log the user in using the token provided
+     */
+    async login( token: UsersInterface.ILoginToken ) {
+        const authResponse = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token );
+
+        if ( authResponse.error )
+            throw new Error( authResponse.message );
+
+        if ( !authResponse.authenticated )
+            throw new Error( `User could not be authenticated: '${authResponse.message}'` );
+
+        let entry = authResponse.user!;
+        const metaResponse = await get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
+
+        if ( metaResponse.error )
+            throw new Error( metaResponse.message );
+
+        this.meta = metaResponse!.data;
+        this.entry = entry;
+        return this;
+    }
+
+    /**
+     * Attempts to register the user with the provided token
+     * @returns A promise with the return message from the server.
+     */
+    async register( token: UsersInterface.IRegisterToken ) {
+        const response = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token );
+
+        if ( response.error )
+            throw new Error( response.message );
+
+        return response.message;
+    }
+
+    /**
+     * Sends an instruction to the server to start the user password reset procedure.
+     * @returns A promise with the return message from the server.
+     */
+    async resetPassword( user: string ) {
+
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` );
+
+        if ( response.error )
+            throw new Error( response.message );
+
+        return response.message;
+    }
+
+    /**
+     * Sends an instruction to the server to resend the user account activation link.
+     * @returns A promise with the return message from the server.
+     */
+    async resendActivation( user: string ) {
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` );
+        if ( response.error )
+            throw new Error( response.message );
+
+        return response.message;
+    }
 
     /**
     * Creates a new user projects
