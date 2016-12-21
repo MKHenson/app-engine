@@ -1,5 +1,12 @@
 import { JML } from '../../jml/jml';
 
+/**
+ * A checkbox component that simplifies the creation and use of inputs as checkboxes
+ * eg:
+ * const check = new Checkbox();
+ * check.checked = true; // You can also use .value
+ * check.label = "hello world";
+ */
 export class Checkbox extends HTMLElement {
 
     public onChange?: ( sender: Checkbox ) => void;
