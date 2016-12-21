@@ -115,7 +115,7 @@ export class LoginForm extends HTMLElement {
     /**
      * Shows an message to the user
      */
-    message( message: string | null, mode: AttentionType ) {
+    message( message: string | null, mode: AttentionType = AttentionType.ERROR ) {
         const messageDiv = this.querySelector( '.user-message' ) as HTMLElement;
         empty( messageDiv );
         if ( message ) {
@@ -140,7 +140,7 @@ export class LoginForm extends HTMLElement {
      * Sets if the login form is loading
      */
     set loading( val: boolean ) {
-        const buttons = this.querySelectorAll( 'x-primary' );
+        const buttons = this.querySelectorAll( 'button.primary' );
         for ( let i = 0, l = buttons.length; i < l; i++ )
             ( buttons[ i ] as HTMLButtonElement ).disabled = val;
 
