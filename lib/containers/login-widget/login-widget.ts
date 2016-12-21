@@ -1,9 +1,9 @@
 // import { login, register, resetPassword, resendActivation } from '../../actions/user-actions';
 // import { toggleLoginState } from '../../actions/editor-actions';
-// import { RegisterForm } from '../../components/register-form/register-form';
+import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
 // import { authenticated } from '../../actions/user-actions';
-import { JML } from '../../jml/jml';
+import { JML, empty } from '../../jml/jml';
 
 // export interface ILoginWidgetProps extends HatcheryEditor.HatcheryProps {
 //     onLogin?: () => void,
@@ -66,36 +66,72 @@ import { JML } from '../../jml/jml';
 //     }
 // }
 
+export enum LoginWidgetMode {
+    LOGIN,
+    REGISTER
+}
+
 /**
  * A widget for logging the user in
  */
 export class LoginWidget extends HTMLElement {
+    private _mode: LoginWidgetMode;
 
     static get observedAttributes() {
         return [ 'loading' ];
     }
 
+    /**
+     * Creates an instance of the widget
+     */
     constructor() {
         super();
         this.className = 'background fade-in';
 
         this.appendChild(
-            JML.div( { id: 'log-reg' }, [
+            JML.div( null, [
                 JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' }),
                 JML.div( { className: 'avatar' }, [
                     JML.img( { src: 'media/blank-user.png' })
                 ] ),
-                JML.div( { className: 'content' }, [
-                    JML.elm<LoginForm>( new LoginForm(), {
-                        onRegisterRequested: () => alert( 'Go register' ),
-                        onResetPasswordRequest: ( username ) => alert( 'Go reset password: ' + username ),
-                        onLoginRequested: ( json ) => alert( 'On login: ' + JSON.stringify( json ) ),
-                        onResendActivationRequest: ( username ) => alert( 'resend activation:' + username )
-                    })
-                    // JML.elm<LoginForm>( new LoginForm() )
-                ] )
+                JML.div( { className: 'content' })
             ] )
         );
+
+        this.mode = LoginWidgetMode.LOGIN;
+    }
+
+    /**
+     * Sets the mode of the login widet
+     */
+    set mode( val: LoginWidgetMode ) {
+        const content = this.querySelector( '.content' ) as HTMLElement;
+        empty( content );
+
+        if ( val === LoginWidgetMode.LOGIN ) {
+            content.appendChild(
+                JML.elm<LoginForm>( new LoginForm(), {
+                    onRegisterRequested: () => this.mode = LoginWidgetMode.REGISTER,
+                    onResetPasswordRequest: ( username ) => alert( 'Go reset password: ' + username ),
+                    onLoginRequested: ( json ) => alert( 'On login: ' + JSON.stringify( json ) ),
+                    onResendActivationRequest: ( username ) => alert( 'resend activation:' + username )
+                }) );
+        }
+        else {
+            content.appendChild(
+                JML.elm<RegisterForm>( new RegisterForm(), {
+                    onLoginRequested: () => this.mode = LoginWidgetMode.LOGIN,
+                    onRegisterRequested: ( token ) => { }
+                })
+            );
+        }
+    }
+
+    /**
+     * Gets the mode of the login widet
+     */
+    get mode(): LoginWidgetMode {
+        return this._mode;
     }
 
     /**
