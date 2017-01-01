@@ -3,6 +3,7 @@ import { User } from '../../core/user';
 import { Router } from '../../core/router';
 import { SplitPanel } from '../../components/split-panel/split-panel';
 import { LoginWidget } from '../login-widget/login-widget';
+import { Splash } from '../splash/splash';
 
 /**
  * The main GUI component of the application.
@@ -76,7 +77,15 @@ export class Application extends HTMLElement {
             const authenticated = await User.get.authenticated();
             this.loading = false;
 
-            authenticated;
+            // Make sure any state that's not login or error is authenticated
+            Router.get.onStateEnter = ( state ) => {
+                if ( state.name !== 'login' && state.name !== 'error' ) {
+                    User.get.authenticated().then(( authenticated ) => {
+                        if ( !authenticated )
+                            Router.get.push( '/login/' + state.path );
+                    });
+                }
+            };
 
             // Setup the routes
             Router.get.init( [
@@ -84,7 +93,9 @@ export class Application extends HTMLElement {
                     name: 'splash',
                     path: '/splash/:section?',
                     onStateEnter: ( state ) => {
-                        this.innerHTML = `<div></div>`
+                        innerHtml( this,
+                            JML.elm<Splash>( new Splash() )
+                        );
                     }
                 },
                 {
@@ -97,14 +108,12 @@ export class Application extends HTMLElement {
                         else if ( authenticated )
                             Router.get.push( '/splash' );
                         else
-                            innerHtml( this, new LoginWidget() );
+                            innerHtml( this, JML.div( { className: 'splash-view' }, [
+                                JML.elm<LoginWidget>( new LoginWidget(), {
+                                    onLogin: () => { }
+                                })
+                            ] ) );
                     }
-                },
-                {
-                    name: 'default',
-                    path: '/',
-                    isIndex: true,
-                    onStateEnter: ( state ) => Router.get.push( '/login' )
                 },
                 {
                     name: 'error',
