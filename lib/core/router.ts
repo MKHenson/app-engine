@@ -24,6 +24,8 @@ export class Router extends EventDispatcher {
     private root: string;
     private _routes: IRoute[];
 
+    public onStateEnter?: ( state: IState ) => void;
+
     /**
      * Creates a state manager
      */
@@ -59,12 +61,17 @@ export class Router extends EventDispatcher {
             }
         }
 
-        route.onStateEnter( {
+        const state = {
             name: route.name,
             params: params,
             path: path,
             queries: queries
-        });
+        };
+
+        route.onStateEnter( state );
+
+        if ( this.onStateEnter )
+            this.onStateEnter( state )
     }
 
     /**
