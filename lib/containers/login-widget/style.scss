@@ -2,15 +2,16 @@ x-login-widget {
     font-size:20px;
     width: 20%;
     min-width: 450px;
-    box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
-    border-radius: 5px;
     margin: auto;
     text-align: center;
-    overflow: hidden;
     display: block;
-
-    overflow: hidden;
     position: relative;
+
+    .control {
+        box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        overflow: hidden;
+    }
 
     .fa-cog {
         display: none;
