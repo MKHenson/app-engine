@@ -19,6 +19,7 @@ import { RegisterForm } from './components/register-form/register-form';
 // import { userReducer } from './reducers/user-reducer';
 import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
+import { Splash } from './containers/splash/splash';
 
 
 // import { Splash } from './containers/splash/splash';
@@ -116,6 +117,7 @@ customElements.define( 'x-json-form', JsonForm, { extends: 'form' });
 customElements.define( 'x-login-form', LoginForm );
 customElements.define( 'x-register-form', RegisterForm );
 customElements.define( 'x-split-panel', SplitPanel );
+customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
 
