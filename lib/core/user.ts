@@ -169,6 +169,7 @@ export class User extends EventDispatcher {
 
         this.entry = authResponse.user!;
         this.meta = metaResponse.data;
+        return true;
     }
 
     /**
