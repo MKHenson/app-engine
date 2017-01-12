@@ -6,6 +6,7 @@ import { ValidatedText } from './components/validated-text/validated-text';
 import { ValidatedSelect } from './components/validated-select/validated-select';
 import { Checkbox } from './components/checkbox/checkbox';
 import { JsonForm } from './components/json-form/json-form';
+import { Group } from './components/group/group';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -120,6 +121,8 @@ customElements.define( 'x-split-panel', SplitPanel );
 customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
+customElements.define( 'x-group', Group );
+
 
 document.body.appendChild( JML.elm( new Application() ) );
 
