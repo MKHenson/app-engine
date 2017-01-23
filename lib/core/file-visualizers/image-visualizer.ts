@@ -1,4 +1,4 @@
-﻿import { ImagePreview, IImagePreviewProps } from '../../components/image-preview/image-preview';
+﻿import { } from '../../components/image-preview/image-preview';
 import { IPreviewFactory } from 'hatchery-editor-plugins';
 
 export class ImageVisualizer implements IPreviewFactory {
@@ -66,9 +66,9 @@ export class ImageVisualizer implements IPreviewFactory {
      * @returns If a React Element is returned is added in the File viewer preview
      */
     generate( file: HatcheryServer.IFile ): JSX.Element | null {
-        if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
-            return React.createElement( ImagePreview, { src: file.url } as IImagePreviewProps );
-        }
+        // if ( file.extension === 'image/jpeg' || file.extension === 'image/png' || file.extension === 'image/gif' || file.extension === 'image/bmp' || file.extension === 'image/jpg' ) {
+        //     return React.createElement( ImagePreview, { src: file.url } as IImagePreviewProps );
+        // }
 
         return null;
     }
