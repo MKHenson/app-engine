@@ -35,7 +35,7 @@ export class LoginWidget extends HTMLElement {
             JML.div( { className: 'background control' }, [
                 JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' }),
                 JML.div( { className: 'avatar' }, [
-                    JML.img( { src: 'media/blank-user.png' })
+                    JML.img( { src: '/media/blank-user.png' })
                 ] ),
                 JML.div( { className: 'content' })
             ] )
