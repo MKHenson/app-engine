@@ -152,6 +152,36 @@ export declare class Checkbox extends HTMLElement {
     value: boolean;
 }
 
+/**
+ * A group is a container with a title
+ * eg:
+ * const group = new Group();
+ * group.label = "hello world";
+ * group.content.append( / * add some html elements * / );
+ */
+export declare class Group extends HTMLElement {
+    static readonly observedAttributes: string[];
+    /**
+     * Creates an instance of the group
+     */
+    constructor();
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
+    /**
+     * Gets the text of the label heading
+     */
+    /**
+     * Sets the text of the label heading
+     */
+    label: string;
+    /**
+     * Gets the content element
+     */
+    readonly content: HTMLElement;
+}
+
 import { ValidationError } from '../../core/utils';
 import { ValidatedText } from '../validated-text/validated-text';
 import { ValidatedSelect } from '../validated-select/validated-select';
@@ -268,6 +298,76 @@ export declare class LoginForm extends HTMLElement {
      * Sets if the login form is loading
      */
     loading: boolean;
+}
+
+import { Popup } from '../popup/popup';
+export declare class PopupMenuItem {
+    text: string;
+    icon: string;
+    tag: any;
+    constructor(text: string, icon?: string, tag?: any);
+}
+/**
+ * A popup window that is usually added to the body, that contains
+ * a list of menu items that can be selected.
+ * eg:
+ */
+export declare class PopupMenu extends Popup {
+    onItemClick: (e: MouseEvent, item: PopupMenuItem) => void;
+    private _items;
+    /**
+     * Creates an instance of the popup
+     */
+    constructor();
+    private onItemHtmlClick(e, item);
+    /**
+     * Adds a popup menu item
+     */
+    addItem(item: PopupMenuItem): void;
+    /**
+     * Removes a popup menu item
+     */
+    removeItem(item: PopupMenuItem): void;
+    /**
+     * Removes all menu items from the menu
+     */
+    clear(): void;
+}
+
+/**
+ * An abstract class that is used as a base for others that popup over other elements.
+ * Similar to a menu window or drop down.
+ */
+export declare abstract class Popup extends HTMLElement {
+    private _onStageClickProxy;
+    private _prevParent;
+    /**
+     * Creates an instance of the popup
+     */
+    constructor();
+    /**
+     * When we click on the dom, but not on any part of the popup,
+     * we hide the element. If we click somewhere on the popup then
+     * we do nothing.
+     */
+    protected onStageClick(e: MouseEvent): void;
+    /**
+     * Removes the popup from the dom
+     */
+    hide(animate?: boolean): void;
+    /**
+     * Clean up any event listeners
+     */
+    disconnectedCallback(): void;
+    /**
+     * When added to the dom, create a fade in effect
+     */
+    connectedCallback(): void;
+    /**
+     * Shows the popup menu at the designated x and y coordinates. You can optionally
+     * pass in a parent parameter to specify what the popup is appended to.
+     */
+    show(x: number, y: number, parent?: HTMLElement): void;
 }
 
 import { AttentionType } from '../../setup/enums';
