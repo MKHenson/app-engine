@@ -1,1812 +1,307 @@
+import { AttentionType } from '../../setup/enums';
 /**
- * Describes the different types of editor action types
+ * A simple component for displaying a styled message to the user.
+ *
+ * eg:
+ * const box = new Attention();
+ * box.canClose = true; // Show the close button
+ * box.showIcon = true; // Shows the message icon
+ * box.text = "Hello world";
+ * box.mode = AttentionType.WARNING;
  */
-export declare type EditorActionType = 'EA_TOGGLE_SPLASH' | 'EA_TOGGLE_LOGIN_STATE';
-/**
- * An interface for describing  editor actions
- */
-export interface IEditorAction extends Redux.Action, HatcheryEditor.IEditorState {
-    type: EditorActionType;
-    editorState: HatcheryEditor.IEditorState;
+export declare class Attention extends HTMLElement {
+    private _mode;
+    static readonly observedAttributes: string[];
+    /**
+     * Creates an instance of the Attention box
+     */
+    constructor();
+    /**
+     * When added to the dom, create a fade in effect
+     */
+    connectedCallback(): void;
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
+    /**
+     * Gets if the attention box enables the close button that removes the element when clicked
+     */
+    /**
+     * Sets if the attention box enables the close button that removes the element when clicked
+     */
+    canClose: boolean;
+    /**
+     * Gets if the attention box icon is shown
+     */
+    /**
+     * Sets if the attention box icon is shown
+     */
+    showIcon: boolean;
+    /**
+     * Gets the attention box message text
+     */
+    /**
+     * Sets the attention box message text
+     */
+    text: string;
+    /**
+     * Gets the attention box mode, which describes the style of message
+     */
+    /**
+     * Sets the attention box mode, which describes the style of message
+     */
+    mode: AttentionType;
 }
-/**
- * Creates an action that toggles the splash screen visiblility
- */
-export declare function toggleLoginState(state: 'login' | 'register'): IEditorAction;
 
 /**
- * Describes each of the project action types
+ * Primary styled HTML button element
  */
-export declare type LoggerActionType = 'LOGGER_ADD_ITEM' | 'LOGGER_CLEAR_ITEMS';
-/**
- * A base interface for describing logger related actions
- */
-export interface ILoggerAction extends Redux.Action {
-    type: LoggerActionType;
-    item?: HatcheryEditor.ILogMessage;
+export declare class ButtonPrimary extends HTMLButtonElement {
+    constructor();
 }
 /**
- * Creates an action to clear all log items
+ * Success styled HTML button element
  */
-export declare function clear(): ILoggerAction;
-/**
- * Creates an action for adding a log message in the log window
- */
-export declare function message(message: string): ILoggerAction;
-/**
- * Creates an action for adding a warning log message in the log window
- */
-export declare function warning(message: string): ILoggerAction;
-/**
- * Creates an action for adding an error log message in the log window
- */
-export declare function error(message: string): ILoggerAction;
-
-import { IPlugin } from 'hatchery-editor-plugins';
-/**
- * Describes each of the project action types
- */
-export declare type ProjectActionType = 'PROJECT_PLUGIN_LOADED' | 'PROJECT_PLUGIN_INSTANCE_ADDED' | 'PROJECT_REQUEST_PENDING' | 'PROJECT_REQUEST_REJECTED' | 'PROJECT_CREATED' | 'PROJECT_LOADED';
-/**
- * A base interface for describing project related actions
- */
-export interface IProjectAction extends Redux.Action {
-    type: ProjectActionType;
-    project?: HatcheryEditor.IProject;
-}
-export interface IProjectPluginAction extends IProjectAction {
-    plugin: HatcheryServer.IPlugin;
+export declare class ButtonSuccess extends HTMLButtonElement {
+    constructor();
 }
 /**
- * Attempts to load a project by its id
+ * Error styled HTML button element
  */
-export declare function loadProject(id: string, username: string): (dispatch: Redux.Dispatch<IProjectAction>) => void;
+export declare class ButtonError extends HTMLButtonElement {
+    constructor();
+}
 /**
- * Attempts to log the user in using the token provided
+ * A button styled as an anchor
  */
-export declare function loadPlugin(pluginDefinition: HatcheryServer.IPlugin): Promise<HatcheryServer.IPlugin>;
-/**
- * Adds a plugin instance to its parent plugin
- */
-export declare function addPluginInstance(plugin: HatcheryServer.IPlugin, instance: IPlugin): IProjectPluginAction;
+export declare class ButtonLink extends HTMLButtonElement {
+    constructor();
+    /**
+     * Gets the text of the button
+     */
+    /**
+     * Sets the text of the button
+     */
+    text: string;
+}
 
 /**
- * Describes each of the splash screen action types
+ * A checkbox component that simplifies the creation and use of inputs as checkboxes
+ * eg:
+ * const check = new Checkbox();
+ * check.checked = true; // You can also use .value
+ * check.label = "hello world";
  */
-export declare type SplashActionType = 'SPLASH_REQUEST_PENDING' | 'SPLASH_REQUEST_FULFILLED' | 'SPLASH_REQUEST_REJECTED' | 'SPLASH_SET_SCREEN' | 'SPLASH_GET_PROJECTS';
-/**
- * A base interface for describing the splash screen actions
- */
-export interface ISplashAction extends Redux.Action {
-    type: SplashActionType;
-    data?: HatcheryEditor.ISplashScreen;
+export declare class Checkbox extends HTMLElement {
+    onChange?: (sender: Checkbox) => void;
+    static readonly observedAttributes: string[];
+    /**
+     * Creates an instance
+     */
+    constructor();
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
+    /**
+     * Called whenever the checkbox input changes
+     */
+    onInputChange(e: Event): void;
+    /**
+     * Gets the checkbox name
+     */
+    /**
+     * Sets the checkbox name
+     */
+    name: string;
+    /**
+     * Gets the checkbox id
+     */
+    /**
+     * Sets the checkbox id
+     */
+    id: string;
+    /**
+     * Gets the checkbox label
+     */
+    /**
+     * Sets the checkbox label
+     */
+    label: string;
+    /**
+     * Gets if the checkbox is read only
+     */
+    /**
+     * Sets if the checkbox is read only
+     */
+    readOnly: boolean;
+    /**
+     * Gets if the checkbox is checked
+     */
+    /**
+     * Sets if the checkbox is checked
+     */
+    checked: boolean;
+    /**
+     * Gets if the checkbox is checked
+     */
+    /**
+     * Sets if the checkbox is checked
+     */
+    value: boolean;
 }
-/**
- * Fetches all the projects of a given user. This only works if the user is logged in and has access rights
- * @param user The username of the user we are fetching a project list for
- * @param index The index to  fetching projects for
- * @param limit The limit of how many items to fetch
- * @param search Optional search text
- */
-export declare function getProjectList(user: string, index: number, limit: number, search?: string): (dispatch: Redux.Dispatch<ISplashAction>) => void;
-/**
- * Creates a new project for the authenticated user
- * @param options An object of projet defaults
- */
-export declare function createProject(options: HatcheryServer.IProject): (dispatch: Redux.Dispatch<ISplashAction>) => void;
 
+import { ValidationError } from '../../core/utils';
+import { ValidatedText } from '../validated-text/validated-text';
+import { ValidatedSelect } from '../validated-select/validated-select';
+import { Checkbox } from '../checkbox/checkbox';
+export declare type JsonFormInput = HTMLInputElement | ValidatedText | ValidatedSelect | HTMLTextAreaElement | HTMLSelectElement | Checkbox;
 /**
- * Describes each of the user action types
+ * A smart Form that formats a JSON representation of its inputs as well as checks
+ * for any validation errors. The validation checks are only performed on the custom
+ * elements ValidatedText and ValidatedSelect. The JSON format is created as a map
+ * whose keys are the names of the inputs, and the values are their corresponding value.
+ *
+ * eg:
+ * const form = new JsonForm();
+ * ...
+ * (add input elements)
+ * ...
+ * form.onSubmit = (sender, json) => alert('The form was submitted with the JSON: ' + JSON.stringify(json) )
+ * form.onChange = (sender, json) => alert('The form json was changed: ' + JSON.stringify(json) )
+ * form.onError = (sender, errors) => alert('The form has some validation errors')
+ * form.onResolved = (sender) => alert('The form validation errors have been resolved')
+ * const json = form.json; // Gets the JSON without the use of events
  */
-export declare type UserActionType = 'USER_REQUEST_PENDING' | 'USER_REQUEST_REJECTED' | 'USER_REQUEST_FULFILLED' | 'USER_AUTHENTICATED' | 'USER_LOGGED_IN' | 'USER_REGISTRATION_SENT' | 'USER_GET_PROJECTS' | 'USER_LOGIN_FAILED' | 'USER_PASSWORD_RESET' | 'USER_ACTIVATION_RESENT' | 'USER_REMOVED_PROJECT' | 'USER_LOGGED_OUT';
-/**
- * A base interface for describing user related actions
- */
-export interface IUserAction extends Redux.Action {
-    type: UserActionType;
-    userData?: HatcheryEditor.IUser;
+export declare class JsonForm extends HTMLFormElement {
+    /**
+     * Called whenever the form is submitted
+     */
+    onSubmit?: (sender: JsonForm, json: {
+        [name: string]: string | boolean;
+    }) => void;
+    /**
+     * Called whenever a validated input flags a problem
+     */
+    onError?: (sender: JsonForm, errors: {
+        [name: string]: ValidationError;
+    }) => void;
+    /**
+     * Called whenever a validated input's problem is resolved
+     */
+    onResolved?: (sender: JsonForm) => void;
+    /**
+     * Called whenever the JSON represenation has changed
+     */
+    onChange?: (sender: JsonForm, json: {
+        [name: string]: string | boolean;
+    }) => void;
+    private _inputs;
+    private _errors;
+    private _pristine;
+    constructor();
+    /**
+     * Called if any of the validated inputs reported or resolved an error
+     */
+    private onValidationChanged(sender, error);
+    /**
+     * Called whenever any of the inputs fire a change event
+     */
+    private onInputChange();
+    /**
+     * Traverse all child elements and find the input elements.
+     * The inputs are then mapped to an object and used for checking
+     * validation errors and later, getting the values of the input for submission
+     */
+    traverseChildren(childNodes: NodeList): void;
+    /**
+     * Gets if the form is in a pristine state
+     */
+    /**
+     * Sets if the form is in a pristine state
+     */
+    pristine: boolean;
+    /**
+     * Called whenever the form is added to the dom
+     */
+    connectedCallback(): void;
+    /**
+     * Checks if the form inputs have errors or not
+     */
+    readonly hasErrors: boolean;
+    /**
+     * Gets the generated json for this form
+     */
+    readonly json: {
+        [name: string]: string | boolean;
+    };
+    /**
+     * When you click submit on the form it should flag any errors
+     * and/or prevent submit if they exist
+     */
+    initiateSubmit(): void;
 }
-/**
- * Describes the action for removing projects
- */
-export interface IUserProjectRemovedAction extends Redux.Action {
-    type: UserActionType;
-    username?: string;
-    project?: string;
-}
-/**
- * Sends a server request to check if a user is logged in
- * @param forward Optionally pass a url to forward onto if the user is authenticated
- */
-export declare function authenticated(forward?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Attempts to log the user out
- */
-export declare function logout(): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Sends an instruction to the server to start the user password reset procedure
- */
-export declare function resetPassword(user: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Sends an instruction to the server to resend the user account activation link
- */
-export declare function resendActivation(user: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Removes a user's project by its id
- * @param username The username of the user we are removing a project for
- * @param pid The id of the project to remove
- */
-export declare function removeProject(username: string, pid: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Attempts to log the user in using the token provided
- */
-export declare function login(token: UsersInterface.ILoginToken, forward?: string): (dispatch: Redux.Dispatch<IUserAction>) => void;
-/**
- * Attempts to register the user with the provided token
- */
-export declare function register(token: UsersInterface.IRegisterToken): (dispatch: Redux.Dispatch<IUserAction>) => void;
 
 import { AttentionType } from '../../setup/enums';
-export interface IAttentionProps extends React.HTMLAttributes {
-    mode?: AttentionType;
-    showIcon?: boolean;
-    allowClose?: boolean;
-}
 /**
- * A simple component for displaying a styled message to the user
+ * A simple login form with event hooks for the different login actions
  */
-export declare class Attention extends React.Component<IAttentionProps, {
-    isClosed: boolean;
-}> {
-    static defaultProps: IAttentionProps;
-    /**
-     * Creates an a new intance
-     */
-    constructor(props: IAttentionProps);
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-/**
- * Describes the button style
- */
-export declare enum ButtonType {
-    PRIMARY = 0,
-    ERROR = 1,
-    SUCCESS = 2,
-    RED_LINK = 3,
-}
-export interface IButtonProps extends React.HTMLAttributes {
-    preventDefault?: boolean;
-    buttonType?: ButtonType;
-}
-/**
- * A base class for all buttons
- */
-export declare class ReactButton extends React.Component<IButtonProps, any> {
-    static defaultProps: IButtonProps;
-    /**
-     * Creates an instance
-     */
-    constructor(props: IButtonProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-/**
- * A wrapper for the base button class to style it as a primary button
- */
-export declare class ButtonPrimary extends ReactButton {
-    static defaultProps: IButtonProps;
-}
-/**
- * A wrapper for the base button class to style it as a success button
- */
-export declare class ButtonSuccess extends ReactButton {
-    static defaultProps: IButtonProps;
-}
-/**
- * A wrapper for the base button class to style it as an error button
- */
-export declare class ButtonError extends ReactButton {
-    static defaultProps: IButtonProps;
-}
-/**
- * A wrapper for the base button class to style it as a red link button
- */
-export declare class ButtonLink extends ReactButton {
-    static defaultProps: IButtonProps;
-}
-
-import { EventDispatcher } from '../core/event-dispatcher';
-/**
-* The base class for all visual elements in the application. The {Component} class
-* contains a reference of a jQuery object that points to the {Component}'s DOM representation.
-*/
-export declare class Component extends EventDispatcher {
-    static idCounter: number;
-    private _element;
-    private _children;
-    private _layouts;
-    private _id;
-    private _parent;
-    private _tooltip;
-    private _enabled;
-    tag: any;
-    savedID: string | null;
-    constructor(html: string | JQuery, parent?: Component | null);
-    /**
-    * Diposes and cleans up this component and all its child {Component}s
-    */
-    dispose(): void;
-    /**
-    * This function is called to update this component and its children.
-    * Typically used in sizing operations.
-    * @param {boolean} updateChildren Set this to true if you want the update to proliferate to all the children components.
-    */
-    update(updateChildren?: boolean): void;
-    /**
-    * Add layout algorithms to the {Component}.
-    * @param {ILayout} layout The layout object we want to add
-    * @returns {ILayout} The layout that was added
-    */
-    addLayout(layout: any): any;
-    /**
-    * Removes a layout from this {Component}
-    * @param {ILayout} layout The layout to remove
-    * @returns {ILayout} The layout that was removed
-    */
-    removeLayout(layout: any): any;
-    /**
-    * Gets the ILayouts for this component
-    * {returns} Array<ILayout>
-    */
-    readonly layouts: Array<any> | null;
-    /**
-    * Use this function to add a child to this component.
-    * This has the same effect of adding some HTML as a child of another piece of HTML.
-    * It uses the jQuery append function to achieve this functionality.
-    * @param {string | Component | JQuery} child The child component we want to add
-    * @returns {Component} The added component
-    */
-    addChild(child: string | Component | JQuery): Component;
-    /**
-    * Checks to see if a component is a child of this one
-    * @param {Component} child The {Component} to check
-    * @returns {boolean} true if the component is a child
-    */
-    contains(child: Component): boolean;
-    /**
-    * Use this function to remove a child from this component.
-    * It uses the {JQuery} detach function to achieve this functionality.
-    * @param {Component} child The {Component} to remove from this {Component}'s children
-    * @returns {Component} The {Component} we have removed
-    */
-    removeChild(child: Component): Component;
-    /**
-    * Removes all child nodes
-    */
-    clear(): void;
-    onDelete(): void;
-    /**
-    * Returns the array of Child {Component}s
-    * @returns {Array{Component}} An array of child {Component} objects
-    */
-    readonly children: Array<Component> | null;
-    /**
-    * Gets the jQuery wrapper
-    */
-    readonly element: JQuery;
-    /**
-    * Gets the jQuery parent
-    */
-    readonly parent: Component | null;
-    /**
-    * Gets the tooltip for this {Component}
-    */
-    /**
-    * Sets the tooltip for this {Component}
-    */
-    tooltip: string | null;
-    /**
-    * Get or Set if the component is enabled and recieves mouse events
-    */
-    /**
-    * Get or Set if the component is enabled and recieves mouse events
-    */
-    enabled: boolean;
-    /**
-    * Gets the ID of thi component
-    */
-    readonly id: string;
-    /**
-    * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-    */
-    /**
-    * Get or Set if the component is selected. When set to true a css class of 'selected' is added to the {Component}
-    */
-    selected: boolean;
-}
-
-export interface IReactContextMenuItem {
-    onSelect?: (item: IReactContextMenuItem) => void;
-    tag?: any;
-    label: string;
-    prefix?: JSX.Element;
-    image?: string;
-    items?: IReactContextMenuItem[];
-}
-export interface IReactContextMenuProps {
-    x: number;
-    y: number;
-    className?: string;
-    onChange?: (item: IReactContextMenuItem) => void;
-    items?: IReactContextMenuItem[];
-    _closing?: () => void;
-}
-/**
- * A React component for showing a context menu.
- * Simply call ReactContextMenu.show and provide the IReactContextMenuItem items to show
- */
-export declare class ReactContextMenu extends React.Component<IReactContextMenuProps, any> {
-    private static _menuCount;
-    private static _menus;
-    static defaultProps: IReactContextMenuProps;
-    private _mouseUpProxy;
-    /**
-     * Creates a context menu instance
-     */
-    constructor(props: IReactContextMenuProps);
-    /**
-     * When we click on a menu item
-     */
-    private onMouseDown(e, item);
-    /**
-     * Draws each of the submenu items
-     */
-    private drawMenuItems(item, level, index);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    /**
-     * When the mouse is up we remove the dragging event listeners
-     */
-    private onMouseUp();
-    /**
-     * When the component is mounted
-     */
-    componentDidMount(): void;
-    /**
-     * Called when the component is to be removed
-     */
-    componentWillUnmount(): void;
-    /**
-     * Shows a React context menu component to the user
-     * @param props The properties to use for the context menu component
-     */
-    static show(props: IReactContextMenuProps): number;
-    /**
-     * Hides/Removes a context menu component by id
-     */
-    static hide(id: number): void;
-}
-
-export interface IDraggableProps {
-    enabled?: boolean;
-    x: number;
-    y: number;
-    onMove?: (x: number, y: number) => void;
-    onDragComplete?: (start: HatcheryEditor.Point, end: HatcheryEditor.Point) => void;
-}
-export declare class Draggable extends React.Component<IDraggableProps, any> {
-    static defaultProps: IDraggableProps;
-    private _upProxy;
-    private _moveProxy;
-    private _mouseDelta;
-    private _startPos;
-    private _scrollInterval;
-    constructor(props: IDraggableProps);
-    /**
-     * When unmounting, we remove any listeners
-     */
-    componentWillUnmount(): void;
-    /**
-     * When the mouse is down on the behaviour, we add the drag listeners
-     */
-    onMouseDown(e: React.MouseEvent): void;
-    /**
-     * When the mouse is up we remove the events
-     */
-    onMouseUp(e: React.MouseEvent): void;
-    private getPosition(e);
-    /**
-     * When the mouses moves we drag the behaviour
-     */
-    onMouseMove(e: React.MouseEvent): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { FileSearchType } from '../../setup/enums';
-import { SelectValue } from '../v-select/v-select';
-export interface IViewerFile extends HatcheryServer.IFile {
-    selected?: boolean;
-    loadingPreview?: boolean;
-}
-export interface IFileViewerProps {
-    multiSelect: boolean;
-    extensions: Array<string>;
-    onFilesSelected?: (files: HatcheryServer.IFile[]) => void;
-    onClose?: () => void;
-    readOnly?: boolean;
-}
-export interface IFileViewerState {
-    selectedEntity?: IViewerFile | null;
-    errorMsg?: string | null;
-    loading?: boolean;
-    editMode?: boolean;
-    highlightDropZone?: boolean;
-    percent?: number;
-    fileToken?: IViewerFile;
-}
-/**
- * A component for viewing the files and folders of the user's asset directory
- */
-export declare class FileViewer extends React.Component<IFileViewerProps, IFileViewerState> {
-    static defaultProps: IFileViewerProps;
-    private _searchType;
-    private _entries;
-    private _uploader;
-    private _isMounted;
-    private _search;
-    private _onlyFavourites;
-    private _onlyGlobal;
-    private _selectedEntities;
-    /**
-     * Creates an instance of the file viewer
-     */
-    constructor(props: IFileViewerProps);
-    onFileUploaded(err: Error): void;
-    /**
-     * When the scope changes we update the viewable contents
-     */
-    onScopeChange(option: SelectValue | null): void;
-    getFileDetails(selectedFile: IViewerFile, editMode: boolean): JSX.Element;
-    /**
-     * Shows a message box that the user must confirm or deny if the selected files must be removed
-     */
-    confirmDelete(): void;
-    renderPanelButtons(editMode: boolean): JSX.Element;
-    /**
-     * Forces the pager to update its contents
-     */
-    invalidate(): void;
-    /**
-    * Creates the component elements
-    */
-    render(): JSX.Element;
-    /**
-     * Specifies the type of file search
-     */
-    selectMode(type: FileSearchType): void;
-    /**
-     * Sets the selected status of a file or folder
-     */
-    selectEntity(e: React.MouseEvent, entity: IViewerFile | null): void;
-    /**
-     * Removes the selected entities
-     */
-    removeEntities(): void;
-    updateContent(index: number, limit: number): Promise<number>;
-    /**
-     * Whenever the file input changes we check the file is valid and then attempt to upload it
-     */
-    onFileChange(e: React.FormEvent): boolean | undefined;
-    /**
-     * Checks if a file list is one of the approved props extensions
-     */
-    checkIfAllowed(files: FileList): boolean;
-    /**
-     * Perform any cleanup if neccessary
-     */
-    componentWillUnmount(): void;
-    /**
-     * Makes sure we only view the file types specified in the props exensions array
-     * @param files The file array we are filtering
-     */
-    filterByExtensions(files: IViewerFile[]): IViewerFile[];
-    /**
-     * Called when we are dragging assets over the file items div
-     */
-    onDragOver(e: React.DragEvent): void;
-    /**
-     * Called when we are no longer dragging items.
-     */
-    onDragLeave(): void;
-    /**
-     * Called when we drop an asset on the file items div.
-     * Checks if the file is allow, and if so, it uploads the file
-     */
-    onDrop(e: React.DragEvent): void;
-    /**
-     * Attempts to upload an image or canvas to the users asset directory and set the upload as a file's preview
-     * @param file The target file we are setting the preview for
-     * @param preview The image we are using as a preview
-     */
-    uploadPreview(file: IViewerFile, preview: HTMLCanvasElement | HTMLImageElement): void;
-    /**
-     * Attempts to update the selected file
-     * @param token The file token to update with
-     */
-    updateFile(token: HatcheryServer.IFile): void;
-}
-
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { IListItem } from '../../list/list';
-import { BehaviourDefinition } from '../../../core/behaviour-definition';
-export interface IBehaviourPickerProps extends IReactWindowProps {
-    onTemplateSelected?: (template: BehaviourDefinition | null) => void;
-}
-export interface IBehaviourPickerState extends IReactWindowState {
-    items?: IListItem[];
-    selectedIndex?: number;
-    search?: string;
-    selectedText?: string;
-}
-/**
- * A popup form for quick selection of loaded behaviours
- */
-export declare class BehaviourPicker extends ReactWindow<IBehaviourPickerProps, IBehaviourPickerState> {
-    static defaultProps: IBehaviourPickerProps;
-    private _onUpProxy;
-    /**
-     * Creates an instance of the picker
-     */
-    constructor(props: IBehaviourPickerProps);
-    /**
-     * Close the window if we click anywhere but the window
-     */
-    onUp(e: React.MouseEvent): void;
-    /**
-     * Remove any listeners
-     */
-    componentWillUnmount(): void;
-    /**
-     * Get all behaviour template names
-     */
-    componentDidMount(): void;
-    /**
-     * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
-     * in derived classes
-     */
-    getContent(): React.ReactNode;
-    /**
-     * When the input text changes we go through each list item and select the one that is the closest match
-     */
-    onKeyUp(e: React.KeyboardEvent): void;
-}
-
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-export interface IFileDialogueProps extends IReactWindowProps {
-    extensions?: string[];
-    multiselect?: boolean;
-    readOnly?: boolean;
-    onFilesSelected?: (file: HatcheryServer.IFile[]) => void;
-}
-/**
- * A form uploading and selecting files
- */
-export declare class FileDialogue extends ReactWindow<IFileDialogueProps, IReactWindowState> {
-    static defaultProps: IFileDialogueProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IFileDialogueProps);
-    /**
-     * Gets the content JSX for the window.
-     */
-    getContent(): React.ReactNode;
-}
-
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { AttentionType } from '../../../setup/enums';
-export interface IMessageBoxProps extends IReactWindowProps {
-    message?: string;
-    onChange?: (button: string) => void;
-    buttons?: string[];
-    type?: AttentionType;
-}
-/**
- * A window to show a blocking window with a message to the user.
- */
-export declare class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState> {
-    static defaultProps: IMessageBoxProps;
-    /**
-     * Creates a new instance of the message box
-     */
-    constructor(props: IMessageBoxProps);
-    /**
-     * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
-     * in derived classes
-     */
-    getContent(): React.ReactNode;
-    /**
-     * Hide the window when ok is clicked.
-     */
-    onButtonClick(e: React.MouseEvent, button: string): void;
-    /**
-     * A helper function for showing an success modal box
-     * @param message The message to display
-     * @param buttons An array of strings that represent the button choices for the modal
-     * @param callback An optional callback function for when a button is clicked
-     */
-    static success(message: string, buttons?: string[], callback?: (button) => void): void;
-    /**
-     * A helper function for showing a warning modal box
-     * @param message The message to display
-     * @param buttons An array of strings that represent the button choices for the modal
-     * @param callback An optional callback function for when a button is clicked
-     */
-    static warn(message: string, buttons?: string[], callback?: (button) => void): void;
-    /**
-     * A helper function for showing an error modal box
-     * @param message The message to display
-     * @param buttons An array of strings that represent the button choices for the modal
-     * @param callback An optional callback function for when a button is clicked
-     */
-    static error(message: string, buttons?: string[], callback?: (button) => void): void;
-}
-
-
-import { IReactWindowProps } from '../../window/react-window';
-export interface IOptionsBuildState {
-}
-export interface IOptionsBuildProps extends IReactWindowProps {
-}
-/**
- * A component for editing the build properties
- */
-export declare class OptionsBuild extends React.Component<IOptionsBuildProps, any> {
-    static defaultProps: IOptionsBuildProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOptionsBuildProps);
-    /**
-     * Draws the options JSX
-     */
-    render(): JSX.Element;
-}
-
-import { IReactWindowProps } from '../../window/react-window';
-import { ReactWindow, IReactWindowState } from '../../window/react-window';
-export interface IOptionsForm extends IReactWindowProps {
-}
-/**
- * A form for editing various project/user options
- */
-export declare class OptionsForm extends ReactWindow<IOptionsForm, IReactWindowState> {
-    static defaultProps: IOptionsForm;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOptionsForm);
-    /**
-     * Gets the content JSX for the window.
-     */
-    getContent(): React.ReactNode;
-}
-
-import { IReactWindowProps } from '../../window/react-window';
-export interface IOptionsProjectProps extends IReactWindowProps {
-}
-export interface IOptionsProjectState {
-    infoServerMsg?: string | null;
-    imageUploadErr?: string | null;
-    loading?: boolean;
-    error?: boolean;
-}
-/**
- * A component for editing the project properties
- */
-export declare class OptionsProject extends React.Component<IOptionsProjectProps, IOptionsProjectState> {
-    static defaultProps: IOptionsProjectProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOptionsProjectProps);
-    /**
-     * Sets the project image url
-     */
-    setProjectImageUrl(file: HatcheryServer.IFile): void;
-    /**
-     * Attempts to update the project
-     * @param project details
-     */
-    updateDetails(json: any): void;
-    /**
-     * Draws the options JSX
-     */
-    render(): JSX.Element;
-}
-
-export interface IOptionsUserProps {
-}
-export interface IOptionsUserStats {
-    bioUpdateErr?: string | null;
-    imageUploadErr?: string | null;
-    loading?: boolean;
-}
-/**
- * A component for editing the user properties
- */
-export declare class OptionsUser extends React.Component<IOptionsUserProps, IOptionsUserStats> {
-    static defaultProps: IOptionsUserProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOptionsUserProps);
-    /**
-     * Updates the user bio information
-     * @param bio The new bio data
-     */
-    updateBio(bio: string): void;
-    /**
-     * Sets the user's avatar image
-     */
-    setAvatarUrl(file: any): void;
-    /**
-     * Draws the options JSX
-     */
-    render(): JSX.Element;
-}
-
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { PropertyType } from '../../../setup/enums';
-import { Portal } from '../../../core/editors/container-schema/items/portal';
-import { Prop } from '../../../core/properties/prop';
-export interface IPortalFormProps extends IReactWindowProps {
-    onCancel?: () => void;
-}
-export interface IPortalFormStats extends IReactWindowState {
-    errorMsg?: string | null;
-    portal: Portal | null;
-}
-/**
- * This form is used to create or edit Portals.
- */
-export declare class PortalForm extends ReactWindow<IPortalFormProps, IPortalFormStats> {
-    static defaultProps: IPortalFormProps;
-    private _portalType;
-    private _newProperty;
-    private $name;
-    constructor(props: IPortalFormProps);
-    /**
-     * Gets the content JSX for the window.
-     */
-    getContent(): React.ReactNode;
-    /**
-    * Creates a new property from the data chosen
-    * @param {Prop<any>}
-    */
-    getProperty(): Prop<any> | null;
-    /**
-    * Shows the window by adding it to a parent.
-    * @param {Component} item The item we are editing
-    * @param {PortalType} type The items current portal type
-    * @param {string} caption The caption of the form
-    */
-    editPortal(property: Prop<any>, type: HatcheryRuntime.PortalType, nameVerifier: (name: string) => boolean): void;
-    /**
-    * Hides the window from view
-    */
-    hide(): void;
-    /**
-    * Called when we click one of the buttons. This will dispatch the event OkCancelForm.CONFIRM
-    * and pass the text either for the ok or cancel buttons.
-    */
-    ok(json: any): void;
-    readonly name: string;
-    readonly portalType: HatcheryRuntime.PortalType;
-    readonly value: any;
-    readonly parameterType: PropertyType | undefined;
-}
-
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-export interface IRenameFormProps extends IReactWindowProps {
-    name?: string;
-    onRenaming?: (newName: string, prevName: string) => Error;
-    onCancel?: () => void;
-    onOk?: (newName: string) => void;
-}
-export interface IRenameFormState extends IReactWindowState {
-    $errorMsg?: string | null;
-}
-/**
- * This form is used to rename objects
- */
-export declare class RenameForm extends ReactWindow<IRenameFormProps, IRenameFormState> {
-    static defaultProps: IRenameFormProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IRenameFormProps);
-    /**
-     * Hides the form
-     */
-    onCancel(): void;
-    /**
-     * Gets the content JSX for the window.
-     */
-    getContent(): React.ReactNode;
-    /**
-     * Called when the form is submitted
-     */
-    ok(name: string): void;
-}
-
-
-export interface IGroupProps extends React.HTMLAttributes {
-    label: string;
-}
-/**
- * A simple wrapper for a group Component
- */
-export declare class Group extends React.Component<IGroupProps, any> {
-    /**
-     * Creates an instance of the group
-     */
-    constructor(props: IGroupProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IImagePreviewProps extends React.HTMLAttributes {
-    src: string | undefined;
-    defaultSrc?: string;
-    label?: string;
-    labelIcon?: JSX.Element;
-    className?: string;
-    selected?: boolean;
-    onLabelClick?: (e: React.MouseEvent) => void;
-    showLoadingIcon?: boolean;
-}
-/**
- * Shows an image in a against transparent backdrop that is vertically centered and scaled into its container
- */
-export declare class ImagePreview extends React.Component<IImagePreviewProps, {
-    loading: boolean;
-}> {
-    static defaultProps: IImagePreviewProps;
-    private _imgLoader;
-    private _mounted;
-    /**
-     * Creates an instance
-     */
-    constructor(props: IImagePreviewProps);
-    componentWillUnmount(): void;
-    /**
-     * When the preview is added we start the loading process
-     */
-    componentDidMount(): void;
-    /**
-     * If the src or default props change, we reload the new image
-     */
-    componentWillReceiveProps(nextProps: IImagePreviewProps): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IImageUploaderProps {
-    onImage?: (file: HatcheryServer.IFile) => void;
-    src: string | undefined;
-    label: string;
-    onError?: (e: Error) => void;
-}
-export interface IImageUploaderState {
-    src: string | undefined;
-}
-/**
- * A small utility class for uploading and previewing an image
- */
-export declare class ImageUploader extends React.Component<IImageUploaderProps, IImageUploaderState> {
-    /**
-     * Creates an instance
-     */
-    constructor(props: IImageUploaderProps);
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: IImageUploaderProps): void;
-    /**
-     * Opens the file viewer and lets the user pick an image for their project
-     */
-    pickProjectPick(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IListItem {
-    label: string;
-    icon?: string;
-    prefix?: JSX.Element;
-}
-export interface IListProps {
-    items: IListItem[] | null;
-    onSelected?: (item: IListItem, index: number) => void;
-    onDSelected?: (item: IListItem, index: number) => void;
-    selectedIndex?: number;
-    canDeselect?: boolean;
-}
-export interface IListState {
-    selected?: IListItem | null;
-    selectedIndex?: number;
-}
-/**
- * A list of items, with optional tooltips & icons
- */
-export declare class List extends React.Component<IListProps, IListState> {
-    static defaultProps: IListProps;
-    private _prevItems;
-    /**
-     * Creates an instance
-     */
-    constructor(props: IListProps);
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: IListProps): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    componentDidUpdate(prevProps: IListProps): void;
-    /**
-     * Called whenever a list item is selected
-     */
-    onItemSelected(e: React.MouseEvent, item: IListItem, index: number, doubleClick: boolean): void;
-}
-
-/**
- * An interface for describing the login form properties
- */
-export interface ILoginFormProps {
+export declare class LoginForm extends HTMLElement {
     onLoginRequested: (token: UsersInterface.ILoginToken) => void;
     onResetPasswordRequest: (username: string) => void;
     onResendActivationRequest: (username: string) => void;
     onRegisterRequested: () => void;
-    isLoading?: boolean;
-    error?: boolean;
-    message?: string;
-}
-/**
- * An interface for describing the login state
- */
-export interface ILoginFormState {
-    username?: string;
-    error?: boolean;
-    message?: string;
-}
-/**
- * A simple login form
- */
-export declare class LoginForm extends React.Component<ILoginFormProps, ILoginFormState> {
+    private _loading;
     /**
-     * Creates a new instance
-     */
-    constructor(props: ILoginFormProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { IProject } from 'hatchery-server';
-export interface INewProjectProps {
-    onCreateProject: (options: HatcheryServer.IProject) => void;
-    splash: HatcheryEditor.ISplashScreen;
-    onCancel: () => void;
-}
-export interface INewProjectState {
-    selectedPlugins?: Array<{
-        id: string;
-        version: string;
-    }>;
-    message?: string | null;
-    error?: boolean;
-}
-/**
- * A Component for creating a new project
- */
-export declare class NewProject extends React.Component<INewProjectProps, INewProjectState> {
-    /**
-     * Creates a new instance
-     */
-    constructor(props: any);
-    /**
-     * Creates a new user project
-     */
-    newProject(json: IProject): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { AttentionType } from '../../setup/enums';
-export interface IOpenProjectProps {
-    onCancel: () => void;
-    project: HatcheryEditor.IProject;
-}
-export interface IOpenProjectState {
-    message?: string | null;
-    mode?: AttentionType;
-    loading?: boolean;
-}
-export declare class OpenProject extends React.Component<IOpenProjectProps, IOpenProjectState> {
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IOpenProjectProps);
-    /**
-     * Attempts to load the project and setup the scene
-     */
-    loadScene(): void;
-    componentWillMount(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IPagerProps extends React.HTMLAttributes {
-    onUpdate: (index: number, limit: number) => void;
-    count: number;
-    limit?: number;
-}
-export interface IPagerState {
-    index?: number;
-    limit?: number;
-}
-/**
- * A class for handling paged content. You can use the pager like you would a div element. The content
- * of which will be displayed in a sub panel with a footer that allows the user to navigate between the content that's inserted.
- * Use the IPagerProps events to hook for each of the navigation requests and fill the content accordingly.
- */
-export declare class Pager extends React.Component<IPagerProps, IPagerState> {
-    static defaultProps: IPagerProps;
-    /**
-     * Creates an instance of the pager
-     */
-    constructor(props: IPagerProps);
-    /**
-     * When the component is mounted - load the projects
-     */
-    componentWillMount(): void;
-    /**
-     * Calls the update function
-     */
-    invalidate(): void;
-    /**
-     * Gets the current page number
-     */
-    getPageNum(): number;
-    /**
-     * Gets the total number of pages
-     */
-    getTotalPages(): number;
-    /**
-     * Sets the page search back to index = 0
-     */
-    goFirst(): void;
-    /**
-     * Gets the last set of users
-     */
-    goLast(): void;
-    /**
-     * Sets the page search back to index = 0
-     */
-    goNext(): void;
-    /**
-     * Sets the page search back to index = 0
-     */
-    goPrev(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IPluginsWidgetProps {
-    onChange: (selectedPlugins: {
-        id: string;
-        version: string;
-    }[]) => void;
-    onError: (error: Error) => void;
-}
-export interface IPluginsWidgetState {
-    plugins?: HatcheryServer.IPlugin[];
-    activeVersion?: HatcheryServer.IPluginVersion | null;
-    activePlugin?: HatcheryServer.IPlugin | null;
-    loading?: boolean;
-}
-/**
- * A class for displaying a list of available plugins that can be used with a project.
- */
-export declare class PluginsWidget extends React.Component<IPluginsWidgetProps, IPluginsWidgetState> {
-    /**
-     * Creates an instance
-     */
-    constructor(props: IPluginsWidgetProps);
-    /**
-     * When the component is about to mount, we download a list of available plugins
-     */
-    componentWillMount(): void;
-    /**
-     * Selects / deselects the plugin and version
-     */
-    updateSelection(plugin: HatcheryServer.IPlugin, version?: HatcheryServer.IPluginVersion): void;
-    /**
-     * When the user selects a plugin we trigger the onChange event
-     */
-    onChange(plugins: HatcheryServer.IPlugin[]): void;
-    /**
-     * Generates the React code for displaying the plugins
-     */
-    createPluginHierarchy(): JSX.Element[];
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IProjectListProps extends React.HTMLAttributes {
-    onProjectSelected?: (project: HatcheryServer.IProject) => void;
-    onProjectDClicked?: (project: HatcheryServer.IProject) => void;
-    noProjectMessage?: string;
-    projects?: HatcheryServer.IProject[];
-    numProjects?: number;
-    onProjectsRequested?: (index: number, limit: number, keywords: string) => void;
-}
-export interface IProjectListState {
-    loading?: boolean;
-    searchText?: string;
-    selectedProject?: HatcheryServer.IProject | null;
-    errorMsg?: string | null;
-    projects?: HatcheryServer.IProject[];
-}
-/**
- * A list that displays projects in a paginated container.
- */
-export declare class ProjectList extends React.Component<IProjectListProps, IProjectListState> {
-    static defaultProps: IProjectListProps;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: any);
-    selectProject(project: HatcheryServer.IProject | null, doubleClick: boolean): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IProjectsOverviewProps {
-    splash: HatcheryEditor.ISplashScreen;
-    username: string;
-    onProjectDelete: (project: HatcheryServer.IProject) => void;
-    onCreateProject: () => void;
-    onOpenProject: (project: HatcheryServer.IProject) => void;
-    onProjectsRefresh: (index: number, limit: number, searchTerm: string) => void;
-}
-export interface IProjectsOverviewState {
-    selectedProject?: HatcheryServer.IProject | null;
-}
-/**
- * A component for viewing projects, displaying their stats, removing, adding or opening them.
- */
-export declare class ProjectsOverview extends React.Component<IProjectsOverviewProps, IProjectsOverviewState> {
-    private _list;
-    /**
-     * Creates an instance of the projects overview
-     */
-    constructor(props: IProjectsOverviewProps);
-    /**
-     * Renders the project details section
-     */
-    renderProjectInfo(): JSX.Element;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This represents a property for choosing a list of assets
-*/
-export declare class PGAssetList extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    */
-    edit(prop: Prop<any>): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This editor is used to pick colours from a colour dialogue.
-*/
-export declare class PGColorPicker extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This represents a combo property for assets that the user can select from a list.
-*/
-export declare class PGComboAsset extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This represents a combo property for booleans that the user can select from a list.
-*/
-export declare class PGComboBool extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This represents a combo property for enums that the user can select from a list.
-*/
-export declare class PGComboEnum extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* This represents a combo property for assets that the user can select from a list.
-*/
-export declare class PGComboGroup extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* An editor which allows a user to select files on the local server.
-*/
-export declare class PGFile extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* A property editor which edits numbers
-*/
-export declare class PGNumber extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-
-import { Component } from '../component';
-import { Prop } from '../../core/properties/prop';
-import { PropertyGridEditor } from '../../core/property-grid-editor';
-import { PropertyGrid } from '../property-grid';
-/**
-* A property editor which edits objects and strings
-*/
-export declare class PGTextbox extends PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void;
-}
-
-import { Component } from './component';
-/**
-* This small class is used to group property grid elements together
-*/
-export declare class PropertyGridGroup extends Component {
-    name: string;
-    content: JQuery;
-    constructor(name: string);
-    /**
-    * This function is used to clean up the PropertyGridGroup
-    */
-    dispose(): void;
-}
-
-import { Component } from './component';
-import { EditableSet } from '../core/properties/editable-set';
-import { PropertyGridEditor } from '../core/property-grid-editor';
-/**
-* A Component that you can use to edit objects. The Property grid will fill itself with Components you can use to edit a given object.
-* Each time the object is modified a <PropertyGrid.PROPERTY_EDITED> events are sent to listeners.
-*/
-export declare class PropertyGrid extends Component {
-    private static _singleton;
-    private _header;
-    private _editors;
-    private _groups;
-    private _object;
-    constructor(parent: Component);
-    /**
-    * This is called by a controlling ScreenManager class. An image string needs to be returned
-    * which will act as a preview of the component that is being viewed or hidden.
-    * @returns <string> The image url
-    */
-    getPreviewImage(): string;
-    /**
-    * This is called by a controlling Docker class when the component needs to be shown.
-    */
-    onShow(): void;
-    /**
-    * This is called by a controlling Docker class when the component needs to be hidden.
-    */
-    onHide(): void;
-    /**
-    * Cleans up the groups and editors
-    */
-    cleanup(): void;
-    /**
-    * Sets the object we are going to edit.
-    * @param {EditableSet} object The object we are editing. You should ideally create a new object {}, and then
-    * use the function pGridEditble to create valid property grid variables.
-    * @param {string} name The name of the object we are editing
-    * @param {string} img An optional image string
-    * @returns {any} Returns the object we are currently editing
-    */
-    editableObject(object: EditableSet | null, name: string, img?: string): EditableSet | null | undefined;
-    /**
-    * called when we reset the project
-    * @returns <object>
-    */
-    projectReset(): void;
-    /**
-    * Add a new editor to the property grid.
-    * @param {PropertyGridEditor} editor The PropertyGridEditor object to add
-    * @returns {PropertyGridEditor}
-    */
-    addEditor(editor: PropertyGridEditor): PropertyGridEditor;
-    /**
-    * Removes an editor from the property grid.
-    * @param {PropertyGridEditor} editor The PropertyGridEditor object to remove.
-    * @returns {PropertyGridEditor} The editor or null
-    */
-    removeEditor(editor: PropertyGridEditor): PropertyGridEditor | null;
-    /**
-    * This will cleanup the component.
-    */
-    dispose(): void;
-    /**
-    * Gets the singleton instance.
-    * @returns <PropertyGrid>
-    */
-    static getSingleton(parent?: Component): PropertyGrid;
-    readonly currentObject: any;
-}
-
-export interface IRegisterFormProps {
-    onRegisterRequested?: (token: UsersInterface.IRegisterToken) => void;
-    onLoginRequested?: () => void;
-    isLoading?: boolean;
-    error?: boolean;
-    message?: string;
-}
-export interface IRegisterFormState {
-    message?: string;
-    error?: boolean;
-}
-/**
- * A simple register form
- */
-export declare class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
-    private _user;
-    private _captchaId;
-    /**
-     * Creates a new instance
+     * Creates an instance of the Login Form
      */
     constructor();
     /**
-     * Called when the captcha div has been mounted and is ready
-     * to be rendered
-     * @param div The div being rendered
+     * Shows an message to the user
      */
-    mountCaptcha(div: HTMLDivElement): void;
+    message(message: string | null, mode?: AttentionType): void;
     /**
-     * Called when the component is unmounted
+     * Gets if the login form is loading
      */
-    componentWillUnmount(): void;
     /**
-     * Creates the component elements
+     * Sets if the login form is loading
      */
-    render(): JSX.Element;
+    loading: boolean;
 }
 
-export interface IResizableProps {
-    enabled?: boolean;
-    target?: HTMLElement;
-    onDragStart?(e: React.MouseEvent): boolean;
-    onResized?(size: {
-        width: number;
-        height: number;
-    }): void;
-    className?: string;
-}
+import { AttentionType } from '../../setup/enums';
 /**
- * A wrapper Component that adds handles to allow for resizing of its first child component.
+ * A simple register form with event hooks for the different register actions
  */
-export declare class Resizable extends React.Component<IResizableProps, any> {
-    static defaultProps: IResizableProps;
-    private _upProxy;
-    private _moveProxy;
-    private _allowMouseX;
-    private _allowMouseY;
-    private _originRect;
-    private _ghost;
+export declare class RegisterForm extends HTMLElement {
+    onRegisterRequested: (token: UsersInterface.IRegisterToken) => void;
+    onLoginRequested: () => void;
+    private _loading;
+    private _captchaId;
     /**
-     * Creates an instance of the resizer
+     * Creates an instance of the Login Form
      */
-    constructor(props: IResizableProps);
+    constructor();
     /**
-     * When unmounting, we remove any listeners that may still remain
+     * When the component is mounted we initiate the captcha
      */
-    componentWillUnmount(): void;
+    connectedCallback(): void;
     /**
-     * When the mouse is down on the component, we add the move and up listeners
+     * Called when the component is removed we remove the captcha
      */
-    onMouseDown(e: React.MouseEvent, allowMouseX: boolean, allowMouseY: boolean): void;
+    disconnectedCallback(): void;
     /**
-     * When the mouse is up we remove the events
+     * Shows a message to the user
      */
-    onMouseUp(e: React.MouseEvent): void;
+    message(message: string | null, mode?: AttentionType): void;
     /**
-     * When the mouses moves we resize the component
+     * Gets if the login form is loading
      */
-    onMouseMove(e: React.MouseEvent): void;
     /**
-     * Creates the component elements
+     * Sets if the login form is loading
      */
-    render(): JSX.Element;
-}
-
-import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
-export interface IBehaviourComponentProps {
-    editor: ContainerSchema;
-    behaviour: HatcheryEditor.IBehaviour;
-}
-/**
- * A visual representation of a Behaviour
- */
-export declare class BehaviourComponent extends React.Component<IBehaviourComponentProps, any> {
-    /**
-     * Creates an instance of the component
-     */
-    constructor(props: IBehaviourComponentProps);
-    onLinkStart(e: React.MouseEvent, portal: HatcheryEditor.IPortal): void;
-    getPortalFromTarget(target: HTMLElement): HatcheryEditor.IPortal | null;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
-export interface ICommentComponentProps {
-    comment: HatcheryEditor.IComment;
-    editor: ContainerSchema;
-}
-export interface ICommentComponentState {
-    editMode?: boolean;
-    newLabel?: string;
-}
-/**
- * A visual representation of a Behaviour
- */
-export declare class CommentComponent extends React.Component<ICommentComponentProps, ICommentComponentState> {
-    private _onUp;
-    private _wasDownOnInput;
-    /**
-     * Creates an instance of the component
-     */
-    constructor(props: ICommentComponentProps);
-    /**
-     * Remove any remaining listeners
-     */
-    componentWillUnmount(): void;
-    /**
-     * When we switch edit mode, we add/remove listeners and/or focus on the editable textarea
-     */
-    componentDidUpdate(prevProps: ICommentComponentProps, prevState: ICommentComponentState): void;
-    /**
-     * When the mouse is up, we remove the listeners and set the label
-     */
-    onUp(e: React.MouseEvent): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ContainerSchema } from '../../../core/editors/container-schema/container-schema';
-export interface ILinkComponentProps {
-    editor: ContainerSchema;
-    link: HatcheryEditor.ILinkItem;
-    isRouting: boolean;
-    getPortal: ((target: HTMLElement) => HatcheryEditor.IPortal | null) | null;
-}
-/**
- * A visual representation of a Link. Represented on a schema as an SVG line between two behaviours
- */
-export declare class LinkComponent extends React.Component<ILinkComponentProps, any> {
-    private _moveProxy;
-    private _upProxy;
-    /**
-     * Creates an instance of the component
-     */
-    constructor(props: ILinkComponentProps);
-    calculateRect(pos: HatcheryEditor.Point): {
-        left: number;
-        top: number;
-        height: number;
-        width: number;
-    };
-    onMouseMove(e: MouseEvent): void;
-    /**
-     * Remove event listeners
-     */
-    onMouseUp(e: MouseEvent): void;
-    /**
-     * If this link is routing, we attach listeners for mouse up so we can detect when to stop routing
-     */
-    componentDidMount(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IPortalComponentProps {
-    portal: HatcheryEditor.IPortal;
-    onPortalDown?: (e: React.MouseEvent) => void;
-}
-/**
- * A visual representation of a Behaviour's portal
- */
-export declare class PortalComponent extends React.Component<IPortalComponentProps, any> {
-    /**
-     * Creates an instance of the component
-     */
-    constructor(props: IPortalComponentProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { BehaviourDefinition } from '../../core/behaviour-definition';
-import { ContainerSchema } from '../../core/editors/container-schema/container-schema';
-import { ProjectResource } from '../../core/project-resources/project-resource';
-export interface ISchemaProps {
-    editor: ContainerSchema;
-}
-export declare class Schema extends React.Component<ISchemaProps, {
-    workspace: HatcheryServer.IContainerWorkspace;
-}> {
-    constructor(props: ISchemaProps);
-    componentWillReceiveProps(nextProps: ISchemaProps): void;
-    /**
-     * Clean up any listeners
-     */
-    componentWillUnmount(): void;
-    /**
-     * When the store changes, we update the state
-     */
-    invalidate(): void;
-    /**
-     * Called when a draggable object is dropped onto the canvas.
-     * @param {React.MouseEvent} e
-     * @param {IDragDropToken} json
-     */
-    onObjectDropped(e: React.MouseEvent, json: HatcheryEditor.IDragDropToken | null): void;
-    /**
-    * This will create a new behaviour based on the template given
-    * @param template The definition of the behaviour we're creating
-    * @param pos The x and y position of where the node shoule be placed
-    * @param resource Some behehaviours are wrappers for resources, these resources can optionally be provided
-    */
-    addBehaviour(template: BehaviourDefinition, pos: HatcheryEditor.Point, resource?: ProjectResource<HatcheryServer.IResource>): void;
-    createPortal(type: HatcheryRuntime.PortalType, pos: HatcheryEditor.Point): void;
-    /**
-     * Opens the canvas context menu
-     * @param {React.MouseEvent} e
-     */
-    onContext(e: React.MouseEvent): void;
-    getPortal(target: HTMLElement): HatcheryEditor.IPortal | null;
-    /**
-     * Creates the component elements
-     * @returns {JSX.Element}
-     */
-    render(): JSX.Element;
-}
-
-export interface ISearchBoxProps extends React.HTMLAttributes {
-    onSearch: (e: React.FormEvent, searchText: string) => void;
-    /**
-     * Only call onSearch when the input loses focus
-     */
-    triggerOnBlur?: boolean;
-}
-/**
- * Wraps an input box with HTML that makes it look like a search bar.
- * Add a listener for the onChange event and it will be triggered either when the input
- * changes, or the search button is pressed.
- */
-export declare class SearchBox extends React.Component<ISearchBoxProps, {
-    value: string;
-}> {
-    static defaultProps: ISearchBoxProps;
-    /**
-     * Creates an instance of the search box
-     */
-    constructor(props: ISearchBoxProps);
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps(nextProps: ISearchBoxProps): void;
-    /**
-     * Called whenever the input changes
-     */
-    onChange(e: React.FormEvent): void;
-    /**
-     * Called whenever the input loses focus
-     */
-    onBlur(e: React.FormEvent): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
+    loading: boolean;
 }
 
 export declare type SplitOrientation = 'vertical' | 'horizontal';
@@ -1821,22 +316,20 @@ export declare class SplitPanel extends HTMLElement {
     private _dividerSize;
     private _mouseUpProxy;
     private _mouseMoveProxy;
-    private _ratioChanged;
+    onRatioChanged: undefined | ((ratio: number) => void);
     /**
      * Creates a new instance
      */
     constructor();
+    connectedCallback(): void;
+    readonly left: Element;
+    readonly top: Element;
+    readonly bottom: Element;
+    readonly right: Element;
     /**
      * If the attributes change we update the internal state
      */
     attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
-    /**
-     * Gets the callback for when the ratio is changed
-     */
-    /**
-     * Sets the callback for when the ratio is changed
-     */
-    onRatioChanged: ((ratio: number) => void) | undefined;
     /**
      * Gets the orientation of the split panel
      */
@@ -1870,1826 +363,209 @@ export declare class SplitPanel extends HTMLElement {
     onStageMouseMove(e: MouseEvent): void;
 }
 
-import { Component } from '../component';
-import { Tab } from './tab';
+import { ValidationError } from '../../core/utils';
 /**
-* This class is a small container class that is used by the Tab class. It creates TabPairs
-* each time a tab is created with the addTab function. This creates a TabPair object that keeps a reference to the
-* label and page as well as a few other things.
-*/
-export declare class TabPair {
-    tab: Tab<any, any>;
-    tabSelector: Component;
-    page: Component;
-    name: string;
-    private _savedSpan;
-    private _modified;
-    constructor(selector: Component | null, page: Component | null, name: string);
-    /**
-    * Gets if this tab pair has been modified or not
-    * @returns {boolean}
-    */
-    /**
-    * Sets if this tab pair has been modified or not
-    * @param {boolean} val
-    */
-    modified: boolean;
-    /**
-    * Called when the editor is resized
-    */
-    onResize(): void;
-    /**
-    * Called by the tab class when the pair is to be removed.
-    * @param {TabEvent} data An object that can be used to cancel the operation. Simply call data.cancel = true to cancel the closure.
-    */
-    onRemove(data: any): void;
-    /**
-    * Called by the tab when the save all button is clicked
-    */
-    onSaveAll(): void;
-    /**
-    * Called when the pair has been added to the tab
-    */
-    onAdded(): void;
-    /**
-    * Called when the pair has been selected
-    */
-    onSelected(): void;
-    /**
-    * Gets the label text of the pair
-    */
-    /**
-    * Sets the label text of the pair
-    */
-    text: string;
-    /**
-    * Cleans up the references
-    */
-    dispose(): void;
-}
-
-export interface ITabPaneProps {
-    label: string | null;
-    showCloseButton?: boolean;
-    onDispose?: (paneIndex: number, prop: ITabPaneProps) => void;
-    canSelect?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
-    canClose?: (paneIndex: number, prop: ITabPaneProps) => boolean | Promise<boolean>;
-    onSelect?: (paneIndex: number) => void;
-}
-/**
- * A single page/pane/folder pane for use in a Tab
+ * A wrapper for a select box that adds some simple validation logic
+ * e.g.
+ *
+ * const select = new ValidatedSelect();
+ * select.allowEmpty = false;
+ * select.options = ['', 'Option 1', 'Option 2']
+ * select.value = 'Option 2';
  */
-export declare class TabPane extends React.Component<ITabPaneProps, any> {
-    static defaultProps: ITabPaneProps;
-    /**
-     * Creates a new pane instance
-     */
-    constructor(props: ITabPaneProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ITabPaneProps } from './tab-pane';
-export interface ITabProps {
-    panes?: React.ReactElement<ITabPaneProps>[];
-    className?: string;
-}
-export interface ITabState {
-    selectedIndex: number;
-}
-/**
- * A Tab Component for organising pages of content into separate labelled tabs/components
- */
-export declare class Tab<T extends ITabProps, Y extends ITabState> extends React.Component<T, Y> {
-    private _panes;
-    private _disposed;
-    private _waitingOnPromise;
-    /**
-     * Creates a new instance of the tab
-     */
-    constructor(props: T);
-    /**
-     * When the props are reset we remove all the existing panes and create the new ones
-     */
-    componentWillReceiveProps(nextProps: ITabProps): void;
-    /**
-     * Check if we need to notify the onSelect event
-     */
-    componentDidMount(): void;
-    componentWillUnmount(): void;
-    /**
-     * Check if the index changes so we can notify the onSelect event
-     */
-    componentDidUpdate(prevProps: T, prevState: Y): void;
-    /**
-     * Removes a pane from from the tab
-     * @param index The index of the selected tab
-     * @param props props of the selected tab
-     */
-    private removePane(index, prop);
-    /**
-     * Internal function that removes the pane reference, disposes it and sets a new index
-     */
-    private disposePane(index, prop);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    /**
-     * When we select a tab
-     * @param index The index of the selected tab
-     * @param props props of the selected tab
-     */
-    onTabSelected(index: number, props: ITabPaneProps): void;
-    /**
-     * Select a panel by index
-     * @param index
-     */
-    selectByIndex(index: number): ITabPaneProps;
-    /**
-     * Select a panel by its label
-     * @param label
-     */
-    selectByLabel(label: string): ITabPaneProps;
-    /**
-     * Select a panel by its property object
-     * @param props
-     */
-    selectByProps(props: ITabPaneProps): ITabPaneProps;
-    /**
-     * Shows the context menu
-     */
-    showContext(e: React.MouseEvent): void;
-    /**
-     * Adds a dynamic pane to the tab
-     */
-    addTab(pane: React.ReactElement<ITabPaneProps>): void;
-    removeTabByLabel(label: string): void;
-    /**
-     * Gets a tab's' props by its label
-     * @param val The label text of the tab
-     * @returns The tab pair containing both the label and page {Component}s
-     */
-    getPaneByLabel(label: string): ITabPaneProps | null;
-    /**
-     * Called when the component is unmounted
-     */
-    componentwillunmount(): void;
-    /**
-     * Removes all panes from the tab
-     */
-    clear(): void;
-    /**
-     * Gets an array of all the tab props
-     */
-    readonly panes: ITabPaneProps[];
-}
-
-
-
-
-
-
-
-
-export interface IToolbarButtonProps {
-    onChange?: (val: boolean) => void | null;
-    pushButton?: boolean;
-    selected?: boolean;
-    label: string | null;
-    imgUrl?: string;
-    prefix?: JSX.Element;
-    disabled?: boolean;
-}
-export interface IToolbarButtonState {
-    selected: boolean;
-}
-/**
- * A very simple wrapper for a toolbar button
- */
-export declare class ToolbarButton extends React.Component<IToolbarButtonProps, IToolbarButtonState> {
-    static defaultProps: IToolbarButtonProps;
-    constructor(props: IToolbarButtonProps);
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    /**
-    * Called when the props are updated
-    */
-    componentWillReceiveProps(nextProps: IToolbarButtonProps): void;
-    onClick(): void;
-    /**
-     * Get if the component is selected
-     */
-    /**
-     * Set if the component is selected
-     */
-    selected: boolean;
-}
-
-import { Component } from '../../component';
-/**
-*  Use this tool bar button to pick a colour.
-*/
-export declare class ToolbarColorPicker extends Component {
-    private numberInput;
-    private picker;
-    constructor(parent: Component, text: string, color: string);
-    /**
-    * Gets or sets the colour of the toolbar button
-    */
-    /**
-    * Gets or sets the colour of the toolbar button
-    */
-    color: number;
-    /**
-    * Disposes of and cleans up this button
-    */
-    dispose(): void;
-}
-
-import { Component } from '../../component';
-/**
-* The interface for all layout objects.
-*/
-export declare class ToolbarItem extends Component {
-    text: String;
-    img: String;
-    /**
-    * @param {string} img The image path.
-    * @param {string} text The text to use in the item.
-    */
-    constructor(img: string, text: string, parent?: Component);
-}
-/**
-*  A toolbar button for selection a list of options
-*/
-export declare class ToolbarDropDown extends Component {
-    items: Array<ToolbarItem>;
-    private _popupContainer;
-    private _selectedItem;
-    private _clickProxy;
-    private _stageDownProxy;
-    /**
-    * @param {Component} parent The parent of this toolbar
-    * @param {Array<ToolbarItem>} items An array of items to list e.g. [{img:'./img1.png', text:'option 1'}, {img:'./img2.png', text:'option 2'}]
-    */
-    constructor(parent: Component, items: Array<ToolbarItem>);
-    /**
-    * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
-    * @param {ToolbarItem} item The item to add.
-    * @returns {Component}
-    */
-    addItem(item: ToolbarItem): Component;
-    /**
-    * Adds an item the drop down. The item must be an object with both img and text vars. eg: { img:'', text:'' }
-    * @param {any} val This can be either the item object itself, its text or its component.
-    * @param {boolean} dispose Set this to true if you want delete the item
-    * @returns {Component} Returns the removed item component or null
-    */
-    removeItem(val: any, dispose?: boolean): any;
-    /**
-    * Clears all the items
-    * @param {boolean} dispose Set this to true if you want to delete all the items from memory
-    */
-    clear(dispose?: boolean): void;
-    /**
-    * Gets the selected item
-    * @returns {ToolbarItem}
-    */
-    /**
-    * Sets the selected item
-    * @param {any} item
-    */
-    selectedItem: ToolbarItem;
-    /**
-    * Called when the mouse is down on the DOM
-    * @param {any} e The jQuery event
-    */
-    onStageUp(e: any): void;
-    /**
-    * When we click the main button
-    * @param {any} e The jQuery event oject
-    */
-    onClick(): void;
-    /**
-    * Cleans up the component
-    */
-    dispose(): void;
-}
-
-import { Component } from '../../component';
-import { ENUM } from '../../../core/event-dispatcher';
-export declare class ToolbarNumberEvents extends ENUM {
-    constructor(v: string);
-    static CHANGED: ToolbarNumberEvents;
-}
-/**
-*  A toolbar button for numbers
-*/
-export declare class ToolbarNumber extends Component {
-    private static input;
-    private static numInstances;
-    private defaultVal;
-    private minValue;
-    private maxValue;
-    private delta;
-    private startPos;
-    private label;
-    private leftArrow;
-    private rightArrow;
-    private stageUpPoxy;
-    private stageMovePoxy;
-    private downProxy;
-    private clickProxy;
-    private wheelProxy;
-    private keyProxy;
-    /**
-    * @param {Component} parent The parent of this toolbar
-    */
-    constructor(parent: Component, text: string, defaultVal: number, minValue: number, maxValue: number, delta?: number);
-    /**
-    * Called when the mouse is down on the DOM
-    * @param <object> e The jQuery event
-    */
-    onStageUp(e: any): void;
-    /**
-    * Called when we move on the stage
-    * @param <object> e The jQuery event
-    */
-    onStageMove(e: any): void;
-    /**
-    * Set or get the value
-    * @param {number} val The value we are setting
-    */
-    /**
-    * Set or get the value
-    * @param {number} val The value we are setting
-    */
-    value: number;
-    onWheel(event: any, delta: any): void;
-    onKeyDown(e: any): void;
-    onDown(e: any): void;
-    onClick(e: any): void;
-    /**
-    * Cleans up the component
-    */
-    dispose(): void;
-}
-
-import { Component } from '../../components/component';
-import { ToolbarButton } from './toolbar-button/toolbar-button';
-import { ToolbarNumber } from '../toolbar/toolbar-buttons/toolbar-number';
-import { ToolbarColorPicker } from '../toolbar/toolbar-buttons/toolbar-color-picker';
-import { ToolbarDropDown, ToolbarItem } from '../toolbar/toolbar-buttons/toolbar-drop-down';
-export interface IToolbarProps {
-    project: HatcheryEditor.IProject | null;
-}
-export interface IToolbarState {
-}
-/**
-* The main toolbar that sits at the top of the application
-*/
-export declare class Toolbar extends React.Component<IToolbarProps, IToolbarState> {
-    private static _singleton;
-    private $itemSelected;
-    private _copyPasteToken;
-    constructor(props?: IToolbarProps);
-    componentWillMount(): void;
-    componentWillUnmount(): void;
-    onProjectUpdated(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-    /**
-    * This is called when an item on the canvas has been selected
-    * @param {Component} item
-    */
-    itemSelected(item: Component): void;
-    /**
-    * This is called when we have loaded and initialized a new project.
-    */
-    newProject(): void;
-    /**
-    * Opens the splash window
-    */
-    onHome(): void;
-    /**
-    * Opens the user privileges window
-    */
-    onShowPrivileges(): void;
-    /**
-    * Notifys the app that its about to launch a test run
-    */
-    onRun(): void;
-    /**
-    * When we click the paste button
-    */
-    onPaste(): void;
-    /**
-    * When we click the copy button
-    */
-    onDuplicate(cut?: boolean): void;
-    /**
-    * Shows the rename form - and creates a new behaviour if valid
-    */
-    newContainer(): void;
-    /**
-    * When we click the delete button
-    */
-    onDelete(): void;
-    /**
-    * This function is used to create a new group on the toolbar
-    * @param text The text of the new tab
-    * @param text The text of the new tab
-    * @returns Returns the {Component} object representing the tab
-    */
-    createTab(text: string, isSelected?: boolean): Component | null;
-    saveAll(): void;
-    /**
-    * Called when the key is pushed down
-    */
-    onKeyDown(event: any): void;
-    /**
-    * Removes a tab by its name
-    * @param text The name of the tab
-    */
-    removeTab(text: string): void;
-    /**
-    * This function is used to create a new group on the toolbar
-    * @param tab The {Component} tab object which represents the parent of this group.
-    * @returns Returns the {Component} object representing the group
-    */
-    createGroup(tab: Component): Component | null;
-    /**
-    * Use this function to create a group button for the toolbar
-    * @param {string} text The text for the button
-    * @param {number} min The minimum limit
-    * @param {number} max The maximum limit
-    * @param {number} delta The incremental difference when scrolling
-    * @param {Component} group The Component object representing the group
-    * @returns {ToolbarNumber}
-    */
-    createGroupNumber(text: string, defaultVal: number, min?: number, max?: number, delta?: number, group?: Component | null): ToolbarNumber | null;
-    /**
-    * Use this function to create a group button for the toolbar
-    * @param {string} text The text for the button
-    * @param {string} image An image URL for the button icon
-    * @param {Component} group The Component object representing the group
-    * @param {boolean} isPushButton If true, the button will remain selected when clicked.
-    * @returns {Component} Returns the Component object representing the button
-    */
-    createGroupButton(text: string, image?: string | null, group?: Component | null, isPushButton?: boolean): ToolbarButton | null;
-    /**
-    * Use this function to create a group button for the toolbar
-    * @param {Component} parent The parent that will contain the drop down
-    * @param {Array<ToolbarItem>} items An array of items to list
-    * @returns {ToolbarDropDown} Returns the Component object representing the button
-    */
-    createDropDownButton(parent: Component, items: Array<ToolbarItem>): ToolbarDropDown | null;
-    /**
-    * Use this function to create a group button for the toolbar
-    * @param {Component} parent The parent that will contain the drop down
-    * @param {string} text The under the button
-    * @param {string} color The hex colour as a string
-    * @returns {ToolbarColorPicker} Returns the ToolbarColorPicker object representing the button
-    */
-    createColorButton(parent: Component, text: string, color: string): ToolbarColorPicker | null;
-    /**
-    * Gets the singleton instance
-    */
-    static getSingleton(parent?: Component): Toolbar;
-}
-
-export declare enum TooltipPosition {
-    TOP = 0,
-    BOTTOM = 1,
-}
-export interface ITooltipProps {
-    tooltip?: JSX.Element | string;
-    position?: TooltipPosition;
-    offset?: number;
-    disabled?: boolean;
-}
-export interface ITooltipState {
-    showTooltip: boolean;
-}
-/**
- * Creates a new tooltip react Component. The content of this Component
- * is wrapped in a div which listens for mouse enter and leave events.
- * When entered the tooltip property is displayed.
- */
-export declare class Tooltip extends React.Component<ITooltipProps, ITooltipState> {
-    private static _tooltip;
-    static defaultProps: ITooltipProps;
+export declare class ValidatedSelect extends HTMLElement {
+    private _value?;
+    private _options;
+    allowEmpty: boolean;
+    onChange?: (sender: ValidatedSelect) => void;
+    onValidationError?: (sender: ValidatedSelect, error: ValidationError) => void;
+    onValidationResolved?: (sender: ValidatedSelect) => void;
+    static readonly observedAttributes: string[];
     /**
      * Creates an instance
-     */
-    constructor(props: ITooltipProps);
-    /**
-     * When the mouse enters over the element we add the tooltip to the body
-     */
-    onMouseEnter(e: React.MouseEvent): void;
-    /**
-     * When the element is unmounted we remove the tooltip if its added
-     */
-    componentWillUnmount(): void;
-    /**
-     * When the mouse leaves we remove the tooltip
-     */
-    onMouseleave(): void;
-    /**
-    * Creates the component elements
-    */
-    render(): JSX.Element;
-}
-
-import { AssetClass } from '../../../core/asset-class';
-import { Project } from '../../../core/project';
-import { ProjectEvents, IResourceEvent } from '../../../setup/events';
-import { TreeNodeModel } from '../treenode-model';
-import { TreeNodeAssetInstance } from './treenode-asset-instance';
-/**
- * A node that represents an Asset Class
- */
-export declare class TreeNodeAssetClass extends TreeNodeModel {
-    assetClass: AssetClass | null;
-    private _project;
-    /**
-     * Creates an instance of node
-     */
-    constructor(assetClass: AssetClass, project: Project);
-    /**
-     * Clean up
-     */
-    dispose(): void;
-    /**
-     * If a container is created, then add its node representation
-     */
-    onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
-    /**
-     * This will get all instance nodes of a particular class name(s)
-     * @param classNames The class name of the asset, or an array of class names
-     */
-    getInstances(classNames: string | string[] | null): TreeNodeAssetInstance[];
-}
-
-import { AssetClass } from '../../../core/asset-class';
-import { Asset } from '../../../core/project-resources/asset';
-import { TreeViewNodeResource } from './treeview-node-resource';
-/**
- * Treenode that contains a reference to an asset
- */
-export declare class TreeNodeAssetInstance extends TreeViewNodeResource<Asset> {
-    assetClass: AssetClass;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(assetClass: AssetClass, asset: Asset);
-    /**
-     * When we click ok on the portal form
-     */
-    onAssetEdited(): void;
-    /**
-     * This will cleanup the component.
-     */
-    dispose(): void;
-}
-
-import { Project } from '../../../core/project';
-import { Container } from '../../../core/project-resources/container';
-import { TreeViewNodeResource } from './treeview-node-resource';
-/**
- * Treenode that contains a reference to an asset
- */
-export declare class TreeNodeContainerInstance extends TreeViewNodeResource<Container> {
-    private _project;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(container: Container, project: Project);
-    /**
-     * Gets or sets the label of the node
-     * @param {string} val
-     * @returns {string}
-     */
-    label(val?: string): string;
-    /**
-     * Called whenever the node is double clicked
-     */
-    onDoubleClick(): void;
-    dispose(): void;
-}
-
-import { GroupArray } from '../../../core/project-resources/group-array';
-import { ProjectResource } from '../../../core/project-resources/project-resource';
-import { TreeNodeModel } from '../treenode-model';
-import * as HatcheryServer from 'hatchery-server';
-/**
- * This node represents a group instance
- */
-export declare class TreeNodeGroupInstance extends TreeNodeModel {
-    private _resource;
-    private _group;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(resource: ProjectResource<HatcheryServer.IResource>, group: GroupArray);
-    /**
-     * Show a context menu of resource options
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * Gets or sets the label of the node
-     */
-    label(val?: string): string;
-    /**
-     * This will cleanup the component
-     */
-    dispose(): void;
-    readonly shallowId: number;
-}
-
-import { GroupArray } from '../../../core/project-resources/group-array';
-import { TreeViewNodeResource } from './treeview-node-resource';
-/**
- * This node represents a group asset.
- * Other resource nodes can be dropped on these which will append the object (if valid) into the group
- */
-export declare class TreeNodeGroup extends TreeViewNodeResource<GroupArray> {
-    /**
-     * Creates an instance of the node
-     */
-    constructor(group: GroupArray);
-    /**
-     * Called whenever the resource is re-downloaded
-     */
-    protected onRefreshed(): void;
-    /**
-     * Called whenever we drop an item on this element. This is only called if canDrop is true.
-     * Use it to set drag data, eg: e.dataTransfer.getData("text");
-     * @param e
-     * @param json The unserialized data
-     */
-    onDragDrop(e: React.DragEvent, json: HatcheryEditor.IDragDropToken): void;
-}
-
-import { PluginManagerEvents, ITemplateEvent } from '../../../setup/events';
-import { BehaviourDefinition } from '../../../core/behaviour-definition';
-import { TreeNodeModel } from '../treenode-model';
-/**
- * This node represents a behaviour created by a plugin.
- */
-export declare class TreeNodePluginBehaviour extends TreeNodeModel {
-    private _template;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(template: BehaviourDefinition);
-    /**
-     * Called whenever we start dragging. This is only called if canDrag is true.
-     * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
-     */
-    onDragStart(): HatcheryEditor.IDragDropToken;
-    /**
-     * If a template is removed then remove its instance
-     */
-    onTemplateRemoved(type: PluginManagerEvents, event: ITemplateEvent): void;
-    /**
-     * This will cleanup the component
-     */
-    dispose(): void;
-    readonly template: BehaviourDefinition;
-}
-
-import { Project } from '../../../core/project';
-import { TreeNodeModel } from '../treenode-model';
-/**
- * A root node that contains the visual representations of project assets
- */
-export declare class TreeViewNodeAssets extends TreeNodeModel {
-    /**
-     * Creates an instance of the node
-     */
-    constructor(project: Project);
-    /**
-     * Called whenever the node receives a context event
-     */
-    onContext(e: React.MouseEvent): void;
-}
-
-import { PluginManagerEvents, ITemplateEvent } from '../../../setup/events';
-import { TreeNodeModel } from '../treenode-model';
-/**
- * A root node that contains the visual representations of project containers
- */
-export declare class TreeViewNodeBehaviours extends TreeNodeModel {
-    /**
-     * Creates an instance of the node
      */
     constructor();
     /**
-     * Clean up
+     * If the attributes change we update the internal state
      */
-    dispose(): void;
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
     /**
-     * Show context menu items
+     * Once the component is added to the DOM we re-evaluate the value value
+     * to see if there are options added now that match it. We also check its
+     * validation rules.
      */
-    onContext(e: React.MouseEvent): void;
+    connectedCallback(): void;
     /**
-     * If a template is created, then add its node representation
+     * Called whenever the value changes
      */
-    onTemplateCreated(type: PluginManagerEvents, event: ITemplateEvent): void;
+    private onSelectChange(e);
+    /**
+     * Checks the selected option to see if its valid
+     */
+    private validate(val);
+    /**
+     * Gets the select name
+     */
+    /**
+     * Sets the select name
+     */
+    name: string;
+    /**
+     * Gets if the select is highlighted or not
+     */
+    /**
+     * Sets if the select is highlighted or not
+     */
+    highlight: boolean;
+    /**
+     * Gets if the select is in a pristine state
+     */
+    /**
+     * Sets if the select is in a pristine state
+     */
+    pristine: boolean;
+    /**
+     * Gets if the select is invalid in its current form
+     */
+    /**
+     * Sets if the select is invalid in its current form
+     */
+    invalid: boolean;
+    /**
+     * Gets the select value
+     */
+    /**
+     * Sets the select value
+     */
+    value: string;
+    /**
+     * Gets the options array
+     */
+    /**
+     * Sets the options array
+     */
+    options: string[];
 }
 
-import { ProjectEvents, IResourceEvent } from '../../../setup/events';
-import { Project } from '../../../core/project';
-import { TreeNodeModel } from '../treenode-model';
+import { ValidationType } from '../../setup/enums';
+import { ValidationError } from '../../core/utils';
 /**
- * A root node that contains the visual representations of project containers
+ * A wrapper for an input or text area that adds functionality for validating the user input.
+ * Validations are set as min and max character limits and validator enums. You can hook into events
+ * such as onValidationError, onValidationResolved and onChange to extract data. You can
+ * aslo call value.
+ *
+ * e.g:
+ * const input = new ValidatedText();
+ * input.value = 'hello world';
+ * input.min = 5;
+ * input.validator = ValidationType.EMAIL | ValidationType.NOT_EMPTY;
  */
-export declare class TreeViewNodeContainers extends TreeNodeModel {
-    private _context;
-    private _project;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(project: Project);
-    /**
-     * Clean up
-     */
-    dispose(): void;
-    /**
-     * Show context menu items
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * If a container is created, then add its node representation
-     */
-    onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
-}
-
-import { Project } from '../../../core/project';
-import { ProjectEvents, IResourceEvent } from '../../../setup/events';
-import { TreeNodeModel } from '../treenode-model';
-/**
- * A root node that contains the visual representations of project groups
- */
-export declare class TreeViewNodeGroups extends TreeNodeModel {
-    private _loading;
-    private _project;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(project: Project);
-    /**
-     * Gets or sets the icon of the node
-     */
-    icon(val?: JSX.Element): JSX.Element | undefined;
-    /**
-     * Clean up
-     */
-    dispose(): void;
-    /**
-     * Show context menu items
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * If a container is created, then add its node representation
-     */
-    onResourceCreated(type: ProjectEvents, event: IResourceEvent): void;
-}
-
-import { ProjectResource } from '../../../core/project-resources/project-resource';
-import { ProjectEvents, IResourceEvent } from '../../../setup/events';
-import { TreeNodeModel } from '../treenode-model';
-/**
- * A model for referencing a project resource
- */
-export declare class TreeViewNodeResource<T extends ProjectResource<HatcheryServer.IResource>> extends TreeNodeModel {
-    resource: T;
-    private _loading;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(resource: T);
-    /**
-     * Called whenever we start dragging. This is only called if canDrag is true.
-     * Use it to set drag data, eg: e.dataTransfer.setData('text', 'some data');
-     * @param {React.DragEvent} e
-     * @returns {IDragDropToken} Return data to serialize
-     */
-    onDragStart(): HatcheryEditor.IDragDropToken;
-    /**
-     * Show a context menu of resource options
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * Gets or sets if this node is in a loading/busy state
-     * @param {boolean} val
-     * @returns {boolean}
-     */
-    loading(val?: boolean): boolean;
-    /**
-     * Gets or sets the label of the node
-     * @param {string} val
-     * @returns {string}
-     */
-    label(val?: string): string;
-    /**
-     * Gets or sets the icon of the node
-     * @param {JSX.Element} val
-     * @returns {JSX.Element}
-     */
-    icon(val?: JSX.Element): JSX.Element | undefined;
-    /**
-     * This will cleanup the model
-     */
-    dispose(): void;
-    /**
-     * Called whenever the resource is modified
-     */
-    protected onDeleted(type: ProjectEvents, event: IResourceEvent): void;
-    /**
-     * Called whenever the resource is modified
-     */
-    protected onModified(): void;
-    /**
-     * Called whenever the resource is edited
-     */
-    protected onEdited(): void;
-    /**
-     * Called when the rename context item is clicked
-     */
-    onRenameClick(): void;
-    /**
-     * Called when the delete context item is clicked
-     */
-    private onDeleteClick();
-    /**
-     * Called when the delete context item is clicked
-     */
-    private onSaveClick();
-    /**
-     * Called when the refresh context item is clicked
-     */
-    private onRefreshClick();
-    /**
-     * Called whenever the resource is re-downloaded
-     */
-    protected onRefreshed(): void;
-    /**
-     * Handles the completion of project requests
-     */
-    private handleNodePromise(promise, node);
-}
-
-import { TreeNodeStore } from './treenode-store';
-export declare class TreeNodeModel {
-    private _icon;
-    private _label;
-    private _selected;
-    private _expanded;
-    private _disabled;
-    private _selectable;
-    children: TreeNodeModel[];
-    protected _parent: TreeNodeModel | null;
-    store: TreeNodeStore;
-    focussed: boolean;
-    canDrag: boolean;
-    canDrop: boolean;
-    /**
-     * Creates an instance of the node
-     */
-    constructor(label: string, icon?: JSX.Element, children?: TreeNodeModel[]);
-    /**
-     * Gets the parent node
-     * @returns
-     */
-    readonly parent: TreeNodeModel | null;
-    /**
-     * Gets or sets the label of the node
-     * @param val
-     */
-    label(val?: string): string;
-    /**
-     * Called whenever we start dragging. This is only called if canDrag is true.
-     * Use it to set drag data, eg: e.dataTransfer.setData("text", 'some data');
-     * @param e
-     * @returns Return data to serialize
-     */
-    onDragStart(e: React.DragEvent): HatcheryEditor.IDragDropToken | null;
-    /**
-     * Called whenever we drop an item on this element. This is only called if canDrop is true.
-     * Use it to set drag data, eg: e.dataTransfer.getData("text");
-     * @param e
-     * @param json The unserialized data
-     */
-    onDragDrop(e: React.DragEvent, json: HatcheryEditor.IDragDropToken | null): void;
-    /**
-     * Gets or sets if the node is selected
-     * @param val
-     */
-    selected(val?: boolean): boolean;
-    /**
-     * Gets or sets if the node is disabled
-     * @param val
-     */
-    disabled(val?: boolean): boolean;
-    /**
-     * Gets or sets if the node is selectable
-     * @param val
-     */
-    selectable(val?: boolean): boolean;
-    /**
-     * Gets or sets if the node is expanded
-     * @param val
-     */
-    expanded(val?: boolean): boolean;
-    /**
-     * Gets or sets the icon of the node
-     * @param val
-     */
-    icon(val?: JSX.Element): JSX.Element | undefined;
-    /**
-     * Attempts to trigger a change event on the store
-     */
-    protected invalidate(): void;
-    /**
-     * Adds a child node
-     * @param node
-     */
-    addNode(node: TreeNodeModel): TreeNodeModel;
-    /**
-     * Removes a child node
-     * @param node
-     */
-    removeNode(node: TreeNodeModel): void;
-    /**
-     * Called whenever the node receives a context event
-     * @param e
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * Called whenever the node is double clicked
-     */
-    onDoubleClick(e: React.MouseEvent): void;
-    /**
-     * This will recursively look through each of the nodes to find one with
-     * the specified name and value.
-     * @param property The Javascript property on the node that we are evaluating
-     * @param value The value of the property we are comparing.
-     */
-    findNode(property: string, value: any): TreeNodeModel | null;
-    /**
-     * This will cleanup the model
-     */
-    dispose(): void;
-}
-
-import { TreeNodeModel } from './treenode-model';
-import { EventDispatcher } from '../../core/event-dispatcher';
-/**
- * This class is used to create tree view items.
- */
-export declare class TreeNodeStore extends EventDispatcher {
-    protected _children: TreeNodeModel[];
-    protected _selectedNodes: TreeNodeModel[];
-    protected _multiSelect: boolean;
-    protected _onlySimilarNodeSelection: boolean;
-    /**
-     * Creates a treenode store
-     */
-    constructor(children?: TreeNodeModel[]);
-    /**
-     * Adds a child node
-     * @param node
-     */
-    addNode(node: TreeNodeModel): TreeNodeModel;
-    /**
-     * Removes a child node
-     * @param node
-     */
-    removeNode(node: TreeNodeModel): void;
-    /**
-     * Removes all nodes from the store
-     */
-    clear(): void;
-    /**
-     * Triggers a change in the tree structure
-     */
-    invalidate(): void;
-    /**
-     * Called whenever the selection has changed
-     * @param selection
-     */
-    onSelectionChange(selection: TreeNodeModel[]): void;
-    /**
-     * Called whenever a node is selectable and clicked.
-     * @param node
-     * @param shiftDown
-     */
-    onNodeSelected(node: TreeNodeModel | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
-    /**
-     * Sets the store of the node and all its children to be this store
-     */
-    setStore(node: TreeNodeModel): void;
-    private unFocus(node);
-    /**
-     * Called whenever the node receives a context event
-     * @param e
-     * @param node
-     */
-    onContext(e: React.MouseEvent, node: TreeNodeModel): void;
-    /**
-     * This will recursively look through each of the nodes to find a node with
-     * the specified name.
-     * @param property The name property we are evaluating
-     * @param value The object we should be comparing against
-     */
-    findNode(property: string, value: any): TreeNodeModel | null;
-    /**
-     * Selects a node manually. This will also bring the focus into node
-     */
-    selectNode(node: TreeNodeModel): void;
-    /**
-     * Gets the nodes associated with this store
-     */
-    getNodes(): TreeNodeModel[];
-    /**
-     * Gets the currently selected nodes
-     */
-    getSelectedNodes(): TreeNodeModel[];
-}
-
-import { TreeNodeModel } from './treenode-model';
-export interface ITreeNodeProps {
-    node: TreeNodeModel;
-}
-/**
- * This visual representation of a TreeNodeModel
- */
-export declare class TreeNode extends React.Component<ITreeNodeProps, any> {
+export declare class ValidatedText extends HTMLElement {
+    private _selectOnClick;
+    private _inputType;
+    validator: ValidationType;
+    min: number;
+    max: number;
+    hint: string;
+    onChange?: (sender: ValidatedText) => void;
+    onValidationError?: (sender: ValidatedText, error: ValidationError) => void;
+    onValidationResolved?: (sender: ValidatedText) => void;
+    private _name;
+    private _placeholder;
+    private _readOnly;
+    private _value;
+    static readonly observedAttributes: string[];
     /**
      * Creates an instance
      */
-    constructor(props: ITreeNodeProps);
+    constructor();
     /**
-     * Creates the component elements
+     * If the attributes change we update the internal state
      */
-    render(): JSX.Element;
-}
-
-import { TreeNodeModel } from './treenode-model';
-import { TreeView, ITreeViewProps } from './treeview';
-import { Project } from '../../core/project';
-import { AssetClass } from '../../core/asset-class';
-import { ProjectEvents } from '../../setup/events';
-import { TreeNodeAssetInstance } from './nodes/treenode-asset-instance';
-export interface ITreeViewSceneProps extends ITreeViewProps {
-    project: HatcheryEditor.IProject | null;
-}
-/**s
- * An implementation of the tree view for the scene.
- */
-export declare class TreeViewScene extends TreeView<ITreeViewSceneProps> {
-    static defaultProps: ITreeViewSceneProps;
-    private static _singleton;
-    constructor(props: ITreeViewSceneProps);
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
     /**
-     * Bind any project related events
+     * Only applicable if hints are active. Sets the input value to that of the hint
+     * if it matches it.
      */
-    componentWillMount(): void;
+    private onKeyUp(e);
     /**
-     * Unbind any project related events
+     * When added to the DOM, check the validation
      */
-    componentWillUnmount(): void;
+    connectedCallback(): void;
     /**
-     * Update the workspace
+     * Called whenever the value changes by user input. The input checks
+     * the validation rules and triggers any events accordingly
      */
-    onProjectChanged(type: ProjectEvents): void;
-    onShortcutClick(e: any): void;
-    onMouseMove(e: any): void;
+    private onInputChange(e);
     /**
-    * Called when the project is loaded and ready.
-    */
-    projectReady(project: Project): void;
-    /**
-    * TODO: This is currently hooked on when a resource is created using the createResource call in project. Ideally this should be called whenever
-    * any form of resource is created. I.e. try to get rid of addAssetInstance
-    * Called whenever a project resource is created
-    */
-    onResourceCreated(): void;
-    /**
-    * Called when the project is reset by either creating a new one or opening an older one.
-    */
-    projectReset(): void;
-    /**
-    * Catch the key down events.
-    * @param e The event passed by jQuery
-    */
-    onKeyDown(): void;
-    /**
-    * Called when we select a menu item.
-    */
-    onContextSelect(): void;
-    /**
-    * When we double click the tree
-    * @param <object> e The jQuery event object
-    */
-    onDblClick(): void;
-    /**
-    * When the database returns from its command.
-    * @param {ProjectEvents} response The loader response
-    * @param {ProjectEvent} data The data sent from the server
-    */
-    /**
-    * This function will get a list of asset instances based on their class name.
-    * @param {string|Array<string>} classNames The class name of the asset, or an array of class names
-    * @returns Array<TreeNodeAssetInstance>
-    */
-    getAssets(classNames: string | Array<string>): Array<TreeNodeAssetInstance>;
-    /**
-    * This function will get a list of asset classes.
-    * returns {Array<TreeNodeAssetClass>}
-    */
-    getAssetClasses(): Array<AssetClass>;
-    /**
-    * Called when the context menu is about to open.
-    * @param <jQuery> e The jQuery event object
-    */
-    onContext2(): void;
-    /**
-     * Called whenever the selection has changed
-     * @param {TreeNodeModel[]} selection
+     * Checks the value against all validators.
+     * @returns A ValidationError if validators don't pass
      */
-    onSelectionChange(selection: TreeNodeModel[]): void;
+    private getValidationErrorMsg(val);
     /**
-    * Gets the singleton instance.
-    * @returns <TreeViewScene> The singleton instance
-    */
-    static getSingleton(): TreeViewScene;
-}
-
-import { TreeNodeModel } from './treenode-model';
-import { TreeNodeStore } from './treenode-store';
-import { TreeviewEvents, INodeEvent } from '../../setup/events';
-export interface ITreeViewProps {
-    nodeStore?: TreeNodeStore;
-}
-export interface ITreeViewState {
-    nodes?: TreeNodeModel[];
-    focussedNode?: TreeNodeModel | null;
-}
-/**
- * A component visually represents a TreeNodeStore and its nodes
- */
-export declare class TreeView<T extends ITreeViewProps> extends React.Component<T, ITreeViewState> {
-    private _isMounted;
-    /**
-     * Creates a new instance of the treenode
+     * Gets the input type
      */
-    constructor(props: T);
     /**
-     * Called whenever a node is focussed
+     * Sets the input type. Can be either 'text', 'password' or 'textarea'
      */
-    onFocusNodeChange(type: TreeviewEvents, e: INodeEvent): void;
+    type: 'text' | 'password' | 'textarea';
     /**
-     * Called whenever we need to re-create the prop tree. Usually after the structure of the nodes has changed
+     * Gets the input name
      */
-    onChange(type: TreeviewEvents): void;
     /**
-     * When the component is updated, we check for any focussed nodes so we can scroll to them
+     * Sets the input name
      */
-    componentDidUpdate(): void;
-    /**
-     * Make sure that any new node store has the appropriate event handlers
-     */
-    componentWillReceiveProps(nextProps: ITreeViewProps): void;
-    /**
-     * Set the mounted variable so we dont get warnings
-     */
-    componentDidMount(): void;
-    /**
-     * Cleans up the component
-     */
-    componentWillUnmount(): void;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export interface IVCheckboxProps extends React.HTMLAttributes {
-    onChange?: (e: React.FormEvent, checked?: boolean, input?: HTMLInputElement) => void;
-    noInteractions?: boolean;
-}
-export declare class VCheckbox extends React.Component<IVCheckboxProps, {
-    pristine?: boolean;
-}> {
-    static defaultProps: IVCheckboxProps;
-    /**
-     * Creates an instance
-     */
-    constructor(props: IVCheckboxProps);
-    /**
-     * Called whenever the checkbox input changes
-     */
-    onChange(e: React.FormEvent): void;
-    /**
-     * Gets if this input has not been touched by the user. False is returned if it has been
-     */
-    readonly pristine: boolean;
-    /**
-    * Creates the component elements
-    */
-    render(): JSX.Element;
-}
-
-import { VInput } from '../v-input/v-input';
-import { VTextarea } from '../v-textarea/v-textarea';
-import { VCheckbox } from '../v-checkbox/v-checkbox';
-import { VSelect, SelectValue } from '../v-select/v-select';
-import { ValidationType } from '../../setup/enums';
-export declare type ValidationError = {
     name: string;
-    error: string;
-};
-export declare type VGeneric = VInput | VTextarea | VCheckbox | VSelect;
-export interface IVFormItem {
-    name: string;
-    before?: JSX.Element;
-    after?: JSX.Element;
-}
-export interface IVFormSelect extends IVFormItem {
-    type: 'select';
-    options?: SelectValue[];
-    value?: string | number;
-    defaultVal?: string | number;
-    allowEmptySelection?: boolean;
-}
-export interface IVFormCheckbox extends IVFormItem {
-    type: 'checkbox';
-    label?: string;
-    placeholder?: string;
-    defaultVal?: boolean;
-    value?: boolean;
-}
-export interface IVFormJsonText extends IVFormItem {
-    type: 'password' | 'text' | 'textarea';
-    placeholder?: string;
-    defaultVal?: string | null;
-    value?: string | null;
-    validators?: ValidationType;
-}
-export interface IVFormJson {
-    items: (IVFormSelect | IVFormCheckbox | IVFormJsonText)[];
-}
-export interface IFormValue {
-    error: string | null;
-    value: string | boolean | number | null;
-}
-export interface IVFormProps {
-    id?: string;
-    className?: string;
-    name?: string;
-    preventDefault?: boolean;
-    descriptor: IVFormJson;
     /**
-     * A callback for when an input has been changed and the json updated
+     * Gets the input placeholder text
      */
-    onChange?: (json: any, form: VForm) => void;
     /**
-     * A callback for when submit is called and there are no validation errors
+     * Sets the input placeholder text
      */
-    onSubmitted: (json: any, form: VForm) => void;
+    placeholder: string;
     /**
-     * A callback for when a validation error has occurred
+     * Gets if the input selects all the text when its focussed
      */
-    onValidationError: (e: ValidationError[], form: VForm) => void;
     /**
-     * A callback for when a previously invalid form is validated
+     * Sets if the input selects all the text when its focussed
      */
-    onValidationsResolved: (form: VForm) => void;
-}
-export interface IVFormState {
-    error?: boolean;
-    pristine?: boolean;
-    values?: {
-        [name: string]: IFormValue;
-    };
-}
-/**
- * A validated form is one which checks its children inputs for validation errors
- * before allowing the form to be submitted. If there are errors the submit is not allowed.
- * Only validated inputs are checked by the form (eg VInput). When the form is submitted
- * via the onSubmitted callback, it sends a json object with the name and values of each of
- * the validated inputs. The name is taken from the name of the input name attribute and the
- * value from its value.
- */
-export declare class VForm extends React.Component<IVFormProps, IVFormState> {
-    static defaultProps: IVFormProps;
-    private _className;
+    selectOnClick: boolean;
     /**
-     * Creates a new instance
+     * Gets if the input is read only
      */
-    constructor(props: IVFormProps);
-    componentWillMount(): void;
     /**
-     * Focus on the name element once its mounted
+     * Sets if the input is read only
      */
-    componentDidMount(): void;
+    readOnly: boolean;
     /**
-     * Called when the form is submitted. VForms automatically cancel the request with preventDefault.
-     * This can be disabled with the preventDefault property.
+     * Gets the input value
      */
-    onSubmit(e: React.FormEvent): void;
     /**
-     * Goes through the validations and calls submit if everything passes
+     * Sets the input value
      */
-    initiateSubmit(): void;
+    value: string;
     /**
-     * Called whenever any of the inputs fire a change event
+     * Gets if the input is in a pristine state
      */
-    onChange(): void;
     /**
-     * Called if any of the validated inputs reported or resolved an error
+     * Sets if the input is in a pristine state
      */
-    onError(): void;
+    pristine: boolean;
     /**
-     * Gets if this form has not been touched by the user. False is returned if it has been,
+     * Gets if the input is highlighted or not
      */
-    readonly pristine: boolean;
     /**
-     * Creates the component elements
+     * Sets if the input is highlighted or not
      */
-    render(): JSX.Element;
-}
-
-import { ValidationType } from '../../setup/enums';
-export interface IVInputProps {
+    highlight: boolean;
     /**
-     * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
-     * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
+     * Gets if the input is invalid in its current form
      */
-    validator?: ValidationType;
-    value?: string;
     /**
-     * If specified, the hint will help users type out a word
+     * Sets if the input is invalid in its current form
      */
-    hint?: string;
-    /**
-     * The minimum number of characters allowed
-     */
-    minCharacters?: number;
-    /**
-     * The maximum number of characters allowed
-     */
-    maxCharacters?: number;
-    /**
-     * Called whenever the input fails a validation test
-     */
-    onValidationError?: (e: Error, target: VInput, value: string) => void;
-    /**
-     * Called whenever the input passes a previously failed validation test
-     */
-    onValidationResolved?: (target: VInput) => void;
-    /**
-     * An optional error message to use to describe when a problem occurs. If for example you have validation against
-     * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
-     * provided, then that is used instead (for example 'Please specify a value for X')
-     */
-    errorMsg?: string;
-    /**
-     * If true, then the input will select everything when clicked
-     */
-    selectOnClick?: boolean;
-    onChange?(e: React.FormEvent, newString: string): void;
-    onKeyUp?(e: React.KeyboardEvent): void;
-    autoFocus?: boolean;
-    readOnly?: boolean;
-    autoComplete?: string;
-    name?: string;
-    type?: string;
-    placeholder?: string;
-    className?: string;
-}
-/**
- * A verified input is an input that can optionally have its value verified. The input must be used in conjunction
- * with the VForm.
- */
-export declare class VInput extends React.Component<IVInputProps, {
-    error?: string | null;
-    highlightError?: boolean;
-    focussed?: boolean;
-}> {
-    static defaultProps: IVInputProps;
-    private _pristine;
-    private _hintStart;
-    private _hintEnd;
-    private _allowHint;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: any);
-    /**
-     * Called when the component is about to be mounted.
-     */
-    componentWillMount(): void;
-    /**
-     * Sets the highlight error state. This state adds a 'highlight-error' class which
-     * can be used to bring attention to the component
-     */
-    highlightError: boolean;
-    /**
-     * Checks the string against all validators.
-     * @returns An error string or null if there are no errors
-     */
-    getValidationErrorMsg(val: string): string;
-    /**
-     * Check if we need to highlight the next
-     */
-    componentDidUpdate(nextProps: any): void;
-    /**
-     * Only called when we have hints enabled
-     */
-    onKeyUp(e: React.KeyboardEvent): void;
-    /**
-     * Makes sure that the key is printable and therefore if we have to show the hint or not
-     */
-    private onKeyDown(e);
-    /**
-     * Called whenever the value changes
-     */
-    private onChange(e);
-    /**
-     * Gets if this input has not been touched by the user. False is returned if it has been
-     */
-    readonly pristine: boolean;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-export declare type SelectValue = {
-    label: string;
-    value: string | number;
-};
-export interface IVSelectProps {
-    /**
-     * Called whenever an option is selected
-     * @param {SelectValue} option
-     * @param {HTMLSelectElement} element
-     */
-    onOptionSelected: (option: SelectValue | null, element: HTMLSelectElement) => void;
-    /**
-     * An array of options to use with the select
-     */
-    options: SelectValue[];
-    /**
-     * If true, then an empty option will be added
-     */
-    createEmptyOption?: boolean;
-    /**
-     * If true, then validation will pass when nothing is selected
-     */
-    allowEmptySelection?: boolean;
-    /**
-     * Called whenever the input fails a validation test
-     */
-    onValidationError?: (e: Error, target: VSelect) => void;
-    /**
-     * Called whenever the input passes a previously failed validation test
-     */
-    onValidationResolved?: (target: VSelect) => void;
-    /**
-     * An optional error message to use to describe when a problem occurs. If for example you have validation against
-     * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
-     * provided, then that is used instead (for example 'Please specify a value for X')
-     */
-    errorMsg?: string;
-    value: string | number;
-    name?: string;
-    id?: string;
-    className?: string;
-}
-/**
- * A verified select box is an one that can optionally have its value verified. The select must be used in conjunction
- * with the VForm.
- */
-export declare class VSelect extends React.Component<IVSelectProps, {
-    error?: string | null;
-    highlightError?: boolean;
-}> {
-    private _pristine;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: IVSelectProps);
-    /**
-     * Called when the component is about to be mounted.
-     */
-    componentWillMount(): void;
-    /**
-     * Sets the highlight error state. This state adds a 'highlight-error' class which
-     * can be used to bring attention to the component
-     */
-    highlightError: boolean;
-    /**
-     * Checks the selected option
-     * @returns An error string or null if there are no errors
-     */
-    validate(val: string | number): string;
-    /**
-     * Called whenever the value changes
-     */
-    private onChange(e);
-    /**
-     * Gets if this input has not been touched by the user. False is returned if it has been
-     */
-    readonly pristine: boolean;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { ValidationType } from '../../setup/enums';
-export interface IVTextareaProps extends React.HTMLAttributes {
-    /**
-     * The type of validation to perform on the input. This can be treated as enum flags and use multiple validations. For example
-     * validator = ValidationType.NOT_EMPTY | ValidationType.EMAIL
-     */
-    validator?: ValidationType;
-    value?: string;
-    /**
-     * The minimum number of characters allowed
-     */
-    minCharacters?: number;
-    /**
-     * The maximum number of characters allowed
-     */
-    maxCharacters?: number;
-    /**
-     * Called whenever the input fails a validation test
-     */
-    onValidationError?: (e: Error, target: VTextarea, value: string) => void;
-    /**
-     * Called whenever the input passes a previously failed validation test
-     */
-    onValidationResolved?: (target: VTextarea) => void;
-    /**
-     * An optional error message to use to describe when a problem occurs. If for example you have validation against
-     * not having white space - when the error passed to onValidationError is 'Cannot be empty'. If however errorMsg is
-     * provided, then that is used instead (for example 'Please specify a value for X')
-     */
-    errorMsg?: string;
-    onChange?(e: React.FormEvent, text?: string): void;
-}
-/**
- * A verified textarea is an input that can optionally have its value verified. The textarea must be used in conjunction
- * with the VForm.
- */
-export declare class VTextarea extends React.Component<IVTextareaProps, {
-    error?: string | null;
-    highlightError?: boolean;
-    className?: string;
-    focussed?: boolean;
-}> {
-    private _pristine;
-    /**
-     * Creates a new instance
-     */
-    constructor(props: any);
-    /**
-     * Called when the component is about to be mounted.
-     */
-    componentWillMount(): void;
-    /**
-     * Sets the highlight error state. This state adds a 'highlight-error' class which
-     * can be used to bring attention to the component
-     */
-    highlightError: boolean;
-    /**
-     * Checks the string against all validators.
-     * @returns An error string or null if there are no errors
-     */
-    getValidationErrorMsg(val: string): string;
-    /**
-     * Called whenever the value changes
-     */
-    private onChange(e);
-    /**
-     * Gets if this input has not been touched by the user. False is returned if it has been
-     */
-    readonly pristine: boolean;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { Component } from './component';
-/**
-* This class is the base class for all windows in Animate
-*/
-export declare class Window extends Component {
-    private _autoCenter;
-    private _controlBox;
-    private _header;
-    private _headerText;
-    private _headerCloseBut;
-    private _content;
-    private _modalBackdrop;
-    private _isVisible;
-    private _externalClickProxy;
-    private _closeProxy;
-    private _resizeProxy;
-    /**
-    * @param {number} width The width of the window in pixels
-    * @param {number} height The height of the window in pixels
-    * @param {boolean} autoCenter Should this window center itself on a resize event
-    * @param {boolean} controlBox Does this window have a draggable title bar and close button
-    * @param {string} title The text for window heading.Only applicable if we are using a control box.
-    */
-    constructor(width: number, height: number, autoCenter?: boolean, controlBox?: boolean, title?: string);
-    /**
-    * When we click on the close button
-    * @param {any} e The jQuery event object
-    */
-    onCloseClicked(): void;
-    /**
-    * When the stage move event is called
-    * @param {any} e The jQuery event object
-    */
-    onStageMove(e: any): void;
-    /**
-    * Removes the window and modal from the DOM.
-    */
-    hide(): void;
-    /**
-    * Centers the window into the middle of the screen. This only works if the elements are added to the DOM first
-    */
-    center(): void;
-    /**
-    * Shows the window by adding it to a parent.
-    * @param {Component} parent The parent Component we are adding this window to
-    * @param {number} x The x coordinate of the window
-    * @param {number} y The y coordinate of the window
-    * @param {boolean} isModal Does this window block all other user operations?
-    * @param {boolean} isPopup If the window is popup it will close whenever anything outside the window is clicked
-    */
-    show(parent?: Component | null, x?: number, y?: number, isModal?: boolean, isPopup?: boolean): void;
-    /**
-    * When we click the modal window we flash the window
-    * @param {object} e The jQuery event object
-    */
-    onModalClicked(): void;
-    /**
-    * Updates the dimensions if autoCenter is true.
-    * @param {object} val
-    */
-    onWindowResized(val: any): void;
-    /**
-    * Hides the window if its show property is set to true
-    * @param {any} e The jQuery event object
-    */
-    onStageClick(e: any): void;
-    /** Gets the content component */
-    readonly content: Component;
-    readonly visible: boolean;
-    headerText: string;
-    readonly modalBackdrop: JQuery;
-    /**
-    * This will cleanup the component.
-    */
-    dispose(): void;
-}
-
-export interface IReactWindowProps {
-    autoCenter?: boolean;
-    title?: string;
-    modal?: boolean;
-    popup?: boolean;
-    controlBox?: boolean;
-    showCloseButton?: boolean;
-    canResize?: boolean;
-    className?: string;
-    _id?: number;
-    _closing?: () => void;
-    x?: number;
-    y?: number;
-    animated?: boolean;
-}
-export interface IReactWindowState {
-    centered?: boolean;
-}
-/**
- * The base class for all windows in the application. Most windows will be derived from this class.
- * You can display/hide the window by using the static Window.show and Window.hide methods.
- */
-export declare class ReactWindow<T extends IReactWindowProps, S extends IReactWindowState> extends React.Component<T, S> {
-    private static _openWindows;
-    private static _windows;
-    static defaultProps: IReactWindowProps;
-    private _resizeProxy;
-    private _mouseMoveProxy;
-    private _mouseUpProxy;
-    private _mouseDeltaX;
-    private _mouseDeltaY;
-    /**
-     * Creates an instance of the react window
-     */
-    constructor(props: T);
-    /**
-     * Shows a React window component to the user
-     * @param windowType The Class of Window to render.
-     * @param props The properties to use for the window component
-     */
-    static show(windowType: React.ComponentClass<IReactWindowProps>, props?: IReactWindowProps): number;
-    /**
-     * Hides/Removes a window component by id
-     */
-    static hide(id: number): void;
-    /**
-     * When the user clicks the the header bar we initiate its dragging
-     */
-    onHeaderDown(e: React.MouseEvent): void;
-    /**
-     * Called when the window is resized
-     */
-    onResize(): void;
-    /**
-     * When the mouse moves and we are dragging the header bar we move the window
-     */
-    onMouseMove(e: MouseEvent): void;
-    /**
-     * When the mouse is up we remove the dragging event listeners
-     */
-    onMouseUp(): void;
-    /**
-     * When the component is mounted
-     */
-    componentDidMount(): void;
-    /**
-     * Called when the window is to be removed
-     */
-    componentWillUnmount(): void;
-    /**
-     * When we click the modal we highlight the window
-     */
-    onModalClick(): void;
-    /**
-     * When we click the close button
-     */
-    onClose(): void;
-    /**
-     * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
-     * in derived classes
-     */
-    getContent(): {} | undefined;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
-}
-
-import { Editor } from '../../core/editors/editor';
-import { ITabProps } from '../tab/tab';
-import { ProjectEvents } from '../../setup/events';
-export interface IWorkspaceProps extends ITabProps {
-    project: HatcheryEditor.IProject | null;
-}
-/**
- * The main workspace area of the application.
- */
-export declare class Workspace extends React.Component<IWorkspaceProps, any> {
-    /**
-     * Creates an instance of the workspace
-     */
-    constructor(props: IWorkspaceProps);
-    /**
-     * Bind any project related events
-     */
-    componentWillMount(): void;
-    /**
-     * Unbind any project related events
-     */
-    componentWillUnmount(): void;
-    /**
-     * Update the workspace
-     */
-    onProjectChanged(type: ProjectEvents): void;
-    canContainerClose(editor: Editor): boolean | Promise<boolean>;
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element;
+    invalid: boolean;
 }
 
 /**
@@ -3719,882 +595,66 @@ export declare class Application extends HTMLElement {
     connectedCallback(): Promise<void>;
 }
 
-export interface IDashboardProps extends HatcheryEditor.HatcheryProps {
-    project?: HatcheryEditor.IProject;
-    projectId?: string;
-    user?: HatcheryEditor.IUser;
+import { RegisterForm } from '../../components/register-form/register-form';
+import { LoginForm } from '../../components/login-form/login-form';
+/**
+ * Login mode
+ */
+export declare enum LoginWidgetMode {
+    LOGIN = 0,
+    REGISTER = 1,
 }
-declare const ConnectedDashboard: React.ComponentClass<any>;
-export { ConnectedDashboard as Dashboard };
-
-export interface ILoggerProps extends HatcheryEditor.HatcheryProps {
-    messages?: HatcheryEditor.ILogMessage[];
-}
-declare const ConnectedLogger: React.ComponentClass<any>;
-export { ConnectedLogger as Logger };
-
+/**
+ * A widget for logging the user in
+ */
 export declare class LoginWidget extends HTMLElement {
+    onLogin: () => void;
+    private _mode;
+    static readonly observedAttributes: string[];
     /**
-     * Creates a new instance
+     * Creates an instance of the widget
      */
     constructor();
     /**
-     * Gets if the loading element is visible
+     * Handles a request to the server and how the widget should React
      */
+    private request<T>(promise);
+    /**
+     * Gets the mode of the login widet
+     */
+    /**
+     * Sets the mode of the login widet
+     */
+    mode: LoginWidgetMode;
+    /**
+     * Gets the currently active form
+     */
+    readonly form: LoginForm | RegisterForm;
+    /**
+     * If the attributes change we update the internal state
+     */
+    attributeChangedCallback(name: string, oldValue: string, newValue: string): void;
+    /**
+    * Gets if the loading element is visible
+    */
     /**
      * Sets if the loading element is visible
      */
     loading: boolean;
 }
 
+export declare type SplashMode = 'new' | 'open' | 'overview';
 /**
- * An interface that describes the props of the Splash Component
+ * The splash screen when starting the app
  */
-export interface ISplashProps extends HatcheryEditor.HatcheryProps {
-    user?: HatcheryEditor.IUser;
-    splash?: HatcheryEditor.ISplashScreen;
-    section?: string;
-}
-/**
- * Describes the state interface for the Splash Component
- */
-export interface ISplashState {
-    project?: HatcheryServer.IProject | null;
-}
-declare const ConnectedSplash: React.ComponentClass<any>;
-export { ConnectedSplash as Splash };
-
-import { EditableSet } from './properties/editable-set';
-import { Prop } from './properties/prop';
-/**
- * This class describes a template. These templates are used when creating assets.
- */
-export declare class AssetClass {
-    private _abstractClass;
-    private _name;
-    parentClass: AssetClass | null;
-    private _imgURL;
-    private _variables;
-    classes: Array<AssetClass>;
-    constructor(name: string, parent: AssetClass | null, imgURL: string, abstractClass?: boolean);
+export declare class Splash extends HTMLElement {
+    private _mode;
     /**
-     * Gets an array of all classes that are possible from this
-     */
-    getClasses(): AssetClass[];
-    /**
-    * Creates an object of all the variables for an instance of this class.
-    * @returns The variables we are editing
-    */
-    buildVariables(): EditableSet;
-    /**
-    * Finds a class by its name. Returns null if nothing is found
-    */
-    findClass(name: string): AssetClass | null;
-    /**
-    * Adds a variable to the class.
-    * @param prop The property to add
-    * @returns A reference to this AssetClass
-    */
-    addVar(prop: Prop<any>): AssetClass;
-    /**
-    * This will clear and dispose of all the nodes
-    */
-    dispose(): void;
-    /**
-    * Gets a variable based on its name
-    * @param name The name of the class
-    */
-    getVariablesByName<T>(name: string): Prop<T> | null;
-    /**
-    * Gets the image URL of this template
-    */
-    readonly imgURL: string;
-    /**
-    * Gets the variables associated with this template
-    */
-    readonly variables: Array<Prop<any>>;
-    /**
-    * Adds a class
-    * @param name The name of the class
-    * @param img The optional image of the class
-    * @param abstractClass A boolean to define if this class is abstract or not. I.e. does this class allow for creating assets or is it just the base for others.
-    */
-    addClass(name: string, img: string, abstractClass: boolean): AssetClass;
-    /**
-    * Gets the name of the class
-    */
-    readonly name: string;
-    /**
-    * Gets if this class is abstract or not
-    */
-    readonly abstractClass: boolean;
-}
-
-import { AssetClass } from './asset-class';
-/**
-* The AssetTemplate object is used to define what assets are available to the scene.
-* Assets are predefined tempaltes of data that can be instantiated. The best way to think of an asset
-* is to think of it as a predefined object that contains a number of variables. You could for example
-* create Assets like cats, dogs, animals or humans. Its really up you the plugin writer how they want
-* to define their assets. This function can return null if no Assets are required.
-*/
-export declare class AssetTemplate {
-    private plugin;
-    classes: Array<AssetClass>;
-    /**
-    * @param plugin The plugin who created this template
-    */
-    constructor(plugin: any);
-    /**
-    * Adds a class to this template
-    * @param name The name of the class
-    * @param img The optional image
-    * @param abstractClass A boolean to define if this class is abstract or not
-    */
-    addClass(name: string, img: string, abstractClass: boolean): AssetClass;
-    /**
-    * Removes a class by name
-    * @param name The name of the class to remove
-    */
-    removeClass(name: string): void;
-    /**
-    * Finds a class by its name. Returns null if nothing is found
-    */
-    findClass(name: string): AssetClass | null;
-}
-
-import { IPlugin } from 'hatchery-editor-plugins';
-import { PortalTemplate } from './portal-template';
-import { Behaviour } from './editors/container-schema/items/behaviour';
-/**
-*  A simple class to define the behavior of a behaviour object.
-*/
-export declare class BehaviourDefinition {
-    private _behaviourName;
-    private _canBuildOutput;
-    private _canBuildInput;
-    private _canBuildParameter;
-    private _canBuildProduct;
-    private _portalTemplates;
-    private _plugin;
-    /**
-    * @param  behaviourName The name of the behaviour
-    * @param portalTemplates
-    * @param plugin The plugin this is associated with
-    * @param canBuildInput
-    * @param canBuildOutput
-    * @param canBuildParameter
-    * @param canBuildProduct
-    */
-    constructor(behaviourName: string, portalTemplates: Array<PortalTemplate>, plugin: IPlugin | null, canBuildInput?: boolean, canBuildOutput?: boolean, canBuildParameter?: boolean, canBuildProduct?: boolean);
-    dispose(): void;
-    canBuildOutput(behaviour: Behaviour): boolean;
-    canBuildInput(behaviour: Behaviour): boolean;
-    canBuildProduct(behaviour: Behaviour): boolean;
-    canBuildParameter(behaviour: Behaviour): boolean;
-    portalsTemplates(): Array<PortalTemplate>;
-    readonly behaviourName: string;
-    readonly plugin: IPlugin;
-}
-
-/**
-* A wrapper for project builds
-*/
-export declare class Build {
-    entry: HatcheryServer.IBuild;
-    /**
-    * Creates an intance of the build
-    * @param entry The entry token from the DB
-    */
-    constructor(entry: HatcheryServer.IBuild);
-    /**
-    * Attempts to update the build with new data
-    * @param token The update token data
-    */
-    update(token: HatcheryServer.IBuild): Promise<boolean>;
-}
-
-import { EditorAction } from '../../editor-action';
-import { Behaviour } from '../items/behaviour';
-import { ContainerSchema } from '../container-schema';
-import { BehaviourDefinition } from '../../../behaviour-definition';
-import { ProjectResource } from '../../../project-resources/project-resource';
-/**
- * An action for the creation of behaviours within a container
- */
-export declare class BehaviourCreated extends EditorAction {
-    definition: BehaviourDefinition;
-    instance: Behaviour | null;
-    options: HatcheryEditor.IBehaviour;
-    resource: ProjectResource<HatcheryServer.IResource> | null;
-    constructor(definition: BehaviourDefinition, options: HatcheryEditor.IBehaviour, resource?: ProjectResource<HatcheryServer.IResource>);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { CanvasItem } from '../items/canvas-item';
-import { ContainerSchema } from '../container-schema';
-/**
- * An action for removing behaviours from a container
- */
-export declare class BehavioursRemoved extends EditorAction {
-    instances: CanvasItem[];
-    clones: CanvasItem[];
-    constructor(instances: CanvasItem[]);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-import { Comment } from '../items/comment';
-/**
- * An action for the creation of a user comment in a container schema
- */
-export declare class CommentCreated extends EditorAction {
-    instance: Comment;
-    left: number;
-    top: number;
-    constructor(left: number, top: number);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-/**
- * An action for when comment text is editted
- */
-export declare class CommentEditted extends EditorAction {
-    index: number;
-    prevLabel: string;
-    label: string;
-    constructor(index: number, label: string);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-/**
- * An action for when comments are resized in a container schema
- */
-export declare class CommentResized extends EditorAction {
-    index: number;
-    width: number;
-    height: number;
-    prevWidth: number;
-    prevHeight: number;
-    constructor(index: number, width: number, height: number);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-import { Link } from '../items/link';
-/**
- * An action for the creation of links within a container
- */
-export declare class LinkCreated extends EditorAction {
-    instance: Link | null;
-    options: HatcheryEditor.ILinkItem;
-    constructor(options: HatcheryEditor.ILinkItem);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-import { Behaviour } from '../items/behaviour';
-import { BehaviourPortal } from '../items/behaviour-portal';
-import { Portal } from '../items/portal';
-/**
- * An action for the creation of portals
- */
-export declare class PortalCreated extends EditorAction {
-    target: Behaviour | null;
-    instance: BehaviourPortal;
-    portal: Portal;
-    left: number;
-    top: number;
-    constructor(portal: Portal, target: Behaviour | null, left: number, top: number);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-/**
- * An action for when the selection changes on a container schema
- */
-export declare class SelectionChanged extends EditorAction {
-    selectionIds: number[];
-    previousSelection: number[];
-    constructor(selectionIds: number[]);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { EditorAction } from '../../editor-action';
-import { ContainerSchema } from '../container-schema';
-/**
- * An action for when a selection is moved in a container schema
- */
-export declare class SelectionMoved extends EditorAction {
-    positions: {
-        index: number;
-        x: number;
-        y: number;
-    }[];
-    previousPositions: {
-        index: number;
-        x: number;
-        y: number;
-    }[];
-    constructor(positions: {
-        index: number;
-        x: number;
-        y: number;
-    }[]);
-    /**
-     * Undo the last history action
-     */
-    undo(editor: ContainerSchema): void;
-    /**
-     * Redo the next action
-     */
-    redo(editor: ContainerSchema): void;
-}
-
-import { Editor } from '../editor';
-import { Link } from './items/link';
-import { CanvasItem } from './items/canvas-item';
-import { Container } from '../../project-resources/container';
-import { Project } from '../../project';
-/**
- * An editor that represents the data of a container's inner behaviours and their relationships with eachother.
- * This editor is visualised through a schema component.
- */
-export declare class ContainerSchema extends Editor {
-    opened: boolean;
-    protected _activeLink: Link | null;
-    protected _items: CanvasItem[];
-    protected _selection: CanvasItem[];
-    /**
-     * Creates an instance of the canvas store
-     */
-    constructor(container: Container, project: Project);
-    /**
-     * Begins the process of creating a link between behaviours.
-     * This should be followed by a call to endLinkRouting when
-     * the process is completed
-     */
-    beginLinkRouting(portal: HatcheryEditor.IPortal, pos: HatcheryEditor.Point): void;
-    /**
-     * Completes the process of linking two behaviours together
-     */
-    endLinkRouting(options: HatcheryEditor.ILinkItem | null): void;
-    readonly activeLink: Link | null;
-    /**
-     * Returns all items of this store
-     */
-    getItems(): CanvasItem[];
-    /**
-     * Returns the currrently selected items
-     */
-    getSelection(): CanvasItem[];
-    /**
-     * Called whenever an item is clicked.
-     */
-    onNodeSelected(item: HatcheryEditor.ICanvasItem | null, shiftDown: boolean, toggleSelectedState?: boolean): void;
-    /**
-     * Whenever we receive a context event on an item
-     */
-    onContext(item: HatcheryEditor.ICanvasItem, e: React.MouseEvent): void;
-    /**
-     * Adds a canvas item to the canvas
-     * @param item The item to add
-     */
-    addItem(item: CanvasItem): CanvasItem;
-    /**
-     * Removes a canvas item from the canvas
-     * @param item The item to remove
-     */
-    removeItem(item: CanvasItem): void;
-    /**
-     * De-serializes the workspace from its JSON format
-     * @param scene The schema scene we are loading from
-     */
-    deserialize(scene: HatcheryServer.IContainerWorkspace): void;
-    /**
-     * Serializes the workspace into its JSON format
-     */
-    serialize(): HatcheryServer.IContainerWorkspace;
-}
-
-import { Behaviour } from './behaviour';
-import { Portal } from './portal';
-import { ProjectResource } from '../../../project-resources/project-resource';
-import { Prop } from '../../../properties/prop';
-/**
- * A behaviour that contains an asset/resource reference
- */
-export declare class BehaviourAsset extends Behaviour {
-    asset: ProjectResource<HatcheryServer.IResource> | null;
-    /**
-     * Creates an instance of the behaviour
-     */
-    constructor(asset: ProjectResource<HatcheryServer.IResource> | null);
-    /**
-     * Clones the canvas item
-     */
-    clone(clone?: BehaviourAsset): BehaviourAsset;
-    /**
-     * Clean up
-     */
-    dispose(): void;
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.IBehaviour;
-    /**
-     * Adds a portal to this behaviour.
-     * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-     * @param property
-     */
-    addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
-}
-
-
-
-import { Behaviour } from './behaviour';
-import { Prop } from '../../../properties/prop';
-/**
- * A behaviour for representing container portals
- */
-export declare class BehaviourPortal extends Behaviour {
-    portalType: HatcheryRuntime.PortalType;
-    private _property;
-    /**
-     * Creates an instance
-     */
-    constructor(property: Prop<any>, portalType: HatcheryRuntime.PortalType);
-    /**
-     * Clones the canvas item
-     */
-    clone(clone?: BehaviourPortal): BehaviourPortal;
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.IBehaviourPortal;
-    /**
-     * De-Serializes data from a JSON.
-     * @param data The data to import from
-     */
-    deSerialize(data: HatcheryEditor.IBehaviourPortal): void;
-    /**
-     * This will cleanup the component.
-     */
-    dispose(): void;
-    readonly property: Prop<any>;
-}
-
-
-
-import { EditableSet } from '../../../properties/editable-set';
-import { Prop } from '../../../properties/prop';
-import { BehaviourDefinition } from '../../../behaviour-definition';
-import { CanvasItem } from './canvas-item';
-import { Portal } from './portal';
-/**
- * Behaviours are the model data of BehaviourComponents and represent a behaviour/set of functionality
- * that has been added to a container.
- */
-export declare class Behaviour extends CanvasItem {
-    alias: string;
-    canGhost: boolean;
-    behaviourType: string;
-    parameters: Portal[];
-    products: Portal[];
-    outputs: Portal[];
-    inputs: Portal[];
-    portals: Portal[];
-    properties: EditableSet;
-    template: BehaviourDefinition;
-    /**
-     * Creates an instance of the behaviour
-     */
-    constructor(template: BehaviourDefinition);
-    move(x: number, y: number): void;
-    calculateSize(): void;
-    /**
-     * Clones the canvas item
-     */
-    clone(clone?: Behaviour): Behaviour;
-    /**
-     * Gets a portal by its name
-     * @param name The portal name
-     */
-    getPortal(name: string): Portal | null;
-    /**
-     * Adds a portal to this behaviour.
-     * @param type The type of portal we are adding. It can be either 'input', 'output', 'parameter' & 'product'
-     * @param property
-     */
-    addPortal(type: HatcheryRuntime.PortalType, property: Prop<any>): Portal;
-    /**
-    * Removes a portal from this behaviour
-    * @param toRemove The portal object we are removing
-    */
-    removePortal(toRemove: Portal): Portal;
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.IBehaviour;
-    /**
-     * De-Serializes data from a JSON.
-     * @param data The data to import from
-     */
-    deSerialize(data: HatcheryEditor.IBehaviour): void;
-    /**
-     * Diposes and cleans up this component and its portals
-     */
-    dispose(): void;
-}
-
-
-import { ContainerSchema } from '../container-schema';
-import { EventDispatcher } from '../../../event-dispatcher';
-export declare type LinkMap = {
-    [shallowId: number]: {
-        item: CanvasItem;
-        token: HatcheryEditor.ICanvasItem;
-    };
-};
-/**
- * The base class for all canvas items
- */
-export declare class CanvasItem extends EventDispatcher {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-    store: ContainerSchema | null;
-    id: number;
-    selected: boolean;
-    /**
-     * Creates an instance
+     * Creates an instance of the Splash
      */
     constructor();
-    /**
-     * Clones the canvas item
-     */
-    clone(clone?: CanvasItem): CanvasItem;
-    /**
-     * Called when we activate the context menu on the behaviour
-     */
-    onContext(e: React.MouseEvent): void;
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.ICanvasItem;
-    /**
-     * De-serialize data from a JSON.
-     * @param data The data to import from
-     */
-    deSerialize(data: HatcheryEditor.ICanvasItem): void;
-    /**
-     * Called after de-tokenization. This is so that the items can link up to any other items that might have been created in the process.
-     * @param originalId The original shallow ID of the item when it was tokenized.
-     * @param items The items loaded from the detokenization process. To get this item you can do the following: items[originalId].item
-     * or to get the token you can use items[originalId].token
-     */
-    link(originalId: number, items: LinkMap): void;
-    /**
-     * Causes the store to refresh its state
-     */
-    invalidate(): void;
-    /**
-     * Clean up
-     */
-    dispose(): void;
-}
-
-import { ENUM } from '../../../event-dispatcher';
-import { Component } from '../../../../components/component';
-import { Container } from '../../../project-resources/container';
-export declare class CanvasEvents extends ENUM {
-    constructor(v: string);
-    static MODIFIED: CanvasEvents;
-}
-/**
-* The canvas is used to create diagrammatic representations of behaviours and how they interact in the scene.
-*/
-export declare class Canvas {
-    static lastSelectedItem: null;
-    static snapping: boolean;
-    name: string;
-    private _container;
-    private _containerReferences;
-    /**
-    * @param {Component} parent The parent component to add this canvas to
-    * @param {Container} cntainer Each canvas represents a behaviour.This container is the representation of the canvas as a behaviour.
-    */
-    constructor(parent: Component, container: Container);
-    readonly container: Container;
-    readonly containerReferences: {
-        groups: Array<number>;
-        assets: Array<number>;
-    };
-}
-
-import { CanvasItem } from './canvas-item';
-/**
- * A user comment within the workspace
- */
-export declare class Comment extends CanvasItem {
-    label: string;
-    width: number;
-    height: number;
-    /**
-     * Creates an instance
-     */
-    constructor(label?: string);
-    /**
-     * Clones the canvas item
-     */
-    clone(clone?: Comment): Comment;
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.IComment;
-    /**
-     * De-Serializes data from a JSON.
-     * @param data The data to import from
-     */
-    deSerialize(data: HatcheryEditor.IComment): void;
-}
-
-import { EditableSet } from '../../../properties/editable-set';
-import { CanvasItem } from './canvas-item';
-/**
- * Links connect 2 behaviours to one another. Each link is connected by a start and end portal on both the origin
- * and destination behaviours. Links are drawn on the schema as an SVG line.
- */
-export declare class Link extends CanvasItem {
-    startPortal: string;
-    endPortal: string;
-    width: number;
-    height: number;
-    selected: boolean;
-    startBehaviour: number;
-    endBehaviour: number;
-    points: HatcheryEditor.Point[];
-    private _properties;
-    /**
-     * Creates a new instance of a link
-     */
-    constructor();
-    /**
-     * Serializes the data into a JSON.
-     */
-    serialize(id: number): HatcheryEditor.ILinkItem;
-    /**
-     * De-Serializes data from a JSON.
-     * @param data The data to import from
-     */
-    deSerialize(data: HatcheryEditor.ILinkItem): void;
-    calculateDimensions(): void;
-    /**
-    * Gets the properties of this link
-    * @returns {EditableSet}
-    */
-    readonly properties: EditableSet;
-    /**
-    * Cleanup the link
-    */
-    dispose(): void;
-}
-
-import { EventDispatcher } from '../../../event-dispatcher';
-import { Link } from './link';
-import { Behaviour } from './behaviour';
-import { Prop } from '../../../properties/prop';
-/**
-* A portal class for behaviours. There are 4 different types of portals -
-* INPUT, OUTPUT, PARAMETER and PRODUCT. Each portal acts as a gate for a behaviour.
-*/
-export declare class Portal extends EventDispatcher {
-    links: Link[];
-    custom: boolean;
-    type: HatcheryRuntime.PortalType;
-    property: Prop<any>;
-    behaviour: Behaviour | null;
-    top: number;
-    left: number;
-    size: number;
-    /**
-    * @param parent The parent component of the Portal
-    * @param type The portal type. This can be either Portal.INPUT, Portal.OUTPUT, Portal.PARAMETER or Portal.PRODUCT
-    * @param property The property associated with this portal
-    */
-    constructor(parent: Behaviour | null, type: HatcheryRuntime.PortalType, property: Prop<any>);
-    calculatePosition(index: number): void;
-    /**
-     * Clones the canvas item
-     */
-    clone(): Portal;
-    serialize(): HatcheryEditor.IPortal;
-    /**
-    * Edits the portal variables
-    * @param property The new value of the property
-    */
-    edit(property: Prop<any>): void;
-    /**
-     * This function will check if the source portal is an acceptable match with the current portal.
-     * @param source The source panel we are checking against
-     */
-    checkPortalLink(source: Portal): boolean;
-    /**
-     * Clean up
-     */
-    dispose(): void;
-    /**
-     * Adds a link to the portal.
-     * @param link The link we are adding
-     */
-    addLink(link: any): void;
-    /**
-     * Removes a link from the portal.
-     * @param link The link we are removing
-     */
-    removeLink(link: any): any;
-}
-
-import { Editor } from './editor';
-/**
- * The base class for all editor actions
- */
-export declare abstract class EditorAction {
-    /**
-     * Undo the last history action
-     */
-    abstract undo(editor: Editor): any;
-    /**
-     * Redo the next action
-     */
-    abstract redo(editor: Editor): any;
-}
-
-import { EventDispatcher } from '../event-dispatcher';
-import { Project } from '../project';
-import { EditorAction } from './editor-action';
-import { ProjectResource } from '../project-resources/project-resource';
-/**
- * The base class for all editors. Editors are simple wrappers for resources that can be edited
- * by a GUI Component. The component will use functions described in this class to interact with
- * the base resource.
- */
-export declare abstract class Editor extends EventDispatcher {
-    active: boolean;
-    resource: ProjectResource<HatcheryServer.IResource>;
-    pastActions: EditorAction[];
-    currentAction: EditorAction | null;
-    futureActions: EditorAction[];
-    private _actionHistoryLength;
-    private _project;
-    /**
-     * Creates an instance of the editor
-     */
-    constructor(resource: ProjectResource<HatcheryServer.IResource>, project: Project);
-    /**
-     * Gets if this editor has actions to undo
-     */
-    readonly hasUndos: boolean;
-    /**
-     * Gets if this editor has actions to redo
-     */
-    readonly hasRedos: boolean;
-    /**
-     * Adds a new action to the editor and resets the undo history
-     */
-    doAction(action: EditorAction): void;
-    /**
-     * Undo the last history action
-     */
-    undo(): void;
-    /**
-     * Redo the last un-done action
-     */
-    redo(): void;
-    /**
-     * De-serializes the workspace from its JSON format
-     * @param scene The schema scene we are loading from
-     */
-    abstract deserialize<T>(scene: T): any;
-    /**
-     * Serializes the workspace into its JSON format
-     */
-    abstract serialize<T>(): T;
-    /**
-     * Triggers a change in the tree structure
-     */
-    invalidate(): void;
-    /**
-     * Closes the editor and optionally saves the edits to the database
-     * @param updateDatabase If true, the editor will provide edits that must be saved to the datavase
-     */
-    collapse(updateDatabase?: boolean): void;
+    connectedCallback(): void;
+    mode: SplashMode;
 }
 
 /**
@@ -4650,462 +710,6 @@ export declare class EventDispatcher {
      * This will cleanup the component by nullifying all its variables and clearing up all memory.
      */
     dispose(): void;
-}
-
-export declare type ProgressCallback = (percent: number) => void;
-export declare type CompleteCallback = (err?: Error | null, files?: Array<UsersInterface.IUploadToken> | null) => void;
-export declare class FileUploader {
-    private _dCount;
-    private _downloads;
-    percent: number;
-    private _onProg;
-    private _onComplete;
-    constructor(onComp?: CompleteCallback, onProg?: ProgressCallback);
-    readonly numDownloads: number;
-    uploadFile(files: File[], meta?: any, parentFile?: string): void;
-    upload2DElement(img: HTMLImageElement | HTMLCanvasElement, name: string, meta?: HatcheryServer.IFileMeta, parentFile?: string): void;
-    uploadArrayBuffer(array: ArrayBuffer, name: string, meta?: any, parentFile?: string): void;
-    uploadTextAsFile(text: string, name: string, meta?: any, parentFile?: string): void;
-    upload(form: FormData, url: string | null, parentFile?: string): void;
-}
-
-import { IPreviewFactory } from 'hatchery-editor-plugins';
-export declare class ImageVisualizer implements IPreviewFactory {
-    private _maxPreviewSize;
-    constructor();
-    /**
-     * Creates a thumbnail preview of the file
-     * @param file
-     */
-    thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
-    /**
-     * This function generates a React Element that is used to preview a file
-     * @param file The file we are looking to preview
-     * @returns If a React Element is returned is added in the File viewer preview
-     */
-    generate(file: HatcheryServer.IFile): JSX.Element | null;
-}
-
-import { EventDispatcher, ENUM } from './event-dispatcher';
-import { Asset } from './project-resources/asset';
-import { TreeNodeGroup } from '../components/treeview/nodes/treenode-group';
-export declare class ImportExportEvents extends ENUM {
-    constructor(v: string);
-    static COMPLETE: ImportExportEvents;
-}
-/**
-* A class to help with importing and exporting a project
-*/
-export declare class ImportExport extends EventDispatcher {
-    private static _singleton;
-    private runWhenDone;
-    constructor();
-    /**
-    * @type public mfunc run
-    * This function will first export the scene and then attempt to create a window that runs the application.
-    * @extends <ImportExport>
-    */
-    run(): void;
-    /**
-    * @type public mfunc exportScene
-    * This function is used to exort the Animae scene. This function creates an object which is exported as a string. Plugins
-    * can hook into this process and change the output to suit the plugin needs.
-    * @extends <ImportExport>
-    */
-    exportScene(): void;
-    /**
-    * Adds asset references to a container token during the export.
-    * @param {Resources.Asset} asset the asset object to check
-    * @param {ContainerToken} container The container to add refernces on
-    * @returns {any}
-    */
-    referenceCheckAsset(asset: Asset, container: any): void;
-    /**
-    * Adds group references to a container token during the export.
-    * @param {TreeNodeGroup} group the group object to check
-    * @param {ContainerToken} container The container to add refernces on
-    * @returns {any}
-    */
-    referenceCheckGroup(group: TreeNodeGroup, container: any): void;
-    /**
-    * This is the resonse from the server
-    */
-    onServer(): void;
-    /**
-    * Gets the singleton instance.
-    * @extends <ImportExport>
-    */
-    static getSingleton(): ImportExport;
-}
-
-
-import { LoaderBase } from './loader-base';
-/**
-* This class acts as an interface loader for the animate server.
-*/
-export declare class AnimateLoader extends LoaderBase {
-    private _curCall;
-    /**
-    * Creates an instance of the Loader
-    * @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
-    */
-    constructor(domain?: string);
-    /**
-    * This function will make a POST request to the animate server
-    * @param {string} url The URL we want to load
-    * @param {any} data The post variables to send off to the server
-    * @param {number} numTries The number of attempts allowed to make this load
-    */
-    load(url: string, data: any, numTries?: number, type?: string): void;
-    /**
-    * Called when we the ajax response has an error.
-    * @param {any} e
-    * @param {string} textStatus
-    * @param {any} errorThrown
-    */
-    onError(): void;
-    /**
-    * Called when we get an ajax response.
-    * @param {any} data
-    * @param {any} textStatus
-    * @param {any} jqXHR
-    */
-    onData(): void;
-    /**
-    * Cleans up the object
-    */
-    dispose(): void;
-}
-
-import { LoaderBase } from './loader-base';
-/**
-* Class used to download contents from a server into an ArrayBuffer
-*/
-export declare class BinaryLoader extends LoaderBase {
-    private _xhr;
-    private _onBuffers;
-    private _onError;
-    /**
-    * Creates an instance of the Loader
-    * @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
-    */
-    constructor(domain?: string);
-    /**
-    * This function will make a GET request and attempt to download a file into binary data
-    * @param {string} url The URL we want to load
-    * @param {number} numTries The number of attempts allowed to make this load
-    */
-    load(url: string, numTries?: number): void;
-    /**
-    * If an error occurs
-    */
-    onError(): void;
-    /**
-    * Cleans up and removes references for GC
-    */
-    dispose(): void;
-    /**
-    * Called when the buffers have been loaded
-    */
-    onBuffersLoaded(): void;
-}
-
-import { EventDispatcher } from '../event-dispatcher';
-/**
-* Abstract base loader class. This should not be instantiated, instead use the sub class loaders. Keeps track of loading
-* variables as well as functions for showing or hiding the loading dialogue
-*/
-export declare class LoaderBase extends EventDispatcher {
-    private static loaderBackdrop;
-    private static showCount;
-    url: string;
-    numTries: number;
-    data: any;
-    dataType: string;
-    domain: string;
-    contentType: any;
-    processData: boolean;
-    getVariables: any;
-    _getQuery: string;
-    /**
-    * Creates an instance of the Loader
-    * @param {string} domain [Optional] Specify the base domain of this call. By default it uses DB.HOST.
-    */
-    constructor(domain?: string);
-    /**
-    * Starts the loading process
-    * @param {string} url The URL we want to load
-    * @param {any} data The data associated with this load
-    * @param {number} numTries The number of attempts allowed to make this load
-    */
-    load(url: string, data: any, numTries?: number): void;
-    /**
-    * Call this function to create a jQuery object that acts as a loader modal window (the window with the spinning cog)
-    * @returns {JQuery}
-    */
-    static createLoaderModal(): JQuery;
-    /**
-    * Shows the loader backdrop which prevents the user from interacting with the application. Each time this is called a counter
-    * is incremented. To hide it call the hideLoader function. It will only hide the loader if the hideLoader is called the same
-    * number of times as the showLoader function. I.e. if you call showLoader 5 times and call hideLoader 4 times, it will not hide
-    * the loader. If you call hideLoader one more time - it will.
-    */
-    static showLoader(): void;
-    /**
-    * see showLoader for information on the hideLoader
-    */
-    static hideLoader(): void;
-    /**
-   * Cleans up the object
-   */
-    dispose(): void;
-}
-
-import { EventDispatcher } from './event-dispatcher';
-import { BehaviourDefinition } from './behaviour-definition';
-import { AssetTemplate } from './asset-template';
-import { IPlugin } from 'hatchery-editor-plugins';
-import { AssetClass } from './asset-class';
-/**
- * The plugin manager is used to load and manage external Animate plugins.
- */
-export declare class PluginManager extends EventDispatcher {
-    private static _singleton;
-    private _store;
-    private _behaviourTemplates;
-    private _assetTemplates;
-    private _converters;
-    private _previewVisualizers;
-    constructor(store: Redux.Store<HatcheryEditor.IStore>);
-    /**
-     * This funtcion is used to load a plugin.
-     * @param pluginDefinition The IPlugin constructor that is to be created
-     * @param createPluginReference Should we keep this constructor in memory? The default is true
-     */
-    preparePlugin(pluginDefinition: any): void;
-    /**
-     * Call this function to unload a plugin
-     * @param plugin The IPlugin object that is to be loaded
-     */
-    unloadPlugin(plugin: IPlugin): void;
-    /**
-     * Loops through each of the converters to see if a conversion is possible. If it is
-     * it will return an array of conversion options, if not it returns false.
-     * @param typeA The first type to check
-     * @param typeB The second type to check
-     */
-    getConverters(typeA: any, typeB: any): string[] | null;
-    /**
-     * Gets a behaviour template by its name.
-     * @param behaviorName The name of the behaviour template
-     */
-    getTemplate(behaviorName: string): BehaviourDefinition | null;
-    /**
-     * Use this function to select an asset in the tree view and property grid
-     * @param asset The Asset object we need to select
-     * @param panToNode When set to true, the treeview will bring the node into view
-     * @param multiSelect When set to true, the treeview not clear any previous selections
-     */
-    selectAsset(): void;
-    /**
-     * Gets an asset class by its name
-     * @param name The name of the asset class
-     */
-    getAssetClass(name: string): AssetClass | null;
-    /**
-     * Creates a thumbnail preview of the file
-     */
-    thumbnail(file: HatcheryServer.IFile): Promise<HTMLCanvasElement> | null;
-    /**
-     * This function generates a React Element that is used to preview a file
-     * @param file The file we are looking to preview
-     * @returns If a React Element is returned is added in the File viewer preview
-     */
-    displayPreview(file: HatcheryServer.IFile): JSX.Element | null;
-    readonly assetTemplates: AssetTemplate[];
-    readonly behaviourTemplates: BehaviourDefinition[];
-    /**
-     * Gets the application store
-     */
-    readonly store: Redux.Store<HatcheryEditor.IStore>;
-    /**
-     * Gets the singleton instance.
-     */
-    static getSingleton(store?: Redux.Store<HatcheryEditor.IStore>): PluginManager;
-}
-
-import { Prop } from './properties/prop';
-/**
-* A simple class to define portal behaviour.
-*/
-export declare class PortalTemplate {
-    type: HatcheryRuntime.PortalType;
-    property: Prop<any>;
-    /**
-    * @param property The property associated with this portal
-    * @param type The type of portal this represents
-    */
-    constructor(property: Prop<any>, type: HatcheryRuntime.PortalType);
-}
-
-import { ProjectResource } from './project-resource';
-import { AssetClass } from '../asset-class';
-/**
-* Assets are resources with a list of editable properties. Typically assets are made from templates defined in plugins.
-* They define the objects you can interact with in an application. For example, a cat plugin might define an asset template
-* called Cat which allows you to create a cat asset in the application. The properties of the cat asset would be defined by
-* the plugin.
-*/
-export declare class Asset extends ProjectResource<HatcheryServer.IAsset> {
-    class: AssetClass;
-    /**
-    * @param assetClass The name of the 'class' or 'template' that this asset belongs to
-    * @param entry [Optional] The asset database entry
-    */
-    constructor(assetClass: AssetClass, entry: HatcheryServer.IAsset);
-    /**
-    * Writes this assset to a readable string
-    */
-    toString(): string;
-    /**
-    * Use this function to reset the asset properties
-    * @param name The name of the asset
-    * @param className The 'class' or 'template' name of the asset
-    * @param json The JSON data of the asset.
-    */
-    update(name: string, className: string, json?: any): void;
-    /**
-    * Disposes and cleans up the data of this asset
-    */
-    dispose(): void;
-}
-
-import { ProjectResource } from './project-resource';
-import { Canvas } from '../editors/container-schema/items/canvas';
-/**
- * Each project has a list of containers. These are saved into the database and retrieved when we work with Animate. A container is
- * essentially a piece of code that executes behaviour nodes and plugin logic when activated. It acts as a 'container' for logic.
- */
-export declare class Container extends ProjectResource<HatcheryServer.IContainer> {
-    canvas: Canvas;
-    /**
-     * @param entry The data associated with this container resource
-     */
-    constructor(entry: HatcheryServer.IContainer);
-    /**
-    * This function is called just before the entry is saved to the database.
-    */
-    onSaving(): any;
-    /**
-     * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-     */
-    initialize(): void;
-    /**
-     * This will cleanup the behaviour.
-     */
-    dispose(): void;
-}
-
-import { ProjectResource } from './project-resource';
-/**
-* A wrapper for DB file instances
-* @events deleted, refreshed
-*/
-export declare class File extends ProjectResource<HatcheryServer.IFile> {
-    /**
-    * @param entry The DB entry of this file
-    */
-    constructor(entry: HatcheryServer.IFile);
-}
-
-import { ProjectResource } from './project-resource';
-/**
-* A simple array resource for referencing groups, or arrays, of other objects. Similar to arrays in Javascript.
-*/
-export declare class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
-    /**
-    * @param entry [Optional] The database entry of the resource
-    */
-    constructor(entry: HatcheryServer.IGroup);
-    /**
-    * Adds a new reference to the group
-    * @param shallowId
-    */
-    addReference(shallowId: number): void;
-    /**
-    * Removes a reference from the group
-    * @param shallowId
-    */
-    removeReference(shallowId: number): void;
-    /**
-    * Disposes and cleans up the data of this asset
-    */
-    dispose(): void;
-}
-
-import { EventDispatcher } from '../../core/event-dispatcher';
-import { EditableSet } from '../properties/editable-set';
-/**
-* A base class for all project resources
-*/
-export declare abstract class ProjectResource<T extends HatcheryServer.IResource> extends EventDispatcher {
-    entry: T;
-    private _saved;
-    protected _properties: EditableSet;
-    protected _options: {
-        [s: string]: any;
-    };
-    constructor(entry: T);
-    /**
-    * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-    */
-    initialize(): void;
-    /**
-    * This function is called just before the entry is saved to the database.
-    */
-    onSaving(): any;
-    /**
-    * Gets the properties of this resource
-    */
-    /**
-    * Sets the properties of this resource
-    */
-    properties: EditableSet;
-    /**
-    * Gets if this resource is saved
-    */
-    /**
-    * Sets if this resource is saved
-    */
-    saved: boolean;
-    dispose(): void;
-    /**
-    * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data
-    */
-    createOption(name: string, val: any): void;
-    /**
-    * Destroys an option
-    */
-    removeOption(name: string): void;
-    /**
-    * Update the value of an option
-    */
-    updateOption(name: string, val: any): void;
-    /**
-    * Returns the value of an option
-    */
-    getOption(name: string): any;
-}
-
-import { ProjectResource } from './project-resource';
-/**
-* A wrapper for DB script instances
-*/
-export declare class Script extends ProjectResource<HatcheryServer.IScript> {
-    /**
-    * @param entry The DB entry of this script
-    */
-    constructor(entry: HatcheryServer.IScript);
 }
 
 import { EventDispatcher } from './event-dispatcher';
@@ -5670,109 +1274,76 @@ export declare class PropText extends Prop<string> {
     clone(): PropText;
 }
 
-import { PropertyGrid } from '../components/property-grid';
-import { Component } from '../components/component';
-import { Prop } from './properties/prop';
-/**
-* A simple interface for property grid editors
-*/
-export declare abstract class PropertyGridEditor {
-    constructor(grid: PropertyGrid);
-    /**
-    * Checks a property to see if it can edit it
-    * @param {Prop<any>} prop The property being edited
-    * @returns {boolean}
-    */
-    abstract canEdit(prop: Prop<any>): boolean;
-    /**
-    * Given a property, the grid editor must produce HTML that can be used to edit the property
-    * @param {Prop<any>} prop The property being edited
-    * @param {Component} container The container acting as this editors parent
-    */
-    edit(prop: Prop<any>, container: Component): void | null;
-    cleanup(): void;
-}
-
 import { EventDispatcher } from './event-dispatcher';
 export interface IState {
     name: string;
-    title?: string;
     path: string;
     queries: any;
+    params: any;
+}
+export interface IRoute {
+    name: string;
+    path: string;
+    title?: string;
+    isIndex?: boolean;
+    onStateEnter: (route: IState) => void;
 }
 /**
  * A manager for handling the push states of the window
  */
 export declare class Router extends EventDispatcher {
     private static _singleton;
+    private mode;
+    private root;
+    private _routes;
+    onStateEnter?: (state: IState) => void;
     /**
      * Creates a state manager
      */
     constructor();
-    init(): void;
     /**
-     * Returns the queries as an object
+     * Initializes the router and its routes
+     */
+    init(routes: IRoute[]): void;
+    /**
+     * Triggers the events when a route path has been matched
+     */
+    triggerStateChange(route: IRoute, path: string): void;
+    /**
+     * Checks the path and triggers any state changes if they match the path
+     */
+    check(pathToCheck?: string): IRoute | undefined;
+    /**
+     * Removes begining and trailing slashes
+     */
+    clearSlashes(path: string): string;
+    /**
+     * A function that gets the path section of a url.
+     * The returned result is stripped of any trailing slashes.
+     */
+    getPath(): string;
+    /**
+     * Returns the queries of a url as an object
      */
     getQueryParams(): {};
     /**
-     * Called whenever the state pops
+     * Called whenever the state changes either by the user
+     * or from a manual call to push
      */
     protected onPopState(ev: PopStateEvent): void;
     /**
-     * Add a history entry using push state
+     * Gets the history to go back a state
      */
-    push(data: IState): void;
+    back(): void;
+    /**
+     * Triggers a history route update
+     * @param path The path to change the url to
+     */
+    push(path: string): void;
     /**
      * Gets the instance of the state manager
      */
     static readonly get: Router;
-}
-
-import { EventDispatcher } from '../event-dispatcher';
-/**
- * A singleton class that deals with comminication between the client frontend
- * and the socket backends.
- */
-export declare class SocketManager extends EventDispatcher {
-    private static _singleton;
-    private _usersSocket;
-    /**
-     * Creates the singleton
-     */
-    constructor();
-    /**
-     * Attempts to reconnect when the socket loses its connection
-     */
-    private _reConnect();
-    /**
-     * Called whenever we get a message from the users socket API
-     */
-    onMessage(e: MessageEvent): void;
-    /**
-     * Called whenever an error occurs
-     */
-    onError(): void;
-    /**
-     * Attempts to connect to the user's socket api
-     */
-    connect(): void;
-    /**
-     * Gets the singleton
-     */
-    static readonly get: SocketManager;
-}
-
-import { IPlugin } from 'hatchery-editor-plugins';
-export declare class TypeConverter {
-    plugin: IPlugin;
-    typeA: string;
-    typeB: string;
-    conversionOptions: Array<string>;
-    constructor(typeA: string, typeB: string, conversionOptions: Array<string>, plugin: IPlugin);
-    /** Checks if this converter supports a conversion. */
-    canConvert(typeA: any, typeB: any): boolean;
-    /** Cleans up the object. */
-    dispose(): void;
 }
 
 import { EventDispatcher } from './event-dispatcher';
@@ -5792,9 +1363,27 @@ export declare class User extends EventDispatcher {
     logout(): Promise<boolean>;
     /**
      * Sends a server request to check if a user is logged in
-     * @param forward Optionally pass a url to forward onto if the user is authenticated
      */
-    authenticated(): Promise<boolean | undefined>;
+    authenticated(): Promise<boolean>;
+    /**
+     * Attempts to log the user in using the token provided
+     */
+    login(token: UsersInterface.ILoginToken): Promise<this>;
+    /**
+     * Attempts to register the user with the provided token
+     * @returns A promise with the return message from the server.
+     */
+    register(token: UsersInterface.IRegisterToken): Promise<string>;
+    /**
+     * Sends an instruction to the server to start the user password reset procedure.
+     * @returns A promise with the return message from the server.
+     */
+    resetPassword(user: string): Promise<string>;
+    /**
+     * Sends an instruction to the server to resend the user account activation link.
+     * @returns A promise with the return message from the server.
+     */
+    resendActivation(user: string): Promise<string>;
     /**
     * Creates a new user projects
     * @param name The name of the project
@@ -5830,7 +1419,7 @@ export declare class User extends EventDispatcher {
     static readonly get: User;
 }
 
-import { ValidationType, PropertyType } from '../setup/enums';
+import { ValidationType, ValidationErrorType, PropertyType } from '../setup/enums';
 import { Prop } from './properties/prop';
 export interface IAjaxError {
     message: string;
@@ -5839,20 +1428,29 @@ export interface IAjaxError {
 /**
  * Initializes the utils static variables
  */
-export declare let validators: {
-    [type: number]: {
-        regex: RegExp;
-        name: string;
-        negate: boolean;
-        message: string;
-    };
+export declare type Validator = {
+    regex: RegExp;
+    name: string;
+    negate: boolean;
+    message: string;
+    type: ValidationType;
 };
+export declare let validators: {
+    [type: number]: Validator;
+};
+/**
+ * An error for use when there is a validation problem
+ */
+export declare class ValidationError extends Error {
+    code: ValidationErrorType;
+    constructor(message: string, code: ValidationErrorType);
+}
 /**
  * Checks a string to see if there is a validation error
  * @param val The string to check
  * @param validator The type of validations to check
  */
-export declare function checkValidation(val: string, validator: ValidationType): string | null;
+export declare function checkValidation(val: string, validator: ValidationType): Validator | null;
 /**
  * Returns a formatted byte string
  */
@@ -5930,141 +1528,132 @@ export declare function getObjectClass(obj: any): any;
  */
 export declare function all<Y>(promises: Promise<Y>[], progress: (item: Y, progress: number) => void): Promise<Y[]>;
 
-import { HTMLAttributes } from './attributes';
+/**
+ * Make all properties in T optional as well as their base type
+ */
+export declare type PartialHTMLElement<T> = {
+    [P in keyof T]?: Partial<T[P]>;
+};
 /**
  * Describes the types that can be added to calls to jml
  */
-export declare type Children = (HTMLElement | NodeList)[] | HTMLElement | string;
+export declare type Children = (HTMLElement | NodeList | string)[] | HTMLElement | string;
 /**
- * Creates an element based on the type and attributes defined. If children are supplied they are added
- * to the newly created element.
- *
- * eg:
- *  elm('div', { className: 'important', style: { marginLeft: '5px' } } )
- *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, 'Strings are converted to a text node' )
- *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, new HTMLCanvasElement() )
+ * Empties out an element of all its child nodes
  */
-export declare function elm(type: string | HTMLElement, attrs?: null | HTMLAttributes, children?: Children): HTMLElement;
-export declare function a(attrs?: null | HTMLAttributes, children?: Children): HTMLAnchorElement;
-export declare function applet(attrs?: null | HTMLAttributes, children?: Children): HTMLAppletElement;
-export declare function area(attrs?: null | HTMLAttributes, children?: Children): HTMLAreaElement;
-export declare function audio(attrs?: null | HTMLAttributes, children?: Children): HTMLAudioElement;
-export declare function base(attrs?: null | HTMLAttributes, children?: Children): HTMLBaseElement;
-export declare function basefont(attrs?: null | HTMLAttributes, children?: Children): HTMLBaseFontElement;
-export declare function blockquote(attrs?: null | HTMLAttributes, children?: Children): HTMLQuoteElement;
-export declare function body(attrs?: null | HTMLAttributes, children?: Children): HTMLBodyElement;
-export declare function br(attrs?: null | HTMLAttributes, children?: Children): HTMLBRElement;
-export declare function button(attrs?: null | HTMLAttributes, children?: Children): HTMLButtonElement;
-export declare function canvas(attrs?: null | HTMLAttributes, children?: Children): HTMLCanvasElement;
-export declare function caption(attrs?: null | HTMLAttributes, children?: Children): HTMLTableCaptionElement;
-export declare function col(attrs?: null | HTMLAttributes, children?: Children): HTMLTableColElement;
-export declare function colgroup(attrs?: null | HTMLAttributes, children?: Children): HTMLTableColElement;
-export declare function datalist(attrs?: null | HTMLAttributes, children?: Children): HTMLDataListElement;
-export declare function del(attrs?: null | HTMLAttributes, children?: Children): HTMLModElement;
-export declare function dir(attrs?: null | HTMLAttributes, children?: Children): HTMLDirectoryElement;
-export declare function div(attrs?: null | HTMLAttributes, children?: Children): HTMLDivElement;
-export declare function dl(attrs?: null | HTMLAttributes, children?: Children): HTMLDListElement;
-export declare function embed(attrs?: null | HTMLAttributes, children?: Children): HTMLEmbedElement;
-export declare function fieldset(attrs?: null | HTMLAttributes, children?: Children): HTMLFieldSetElement;
-export declare function font(attrs?: null | HTMLAttributes, children?: Children): HTMLFontElement;
-export declare function form(attrs?: null | HTMLAttributes, children?: Children): HTMLFormElement;
-export declare function frame(attrs?: null | HTMLAttributes, children?: Children): HTMLFrameElement;
-export declare function frameset(attrs?: null | HTMLAttributes, children?: Children): HTMLFrameSetElement;
-export declare function h1(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function h2(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function h3(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function h4(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function h5(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function h6(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadingElement;
-export declare function head(attrs?: null | HTMLAttributes, children?: Children): HTMLHeadElement;
-export declare function hr(attrs?: null | HTMLAttributes, children?: Children): HTMLHRElement;
-export declare function html(attrs?: null | HTMLAttributes, children?: Children): HTMLHtmlElement;
-export declare function iframe(attrs?: null | HTMLAttributes, children?: Children): HTMLIFrameElement;
-export declare function img(attrs?: null | HTMLAttributes, children?: Children): HTMLImageElement;
-export declare function input(attrs?: null | HTMLAttributes, children?: Children): HTMLInputElement;
-export declare function ins(attrs?: null | HTMLAttributes, children?: Children): HTMLModElement;
-export declare function isindex(attrs?: null | HTMLAttributes, children?: Children): HTMLUnknownElement;
-export declare function label(attrs?: null | HTMLAttributes, children?: Children): HTMLLabelElement;
-export declare function legend(attrs?: null | HTMLAttributes, children?: Children): HTMLLegendElement;
-export declare function li(attrs?: null | HTMLAttributes, children?: Children): HTMLLIElement;
-export declare function link(attrs?: null | HTMLAttributes, children?: Children): HTMLLinkElement;
-export declare function listing(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
-export declare function map(attrs?: null | HTMLAttributes, children?: Children): HTMLMapElement;
-export declare function marquee(attrs?: null | HTMLAttributes, children?: Children): HTMLMarqueeElement;
-export declare function menu(attrs?: null | HTMLAttributes, children?: Children): HTMLMenuElement;
-export declare function meta(attrs?: null | HTMLAttributes, children?: Children): HTMLMetaElement;
-export declare function meter(attrs?: null | HTMLAttributes, children?: Children): HTMLMeterElement;
-export declare function nextid(attrs?: null | HTMLAttributes, children?: Children): HTMLUnknownElement;
-export declare function object(attrs?: null | HTMLAttributes, children?: Children): HTMLObjectElement;
-export declare function ol(attrs?: null | HTMLAttributes, children?: Children): HTMLOListElement;
-export declare function optgroup(attrs?: null | HTMLAttributes, children?: Children): HTMLOptGroupElement;
-export declare function option(attrs?: null | HTMLAttributes, children?: Children): HTMLOptionElement;
-export declare function p(attrs?: null | HTMLAttributes, children?: Children): HTMLParagraphElement;
-export declare function param(attrs?: null | HTMLAttributes, children?: Children): HTMLParamElement;
-export declare function picture(attrs?: null | HTMLAttributes, children?: Children): HTMLPictureElement;
-export declare function pre(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
-export declare function progress(attrs?: null | HTMLAttributes, children?: Children): HTMLProgressElement;
-export declare function q(attrs?: null | HTMLAttributes, children?: Children): HTMLQuoteElement;
-export declare function script(attrs?: null | HTMLAttributes, children?: Children): HTMLScriptElement;
-export declare function select(attrs?: null | HTMLAttributes, children?: Children): HTMLSelectElement;
-export declare function source(attrs?: null | HTMLAttributes, children?: Children): HTMLSourceElement;
-export declare function span(attrs?: null | HTMLAttributes, children?: Children): HTMLSpanElement;
-export declare function style(attrs?: null | HTMLAttributes, children?: Children): HTMLStyleElement;
-export declare function table(attrs?: null | HTMLAttributes, children?: Children): HTMLTableElement;
-export declare function tbody(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
-export declare function td(attrs?: null | HTMLAttributes, children?: Children): HTMLTableDataCellElement;
-export declare function template(attrs?: null | HTMLAttributes, children?: Children): HTMLTemplateElement;
-export declare function textarea(attrs?: null | HTMLAttributes, children?: Children): HTMLTextAreaElement;
-export declare function tfoot(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
-export declare function th(attrs?: null | HTMLAttributes, children?: Children): HTMLTableHeaderCellElement;
-export declare function thead(attrs?: null | HTMLAttributes, children?: Children): HTMLTableSectionElement;
-export declare function title(attrs?: null | HTMLAttributes, children?: Children): HTMLTitleElement;
-export declare function tr(attrs?: null | HTMLAttributes, children?: Children): HTMLTableRowElement;
-export declare function track(attrs?: null | HTMLAttributes, children?: Children): HTMLTrackElement;
-export declare function ul(attrs?: null | HTMLAttributes, children?: Children): HTMLUListElement;
-export declare function video(attrs?: null | HTMLAttributes, children?: Children): HTMLVideoElement;
-export declare function xmp(attrs?: null | HTMLAttributes, children?: Children): HTMLPreElement;
-export declare function i(attrs?: null | HTMLAttributes, children?: Children): HTMLElement;
+export declare function empty(element: Element): void;
+/**
+ * Empties out an element, and replaces it with a child element
+ */
+export declare function innerHtml(parent: Element, child: Element): void;
+export declare namespace JML {
+    /**
+     * Creates an element based on the type and attributes defined. If children are supplied they are added
+     * to the newly created element.
+     *
+     * eg:
+     *  elm('div', { className: 'important', style: { marginLeft: '5px' } } )
+     *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, 'Strings are converted to a text node' )
+     *  elm('div', { className: 'important', style: { marginLeft: '5px' } }, new HTMLCanvasElement() )
+     * @param type Can be a string or Element. If it's a string, it must be a registered element name
+     * @param attrs [Optional] A list of attributes that are applied to the created element
+     * @param children [Optional] Child elements that will be added to the created element, or the created elements target
+     * @param target [Optional] The target selector, if specified, will be the child element within the created element to which the children are added
+     */
+    function elm<T extends HTMLElement>(type: string | HTMLElement, attrs?: null | PartialHTMLElement<T>, children?: Children, target?: string): T;
+    function a(attrs?: null | PartialHTMLElement<HTMLAnchorElement>, children?: Children): HTMLAnchorElement;
+    function applet(attrs?: null | PartialHTMLElement<HTMLAppletElement>, children?: Children): HTMLAppletElement;
+    function area(attrs?: null | PartialHTMLElement<HTMLAreaElement>, children?: Children): HTMLAreaElement;
+    function audio(attrs?: null | PartialHTMLElement<HTMLAudioElement>, children?: Children): HTMLAudioElement;
+    function base(attrs?: null | PartialHTMLElement<HTMLBaseElement>, children?: Children): HTMLBaseElement;
+    function basefont(attrs?: null | PartialHTMLElement<HTMLBaseFontElement>, children?: Children): HTMLBaseFontElement;
+    function blockquote(attrs?: null | PartialHTMLElement<HTMLQuoteElement>, children?: Children): HTMLQuoteElement;
+    function body(attrs?: null | PartialHTMLElement<HTMLBodyElement>, children?: Children): HTMLBodyElement;
+    function br(attrs?: null | PartialHTMLElement<HTMLBRElement>, children?: Children): HTMLBRElement;
+    function button(attrs?: null | PartialHTMLElement<HTMLButtonElement>, children?: Children): HTMLButtonElement;
+    function canvas(attrs?: null | PartialHTMLElement<HTMLCanvasElement>, children?: Children): HTMLCanvasElement;
+    function caption(attrs?: null | PartialHTMLElement<HTMLTableCaptionElement>, children?: Children): HTMLTableCaptionElement;
+    function col(attrs?: null | PartialHTMLElement<HTMLTableColElement>, children?: Children): HTMLTableColElement;
+    function colgroup(attrs?: null | PartialHTMLElement<HTMLTableColElement>, children?: Children): HTMLTableColElement;
+    function datalist(attrs?: null | PartialHTMLElement<HTMLDataListElement>, children?: Children): HTMLDataListElement;
+    function del(attrs?: null | PartialHTMLElement<HTMLModElement>, children?: Children): HTMLModElement;
+    function dir(attrs?: null | PartialHTMLElement<HTMLDirectoryElement>, children?: Children): HTMLDirectoryElement;
+    function div(attrs?: null | PartialHTMLElement<HTMLDivElement>, children?: Children): HTMLDivElement;
+    function dl(attrs?: null | PartialHTMLElement<HTMLDListElement>, children?: Children): HTMLDListElement;
+    function embed(attrs?: null | PartialHTMLElement<HTMLEmbedElement>, children?: Children): HTMLEmbedElement;
+    function fieldset(attrs?: null | PartialHTMLElement<HTMLFieldSetElement>, children?: Children): HTMLFieldSetElement;
+    function font(attrs?: null | PartialHTMLElement<HTMLFontElement>, children?: Children): HTMLFontElement;
+    function form(attrs?: null | PartialHTMLElement<HTMLFormElement>, children?: Children): HTMLFormElement;
+    function frame(attrs?: null | PartialHTMLElement<HTMLFrameElement>, children?: Children): HTMLFrameElement;
+    function frameset(attrs?: null | PartialHTMLElement<HTMLFrameSetElement>, children?: Children): HTMLFrameSetElement;
+    function h1(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function h2(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function h3(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function h4(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function h5(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function h6(attrs?: null | PartialHTMLElement<HTMLHeadingElement>, children?: Children): HTMLHeadingElement;
+    function head(attrs?: null | PartialHTMLElement<HTMLHeadElement>, children?: Children): HTMLHeadElement;
+    function hr(attrs?: null | PartialHTMLElement<HTMLHRElement>, children?: Children): HTMLHRElement;
+    function html(attrs?: null | PartialHTMLElement<HTMLHtmlElement>, children?: Children): HTMLHtmlElement;
+    function iframe(attrs?: null | PartialHTMLElement<HTMLIFrameElement>, children?: Children): HTMLIFrameElement;
+    function img(attrs?: null | PartialHTMLElement<HTMLImageElement>, children?: Children): HTMLImageElement;
+    function input(attrs?: null | PartialHTMLElement<HTMLInputElement>, children?: Children): HTMLInputElement;
+    function ins(attrs?: null | PartialHTMLElement<HTMLModElement>, children?: Children): HTMLModElement;
+    function isindex(attrs?: null | PartialHTMLElement<HTMLUnknownElement>, children?: Children): HTMLUnknownElement;
+    function label(attrs?: null | PartialHTMLElement<HTMLLabelElement>, children?: Children): HTMLLabelElement;
+    function legend(attrs?: null | PartialHTMLElement<HTMLLegendElement>, children?: Children): HTMLLegendElement;
+    function li(attrs?: null | PartialHTMLElement<HTMLLIElement>, children?: Children): HTMLLIElement;
+    function link(attrs?: null | PartialHTMLElement<HTMLLinkElement>, children?: Children): HTMLLinkElement;
+    function listing(attrs?: null | PartialHTMLElement<HTMLPreElement>, children?: Children): HTMLPreElement;
+    function map(attrs?: null | PartialHTMLElement<HTMLMapElement>, children?: Children): HTMLMapElement;
+    function marquee(attrs?: null | PartialHTMLElement<HTMLMarqueeElement>, children?: Children): HTMLMarqueeElement;
+    function menu(attrs?: null | PartialHTMLElement<HTMLMenuElement>, children?: Children): HTMLMenuElement;
+    function meta(attrs?: null | PartialHTMLElement<HTMLMetaElement>, children?: Children): HTMLMetaElement;
+    function meter(attrs?: null | PartialHTMLElement<HTMLMeterElement>, children?: Children): HTMLMeterElement;
+    function nextid(attrs?: null | PartialHTMLElement<HTMLUnknownElement>, children?: Children): HTMLUnknownElement;
+    function object(attrs?: null | PartialHTMLElement<HTMLObjectElement>, children?: Children): HTMLObjectElement;
+    function ol(attrs?: null | PartialHTMLElement<HTMLOListElement>, children?: Children): HTMLOListElement;
+    function optgroup(attrs?: null | PartialHTMLElement<HTMLOptGroupElement>, children?: Children): HTMLOptGroupElement;
+    function option(attrs?: null | PartialHTMLElement<HTMLOptionElement>, children?: Children): HTMLOptionElement;
+    function p(attrs?: null | PartialHTMLElement<HTMLParagraphElement>, children?: Children): HTMLParagraphElement;
+    function param(attrs?: null | PartialHTMLElement<HTMLParamElement>, children?: Children): HTMLParamElement;
+    function picture(attrs?: null | PartialHTMLElement<HTMLPictureElement>, children?: Children): HTMLPictureElement;
+    function pre(attrs?: null | PartialHTMLElement<HTMLPreElement>, children?: Children): HTMLPreElement;
+    function progress(attrs?: null | PartialHTMLElement<HTMLProgressElement>, children?: Children): HTMLProgressElement;
+    function q(attrs?: null | PartialHTMLElement<HTMLQuoteElement>, children?: Children): HTMLQuoteElement;
+    function script(attrs?: null | PartialHTMLElement<HTMLScriptElement>, children?: Children): HTMLScriptElement;
+    function select(attrs?: null | PartialHTMLElement<HTMLSelectElement>, children?: Children): HTMLSelectElement;
+    function source(attrs?: null | PartialHTMLElement<HTMLSourceElement>, children?: Children): HTMLSourceElement;
+    function span(attrs?: null | PartialHTMLElement<HTMLSpanElement>, children?: Children): HTMLSpanElement;
+    function style(attrs?: null | PartialHTMLElement<HTMLStyleElement>, children?: Children): HTMLStyleElement;
+    function table(attrs?: null | PartialHTMLElement<HTMLTableElement>, children?: Children): HTMLTableElement;
+    function tbody(attrs?: null | PartialHTMLElement<HTMLTableSectionElement>, children?: Children): HTMLTableSectionElement;
+    function td(attrs?: null | PartialHTMLElement<HTMLTableDataCellElement>, children?: Children): HTMLTableDataCellElement;
+    function template(attrs?: null | PartialHTMLElement<HTMLTemplateElement>, children?: Children): HTMLTemplateElement;
+    function textarea(attrs?: null | PartialHTMLElement<HTMLTextAreaElement>, children?: Children): HTMLTextAreaElement;
+    function tfoot(attrs?: null | PartialHTMLElement<HTMLTableSectionElement>, children?: Children): HTMLTableSectionElement;
+    function th(attrs?: null | PartialHTMLElement<HTMLTableHeaderCellElement>, children?: Children): HTMLTableHeaderCellElement;
+    function thead(attrs?: null | PartialHTMLElement<HTMLTableSectionElement>, children?: Children): HTMLTableSectionElement;
+    function title(attrs?: null | PartialHTMLElement<HTMLTitleElement>, children?: Children): HTMLTitleElement;
+    function tr(attrs?: null | PartialHTMLElement<HTMLTableRowElement>, children?: Children): HTMLTableRowElement;
+    function track(attrs?: null | PartialHTMLElement<HTMLTrackElement>, children?: Children): HTMLTrackElement;
+    function ul(attrs?: null | PartialHTMLElement<HTMLUListElement>, children?: Children): HTMLUListElement;
+    function video(attrs?: null | PartialHTMLElement<HTMLVideoElement>, children?: Children): HTMLVideoElement;
+    function xmp(attrs?: null | PartialHTMLElement<HTMLPreElement>, children?: Children): HTMLPreElement;
+    function i(attrs?: null | PartialHTMLElement<HTMLElement>, children?: Children): HTMLElement;
+}
 
 /**
- * Describes custom attribute parsers
+ * A map of parser objects. These parsers are used within the JML.elm calls
+ * as a way to map a custom property to a regular HTML attribute. The key of
+ * of this object is the html attribute name and its value is a function which
+ * is called to parse the custom attribute.
  */
 export declare const parsers: {
     [name: string]: (val: any) => any;
 };
 
 import './setup/emitters';
-import './components/split-panel/split-panel';
-
-import { IEditorAction } from '../actions/editor-actions';
-/**
- * A reducer that processes state changes of the editor
- */
-export declare function editorReducer(state: HatcheryEditor.IEditorState, action: IEditorAction): HatcheryEditor.IEditorState;
-
-import { ILoggerAction } from '../actions/logger-actions';
-/**
- * A reducer that processes state changes of the editor
- */
-export declare function loggerReducer(state: HatcheryEditor.ILogMessage[], action: ILoggerAction): HatcheryEditor.ILogMessage[];
-
-import { IProjectAction } from '../actions/project-actions';
-/**
- * A reducer for processing project actions
- */
-export declare function projectReducer(state: HatcheryEditor.IProject, action: IProjectAction): HatcheryEditor.IProject;
-
-import { ISplashAction } from '../actions/splash-actions';
-/**
- * A reducer for processing splash screen actions
- */
-export declare function splashReducer(state: HatcheryEditor.ISplashScreen, action: ISplashAction): HatcheryEditor.ISplashScreen;
-
-import { IUserAction } from '../actions/user-actions';
-/**
- * A reducer for processing project actions
- */
-export declare function userReducer(state: HatcheryEditor.IUser, action: IUserAction): HatcheryEditor.IUser;
 
 export declare class DataToken {
     category: string;
@@ -6087,7 +1676,7 @@ export declare class DB {
 declare const WorkerGlobalScope: any;
 declare function __awaiterFn(thisArg: any, _arguments: any, P: any, generator: any): any;
 
-export declare module EventTypes {
+export declare namespace EventTypes {
     const PORTAL_ADDED: string;
     const PORTAL_REMOVED: string;
     const PORTAL_EDITED: string;
@@ -6102,6 +1691,29 @@ export declare enum AttentionType {
     WARNING = 0,
     SUCCESS = 1,
     ERROR = 2,
+}
+/**
+ * An enum to describe the different types of validation
+ */
+export declare enum ValidationErrorType {
+    /** The input had too few characters */
+    MIN_CHARACTERS = 0,
+    /** The input had too many characters */
+    MAX_CHARACTERS = 1,
+    /** The value must be a valid email format */
+    EMAIL = 2,
+    /** The value must be a number */
+    NUMBER = 3,
+    /** The value must only have alphanumeric characters */
+    ALPHANUMERIC = 4,
+    /** The value must not be empty */
+    NOT_EMPTY = 5,
+    /** The value cannot contain html */
+    NO_HTML = 6,
+    /** The value must only alphanumeric characters as well as '_', '-' and '!' */
+    ALPHANUMERIC_PLUS = 7,
+    /** The value must be alphanumeric characters as well as '_', '-' and '@' */
+    ALPHA_EMAIL = 8,
 }
 /**
  * An enum to describe the different types of validation

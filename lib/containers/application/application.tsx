@@ -122,6 +122,16 @@ export class Application extends HTMLElement {
                     }
                 },
                 {
+                    name: 'default',
+                    path: '/splash/overview',
+                    isIndex: true,
+                    onStateEnter: ( state ) => {
+                        innerHtml( this,
+                            JML.elm<Splash>( new Splash() )
+                        );
+                    }
+                },
+                {
                     name: 'error',
                     path: '*',
                     onStateEnter: ( state ) => this.innerHTML = `<div>404 - What you done phillis!?</div>`

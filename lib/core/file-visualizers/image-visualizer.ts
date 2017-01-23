@@ -1,4 +1,4 @@
-﻿import { } from '../../components/image-preview/image-preview';
+import { } from '../../components/image-preview/image-preview';
 import { IPreviewFactory } from 'hatchery-editor-plugins';
 
 export class ImageVisualizer implements IPreviewFactory {
