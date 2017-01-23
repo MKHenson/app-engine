@@ -8,7 +8,7 @@ import { Checkbox } from './components/checkbox/checkbox';
 import { JsonForm } from './components/json-form/json-form';
 import { Group } from './components/group/group';
 import { Popup } from './components/popup/popup';
-import { PopupMenu, PopupMenuItem } from './components/popup-menu/popup-menu';
+import { PopupMenu } from './components/popup-menu/popup-menu';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -129,11 +129,3 @@ customElements.define( 'x-group', Group );
 
 
 document.body.appendChild( JML.elm( new Application() ) );
-
-const pop = new PopupMenu();
-pop.show( 300, 500 );
-
-pop.addItem( new PopupMenuItem( 'Option 1' ) );
-pop.addItem( new PopupMenuItem( 'Option 2' ) );
-
-document.body.addEventListener( 'click', ( e ) => { pop.show( e.clientX, e.clientY ); })
