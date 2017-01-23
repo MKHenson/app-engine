@@ -7,6 +7,8 @@ import { ValidatedSelect } from './components/validated-select/validated-select'
 import { Checkbox } from './components/checkbox/checkbox';
 import { JsonForm } from './components/json-form/json-form';
 import { Group } from './components/group/group';
+import { Popup } from './components/popup/popup';
+import { PopupMenu, PopupMenuItem } from './components/popup-menu/popup-menu';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -118,6 +120,8 @@ customElements.define( 'x-json-form', JsonForm, { extends: 'form' });
 customElements.define( 'x-login-form', LoginForm );
 customElements.define( 'x-register-form', RegisterForm );
 customElements.define( 'x-split-panel', SplitPanel );
+customElements.define( 'x-popup', Popup );
+customElements.define( 'x-popup-menu', PopupMenu );
 customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
@@ -126,3 +130,10 @@ customElements.define( 'x-group', Group );
 
 document.body.appendChild( JML.elm( new Application() ) );
 
+const pop = new PopupMenu();
+pop.show( 300, 500 );
+
+pop.addItem( new PopupMenuItem( 'Option 1' ) );
+pop.addItem( new PopupMenuItem( 'Option 2' ) );
+
+document.body.addEventListener( 'click', ( e ) => { pop.show( e.clientX, e.clientY ); })
