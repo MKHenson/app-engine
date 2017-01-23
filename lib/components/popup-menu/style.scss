@@ -1,0 +1,16 @@
+x-popup-menu {
+    @extend x-popup;
+
+    width: auto;
+    height: auto;
+
+    .popup-item {
+        padding: 5px;
+        cursor: pointer;
+
+        &:hover {
+            background: $tooltip-bg;
+            color: $tooltip-color;
+        }
+    }
+}
