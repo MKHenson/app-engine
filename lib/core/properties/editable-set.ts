@@ -64,7 +64,7 @@ export class EditableSet {
      * Broadcasts an 'edited' event to the owner of the set
      */
     notifyEdit() {
-        //this.parent.emit( new EditEvent( prop, this ) );
+        // this.parent.emit( new EditEvent( prop, this ) );
     }
 
     /**
