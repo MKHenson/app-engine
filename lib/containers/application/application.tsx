@@ -5,6 +5,8 @@ import { SplitPanel } from '../../components/split-panel/split-panel';
 import { LoginWidget } from '../login-widget/login-widget';
 import { Splash } from '../splash/splash';
 
+import { Group } from '../../components/group/group';
+
 /**
  * The main GUI component of the application.
  */
@@ -39,6 +41,10 @@ export class Application extends HTMLElement {
 
         splitPanel.left.appendChild( JML.h2( null, 'This is the left panel!' ) );
         splitPanel.right.appendChild( JML.h2( null, 'This is the right panel!' ) );
+
+        const group = new Group();
+        splitPanel.left.appendChild( group );
+        group.content.appendChild( JML.div( null, 'We are in a group' ) )
 
         this.appendChild( splitPanel );
     }
