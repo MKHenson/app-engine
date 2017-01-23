@@ -9,6 +9,17 @@ export class PopupMenuItem {
  * A popup window that is usually added to the body, that contains
  * a list of menu items that can be selected.
  * eg:
+ *
+ * const pop = new PopupMenu();
+ * pop.show( 300, 500 );
+ * pop.addItem( new PopupMenuItem( 'Option 1', 'fa-fire-extinguisher' ) );
+ * pop.addItem( new PopupMenuItem( 'Option 2' ) );
+
+ * document.body.addEventListener('contextmenu', function (e) {
+ *      e.preventDefault();
+ *      e.stopPropagation();
+ *      pop.show( e.clientX, e.clientY );
+ * });
  */
 export class PopupMenu extends Popup {
 
@@ -47,7 +58,7 @@ export class PopupMenu extends Popup {
         }, item.text ) );
 
         if ( item.icon )
-            html.insertBefore( JML.div( {
+            html.insertBefore( JML.i( {
                 className: 'fa ' + item.icon
             }), html.firstChild );
     }
