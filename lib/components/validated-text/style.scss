@@ -1,4 +1,6 @@
-.validated-text {
+x-validated-text {
+    display: block;
+
     .input-highlighter {
         border-top:1px solid $input;
         margin: 0 auto;
