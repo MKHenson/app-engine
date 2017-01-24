@@ -80,6 +80,8 @@ export class LoginWidget extends HTMLElement {
                     onLoginRequested: ( json ) => {
                         this.request( User.get.login( json ) ).then(() => {
                             this.form.message( 'Logged in', AttentionType.SUCCESS );
+                            if ( this.onLogin )
+                                this.onLogin();
                         });
                     },
                     onResendActivationRequest: ( username ) => {

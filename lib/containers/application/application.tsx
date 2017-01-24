@@ -1,11 +1,8 @@
 import { JML, innerHtml } from '../../jml/jml';
 import { User } from '../../core/user';
 import { Router } from '../../core/router';
-import { SplitPanel } from '../../components/split-panel/split-panel';
 import { LoginWidget } from '../login-widget/login-widget';
 import { Splash } from '../splash/splash';
-
-import { Group } from '../../components/group/group';
 
 /**
  * The main GUI component of the application.
@@ -31,22 +28,6 @@ export class Application extends HTMLElement {
                     JML.i( { className: 'fa fa-cog fa-spin fa-3x fa-fw' })
                 ] )
             ] );
-
-
-        // Create the split panel
-        const splitPanel = JML.elm<SplitPanel>( new SplitPanel(), {
-            ratio: 0.6,
-            orientation: 'vertical'
-        });
-
-        splitPanel.left.appendChild( JML.h2( null, 'This is the left panel!' ) );
-        splitPanel.right.appendChild( JML.h2( null, 'This is the right panel!' ) );
-
-        const group = new Group();
-        splitPanel.left.appendChild( group );
-        group.content.appendChild( JML.div( null, 'We are in a group' ) )
-
-        this.appendChild( splitPanel );
     }
 
     /**
@@ -100,7 +81,7 @@ export class Application extends HTMLElement {
                     path: '/splash/:section?',
                     onStateEnter: ( state ) => {
                         innerHtml( this,
-                            JML.elm<Splash>( new Splash() )
+                            JML.elm<Splash>( new Splash(), { onLogOut: () => Router.get.push( '/login' ) })
                         );
                     }
                 },
@@ -116,7 +97,9 @@ export class Application extends HTMLElement {
                         else
                             innerHtml( this, JML.div( { className: 'splash-view' }, [
                                 JML.elm<LoginWidget>( new LoginWidget(), {
-                                    onLogin: () => { }
+                                    onLogin: () => {
+                                        Router.get.push( '/splash' );
+                                    }
                                 })
                             ] ) );
                     }

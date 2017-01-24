@@ -156,7 +156,7 @@ export type SplashMode = 'new' | 'open' | 'overview';
  * The splash screen when starting the app
  */
 export class Splash extends HTMLElement {
-
+    public onLogOut: () => void;
     private _mode: SplashMode;
 
     /**
@@ -173,7 +173,8 @@ export class Splash extends HTMLElement {
                 JML.a( {
                     onclick: ( e: MouseEvent ) => {
                         User.get.logout().then(() => {
-
+                            if ( this.onLogOut )
+                                this.onLogOut();
                         })
                     }
                 }, [
