@@ -30,10 +30,11 @@ export class LoginForm extends HTMLElement {
         this.appendChild(
             JML.elm<JsonForm>( new JsonForm(), {
                 onError: ( sender, errors ) => {
-                    if ( !sender.pristine && Object.keys( errors ).length !== 0 ) {
+                    if ( Object.keys( errors ).length !== 0 ) {
                         const firstKey = Object.keys( errors )[ 0 ];
-                        const error = errors[ firstKey ];
-                        this.message( `${capitalize( firstKey )} : ${error.message}`, AttentionType.ERROR );
+                        const problemInput = errors[ firstKey ];
+                        if (!problemInput.input.pristine)
+                            this.message( `${capitalize( firstKey )} : ${problemInput.error.message}`, AttentionType.ERROR );
                     }
                 },
                 onResolved: ( sender, errors ) => this.message( null, AttentionType.ERROR ),
