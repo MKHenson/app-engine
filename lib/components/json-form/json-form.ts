@@ -32,7 +32,7 @@ export class JsonForm extends HTMLFormElement {
     /**
      * Called whenever a validated input flags a problem
      */
-    public onError?: ( sender: JsonForm, errors: { [ name: string ]: ValidationError }) => void;
+    public onError?: ( sender: JsonForm, errors: { [ name: string ]: { error: ValidationError, input: ValidatedText | ValidatedSelect } }) => void;
 
     /**
      * Called whenever a validated input's problem is resolved
@@ -45,7 +45,7 @@ export class JsonForm extends HTMLFormElement {
     public onChange?: ( sender: JsonForm, json: { [ name: string ]: string | boolean }) => void;
 
     private _inputs: { [ name: string ]: JsonFormInput };
-    private _errors: { [ name: string ]: ValidationError };
+    private _errors: { [ name: string ]: { error: ValidationError, input: ValidatedText | ValidatedSelect } };
     private _pristine: boolean;
 
     constructor() {
@@ -65,7 +65,7 @@ export class JsonForm extends HTMLFormElement {
 
         const errors = this._errors;
         if ( error )
-            errors[ sender.name ] = error;
+            errors[ sender.name ] = {error : error, input: sender };
         else
             delete errors[ sender.name ];
 
