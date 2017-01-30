@@ -191,7 +191,7 @@ export class Splash extends HTMLElement {
     }
 
     connectedCallback() {
-        setTimeout(() => { this.style.width = '80%' }, 300 );
+        setTimeout(() => { this.classList.toggle('appear', true) }, 300 );
     }
 
     set mode( val: SplashMode ) {

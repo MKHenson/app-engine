@@ -1,9 +1,17 @@
 x-splash {
     font-size:20px;
     min-width:910px;
-    width:60%;
-    transition: width 1s;
+    width:80%;
+    opacity: 0;
+    transform: translate(0, -50px);
+    transition: transform 1s, opacity 1s;
     margin: auto;
+    display: block;
+
+    &.appear {
+        opacity: 1;
+        transform: translate(0,0);
+    }
 
     .projects {
         position: relative;
