@@ -16,31 +16,25 @@
     100% { box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.2); }
 }
 
-.window-view {
-    .resizable {
-        position: absolute;
-        z-index: 1;
-
-        &.animated {
-            transition: transform 0.5s, opacity 0.5s;
-            transform: translate(0, -200px);
-            opacity: 0;
-
-            &.shown {
-                transform: translate(0, 0);
-                opacity: 1;
-            }
-        }
-    }
-}
-
-.window {
-    position: relative;
+x-window {
+    display: block;
+    position: absolute;
     z-index: 1;
     width: 300px;
     height: 200px;
     box-shadow: 2px 2px 20px 0px rgba(0, 0, 0, 0.5);
     background: $background-primary;
+
+    &.animated {
+        transition: transform 1s, opacity 1s;
+        transform: translate(0, -200px);
+        opacity: 0;
+
+        &.active {
+            transform: translate(0, 0);
+            opacity: 1;
+        }
+    }
 
     &.anim-shadow-focus {
         animation: framesShadowFocus 0.5s linear 0s;
@@ -58,6 +52,7 @@
             height:100%;
         }
     }
+
     .window-control-box {
         height: 30px;
         cursor: pointer;

@@ -1,106 +1,129 @@
-import { Resizable } from '../resizable/resizable';
-
-export interface IReactWindowProps {
-    autoCenter?: boolean;
-    title?: string;
-    modal?: boolean;
-    popup?: boolean;
-    controlBox?: boolean;
-    showCloseButton?: boolean;
-    canResize?: boolean;
-    className?: string;
-    _id?: number;
-    _closing?: () => void;
-    x?: number;
-    y?: number;
-    animated?: boolean;
-}
-
-export interface IReactWindowState {
-    centered?: boolean;
-}
+import { JML } from '../../jml/jml';
+// TODO: Implement resizable?
+// import { Resizable } from '../resizable/resizable';
 
 /**
- * The base class for all windows in the application. Most windows will be derived from this class.
- * You can display/hide the window by using the static Window.show and Window.hide methods.
+ * A component that shows elements on top of other content in the DOM.
+ * The window's conent is accessed via its content property. It can optionally
+ * have a header, title and close button. As well as be manually shown and hidden.
+ * e.g.
+ *
+ * const win = new Window();
+ * win.title = 'My new window';
+ * win.controlBox = true;
+ * win.closeButton = true;
+ * const div = document.createElement('div');
+ * div.innerHTML = 'Window content!';
+ * win.containter.appendChild( div );
+ * win.show();
  */
-export class ReactWindow<T extends IReactWindowProps, S extends IReactWindowState> extends React.Component<T, S> {
-    private static _openWindows: number = 0;
-    private static _windows: {
-        [ id: number ]: {
-            window: HTMLElement,
-            jsx: JSX.Element
-        }
-    } = {};
+export class Window extends HTMLElement {
 
-    static defaultProps: IReactWindowProps = {
-        modal: true,
-        popup: false,
-        controlBox: true,
-        showCloseButton: true,
-        title: '',
-        autoCenter: true,
-        canResize: true,
-        animated: true
-    };
+    public modal: boolean;
+    public autoCenter: boolean;
+    // public canResize: true;
+    // public animated: true
+    public centerOnShow: boolean;
 
     private _resizeProxy: any;
     private _mouseMoveProxy: any;
     private _mouseUpProxy: any;
     private _mouseDeltaX: number;
     private _mouseDeltaY: number;
+    private _modal: HTMLDivElement;
 
     /**
-     * Creates an instance of the react window
+     * Creates an instance of the window
      */
-    constructor( props: T ) {
-        super( props );
+    constructor() {
+        super();
 
         this._resizeProxy = this.onResize.bind( this );
         this._mouseMoveProxy = this.onMouseMove.bind( this );
         this._mouseUpProxy = this.onMouseUp.bind( this );
         this._mouseDeltaX = 0;
         this._mouseDeltaY = 0;
-        this.state = ( {
-            centered: true
-        } as IReactWindowState ) as S;
+        this.centerOnShow = true;
+        this.autoCenter = true;
+        this.modal = true;
+
+
+        this._modal = JML.div( { className: 'modal-backdrop' });
+        this.classList.toggle( 'animated', true );
+        this.appendChild(
+            JML.div( {
+                className: 'window-control-box',
+                onmousedown: ( e ) => this.onHeaderDown( e )
+            }, [
+                    JML.div( {
+                        className: 'close-but',
+                        onclick: () => this.hide()
+                    }, 'X' ),
+                    JML.div( { className: 'window-header' }),
+                    JML.div( { className: 'fix' })
+                ] )
+        );
+        this.appendChild( JML.div( { className: 'window-content' }) );
     }
 
     /**
-     * Shows a React window component to the user
-     * @param windowType The Class of Window to render.
-     * @param props The properties to use for the window component
+     * When added to the dom
      */
-    static show( windowType: React.ComponentClass<IReactWindowProps>, props: IReactWindowProps = {}) {
-        let id = ReactWindow._openWindows + 1;
-        let windowView = document.createElement( 'div' );
-        windowView.className = 'window-view';
-        ReactWindow._openWindows = id;
+    connectedCallback() {
+        if ( this.modal )
+            this._modal.onclick = () => {
+                this.classList.toggle( 'anim-shadow-focus', false );
+                setTimeout(() => this.classList.toggle( 'anim-shadow-focus', true ), 30 );
+            };
 
-        props._closing = () => {
-            ReactWindow._windows[ id ].window.remove();
-            ReactDOM.unmountComponentAtNode( ReactWindow._windows[ id ].window );
-            delete ReactWindow._windows[ id ];
-        };
+        this.classList.toggle( 'closing', false );
+        setTimeout(() => this.classList.toggle( 'active', true ), 30 );
 
-        let component = React.createElement<IReactWindowProps>( windowType, props );
-        ReactWindow._windows[ id ] = {
-            jsx: component,
-            window: windowView
-        };
-
-        // Add the tooltip to the dom
-        document.body.appendChild( windowView );
-        ReactDOM.render( component, windowView );
-        return ReactWindow._openWindows;
+        // When the component is mounted, check if it needs to be centered
+        if ( this.autoCenter ) {
+            window.addEventListener( 'resize', this._resizeProxy );
+            this.style.left = ( ( this.parentElement!.offsetWidth * 0.5 ) - ( this.offsetWidth * 0.5 ) ) + 'px';
+            this.style.top = ( ( this.parentElement!.offsetHeight * 0.5 ) - ( this.offsetHeight * 0.5 ) ) + 'px';
+        }
     }
 
     /**
-     * Hides/Removes a window component by id
+     * Clean up any event listeners
      */
-    static hide( id: number ) {
-        ReactDOM.unmountComponentAtNode( ReactWindow._windows[ id ].window );
-        delete ReactWindow._windows[ id ];
+    disconnectedCallback() {
+        if ( this.autoCenter )
+            window.removeEventListener( 'resize', this._resizeProxy );
+
+        if ( this.modal )
+            this._modal.onclick = null!;
+
+        if ( this._modal.parentNode )
+            this._modal.parentNode.removeChild( this._modal );
+
+        window.removeEventListener( 'resize', this._resizeProxy );
+        window.removeEventListener( 'mouseup', this._mouseUpProxy );
+        if ( this.parentNode )
+            this.parentNode.removeEventListener( 'mousemove', this._mouseMoveProxy );
+    }
+
+    /**
+     * Shows the window by adding it to the top of the dom or provided parent
+     * @param parent [Optional] The optional parent to add the element to
+     */
+    show( parent?: Node ) {
+        let p = parent || document.body;
+        if ( this.modal )
+            p.appendChild( this._modal );
+        p.appendChild( this );
+    }
+
+    /**
+     * Hides/Removes the window
+     */
+    hide() {
+        this.classList.toggle( 'active', false );
+        if ( this.parentNode )
+            this.parentNode.removeChild( this );
     }
 
     /**
@@ -108,37 +131,18 @@ export class ReactWindow<T extends IReactWindowProps, S extends IReactWindowStat
      */
     onHeaderDown( e: React.MouseEvent ) {
         e.preventDefault();
-        let w = this.refs[ 'resizable' ] as ReactWindow<T, S>;
-        let elm = ReactDOM.findDOMNode( w ) as HTMLElement;
-        let bounds = elm.getBoundingClientRect();
-
+        let bounds = this.getBoundingClientRect();
         this._mouseDeltaX = e.pageX - bounds.left;
         this._mouseDeltaY = e.pageY - bounds.top;
-
         window.addEventListener( 'mouseup', this._mouseUpProxy );
         document.body.addEventListener( 'mousemove', this._mouseMoveProxy );
-    }
-
-    /**
-     * Called when the window is resized
-     */
-    onResize() {
-
-        // When the component is mounted, check if it needs to be centered
-        if ( this.props.autoCenter ) {
-            let w = this.refs[ 'resizable' ] as ReactWindow<T, S>;
-            let elm = ReactDOM.findDOMNode( w ) as HTMLElement;
-            elm.style.left = ( ( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 ) ) + 'px';
-            elm.style.top = ( ( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 ) ) + 'px';
-        }
     }
 
     /**
      * When the mouse moves and we are dragging the header bar we move the window
      */
     onMouseMove( e: MouseEvent ) {
-        let w = this.refs[ 'resizable' ] as ReactWindow<T, S>;
-        let elm = ReactDOM.findDOMNode( w ) as HTMLElement;
+        let elm = this;
         let x = e.pageX - this._mouseDeltaX;
         let y = e.pageY - this._mouseDeltaY;
         elm.style.left = x + 'px';
@@ -151,94 +155,77 @@ export class ReactWindow<T extends IReactWindowProps, S extends IReactWindowStat
     onMouseUp() {
         window.removeEventListener( 'mouseup', this._mouseUpProxy );
         document.body.removeEventListener( 'mousemove', this._mouseMoveProxy );
+        let bounds = this.getBoundingClientRect();
+        let pBounds = this.parentElement!.getBoundingClientRect();
+        const gracePadding = 40;
+
+        // Ensure its within the bound after dropping the window
+        if ( bounds.left + gracePadding > pBounds.left + pBounds.width )
+            this.style.left = ( pBounds.left + pBounds.width - gracePadding ) + 'px';
+        else if ( bounds.left + bounds.width + gracePadding < pBounds.left )
+            this.style.left = ( pBounds.left + bounds.width + gracePadding ) + 'px';
+
+        if ( bounds.top + bounds.height + gracePadding > pBounds.top + pBounds.height )
+            this.style.top = ( pBounds.top + pBounds.height - gracePadding ) + 'px';
     }
 
     /**
-     * When the component is mounted
+     * Called when the window is resized
      */
-    componentDidMount() {
-
-        window.addEventListener( 'resize', this._resizeProxy );
-
-        let w = this.refs[ 'resizable' ] as ReactWindow<T, S>;
-        let elm = ReactDOM.findDOMNode( w ) as HTMLElement;
-
-        // When the component is mounted, check if it needs to be centered
-        if ( this.props.autoCenter ) {
-            elm.style.left = ( ( document.body.offsetWidth * 0.5 ) - ( elm.offsetWidth * 0.5 ) ) + 'px';
-            elm.style.top = ( ( document.body.offsetHeight * 0.5 ) - ( elm.offsetHeight * 0.5 ) ) + 'px';
+    onResize() {
+        if ( this.autoCenter ) {
+            this.style.left = ( ( this.parentElement!.offsetWidth * 0.5 ) - ( this.offsetWidth * 0.5 ) ) + 'px';
+            this.style.top = ( ( this.parentElement!.offsetHeight * 0.5 ) - ( this.offsetHeight * 0.5 ) ) + 'px';
         }
-        else {
-            elm.style.left = ( this.props.x || 0 ) + 'px';
-            elm.style.top = ( this.props.y || 0 ) + 'px';
-        }
-
-        setTimeout( function() { elm.className = elm.className + ' shown'; }, 30 );
     }
 
     /**
-     * Called when the window is to be removed
+     * Gets the container div to which content can be added
      */
-    componentWillUnmount() {
-        window.removeEventListener( 'resize', this._resizeProxy );
-        window.removeEventListener( 'mouseup', this._mouseUpProxy );
-        document.body.removeEventListener( 'mousemove', this._mouseMoveProxy );
+    get containter(): Element {
+        return this.querySelector( '.content' ) !;
     }
 
     /**
-     * When we click the modal we highlight the window
+     * Gets the title of the window header
      */
-    onModalClick() {
-        let elm = ReactDOM.findDOMNode( this.refs[ 'window' ] ) as HTMLElement;
-        let className = 'window' + ( this.props.className ? ' ' + this.props.className : '' );
-
-        elm.className = className;
-        setTimeout( function() {
-            elm.className = className + ' anim-shadow-focus';
-        }, 30 );
+    get title(): string {
+        return this.querySelector( '.window-header' ) !.textContent!;
     }
 
     /**
-     * When we click the close button
+     * Sets the title of the window header
      */
-    onClose() {
-        if ( this.props._closing )
-            this.props._closing();
+    set title( val: string ) {
+        this.querySelector( '.window-header' ) !.textContent = val;
     }
 
     /**
-     * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
-     * in derived classes
+     * Gets if the window has a control box
      */
-    getContent() {
-        return this.props.children;
+    get controlBox(): boolean {
+        return ( ( this.querySelector( '.window-control-box' ) ! as HTMLDivElement ).style.display === 'none' ? false : true );
     }
 
     /**
-     * Creates the component elements
+     * Sets if the window has a control box
      */
-    render(): JSX.Element {
-        let controlBox: JSX.Element | undefined;
-        const animated = this.props.animated === undefined ? true : this.props.animated;
+    set controlBox( val: boolean ) {
+        ( this.querySelector( '.window-control-box' ) ! as HTMLDivElement ).style.display = ( val ? '' : 'none' );
+        ( this.querySelector( '.window-content' ) ! as HTMLElement ).classList.toggle( 'no-control', !val );
+    }
 
-        if ( this.props.controlBox ) {
-            controlBox = <div className="window-control-box" onMouseDown={( e ) => { this.onHeaderDown( e ) } }>
-                {this.props.showCloseButton ?
-                    <div onClick={() => { this.onClose(); } } className="close-but">X</div> : null}
-                <div className="window-header">{this.props.title}</div>
-                <div className="fix"></div>
-            </div>
-        }
-        return <div>
-            {( this.props.modal ? <div className="modal-backdrop" onClick={() => { this.onModalClick(); } }></div> : null )}
-            <Resizable ref="resizable" enabled={this.props.canResize} className={animated ? 'animated' : ''}>
-                <div className={'window' + ( this.props.className ? ' ' + this.props.className : '' )} ref="window">
-                    {controlBox}
-                    <div className={'window-content' + ( !this.props.controlBox ? ' no-control' : '' )}>
-                        {this.getContent()}
-                    </div>
-                </div>
-            </Resizable>
-        </div>;
+    /**
+     * Gets if the window has a close button
+     */
+    get closeButton(): boolean {
+        return ( ( this.querySelector( '.close-but' ) ! as HTMLDivElement ).style.display === 'none' ? false : true );
+    }
+
+    /**
+     * Sets if the window has a close button
+     */
+    set closeButton( val: boolean ) {
+        ( this.querySelector( '.close-but' ) ! as HTMLDivElement ).style.display = ( val ? '' : 'none' );
     }
 }

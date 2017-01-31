@@ -9,6 +9,7 @@ import { JsonForm } from './components/json-form/json-form';
 import { Group } from './components/group/group';
 import { Popup } from './components/popup/popup';
 import { PopupMenu } from './components/popup-menu/popup-menu';
+import { Window } from './components/window/window';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -126,6 +127,6 @@ customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
 customElements.define( 'x-group', Group );
-
+customElements.define( 'x-window', Window );
 
 document.body.appendChild( JML.elm( new Application() ) );
