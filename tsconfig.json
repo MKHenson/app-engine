@@ -49,6 +49,7 @@
         "lib/components/register-form/register-form.ts",
         "lib/components/buttons/buttons.ts",
         "lib/components/window/window.ts",
+        "lib/components/forms/message-box/message-box.ts",
         "lib/components/projects-overview/projects-overview.ts",
         "lib/containers/application/application.tsx",
         "lib/containers/login-widget/login-widget.ts",
