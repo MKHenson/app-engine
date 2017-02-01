@@ -38,6 +38,7 @@
         "lib/core/router.ts",
         "lib/components/popup/popup.ts",
         "lib/components/menu/menu.ts",
+        "lib/components/icon-menu/icon-menu.ts",
         "lib/components/group/group.ts",
         "lib/components/split-panel/split-panel.ts",
         "lib/components/attention/attention.ts",
