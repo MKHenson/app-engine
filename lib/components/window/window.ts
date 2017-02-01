@@ -14,7 +14,7 @@ import { JML } from '../../jml/jml';
  * win.closeButton = true;
  * const div = document.createElement('div');
  * div.innerHTML = 'Window content!';
- * win.containter.appendChild( div );
+ * win.content.appendChild( div );
  * win.show();
  */
 export class Window extends HTMLElement {
@@ -182,8 +182,8 @@ export class Window extends HTMLElement {
     /**
      * Gets the container div to which content can be added
      */
-    get containter(): Element {
-        return this.querySelector( '.content' ) !;
+    get content(): Element {
+        return this.querySelector( '.window-content' ) !;
     }
 
     /**

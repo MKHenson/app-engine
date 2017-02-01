@@ -1,68 +1,53 @@
-import { ReactWindow, IReactWindowProps, IReactWindowState } from '../../window/react-window';
-import { Attention } from '../../attention/attention';
-import { ButtonPrimary } from '../../buttons/buttons';
-import { AttentionType } from '../../../setup/enums';
+import { Window } from '../../window/window';
+import { ButtonPrimary, ButtonSuccess, ButtonError } from '../../buttons/buttons';
+import { JML } from '../../../jml/jml';
 
-export interface IMessageBoxProps extends IReactWindowProps {
-    message?: string;
-    onChange?: ( button: string ) => void;
-    buttons?: string[];
-    type?: AttentionType;
+enum MessageBoxType {
+    REGULAR,
+    SUCCESS,
+    ERROR
 }
 
 /**
  * A window to show a blocking window with a message to the user.
  */
-export class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState> {
-    static defaultProps: IMessageBoxProps = {
-        buttons: [ 'Ok' ],
-        className: 'message-box',
-        canResize: false,
-        autoCenter: true,
-        modal: true,
-        type: AttentionType.ERROR
-    }
+export class MessageBox extends Window {
+
+    public onChange: ( button: string ) => void;
 
     /**
      * Creates a new instance of the message box
      */
-    constructor( props: IMessageBoxProps ) {
-        super( props );
+    private constructor( message: string, buttons: string[], type: MessageBoxType ) {
+        super();
+
+        this.classList.toggle( 'message-box', true );
+        this.modal = true;
+        this.controlBox = false;
+        this.content.appendChild( JML.p( { className: 'message' }, message ) );
+        this.content.appendChild( JML.div( { className: 'buttons' }, buttons.map(( btnText ) => {
+            let button: HTMLButtonElement;
+            if ( type === MessageBoxType.SUCCESS )
+                button = new ButtonSuccess();
+            else if ( type === MessageBoxType.ERROR )
+                button = new ButtonError();
+            else
+                button = new ButtonPrimary();
+
+            button.innerHTML = btnText;
+            button.onclick = ( e ) => this.onButtonClick( e, btnText );
+            return button;
+        }) ) );
     }
 
     /**
-     * Gets the content JSX for the window. Typically this is the props.children, but can be overriden
-     * in derived classes
+     * Hide the window when a button is clicked.
      */
-    getContent(): React.ReactNode {
-        return <div id="en-message-box">
-            <Attention allowClose={false} mode={this.props.type}>
-                <p>{this.props.message}</p>
-                <div className="buttons">
-                    {
-                        this.props && this.props.buttons!.map(( button, index ) => {
-                            return <ButtonPrimary key={'button-' + index} onClick={( e ) => { this.onButtonClick( e, button ) } }>
-                                {button}
-                            </ButtonPrimary>
-                        })
-                    }
+    onButtonClick( e: MouseEvent, button: string ) {
+        if ( this.onChange )
+            this.onChange( button );
 
-                </div>
-            </Attention>
-        </div>
-    }
-
-    /**
-     * Hide the window when ok is clicked.
-     */
-    onButtonClick( e: React.MouseEvent, button: string ) {
-        e; // Supresses unused param error
-
-        if ( this.props.onChange )
-            this.props.onChange( button );
-
-        if ( this.props._closing )
-            this.props._closing();
+        this.hide();
     }
 
     /**
@@ -72,29 +57,35 @@ export class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState>
      * @param callback An optional callback function for when a button is clicked
      */
     static success( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
-        ReactWindow.show( MessageBox, {
-            message: message,
-            buttons: buttons,
-            onChange: callback,
-            type: AttentionType.SUCCESS,
-            autoCenter: true
-        } as IMessageBoxProps )
+        return new Promise<string>( function( resolve ) {
+            let mBox = new MessageBox( message, buttons, MessageBoxType.SUCCESS );
+            mBox.onChange = ( button ) => {
+                if ( callback )
+                    callback( button );
+                return resolve( button );
+            }
+
+            mBox.show();
+        });
     }
 
     /**
-     * A helper function for showing a warning modal box
+     * A helper function for showing a regular modal box
      * @param message The message to display
      * @param buttons An array of strings that represent the button choices for the modal
      * @param callback An optional callback function for when a button is clicked
      */
-    static warn( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
-        ReactWindow.show( MessageBox, {
-            message: message,
-            buttons: buttons,
-            onChange: callback,
-            type: AttentionType.WARNING,
-            autoCenter: true
-        } as IMessageBoxProps )
+    static show( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
+        return new Promise<string>( function( resolve ) {
+            let mBox = new MessageBox( message, buttons, MessageBoxType.REGULAR );
+            mBox.onChange = ( button ) => {
+                if ( callback )
+                    callback( button );
+                return resolve( button );
+            }
+
+            mBox.show();
+        });
     }
 
     /**
@@ -103,13 +94,16 @@ export class MessageBox extends ReactWindow<IMessageBoxProps, IReactWindowState>
      * @param buttons An array of strings that represent the button choices for the modal
      * @param callback An optional callback function for when a button is clicked
      */
-    static error( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ) {
-        ReactWindow.show( MessageBox, {
-            message: message,
-            buttons: buttons,
-            onChange: callback,
-            type: AttentionType.ERROR,
-            autoCenter: true
-        } as IMessageBoxProps )
+    static async error( message: string, buttons: string[] = [ 'Ok' ], callback?: ( button ) => void ): Promise<string> {
+        return new Promise<string>( function( resolve ) {
+            let mBox = new MessageBox( message, buttons, MessageBoxType.ERROR );
+            mBox.onChange = ( button ) => {
+                if ( callback )
+                    callback( button );
+                return resolve( button );
+            }
+
+            mBox.show();
+        });
     }
 }

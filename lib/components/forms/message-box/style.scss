@@ -1,4 +1,10 @@
-.message-box {
+x-message-box {
+    @extend x-window;
+
+    padding: 20px;
+    width:auto;
+    height:auto;
+
     .message {
         text-align:center;
         margin:10px;
@@ -8,6 +14,7 @@
     .buttons {
         text-align:center;
     }
+
     button {
         margin:5px;
         border-radius:5px;
@@ -17,9 +24,4 @@
         font-size: 30px;
         padding: 0 20px;
     }
-}
-.window.message-box {
-    padding: 0;
-    width:auto;
-    height:auto;
 }
