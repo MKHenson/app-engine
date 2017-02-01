@@ -8,7 +8,7 @@ import { Checkbox } from './components/checkbox/checkbox';
 import { JsonForm } from './components/json-form/json-form';
 import { Group } from './components/group/group';
 import { Popup } from './components/popup/popup';
-import { PopupMenu } from './components/popup-menu/popup-menu';
+import { Menu } from './components/popup-menu/popup-menu';
 import { Window } from './components/window/window';
 
 import { SplitPanel } from './components/split-panel/split-panel';
@@ -122,7 +122,7 @@ customElements.define( 'x-login-form', LoginForm );
 customElements.define( 'x-register-form', RegisterForm );
 customElements.define( 'x-split-panel', SplitPanel );
 customElements.define( 'x-popup', Popup );
-customElements.define( 'x-popup-menu', PopupMenu );
+customElements.define( 'x-menu', Menu );
 customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
