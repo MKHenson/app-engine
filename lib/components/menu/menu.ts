@@ -21,7 +21,7 @@ export class PopupMenuItem {
  *      pop.show( e.clientX, e.clientY );
  * });
  */
-export class PopupMenu extends Popup {
+export class Menu extends Popup {
 
     public onItemClick: ( e: MouseEvent, item: PopupMenuItem ) => void;
 
